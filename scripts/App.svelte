@@ -1,8 +1,16 @@
 <script>
-	export let name;
+	import AutoComplete from "simple-svelte-autocomplete"
+	export let espèces;
 </script>
 
-<h2>Hello {name}! 🧝🏿</h2>
+<h1>Recherche d'une espèce</h1>
+<AutoComplete items="{espèces}" labelFunction={e =>
+	`${e["NOM_VERN"]} - <i>${e["LB_NOM"]}</i>`
+	}>
+	<div slot="item" let:item let:label>
+		{@html label}
+	</div>
+</AutoComplete>
 
 <style lang="scss">
 	
