@@ -1,7 +1,7 @@
 import App from './App.svelte';
 import { dsv } from 'd3-fetch';
 
-const data = await dsv(";", "data/liste_especes_17.csv");
+const data = await dsv(";", "data/liste_especes.csv");
 console.log(data)
 
 const dataMap = new Map()

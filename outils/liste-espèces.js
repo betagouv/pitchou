@@ -6,11 +6,11 @@ import {csvParse, tsvParse, dsvFormat} from 'd3-dsv'
 
 // BDC_STATUTS
 
-let bdc_statuts_raw = csvParse(readFileSync('data/BDC_STATUTS_17.csv', 'utf-8'))
+let bdc_statuts_raw = csvParse(readFileSync('data/sources_especes/BDC_STATUTS_17.csv', 'utf-8'))
 
 console.log('bdc_statuts_raw.length', bdc_statuts_raw.length)
 
-const keptCdTypeStatus = new Set(['POM', 'PD', 'PM', 'PR'])
+const keptCdTypeStatus = new Set(['POM', 'PD', 'PN', 'PR'])
 
 const bdc_statuts = bdc_statuts_raw
 .filter(({CD_TYPE_STATUT}) => keptCdTypeStatus.has(CD_TYPE_STATUT))
@@ -28,7 +28,7 @@ console.log('bdc_statuts unique CD_NOM', new Set(bdc_statuts.map(({CD_NOM}) => C
 
 // TAXREF
 
-let taxref_raw = tsvParse(readFileSync('data/TAXREFv17.txt', 'utf-8'))
+let taxref_raw = tsvParse(readFileSync('data/sources_especes/TAXREFv17.txt', 'utf-8'))
 
 console.log('taxref_raw.length', taxref_raw.length)
 
@@ -59,4 +59,4 @@ const output = bdc_statuts.map(bdc_statut => {
     )
 })
 
-writeFileSync('liste_especes_17.csv', dsvFormat(';').format(output))
+writeFileSync('data/liste_especes.csv', dsvFormat(';').format(output))
