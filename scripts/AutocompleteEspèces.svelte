@@ -1,6 +1,7 @@
 <script>
 	import AutoComplete from "simple-svelte-autocomplete"
 	export let espèces;
+	export let selectedItem;
 
 	$: espèceToLabel = makeEspèceToLabel(espèces)
 
@@ -14,7 +15,8 @@
 </script>
 
 <AutoComplete 
-	items="{espèces}" 
+	selectedItem={selectedItem}
+	items={espèces}
 	labelFunction={e => espèceToLabel.get(e)}
 	maxItemsToShowInList=20
 	cleanUserText=false

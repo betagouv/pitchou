@@ -22,6 +22,8 @@
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
 
+    console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
+
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
@@ -55,6 +57,7 @@
                     <tr>
                         <th>Espèce</th>
                         <th>Nombre d'individus</th>
+                        <th>Surface habitat détruit (m²)</th>
                         {#if classification === "oiseau"}
                         <th>Nids</th>
                         <th>Œufs</th>
@@ -62,10 +65,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {#each etresVivantsAtteints as {espece, nombreIndividus}}
+                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit}}
                         <tr>
-                            <td>{espece}</td>
+                            <td>
+                                <AutocompleteEspeces selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
+                            </td>
                             <td><input type="number" value={nombreIndividus} min="0" step="1"></td>
+                            <td><input type="number" value={surfaceHabitatDétruit} min="0" step="1"></td>
                             {#if classification === "oiseau"}
                             <td><input type="number" min="0" step="1"></td>
                             <td><input type="number" min="0" step="1"></td>
@@ -77,6 +83,7 @@
                             <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
+                        <td><input disabled type="number" min="0" step="1"></td>
                         {#if classification === "oiseau"}
                         <td><input disabled type="number" min="0" step="1"></td>
                         <td><input disabled type="number" min="0" step="1"></td>
@@ -84,11 +91,6 @@
                     </tr>
                 </tbody>
             </table>
-
-            <label>
-                Surface habitat détruit (m²)
-                <input value={surfaceHabitatDétruit} type="number" min="0" step="1">
-            </label>
 
             <label>
                 Méthode

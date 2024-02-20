@@ -58,17 +58,18 @@ const app = new App({
 	target: document.querySelector('.svelte-main'),
 	props: {
 		espècesProtégéesParClassification,
+		/** @type {DescriptionMenaceEspèce[]} */
 		descriptionMenacesEspèces: [
 			{
 				classification: "oiseau", // Type d'espèce menacée
 				etresVivantsAtteints: [
 					{
-						espece: "Moineau domestique",
+						espece: espècesProtégéesParClassification.get('oiseau')[0],
 						nombreIndividus: 1000,
 						surfaceHabitatDétruit: 1000 // Surface de l'habitat détruit
 					},
 					{
-						espece: "Hirondelle rustique",
+						espece: espècesProtégéesParClassification.get('oiseau')[5],
 						nombreIndividus: 500,
 						surfaceHabitatDétruit: 1000 // Surface de l'habitat détruit
 					}
@@ -80,7 +81,7 @@ const app = new App({
 			{
 				classification: "faune non-oiseau",
 				etresVivantsAtteints: [{
-					espece: "Lynx",
+					espece: espècesProtégéesParClassification.get('faune non-oiseau')[15],
 					nombreIndividus: 15,
 					surfaceHabitatDétruit: 20
 				}],
@@ -91,7 +92,7 @@ const app = new App({
 			{
 				classification: "flore",
 				etresVivantsAtteints: [{
-					espece: "Chêne",
+					espece: espècesProtégéesParClassification.get('flore')[150],
 					nombreIndividus: 1000,
 					surfaceHabitatDétruit: 50
 				}],
