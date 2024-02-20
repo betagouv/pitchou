@@ -34,7 +34,8 @@ console.log('taxref_raw.length', taxref_raw.length)
 
 const taxref = taxref_raw
 .filter(({CD_NOM, CD_REF}) => CD_NOM === CD_REF)
-.map(({LB_NOM, NOM_COMPLET_HTML, CD_NOM, NOM_VERN}) => ({LB_NOM, NOM_COMPLET_HTML, CD_NOM, NOM_VERN}))
+.map(({LB_NOM, NOM_COMPLET_HTML, CD_NOM, NOM_VERN, REGNE, CLASSE}) => 
+    ({LB_NOM, NOM_COMPLET_HTML, CD_NOM, NOM_VERN, REGNE, CLASSE}))
 
 // @ts-ignore
 taxref_raw = undefined // for GC
@@ -58,5 +59,12 @@ const output = bdc_statuts.map(bdc_statut => {
         taxon
     )
 })
+
+const règnes = new Set(output.map(({REGNE}) => REGNE))
+console.log('Liste des règnes parmi les espèces protégées :', [...règnes].join(', '))
+
+const classes = new Set(output.map(({CLASSE}) => CLASSE))
+console.log('Liste des classes (tout règne confondu) parmi les espèces protégées :', [...classes].join(', '))
+
 
 writeFileSync('data/liste_especes.csv', dsvFormat(';').format(output))
