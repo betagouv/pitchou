@@ -1,6 +1,6 @@
 import App from './App.svelte';
 import { dsv } from 'd3-fetch';
-
+/*
 function getURL(selector){
 	const element = document.head.querySelector(selector)
   
@@ -15,7 +15,7 @@ function getURL(selector){
 	}
   
 	return hrefAttribute
-  }
+}
   
 
 const data = await dsv(";", getURL('link#especes-data'));
@@ -26,11 +26,11 @@ const dataMap = new Map()
 data.forEach(d => {
 	dataMap.set(d["CD_NOM"], d)
 })
-console.log(dataMap)
+console.log(dataMap)*/
 
 const app = new App({
 	target: document.querySelector('.svelte-main'),
 	props: {
-		espèces: [...dataMap.values()]
+		espèces: []//[...dataMap.values()]
 	}
 });
