@@ -18,7 +18,7 @@
         {id: '70'},
     ]
 
-    export let espèces;
+    export let espècesProtégéesParClassification;
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
 
@@ -74,7 +74,7 @@
                     {/each}
                     <tr>
                         <td>
-                            <AutocompleteEspeces {espèces}></AutocompleteEspeces>
+                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
                         {#if classification === "oiseau"}

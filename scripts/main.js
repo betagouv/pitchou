@@ -1,5 +1,10 @@
-import App from './App.svelte';
+//@ts-check
+
 import { dsv } from 'd3-fetch';
+
+import App from './App.svelte';
+
+import './types.js'
 
 function getURL(selector){
 	const element = document.head.querySelector(selector)
@@ -28,10 +33,31 @@ data.forEach(d => {
 })
 console.log(dataMap)
 
+/** @type { {REGNE: Règne, CLASSE: Classe, CD_NOM: string }[]  } */
+const listeEspècesProtégées = [...dataMap.values()]
+
+const filtreParClassification = new Map([
+	["oiseau", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE, CLASSE}) => {
+		return REGNE === 'Animalia' && CLASSE === 'Aves'
+	})],
+	["faune non-oiseau", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE, CLASSE}) => {
+		return REGNE === 'Animalia' && CLASSE !== 'Aves'
+	})],
+	["flore", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE}) => {
+		return REGNE === 'Plantae'
+	})]
+])
+
+const espècesProtégéesParClassification = new Map(
+	[...filtreParClassification].map(([classif, filtre]) => ([classif, listeEspècesProtégées.filter(filtre)]))
+)
+
+console.log('espècesProtégéesParClassification', espècesProtégéesParClassification)
+
 const app = new App({
 	target: document.querySelector('.svelte-main'),
 	props: {
-		espèces: [...dataMap.values()],
+		espècesProtégéesParClassification,
 		descriptionMenacesEspèces: [
 			{
 				classification: "oiseau", // Type d'espèce menacée
