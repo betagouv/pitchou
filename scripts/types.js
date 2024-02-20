@@ -2,9 +2,14 @@
 /** @typedef { 0 | 1 | 2 | 10 | 11 | 12 | 13 | 14 } MéthodeMenançante // tous */
 
 /**
+ * @typedef {"oiseau" | "faune non-oiseau" | "flore"} ClassificationEtreVivant
+ */
+
+/**
  * @typedef {Object} EtreVivantAtteint
  * @prop { string } espece // identifiant type CD_NOM ? pérénité ?
  * @prop { number } nombreIndividus
+ * @prop { number } surfaceHabitatDétruit
  */
 
 /**
@@ -17,9 +22,8 @@
 
 /**
  * @typedef {Object} DescriptionMenaceEspèce
- * @prop { "oiseau" | "faune non-oiseau" | "flore" } type
+ * @prop { ClassificationEtreVivant } classification
  * @prop { (OiseauAtteint | EtreVivantAtteint)[] } etresVivantsAtteints
- * @prop { number } surfaceHabitatDétruit
  * @prop { ActivitéMenançante } activité
  * @prop { MéthodeMenançante } méthode
  * @prop { boolean } transport

@@ -2,7 +2,7 @@
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import './types.js'
     
-    export let méthodes = [
+    let méthodes = [
         {id: '0'},
         {id: '1'},
         {id: '2'},
@@ -10,7 +10,7 @@
         {id: '11'},
     ]
     
-    export let activités = [
+    let activités = [
         {id: '1'},
         {id: '2'},
         {id: '3'},
@@ -20,27 +20,9 @@
 
     export let espèces;
     /** @type { DescriptionMenaceEspèce[] } */
-    export let descriptionMenacesEspèces = [
-        {
-            type: "oiseau", // Type d'espèce menacée
-            etresVivantsAtteints: [
-                {
-                    espece: "Moineau domestique",
-                    nombreIndividus: 1000
-                },
-                {
-                    espece: "Hirondelle rustique",
-                    nombreIndividus: 500
-                }
-            ],
-            surfaceHabitatDétruit: 1000, // Surface de l'habitat détruit
-            activité: 3, // Activité menaçante
-            méthode: 11, // Méthode menaçante
-            transport: true // Transport impliqué dans la menace
-        }
-    ]
+    export let descriptionMenacesEspèces;
 
-    const etreVivantTypeToBloc = new Map([
+    const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
             sectionTitre: `Ensemble d'oiseaux protégés 🐦`
@@ -63,17 +45,17 @@
     <h2>et des activités et méthodes, etc.</h2>
 
     <form>
-        {#each descriptionMenacesEspèces as {type, etresVivantsAtteints, surfaceHabitatDétruit, activité, méthode, transport}}
+        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, surfaceHabitatDétruit, activité, méthode, transport}}
         
-        <section class={etreVivantTypeToBloc.get(type).sectionClass}>
-            <h1>{etreVivantTypeToBloc.get(type).sectionTitre}</h1>
+        <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
+            <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
         
             <table>
                 <thead>
                     <tr>
                         <th>Espèce</th>
                         <th>Nombre d'individus</th>
-                        {#if type === "oiseau"}
+                        {#if classification === "oiseau"}
                         <th>Nids</th>
                         <th>Œufs</th>
                         {/if}
@@ -84,7 +66,7 @@
                         <tr>
                             <td>{espece}</td>
                             <td><input type="number" value={nombreIndividus} min="0" step="1"></td>
-                            {#if type === "oiseau"}
+                            {#if classification === "oiseau"}
                             <td><input type="number" min="0" step="1"></td>
                             <td><input type="number" min="0" step="1"></td>
                             {/if}
@@ -95,7 +77,7 @@
                             <AutocompleteEspeces {espèces}></AutocompleteEspeces>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
-                        {#if type === "oiseau"}
+                        {#if classification === "oiseau"}
                         <td><input disabled type="number" min="0" step="1"></td>
                         <td><input disabled type="number" min="0" step="1"></td>
                         {/if}
@@ -151,7 +133,7 @@
         border-radius: 2em;
         padding: 1em 2em;
 
-        .saisie-oiseau {
+        .saisie-oiseau, .saisie-flore, .saisie-faune {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -159,8 +141,7 @@
             border: 1px solid grey;
             border-radius: 1em;
             padding: 1em;
-
-            background-color: lightblue;
+            margin-bottom: 2em;
 
             &> h1{
                 font-size: 1.3rem;
@@ -173,11 +154,26 @@
 
             table{
                 tr {
+                    td:nth-of-type(1){
+                        width : 30rem;
+                    }
                     td:nth-of-type(2), td:nth-of-type(3), td:nth-of-type(4){
                         width : 6rem;
                     }
                 }
             }
+        }
+
+        .saisie-oiseau{
+            background-color: lightblue;
+        }
+
+        .saisie-flore{
+            background-color: lightgreen;
+        }
+
+        .saisie-faune{
+            background-color: lightsalmon;
         }
 
     }
