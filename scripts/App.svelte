@@ -39,6 +39,27 @@
         }]
     ])
 
+    function ajouterEspèce(espèce, classification, etresVivantsAtteints){
+        console.log('ajouterEspèce', ...arguments)
+        if(classification === 'oiseau'){
+            etresVivantsAtteints.push({
+                espece: espèce,
+                nombreIndividus: 0,
+                nombreNids: 0,
+                nombreOeufs: 0,
+                surfaceHabitatDétruit: 0
+            })
+        }
+        else{
+            etresVivantsAtteints.push({
+                espece: espèce,
+                nombreIndividus: 0,
+                surfaceHabitatDétruit: 0
+            })
+        }
+        
+        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+    }
 
 </script>
 
@@ -47,7 +68,7 @@
     <h2>et des activités et méthodes, etc.</h2>
 
     <form>
-        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, surfaceHabitatDétruit, activité, méthode, transport}}
+        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, activité, méthode, transport}}
         
         <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
             <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
@@ -57,30 +78,31 @@
                     <tr>
                         <th>Espèce</th>
                         <th>Nombre d'individus</th>
-                        <th>Surface habitat détruit (m²)</th>
                         {#if classification === "oiseau"}
                         <th>Nids</th>
                         <th>Œufs</th>
                         {/if}
+                        <th>Surface habitat détruit (m²)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit}}
+                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                         <tr>
                             <td>
-                                <AutocompleteEspeces selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
+                                <AutocompleteEspeces selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
                             </td>
                             <td><input type="number" value={nombreIndividus} min="0" step="1"></td>
-                            <td><input type="number" value={surfaceHabitatDétruit} min="0" step="1"></td>
                             {#if classification === "oiseau"}
-                            <td><input type="number" min="0" step="1"></td>
-                            <td><input type="number" min="0" step="1"></td>
+                            <td><input type="number" value={nombreNids} min="0" step="1"></td>
+                            <td><input type="number" value={nombreOeufs} min="0" step="1"></td>
                             {/if}
+                            <td><input type="number" value={surfaceHabitatDétruit} min="0" step="1"></td>
                         </tr>
                     {/each}
                     <tr>
                         <td>
-                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
+                            <!-- Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36 -->
+                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
                         <td><input disabled type="number" min="0" step="1"></td>

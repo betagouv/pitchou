@@ -1,7 +1,8 @@
 <script>
 	import AutoComplete from "simple-svelte-autocomplete"
 	export let espèces;
-	export let selectedItem;
+	export let selectedItem = undefined;
+	export let onChange = undefined
 
 	$: espèceToLabel = makeEspèceToLabel(espèces)
 
@@ -21,6 +22,7 @@
 	maxItemsToShowInList=20
 	cleanUserText=false
 	placeholder="Ex: Fauvette pitchou"
+	{onChange}
 >
 	<div slot="item" let:item>
 		{item["NOM_VERN"]} (<i>{item["LB_NOM"]}</i>)

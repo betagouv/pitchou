@@ -66,11 +66,15 @@ const app = new App({
 					{
 						espece: espècesProtégéesParClassification.get('oiseau')[0],
 						nombreIndividus: 1000,
+						nombreNids: 5,
+						nombreOeufs: 10,
 						surfaceHabitatDétruit: 1000 // Surface de l'habitat détruit
 					},
 					{
 						espece: espècesProtégéesParClassification.get('oiseau')[5],
 						nombreIndividus: 500,
+						nombreNids: 7,
+						nombreOeufs: 61,
 						surfaceHabitatDétruit: 1000 // Surface de l'habitat détruit
 					}
 				],
