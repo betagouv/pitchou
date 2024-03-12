@@ -6,7 +6,7 @@
 	$: espèceToLabel = makeEspèceToLabel(espèces)
 
 	function espèceLabel(esp){
-		return `${esp["NOM_VERN"]} - <i>${esp["LB_NOM"]}</i>`
+		return `${esp["NOM_VERN"]} (${esp["LB_NOM"]})`
 	}
 
 	function makeEspèceToLabel(espèces){
@@ -22,8 +22,8 @@
 	cleanUserText=false
 	placeholder="Ex: Fauvette pitchou"
 >
-	<div slot="item" let:item let:label>
-		{@html label}
+	<div slot="item" let:item>
+		{item["NOM_VERN"]} (<i>{item["LB_NOM"]}</i>)
 	</div>
 </AutoComplete>
 
