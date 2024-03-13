@@ -130,7 +130,7 @@
                 <select>
                     <option>-</option>
                     {#each activités as {id}}
-                        <option selected={activité.toString() === id}>{id}</option>
+                    <option selected={activité.toString() === id}>{id}</option>
                     {/each}
                 </select>
             </label>
@@ -142,8 +142,22 @@
                     <option selected={!transport}>Non</option>
                 </select>
             </label>
+            <section class="arrete-prefectoral">
+                <h2>Liste des espèces à copier pour l'arrêté préfectoral :</h2>
+                {#each etresVivantsAtteints.sort(({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) => {
+                    if (nom1 < nom2) {
+                        return -1;
+                    }
+                    if (nom1 > nom2) {
+                        return 1;
+                    }
+                    return 0;}
+                ) as  {espece} }
+                    {espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>),&nbsp;
+                {/each} 
+            </section>
         </section>
-
+        
         {/each}
     </form>
 </article>
