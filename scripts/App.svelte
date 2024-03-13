@@ -39,6 +39,9 @@
         }]
     ])
 
+    let defaultSelectedItem = undefined
+    $: defaultSelectedItem, defaultSelectedItem = undefined
+
     function ajouterEspèce(espèce, classification, etresVivantsAtteints){
         console.log('ajouterEspèce', ...arguments)
         if(classification === 'oiseau'){
@@ -57,7 +60,6 @@
                 surfaceHabitatDétruit: 0
             })
         }
-        
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
@@ -101,7 +103,7 @@
                     {/each}
                     <tr>
                         <td>
-                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
+                            <AutocompleteEspeces bind:selectedItem={defaultSelectedItem} espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
                         <td><input disabled type="number" min="0" step="1"></td>

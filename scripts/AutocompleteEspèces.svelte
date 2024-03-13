@@ -17,14 +17,15 @@
 	function beforeChange (oldSelectedItem, newSelectedItem) {
 		// Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36
 		// Donc on utilise beforeChange
-		console.log('beforeChange')
-		onChange(newSelectedItem)
+		if (onChange) {
+			onChange(newSelectedItem)
+		}
 		return true
 	}
 </script>
 
 <AutoComplete 
-	selectedItem={selectedItem}
+	bind:selectedItem={selectedItem}
 	items={espèces}
 	labelFunction={e => espèceToLabel.get(e)}
 	maxItemsToShowInList=20
