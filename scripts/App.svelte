@@ -27,15 +27,15 @@
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
-            sectionTitre: `Ensemble d'oiseaux protégés 🐦`
+            sectionTitre: `Espèces d’oiseaux concernées 🐦`
         }],
         ["faune non-oiseau", {
             sectionClass: "saisie-faune",
-            sectionTitre: `Ensemble d'animaux (non-oiseaux) protégés 🐸`
+            sectionTitre: `Espèces animales (hors oiseaux) concernées 🐸`
         }],
         ["flore", {
             sectionClass: "saisie-flore",
-            sectionTitre: `Ensemble de végétaux protégés 🍀`
+            sectionTitre: `Espèces végétales concernées 🍀`
         }]
     ])
 
@@ -62,6 +62,17 @@
         }
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
+
+    function etresVivantsAtteintsCompareEspèce({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) {
+        if (nom1 < nom2) {
+            return -1;
+        }
+        if (nom1 > nom2) {
+            return 1;
+        }
+        return 0;
+    }
+                
 
 </script>
 
@@ -143,17 +154,9 @@
                 </select>
             </label>
             <section class="arrete-prefectoral">
-                <h2>Liste des espèces à copier pour l'arrêté préfectoral :</h2>
-                {#each etresVivantsAtteints.sort(({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) => {
-                    if (nom1 < nom2) {
-                        return -1;
-                    }
-                    if (nom1 > nom2) {
-                        return 1;
-                    }
-                    return 0;}
-                ) as  {espece} }
-                    {espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>),&nbsp;
+                <h1>Liste des espèces à copier pour l'arrêté préfectoral</h1>
+                {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
+                    {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
                 {/each} 
             </section>
         </section>
@@ -200,6 +203,23 @@
                         width : 6rem;
                     }
                 }
+            }
+
+            .arrete-prefectoral{
+                padding: 1rem;
+                margin: 1rem 0;
+                border-radius: 1em;
+                width: 100%;
+
+                text-align: left;
+
+                background-color: hsla(255, 255, 255, 0.9);
+                
+                h1{
+                    font-size: 1.2em
+                }
+
+
             }
         }
 
