@@ -1,24 +1,15 @@
 <script>
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import './types.js'
-    
-    let méthodes = [
-        {id: '0'},
-        {id: '1'},
-        {id: '2'},
-        {id: '3'},
-        {id: '11'},
-    ]
-    
-    let activités = [
-        {id: '1'},
-        {id: '2'},
-        {id: '3'},
-        {id: '60'},
-        {id: '70'},
-    ]
 
     export let espècesProtégéesParClassification;
+
+    export let activitesParClassificationEtreVivant
+    export let méthodesParClassificationEtreVivant
+    export let transportsParClassificationEtreVivant
+
+
+
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
 
@@ -82,10 +73,40 @@
 
     <form>
         {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, activité, méthode, transport}}
-        
+
         <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
             <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
         
+            <label>
+                Activité
+                <select>
+                    <option>-</option>
+                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
+                    <option selected={activité === act}>{act['étiquette affichée']}</option>
+                    {/each}
+                </select>
+            </label>
+    
+            <label>
+                Méthode
+                <select disabled={activité && activité['Méthode'] === 'n'}>
+                    <option>-</option>
+                    {#each méthodesParClassificationEtreVivant.get(classification) || [] as met}
+                        <option selected={méthode === met}>{met['étiquette affichée']}</option>
+                    {/each}
+                </select>
+            </label>
+    
+            <label>
+                Transport
+                <select disabled={activité && activité['transport'] === 'n'}>
+                    <option>-</option>
+                    {#each transportsParClassificationEtreVivant.get(classification) || [] as trans}
+                        <option selected={transport === trans}>{trans['étiquette affichée']}</option>
+                    {/each}
+                </select>
+            </label>
+
             <table>
                 <thead>
                     <tr>
@@ -126,33 +147,6 @@
                 </tbody>
             </table>
 
-            <label>
-                Méthode
-                <select>
-                    <option>-</option>
-                    {#each méthodes as {id}}
-                        <option selected={méthode.toString() === id}>{id}</option>
-                    {/each}
-                </select>
-            </label>
-
-            <label>
-                Activité
-                <select>
-                    <option>-</option>
-                    {#each activités as {id}}
-                    <option selected={activité.toString() === id}>{id}</option>
-                    {/each}
-                </select>
-            </label>
-
-            <label>
-                Transport ?
-                <select>
-                    <option selected={transport}>Oui</option>
-                    <option selected={!transport}>Non</option>
-                </select>
-            </label>
             <section class="arrete-prefectoral">
                 <h1>Liste des espèces à copier pour l'arrêté préfectoral</h1>
                 {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
@@ -192,6 +186,10 @@
                 border-radius: 0.5em;
                 padding: 0.4em;
                 width: 5em;
+            }
+
+            label select{
+                max-width: 40em;
             }
 
             table{
