@@ -13,6 +13,14 @@
 	function makeEspèceToLabel(espèces){
 		return new Map(espèces.map(e => [e, espèceLabel(e)]))
 	}
+
+	function beforeChange (oldSelectedItem, newSelectedItem) {
+		// Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36
+		// Donc on utilise beforeChange
+		console.log('beforeChange')
+		onChange(newSelectedItem)
+		return true
+	}
 </script>
 
 <AutoComplete 
@@ -22,7 +30,7 @@
 	maxItemsToShowInList=20
 	cleanUserText=false
 	placeholder="Ex: Fauvette pitchou"
-	{onChange}
+	{beforeChange}
 >
 	<div slot="item" let:item>
 		{item["NOM_VERN"]} (<i>{item["LB_NOM"]}</i>)

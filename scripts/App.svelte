@@ -101,7 +101,6 @@
                     {/each}
                     <tr>
                         <td>
-                            <!-- Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36 -->
                             <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
