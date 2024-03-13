@@ -1,4 +1,5 @@
 <script>
+    //@ts-check
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import './types.js'
 
@@ -78,7 +79,7 @@
             <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
         
             <label>
-                Activité
+                <strong>Activité</strong>
                 <select>
                     <option>-</option>
                     {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
@@ -87,25 +88,29 @@
                 </select>
             </label>
     
+            {#if Array.isArray(méthodesParClassificationEtreVivant.get(classification))}
             <label>
-                Méthode
+                <strong>Méthode</strong>
                 <select disabled={activité && activité['Méthode'] === 'n'}>
                     <option>-</option>
-                    {#each méthodesParClassificationEtreVivant.get(classification) || [] as met}
+                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
                         <option selected={méthode === met}>{met['étiquette affichée']}</option>
                     {/each}
                 </select>
             </label>
+            {/if}
     
+            {#if Array.isArray(transportsParClassificationEtreVivant.get(classification))}
             <label>
-                Transport
+                <strong>Transport</strong>
                 <select disabled={activité && activité['transport'] === 'n'}>
                     <option>-</option>
-                    {#each transportsParClassificationEtreVivant.get(classification) || [] as trans}
+                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
                         <option selected={transport === trans}>{trans['étiquette affichée']}</option>
                     {/each}
                 </select>
             </label>
+            {/if}
 
             <table>
                 <thead>
@@ -188,8 +193,17 @@
                 width: 5em;
             }
 
-            label select{
-                max-width: 40em;
+            label{
+                & > strong{
+                    display: inline-block;
+                    min-width: 7em;
+
+                    text-align: left;
+                }
+
+                select{
+                    max-width: 30em;
+                }
             }
 
             table{
