@@ -1,24 +1,16 @@
 <script>
+    //@ts-check
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import './types.js'
-    
-    let méthodes = [
-        {id: '0'},
-        {id: '1'},
-        {id: '2'},
-        {id: '3'},
-        {id: '11'},
-    ]
-    
-    let activités = [
-        {id: '1'},
-        {id: '2'},
-        {id: '3'},
-        {id: '60'},
-        {id: '70'},
-    ]
 
     export let espècesProtégéesParClassification;
+
+    export let activitesParClassificationEtreVivant
+    export let méthodesParClassificationEtreVivant
+    export let transportsParClassificationEtreVivant
+
+
+
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
 
@@ -27,18 +19,52 @@
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
-            sectionTitre: `Ensemble d'oiseaux protégés 🐦`
+            sectionTitre: `Espèces d’oiseaux concernées 🐦`
         }],
         ["faune non-oiseau", {
             sectionClass: "saisie-faune",
-            sectionTitre: `Ensemble d'animaux (non-oiseaux) protégés 🐸`
+            sectionTitre: `Espèces animales (hors oiseaux) concernées 🐸`
         }],
         ["flore", {
             sectionClass: "saisie-flore",
-            sectionTitre: `Ensemble de végétaux protégés 🍀`
+            sectionTitre: `Espèces végétales concernées 🍀`
         }]
     ])
 
+    let defaultSelectedItem = undefined
+    $: defaultSelectedItem, defaultSelectedItem = undefined
+
+    function ajouterEspèce(espèce, classification, etresVivantsAtteints){
+        console.log('ajouterEspèce', ...arguments)
+        if(classification === 'oiseau'){
+            etresVivantsAtteints.push({
+                espece: espèce,
+                nombreIndividus: 0,
+                nombreNids: 0,
+                nombreOeufs: 0,
+                surfaceHabitatDétruit: 0
+            })
+        }
+        else{
+            etresVivantsAtteints.push({
+                espece: espèce,
+                nombreIndividus: 0,
+                surfaceHabitatDétruit: 0
+            })
+        }
+        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+    }
+
+    function etresVivantsAtteintsCompareEspèce({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) {
+        if (nom1 < nom2) {
+            return -1;
+        }
+        if (nom1 > nom2) {
+            return 1;
+        }
+        return 0;
+    }
+                
 
 </script>
 
@@ -47,40 +73,74 @@
     <h2>et des activités et méthodes, etc.</h2>
 
     <form>
-        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, surfaceHabitatDétruit, activité, méthode, transport}}
-        
+        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, activité, méthode, transport}}
+
         <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
             <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
         
+            <label>
+                <strong>Activité</strong>
+                <select bind:value={activité}>
+                    <option>-</option>
+                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
+                    <option value={act}>{act['étiquette affichée']}</option>
+                    {/each}
+                </select>
+            </label>
+    
+            {#if Array.isArray(méthodesParClassificationEtreVivant.get(classification))}
+            <label>
+                <strong>Méthode</strong>
+                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'}>
+                    <option>-</option>
+                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
+                        <option value={met}>{met['étiquette affichée']}</option>
+                    {/each}
+                </select>
+            </label>
+            {/if}
+    
+            {#if Array.isArray(transportsParClassificationEtreVivant.get(classification))}
+            <label>
+                <strong>Transport</strong>
+                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'}>
+                    <option>-</option>
+                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
+                        <option value={trans}>{trans['étiquette affichée']}</option>
+                    {/each}
+                </select>
+            </label>
+            {/if}
+
             <table>
                 <thead>
                     <tr>
                         <th>Espèce</th>
                         <th>Nombre d'individus</th>
-                        <th>Surface habitat détruit (m²)</th>
                         {#if classification === "oiseau"}
                         <th>Nids</th>
                         <th>Œufs</th>
                         {/if}
+                        <th>Surface habitat détruit (m²)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit}}
+                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                         <tr>
                             <td>
-                                <AutocompleteEspeces selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
+                                <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
                             </td>
-                            <td><input type="number" value={nombreIndividus} min="0" step="1"></td>
-                            <td><input type="number" value={surfaceHabitatDétruit} min="0" step="1"></td>
+                            <td><input type="number" bind:value={nombreIndividus} min="0" step="1"></td>
                             {#if classification === "oiseau"}
-                            <td><input type="number" min="0" step="1"></td>
-                            <td><input type="number" min="0" step="1"></td>
+                            <td><input type="number" bind:value={nombreNids} min="0" step="1"></td>
+                            <td><input type="number" bind:value={nombreOeufs} min="0" step="1"></td>
                             {/if}
+                            <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1"></td>
                         </tr>
                     {/each}
                     <tr>
                         <td>
-                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)}></AutocompleteEspeces>
+                            <AutocompleteEspeces bind:selectedItem={defaultSelectedItem} espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
                         </td>
                         <td><input disabled type="number" min="0" step="1"></td>
                         <td><input disabled type="number" min="0" step="1"></td>
@@ -92,35 +152,14 @@
                 </tbody>
             </table>
 
-            <label>
-                Méthode
-                <select>
-                    <option>-</option>
-                    {#each méthodes as {id}}
-                        <option selected={méthode.toString() === id}>{id}</option>
-                    {/each}
-                </select>
-            </label>
-
-            <label>
-                Activité
-                <select>
-                    <option>-</option>
-                    {#each activités as {id}}
-                        <option selected={activité.toString() === id}>{id}</option>
-                    {/each}
-                </select>
-            </label>
-
-            <label>
-                Transport ?
-                <select>
-                    <option selected={transport}>Oui</option>
-                    <option selected={!transport}>Non</option>
-                </select>
-            </label>
+            <section class="arrete-prefectoral">
+                <h1>Liste des espèces à copier pour l'arrêté préfectoral</h1>
+                {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
+                    {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
+                {/each} 
+            </section>
         </section>
-
+        
         {/each}
     </form>
 </article>
@@ -154,6 +193,19 @@
                 width: 5em;
             }
 
+            label{
+                & > strong{
+                    display: inline-block;
+                    min-width: 7em;
+
+                    text-align: left;
+                }
+
+                select{
+                    max-width: 30em;
+                }
+            }
+
             table{
                 tr {
                     td:nth-of-type(1){
@@ -163,6 +215,23 @@
                         width : 6rem;
                     }
                 }
+            }
+
+            .arrete-prefectoral{
+                padding: 1rem;
+                margin: 1rem 0;
+                border-radius: 1em;
+                width: 100%;
+
+                text-align: left;
+
+                background-color: rgba(255, 255, 255, 0.4);
+                
+                h1{
+                    font-size: 1.2em
+                }
+
+
             }
         }
 
