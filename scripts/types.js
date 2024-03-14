@@ -35,6 +35,8 @@
 /**
  * @typedef {Object} Espèce
  * @prop { string } CD_NOM // pérennité ?
+ * @prop { Règne } CLASSE 
+ * @prop { Classe } REGNE 
  * 
  */
 

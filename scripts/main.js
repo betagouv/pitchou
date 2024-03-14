@@ -91,14 +91,14 @@ for(const transport of transports){
 
 
 
-const dataMap = new Map()
+const espèceByCD_NOM = new Map()
 dataEspèces.forEach(d => {
-	dataMap.set(d["CD_NOM"], d)
+	espèceByCD_NOM.set(d["CD_NOM"], d)
 })
-console.log(dataMap)
+console.log(espèceByCD_NOM)
 
-/** @type { {REGNE: Règne, CLASSE: Classe, CD_NOM: string }[]  } */
-const listeEspècesProtégées = [...dataMap.values()]
+/** @type { Espèce[] } */
+const listeEspècesProtégées = [...espèceByCD_NOM.values()]
 
 const filtreParClassification = new Map([
 	["oiseau", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE, CLASSE}) => {
@@ -118,6 +118,54 @@ const espècesProtégéesParClassification = new Map(
 
 console.log('espècesProtégéesParClassification', espècesProtégéesParClassification)
 
+/**
+ *
+ * @param {string} s // utf-8-encoded base64 string
+ * @returns {string} // cleartext string
+ */
+function b64ToUTF8(s) {
+	return decodeURIComponent(escape(atob(s)))
+}
+
+
+/**
+ * 
+ * @param { DescriptionMenaceEspècesJSON } descriptionMenacesEspècesJSON
+ * @returns { DescriptionMenaceEspèce[] }
+ */
+function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON){
+	return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints, activité, méthode, transport}) => {
+		console.log('classification, etresVivantsAtteints', classification, etresVivantsAtteints)
+		return {
+			classification, 
+			etresVivantsAtteints: etresVivantsAtteints.map(({espece, ...rest}) => ({
+				espece: espèceByCD_NOM.get(espece),
+				...rest
+			})), 
+			activité: activites.find((a) => a.Code === activité),
+			méthode: methodes.find((m) => m.Code === méthode),
+			transport: transports.find((t) => t.Code === transport),
+		}
+	})
+}
+
+function importDescriptionMenacesEspècesFromURL(){
+	const urlData = new URLSearchParams(location.search).get('data')
+	if(urlData){
+		try{
+			const data = JSON.parse(b64ToUTF8(urlData))
+			const desc = descriptionMenacesEspècesFromJSON(data)
+			console.log('desc', desc)
+			return desc
+		}
+		catch(e){
+			console.error('Parsing error', e, urlData)
+			return undefined
+		}
+	}
+}
+
+
 const app = new App({
 	target: document.querySelector('.svelte-main'),
 	props: {
@@ -127,7 +175,7 @@ const app = new App({
 		transportsParClassificationEtreVivant,
 		/** @type {DescriptionMenaceEspèce[]} */
 		// @ts-ignore
-		descriptionMenacesEspèces: [
+		descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || [
 			{
 				classification: "oiseau", // Type d'espèce menacée
 				etresVivantsAtteints: [],
