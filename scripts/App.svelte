@@ -29,6 +29,17 @@
         const regex = /^\d+-\d+$/;
         return regex.test(str);
     }*/
+    
+    // adapted from https://developer.mozilla.org/en-US/docs/Glossary/Base64#solution_1_%E2%80%93_escaping_the_string_before_encoding_it
+    /**
+     *
+     * @param {string} s // cleartext string
+     * @returns {string} // utf-8-encoded base64 string
+     */
+    export function UTF8ToB64(s) {
+        return btoa(unescape(encodeURIComponent(s)))
+    }
+
 
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
@@ -79,6 +90,67 @@
         return 0;
     }
                 
+    function supprimerLigne(etresVivantsAtteints, _espece){
+        const index = etresVivantsAtteints.findIndex(({espece}) => espece === _espece);
+        if (index > -1) { 
+            etresVivantsAtteints.splice(index, 1);
+        }
+
+        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+    }
+
+    
+
+    /**
+     * 
+     * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
+     * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
+     */
+    function etreVivantAtteintToJSON(etreVivantAtteint){
+        const {espece, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit} = etreVivantAtteint
+
+        if(nombreNids || nombreOeufs){
+            return {
+                espece: espece['CD_NOM'],
+                nombreIndividus, 
+                nombreNids, 
+                nombreOeufs, 
+                surfaceHabitatDétruit
+            }
+        }
+        else{
+            return {
+                espece: espece['CD_NOM'],
+                nombreIndividus,
+                surfaceHabitatDétruit
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param { DescriptionMenaceEspèce[] } descriptionMenacesEspèces
+     * @returns { DescriptionMenaceEspècesJSON }
+     */
+    function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
+        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints, activité, méthode, transport}) => {
+            return {
+                classification, 
+                etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
+                activité: activité && activité.Code, 
+                méthode: méthode && méthode.Code, 
+                transport: transport && transport.Code
+            }
+        })
+    }
+
+    let lienPartage;
+
+    function créerLienPartage(){
+        const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
+        console.log('jsonable', jsonable, UTF8ToB64(JSON.stringify(jsonable)).length)
+        lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
+    }
 
 </script>
 
@@ -136,6 +208,7 @@
                         <th>Œufs</th>
                         {/if}
                         <th>Surface habitat détruit (m²)</th>
+                        <th>Supprimer la ligne</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -154,6 +227,7 @@
                             <td><input type="number" bind:value={nombreOeufs} min="0" step="1"></td>
                             {/if}
                             <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1"></td>
+                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espece)}>❌</button></td>
                         </tr>
                     {/each}
                     <tr>
@@ -182,6 +256,13 @@
         
         {/each}
     </form>
+
+    <section>
+        <h1>Lien de partage</h1>
+        <button on:click={créerLienPartage}>Créer un lien de partage</button>
+        <input bind:value={lienPartage} class="lien-partage" type="text" readonly> 
+        <p>Vous pouvez ensuite copier ce lien dans le formulaire de demande de Dérogations Espèces Protégées</p>
+    </section>
 </article>
 
 
@@ -233,6 +314,11 @@
                     }
                     td:nth-of-type(2), td:nth-of-type(3), td:nth-of-type(4){
                         width : 6rem;
+                    }
+
+                    button{
+                        all: unset;
+                        cursor: pointer;
                     }
                 }
             }

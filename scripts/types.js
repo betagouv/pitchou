@@ -33,8 +33,23 @@
  */
 
 /**
+ * @typedef {Object} Espèce
+ * @prop { string } CD_NOM // pérennité ?
+ * @prop { Règne } CLASSE 
+ * @prop { Classe } REGNE 
+ * 
+ */
+
+/**
  * @typedef {Object} EtreVivantAtteint
- * @prop { string } espece // identifiant type CD_NOM ? pérénité ?
+ * @prop { Espèce } espece
+ * @prop { string } nombreIndividus
+ * @prop { number } surfaceHabitatDétruit
+ */
+
+/**
+ * @typedef {Object} EtreVivantAtteintJSON
+ * @prop { string } espece // CD_NOM 
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  */
@@ -46,6 +61,7 @@
  */
 
 /** @typedef {EtreVivantAtteint & OiseauAtteintSpecifique} OiseauAtteint */
+/** @typedef {EtreVivantAtteintJSON & OiseauAtteintSpecifique} OiseauAtteintJSON */
 
 /**
  * @typedef {Object} DescriptionMenaceEspèce
@@ -53,5 +69,15 @@
  * @prop { (OiseauAtteint | EtreVivantAtteint)[] } etresVivantsAtteints
  * @prop { ActivitéMenançante } activité
  * @prop { MéthodeMenançante } méthode
- * @prop { boolean } transport
+ * @prop { TransportMenançant } transport
  */
+
+/**
+ * @typedef {Object} DescriptionMenaceEspèceJSON
+ * @prop { ClassificationEtreVivant } classification
+ * @prop { (OiseauAtteintJSON | EtreVivantAtteintJSON)[] } etresVivantsAtteints
+ * @prop { string } activité // Code
+ * @prop { string } méthode // Code
+ * @prop { string } transport // Code
+ */
+/** @typedef {DescriptionMenaceEspèceJSON[]} DescriptionMenaceEspècesJSON */
