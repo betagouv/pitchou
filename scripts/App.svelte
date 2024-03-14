@@ -80,10 +80,10 @@
         
             <label>
                 <strong>Activité</strong>
-                <select>
+                <select bind:value={activité}>
                     <option>-</option>
                     {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
-                    <option selected={activité === act}>{act['étiquette affichée']}</option>
+                    <option value={act}>{act['étiquette affichée']}</option>
                     {/each}
                 </select>
             </label>
@@ -91,10 +91,10 @@
             {#if Array.isArray(méthodesParClassificationEtreVivant.get(classification))}
             <label>
                 <strong>Méthode</strong>
-                <select disabled={activité && activité['Méthode'] === 'n'}>
+                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'}>
                     <option>-</option>
                     {#each méthodesParClassificationEtreVivant.get(classification) as met}
-                        <option selected={méthode === met}>{met['étiquette affichée']}</option>
+                        <option value={met}>{met['étiquette affichée']}</option>
                     {/each}
                 </select>
             </label>
@@ -103,10 +103,10 @@
             {#if Array.isArray(transportsParClassificationEtreVivant.get(classification))}
             <label>
                 <strong>Transport</strong>
-                <select disabled={activité && activité['transport'] === 'n'}>
+                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'}>
                     <option>-</option>
                     {#each transportsParClassificationEtreVivant.get(classification) as trans}
-                        <option selected={transport === trans}>{trans['étiquette affichée']}</option>
+                        <option value={trans}>{trans['étiquette affichée']}</option>
                     {/each}
                 </select>
             </label>
