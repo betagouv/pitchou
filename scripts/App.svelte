@@ -128,14 +128,14 @@
                     {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                         <tr>
                             <td>
-                                <AutocompleteEspeces selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
+                                <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
                             </td>
-                            <td><input type="number" value={nombreIndividus} min="0" step="1"></td>
+                            <td><input type="number" bind:value={nombreIndividus} min="0" step="1"></td>
                             {#if classification === "oiseau"}
-                            <td><input type="number" value={nombreNids} min="0" step="1"></td>
-                            <td><input type="number" value={nombreOeufs} min="0" step="1"></td>
+                            <td><input type="number" bind:value={nombreNids} min="0" step="1"></td>
+                            <td><input type="number" bind:value={nombreOeufs} min="0" step="1"></td>
                             {/if}
-                            <td><input type="number" value={surfaceHabitatDétruit} min="0" step="1"></td>
+                            <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1"></td>
                         </tr>
                     {/each}
                     <tr>
@@ -225,7 +225,7 @@
 
                 text-align: left;
 
-                background-color: hsla(255, 255, 255, 0.9);
+                background-color: rgba(255, 255, 255, 0.4);
                 
                 h1{
                     font-size: 1.2em
