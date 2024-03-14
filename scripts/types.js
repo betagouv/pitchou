@@ -35,7 +35,7 @@
 /**
  * @typedef {Object} EtreVivantAtteint
  * @prop { string } espece // identifiant type CD_NOM ? pérénité ?
- * @prop { number } nombreIndividus
+ * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  */
 

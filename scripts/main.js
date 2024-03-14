@@ -130,44 +130,21 @@ const app = new App({
 		descriptionMenacesEspèces: [
 			{
 				classification: "oiseau", // Type d'espèce menacée
-				etresVivantsAtteints: [
-					{
-						espece: espècesProtégéesParClassification.get('oiseau')[0],
-						nombreIndividus: 1000,
-						nombreNids: 5,
-						nombreOeufs: 10,
-						surfaceHabitatDétruit: 1000 // Surface de l'habitat détruit
-					},
-					{
-						espece: espècesProtégéesParClassification.get('oiseau')[5],
-						nombreIndividus: 500,
-						nombreNids: 7,
-						nombreOeufs: 61,
-						surfaceHabitatDétruit: 1000 // Surface de l'habitat détruit
-					}
-				],
+				etresVivantsAtteints: [],
 				activité: activitesParClassificationEtreVivant.get('oiseau')[0], // Activité menaçante
 				méthode: méthodesParClassificationEtreVivant.get('oiseau')[0], // Méthode menaçante
 				transport: transportsParClassificationEtreVivant.get('oiseau')[0] // Transport impliqué dans la menace
 			},
 			{
 				classification: "faune non-oiseau",
-				etresVivantsAtteints: [{
-					espece: espècesProtégéesParClassification.get('faune non-oiseau')[15],
-					nombreIndividus: 15,
-					surfaceHabitatDétruit: 20
-				}],
+				etresVivantsAtteints: [],
 				activité: activitesParClassificationEtreVivant.get('faune non-oiseau')[0], // Activité menaçante
 				méthode: méthodesParClassificationEtreVivant.get('faune non-oiseau')[0], // Méthode menaçante
 				transport: transportsParClassificationEtreVivant.get('faune non-oiseau')[0] // Transport impliqué dans la menace
 			},
 			{
 				classification: "flore",
-				etresVivantsAtteints: [{
-					espece: espècesProtégéesParClassification.get('flore')[150],
-					nombreIndividus: 1000,
-					surfaceHabitatDétruit: 50
-				}],
+				etresVivantsAtteints: [],
 				activité: activitesParClassificationEtreVivant.get('flore')[0], // Activité menaçante
 			}
 		]

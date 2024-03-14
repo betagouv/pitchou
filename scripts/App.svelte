@@ -9,12 +9,26 @@
     export let méthodesParClassificationEtreVivant
     export let transportsParClassificationEtreVivant
 
-
-
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
 
     console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
+
+    /**
+     * Les fourchettes sont des chaînes de caractères toujours au format 'x-y' où x et y sont des integer
+     */
+    const fourchettesIndividus = [
+        '0-10',
+        '11-100',
+        '101-1000',
+        '1001-10000',
+        '10001+'
+    ]
+
+    /*function isFourchette(str) {
+        const regex = /^\d+-\d+$/;
+        return regex.test(str);
+    }*/
 
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
@@ -130,7 +144,11 @@
                             <td>
                                 <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
                             </td>
-                            <td><input type="number" bind:value={nombreIndividus} min="0" step="1"></td>
+                            <td><select bind:value={nombreIndividus}>
+                                {#each fourchettesIndividus as fourchette}
+                                    <option value={fourchette}>{fourchette}</option>
+                                {/each}
+                            </select></td>
                             {#if classification === "oiseau"}
                             <td><input type="number" bind:value={nombreNids} min="0" step="1"></td>
                             <td><input type="number" bind:value={nombreOeufs} min="0" step="1"></td>
@@ -142,22 +160,24 @@
                         <td>
                             <AutocompleteEspeces bind:selectedItem={defaultSelectedItem} espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
                         </td>
-                        <td><input disabled type="number" min="0" step="1"></td>
-                        <td><input disabled type="number" min="0" step="1"></td>
+                        <td> <select disabled><option>- - - -</option></select> </td>
+                        <td><input disabled type="number"></td>
                         {#if classification === "oiseau"}
-                        <td><input disabled type="number" min="0" step="1"></td>
-                        <td><input disabled type="number" min="0" step="1"></td>
+                        <td><input disabled type="number"></td>
+                        <td><input disabled type="number"></td>
                         {/if}
                     </tr>
                 </tbody>
             </table>
 
+            {#if etresVivantsAtteints.length >= 1}
             <section class="arrete-prefectoral">
                 <h1>Liste des espèces à copier pour l'arrêté préfectoral</h1>
                 {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
                     {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
                 {/each} 
             </section>
+            {/if}
         </section>
         
         {/each}
