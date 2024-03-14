@@ -172,7 +172,7 @@
 
             {#if etresVivantsAtteints.length >= 1}
             <section class="arrete-prefectoral">
-                <h1>Liste des espèces à copier pour l'arrêté préfectoral</h1>
+                <h1>Liste des espèces</h1>
                 {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
                     {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
                 {/each} 
