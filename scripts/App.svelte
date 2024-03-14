@@ -79,6 +79,14 @@
         return 0;
     }
                 
+    function supprimerLigne(etresVivantsAtteints, _espece){
+        const index = etresVivantsAtteints.findIndex(({espece}) => espece === _espece);
+        if (index > -1) { 
+            etresVivantsAtteints.splice(index, 1);
+        }
+
+        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+    }
 
 </script>
 
@@ -136,6 +144,7 @@
                         <th>Œufs</th>
                         {/if}
                         <th>Surface habitat détruit (m²)</th>
+                        <th>Supprimer la ligne</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -154,6 +163,7 @@
                             <td><input type="number" bind:value={nombreOeufs} min="0" step="1"></td>
                             {/if}
                             <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1"></td>
+                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espece)}>❌</button></td>
                         </tr>
                     {/each}
                     <tr>
@@ -233,6 +243,11 @@
                     }
                     td:nth-of-type(2), td:nth-of-type(3), td:nth-of-type(4){
                         width : 6rem;
+                    }
+
+                    button{
+                        all: unset;
+                        cursor: pointer;
                     }
                 }
             }
