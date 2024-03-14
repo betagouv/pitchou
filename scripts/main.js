@@ -131,21 +131,21 @@ const app = new App({
 			{
 				classification: "oiseau", // Type d'espèce menacée
 				etresVivantsAtteints: [],
-				activité: activitesParClassificationEtreVivant.get('oiseau')[0], // Activité menaçante
-				méthode: méthodesParClassificationEtreVivant.get('oiseau')[0], // Méthode menaçante
-				transport: transportsParClassificationEtreVivant.get('oiseau')[0] // Transport impliqué dans la menace
+				activité: undefined, // Activité menaçante
+				méthode: undefined, // Méthode menaçante
+				transport: undefined // Transport impliqué dans la menace
 			},
 			{
 				classification: "faune non-oiseau",
 				etresVivantsAtteints: [],
-				activité: activitesParClassificationEtreVivant.get('faune non-oiseau')[0], // Activité menaçante
-				méthode: méthodesParClassificationEtreVivant.get('faune non-oiseau')[0], // Méthode menaçante
-				transport: transportsParClassificationEtreVivant.get('faune non-oiseau')[0] // Transport impliqué dans la menace
+				activité: undefined, // Activité menaçante
+				méthode: undefined, // Méthode menaçante
+				transport: undefined // Transport impliqué dans la menace
 			},
 			{
 				classification: "flore",
 				etresVivantsAtteints: [],
-				activité: activitesParClassificationEtreVivant.get('flore')[0], // Activité menaçante
+				activité: undefined, // Activité menaçante
 			}
 		]
 	}

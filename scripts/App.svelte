@@ -45,11 +45,11 @@
         }]
     ])
 
+    // pour garder la ligne de sélection/ajout d'espèce vide après sélection
     let defaultSelectedItem = undefined
     $: defaultSelectedItem, defaultSelectedItem = undefined
 
     function ajouterEspèce(espèce, classification, etresVivantsAtteints){
-        console.log('ajouterEspèce', ...arguments)
         if(classification === 'oiseau'){
             etresVivantsAtteints.push({
                 espece: espèce,
