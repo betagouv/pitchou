@@ -4,3 +4,5 @@ build/*
 
 data/sources_especes/*
 !data/sources_especes/README.md
+
+pgdata/
