@@ -1,7 +1,7 @@
 <script>
     //@ts-check
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
-    import './types.js'
+    import '../../types.js'
 
     export let espècesProtégéesParClassification;
 

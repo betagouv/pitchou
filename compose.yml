@@ -4,11 +4,13 @@ services:
     container_name: node_server
     restart: always
     ports:
-      - "3000:8080"
+      - "2648:2648"
     volumes:
       - ./:/app
     working_dir: /app
-    command: npm start
+    command: npm run start:server
+    environment:
+      PORT: 2648
 
   db:
     image: postgres:16.2
