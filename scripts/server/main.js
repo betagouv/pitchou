@@ -5,23 +5,35 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
+import {requestPage} from './recups-ds.js'
+
 const fastify = Fastify({logger: true})
 
 const PORT = parseInt(process.env.PORT || '')
-
 if(!PORT){
-    throw new TypeError(`Variable d'environnement PORT manquante`)
+  throw new TypeError(`Variable d'environnement PORT manquante`)
 }
 
+const API_TOKEN = process.env.API_TOKEN
+if(!API_TOKEN){
+  throw new TypeError(`Variable d'environnement API_TOKEN manquante`)
+}
+
+const DEMARCHE_NUMBER = process.env.DEMARCHE_NUMBER
+if(!DEMARCHE_NUMBER){
+  throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
+}
+
+
 fastify.register(fastatic, {
-    root: path.resolve(import.meta.dirname, '..', '..'),
-    extensions: ['html']
+  root: path.resolve(import.meta.dirname, '..', '..'),
+  extensions: ['html']
 })
 
-// Declare a route
-/*fastify.get('/', async function handler (request, reply) {
-  return { hello: 'world' }
-})*/
+// Privileged routes
+fastify.get('/démarche', async function handler (request, reply) {
+  return requestPage({token: API_TOKEN, démarcheId: DEMARCHE_NUMBER})
+})
 
 // Run the server!
 try {
