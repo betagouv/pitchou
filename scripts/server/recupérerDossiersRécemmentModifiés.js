@@ -3,7 +3,6 @@
 // ce script recups les dossier de la démarche 88444
 
 import ky from 'ky';
-import { formatISO } from 'date-fns';
 
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
 
@@ -552,7 +551,7 @@ fragment PageInfoFragment on PageInfo {
 
 `;
 
-export async function requestPage({token, démarcheId}) {
+export async function recupérerDossiersRécemmentModifiés({token, démarcheId, updatedSince}) {
   const response = await ky.post(ENDPOINT, {
     headers: {
       'Content-Type': 'application/json',
@@ -563,7 +562,7 @@ export async function requestPage({token, démarcheId}) {
       variables: {
         demarcheNumber: parseInt(démarcheId),
         last: 100,
-        updatedSince: formatISO(new Date(2020, 1, 22))
+        updatedSince
       }
     }
   }).json();

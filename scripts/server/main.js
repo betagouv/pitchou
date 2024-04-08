@@ -4,8 +4,10 @@ import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
+import { formatISO } from 'date-fns';
 
-import {requestPage} from './recups-ds.js'
+
+import {recupérerDossiersRécemmentModifiés} from './recupérerDossiersRécemmentModifiés.js'
 
 const fastify = Fastify({logger: true})
 
@@ -32,7 +34,7 @@ fastify.register(fastatic, {
 
 // Privileged routes
 fastify.get('/démarche', async function handler (request, reply) {
-  return requestPage({token: API_TOKEN, démarcheId: DEMARCHE_NUMBER})
+  return recupérerDossiersRécemmentModifiés({token: API_TOKEN, démarcheId: DEMARCHE_NUMBER, updatedSince: formatISO(new Date(2020, 1, 22))})
 })
 
 // Run the server!
