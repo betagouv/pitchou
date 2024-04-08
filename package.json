@@ -13,6 +13,8 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
+    "db-migrate": "^0.11.14",
+    "db-migrate-pg": "^1.5.2",
     "npm-run-all": "^4.1.5",
     "rollup": "^4.9.6",
     "rollup-plugin-css-only": "^4.5.2",
