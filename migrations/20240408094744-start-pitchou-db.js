@@ -17,7 +17,7 @@ exports.setup = function(options, seedLink) {
 /* Callback-based version */
 exports.up = function (db, callback) {
   db.createTable('dossiers', {
-    id: { type: 'int', primaryKey: true },
+    id: { type: 'int', primaryKey: true, autoIncrement: true },
     id_demarches_simplifiées: { type: 'string' },
     statut: { type: 'string' },
     date_dépôt: { type: 'datetime' },

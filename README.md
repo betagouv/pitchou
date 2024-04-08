@@ -47,4 +47,13 @@ Pour se connecter au serveur postgres dans un container: ce container doit être
 `db-migrate up`
 
 
+### Fabriquer la liste des espèces protégées
+
+pour les autocomplete de saisie espèces notamment
+
 `node outils/liste-espèces.js`
+
+
+### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
+
+`node --env-file=.env outils/sync-démarches-simplifiées.js`
