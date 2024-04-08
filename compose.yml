@@ -27,13 +27,13 @@ services:
       - ./pgdata:/var/lib/postgresql/data
 
   pgadmin:
-      image: dpage/pgadmin4
-      container_name: container-pgadmin
-      depends_on:
-        - db
-      ports:
-        - "5050:80"
-      environment:
-        PGADMIN_DEFAULT_EMAIL: admin@admin.com
-        PGADMIN_DEFAULT_PASSWORD: root
-      restart: unless-stopped
+    image: dpage/pgadmin4
+    container_name: container-pgadmin
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    restart: unless-stopped
