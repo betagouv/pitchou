@@ -22,12 +22,18 @@ Le serveur récupère les données des dossiers via [l'API Démarches Simplifié
 
 ## En dév
 
-En dev, on peut lancer `npm start` ou `docker-compose up` pour lancer le tout.\
+En dev, on peut lancer `npm run dev` pour lancer le tout.\
 Le repo est synchroniser dans le conteneur du serveur via un volume.\
 Les données de la base de données sont sauvegarder dans un volume dans le repo (pour faire des test facilement)
 
 http://localhost:2648/
 http://localhost:2648/saisie-especes
+
+
+### Pour pgadmin
+
+Pour se connecter au serveur postgres dans un container: ce container doit être exposé au réseau et utiliser le `container_name` comme hostname 
+
 
 ## En prod
 
@@ -36,7 +42,9 @@ http://localhost:2648/saisie-especes
 
 ## Outils
 
+### Migration base de données
 
+`db-migrate up`
 
 
 `node outils/liste-espèces.js`
