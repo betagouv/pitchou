@@ -134,17 +134,18 @@ function b64ToUTF8(s) {
  * @returns { DescriptionMenaceEspèce[] }
  */
 function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON){
-	return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints, activité, méthode, transport}) => {
+	return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
 		console.log('classification, etresVivantsAtteints', classification, etresVivantsAtteints)
 		return {
 			classification, 
-			etresVivantsAtteints: etresVivantsAtteints.map(({espece, ...rest}) => ({
+			etresVivantsAtteints: etresVivantsAtteints.map(({espece, activité, méthode, transport, ...rest}) => ({
 				espece: espèceByCD_NOM.get(espece),
+				activité: activites.find((a) => a.Code === activité),
+				méthode: methodes.find((m) => m.Code === méthode),	
+				transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
 				...rest
 			})), 
-			activité: activites.find((a) => a.Code === activité),
-			méthode: methodes.find((m) => m.Code === méthode),
-			transport: transports.find((t) => t.Code === transport),
+			
 		}
 	})
 }

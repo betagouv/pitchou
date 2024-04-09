@@ -80,6 +80,11 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
+    /**
+     * 
+     * @param {EtreVivantAtteint} _
+     * @param {EtreVivantAtteint} _
+     */
     function etresVivantsAtteintsCompareEspèce({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) {
         if (nom1 < nom2) {
             return -1;
@@ -99,19 +104,24 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
-    
-
     /**
      * 
      * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
      * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
      */
     function etreVivantAtteintToJSON(etreVivantAtteint){
-        const {espece, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit} = etreVivantAtteint
+        const {
+            espece, 
+            activité, méthode, transport,
+            nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
+        } = etreVivantAtteint
 
         if(nombreNids || nombreOeufs){
             return {
                 espece: espece['CD_NOM'],
+                activité: activité && activité.Code, 
+                méthode: méthode && méthode.Code, 
+                transport: transport && transport.Code,
                 nombreIndividus, 
                 nombreNids, 
                 nombreOeufs, 
@@ -121,6 +131,9 @@
         else{
             return {
                 espece: espece['CD_NOM'],
+                activité: activité && activité.Code, 
+                méthode: méthode && méthode.Code, 
+                transport: transport && transport.Code,
                 nombreIndividus,
                 surfaceHabitatDétruit
             }
@@ -133,13 +146,11 @@
      * @returns { DescriptionMenaceEspècesJSON }
      */
     function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints, activité, méthode, transport}) => {
+        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints}) => {
             return {
                 classification, 
                 etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
-                activité: activité && activité.Code, 
-                méthode: méthode && méthode.Code, 
-                transport: transport && transport.Code
+                
             }
         })
     }
@@ -159,7 +170,7 @@
     <h2>et des activités et méthodes, etc.</h2>
 
     <form>
-        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, activité, méthode, transport}}
+        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
 
         <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
             <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
@@ -183,7 +194,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
+                    {#each etresVivantsAtteints as {espece, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                         <tr>
                             <td>
                                 <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
@@ -261,8 +272,8 @@
     </form>
 
     <section>
-        <h1>Lien de partage</h1>
-        <button on:click={créerLienPartage}>Créer un lien de partage</button>
+        <h1>Lien à copier</h1>
+        <button on:click={créerLienPartage}>Créer un lien</button>
         <input bind:value={lienPartage} class="lien-partage" type="text" readonly> 
         <p>Vous pouvez ensuite copier ce lien dans le formulaire de demande de Dérogations Espèces Protégées</p>
     </section>
