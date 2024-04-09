@@ -80,6 +80,11 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
+    /**
+     * 
+     * @param {EtreVivantAtteint} _
+     * @param {EtreVivantAtteint} _
+     */
     function etresVivantsAtteintsCompareEspèce({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) {
         if (nom1 < nom2) {
             return -1;
@@ -99,19 +104,24 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
-    
-
     /**
      * 
      * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
      * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
      */
     function etreVivantAtteintToJSON(etreVivantAtteint){
-        const {espece, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit} = etreVivantAtteint
+        const {
+            espece, 
+            activité, méthode, transport,
+            nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
+        } = etreVivantAtteint
 
         if(nombreNids || nombreOeufs){
             return {
                 espece: espece['CD_NOM'],
+                activité: activité && activité.Code, 
+                méthode: méthode && méthode.Code, 
+                transport: transport && transport.Code,
                 nombreIndividus, 
                 nombreNids, 
                 nombreOeufs, 
@@ -121,6 +131,9 @@
         else{
             return {
                 espece: espece['CD_NOM'],
+                activité: activité && activité.Code, 
+                méthode: méthode && méthode.Code, 
+                transport: transport && transport.Code,
                 nombreIndividus,
                 surfaceHabitatDétruit
             }
@@ -133,13 +146,11 @@
      * @returns { DescriptionMenaceEspècesJSON }
      */
     function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints, activité, méthode, transport}) => {
+        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints}) => {
             return {
                 classification, 
                 etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
-                activité: activité && activité.Code, 
-                méthode: méthode && méthode.Code, 
-                transport: transport && transport.Code
+                
             }
         })
     }
@@ -159,49 +170,20 @@
     <h2>et des activités et méthodes, etc.</h2>
 
     <form>
-        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints, activité, méthode, transport}}
+        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
 
         <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
             <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
-        
-            <label>
-                <strong>Activité</strong>
-                <select bind:value={activité}>
-                    <option>-</option>
-                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
-                    <option value={act}>{act['étiquette affichée']}</option>
-                    {/each}
-                </select>
-            </label>
-    
-            {#if Array.isArray(méthodesParClassificationEtreVivant.get(classification))}
-            <label>
-                <strong>Méthode</strong>
-                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'}>
-                    <option>-</option>
-                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
-                        <option value={met}>{met['étiquette affichée']}</option>
-                    {/each}
-                </select>
-            </label>
-            {/if}
-    
-            {#if Array.isArray(transportsParClassificationEtreVivant.get(classification))}
-            <label>
-                <strong>Transport</strong>
-                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'}>
-                    <option>-</option>
-                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
-                        <option value={trans}>{trans['étiquette affichée']}</option>
-                    {/each}
-                </select>
-            </label>
-            {/if}
 
             <table>
                 <thead>
                     <tr>
                         <th>Espèce</th>
+                        <th>Activité</th>
+                        {#if classification !== "flore"}
+                        <th>Méthode</th>
+                        <th>Transport</th>
+                        {/if}
                         <th>Nombre d'individus</th>
                         {#if classification === "oiseau"}
                         <th>Nids</th>
@@ -212,11 +194,37 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {#each etresVivantsAtteints as {espece, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
+                    {#each etresVivantsAtteints as {espece, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                         <tr>
                             <td>
                                 <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
                             </td>
+                            <td>
+                                <select bind:value={activité}>
+                                    <option>-</option>
+                                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
+                                    <option value={act}>{act['étiquette affichée']}</option>
+                                    {/each}
+                                </select>
+                            </td>
+                            {#if classification !== "flore"}
+                            <td>
+                                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'}>
+                                    <option>-</option>
+                                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
+                                        <option value={met}>{met['étiquette affichée']}</option>
+                                    {/each}
+                                </select>
+                            </td>
+                            <td>
+                                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'}>
+                                    <option>-</option>
+                                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
+                                        <option value={trans}>{trans['étiquette affichée']}</option>
+                                    {/each}
+                                </select>
+                            </td>
+                            {/if}
                             <td><select bind:value={nombreIndividus}>
                                 {#each fourchettesIndividus as fourchette}
                                     <option value={fourchette}>{fourchette}</option>
@@ -235,11 +243,17 @@
                             <AutocompleteEspeces bind:selectedItem={defaultSelectedItem} espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
                         </td>
                         <td> <select disabled><option>- - - -</option></select> </td>
+                        {#if classification !== "flore"}
+                        <td> <select disabled><option>- - - -</option></select> </td>
+                        <td> <select disabled><option>- - - -</option></select> </td>
+                        {/if}
+                        <td> <select disabled><option>- - - -</option></select> </td>
                         <td><input disabled type="number"></td>
                         {#if classification === "oiseau"}
                         <td><input disabled type="number"></td>
                         <td><input disabled type="number"></td>
                         {/if}
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
@@ -258,8 +272,8 @@
     </form>
 
     <section>
-        <h1>Lien de partage</h1>
-        <button on:click={créerLienPartage}>Créer un lien de partage</button>
+        <h1>Lien à copier</h1>
+        <button on:click={créerLienPartage}>Créer un lien</button>
         <input bind:value={lienPartage} class="lien-partage" type="text" readonly> 
         <p>Vous pouvez ensuite copier ce lien dans le formulaire de demande de Dérogations Espèces Protégées</p>
     </section>
@@ -269,11 +283,10 @@
 <style lang="scss">
 	
 	article{
-        max-width: 60rem;
+        max-width: 90rem;
         margin: 0 auto;
-        border: 1px solid grey;
         border-radius: 2em;
-        padding: 1em 2em;
+        padding: 1em 0;
 
         .saisie-oiseau, .saisie-flore, .saisie-faune {
             display: flex;
@@ -284,6 +297,10 @@
             border-radius: 1em;
             padding: 1em;
             margin-bottom: 2em;
+
+            select{
+                max-width: 12rem;
+            }
 
             &> h1{
                 font-size: 1.3rem;
@@ -309,11 +326,19 @@
 
             table{
                 tr {
+                    text-align: left;
+
+                    th:not(:last-of-type){
+                        padding-right: 1em;
+                    }
+
                     td:nth-of-type(1){
                         width : 30rem;
                     }
-                    td:nth-of-type(2), td:nth-of-type(3), td:nth-of-type(4){
-                        width : 6rem;
+
+
+                    td:last-of-type{
+                        text-align: center;
                     }
 
                     button{

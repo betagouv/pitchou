@@ -35,6 +35,7 @@
 /**
  * @typedef {Object} Espèce
  * @prop { string } CD_NOM // pérennité ?
+ * @prop { string } NOM_VERN
  * @prop { Règne } CLASSE 
  * @prop { Classe } REGNE 
  * 
@@ -45,6 +46,9 @@
  * @prop { Espèce } espece
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
+ * @prop { ActivitéMenançante } activité
+ * @prop { MéthodeMenançante } [méthode]
+ * @prop { TransportMenançant } [transport]
  */
 
 /**
@@ -52,6 +56,9 @@
  * @prop { string } espece // CD_NOM 
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
+ * @prop { string } activité // Code
+ * @prop { string } [méthode] // Code
+ * @prop { string } [transport] // Code
  */
 
 /**
@@ -67,17 +74,11 @@
  * @typedef {Object} DescriptionMenaceEspèce
  * @prop { ClassificationEtreVivant } classification
  * @prop { (OiseauAtteint | EtreVivantAtteint)[] } etresVivantsAtteints
- * @prop { ActivitéMenançante } activité
- * @prop { MéthodeMenançante } méthode
- * @prop { TransportMenançant } transport
  */
 
 /**
  * @typedef {Object} DescriptionMenaceEspèceJSON
  * @prop { ClassificationEtreVivant } classification
  * @prop { (OiseauAtteintJSON | EtreVivantAtteintJSON)[] } etresVivantsAtteints
- * @prop { string } activité // Code
- * @prop { string } méthode // Code
- * @prop { string } transport // Code
  */
 /** @typedef {DescriptionMenaceEspèceJSON[]} DescriptionMenaceEspècesJSON */
