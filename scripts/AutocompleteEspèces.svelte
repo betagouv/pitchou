@@ -30,7 +30,6 @@
 	labelFunction={e => espèceToLabel.get(e)}
 	maxItemsToShowInList=20
 	cleanUserText=false
-	placeholder="Ex: Fauvette pitchou"
 	{beforeChange}
 >
 	<div slot="item" let:item>
