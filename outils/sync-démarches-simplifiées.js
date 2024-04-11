@@ -1,4 +1,5 @@
 //@ts-check
+import '../scripts/types/database/public/Dossier.js'
 
 import { formatISO } from 'date-fns';
 import knex from 'knex';
@@ -60,6 +61,7 @@ const pitchouKeyToAnnotationDS = Object.assign(Object.create(null), {
     "enjeu_écologiques": "Q2hhbXAtNDAwMTQ3MQ=="
 })
 
+/** @type {Dossier[]} */
 const dossiers = démarche.dossiers.nodes.map(({
     id: id_demarches_simplifiées, 
     dateDepot: date_dépôt, 
@@ -93,6 +95,6 @@ const dossiers = démarche.dossiers.nodes.map(({
 
 console.log('dossiers', dossiers)
 
-database('dossiers')
+database('dossier')
 .insert(dossiers)
 .catch(err => console.error('yoooooo', err))

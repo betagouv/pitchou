@@ -4,10 +4,7 @@ import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
-import { formatISO } from 'date-fns';
-
-
-import {recupérerDossiersRécemmentModifiés} from './recupérerDossiersRécemmentModifiés.js'
+import knex from 'knex'
 
 const fastify = Fastify({logger: true})
 
@@ -32,9 +29,20 @@ fastify.register(fastatic, {
   extensions: ['html']
 })
 
+const PG_CONNECTION_STRING = process.env.PG_CONNECTION_STRING
+if(!PG_CONNECTION_STRING){
+  throw new TypeError(`Variable d'environnement PG_CONNECTION_STRING manquante`)
+}
+
+const database = knex({
+    client: 'pg',
+    connection: PG_CONNECTION_STRING,
+});
+
 // Privileged routes
-fastify.get('/démarche', async function handler (request, reply) {
-  return recupérerDossiersRécemmentModifiés({token: API_TOKEN, démarcheId: DEMARCHE_NUMBER, updatedSince: formatISO(new Date(2020, 1, 22))})
+fastify.get('/dossiers', async function handler (request, reply) {
+  return database('dossier')
+  .select()
 })
 
 // Run the server!
