@@ -6,15 +6,14 @@ import SuiviInstructeur from './components/SuiviInstructeur.svelte';
 
 import '../types.js'
 
-json('/démarche').then(démarche => {
-	console.log('démarche', démarche)
+json('/dossiers').then(dossiers => {
+	console.log('dossiers', dossiers)
 	const app = new SuiviInstructeur({
 		target: document.querySelector('.svelte-main'),
 		props: {
-			démarche
+			dossiers
 		}
 	});
-	
 })
 
 

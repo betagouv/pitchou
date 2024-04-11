@@ -38,6 +38,7 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 ### Génération des types jsdoc
 exécuter `npm run build-db-types`
 Les types sont crées dans le dossier `./scripts/types/database/public`
+Dans le fichier .js du type supprimer l'export ligne 3 `export {};`
 
 ### Pour pgadmin
 
