@@ -179,10 +179,10 @@
                 <thead>
                     <tr>
                         <th>Espèce</th>
-                        <th>Activité</th>
+                        <th>Type d’impact</th>
                         {#if classification !== "flore"}
                         <th>Méthode</th>
-                        <th>Transport</th>
+                        <th>Moyen de poursuite</th>
                         {/if}
                         <th>Nombre d'individus</th>
                         {#if classification === "oiseau"}
