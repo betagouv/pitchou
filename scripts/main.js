@@ -52,6 +52,11 @@ const activitesParClassificationEtreVivant = new Map()
 for(const activite of activites){
 	const classif = activite['Espèces']
 
+	if(!classif.trim() && !activite['Code']){
+		// ignore empty lines (certainly comments)
+		break; 
+	}
+
 	if(!isClassif(classif)){
 		throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
 	}
@@ -66,6 +71,11 @@ const méthodesParClassificationEtreVivant = new Map()
 for(const methode of methodes){
 	const classif = methode['Espèces']
 
+	if(!classif.trim() && !methode['Code']){
+		// ignore empty lines (certainly comments)
+		break; 
+	}
+
 	if(!isClassif(classif)){
 		throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
 	}
@@ -79,6 +89,11 @@ for(const methode of methodes){
 const transportsParClassificationEtreVivant = new Map()
 for(const transport of transports){
 	const classif = transport['Espèces']
+
+	if(!classif.trim() && !transport['Code']){
+		// ignore empty lines (certainly comments)
+		break; 
+	}
 
 	if(!isClassif(classif)){
 		throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
