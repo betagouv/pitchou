@@ -2,12 +2,16 @@
   "name": "pitchou",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">20"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "npm-run-all --parallel dev:* start",
     "dev:rollup": "rollup -c -w",
     "start": "docker compose up",
     "start:server": "node --env-file=.env --watch scripts/server/main.js",
+    "start:prod-server": "node scripts/server/main.js",
     "build-db-types": "kanel -d postgresql://dev:dev_password@localhost:5432/principale -o ./scripts/types/database && ts-to-jsdoc ./scripts/types/database/public/*.ts"
   },
   "devDependencies": {
