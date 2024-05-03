@@ -29,14 +29,14 @@ fastify.register(fastatic, {
   extensions: ['html']
 })
 
-const PG_CONNECTION_STRING = process.env.PG_CONNECTION_STRING
-if(!PG_CONNECTION_STRING){
-  throw new TypeError(`Variable d'environnement PG_CONNECTION_STRING manquante`)
+const DATABASE_URL = process.env.DATABASE_URL
+if(!DATABASE_URL){
+  throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
 }
 
 const database = knex({
     client: 'pg',
-    connection: PG_CONNECTION_STRING,
+    connection: DATABASE_URL,
 });
 
 // Privileged routes
