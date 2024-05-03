@@ -24,3 +24,19 @@ export function créerPersonne(personne){
         throw err
     })
 }
+/**
+ * 
+ * @param {string} code_accès 
+ * @returns {Promise<import('../types/database/public/Personne.js').Personne> | Promise<undefined>}
+ */
+export function getPersonneByCode(code_accès) {
+    return database('personne')
+    .where({ code_accès })
+    .select('id')
+    .first()
+}
+
+export function getAllDossier() {
+    return database('dossier')
+    .select()
+}
