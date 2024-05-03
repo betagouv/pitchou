@@ -2,9 +2,9 @@
 
 import { dsv } from 'd3-fetch';
 
-import App from './App.svelte';
+import SaisieEspèces from './components/SaisieEspèces.svelte';
 
-import './types.js'
+import '../types.js'
 
 /**
  * @param {string} x 
@@ -182,7 +182,7 @@ function importDescriptionMenacesEspècesFromURL(){
 }
 
 
-const app = new App({
+const app = new SaisieEspèces({
 	target: document.querySelector('.svelte-main'),
 	props: {
 		espècesProtégéesParClassification,

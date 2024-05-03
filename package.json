@@ -2,17 +2,24 @@
   "name": "pitchou",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": "20"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "npm-run-all --parallel dev:* start",
     "dev:rollup": "rollup -c -w",
-    "start": "http-server -c-1 ."
+    "start": "docker compose up",
+    "start:server": "node --env-file=.env --watch scripts/server/main.js",
+    "prestart:prod-server": "db-migrate up",
+    "start:prod-server": "node scripts/server/main.js",
+    "build-db-types": "kanel -d postgresql://dev:dev_password@localhost:5432/principale -o ./scripts/types/database && ts-to-jsdoc ./scripts/types/database/public/*.ts"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "http-server": "^14.1.1",
+    "kanel": "^3.8.8",
     "npm-run-all": "^4.1.5",
     "rollup": "^4.9.6",
     "rollup-plugin-css-only": "^4.5.2",
@@ -20,9 +27,19 @@
     "sass": "^1.58.3",
     "simple-svelte-autocomplete": "^2.5.2",
     "svelte": "^4.2.9",
-    "svelte-preprocess": "^5.1.3"
+    "svelte-preprocess": "^5.1.3",
+    "ts-to-jsdoc": "^2.1.0"
   },
   "dependencies": {
-    "d3-fetch": "^3.0.1"
+    "@fastify/static": "^7.0.1",
+    "d3-fetch": "^3.0.1",
+    "date-fns": "^3.6.0",
+    "fastify": "^4.26.2",
+    "knex": "^3.1.0",
+    "ky": "^1.2.2",
+    "pg": "^8.11.5",
+    "db-migrate": "^0.11.14",
+    "db-migrate-pg": "^1.5.2"
+
   }
 }
