@@ -407,6 +407,8 @@
 
         .espece-manquante{
             text-align: left;
+            max-width: 60rem;
+            margin: 0 auto;
         }
 
     }
