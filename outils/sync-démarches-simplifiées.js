@@ -95,6 +95,13 @@ const dossiers = démarche.dossiers.nodes.map(({
 
 console.log('dossiers', dossiers)
 
+
 database('dossier')
 .insert(dossiers)
-.catch(err => console.error('yoooooo', err))
+.onConflict('id_demarches_simplifiées')
+.merge()
+.catch(err => {
+    console.error('sync démarche simplifiée database error', err)
+    process.exit(1)
+})
+.then(() => process.exit())
