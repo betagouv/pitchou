@@ -11,6 +11,7 @@
     "dev:rollup": "rollup -c -w",
     "start": "docker compose up",
     "start:server": "node --env-file=.env --watch scripts/server/main.js",
+    "prestart:prod-server": "db-migrate up",
     "start:prod-server": "node scripts/server/main.js",
     "build-db-types": "kanel -d postgresql://dev:dev_password@localhost:5432/principale -o ./scripts/types/database && ts-to-jsdoc ./scripts/types/database/public/*.ts"
   },
