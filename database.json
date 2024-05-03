@@ -1,10 +1,17 @@
 {
-    "dev": {
-        "driver": "pg",
-        "user": { "ENV": "DB_USER_NAME" },
-        "password": { "ENV": "DB_PASSWORD" },
-        "host": "localhost",
-        "database": { "ENV": "DB_NAME" },
-        "port": "5432"
-      }
+  "dev": {
+    "driver": "pg",
+    "user": {
+      "ENV": "DB_USER_NAME"
+    },
+    "password": {
+      "ENV": "DB_PASSWORD"
+    },
+    "host": "localhost",
+    "database": {
+      "ENV": "DB_NAME"
+    },
+    "port": "5432"
+  },
+  "docker-dev": "postgresql://dev:dev_password@postgres_db:5432/principale"
 }
