@@ -6,6 +6,8 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import knex from 'knex'
 
+import créerPremièrePersonne from './créer-première-personne.js'
+
 const fastify = Fastify({logger: true})
 
 const PORT = parseInt(process.env.PORT || '')
@@ -38,6 +40,8 @@ const database = knex({
     client: 'pg',
     connection: DATABASE_URL,
 });
+
+créerPremièrePersonne()
 
 // Privileged routes
 fastify.get('/dossiers', async function handler (request, reply) {
