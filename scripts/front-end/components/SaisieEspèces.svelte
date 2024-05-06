@@ -276,14 +276,14 @@
     <section class="espece-manquante">
         <h1>ℹ️ Une espèce est manquante ?</h1>
         <p>
-            Si vous souhaitez indiquer une espèce qui est absente, vous pouvez 
-            <a target="_blank" href={mailto}>nous écrire un email à l'adresse especes-protegees@beta.gouv.fr</a>.<br>
-            Vous aurez besoin de nous indiquer le <code>CD_NOM</code> de l'espèce que vous pouvez trouver sur 
-            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>.<br>
+            Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
+            <a target="_blank" href={mailto}>d’envoyer un mail à especes-protegees@beta.gouv.fr</a>en 
+            indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
+            Le <code>CD_NOM</code> est disponible sur 
+            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 
+            en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
             Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
                 <code>4221</code></a>.
-            Il s'agit toujours d'un nombre entre 1 et 8 chiffres.<br>
-            Vous aurez aussi besoin de nous indiquer le nom latin et commun (vernaculaire).
         </p>
     </section>
 
