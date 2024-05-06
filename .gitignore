@@ -4,6 +4,7 @@ build/*
 
 data/sources_especes/*
 !data/sources_especes/README.md
+!data/sources_especes/espèces_manquantes.csv
 
 pgdata/
 

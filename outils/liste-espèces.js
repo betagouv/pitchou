@@ -25,6 +25,14 @@ console.log('bdc_statuts.length', bdc_statuts.length)
 
 console.log('bdc_statuts unique CD_NOM', new Set(bdc_statuts.map(({CD_NOM}) => CD_NOM)).size)
 
+// Espèces Manquantes
+let espèce_manquantes_raw = dsvFormat(';').parse(readFileSync('data/sources_especes/espèces_manquantes.csv', 'utf-8'))
+
+console.log('espèce_manquantes_raw.length', espèce_manquantes_raw.length)
+
+const espèces_manquantes = espèce_manquantes_raw.map(({ CD_NOM, LABEL_STATUT }) => ({ CD_NOM, CD_TYPE_STATUT: "Protection Pitchou", LABEL_STATUT }))
+// @ts-ignore
+const espèces_protégées = [].concat(bdc_statuts, espèces_manquantes)
 
 // TAXREF
 
@@ -47,15 +55,14 @@ for(const taxon of taxref){
     taxrefByCD_NOM.set(CD_NOM, taxon)
 }
 
-
-const output = bdc_statuts.map(bdc_statut => {
-    const {CD_NOM} = bdc_statut
+const output = espèces_protégées.map(espèce_protégée => {
+    const {CD_NOM} = espèce_protégée
 
     const taxon = taxrefByCD_NOM.get(CD_NOM)
 
     return Object.assign(
         {},
-        bdc_statut,
+        espèce_protégée,
         taxon
     )
 })
