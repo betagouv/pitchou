@@ -2,6 +2,8 @@ services:
   web:
     image: node:20
     container_name: node_server
+    depends_on:
+      - db
     restart: always
     ports:
       - "2648:2648"

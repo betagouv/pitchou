@@ -4,7 +4,10 @@ import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
-import knex from 'knex'
+
+import créerPremièrePersonne from './créer-première-personne.js'
+
+import { getPersonneByCode, getAllDossier } from './database.js'
 
 const fastify = Fastify({logger: true})
 
@@ -29,20 +32,22 @@ fastify.register(fastatic, {
   extensions: ['html']
 })
 
-const DATABASE_URL = process.env.DATABASE_URL
-if(!DATABASE_URL){
-  throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
-}
-
-const database = knex({
-    client: 'pg',
-    connection: DATABASE_URL,
-});
+créerPremièrePersonne()
 
 // Privileged routes
 fastify.get('/dossiers', async function handler (request, reply) {
-  return database('dossier')
-  .select()
+  // @ts-ignore
+  const code_accès = request.query.secret
+  if (code_accès) {
+    const personne = await getPersonneByCode(code_accès)
+    if (personne) {
+      return getAllDossier()
+    } else {
+      reply.code(403).send("Code d'accès non valide.")
+    }
+  } else {
+    reply.code(400).send("Paramètre secret manquant dans l'URL.")
+  }
 })
 
 // Run the server!

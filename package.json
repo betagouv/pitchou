@@ -10,6 +10,7 @@
     "dev": "npm-run-all --parallel dev:* start",
     "dev:rollup": "rollup -c -w",
     "start": "docker compose up",
+    "prestart:server": "db-migrate up -e docker-dev",
     "start:server": "node --env-file=.env --watch scripts/server/main.js",
     "prestart:prod-server": "db-migrate up",
     "start:prod-server": "node scripts/server/main.js",
