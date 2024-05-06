@@ -14,6 +14,8 @@
 
     console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
 
+    const mailto = "mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0A%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%20%0A%0ANom%20vernaculaire%20%3A%20%0ANom%20latin%20%3A%20%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%20%0AJustification%20l%C3%A9gale%20pour%20la%20protection%20%3A%20%0A%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0A%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
+
     /**
      * Les fourchettes sont des chaînes de caractères toujours au format 'x-y' où x et y sont des integer
      */
@@ -271,6 +273,31 @@
         {/each}
     </form>
 
+    <section class="espece-manquante">
+        <h1>ℹ️ Une espèce est manquante ?</h1>
+        <p>Les listes d'espèces sont construites à partir des bases de données 
+            <a href="https://inpn.mnhn.fr/telechargement/referentielEspece/referentielTaxo">TaxRef</a> et
+            <a href="https://inpn.mnhn.fr/telechargement/referentielEspece/bdc-statuts-especes">Statuts des espèces</a>
+            créées et distribuées par l'inventaire national du patrimoine naturel (INPN).<br>
+            Nous listons les espèces qui ont un statut de protection de communauté de communes, départemental, régional
+            ou national en droit français (loi, décision, arrêté, etc.) (statuts "POM", "PD", "PN", "PR")
+        </p>
+        <p>
+            Et il est possible que vous souhaitiez indiquer une espèce qui est absente parce qu'elle manque dans la base de 
+            données de l'INPN ou que nous avons oublié de rajouter.<br>
+            Dans ce cas-là, vous pouvez <a href={mailto}>nous écrire un email à l'adresse especes-protegees@beta.gouv.fr</a>.<br>
+            Vous aurez besoin de nous indiquer le <code>CD_NOM</code> de l'espèce que vous pouvez trouver sur 
+            <a href="https://inpn.mnhn.fr/accueil/donnees-referentiels">le site de l'INPN</a>.<br>
+            Par exemple, <a href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
+                <code>4221</code></a>.
+            Il s'agit toujours d'un nombre entre 1 et 8 chiffres.<br>
+            
+            Nous attendons aussi une justification légale qui peut être un article de loi ou la description d'un décret. 
+            Quelques mots peuvent suffire.
+
+        </p>
+    </section>
+
     <section>
         <h1>Lien à copier</h1>
         <button on:click={créerLienPartage}>Créer un lien</button>
@@ -376,6 +403,12 @@
 
         .saisie-faune{
             background-color: lightsalmon;
+        }
+
+        .espece-manquante{
+            text-align: left;
+            max-width: 60rem;
+            margin: 0 auto;
         }
 
     }
