@@ -1,7 +1,7 @@
 {
     "jobs": [
       {
-        "command": "*/10 * 3 5 * node outils/sync-démarches-simplifiées.js"
+        "command": "0 2 * * * node outils/sync-démarches-simplifiées.js"
       }
     ]
 }
