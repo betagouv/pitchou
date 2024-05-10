@@ -35,12 +35,12 @@
     "@fastify/static": "^7.0.1",
     "d3-fetch": "^3.0.1",
     "date-fns": "^3.6.0",
+    "db-migrate": "^0.11.14",
+    "db-migrate-pg": "^1.5.2",
     "fastify": "^4.26.2",
     "knex": "^3.1.0",
     "ky": "^1.2.2",
-    "pg": "^8.11.5",
-    "db-migrate": "^0.11.14",
-    "db-migrate-pg": "^1.5.2"
-
+    "page": "^1.11.6",
+    "pg": "^8.11.5"
   }
 }

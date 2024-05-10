@@ -19,15 +19,11 @@ const database = knex({
 export function créerPersonne(personne){
     return database('personne')
     .insert(personne)
-    .catch(err => {
-        console.error('Error trying to create a person', err)
-        throw err
-    })
 }
 /**
  * 
  * @param {string} code_accès 
- * @returns {Promise<import('../types/database/public/Personne.js').Personne> | Promise<undefined>}
+ * @returns {Promise<import('../types/database/public/Personne.js').default> | Promise<undefined>}
  */
 export function getPersonneByCode(code_accès) {
     return database('personne')

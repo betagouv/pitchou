@@ -9,6 +9,10 @@
 
 </script>
 
+<nav>
+    <a href="/saisie-especes">Saisie espèces</a>
+</nav>
+
 <h1>Suivi instructeur</h1>
 
 <table>

@@ -9,8 +9,6 @@ import créerPremièrePersonne from './créer-première-personne.js'
 
 import { getPersonneByCode, getAllDossier } from './database.js'
 
-const fastify = Fastify({logger: true})
-
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
   throw new TypeError(`Variable d'environnement PORT manquante`)
@@ -27,9 +25,14 @@ if(!DEMARCHE_NUMBER){
 }
 
 
+const fastify = Fastify({logger: true})
+
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
+})
+fastify.get('/saisie-especes', (request, reply) => {
+  reply.sendFile('index.html')
 })
 
 créerPremièrePersonne()
