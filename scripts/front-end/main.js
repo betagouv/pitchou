@@ -7,29 +7,25 @@ import {json, dsv} from 'd3-fetch'
 import SuiviInstructeur from './components/SuiviInstructeur.svelte';
 import SaisieEspèces from './components/SaisieEspèces.svelte';
 import { replaceComponent } from './routeComponentLifeCycle.js'
+import store from './store.js'
+
+import {init, secretFromURL} from './actions/main.js'
 
 import '../types.js'
 
 const svelteTarget = document.querySelector('.svelte-main')
 
 
-page('/', () => {
+page('/', async () => {
     console.info('route', '/')
-
-    const secret =  new URLSearchParams(location.search).get("secret")
+    const secret = await secretFromURL().then(() => store.state.secret)
 
     json(`/dossiers?secret=${secret}`).then(dossiers => {
         function mapStateToProps(){
             return {dossiers}
         }
 
-        const newURL = new URL(location.href)
-        newURL.searchParams.delete("secret")
-
-        history.replaceState(null, "", newURL)
-        
-        console.log('dossiers', dossiers)
-        
+        console.log('dossiers', dossiers)        
         
         const suiviInstructeur = new SuiviInstructeur({
             target: svelteTarget,
@@ -257,5 +253,5 @@ page('/saisie-especes', async () => {
     replaceComponent(saisieEspèces, mapStateToProps)
 })
 
-
-page.start()
+init()
+.then(() => page.start())

@@ -1,10 +1,10 @@
 //@ts-check
 
 import { SvelteComponent } from "svelte";
-//import store from "./store.js";
+import store from "./store.js";
 
-/** @typedef {import("./store.js").ScribouilliState} ScribouilliState */
-/** @typedef {(state: ScribouilliState) => any} MapStateToPropsFunction */
+/** @typedef {import("./store.js").PitchouState} PitchouState */
+/** @typedef {(state: PitchouState) => any} MapStateToPropsFunction */
 
 /** @type {SvelteComponent} */
 let currentComponent;
@@ -29,7 +29,7 @@ export function replaceComponent(newComponent, newMapStateToProps) {
 
 /**
  * 
- * @param {ScribouilliState} state 
+ * @param {PitchouState} state 
  */
 function render(state) {
   const props = currentMapStateToProps(state);
@@ -39,4 +39,4 @@ function render(state) {
   }
 }
 
-//store.subscribe(render);
+store.subscribe(render);
