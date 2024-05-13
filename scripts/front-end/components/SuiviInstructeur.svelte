@@ -1,7 +1,5 @@
 <script>
-    import '../../types/database/public/Dossier.js'
-
-    /** @type {Dossier[]} */
+    /** @type {import('../../types/database/public/Dossier.js').Dossier[]} */
     export let dossiers = []
 
     console.log('dossiers', dossiers)

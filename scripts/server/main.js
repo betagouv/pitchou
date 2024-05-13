@@ -5,9 +5,10 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
-import créerPremièrePersonne from './créer-première-personne.js'
+import { getPersonneByCode, getAllDossier, créerPersonneOuMettreÀJourCodeAccès } from './database.js'
 
-import { getPersonneByCode, getAllDossier } from './database.js'
+import { authorizedEmailDomains } from '../commun/constantes.js'
+import { envoyerEmailConnexion } from './emails.js'
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -25,6 +26,8 @@ if(!DEMARCHE_NUMBER){
 }
 
 
+
+
 const fastify = Fastify({logger: true})
 
 fastify.register(fastatic, {
@@ -35,10 +38,9 @@ fastify.get('/saisie-especes', (request, reply) => {
   reply.sendFile('index.html')
 })
 
-créerPremièrePersonne()
 
 // Privileged routes
-fastify.get('/dossiers', async function handler (request, reply) {
+fastify.get('/dossiers', async function (request, reply) {
   // @ts-ignore
   const code_accès = request.query.secret
   if (code_accès) {
@@ -49,9 +51,35 @@ fastify.get('/dossiers', async function handler (request, reply) {
       reply.code(403).send("Code d'accès non valide.")
     }
   } else {
-    reply.code(400).send("Paramètre secret manquant dans l'URL.")
+    reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
   }
 })
+
+fastify.post('/envoi-email-connexion', async function (request, reply) {
+  // @ts-ignore
+  const email = decodeURIComponent(request.query.email)
+
+  if(!email){
+    return reply.code(400).send(`Paramètre 'email' manquant dans l'URL`)
+  }
+
+  const [name, domain] = email.split('@')
+
+  if(!authorizedEmailDomains.has(domain)){
+    return reply.code(403).send(`Le domaine '${domain}' ne fait pas partie des domaines autorisés`)
+  }
+  else{
+    // le domaine est autorisé
+    return créerPersonneOuMettreÀJourCodeAccès(email)
+    .then(codeAccès => {
+      const lienConnexion = `${request.headers.origin}/?secret=${codeAccès}`
+      // PPP enlever le return quand on enverra pour de vrai un email
+      return envoyerEmailConnexion(email, lienConnexion)
+    })
+  }
+
+})
+
 
 // Run the server!
 try {

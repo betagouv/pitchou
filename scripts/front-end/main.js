@@ -4,12 +4,16 @@ import page from 'page'
 
 import {json, dsv} from 'd3-fetch'
 
+import LoginViaEmail from './components/LoginViaEmail.svelte';
 import SuiviInstructeur from './components/SuiviInstructeur.svelte';
 import SaisieEspèces from './components/SaisieEspèces.svelte';
 import { replaceComponent } from './routeComponentLifeCycle.js'
 import store from './store.js'
 
 import {init, secretFromURL} from './actions/main.js'
+import {envoiEmailConnexion} from './serveur.js'
+
+import { authorizedEmailDomains } from '../commun/constantes.js';
 
 import '../types.js'
 
@@ -20,20 +24,38 @@ page('/', async () => {
     console.info('route', '/')
     const secret = await secretFromURL().then(() => store.state.secret)
 
-    json(`/dossiers?secret=${secret}`).then(dossiers => {
+    if(secret){
+        json(`/dossiers?secret=${secret}`).then(dossiers => {
+            function mapStateToProps(){
+                return {dossiers}
+            }
+    
+            console.log('dossiers', dossiers)        
+            
+            const suiviInstructeur = new SuiviInstructeur({
+                target: svelteTarget,
+                props: mapStateToProps()
+            });
+    
+            replaceComponent(suiviInstructeur, mapStateToProps)
+        })
+    }
+    else{
         function mapStateToProps(){
-            return {dossiers}
+            return {
+                authorizedEmailDomains,
+                envoiEmailConnexion: envoiEmailConnexion
+            }
         }
 
-        console.log('dossiers', dossiers)        
-        
-        const suiviInstructeur = new SuiviInstructeur({
+        const loginViaEmail = new LoginViaEmail({
             target: svelteTarget,
             props: mapStateToProps()
         });
 
-        replaceComponent(suiviInstructeur, mapStateToProps)
-    })
+        replaceComponent(loginViaEmail, mapStateToProps)
+    }
+
 })
 
 page('/saisie-especes', async () => {
