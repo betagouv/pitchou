@@ -1,10 +1,11 @@
 //@ts-check
-import '../scripts/types/database/public/Dossier.js'
 
 import { formatISO } from 'date-fns';
 import knex from 'knex';
 
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
+
+/** @typedef {import('../scripts/types/database/public/Dossier.js').default} Dossier */
 
 // récups les données de DS
 
@@ -34,32 +35,28 @@ const démarche = await recupérerDossiersRécemmentModifiés({
     updatedSince: formatISO(new Date(2020, 1, 22))
 })
 
-console.log('démarche', démarche)
-console.log('dossiers', démarche.dossiers.nodes)
+//console.log('démarche', démarche)
+console.log('dossiers', démarche.dossiers.nodes.length)
+console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
+console.log('champs', démarche.dossiers.nodes[0].champs)
 
-/*
-
-id: { type: 'int', primaryKey: true },
-id_demarches_simplifiées: { type: 'string' },
-statut: { type: 'string' },
-date_dépôt: { type: 'datetime' },
-identité_petitionnaire: { type: 'string'},
-espèces_protégées_concernées: { type: 'string' },
-enjeu_écologiques: { type: 'string' }
-
-*/
 
 // stocker les dossiers en BDD
 
-const pitchouKeyToChampDS = Object.assign(Object.create(null), {
+const pitchouKeyToChampDS = {
     "SIRET": "Q2hhbXAtMzg5NzM5NA==",
     "Nom-Prénom": "Q2hhbXAtMzg5NzM1NA==",
-    "espèces_protégées_concernées": 'Q2hhbXAtMzg5NzQwNQ=='
-})
+    "espèces_protégées_concernées": 'Q2hhbXAtMzg5NzQwNQ==',
+    "communes": 'Q2hhbXAtNDA0MTQ0MQ==',
+    "départements" : 'Q2hhbXAtNDA0MTQ0NQ==',
+    "Le projet se situe au niveau…": 'Q2hhbXAtMzg5NzQwOA=='
+}
 
-const pitchouKeyToAnnotationDS = Object.assign(Object.create(null), {
+const pitchouKeyToAnnotationDS = {
     "enjeu_écologiques": "Q2hhbXAtNDAwMTQ3MQ=="
-})
+}
+
+
 
 /** @type {Dossier[]} */
 const dossiers = démarche.dossiers.nodes.map(({
@@ -81,6 +78,25 @@ const dossiers = démarche.dossiers.nodes.map(({
 
     const espèces_protégées_concernées = champs.find(({id}) => id === pitchouKeyToChampDS["espèces_protégées_concernées"]).stringValue
 
+    const champCommunes = champs.find(({id}) => id === pitchouKeyToChampDS["communes"])
+    const communes = champCommunes && champCommunes.rows.map(c => c.champs[0])
+
+    const champDépartements = champs.find(({id}) => id === pitchouKeyToChampDS["départements"])
+    const départements = champDépartements && champDépartements.rows.map(c => c.champs[0])
+
+    console.log('communes', communes)
+    console.log('départements', départements)
+
+    const localisation = communes || départements;
+
+    const projetSitué = champs.find(({id}) => id === pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
+
+    if(!localisation && projetSitué){
+        console.log('localisation manquante', projetSitué, champs)
+        process.exit(1)
+    }
+
+
     const enjeu_écologiques = annotations.find(({id}) => id === pitchouKeyToAnnotationDS["enjeu_écologiques"]).stringValue
 
     return {
@@ -89,14 +105,14 @@ const dossiers = démarche.dossiers.nodes.map(({
         date_dépôt,
         identité_petitionnaire,
         espèces_protégées_concernées,
-        enjeu_écologiques
+        enjeu_écologiques,
+        localisation
     }
 })
 
-console.log('dossiers', dossiers)
 
 
-database('dossier')
+/*database('dossier')
 .insert(dossiers)
 .onConflict('id_demarches_simplifiées')
 .merge()
@@ -104,4 +120,4 @@ database('dossier')
     console.error('sync démarche simplifiée database error', err)
     process.exit(1)
 })
-.then(() => process.exit())
+.then(() => process.exit())*/
