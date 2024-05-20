@@ -37,25 +37,13 @@ const plugins = ({cssOutput}) => ([
 
 export default [
 	{
-		input: 'scripts/front-end/saisie-especes.js',
+		input: 'scripts/front-end/main.js',
 		output: {
 			sourcemap: true,
 			format: 'es',
-			file: 'build/bundle-saisie-especes.js'
+			file: 'build/rollup-bundle-pitchou.js'
 		},
-		plugins: plugins({cssOutput: 'bundle-saisie-especes.css'}),
-		watch: {
-			clearScreen: false
-		}
-	},
-	{
-		input: 'scripts/front-end/suivi.js',
-		output: {
-			sourcemap: true,
-			format: 'es',
-			file: 'build/bundle-suivi.js'
-		},
-		plugins: plugins({cssOutput: 'bundle-suivi.css'}),
+		plugins: plugins({cssOutput: 'rollup-bundle-pitchou.css'}),
 		watch: {
 			clearScreen: false
 		}
