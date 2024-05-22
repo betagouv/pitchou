@@ -78,23 +78,33 @@ const dossiers = démarche.dossiers.nodes.map(({
 
     const espèces_protégées_concernées = champs.find(({id}) => id === pitchouKeyToChampDS["espèces_protégées_concernées"]).stringValue
 
+    /* localisation */
+    const projetSitué = champs.find(({id}) => id === pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
     const champCommunes = champs.find(({id}) => id === pitchouKeyToChampDS["communes"])
-    const communes = champCommunes && champCommunes.rows.map(c => c.champs[0])
-
     const champDépartements = champs.find(({id}) => id === pitchouKeyToChampDS["départements"])
-    const départements = champDépartements && champDépartements.rows.map(c => c.champs[0])
+
+    let communes;
+    let départements;
+
+    if(champCommunes){
+        console.log('champCommunes.rows', JSON.stringify(champCommunes.rows, null, 2))
+        communes = champCommunes.rows.map(c => c.champs[0].commune)
+        départements = [... new Set(champCommunes.rows.map(c => c.champs[0].departement.code))]
+    }
+    else{
+        if(champDépartements){
+            départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement.code))]
+        }
+        else{
+            if(projetSitué){
+                console.log('localisation manquante', projetSitué, champs)
+                process.exit(1)
+            }
+        }
+    }
 
     console.log('communes', communes)
     console.log('départements', départements)
-
-    const localisation = communes || départements;
-
-    const projetSitué = champs.find(({id}) => id === pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
-
-    if(!localisation && projetSitué){
-        console.log('localisation manquante', projetSitué, champs)
-        process.exit(1)
-    }
 
 
     const enjeu_écologiques = annotations.find(({id}) => id === pitchouKeyToAnnotationDS["enjeu_écologiques"]).stringValue
@@ -106,13 +116,14 @@ const dossiers = démarche.dossiers.nodes.map(({
         identité_petitionnaire,
         espèces_protégées_concernées,
         enjeu_écologiques,
-        localisation
+        // https://knexjs.org/guide/schema-builder.html#json
+        communes: JSON.stringify(communes),
+        départements: JSON.stringify(départements),
     }
 })
 
 
-
-/*database('dossier')
+database('dossier')
 .insert(dossiers)
 .onConflict('id_demarches_simplifiées')
 .merge()
@@ -120,4 +131,4 @@ const dossiers = démarche.dossiers.nodes.map(({
     console.error('sync démarche simplifiée database error', err)
     process.exit(1)
 })
-.then(() => process.exit())*/
+.then(() => process.exit())

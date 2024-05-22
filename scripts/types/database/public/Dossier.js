@@ -15,17 +15,21 @@
  * @property {string | null} identité_petitionnaire
  * @property {string | null} espèces_protégées_concernées
  * @property {string | null} enjeu_écologiques
+ * @property {unknown | null} départements
+ * @property {unknown | null} communes
  */
 /**
  * Represents the initializer for the table public.dossier
  * @typedef {Object} DossierInitializer
- * @property {DossierId} [id] Default value: nextval('dossiers_id_seq'::regclass)
+ * @property {DossierId} [id] Default value: nextval('dossier_id_seq'::regclass)
  * @property {string | null} [id_demarches_simplifiées]
  * @property {string | null} [statut]
  * @property {Date | null} [date_dépôt]
  * @property {string | null} [identité_petitionnaire]
  * @property {string | null} [espèces_protégées_concernées]
  * @property {string | null} [enjeu_écologiques]
+ * @property {unknown | null} [départements]
+ * @property {unknown | null} [communes]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -37,4 +41,6 @@
  * @property {string | null} [identité_petitionnaire]
  * @property {string | null} [espèces_protégées_concernées]
  * @property {string | null} [enjeu_écologiques]
+ * @property {unknown | null} [départements]
+ * @property {unknown | null} [communes]
  */

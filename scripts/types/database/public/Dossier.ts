@@ -19,11 +19,15 @@ export default interface Dossier {
   espèces_protégées_concernées: string | null;
 
   enjeu_écologiques: string | null;
+
+  départements: unknown | null;
+
+  communes: unknown | null;
 }
 
 /** Represents the initializer for the table public.dossier */
 export interface DossierInitializer {
-  /** Default value: nextval('dossiers_id_seq'::regclass) */
+  /** Default value: nextval('dossier_id_seq'::regclass) */
   id?: DossierId;
 
   id_demarches_simplifiées?: string | null;
@@ -37,6 +41,10 @@ export interface DossierInitializer {
   espèces_protégées_concernées?: string | null;
 
   enjeu_écologiques?: string | null;
+
+  départements?: unknown | null;
+
+  communes?: unknown | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -54,4 +62,8 @@ export interface DossierMutator {
   espèces_protégées_concernées?: string | null;
 
   enjeu_écologiques?: string | null;
+
+  départements?: unknown | null;
+
+  communes?: unknown | null;
 }
