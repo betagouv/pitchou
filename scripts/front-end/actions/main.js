@@ -1,7 +1,7 @@
 //@ts-check
 
 import store from '../store.js';
-import remember from 'remember'
+import remember, {forget} from 'remember'
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
@@ -28,4 +28,9 @@ export async function secretFromURL(){
 
         return remember(PITCHOU_SECRET_STORAGE_KEY, secret)
     }
+}
+
+export async function logout(){
+    store.mutations.setSecret(undefined)
+    return forget(PITCHOU_SECRET_STORAGE_KEY)
 }

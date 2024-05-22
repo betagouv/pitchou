@@ -10,7 +10,7 @@ import SaisieEspèces from './components/SaisieEspèces.svelte';
 import { replaceComponent } from './routeComponentLifeCycle.js'
 import store from './store.js'
 
-import {init, secretFromURL} from './actions/main.js'
+import {init, secretFromURL, logout} from './actions/main.js'
 import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
@@ -18,6 +18,22 @@ import { authorizedEmailDomains } from '../commun/constantes.js';
 import '../types.js'
 
 const svelteTarget = document.querySelector('.svelte-main')
+
+function showLoginByEmail(){
+    function mapStateToProps(){
+        return {
+            authorizedEmailDomains,
+            envoiEmailConnexion: envoiEmailConnexion
+        }
+    }
+
+    const loginViaEmail = new LoginViaEmail({
+        target: svelteTarget,
+        props: mapStateToProps()
+    });
+
+    replaceComponent(loginViaEmail, mapStateToProps)
+}
 
 
 page('/', async () => {
@@ -39,21 +55,19 @@ page('/', async () => {
     
             replaceComponent(suiviInstructeur, mapStateToProps)
         })
+        .catch(err => {
+            if(err.message.includes('403')){
+                console.info('Invalid token. Logout.')
+                logout().then(showLoginByEmail)
+            }
+            else{
+                console.error('Erreur du serveur', err)
+            }
+        })
+
     }
     else{
-        function mapStateToProps(){
-            return {
-                authorizedEmailDomains,
-                envoiEmailConnexion: envoiEmailConnexion
-            }
-        }
-
-        const loginViaEmail = new LoginViaEmail({
-            target: svelteTarget,
-            props: mapStateToProps()
-        });
-
-        replaceComponent(loginViaEmail, mapStateToProps)
+        showLoginByEmail()
     }
 
 })
