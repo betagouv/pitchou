@@ -30,19 +30,25 @@ http://localhost:2648/
 http://localhost:2648/saisie-especes
 
 ### Créer une migration
-exécuter `db-migrate create <nom de la migration>`
+
+exécuter `knex migrate:make <nom de la migration>`
 modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 
-[documentation db-migrate](https://db-migrate.readthedocs.io/en/latest/API/SQL/)
+[documentation sur les migrations knex](https://knexjs.org/guide/migrations.html)
 
-### Génération des types jsdoc
+#### Regénérer les types jsdoc des tables SQL
+
 exécuter `npm run build-db-types`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 Dans le fichier .js du type supprimer l'export ligne 3 `export {};`
 
+
 ### Pour pgadmin
 
-Pour se connecter au serveur postgres dans un container: ce container doit être exposé au réseau et utiliser le `container_name` comme hostname 
+Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser le `container_name` comme hostname 
+
+URL pour pgadmin en dev : 
+`http://localhost:5050/`
 
 
 ## En prod
@@ -53,7 +59,8 @@ Pour se connecter au serveur postgres dans un container: ce container doit être
 ## Outils
 
 ### Migration base de données
-`db-migrate up`
+
+`knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
 
 ### Fabriquer la liste des espèces protégées
 
