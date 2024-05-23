@@ -28,20 +28,16 @@ query getDemarche(
   $deletedBefore: String
   $deletedAfter: String
   $deletedSince: ISO8601DateTime
-  $includeGroupeInstructeurs: Boolean = false
   $includeDossiers: Boolean = true
   $includePendingDeletedDossiers: Boolean = false
   $includeDeletedDossiers: Boolean = false
-  $includeRevision: Boolean = false
-  $includeService: Boolean = false
   $includeChamps: Boolean = true
   $includeAnotations: Boolean = true
   $includeTraitements: Boolean = true
   $includeInstructeurs: Boolean = true
-  $includeAvis: Boolean = false
-  $includeMessages: Boolean = false
-  $includeCorrections: Boolean = false
-  $includeGeometry: Boolean = false
+  $includeAvis: Boolean = true
+  $includeMessages: Boolean = true
+  $includeCorrections: Boolean = true
 ) {
   demarche(number: $demarcheNumber) {
     id
@@ -50,14 +46,8 @@ query getDemarche(
     state
     dateCreation
     dateFermeture
-    activeRevision @include(if: $includeRevision) {
-      ...RevisionFragment
-    }
-    groupeInstructeurs @include(if: $includeGroupeInstructeurs) {
+    groupeInstructeurs {
       ...GroupeInstructeurFragment
-    }
-    service @include(if: $includeService) {
-      ...ServiceFragment
     }
     dossiers(
       state: $state
@@ -108,13 +98,6 @@ query getDemarche(
   }
 }
 
-fragment ServiceFragment on Service {
-  nom
-  siret
-  organisme
-  typeOrganisme
-}
-
 fragment GroupeInstructeurFragment on GroupeInstructeur {
   id
   number
@@ -156,7 +139,6 @@ fragment DossierFragment on Dossier {
   prenomMandataire
   nomMandataire
   deposeParUnTiers
-  connectionUsager
   groupeInstructeur {
     ...GroupeInstructeurFragment
   }
@@ -206,54 +188,6 @@ fragment DeletedDossierFragment on DeletedDossier {
   reason
 }
 
-fragment RevisionFragment on Revision {
-  id
-  datePublication
-  champDescriptors {
-    ...ChampDescriptorFragment
-    ... on RepetitionChampDescriptor {
-      champDescriptors {
-        ...ChampDescriptorFragment
-      }
-    }
-  }
-  annotationDescriptors {
-    ...ChampDescriptorFragment
-    ... on RepetitionChampDescriptor {
-      champDescriptors {
-        ...ChampDescriptorFragment
-      }
-    }
-  }
-}
-
-fragment ChampDescriptorFragment on ChampDescriptor {
-  __typename
-  id
-  label
-  description
-  required
-  ... on DropDownListChampDescriptor {
-    options
-    otherOption
-  }
-  ... on MultipleDropDownListChampDescriptor {
-    options
-  }
-  ... on LinkedDropDownListChampDescriptor {
-    options
-  }
-  ... on PieceJustificativeChampDescriptor {
-    fileTemplate {
-      ...FileFragment
-    }
-  }
-  ... on ExplicationChampDescriptor {
-    collapsibleExplanationEnabled
-    collapsibleExplanationText
-  }
-}
-
 fragment AvisFragment on Avis {
   id
   question
@@ -285,34 +219,12 @@ fragment MessageFragment on Message {
   }
 }
 
-fragment GeoAreaFragment on GeoArea {
-  id
-  source
-  description
-  geometry @include(if: $includeGeometry) {
-    type
-    coordinates
-  }
-  ... on ParcelleCadastrale {
-    commune
-    numero
-    section
-    prefixe
-    surface
-  }
-}
-
 fragment RootChampFragment on Champ {
   ... on RepetitionChamp {
     rows {
       champs {
         ...ChampFragment
       }
-    }
-  }
-  ... on CarteChamp {
-    geoAreas {
-      ...GeoAreaFragment
     }
   }
   ... on DossierLinkChamp {
@@ -326,12 +238,9 @@ fragment RootChampFragment on Champ {
 
 fragment ChampFragment on Champ {
   id
-  champDescriptorId
-  __typename
   label
   stringValue
   updatedAt
-  prefilled
   ... on DateChamp {
     date
   }
@@ -399,11 +308,6 @@ fragment ChampFragment on Champ {
       ...RegionFragment
     }
   }
-  ... on PaysChamp {
-    pays {
-      ...PaysFragment
-    }
-  }
   ... on SiretChamp {
     etablissement {
       ...PersonneMoraleFragment
@@ -420,40 +324,21 @@ fragment ChampFragment on Champ {
       ...DepartementFragment
     }
   }
-  ... on EngagementJuridiqueChamp {
-    engagementJuridique {
-      ...EngagementJuridiqueFragment
-    }
-  }
 }
 
 fragment PersonneMoraleFragment on PersonneMorale {
   siret
   siegeSocial
-  naf
-  libelleNaf
   address {
     ...AddressFragment
   }
   entreprise {
     siren
-    capitalSocial
-    numeroTvaIntracommunautaire
-    formeJuridique
-    formeJuridiqueCode
     nomCommercial
     raisonSociale
     siretSiegeSocial
     codeEffectifEntreprise
     dateCreation
-    nom
-    prenom
-    attestationFiscaleAttachment {
-      ...FileFragment
-    }
-    attestationSocialeAttachment {
-      ...FileFragment
-    }
   }
   association {
     rna
@@ -502,11 +387,6 @@ fragment AddressFragment on Address {
   regionCode
 }
 
-fragment PaysFragment on Pays {
-  name
-  code
-}
-
 fragment RegionFragment on Region {
   name
   code
@@ -536,18 +416,12 @@ fragment RNFFragment on RNF {
   }
 }
 
-fragment EngagementJuridiqueFragment on EngagementJuridique {
-  montantEngage
-  montantPaye
-}
-
 fragment PageInfoFragment on PageInfo {
   hasPreviousPage
   hasNextPage
   startCursor
   endCursor
 }
-
 
 `;
 
@@ -567,8 +441,10 @@ export async function recupérerDossiersRécemmentModifiés({token, démarcheId,
     }
   }).json();
 
-  if(response.error){
-    console.error('request page error', response.error)
+
+
+  if(response.errors){
+    console.error('request page error', response.errors)
   }
   
   return response.data.demarche;
