@@ -157,19 +157,39 @@
         })
     }
 
+    let copyButton;
     let lienPartage;
 
-    function créerLienPartage(){
+    function créerEtCopierLienPartage(){
         const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
         console.log('jsonable', jsonable, UTF8ToB64(JSON.stringify(jsonable)).length)
         lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
+
+        copyButton.classList.add("animate");
+        copyButton.addEventListener("animationend", () =>
+            copyButton.classList.remove("animate"),
+        );
+
+        navigator.clipboard
+            .writeText(lienPartage)
+            .then(() => {
+                copyButton.textContent = "Copié dans le presse-papier !";
+            })
+            .catch((error) => {
+                console.error("Une erreur s'est produite lors de la copie : ", error);
+            });
+
     }
 
 </script>
 
 <article>
-    <h1>Saisie des espèces protégées</h1>
-    <h2>et des activités et méthodes, etc.</h2>
+    <h1>Saisie des espèces protégées impactées</h1>
+
+    <section>
+        <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
+        <button class="copy-link" bind:this={copyButton} on:click={créerEtCopierLienPartage}>Créer le lien et le copier dans le presse-papier</button>
+    </section>
 
     <form>
         {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
@@ -287,22 +307,56 @@
         </p>
     </section>
 
-    <section>
-        <h1>Lien à copier</h1>
-        <button on:click={créerLienPartage}>Créer un lien</button>
-        <input bind:value={lienPartage} class="lien-partage" type="text" readonly> 
-        <p>Vous pouvez ensuite copier ce lien dans le formulaire de demande de Dérogations Espèces Protégées</p>
-    </section>
+
 </article>
 
 
 <style lang="scss">
 	
+    .copy-link{
+      z-index: 1;
+      position: relative;
+      font-size: inherit;
+      font-family: inherit;
+
+      &::before {
+        content: '';
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #444;
+        transform-origin: center right;
+        transform: scaleX(0);
+        transition: transform 0.4s ease-in-out;
+      }
+
+      &.animate{
+        color: white;
+      }
+
+      &.animate::before {
+        transform-origin: center left;
+        transform: scaleX(1);
+      }
+    }
+
+
 	article{
         max-width: 90rem;
         margin: 0 auto;
         border-radius: 2em;
         padding: 1em 0;
+
+        h1{
+            margin-bottom: 2rem;
+        }
+
+        section:first-of-type{
+            padding-bottom: 1.5rem;
+        }
 
         .saisie-oiseau, .saisie-flore, .saisie-faune {
             display: flex;
@@ -328,13 +382,6 @@
             }
 
             label{
-                & > strong{
-                    display: inline-block;
-                    min-width: 7em;
-
-                    text-align: left;
-                }
-
                 select{
                     max-width: 30em;
                 }
