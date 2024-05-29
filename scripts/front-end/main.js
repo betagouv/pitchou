@@ -2,15 +2,17 @@
 
 import page from 'page'
 
-import {json, dsv} from 'd3-fetch'
+import {dsv} from 'd3-fetch'
 
 import LoginViaEmail from './components/LoginViaEmail.svelte';
 import SuiviInstructeur from './components/SuiviInstructeur.svelte';
 import SaisieEspèces from './components/SaisieEspèces.svelte';
+import Dossier from './components/Dossier.svelte';
+
 import { replaceComponent } from './routeComponentLifeCycle.js'
 import store from './store.js'
 
-import {init, secretFromURL, logout} from './actions/main.js'
+import {init, secretFromURL, logout, chargerDossiers} from './actions/main.js'
 import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
@@ -38,37 +40,57 @@ function showLoginByEmail(){
 
 page('/', async () => {
     console.info('route', '/')
-    const secret = await secretFromURL().then(() => store.state.secret)
-
-    if(secret){
-        json(`/dossiers?secret=${secret}`).then(dossiers => {
-            function mapStateToProps(){
-                return {dossiers}
-            }
-    
-            console.log('dossiers', dossiers)        
-            
-            const suiviInstructeur = new SuiviInstructeur({
-                target: svelteTarget,
-                props: mapStateToProps()
-            });
-    
-            replaceComponent(suiviInstructeur, mapStateToProps)
-        })
-        .catch(err => {
-            if(err.message.includes('403')){
-                console.info('Invalid token. Logout.')
+    await secretFromURL()
+    if(!store.state.dossiers){
+        await chargerDossiers()
+            .catch(err => {
+                if(err.message.includes('403')){
+                    console.info('Invalid token. Logout.')
+                }
+                else{
+                    console.error('Erreur de chargement des dossiers', err)
+                }
                 logout().then(showLoginByEmail)
-            }
-            else{
-                console.error('Erreur du serveur', err)
-            }
-        })
+            })
+    }
+
+    if(store.state.dossiers){
+        function mapStateToProps({dossiers}){
+            return {dossiers}
+        }    
+        
+        const suiviInstructeur = new SuiviInstructeur({
+            target: svelteTarget,
+            props: mapStateToProps(store.state)
+        });
+
+        replaceComponent(suiviInstructeur, mapStateToProps)
 
     }
     else{
         showLoginByEmail()
     }
+
+})
+
+page('/dossier/:dossierId', ({params: {dossierId}}) => {
+    /**
+     * 
+     * @param {import('./store.js').PitchouState} _ 
+     * @returns 
+     */
+    function mapStateToProps({dossiers}){
+        const dossierIdNb = Number(dossierId)
+
+        return {dossier: dossiers.find(({id}) => id === dossierIdNb)}
+    }   
+    
+    const dossier = new Dossier({
+        target: svelteTarget,
+        props: mapStateToProps(store.state)
+    });
+
+    replaceComponent(dossier, mapStateToProps)
 
 })
 

@@ -37,6 +37,9 @@ fastify.register(fastatic, {
 fastify.get('/saisie-especes', (request, reply) => {
   reply.sendFile('index.html')
 })
+fastify.get('/dossier/:dossierId', (request, reply) => {
+  reply.sendFile('index.html')
+})
 
 
 // Privileged routes
@@ -54,6 +57,7 @@ fastify.get('/dossiers', async function (request, reply) {
     reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
   }
 })
+
 
 fastify.post('/envoi-email-connexion', async function (request, reply) {
   // @ts-ignore
