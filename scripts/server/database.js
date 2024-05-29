@@ -25,6 +25,16 @@ export function créerPersonne(personne){
 }
 
 /**
+ * @param {import('../types/database/public/Personne.js').PersonneInitializer[]} personnes
+ * @returns { Promise<{id: Personne['id']}[]> }
+ */
+export function créerPersonnes(personnes){
+    return database('personne')
+    .insert(personnes, ['id'])
+}
+
+
+/**
  * 
  * @param {Personne['code_accès']} code_accès 
  * @returns {Promise<Personne> | Promise<undefined>}
@@ -46,15 +56,6 @@ export function getPersonneByEmail(email) {
     .where({ email })
     .select()
     .first()
-}
-
-/**
- * 
- * @returns {Promise<Dossier[]>}
- */
-export function getAllDossier() {
-    return database('dossier')
-    .select()
 }
 
 /**
@@ -88,4 +89,69 @@ export function créerPersonneOuMettreÀJourCodeAccès(email){
         return updateCodeAccès(email, codeAccès)
     })
     .then(() => codeAccès)
+}
+
+/**
+ * 
+ * @returns {Promise<Personne[]>}
+ */
+export function listAllPersonnes(){
+    return database('personne')
+    .select()
+}
+
+
+
+
+
+/**
+ * 
+ * @returns {Promise<Dossier[]>}
+ */
+export function getAllDossier() {
+    return database('dossier')
+    .select()
+}
+
+/**
+ * @typedef {Dossier} DossierComplet
+ * @property {string} déposant_nom
+ * @property {string} déposant_prénoms
+ * 
+ */
+
+
+/**
+ * 
+ * @returns {Promise<DossierComplet[]>}
+ */
+export function getAllDossiersComplets() {
+    return database('dossier')
+        .select([ 
+            "dossier.id as id",
+            "id_demarches_simplifiées", 
+            "statut", 
+            "date_dépôt", 
+            "identité_petitionnaire", 
+            "espèces_protégées_concernées", 
+            "enjeu_écologiques", 
+            "départements", 
+            "communes", 
+            // déposant
+            "déposant.nom as déposant_nom",
+            "déposant.prénoms as déposant_prénoms"
+        ])
+        .join('personne as déposant', {'déposant.id': 'dossier.déposant'})
+}
+
+/**
+ * 
+ * @param {Dossier[]} dossiers 
+ * @returns {Promise<any>}
+ */
+export function dumpDossiers(dossiers){
+    return database('dossier')
+    .insert(dossiers)
+    .onConflict('id_demarches_simplifiées')
+    .merge()
 }

@@ -442,7 +442,6 @@ export async function recupérerDossiersRécemmentModifiés({token, démarcheId,
   }).json();
 
 
-
   if(response.errors){
     console.error('request page error', response.errors)
   }

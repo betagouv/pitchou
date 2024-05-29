@@ -7,8 +7,6 @@
     console.log('dossiers', dossiers)
 
     function makeLocalisation(communes, départements){
-        console.log(communes, départements)
-
         if(!communes && départements){
             return départements.join(', ')
         }
@@ -35,6 +33,7 @@
         <tr>
             <th>Statut</th>
             <th>Date de dépôt</th>
+            <th>Déposant</th>
             <th>Identité pétitionnaire</th>
             <th>Localisation</th>
             <th>Espèces protégées concernées</th>
@@ -42,10 +41,11 @@
         </tr>
     </thead>
     <tbody>
-        {#each dossiers as { statut, date_dépôt, identité_petitionnaire, espèces_protégées_concernées, enjeu_écologiques, communes, départements }}
+        {#each dossiers as { statut, date_dépôt, déposant_nom, déposant_prénoms, identité_petitionnaire, espèces_protégées_concernées, enjeu_écologiques, communes, départements }}
             <tr>
                 <td>{statut}</td>
                 <td>{date_dépôt}</td>
+                <td>{déposant_nom} {déposant_prénoms}</td>
                 <td>{identité_petitionnaire}</td>
                 <td>{makeLocalisation(communes, départements)}</td>
                 <td>{espèces_protégées_concernées}</td>
