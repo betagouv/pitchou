@@ -141,7 +141,7 @@ export function getAllDossiersComplets() {
             "déposant.nom as déposant_nom",
             "déposant.prénoms as déposant_prénoms"
         ])
-        .join('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
 }
 
 /**

@@ -37,7 +37,7 @@ const démarche = await recupérerDossiersRécemmentModifiés({
 //console.log('dossiers', démarche.dossiers.nodes.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-console.log('premier dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
+//console.log('premier dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
 
 
 // stocker les dossiers en BDD
