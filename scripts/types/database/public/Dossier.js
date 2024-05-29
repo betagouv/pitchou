@@ -19,6 +19,7 @@
  * @property {PersonneId | null} déposant
  * @property {PersonneId | null} demandeur_personne_physique
  * @property {EntrepriseSiret | null} demandeur_personne_morale
+ * @property {unknown | null} régions
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -34,6 +35,7 @@
  * @property {PersonneId | null} [déposant]
  * @property {PersonneId | null} [demandeur_personne_physique]
  * @property {EntrepriseSiret | null} [demandeur_personne_morale]
+ * @property {unknown | null} [régions]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -49,4 +51,5 @@
  * @property {PersonneId | null} [déposant]
  * @property {PersonneId | null} [demandeur_personne_physique]
  * @property {EntrepriseSiret | null} [demandeur_personne_morale]
+ * @property {unknown | null} [régions]
  */

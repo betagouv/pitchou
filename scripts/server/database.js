@@ -133,8 +133,10 @@ export function listAllDossiersComplets() {
             "date_dépôt",
             "espèces_protégées_concernées", 
             "enjeu_écologiques", 
+            // localisation
             "départements", 
             "communes", 
+            "régions", 
             // déposant
             "déposant.nom as déposant_nom",
             "déposant.prénoms as déposant_prénoms",

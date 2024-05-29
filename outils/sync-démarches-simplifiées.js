@@ -175,7 +175,7 @@ const dossiers = démarche.dossiers.nodes.map(({
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
-        //régions: JSON.stringify(régions)
+        régions: JSON.stringify(régions)
     }
     
 })
@@ -268,8 +268,6 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
 }
 
 await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
-
-console.log('entreprises', [...entreprisesInDossiersBySiret.values()])
 
 /*
     Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret

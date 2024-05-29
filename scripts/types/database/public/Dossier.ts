@@ -30,6 +30,8 @@ export default interface Dossier {
   demandeur_personne_physique: PersonneId | null;
 
   demandeur_personne_morale: EntrepriseSiret | null;
+
+  régions: unknown | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -56,6 +58,8 @@ export interface DossierInitializer {
   demandeur_personne_physique?: PersonneId | null;
 
   demandeur_personne_morale?: EntrepriseSiret | null;
+
+  régions?: unknown | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -81,4 +85,6 @@ export interface DossierMutator {
   demandeur_personne_physique?: PersonneId | null;
 
   demandeur_personne_morale?: EntrepriseSiret | null;
+
+  régions?: unknown | null;
 }
