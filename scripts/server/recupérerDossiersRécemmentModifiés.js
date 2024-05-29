@@ -328,7 +328,6 @@ fragment ChampFragment on Champ {
 
 fragment PersonneMoraleFragment on PersonneMorale {
   siret
-  siegeSocial
   address {
     ...AddressFragment
   }
@@ -337,8 +336,6 @@ fragment PersonneMoraleFragment on PersonneMorale {
     nomCommercial
     raisonSociale
     siretSiegeSocial
-    codeEffectifEntreprise
-    dateCreation
   }
   association {
     rna
@@ -374,17 +371,11 @@ fragment FileFragment on File {
 
 fragment AddressFragment on Address {
   label
-  type
   streetAddress
-  streetNumber
-  streetName
   postalCode
   cityName
   cityCode
-  departmentName
   departmentCode
-  regionName
-  regionCode
 }
 
 fragment RegionFragment on Region {

@@ -5,7 +5,7 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
-import { getPersonneByCode, getAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès } from './database.js'
+import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès } from './database.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -46,7 +46,7 @@ fastify.get('/dossiers', async function (request, reply) {
   if (code_accès) {
     const personne = await getPersonneByCode(code_accès)
     if (personne) {
-      return getAllDossiersComplets()
+      return listAllDossiersComplets()
     } else {
       reply.code(403).send("Code d'accès non valide.")
     }

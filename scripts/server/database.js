@@ -4,6 +4,7 @@ import knex from 'knex';
 
 /** @typedef {import('../types/database/public/Personne.js').default} Personne */
 /** @typedef {import('../types/database/public/Dossier.js').default} Dossier */
+/** @typedef {import('../types/database/public/Entreprise.js').default} Entreprise */
 
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
@@ -96,8 +97,7 @@ export function créerPersonneOuMettreÀJourCodeAccès(email){
  * @returns {Promise<Personne[]>}
  */
 export function listAllPersonnes(){
-    return database('personne')
-    .select()
+    return database('personne').select()
 }
 
 
@@ -108,9 +108,8 @@ export function listAllPersonnes(){
  * 
  * @returns {Promise<Dossier[]>}
  */
-export function getAllDossier() {
-    return database('dossier')
-    .select()
+export function listAllDossier() {
+    return database('dossier').select()
 }
 
 /**
@@ -125,23 +124,30 @@ export function getAllDossier() {
  * 
  * @returns {Promise<DossierComplet[]>}
  */
-export function getAllDossiersComplets() {
+export function listAllDossiersComplets() {
     return database('dossier')
         .select([ 
             "dossier.id as id",
             "id_demarches_simplifiées", 
             "statut", 
-            "date_dépôt", 
-            "identité_petitionnaire", 
+            "date_dépôt",
             "espèces_protégées_concernées", 
             "enjeu_écologiques", 
             "départements", 
             "communes", 
             // déposant
             "déposant.nom as déposant_nom",
-            "déposant.prénoms as déposant_prénoms"
+            "déposant.prénoms as déposant_prénoms",
+            // demandeur_personne_physique
+            "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
+            "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+            // demandeur_personne_morale
+            "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
+            "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
         ])
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
 }
 
 /**
@@ -153,5 +159,26 @@ export function dumpDossiers(dossiers){
     return database('dossier')
     .insert(dossiers)
     .onConflict('id_demarches_simplifiées')
+    .merge()
+}
+
+
+/**
+ * 
+ * @returns {Promise<Entreprise[]>}
+ */
+export function listAllEntreprises(){
+    return database('entreprise').select()
+}
+
+/**
+ * 
+ * @param {Entreprise[]} entreprises 
+ * @returns {Promise<any>}
+ */
+export function dumpEntreprises(entreprises){
+    return database('entreprise')
+    .insert(entreprises)
+    .onConflict('siret')
     .merge()
 }

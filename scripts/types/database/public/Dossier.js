@@ -1,4 +1,5 @@
 /** @typedef {import('./Personne').PersonneId} PersonneId */
+/** @typedef {import('./Entreprise').EntrepriseSiret} EntrepriseSiret */
 
 /**
  * Identifier type for public.dossier
@@ -11,12 +12,13 @@
  * @property {string | null} id_demarches_simplifiées
  * @property {string | null} statut
  * @property {Date | null} date_dépôt
- * @property {string | null} identité_petitionnaire
  * @property {string | null} espèces_protégées_concernées
  * @property {string | null} enjeu_écologiques
  * @property {unknown | null} départements
  * @property {unknown | null} communes
  * @property {PersonneId | null} déposant
+ * @property {PersonneId | null} demandeur_personne_physique
+ * @property {EntrepriseSiret | null} demandeur_personne_morale
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -25,12 +27,13 @@
  * @property {string | null} [id_demarches_simplifiées]
  * @property {string | null} [statut]
  * @property {Date | null} [date_dépôt]
- * @property {string | null} [identité_petitionnaire]
  * @property {string | null} [espèces_protégées_concernées]
  * @property {string | null} [enjeu_écologiques]
  * @property {unknown | null} [départements]
  * @property {unknown | null} [communes]
  * @property {PersonneId | null} [déposant]
+ * @property {PersonneId | null} [demandeur_personne_physique]
+ * @property {EntrepriseSiret | null} [demandeur_personne_morale]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -39,10 +42,11 @@
  * @property {string | null} [id_demarches_simplifiées]
  * @property {string | null} [statut]
  * @property {Date | null} [date_dépôt]
- * @property {string | null} [identité_petitionnaire]
  * @property {string | null} [espèces_protégées_concernées]
  * @property {string | null} [enjeu_écologiques]
  * @property {unknown | null} [départements]
  * @property {unknown | null} [communes]
  * @property {PersonneId | null} [déposant]
+ * @property {PersonneId | null} [demandeur_personne_physique]
+ * @property {EntrepriseSiret | null} [demandeur_personne_morale]
  */

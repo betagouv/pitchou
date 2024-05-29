@@ -2,11 +2,12 @@
 
 import { formatISO } from 'date-fns';
 
-import {listAllPersonnes, dumpDossiers, créerPersonnes} from '../scripts/server/database.js'
+import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
 
 /** @typedef {import('../scripts/types/database/public/Dossier.js').default} Dossier */
 /** @typedef {import('../scripts/types/database/public/Personne.js').default} Personne */
+/** @typedef {import('../scripts/types/database/public/Entreprise.js').default} Entreprise */
 
 // récups les données de DS
 
@@ -37,7 +38,7 @@ const démarche = await recupérerDossiersRécemmentModifiés({
 //console.log('dossiers', démarche.dossiers.nodes.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-//console.log('premier dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
+console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
 
 
 // stocker les dossiers en BDD
@@ -56,7 +57,8 @@ const pitchouKeyToAnnotationDS = {
     "enjeu_écologiques": "Q2hhbXAtNDAwMTQ3MQ=="
 }
 
-const allPersonnesCurrentlyInDatabase = await listAllPersonnes();
+const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
+const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
 const dossiers = démarche.dossiers.nodes.map(({
@@ -68,16 +70,7 @@ const dossiers = démarche.dossiers.nodes.map(({
     annotations
 }) => {
 
-    const SIRETChamp = champs.find(({id}) => id === pitchouKeyToChampDS["SIRET"])
-
-    /*if(!SIRETChamp && !demandeur) throw new TypeError(`Champ id ${pitchouKeyToChampDS["SIRET"]} et ${pitchouKeyToChampDS["Nom-Prénom"]} manquants (devrait être le Siret ou le prénom-nom de la personne)`)
-
-    const identité_petitionnaire = SIRETChamp ? 
-        SIRETChamp.etablissement && `${SIRETChamp.etablissement.entreprise.raisonSociale} - (${SIRETChamp.etablissement.siret})` || `entreprise inconnue (SIRET: ${SIRETChamp.stringValue})` :
-        demandeur.stringValue*/
-
     const espèces_protégées_concernées = champs.find(({id}) => id === pitchouKeyToChampDS["espèces_protégées_concernées"]).stringValue
-
 
     /* localisation */
     const projetSitué = champs.find(({id}) => id === pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
@@ -124,8 +117,8 @@ const dossiers = démarche.dossiers.nodes.map(({
     (qui est différent de notre "demandeur")
 
     */
-    delete demandeur.__typename
-    delete demandeur.civilite
+
+    /** @type {import('../scripts/types/database/public/Personne.js').PersonneInitializer} */
     let déposant;
     {
         const {prenom: prénoms, nom, email} = demandeur
@@ -136,12 +129,45 @@ const dossiers = démarche.dossiers.nodes.map(({
         }
     }
 
+    /*
+        demandeur
+     
+        Personne physique ou morale qui formule la demande de dérogation espèces protégées
+
+    */
+
+    /** @type {import('../scripts/types/database/public/Personne.js').PersonneInitializer | undefined} */
+    let demandeur_personne_physique = undefined;
+    /** @type {Entreprise | undefined} */
+    let demandeur_personne_morale = undefined
+
+    const SIRETChamp = champs.find(({id}) => id === pitchouKeyToChampDS["SIRET"])
+    if(!SIRETChamp){
+        demandeur_personne_physique = déposant;
+    }
+    else{
+        const etablissement = SIRETChamp.etablissement
+        if(etablissement){
+            const { siret, address = {}, entreprise = {}} = etablissement
+            const {streetAddress, postalCode, cityName} = address
+            const {raisonSociale} = entreprise
+
+
+            demandeur_personne_morale = {
+                siret,
+                raison_sociale: raisonSociale,
+                adresse: `${streetAddress} ${postalCode} ${cityName}`
+            }
+        }
+    }
+
+
     return {
         id_demarches_simplifiées,
         statut,
         date_dépôt,
-        //demandeur_physique,
-        //demandeur_morale,
+        demandeur_personne_physique,
+        demandeur_personne_morale,
         déposant,
         //représentant,
         espèces_protégées_concernées,
@@ -154,8 +180,14 @@ const dossiers = démarche.dossiers.nodes.map(({
     
 })
 
+/*
+    Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
+*/
+
 /** @type {Map<Personne['email'], Personne>} */
 const personneByEmail = new Map()
+const allPersonnesCurrentlyInDatabase = await allPersonnesCurrentlyInDatabaseP
+
 for(const personne of allPersonnesCurrentlyInDatabase){
     if(personne.email){
         personneByEmail.set(personne.email, personne)
@@ -163,14 +195,18 @@ for(const personne of allPersonnesCurrentlyInDatabase){
 }
 
 /** @type {Personne[]} */
-const personnesInDossiers = [...new Set(dossiers.map(({déposant}) => [déposant]).flat())]
+const personnesInDossiers = [...new Set(dossiers.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
 
 /**
  * 
- * @param {Personne} descriptionPersonne 
+ * @param {Personne | undefined} descriptionPersonne 
  * @returns {Personne['id'] | undefined}
  */
 function getPersonneId(descriptionPersonne){
+    if(!descriptionPersonne){
+        return undefined
+    }
+
     if(descriptionPersonne.id){
         return descriptionPersonne.id
     }
@@ -189,7 +225,7 @@ function getPersonneId(descriptionPersonne){
 
 const personnesInDossiersWithoutId = personnesInDossiers.filter(p => !getPersonneId(p))
 
-console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
+//console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if(personnesInDossiersWithoutId.length >= 1){
     await créerPersonnes(personnesInDossiersWithoutId)
@@ -200,17 +236,51 @@ if(personnesInDossiersWithoutId.length >= 1){
     })
 }
 
-console.log('personnesInDossiersWithoutId après', personnesInDossiersWithoutId)
+//console.log('personnesInDossiersWithoutId après', personnesInDossiersWithoutId)
 
+/*
+    Après avoir créé les personnes, remplacer les objets Personne par leur id
+*/
 dossiers.forEach(d => {
     d.déposant = getPersonneId(d.déposant)
+    d.demandeur_personne_physique = getPersonneId(d.demandeur_personne_physique)
 })
 
+
+/*
+    Rajouter les entreprises demandeuses qui ne sont pas déjà en BDD
+*/
+
+/** @type {Map<Entreprise['siret'], Entreprise} */
+const entreprisesInDossiersBySiret = new Map()
+
+for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers){
+    if(demandeur_personne_morale){
+        const {siret} = demandeur_personne_morale
+        if(demandeur_personne_morale && !siret){
+            throw new TypeError(`Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id: ${id}, DS: ${id_demarches_simplifiées})`)
+        }
+        
+        entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale)
+    }
+    
+    
+}
+
+await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
+
+console.log('entreprises', [...entreprisesInDossiersBySiret.values()])
+
+/*
+    Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
+*/
+dossiers.forEach(d => {
+    d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
+})
 
 
 /*throw `PPP 
     - le demandeur est une personne physique ou morale (foreign key)
-    - le déposant est une personne physique (foreign key)
     - le représentant est une personne physique (foreign key)
     - les instructeurs sont des personnes (foreign key)
         - besoin de recup les groupes d'instructeurs de la démarche
