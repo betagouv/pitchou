@@ -16,15 +16,20 @@ import Store from 'baredux'
 
 import '../types.js'
 
+/** @typedef {import('../types/database/public/Personne.js').default} Personne */
+/** @typedef {import('../types/database/public/Dossier.js').default} Dossier */
+
 
 /**
  * @typedef {Object} PitchouState
- * @property {string} [secret]
+ * @property {Personne['code_accès']} [secret]
+ * @property {Dossier[]} [dossiers] // pas vraiment des Dossier vu que venant d'un join
  */
 
 /** @type {PitchouState} */
 const state = {
-  secret: undefined
+  secret: undefined,
+  dossiers: undefined
 }
 
 const mutations = {
@@ -34,6 +39,13 @@ const mutations = {
    */
   setSecret(state, secret) {
     state.secret = secret
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['dossiers']} dossiers
+   */
+  setDossiers(state, dossiers) {
+    state.dossiers = dossiers
   }
 }
 

@@ -14,7 +14,7 @@
     "start:server": "node --env-file=.env --watch scripts/server/main.js",
     "prestart:prod-server": "knex migrate:latest",
     "start:prod-server": "node scripts/server/main.js",
-    "build-db-types": "kanel -d postgresql://dev:dev_password@localhost:5432/principale -o ./scripts/types/database && ts-to-jsdoc ./scripts/types/database/public/*.ts"
+    "build-db-types": "kanel -d postgresql://dev:dev_password@localhost:5432/principale -o ./scripts/types/database && ts-to-jsdoc --force ./scripts/types/database/public/*.ts"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
