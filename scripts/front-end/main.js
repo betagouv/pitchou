@@ -1,4 +1,7 @@
 //@ts-check
+import '@gouvfr/dsfr/dist/dsfr.min.css'
+// import '@gouvfr/dsfr/dist/dsfr.module.js'
+// import '@gouvfr/dsfr/dist/dsfr.nomodule.js'
 
 import page from 'page'
 
