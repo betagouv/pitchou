@@ -11,18 +11,20 @@
 
 <h1>Suivi instructeur</h1>
 
+<div class="fr-table fr-table--bordered">
 <table>
+    <caption>Suivi instructeur ( et on peut en dire un peu plus si on veut )</caption>
     <thead>
         <tr>
-            <th>Voir le dossier</th>
-            <th>Statut</th>
-            <th>Date de dépôt</th>
-            <th>Déposant</th>
-            <th>Demandeur de la dérogation</th>
-            <th>Localisation</th>
-            <th>Espèces protégées concernées</th>
-            <th>Enjeu écologique</th>
-            <th>Dossier sur Démarche Simplifiée <strong>(pour de faux)</strong></th>
+            <th scope="col">Voir le dossier</th>
+            <th scope="col">Statut</th>
+            <th scope="col">Date de dépôt</th>
+            <th scope="col">Déposant</th>
+            <th scope="col">Demandeur de la dérogation</th>
+            <th scope="col">Localisation</th>
+            <th scope="col">Espèces protégées concernées</th>
+            <th scope="col">Enjeu écologique</th>
+            <th scope="col">Dossier sur Démarche Simplifiée <strong>(pour de faux)</strong></th>
         </tr>
     </thead>
     <tbody>
@@ -42,6 +44,7 @@
     </tbody>
 
 </table>
+</div>
 
 <style>
     table{
