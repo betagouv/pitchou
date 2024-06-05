@@ -20,7 +20,7 @@ export function chargerDossiers(){
             })
     }
     else{
-        return Promise.reject('Impossible de charger les dossiers, secret manquant')
+        return Promise.reject(new TypeError('Impossible de charger les dossiers, secret manquant'))
     }
 }
 
