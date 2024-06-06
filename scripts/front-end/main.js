@@ -8,6 +8,7 @@ import LoginViaEmail from './components/LoginViaEmail.svelte';
 import SuiviInstructeur from './components/SuiviInstructeur.svelte';
 import SaisieEspèces from './components/SaisieEspèces.svelte';
 import Dossier from './components/Dossier.svelte';
+import ImportHistoriqueNouvelleAquitaine from './components/ImportHistoriqueNouvelleAquitaine.svelte';
 
 import { replaceComponent } from './routeComponentLifeCycle.js'
 import store from './store.js'
@@ -309,6 +310,25 @@ page('/saisie-especes', async () => {
     });
 
     replaceComponent(saisieEspèces, mapStateToProps)
+})
+
+page('/import-historique/nouvelle-aquitaine', async () => {
+        /**
+     * 
+     * @param {import('./store.js').PitchouState} _ 
+     * @returns 
+     */
+    function mapStateToProps({dossiers}){
+        return {dossiers}
+    }   
+    
+    const importHistorique = new ImportHistoriqueNouvelleAquitaine({
+        target: svelteTarget,
+        props: mapStateToProps(store.state)
+    });
+
+    replaceComponent(importHistorique, mapStateToProps)
+    
 })
 
 init()

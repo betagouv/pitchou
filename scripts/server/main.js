@@ -40,6 +40,9 @@ fastify.get('/saisie-especes', (request, reply) => {
 fastify.get('/dossier/:dossierId', (request, reply) => {
   reply.sendFile('index.html')
 })
+fastify.get('/import-historique/nouvelle-aquitaine', (request, reply) => {
+  reply.sendFile('index.html')
+})
 
 
 // Privileged routes
