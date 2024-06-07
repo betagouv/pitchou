@@ -77,8 +77,8 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier) {
 
 /**
  * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers DossierDémarcheSimplifiée88444.
- * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier - L'objet à convertir.
- * @returns {DossierDémarcheSimplifiée88444} L'objet converti.
+ * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
+ * @returns {DossierDémarcheSimplifiée88444} 
  */
 export function dossierSuiviNAVersDossierDS88444(dossier) {
     /**
@@ -86,40 +86,40 @@ export function dossierSuiviNAVersDossierDS88444(dossier) {
      */
     const dossierConverti = {
         'Porteur de projet': dossier['Porteur de projet'],
-        'Le demandeur est…': dossier['Porteur de projet'],
+        'Le demandeur est…': '',
         'Numéro de SIRET': '', // Peut-être laisser vide si non fourni dans le premier objet
         'Qualification': '', // Peut-être laisser vide si non fourni dans le premier objet
         'Adresse': '', // Peut-être laisser vide si non fourni dans le premier objet
-        'Objet du projet': dossier['But'],
+        'Objet du projet': dossier['Type de projet'],
         'Nom du représentant': '',
         'Prénom du représentant': '',
         'Qualité du représentant': '',
         'Numéro de téléphone de contact': '',
         'Adresse mail de contact': '',
         'Description de la demande': dossier['But'],
-        'Le projet est-il soumis à une autorisation environnementale ?': true, // Vous devrez peut-être ajuster cela en fonction de la logique réelle
-        'À quelle procédure le projet est-il soumis ?': [dossier['Procédure']],
+        'Le projet est-il soumis à une autorisation environnementale ?': dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
+        'À quelle procédure le projet est-il soumis ?': [],
         'Motif de la dérogation': '',
         'Précisez': '',
-        "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation": true, // Vous devrez peut-être ajuster cela en fonction de la logique réelle
+        "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation": undefined,
         "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": '',
         'Détails du programme d’activité': '',
         'Lien vers la liste des espèces concernées': '',
         'Nom du projet': dossier['Nom du projet'],
-        'Cette demande concerne un programme déjà existant': false, // Vous devrez peut-être ajuster cela en fonction de la logique réelle
+        'Cette demande concerne un programme déjà existant': false,
         'Le projet se situe au niveau…': '',
         'Commune(s) où se situe le projet': (dossier['Localisation'] || '').split(',').map(c => c.trim()),
         'Département(s) où se situe le projet': (dossier['Dpt'] || '').split(',').map(d => d.trim()),
         'Date de début d’intervention': dossier['Date réception Guichet Unique'],
-        'Date de fin d’intervention': new Date(),
-        'Date de début de chantier': new Date(),
-        'Date de fin de chantier': new Date(),
+        'Date de fin d’intervention': undefined,
+        'Date de début de chantier': undefined,
+        'Date de fin de chantier': undefined,
         'Qualification des personnes amenées à intervenir': [],
         "Modalités techniques de l'intervention": '',
         "Bilan d'opérations antérieures": '',
         'Description succincte du projet': '',
         'Dépot du dossier complet de demande de dérogation': '',
-        "Mesures d'évitement, réduction et/ou compensation": false // Vous devrez peut-être ajuster cela en fonction de la logique réelle
+        "Mesures d'évitement, réduction et/ou compensation": undefined
     };
 
     return dossierConverti;
@@ -140,16 +140,16 @@ function getDateRéception(dossier){
 
 /**
  * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers AnnotationsPrivéesDémarcheSimplifiée88444.
- * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier - L'objet à convertir.
- * @returns {AnnotationsPrivéesDémarcheSimplifiée88444} L'objet converti.
+ * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
+ * @returns {AnnotationsPrivéesDémarcheSimplifiée88444} 
  */
 export function dossierSuiviNAVersAnnotationsDS88444(dossier) {
     /**
      * @type {AnnotationsPrivéesDémarcheSimplifiée88444}
      */
     const annotationsConverties = {
-        'Enjeu écologique': dossier['enjeu écologique'] === 'oui', // Conversion en booléen
-        'Enjeu politique': dossier['enjeu politique'] === 'oui', // Conversion en booléen
+        'Enjeu écologique': dossier['enjeu écologique'] === 'oui',
+        'Enjeu politique': dossier['enjeu politique'] === 'oui', 
         'Commentaires sur les enjeux et la procédure': dossier['commentaires sur les enjeux et le contexte'],
         'Date de réception DDEP': getDateRéception(dossier),
         'Dernière contribution en lien avec l\'instruction DDEP': '',
@@ -159,8 +159,8 @@ export function dossierSuiviNAVersAnnotationsDS88444(dossier) {
         'Saisine de l\'instructeur': '',
         'Date saisine CSRPN': dossier['Date saisine CSRPN'],
         'Date saisine CNPN': dossier['Date saisine CNPN'],
-        'Date avis CSRPN': dossier['Date avis CNPN / CSRPN'], // Vous devrez peut-être diviser cette valeur
-        'Date avis CNPN': dossier['Date avis CNPN / CSRPN'], // Vous devrez peut-être diviser cette valeur
+        'Date avis CSRPN': dossier['Date avis CNPN / CSRPN'], 
+        'Date avis CNPN': dossier['Date avis CNPN / CSRPN'], 
         'Avis CSRPN/CNPN': '',
         'Avis CSRPN/CNPN fichier': '',
         'Date de début de la consultation du public ou enquête publique': recoverDate(dossier['Dates consultation public']),
