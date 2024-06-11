@@ -28,23 +28,38 @@ function recoverDate(d){
         return date
     }
     else{
-        console.warn(`Date non reconnue (${d})`)
+        //console.warn(`Date non reconnue (${d})`)
         return undefined
     }
 }
 
 /**
  * 
+ * @param {string} nomCommune 
+ * @returns 
+ */
+export function normalizeNomCommune(nomCommune) {
+    return nomCommune
+      .replace(/-|'/g, ' ')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove accent because GH pages triggers file download
+      .toLowerCase()
+  }
+
+
+/**
+ * 
  * @param { StringValues<_DossierTableauSuiviNouvelleAquitaine2023>} dossier 
+ * @param { Map<string, GeoAPICommune> } nomToCommune
  * @returns { DossierTableauSuiviNouvelleAquitaine2023 }
  */
-export function toDossierTableauSuiviNouvelleAquitaine2023(dossier) {
+export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune) {
     /** @type {DossierTableauSuiviNouvelleAquitaine2023} */
     //@ts-expect-error for code simplicity
     const convertedDossier = {...dossier};
 
     // Conversion champ par champ
-    for (const /** @type {keyof dossier} */ key of Object.keys(dossier)) {
+    for (const /** @type {NoInfer<keyof _DossierTableauSuiviNouvelleAquitaine2023>} */ key of Object.keys(dossier)) {
         switch (key) {
             case 'Date réception Guichet Unique':
             case 'Date réception DBEC':
@@ -61,6 +76,26 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier) {
                 break;
             case 'DDEP requise':
                 convertedDossier[key] = dossier[key].trim() === 'oui';
+                break;
+            case 'Localisation':
+                convertedDossier[key] = (dossier[key] || '')
+                    .split(/,|&|\//)
+                    .map(s => s.trim())
+                    .filter(s => s.length >= 1)
+                    .map(nomCommune => {
+                        const normalizedNomCommune = normalizeNomCommune(nomCommune)
+                        if(!nomToCommune.has(normalizedNomCommune)){
+                            console.warn(
+                                `Commune '${nomCommune}' non reconnue`, '-',  
+                                dossier['Nom du projet'], '-', 
+                                dossier['Porteur de projet']
+                            )
+                            return nomCommune;
+                        }
+                        else{
+                            return nomToCommune.get(normalizedNomCommune);
+                        }
+                    })
                 break;
             default:
                 convertedDossier[key] = dossier[key];
@@ -107,8 +142,8 @@ export function dossierSuiviNAVersDossierDS88444(dossier) {
         'Lien vers la liste des espèces concernées': '',
         'Nom du projet': dossier['Nom du projet'],
         'Cette demande concerne un programme déjà existant': false,
-        'Le projet se situe au niveau…': '',
-        'Commune(s) où se situe le projet': (dossier['Localisation'] || '').split(',').map(c => c.trim()),
+        'Le projet se situe au niveau…': undefined,
+        'Commune(s) où se situe le projet': dossier['Localisation'],
         'Département(s) où se situe le projet': (dossier['Dpt'] || '').split(',').map(d => d.trim()),
         'Date de début d’intervention': dossier['Date réception Guichet Unique'],
         'Date de fin d’intervention': undefined,

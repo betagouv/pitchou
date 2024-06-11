@@ -89,13 +89,27 @@
  * @typedef { {[K in keyof T]: string} } StringValues
  */
 
+/** 
+ * @typedef {Object} GeoAPICommune
+ * @prop {string} nom
+ * @prop {string} code
+ * @prop {string} codeDepartement
+ * @prop {string} codeRegion
+ * @prop {string[]} codesPostaux
+ * @prop {string} siren
+ * @prop {string} codeEpci
+ * @prop {string} nom
+ * @prop {number} population
+ * 
+ */
+
 /**
  * @typedef {{
 * 'n° ligne': number,
 * 'Type de projet': string,
 * 'Nom du projet': string,
 * 'Porteur de projet': string,
-* 'Localisation': string,
+* 'Localisation': (GeoAPICommune | string)[],
 * 'Dpt': string,
 * 'But': string,
 * 'CdM': string,
@@ -130,7 +144,7 @@
 * }} _DossierTableauSuiviNouvelleAquitaine2023
 */
 
-/** @typedef {Partial<_DossierTableauSuiviNouvelleAquitaine2023>} DossierTableauSuiviNouvelleAquitaine2023*/
+/** @typedef {Partial<_DossierTableauSuiviNouvelleAquitaine2023>} DossierTableauSuiviNouvelleAquitaine2023 */
 
 
 
@@ -158,8 +172,8 @@
 *   'Lien vers la liste des espèces concernées': string,
 *   'Nom du projet': string,
 *   'Cette demande concerne un programme déjà existant': boolean,
-*   'Le projet se situe au niveau…': string,
-*   'Commune(s) où se situe le projet': string[],
+*   'Le projet se situe au niveau…': "d'une ou plusieurs communes" | "d'un ou plusieurs départements" | "d'une ou plusieurs régions"
+*   'Commune(s) où se situe le projet': (GeoAPICommune | string)[],
 *   'Département(s) où se situe le projet': string[],
 *   'Région(s) où se situe le projet': string[],
 *   'Date de début d’intervention': Date,
@@ -175,7 +189,7 @@
 * }} _DossierDémarcheSimplifiée88444
 */
 
-/** @typedef {Partial<_DossierDémarcheSimplifiée88444>} DossierDémarcheSimplifiée88444*/
+/** @typedef {Partial<_DossierDémarcheSimplifiée88444>} DossierDémarcheSimplifiée88444 */
 
 
 /**

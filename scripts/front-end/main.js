@@ -2,7 +2,7 @@
 
 import page from 'page'
 
-import {dsv} from 'd3-fetch'
+import {dsv, json} from 'd3-fetch'
 
 import LoginViaEmail from './components/LoginViaEmail.svelte';
 import SuiviInstructeur from './components/SuiviInstructeur.svelte';
@@ -19,6 +19,7 @@ import {envoiEmailConnexion} from './serveur.js'
 import { authorizedEmailDomains } from '../commun/constantes.js';
 
 import '../types.js'
+import { normalizeNomCommune } from '../commun/typeFormat.js';
 
 const svelteTarget = document.querySelector('.svelte-main')
 
@@ -312,14 +313,30 @@ page('/saisie-especes', async () => {
     replaceComponent(saisieEspèces, mapStateToProps)
 })
 
+
+
 page('/import-historique/nouvelle-aquitaine', async () => {
-        /**
+    /** @type { GeoAPICommune[] | undefined } */
+    const communes = await json('https://geo.api.gouv.fr/communes')
+    if(!communes){
+        throw new TypeError('Communes manquantes')
+    }
+
+    /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
+    const nomToCommune = new Map()
+
+    for(const commune of communes){
+        nomToCommune.set(normalizeNomCommune(commune.nom), commune)
+    }
+    
+    
+    /**
      * 
      * @param {import('./store.js').PitchouState} _ 
      * @returns 
      */
     function mapStateToProps({dossiers}){
-        return {dossiers}
+        return {dossiers, nomToCommune}
     }   
     
     const importHistorique = new ImportHistoriqueNouvelleAquitaine({

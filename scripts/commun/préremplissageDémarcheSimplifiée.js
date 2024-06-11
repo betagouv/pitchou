@@ -21,6 +21,10 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
     ) 
 
 */
+
+/** @typedef {import('../types.js').DossierDémarcheSimplifiée88444} DossierDémarcheSimplifiée88444 */
+
+
 /** @type {Map< keyof DossierDémarcheSimplifiée88444, string >} */
 const démarcheDossierLabelToId = new Map([
     [
@@ -161,6 +165,18 @@ const démarcheDossierLabelToId = new Map([
     ]
 ])
 
+/**
+ *  champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]&champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]
+ * @param {GeoAPICommune} commune 
+ */
+function makeCommuneParam({code, codesPostaux: [codePostal]}){
+  const communeChamp = `champ_${démarcheDossierLabelToId.get('Commune(s) où se situe le projet')}`
+  // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
+  const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
+
+  return `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]=["${codePostal}", "${code}"]`
+}
+
 /** @type {(keyof DossierDémarcheSimplifiée88444)[]} */
 const champsPourPréremplissage = [
     "Le demandeur est…",
@@ -187,10 +203,14 @@ export function créerLienPréremplissageDémarche(dossierPartiel){
     const objetPréremplissage = {};
 
     for(const champ of champsPourPréremplissage){
-        const valeur = dossierPartiel[champ]
-        if(valeur){
-            // le `champ_` est une convention DS
-            objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
+        if(!['Commune(s) où se situe le projet', 'Département(s) où se situe le projet', 'Région(s) où se situe le projet'].includes(champ)){
+
+          /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]} */
+          const valeur = dossierPartiel[champ]
+          if(valeur){
+              // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+              objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
+          }
         }
     }
 
@@ -198,12 +218,43 @@ export function créerLienPréremplissageDémarche(dossierPartiel){
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le demandeur est…')}`] = "une personne morale"
     }
 
-    throw `PPP : 
-        - faire un remplissage spécifique pour la localisation
+    // recups les communes
+
+    let communesURLParam = ''
+
+    if(Array.isArray(dossierPartiel['Commune(s) où se situe le projet']) && dossierPartiel['Commune(s) où se situe le projet'].length >= 1){
+        // Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.
+        // champ_Q2hhbXAtNDA0MTQ0Mw: Un tableau contenant le code postal et le code INSEE de la commune
+        // Exemple 	[{"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}, {"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}] 
+
+        /*
+        throw `PPP
+          Ce code ne fonctionne pas pour le moment
+          https://mattermost.incubateur.net/betagouv/pl/77jbtccr17fjdjk794nu3y6kpo
+          https://mattermost.incubateur.net/betagouv/pl/nppj3hai1trg5qut8aqhkekdxh
+        `
+
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet se situe au niveau…')}`] = "d'une ou plusieurs communes"
+
+        communesURLParam = dossierPartiel['Commune(s) où se situe le projet']
+          .filter(commune => Object(commune) === commune)
+          .map(makeCommuneParam)
+          .join('&')
+        */
+
+    }
+
+    console.log('communesURLParam', communesURLParam)
+
+    /*throw `PPP :
         - faire un remplissage spécifique pour le type de projet, basé sur le tableau de Vanessa`
-        
+    */    
 
-    console.log('objetPréremplissage', objetPréremplissage, dossierPartiel)
+    //console.log('objetPréremplissage', objetPréremplissage, dossierPartiel)
 
-    return basePréremplissage + (new URLSearchParams(objetPréremplissage)).toString()
+    return basePréremplissage + 
+      (new URLSearchParams(objetPréremplissage)).toString() + 
+      (communesURLParam ? '&' + communesURLParam : '')
+
 }
+

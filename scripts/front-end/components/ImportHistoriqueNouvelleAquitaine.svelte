@@ -15,6 +15,9 @@
     /** @type {import('../../types/database/public/Dossier.js').default[]} */
     export let dossiers
 
+    /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
+    export let nomToCommune
+
     let fichiersImportRaw;
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
@@ -28,13 +31,17 @@
      */
     function estImportable(candidat){
         return !candidat['Décision'] &&
-            (candidat['Porteur de projet'] || candidat['Nom du projet'] || candidat['Localisation'])
+            (
+                candidat['Porteur de projet'] || 
+                candidat['Nom du projet'] || 
+                (Array.isArray(candidat['Localisation']) && candidat['Localisation'].length >= 1)
+            )
     }
 
     $: if(fichiersImportRaw){
         candidatsImportsSuiviNAP = fichiersImportRaw[0].text()
             .then(scsv.parse)
-            .then(dossiers => dossiers.map(toDossierTableauSuiviNouvelleAquitaine2023))
+            .then(dossiers => dossiers.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune)))
             .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
                 candidats.filter(estImportable)
             )
@@ -82,11 +89,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Département</th>
+                                <th><abbr title="Département">Dpt</abbr></th>
                                 <th>Nom du porteur de projet</th>
                                 <th>Nom du projet</th>
-                                <th>Commune</th>
-                                <th>Autorisation environnementale</th>
+                                <th>Commune(s)</th>
+                                <th><abbr title="Autorisation environnementale">AE</abbr></th>
                                 <th>Préremplissage</th>
                                 <th>Email au porteur de projet</th>
                             </tr>
@@ -97,7 +104,16 @@
                                 <td>{dossier['Département(s) où se situe le projet'].join(', ')}</td>
                                 <td>{dossier['Porteur de projet']}</td>
                                 <td>{dossier['Nom du projet']}</td>
-                                <td>{dossier['Commune(s) où se situe le projet'].join(', ')}</td>
+                                <td>
+                                    {#each dossier['Commune(s) où se situe le projet'] as commune, i}
+                                        {#if i !== 0},{/if}
+                                        {#if typeof commune === 'string'}
+                                            <span class="non-reconnu" title="Nom de commune non reconnu">⚠️ {commune}</span>
+                                        {:else}
+                                            {commune.nom} ({commune.codeDepartement})
+                                        {/if}
+                                    {/each}
+                                </td>
                                 <td>{dossier['Le projet est-il soumis à une autorisation environnementale ?'] ? 'oui' : 'non'}</td>
                                 <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
                                 <td>
@@ -109,8 +125,6 @@
                                         (adresse email ou nom/prénom manquant)
                                     {/if}
                                 </td>
-                                
-                                
                             </tr>
                         {/each}
                         </tbody>
@@ -179,6 +193,10 @@
         td, th{
             vertical-align: top;
             padding: 0.3rem 0.6rem;
+
+            .non-reconnu{
+                text-decoration: underline dotted;
+            }
         }
     }
 </style>
