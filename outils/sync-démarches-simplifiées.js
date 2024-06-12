@@ -83,8 +83,11 @@ const dossiers = démarche.dossiers.nodes.map(({
     let régions;
 
     if(champCommunes){
-        communes = champCommunes.rows.map(c => c.champs[0].commune)
-        départements = [... new Set(champCommunes.rows.map(c => c.champs[0].departement.code))]
+        communes = champCommunes.rows.map(c => c.champs[0].commune).filter(x => !!x)
+        
+        if(Array.isArray(communes) && communes.length >= 1){
+            départements = [... new Set(champCommunes.rows.map(c => c.champs[0].departement.code))]
+        }
     }
     else{
         if(champDépartements){
