@@ -18,6 +18,9 @@
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     export let nomToCommune
 
+    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet'] } */
+    export let typeVersObjet
+
     let fichiersImportRaw;
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
@@ -52,7 +55,7 @@
             return [
                 d, 
                 {
-                    dossier: dossierSuiviNAVersDossierDS88444(d),
+                    dossier: dossierSuiviNAVersDossierDS88444(d, typeVersObjet),
                     annotations: dossierSuiviNAVersAnnotationsDS88444(d)
                 }
             ]
@@ -71,9 +74,8 @@
     <section>
         <h2>Import csv</h2>
         <p>
-            Remplissez <a href="/data/import-historique/exemple-import.ods">ce fichier tableur d'exemple</a>, 
-            avec les informations à saisir pour l'import en masse
-            puis, exportez-le au format .csv (utilisant le point-virgule comme "séparateur de champ").
+            Exportez le tableau de suivi Nouvelle Aquitaine au format .csv (utilisant le point-virgule 
+            comme "séparateur de champ").<br>
             Et déposez le fichier .csv ici : 
         </p>
         <label class="file">

@@ -113,9 +113,10 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
 /**
  * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers DossierDémarcheSimplifiée88444.
  * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
+ * @param {Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']>} typeVersObjet 
  * @returns {DossierDémarcheSimplifiée88444} 
  */
-export function dossierSuiviNAVersDossierDS88444(dossier) {
+export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
     /**
      * @type {DossierDémarcheSimplifiée88444}
      */
@@ -125,7 +126,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier) {
         'Numéro de SIRET': '', // Peut-être laisser vide si non fourni dans le premier objet
         'Qualification': '', // Peut-être laisser vide si non fourni dans le premier objet
         'Adresse': '', // Peut-être laisser vide si non fourni dans le premier objet
-        'Objet du projet': dossier['Type de projet'],
+        'Objet du projet': typeVersObjet.get(dossier['Type de projet']),
         'Nom du représentant': '',
         'Prénom du représentant': '',
         'Qualité du représentant': '',

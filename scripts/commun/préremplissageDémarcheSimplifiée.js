@@ -203,7 +203,12 @@ export function créerLienPréremplissageDémarche(dossierPartiel){
     const objetPréremplissage = {};
 
     for(const champ of champsPourPréremplissage){
-        if(!['Commune(s) où se situe le projet', 'Département(s) où se situe le projet', 'Région(s) où se situe le projet'].includes(champ)){
+        if(![
+            'Commune(s) où se situe le projet', 
+            'Département(s) où se situe le projet', 
+            'Région(s) où se situe le projet'
+          ].includes(champ)
+        ){
 
           /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]} */
           const valeur = dossierPartiel[champ]
