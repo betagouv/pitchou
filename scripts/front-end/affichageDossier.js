@@ -45,19 +45,27 @@ export function formatDemandeur({demandeur_personne_physique_nom, demandeur_pers
 
 /**
  *
- * @param {Date} date
+ * @param {Date | undefined} date
  * @returns {string}
  */
 export function formatDateAbsolue(date) {
+    if(!date){
+        return '(date inconnue)'
+    }
+
     return format(date, 'd MMMM yyyy', { locale: fr })
 }
   
   /**
    *
-   * @param {Date} date
+   * @param {Date | undefined} date
    * @returns {string}
    */
 export function formatDateRelative(date) {
+    if(!date){
+        return '(date inconnue)'
+    }
+
     if (differenceInDays(date, new Date()) === 0) {
       return `Aujourd'hui`
     }

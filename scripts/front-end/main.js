@@ -2,12 +2,13 @@
 
 import page from 'page'
 
-import {dsv} from 'd3-fetch'
+import {csv, dsv, json} from 'd3-fetch'
 
 import LoginViaEmail from './components/LoginViaEmail.svelte';
 import SuiviInstructeur from './components/SuiviInstructeur.svelte';
 import SaisieEspèces from './components/SaisieEspèces.svelte';
 import Dossier from './components/Dossier.svelte';
+import ImportHistoriqueNouvelleAquitaine from './components/ImportHistoriqueNouvelleAquitaine.svelte';
 
 import { replaceComponent } from './routeComponentLifeCycle.js'
 import store from './store.js'
@@ -18,6 +19,7 @@ import {envoiEmailConnexion} from './serveur.js'
 import { authorizedEmailDomains } from '../commun/constantes.js';
 
 import '../types.js'
+import { normalizeNomCommune } from '../commun/typeFormat.js';
 
 const svelteTarget = document.querySelector('.svelte-main')
 
@@ -309,6 +311,69 @@ page('/saisie-especes', async () => {
     });
 
     replaceComponent(saisieEspèces, mapStateToProps)
+})
+
+
+
+page('/import-historique/nouvelle-aquitaine', async () => {
+    /** @type { [GeoAPICommune[] | undefined, any, any] } */
+    const [communes, typeObjet, schema] = await Promise.all([
+        json('https://geo.api.gouv.fr/communes'),
+        csv('/data/import-historique/Correspondance Nom projet Objet projet.csv'),
+        json('/data/schema-DS-88444.json')
+    ])
+
+    if(!communes){
+        throw new TypeError('Communes manquantes')
+    }
+
+    /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
+    const nomToCommune = new Map()
+
+    for(const commune of communes){
+        nomToCommune.set(normalizeNomCommune(commune.nom), commune)
+    }
+
+
+    if(!typeObjet){
+        throw new TypeError('Correspondance type/objet manquante')
+    }
+
+    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']> } */
+    const typeVersObjet = new Map()
+
+    const objetsPossibles = new Set(schema.revision.champDescriptors.find(champ => champ.id === 'Q2hhbXAtMzg5NzQwMA==').options)
+
+    for(let {'Tableau de suivi': type, 'Objet du projet (ONAGRE)': objet} of typeObjet){
+        type = type.trim()
+        objet = objet.trim()
+
+        if(type.length >= 1 && objet.length >= 1){
+            if(!objetsPossibles.has(objet)){
+                console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
+            }
+
+            typeVersObjet.set(type, objet)
+        }
+    }
+
+    
+    /**
+     * 
+     * @param {import('./store.js').PitchouState} _ 
+     * @returns 
+     */
+    function mapStateToProps({dossiers}){
+        return {dossiers, nomToCommune, typeVersObjet}
+    }   
+    
+    const importHistorique = new ImportHistoriqueNouvelleAquitaine({
+        target: svelteTarget,
+        props: mapStateToProps(store.state)
+    });
+
+    replaceComponent(importHistorique, mapStateToProps)
+    
 })
 
 init()
