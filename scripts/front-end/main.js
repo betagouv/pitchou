@@ -5,7 +5,7 @@ import page from 'page'
 import {csv, dsv, json} from 'd3-fetch'
 
 import LoginViaEmail from './components/LoginViaEmail.svelte';
-import SuiviInstructeur from './components/SuiviInstructeur.svelte';
+import SuiviInstruction from './components/SuiviInstruction.svelte';
 import SaisieEspèces from './components/SaisieEspèces.svelte';
 import Dossier from './components/Dossier.svelte';
 import ImportHistoriqueNouvelleAquitaine from './components/ImportHistoriqueNouvelleAquitaine.svelte';
@@ -61,7 +61,7 @@ page('/', async () => {
             return {dossiers}
         }    
         
-        const suiviInstructeur = new SuiviInstructeur({
+        const suiviInstructeur = new SuiviInstruction({
             target: svelteTarget,
             props: mapStateToProps(store.state)
         });

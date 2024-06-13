@@ -46,6 +46,7 @@
 {#if nav}
     <nav class="fr-nav" id="navigation-773" aria-label="Menu principal">
         <ul class="fr-nav__list">
+            <!--
             <li class="fr-nav__item">
                 <button
                     class="fr-nav__btn"
@@ -56,8 +57,8 @@
                 <div class="fr-collapse fr-menu" id="menu-776">
                     <ul class="fr-menu__list">
                         <li>
-                            <a class="fr-nav__link" href="#" target="_self"
-                                >Lien de navigation</a
+                            <a class="fr-nav__link" href="/saisie-especes" target="_self"
+                                >Saisie des</a
                             >
                         </li>
                         <li>
@@ -67,30 +68,27 @@
                         </li>
                     </ul>
                 </div>
+            </li>
+            
+            -->
+            <li class="fr-nav__item">
+                <a class="fr-nav__link" href="/saisie-especes" target="_self">Saisie espèces protégées</a>
             </li>
             <li class="fr-nav__item">
                 <button
                     class="fr-nav__btn"
                     aria-expanded="false"
-                    aria-controls="menu-774">Entrée menu</button
+                    aria-controls="menu-774">Import historique</button
                 >
                 <div class="fr-collapse fr-menu" id="menu-774">
                     <ul class="fr-menu__list">
                         <li>
-                            <a class="fr-nav__link" href="#" target="_self"
-                                >Lien de navigation</a
-                            >
-                        </li>
-                        <li>
-                            <a class="fr-nav__link" href="#" target="_self"
-                                >Lien de navigation</a
-                            >
+                            <a class="fr-nav__link" href="/import-historique/nouvelle-aquitaine" target="_self">
+                                Import historique DREAL Nouvelle-Aquitaine
+                            </a>
                         </li>
                     </ul>
                 </div>
-            </li>
-            <li class="fr-nav__item">
-                <a class="fr-nav__link" href="#" target="_self">accès direct</a>
             </li>
         </ul>
     </nav>
@@ -203,4 +201,10 @@
 </footer>
 
 <style lang="scss">
+    .fr-nav__item{
+        // pour une raison pas claire, cette règle est annulée par une media query @media (min-width: 62em) 
+        // et ça casse le menu.
+        // Cette ligne le répare
+        position: relative;
+    }
 </style>
