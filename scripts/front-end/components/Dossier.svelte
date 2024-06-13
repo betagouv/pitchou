@@ -1,5 +1,8 @@
 <script>
     //@ts-check
+
+    import Squelette from './Squelette.svelte'
+    
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
     /** @type {import('../../types/database/public/Dossier.js').default} */
@@ -9,46 +12,50 @@
 
 </script>
 
-<article>
-    <h1>Dossier {dossier.id} - {statut}</h1>
+<Squelette>
+    <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+        <div class="fr-col">
 
-    <section>
-        <h2>Demandeur</h2>
-        <p>{formatDemandeur(dossier)}</p>
+            <article>
+                <h1>Dossier {dossier.id} - {statut}</h1>
 
-        <h2>Localisation</h2>
-        <p>{formatLocalisation(dossier)}</p>
-    </section>
+                <section>
+                    <h2>Demandeur</h2>
+                    <p>{formatDemandeur(dossier)}</p>
 
-    <section>
-        <h2>Chronologie</h2>
-        <ol class="chronologie">
-            <li>
-                <span class="text">Dépôt sur Démarche Simplifiée</span>
-                <span class="moment">{formatDateRelative(date_dépôt)}</span>
-            </li>
-        </ol>
-    </section>
+                    <h2>Localisation</h2>
+                    <p>{formatLocalisation(dossier)}</p>
+                </section>
 
-    <section>
-        <h2>Interlocueurs</h2>
+                <section>
+                    <h2>Chronologie</h2>
+                    <ol class="chronologie">
+                        <li>
+                            <span class="text">Dépôt sur Démarche Simplifiée</span>
+                            <span class="moment">{formatDateRelative(date_dépôt)}</span>
+                        </li>
+                    </ol>
+                </section>
 
-        {#if déposant_nom}
-        <h3>Déposant</h3>
-        {formatDéposant(dossier)}
-        {/if}
+                <section>
+                    <h2>Interlocueurs</h2>
 
-        <h3>Représentant du demandeur</h3>
-        (à faire)
-    </section>
+                    {#if déposant_nom}
+                    <h3>Déposant</h3>
+                    {formatDéposant(dossier)}
+                    {/if}
 
-</article>
+                    <h3>Représentant du demandeur</h3>
+                    (à faire)
+                </section>
+
+            </article>
+        </div>
+    </div>
+</Squelette>
 
 <style lang="scss">
     article{
-        text-align: left;
-        max-width: 60rem;
-        margin: auto;
 
         h1{
             text-align: center;

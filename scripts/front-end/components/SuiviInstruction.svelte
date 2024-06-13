@@ -1,6 +1,6 @@
 <script>
-    import Squelette from './Squelette.svelte'
     //@ts-check
+    import Squelette from './Squelette.svelte'
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative, formatDateAbsolue} from '../affichageDossier.js'
 
     /** @type {import('../../types/database/public/Dossier.js').default[]} */
@@ -55,20 +55,8 @@
 
 </Squelette>
 
-<style>
-    table{
-        text-align: left;
-    }
-
-    tr{
-        border: 1px solid #CCC;
-        border-width: 1px 0;
-    }
-
+<style lang="scss">
     td, th{
         vertical-align: top;
-        padding: 0.3rem 0.6rem;
     }
-
-
 </style>
