@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-fr-scheme="system">
 <head>
     <meta charset="utf-8">
     <meta name="referrer" content="no-referrer">
@@ -15,9 +15,7 @@
     <link id="methodes-data" rel="preload" as="fetch" href="/data/méthodes.csv" crossorigin="anonymous">
     <link id="transports-data" rel="preload" as="fetch" href="/data/transports.csv" crossorigin="anonymous">
 
-    <link crossorigin="anonymous" rel="stylesheet" href="/style/bootstrap-reset-4.6.2.css">
-    <link crossorigin="anonymous" rel="stylesheet" href="/style/better-css-defaults.css">
-    <link crossorigin="anonymous" rel="stylesheet" href="/style/layout.css">
+    <link crossorigin="anonymous" rel="stylesheet" href="/node_modules/@gouvfr/dsfr/dist/dsfr.css">
 
     <link crossorigin="anonymous" rel="stylesheet" href="/build/rollup-bundle-pitchou.css">
     
@@ -25,7 +23,9 @@
 </head>
 <body>
     <main>
-        <section class="svelte-main"></section>
+        <section class="svelte-main fr-container"></section>
     </main>
+    <!-- https://www.systeme-de-design.gouv.fr/utilisation-et-organisation/developpeurs/api-javascript -->
+    <script type="module" src="/node_modules/@gouvfr/dsfr/dist/dsfr.module.min.js"></script>
 </body>
 </html>

@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@fastify/static": "^7.0.1",
+    "@gouvfr/dsfr": "^1.11.2",
     "baredux": "github:DavidBruant/baredux#v1.0.8",
     "d3-fetch": "^3.0.1",
     "date-fns": "^3.6.0",
