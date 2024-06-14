@@ -4,19 +4,22 @@ import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 export function formatLocalisation({communes, départements, régions}){
+    // Régions
     if(!communes && !départements && régions){
         return `Régions: ${régions.join(', ')}`
     }
 
+    // Départements
     if(!communes && départements){
         return départements.join(', ')
     }
 
-    if((!communes && !départements) || (communes.length === 0 && départements.length === 0)){
+    // Communes
+    if((!communes && !départements) || (communes.length === 0 && (!départements || départements.length === 0))){
         return '(inconnue)'
     }
 
-    return communes.map(({name}) => name).join(', ') + ' ' + `(${départements.join(', ')})`
+    return communes.map(({name}) => name).join(', ') + ' ' + `(${Array.isArray(départements) ? départements.join(', ') : ''})`
 }
 
 export function formatDéposant({déposant_nom, déposant_prénoms}){

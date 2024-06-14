@@ -86,9 +86,9 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
                         const normalizedNomCommune = normalizeNomCommune(nomCommune)
                         if(!nomToCommune.has(normalizedNomCommune)){
                             console.warn(
-                                `Commune '${nomCommune}' non reconnue`, '-',  
-                                dossier['Nom du projet'], '-', 
-                                dossier['Porteur de projet']
+                                `Commune '${nomCommune}'`, '-',   
+                                dossier['Dpt'], '-',
+                                dossier['Nom du projet']
                             )
                             return nomCommune;
                         }
