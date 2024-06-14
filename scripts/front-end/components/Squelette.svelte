@@ -57,12 +57,12 @@
                 <div class="fr-collapse fr-menu" id="menu-776">
                     <ul class="fr-menu__list">
                         <li>
-                            <a class="fr-nav__link" href="/saisie-especes" target="_self"
+                            <a class="fr-nav__link" href="/saisie-especes"
                                 >Saisie des</a
                             >
                         </li>
                         <li>
-                            <a class="fr-nav__link" href="#" target="_self"
+                            <a class="fr-nav__link" href="#"
                                 >Lien de navigation</a
                             >
                         </li>
@@ -72,7 +72,7 @@
             
             -->
             <li class="fr-nav__item">
-                <a class="fr-nav__link" href="/saisie-especes" target="_self">Saisie espèces protégées</a>
+                <a class="fr-nav__link" href="/saisie-especes">Saisie espèces protégées</a>
             </li>
             <li class="fr-nav__item">
                 <button
@@ -83,7 +83,7 @@
                 <div class="fr-collapse fr-menu" id="menu-774">
                     <ul class="fr-menu__list">
                         <li>
-                            <a class="fr-nav__link" href="/import-historique/nouvelle-aquitaine" target="_self">
+                            <a class="fr-nav__link" href="/import-historique/nouvelle-aquitaine">
                                 Import historique DREAL Nouvelle-Aquitaine
                             </a>
                         </li>

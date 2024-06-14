@@ -3,6 +3,7 @@
 	export let espèces;
 	export let selectedItem = undefined;
 	export let onChange = undefined
+	export let htmlClass
 
 	$: espèceToLabel = makeEspèceToLabel(espèces)
 
@@ -31,6 +32,8 @@
 	maxItemsToShowInList=20
 	cleanUserText=false
 	{beforeChange}
+	class={htmlClass}
+	hideArrow={true}
 >
 	<div slot="item" let:item>
 		{item["NOM_VERN"]} (<i>{item["LB_NOM"]}</i>)
@@ -38,5 +41,7 @@
 </AutoComplete>
 
 <style lang="scss">
-	
+	:global(.autocomplete-list.hidden){
+		display: none;
+	}
 </style>

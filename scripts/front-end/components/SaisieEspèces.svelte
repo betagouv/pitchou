@@ -1,5 +1,6 @@
 <script>
     //@ts-check
+    import Squelette from './Squelette.svelte'
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import '../../types.js'
 
@@ -14,7 +15,7 @@
 
     console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
 
-    const mailto = " mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
+    const mailto = "mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
 
     /**
      * Les fourchettes sont des chaînes de caractères toujours au format 'x-y' où x et y sont des integer
@@ -58,9 +59,6 @@
         }]
     ])
 
-    // pour garder la ligne de sélection/ajout d'espèce vide après sélection
-    let defaultSelectedItem = undefined
-    $: defaultSelectedItem, defaultSelectedItem = undefined
 
     function ajouterEspèce(espèce, classification, etresVivantsAtteints){
         if(classification === 'oiseau'){
@@ -162,7 +160,6 @@
 
     function créerEtCopierLienPartage(){
         const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
-        console.log('jsonable', jsonable, UTF8ToB64(JSON.stringify(jsonable)).length)
         lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
 
         copyButton.classList.add("animate");
@@ -183,136 +180,200 @@
 
 </script>
 
-<article>
-    <h1>Saisie des espèces protégées impactées</h1>
 
-    <section>
-        <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
-        <button class="copy-link" bind:this={copyButton} on:click={créerEtCopierLienPartage}>Créer le lien et le copier dans le presse-papier</button>
-    </section>
+<Squelette nav={false}>
+    <article>
+        <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+            <div class="fr-col">
+                <h1>Saisie des espèces protégées impactées</h1>
 
-    <form>
-        {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
-
-        <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
-            <h1>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h1>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Espèce</th>
-                        <th>Type d’impact</th>
-                        {#if classification !== "flore"}
-                        <th>Méthode</th>
-                        <th>Moyen de poursuite</th>
-                        {/if}
-                        <th>Nombre d'individus</th>
-                        {#if classification === "oiseau"}
-                        <th>Nids</th>
-                        <th>Œufs</th>
-                        {/if}
-                        <th>Surface habitat détruit (m²)</th>
-                        <th>Supprimer la ligne</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each etresVivantsAtteints as {espece, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
-                        <tr>
-                            <td>
-                                <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} />
-                            </td>
-                            <td>
-                                <select bind:value={activité}>
-                                    <option>-</option>
-                                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
-                                    <option value={act}>{act['étiquette affichée']}</option>
+                <section>
+                    <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
+                    <button class="fr-btn copy-link" bind:this={copyButton} on:click={créerEtCopierLienPartage}>Créer le lien et le copier dans le presse-papier</button>
+                </section>
+            </div>
+        </div>
+        <form>
+            {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
+            <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+                <div class="fr-col">
+                    <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
+                        <h2>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h2>
+                        <div class="fr-table fr-table--bordered">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Espèce</th>
+                                        <th>Type d’impact</th>
+                                        {#if classification !== "flore"}
+                                        <th>Méthode</th>
+                                        <th>Moyen de poursuite</th>
+                                        {/if}
+                                        <th>Nombre d'individus</th>
+                                        {#if classification === "oiseau"}
+                                        <th>Nids</th>
+                                        <th>Œufs</th>
+                                        {/if}
+                                        <th>Surface habitat détruit (m²)</th>
+                                        <th>Supprimer la ligne</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {#each etresVivantsAtteints as {espece, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
+                                        <tr>
+                                            <td>
+                                                <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} htmlClass="fr-input"/>
+                                            </td>
+                                            <td>
+                                                <select bind:value={activité} class="fr-select">
+                                                    <option>-</option>
+                                                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
+                                                    <option value={act}>{act['étiquette affichée']}</option>
+                                                    {/each}
+                                                </select>
+                                            </td>
+                                            {#if classification !== "flore"}
+                                            <td>
+                                                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'} class="fr-select">
+                                                    <option>-</option>
+                                                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
+                                                        <option value={met}>{met['étiquette affichée']}</option>
+                                                    {/each}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'} class="fr-select">
+                                                    <option>-</option>
+                                                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
+                                                        <option value={trans}>{trans['étiquette affichée']}</option>
+                                                    {/each}
+                                                </select>
+                                            </td>
+                                            {/if}
+                                            <td><select bind:value={nombreIndividus} class="fr-select">
+                                                {#each fourchettesIndividus as fourchette}
+                                                    <option value={fourchette}>{fourchette}</option>
+                                                {/each}
+                                            </select></td>
+                                            {#if classification === "oiseau"}
+                                            <td><input type="number" bind:value={nombreNids} min="0" step="1" class="fr-input"></td>
+                                            <td><input type="number" bind:value={nombreOeufs} min="0" step="1" class="fr-input"></td>
+                                            {/if}
+                                            <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input"></td>
+                                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espece)}>❌</button></td>
+                                        </tr>
                                     {/each}
-                                </select>
-                            </td>
-                            {#if classification !== "flore"}
-                            <td>
-                                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'}>
-                                    <option>-</option>
-                                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
-                                        <option value={met}>{met['étiquette affichée']}</option>
-                                    {/each}
-                                </select>
-                            </td>
-                            <td>
-                                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'}>
-                                    <option>-</option>
-                                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
-                                        <option value={trans}>{trans['étiquette affichée']}</option>
-                                    {/each}
-                                </select>
-                            </td>
-                            {/if}
-                            <td><select bind:value={nombreIndividus}>
-                                {#each fourchettesIndividus as fourchette}
-                                    <option value={fourchette}>{fourchette}</option>
-                                {/each}
-                            </select></td>
-                            {#if classification === "oiseau"}
-                            <td><input type="number" bind:value={nombreNids} min="0" step="1"></td>
-                            <td><input type="number" bind:value={nombreOeufs} min="0" step="1"></td>
-                            {/if}
-                            <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1"></td>
-                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espece)}>❌</button></td>
-                        </tr>
-                    {/each}
-                    <tr>
-                        <td>
-                            <AutocompleteEspeces bind:selectedItem={defaultSelectedItem} espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}}/>
-                        </td>
-                        <td> <select disabled><option>- - - -</option></select> </td>
-                        {#if classification !== "flore"}
-                        <td> <select disabled><option>- - - -</option></select> </td>
-                        <td> <select disabled><option>- - - -</option></select> </td>
+                                    <tr>
+                                        <td>
+                                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}} htmlClass="fr-input search"/>
+                                        </td>
+                                        <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
+                                        {#if classification !== "flore"}
+                                        <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
+                                        <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
+                                        {/if}
+                                        <td> <select disabled class="fr-select"><option>- - - -</option></select> </td>
+                                        <td><input disabled type="number" class="fr-input"></td>
+                                        {#if classification === "oiseau"}
+                                        <td><input disabled type="number" class="fr-input"></td>
+                                        <td><input disabled type="number" class="fr-input"></td>
+                                        {/if}
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {#if etresVivantsAtteints.length >= 1}
+                        <section class="arrete-prefectoral fr-p-1w">
+                            <h3>Liste des espèces</h3>
+                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
+                                {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
+                            {/each} 
+                        </section>
                         {/if}
-                        <td> <select disabled><option>- - - -</option></select> </td>
-                        <td><input disabled type="number"></td>
-                        {#if classification === "oiseau"}
-                        <td><input disabled type="number"></td>
-                        <td><input disabled type="number"></td>
-                        {/if}
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            {#if etresVivantsAtteints.length >= 1}
-            <section class="arrete-prefectoral">
-                <h1>Liste des espèces</h1>
-                {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
-                    {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
-                {/each} 
-            </section>
-            {/if}
-        </section>
-        
-        {/each}
-    </form>
-
-    <section class="espece-manquante">
-        <h1>ℹ️ Une espèce est manquante ?</h1>
-        <p>
-            Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
-            <a target="_blank" href={mailto}>d’envoyer un mail à especes-protegees@beta.gouv.fr</a>en 
-            indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
-            Le <code>CD_NOM</code> est disponible sur 
-            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 
-            en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
-            Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
-                <code>4221</code></a>.
-        </p>
-    </section>
-
-
-</article>
-
+                    </section>
+                </div>
+            </div>
+            
+            {/each}
+        </form>
+        <div class="fr-grid-row fr-pt-6w">
+            <div class="fr-col-8">
+                <section class="espece-manquante">
+                    <h1>ℹ️ Une espèce est manquante&nbsp;?</h1>
+                    <p>
+                        Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
+                        <a target="_blank" href={mailto}>d’envoyer un mail à especes-protegees@beta.gouv.fr</a>en 
+                        indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
+                        Le <code>CD_NOM</code> est disponible sur 
+                        <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 
+                        en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
+                        Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
+                            <code>4221</code></a>.
+                    </p>
+                </section>
+            </div>
+        </div>
+    </article>
+</Squelette>
 
 <style lang="scss">
-	
+	article{
+
+        .saisie-oiseau, .saisie-flore, .saisie-faune {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+
+            select{
+                max-width: 10rem;
+            }
+
+            input[type="number"]{
+                border-radius: 0.5em;
+                padding: 0.4em;
+                width: 5em;
+            }
+
+            label{
+                select{
+                    max-width: 30em;
+                }
+            }
+
+            table{
+                // surcharge DSFR pour que l'autocomplete s'affiche correctement
+                overflow: initial;
+
+                tr {
+                    td, th{
+                        padding: 0.2rem;
+
+                        vertical-align: top;
+                    }
+
+                    td:last-of-type{
+                        text-align: center;
+                        vertical-align: middle;
+                    }
+
+                    button{
+                        all: unset;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .arrete-prefectoral{
+                border-radius: 0.4em;
+                width: 100%;
+
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+    }
+
     .copy-link{
       z-index: 1;
       position: relative;
@@ -341,112 +402,6 @@
         transform-origin: center left;
         transform: scaleX(1);
       }
-    }
-
-
-	article{
-        max-width: 90rem;
-        margin: 0 auto;
-        border-radius: 2em;
-        padding: 1em 0;
-
-        h1{
-            margin-bottom: 2rem;
-        }
-
-        section:first-of-type{
-            padding-bottom: 1.5rem;
-        }
-
-        .saisie-oiseau, .saisie-flore, .saisie-faune {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-
-            border: 1px solid grey;
-            border-radius: 1em;
-            padding: 1em;
-            margin-bottom: 2em;
-
-            select{
-                max-width: 12rem;
-            }
-
-            &> h1{
-                font-size: 1.3rem;
-            }
-            input[type="number"]{
-                border-radius: 0.5em;
-                padding: 0.4em;
-                width: 5em;
-            }
-
-            label{
-                select{
-                    max-width: 30em;
-                }
-            }
-
-            table{
-                tr {
-                    text-align: left;
-
-                    th:not(:last-of-type){
-                        padding-right: 1em;
-                    }
-
-                    td:nth-of-type(1){
-                        width : 30rem;
-                    }
-
-
-                    td:last-of-type{
-                        text-align: center;
-                    }
-
-                    button{
-                        all: unset;
-                        cursor: pointer;
-                    }
-                }
-            }
-
-            .arrete-prefectoral{
-                padding: 1rem;
-                margin: 1rem 0;
-                border-radius: 1em;
-                width: 100%;
-
-                text-align: left;
-
-                background-color: rgba(255, 255, 255, 0.4);
-                
-                h1{
-                    font-size: 1.2em
-                }
-
-
-            }
-        }
-
-        .saisie-oiseau{
-            background-color: lightblue;
-        }
-
-        .saisie-flore{
-            background-color: lightgreen;
-        }
-
-        .saisie-faune{
-            background-color: lightsalmon;
-        }
-
-        .espece-manquante{
-            text-align: left;
-            max-width: 60rem;
-            margin: 0 auto;
-        }
-
     }
 	
 </style>
