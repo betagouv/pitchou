@@ -18,6 +18,10 @@
 		return `${esp["NOM_VERN"]} (${esp["LB_NOM"]})`
 	}
 
+	/**
+	 * 
+	 * @param {Espèce[]} espèces
+	 */
 	function makeEspèceToLabel(espèces){
 		return new Map(espèces.map(e => [e, espèceLabel(e)]))
 	}

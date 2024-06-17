@@ -5,6 +5,8 @@
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
 
+    import {filtreParClassification} from '../../commun/outils-espèces.js'
+
     import '../../types.js'
 
     /** @type {Map<ClassificationEtreVivant, Espèce[]>} */
@@ -16,8 +18,6 @@
 
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
-
-    console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
 
     const mailto = "mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
 
@@ -47,7 +47,7 @@
         return btoa(unescape(encodeURIComponent(s)))
     }
 
-
+    /** @type {Map<ClassificationEtreVivant, any>} */
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
@@ -64,7 +64,15 @@
     ])
 
 
-    function ajouterEspèce(espèce, classification, etresVivantsAtteints){
+    /**
+     * 
+     * @param {Espèce} espèce
+     * @param {ClassificationEtreVivant} classification
+     */
+    function ajouterEspèce(espèce, classification){
+        //@ts-expect-error La description pour la classification va être trouvée
+        const etresVivantsAtteints = descriptionMenacesEspèces.find(d => d.classification === classification).etresVivantsAtteints
+
         if(classification === 'oiseau'){
             etresVivantsAtteints.push({
                 espece: espèce,
@@ -98,7 +106,12 @@
         }
         return 0;
     }
-                
+
+    /**
+     * 
+     * @param {EtreVivantAtteint} etresVivantsAtteints
+     * @param {Espèce} _espece 
+     */
     function supprimerLigne(etresVivantsAtteints, _espece){
         const index = etresVivantsAtteints.findIndex(({espece}) => espece === _espece);
         if (index > -1) { 
@@ -159,6 +172,7 @@
         })
     }
 
+    /** @type {HTMLButtonElement} */
     let copyButton;
     let lienPartage;
 
@@ -183,7 +197,7 @@
     }
 
     /**
-     * Recheche à l'arrache
+     * Recheche "à l'arrache"
      */
 
 
@@ -222,10 +236,7 @@
 
     let texteEspèces = '';
 
-    console.time('recherche cache')
     $: nomVersEspèceClassif = créerNomVersEspèceClassif(espècesProtégéesParClassification)
-    $: console.log('nomVersEspèceClassif', nomVersEspèceClassif)
-    console.timeEnd('recherche cache')
 
     /**
      * 
@@ -245,11 +256,24 @@
         return espècesTrouvées
     }
 
+    /** @type {Set<Espèce> | undefined} */
+    $: espècesÀPréremplir = chercherEspèces(normalizeTexteEspèce(texteEspèces))
 
-    $: {
-        console.time('recherche')
-        console.log('espècesTrouvées', chercherEspèces(normalizeTexteEspèce(texteEspèces)))
-        console.timeEnd('recherche')
+    /**
+     * @param {Set<Espèce>} _espècesÀPréremplir
+     */
+    function préremplirFormulaire(_espècesÀPréremplir){
+        for(const espèce of _espècesÀPréremplir){
+            // PPP pas une manière super-efficace de récupérer 
+            for(const [classification, filtre] of filtreParClassification){
+                if(filtre(espèce)){
+                    ajouterEspèce(espèce, classification)
+                    continue;
+                }
+            }
+        }
+        
+        texteEspèces = ''
     }
 
 
@@ -271,7 +295,7 @@
 
         <div class="fr-grid-row fr-mt-6w">
             <div class="fr-col">
-                <details open>
+                <details>
                     <summary><h2>Saisie approximative</h2></summary>
                     <section>
                         <p>
@@ -280,8 +304,19 @@
                             Les espèces seront reconnues et permettront le pré-remplissage du formulaire
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
-
                     </section>
+                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
+                    <section>
+                        <h3>{espècesÀPréremplir.size} espèce.s trouvée.s dans le texte</h3>
+                        <ul>
+                            {#each [...espècesÀPréremplir] as espèce}
+                                <li>{espèce["NOM_VERN"]} (<i>{espèce["LB_NOM"]}</i>)</li>
+                            {/each}
+                        </ul>
+
+                        <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
+                    </section>
+                    {/if}
                 </details>
             </div>
         </div>
@@ -413,6 +448,14 @@
 
 <style lang="scss">
 	article{
+
+        details{
+            cursor: default; // surcharge dsfr parce que c'est bizarre
+        }
+
+        summary h2{
+            display: inline-block;
+        }
 
         .saisie-oiseau, .saisie-flore, .saisie-faune {
             display: flex;
