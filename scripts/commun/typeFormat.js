@@ -40,11 +40,11 @@ function recoverDate(d){
  */
 export function normalizeNomCommune(nomCommune) {
     return nomCommune
-      .replace(/-|'/g, ' ')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // remove accent because GH pages triggers file download
-      .toLowerCase()
-  }
+        .replace(/-|'/g, ' ')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // remove accents
+        .toLowerCase()
+}
 
 
 /**

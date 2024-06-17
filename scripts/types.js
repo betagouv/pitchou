@@ -36,8 +36,9 @@
  * @typedef {Object} Espèce
  * @prop { string } CD_NOM // pérennité ?
  * @prop { string } NOM_VERN
- * @prop { Règne } CLASSE 
- * @prop { Classe } REGNE 
+ * @prop { string } LB_NOM
+ * @prop { Classe } CLASSE 
+ * @prop { Règne } REGNE 
  * 
  */
 
