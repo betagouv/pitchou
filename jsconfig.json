@@ -10,7 +10,7 @@
       "skipLibCheck": true,
       "moduleResolution": "bundler",
       "target": "esnext",
-      "lib": ["ES2022", "dom", "dom.iterable"],
+      "lib": ["es2022", "dom", "dom.iterable"],
       "downlevelIteration": true,
       "types": ["node"],
       "noUnusedLocals": true,

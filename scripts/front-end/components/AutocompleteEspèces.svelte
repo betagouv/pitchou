@@ -1,5 +1,8 @@
 <script>
+	//@ts-check
+
 	import AutoComplete from "simple-svelte-autocomplete"
+	/** @type {Espèce[]} */
 	export let espèces;
 	export let selectedItem = undefined;
 	export let onChange = undefined
@@ -7,6 +10,10 @@
 
 	$: espèceToLabel = makeEspèceToLabel(espèces)
 
+	/**
+	 * 
+	 * @param {Espèce} esp
+	 */
 	function espèceLabel(esp){
 		return `${esp["NOM_VERN"]} (${esp["LB_NOM"]})`
 	}

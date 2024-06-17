@@ -2,8 +2,12 @@
     //@ts-check
     import Squelette from './Squelette.svelte'
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
+
+    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
+
     import '../../types.js'
 
+    /** @type {Map<ClassificationEtreVivant, Espèce[]>} */
     export let espècesProtégéesParClassification;
 
     export let activitesParClassificationEtreVivant
@@ -178,12 +182,83 @@
 
     }
 
+    /**
+     * Recheche à l'arrache
+     */
+
+
+    /**
+     * 
+     * @param {Map<ClassificationEtreVivant, Espèce[]>} espècesProtégéesParClassification
+     * @returns {Map<string, Espèce>}
+     */
+    function créerNomVersEspèceClassif(espècesProtégéesParClassification){
+        /** @type {Map<string, Espèce>}>} */
+        const nomVersEspèceClassif = new Map()
+
+        for(const espèces of espècesProtégéesParClassification.values()){
+            for(const espèce of espèces){
+                const {NOM_VERN, LB_NOM} = espèce;
+                if(LB_NOM && LB_NOM.length >= 3){
+                    const normalized = normalizeNomEspèce(LB_NOM)
+                    nomVersEspèceClassif.set(normalized, espèce)
+                }
+
+                if(NOM_VERN){
+                    const noms = NOM_VERN.split(',')
+                    for(const nom of noms){
+                        const normalized = normalizeNomEspèce(nom)
+                        if(normalized && normalized.length >= 3){
+                            nomVersEspèceClassif.set(normalized, espèce)
+                        }
+                    }
+                }
+            }
+        }
+
+        return nomVersEspèceClassif
+    }
+
+
+    let texteEspèces = '';
+
+    console.time('recherche cache')
+    $: nomVersEspèceClassif = créerNomVersEspèceClassif(espècesProtégéesParClassification)
+    $: console.log('nomVersEspèceClassif', nomVersEspèceClassif)
+    console.timeEnd('recherche cache')
+
+    /**
+     * 
+     * @param {string} texte
+     * @returns {Set<Espèce>}
+     */
+     function chercherEspèces(texte){
+        /** @type {Set<Espèce>}*/
+        const espècesTrouvées = new Set()
+
+        for(const [nom, espClassif] of nomVersEspèceClassif){
+            if(texte.includes(nom)){
+                espècesTrouvées.add(espClassif)
+            }
+        }
+
+        return espècesTrouvées
+    }
+
+
+    $: {
+        console.time('recherche')
+        console.log('espècesTrouvées', chercherEspèces(normalizeTexteEspèce(texteEspèces)))
+        console.timeEnd('recherche')
+    }
+
+
 </script>
 
 
 <Squelette nav={false}>
     <article>
-        <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+        <div class="fr-grid-row fr-mt-6w">
             <div class="fr-col">
                 <h1>Saisie des espèces protégées impactées</h1>
 
@@ -193,6 +268,24 @@
                 </section>
             </div>
         </div>
+
+        <div class="fr-grid-row fr-mt-6w">
+            <div class="fr-col">
+                <details open>
+                    <summary><h2>Saisie approximative</h2></summary>
+                    <section>
+                        <p>
+                            Dans la boîte de texte ci-dessous, coller du texte approximatif.
+                            Par exemple, en copiant à partir d'un tableau dans un pdf, ou une liste d'espèces qui trainent.
+                            Les espèces seront reconnues et permettront le pré-remplissage du formulaire
+                        </p>
+                        <textarea bind:value={texteEspèces} class="fr-input"></textarea>
+
+                    </section>
+                </details>
+            </div>
+        </div>
+
         <form>
             {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
             <div class="fr-grid-row fr-pt-6w fr-grid-row--center">

@@ -17,9 +17,11 @@ import {init, secretFromURL, logout, chargerDossiers} from './actions/main.js'
 import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
+import { normalizeNomCommune } from '../commun/typeFormat.js';
+import {filtreParClassification} from '../commun/outils-espèces.js'
 
 import '../types.js'
-import { normalizeNomCommune } from '../commun/typeFormat.js';
+
 
 const svelteTarget = document.querySelector('.svelte-main')
 
@@ -106,6 +108,11 @@ page('/saisie-especes', async () => {
         return classificationEtreVivants.includes(x)
     }
 
+    /**
+     * 
+     * @param {string} selector 
+     * @returns {string}
+     */
     function getURL(selector){
         const element = document.head.querySelector(selector)
     
@@ -206,17 +213,6 @@ page('/saisie-especes', async () => {
     /** @type { Espèce[] } */
     const listeEspècesProtégées = [...espèceByCD_NOM.values()]
 
-    const filtreParClassification = new Map([
-        ["oiseau", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE, CLASSE}) => {
-            return REGNE === 'Animalia' && CLASSE === 'Aves'
-        })],
-        ["faune non-oiseau", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE, CLASSE}) => {
-            return REGNE === 'Animalia' && CLASSE !== 'Aves'
-        })],
-        ["flore", ((/** @type {{REGNE: Règne, CLASSE: Classe}} */ {REGNE}) => {
-            return REGNE === 'Plantae'
-        })]
-    ])
 
     const espècesProtégéesParClassification = new Map(
         [...filtreParClassification].map(([classif, filtre]) => ([classif, listeEspècesProtégées.filter(filtre)]))
