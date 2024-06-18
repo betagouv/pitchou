@@ -76,3 +76,7 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 ### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
 
 `node --env-file=.env outils/sync-démarches-simplifiées.js`
+
+### Fabriquer le JSON de la liste des groupes d'espèces
+
+`node outils/groupes-espèces.js`
