@@ -37,7 +37,8 @@ const outputPath = 'data/groupes_especes.json'
 
 Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
 .then(([lignesGroupeEspèces, espèceParNomScientifique]) => {
-    const jsonableOutput = Object.create(null)
+    /** @type {GroupesEspèces} */
+    const groupesEspèces = Object.create(null)
 
     const espècesNonReconnues = []
 
@@ -45,6 +46,7 @@ Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
         const {'Nom scientifique': nomScientifique, 'Nom du groupe': nomGroupe} = ligne
         const espèceDuGroupe = espèceParNomScientifique.get(nomScientifique)
         
+        /** @type {EspèceSimplifiée | string} */
         let jsonableEspèce;
         
         if(espèceDuGroupe){
@@ -56,9 +58,9 @@ Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
             jsonableEspèce = nomScientifique
         }
 
-        const groupe = jsonableOutput[nomGroupe] || []
+        const groupe = groupesEspèces[nomGroupe] || []
         groupe.push(jsonableEspèce)
-        jsonableOutput[nomGroupe] = groupe
+        groupesEspèces[nomGroupe] = groupe
     }
 
     if(espècesNonReconnues.length >= 1){
@@ -67,7 +69,7 @@ Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
         console.log(set.size, 'espèces non reconnues', espècesNonReconnues.length, lignesGroupeEspèces.length)
     }
 
-    const jsonOutput = JSON.stringify(jsonableOutput);
+    const jsonOutput = JSON.stringify(groupesEspèces);
 
     return writeFile(outputPath, jsonOutput, 'utf8');
 })

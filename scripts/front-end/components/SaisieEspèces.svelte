@@ -15,6 +15,8 @@
     export let activitesParClassificationEtreVivant
     export let méthodesParClassificationEtreVivant
     export let transportsParClassificationEtreVivant
+    /** @type {GroupesEspèces} */
+    export let groupesEspèces
 
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
@@ -109,7 +111,7 @@
 
     /**
      * 
-     * @param {EtreVivantAtteint} etresVivantsAtteints
+     * @param {EtreVivantAtteint[]} etresVivantsAtteints
      * @param {Espèce} _espece 
      */
     function supprimerLigne(etresVivantsAtteints, _espece){
@@ -276,6 +278,7 @@
         texteEspèces = ''
     }
 
+    let groupChoisi;
 
 </script>
 
@@ -305,6 +308,37 @@
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
                     </section>
+                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
+                    <section>
+                        <h3>{espècesÀPréremplir.size} espèce.s trouvée.s dans le texte</h3>
+                        <ul>
+                            {#each [...espècesÀPréremplir] as espèce}
+                                <li>{espèce["NOM_VERN"]} (<i>{espèce["LB_NOM"]}</i>)</li>
+                            {/each}
+                        </ul>
+
+                        <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
+                    </section>
+                    {/if}
+                </details>
+            </div>
+        </div>
+
+        <div class="fr-grid-row fr-mt-6w">
+            <div class="fr-col">
+                <details>
+                    <summary><h2>Rajouter un groupe d'espèces</h2></summary>
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="select">
+                            Choisir un groupe d'espèces à ajouter
+                        </label>
+                        <select bind:value={groupChoisi} class="fr-select" id="select" name="select">
+                            <option value="" selected disabled hidden>Sélectionner une option</option>
+                            {#each [...Object.entries(groupesEspèces)] as [nomGroupe, listeEspèces]}
+                                <option value={[nomGroupe, listeEspèces]}>{nomGroupe}</option>
+                            {/each}
+                        </select>
+                    </div>
                     {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
                     <section>
                         <h3>{espècesÀPréremplir.size} espèce.s trouvée.s dans le texte</h3>

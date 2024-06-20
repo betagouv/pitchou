@@ -100,16 +100,6 @@ page('/dossier/:dossierId', ({params: {dossierId}}) => {
 
 page('/saisie-especes', async () => {
     /**
-     * @param {string} x 
-     * @returns {x is ClassificationEtreVivant}
-     */
-    function isClassif(x){
-        // @ts-expect-error indeed
-        return classificationEtreVivants.includes(x)
-    }
-
-    /**
-     * 
      * @param {string} selector 
      * @returns {string}
      */
@@ -117,33 +107,42 @@ page('/saisie-especes', async () => {
         const element = document.head.querySelector(selector)
     
         if(!element){
-        throw new TypeError(`Élément ${selector} manquant`)
+            throw new TypeError(`Élément ${selector} manquant`)
         }
     
         const hrefAttribute = element.getAttribute('href')
     
         if(!hrefAttribute){
-        throw new TypeError(`Attribut "href" manquant sur ${selector}`)
+            throw new TypeError(`Attribut "href" manquant sur ${selector}`)
         }
     
         return hrefAttribute
     }
     
-    /** @type { [any[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[]] } */
+    /** @type { [any[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
     // @ts-ignore
-    const [dataEspèces, activites, methodes, transports] = await Promise.all([
+    const [dataEspèces, activites, methodes, transports, groupesEspèces] = await Promise.all([
         dsv(";", getURL('link#especes-data')),
         dsv(";", getURL('link#activites-data')),
         dsv(";", getURL('link#methodes-data')),
         dsv(";", getURL('link#transports-data')),
+        dsv(";", getURL('link#groupes-especes-data')),
     ])
+
 
     console.log(dataEspèces, activites, methodes, transports)
 
     /** @type {readonly ClassificationEtreVivant[]} */
     const classificationEtreVivants = Object.freeze(["oiseau", "faune non-oiseau", "flore"])
 
-
+    /**
+     * @param {string} x 
+     * @returns {x is ClassificationEtreVivant}
+     */
+    function isClassif(x){
+        // @ts-expect-error indeed
+        return classificationEtreVivants.includes(x)
+    }
 
     /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
     const activitesParClassificationEtreVivant = new Map()
@@ -274,6 +273,7 @@ page('/saisie-especes', async () => {
             activitesParClassificationEtreVivant, 
             méthodesParClassificationEtreVivant, 
             transportsParClassificationEtreVivant,
+            groupesEspèces,
             /** @type {DescriptionMenaceEspèce[]} */
             // @ts-ignore
             descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || [
