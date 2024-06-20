@@ -1,7 +1,76 @@
+/**
+ * @template T
+ * @typedef { {[K in keyof T]: string} } StringValues
+ */
+
+/** @typedef { 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista' } Règne // incomplet */
+/** @typedef { 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' } Classe // incomplet */
+
+/** 
+ * Notre classification. Basée sur les directives européennes (oiseau, habitat, plantes)
+ * @typedef {"oiseau" | "faune non-oiseau" | "flore"} ClassificationEtreVivant 
+ */
+
+/**
+ * Lignes du fichier TAXREF.txt (INPN)
+ * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
+ * 
+ * @typedef {Object} TAXREF_ROW
+ * @prop { string } CD_NOM 
+ * @prop { string } CD_REF
+ * @prop { string } LB_NOM 
+ * @prop { string } NOM_VERN 
+ * @prop { Classe } CLASSE 
+ * @prop { Règne } REGNE 
+ * // incomplet
+ */
+
+/**
+ * Lignes du fichier BDC_STATUT.csv (INPN)
+ * Il peut y avoir plusieurs lignes avec le même CD_NOM si l'espèce est protégées à plusieurs endroits
+ *
+ * @typedef {Object} BDC_STATUT_ROW
+ * @prop { TAXREF_ROW['CD_NOM'] } CD_NOM 
+ * @prop { TAXREF_ROW['CD_REF'] } CD_REF
+ * @prop { 'POM' | 'PD' | 'PN' | 'PR' | 'Protection Pitchou' } CD_TYPE_STATUT
+ * @prop { string } LABEL_STATUT
+ * // incomplet
+ */
+
+
+
+/**
+ * Lignes du fichier liste-espèces-protégées.csv
+ * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
+ * 
+ * @typedef {Object} EspèceProtégées
+ * @prop { TAXREF_ROW['CD_REF'] } CD_REF
+ * @prop { Set<TAXREF_ROW['NOM_VERN']> } nomsVernaculaires - TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
+ * @prop { Set<TAXREF_ROW['LB_NOM']> } nomsScientifiques - plusieurs noms si plusieurs CD_NOM pour le même CD_REF
+ * @prop { ClassificationEtreVivant } classification
+ * @prop { Set<BDC_STATUT_ROW['CD_TYPE_STATUT']> } CD_TYPE_STATUTS
+ */
+
+
+/** 
+ * Les Set<string> deviennent des string séparés par des `,`
+ * @typedef {StringValues<EspèceProtégées>} EspèceProtégéesString 
+ */
+
+/**
+ * @typedef {Object} Espèce
+ * @prop { TAXREF_ROW['CD_NOM'] } CD_NOM
+ * @prop { TAXREF_ROW['NOM_VERN'] } NOM_VERN
+ * @prop { TAXREF_ROW['LB_NOM'] } LB_NOM
+ * @prop { TAXREF_ROW['CLASSE'] } CLASSE 
+ * @prop { TAXREF_ROW['REGNE'] } REGNE 
+ * 
+ */
+
 /** 
  * @typedef { Object } ActivitéMenançante
  * @prop {string} Code
- * @prop {string} Espèces
+ * @prop {ClassificationEtreVivant} Espèces
  * @prop {string} Libellé long
  * @prop {string} étiquette affichée
  * @prop {'o' | 'n'} Méthode
@@ -10,37 +79,18 @@
 /** 
  * @typedef { Object } MéthodeMenançante
  * @prop {string} Code
- * @prop {string} Espèces
+ * @prop {ClassificationEtreVivant} Espèces
  * @prop {string} Libellé long
  * @prop {string} étiquette affichée
  */
 /** 
  * @typedef { Object } TransportMenançant
  * @prop {string} Code
- * @prop {string} Espèces
+ * @prop {ClassificationEtreVivant} Espèces
  * @prop {string} Libellé long
  * @prop {string} étiquette affichée
  */
 
-
-
-/** @typedef { 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista' } Règne // incomplet */
-/** @typedef { 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Aves' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' } Classe // incomplet */
-
-
-/**
- * @typedef {"oiseau" | "faune non-oiseau" | "flore"} ClassificationEtreVivant
- */
-
-/**
- * @typedef {Object} Espèce
- * @prop { string } CD_NOM // pérennité ?
- * @prop { string } NOM_VERN
- * @prop { string } LB_NOM
- * @prop { Classe } CLASSE 
- * @prop { Règne } REGNE 
- * 
- */
 
 /**
  * @typedef {Object} EtreVivantAtteint
@@ -54,7 +104,7 @@
 
 /**
  * @typedef {Object} EtreVivantAtteintJSON
- * @prop { string } espece // CD_NOM 
+ * @prop { Espèce['CD_NOM'] } espece
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  * @prop { string } activité // Code
@@ -84,11 +134,16 @@
  */
 /** @typedef {DescriptionMenaceEspèceJSON[]} DescriptionMenaceEspècesJSON */
 
-
+/** @typedef {string} NomGroupeEspèces */
 /**
- * @template T
- * @typedef { {[K in keyof T]: string} } StringValues
+ * @typedef {Object} EspèceSimplifiée
+ * @prop { Espèce['CD_NOM'] } CD_NOM
+ * @prop { Espèce['LB_NOM'] } LB_NOM
  */
+/** @typedef {Record<NomGroupeEspèces, (EspèceSimplifiée | string)[]>} GroupesEspèces */
+
+
+
 
 /** 
  * @typedef {Object} GeoAPICommune
