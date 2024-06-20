@@ -168,6 +168,23 @@ Promise.all([taxrefP, protectionsEspècesP])
         }
     }
 
+    // nettoyage, car parfois certaines espèces protégées n'ont pas été trouvées dans TAXREF
+    for(const [CD_REF, espèce] of espècesProtégées){
+        if(!espèce.classification){
+            console.warn(`Espèce sans classification CD_REF ${CD_REF}`)
+            espècesProtégées.delete(CD_REF)
+        }
+        else{
+            //@ts-ignore
+            if(espèce.nomsScientifiques.size === 0 && espèce.nomsVernaculaires.size === 0){
+                console.warn(`Espèce sans noms CD_REF ${CD_REF}`)
+                espècesProtégées.delete(CD_REF)
+            }
+        }
+    }
+
+
+
     const stringifier = stringify({
         delimiter: ';',
         header: true

@@ -119,7 +119,7 @@ page('/saisie-especes', async () => {
         return hrefAttribute
     }
     
-    /** @type { [any[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
+    /** @type { [EspèceProtégéesString[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
     // @ts-ignore
     const [dataEspèces, activites, methodes, transports, groupesEspèces] = await Promise.all([
         dsv(";", getURL('link#especes-data')),
@@ -130,7 +130,7 @@ page('/saisie-especes', async () => {
     ])
 
 
-    console.log(dataEspèces, activites, methodes, transports)
+    console.log(dataEspèces, activites, methodes, transports, groupesEspèces)
 
     /** @type {readonly ClassificationEtreVivant[]} */
     const classificationEtreVivants = Object.freeze(["oiseau", "faune non-oiseau", "flore"])
@@ -201,21 +201,35 @@ page('/saisie-especes', async () => {
         transportsParClassificationEtreVivant.set(classif, classifTrans)
     }
 
+    /** @type {Map<ClassificationEtreVivant, EspèceProtégées[]>} */
+    const espècesProtégéesParClassification = new Map()
+    /** @type {Map<EspèceProtégées['CD_REF'], EspèceProtégées>} */
+    const espèceByCD_REF = new Map()
 
+    for(const espStr of dataEspèces){
+        const {CD_REF, CD_TYPE_STATUTS, classification, nomsScientifiques, nomsVernaculaires} = espStr
 
-    const espèceByCD_NOM = new Map()
-    dataEspèces.forEach(d => {
-        espèceByCD_NOM.set(d["CD_NOM"], d)
-    })
-    console.log(espèceByCD_NOM)
+        if(!isClassif(classification)){
+            throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+        }
 
-    /** @type { Espèce[] } */
-    const listeEspècesProtégées = [...espèceByCD_NOM.values()]
+        const espèces = espècesProtégéesParClassification.get(classification) || []
 
+        /** @type {EspèceProtégées} */
+        const espèce = {
+            CD_REF,
+            //@ts-ignore trusting data generation
+            CD_TYPE_STATUTS: new Set(CD_TYPE_STATUTS.split(',')), 
+            classification,
+            nomsScientifiques: new Set(nomsScientifiques.split(',')),
+            nomsVernaculaires: new Set(nomsVernaculaires.split(',')), 
+        }
 
-    const espècesProtégéesParClassification = new Map(
-        [...filtreParClassification].map(([classif, filtre]) => ([classif, listeEspècesProtégées.filter(filtre)]))
-    )
+        espèces.push(espèce)
+        espèceByCD_REF.set(espèce['CD_REF'], espèce)
+
+        espècesProtégéesParClassification.set(classification, espèces)
+    }
 
     console.log('espècesProtégéesParClassification', espècesProtégéesParClassification)
 
@@ -229,18 +243,22 @@ page('/saisie-especes', async () => {
     }
 
 
+
+
+
     /**
      * 
      * @param { DescriptionMenaceEspècesJSON } descriptionMenacesEspècesJSON
      * @returns { DescriptionMenaceEspèce[] }
      */
     function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON){
+        //@ts-ignore
         return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
             console.log('classification, etresVivantsAtteints', classification, etresVivantsAtteints)
             return {
                 classification, 
-                etresVivantsAtteints: etresVivantsAtteints.map(({espece, activité, méthode, transport, ...rest}) => ({
-                    espece: espèceByCD_NOM.get(espece),
+                etresVivantsAtteints: etresVivantsAtteints.map(({espèce, activité, méthode, transport, ...rest}) => ({
+                    espèce: espèceByCD_REF.get(espèce),
                     activité: activites.find((a) => a.Code === activité),
                     méthode: methodes.find((m) => m.Code === méthode),	
                     transport: transports.find((t) => t.Espèces === classification && t.Code === transport),

@@ -1,30 +1,44 @@
 <script>
 	//@ts-check
-
 	import AutoComplete from "simple-svelte-autocomplete"
-	/** @type {Espèce[]} */
+
+    import '../../types.js'
+
+	/** @type {EspèceProtégées[]} */
 	export let espèces;
+	/** @type {EspèceProtégées | undefined} */
 	export let selectedItem = undefined;
 	export let onChange = undefined
 	export let htmlClass
 
-	$: espèceToLabel = makeEspèceToLabel(espèces)
 
 	/**
 	 * 
-	 * @param {Espèce} esp
+	 * @param {EspèceProtégées} esp
 	 */
 	function espèceLabel(esp){
-		return `${esp["NOM_VERN"]} (${esp["LB_NOM"]})`
+		return `${[...esp.nomsVernaculaires][0]} (${[...esp.nomsScientifiques][0]})`
 	}
 
 	/**
 	 * 
-	 * @param {Espèce[]} espèces
+	 * @param {EspèceProtégées[]} espèces
 	 */
 	function makeEspèceToLabel(espèces){
 		return new Map(espèces.map(e => [e, espèceLabel(e)]))
 	}
+
+	$: espèceToLabel = makeEspèceToLabel(espèces)
+	
+	/**
+	 * 
+	 * @param {EspèceProtégées[]} espèces
+	 */
+	function makeEspèceToKeywords(espèces){
+		return new Map(espèces.map(e => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(' ')]))
+	}
+
+	$: espèceToKeywords = makeEspèceToKeywords(espèces)
 
 	function beforeChange (oldSelectedItem, newSelectedItem) {
 		// Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36
@@ -40,6 +54,7 @@
 	bind:selectedItem={selectedItem}
 	items={espèces}
 	labelFunction={e => espèceToLabel.get(e)}
+	keywordsFunction={e => espèceToKeywords.get(e)}
 	maxItemsToShowInList=20
 	cleanUserText=false
 	{beforeChange}
@@ -47,7 +62,7 @@
 	hideArrow={true}
 >
 	<div slot="item" let:item>
-		{item["NOM_VERN"]} (<i>{item["LB_NOM"]}</i>)
+		{espèceToLabel.get(item)}
 	</div>
 </AutoComplete>
 

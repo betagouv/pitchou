@@ -94,7 +94,7 @@
 
 /**
  * @typedef {Object} EtreVivantAtteint
- * @prop { Espèce } espece
+ * @prop { EspèceProtégées } espèce
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  * @prop { ActivitéMenançante } activité
@@ -104,7 +104,7 @@
 
 /**
  * @typedef {Object} EtreVivantAtteintJSON
- * @prop { Espèce['CD_NOM'] } espece
+ * @prop { EspèceProtégées['CD_REF'] } espèce
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  * @prop { string } activité // Code

@@ -29,12 +29,10 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 459488;oiseau;Heliothryx auritus,Heliothryx aurita,Trochilus auritus;Colibri oreillard;PN,PD
 442427;oiseau;Thalurania furcata,Trochilus furcatus;Dryade à queue fourchue;PN,PD
 442503;oiseau;Vanellus chilensis,Parra chilensis;Vanneau téro;PN,PD
-217;;;;PN
 79261;faune non-oiseau;Hyla sarda,Dendrohyas sarda,Hyla arborea sarda;Rainette sarde (La);PN
 77580;faune non-oiseau;Algyroides fitzingeri,Notopholis fitzingeri;Algyroïde de Fitzinger (L');PN
 439142;faune non-oiseau;Bothrops lanceolatus,Coluber lanceolatus,Coluber megaera;Trigonocéphale;PN
 77600;faune non-oiseau;Lacerta agilis,Lacerta europaea;Lézard des souches,Lézard agile;PN
-77766;;;;PN
 77823;faune non-oiseau;Podarcis tiliguerta granchii,Lacerta tiliguerta granchii;Lézard tyrrhénien de Granchi (Le);PN
 77949;faune non-oiseau;Hierophis viridiflavus,Coluber gemonensis var. viridiflavus,Coluber personatus,Coluber viridiflavus kratzeri,Coluber viridiflavus,Haemorrhois viridiflavus;Couleuvre verte et jaune (La);PN
 699525;faune non-oiseau;Zamenis longissimus longissimus,Elaphe longissima longissima;Couleuvre d'Esculape (La);PN
@@ -67,15 +65,11 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 654831;faune non-oiseau;Norops fuscoauratus,Anolis fuscoauratus kugleri,Anolis fuscoauratus,Anolis klugeri,Draconura fuscoauratus;Anolis brun-doré (L');PN
 899186;faune non-oiseau;Neusticurus surinamensis,Neusticurus rudis;Neusticure du Suriname (Le);PN
 721456;faune non-oiseau;Varzea bistriata,Mabuya bistriata,Scincus bistriatus;Mabuya à deux lignes;PN
-699926;;;;PN
 650101;faune non-oiseau;Capitellum mariagalantae;Scinque de Marie-Galante (Le);PN
-78138;;;;PN
 259;faune non-oiseau;Bufo bufo,Bufo bufo bufo,Rana bufo,Rana rubeta,Bufo vulgaris;Crapaud commun (Le);PN
 699553;faune non-oiseau;Ichthyosaura alpestris alpestris,Mesotriton alpestris alpestris;Triton alpestre (Le);PN
-101;;;;PN
 77836;faune non-oiseau;Psammodromus algirus,Lacerta algira;Psammodrome algire (Le);PN
 77574;faune non-oiseau;Tarentola mauritanica mauritanica;Tarente de Maurétanie (La);PN
-356;;;;PN
 521596;faune non-oiseau;Leuciscus oxyrrhis,Squalius oxyrrhis;Vandoise au long-museau;PN
 442413;oiseau;Tangara punctata,Tanagra punctata;Calliste syacou;PN,PD
 828991;oiseau;Hirundo rustica erythrogaster;Hirondelle rustique;PN,PD
@@ -101,10 +95,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 721487;faune non-oiseau;Oxyrhopus petolarius,Coluber petola,Oxyrhopus petola;Oxyrhope pétolaire (L');PN
 444119;faune non-oiseau;Xenodon werneri,Procteria viridis,Thalesius viridis;Xénodon vert;PN
 444127;faune non-oiseau;Micrurus lemniscatus,Coluber lemniscatus,Elaps lemniscatus;Serpent-Corail galloné (Le);PN
-216;;;;PN
-245;;;;PN
 444441;faune non-oiseau;Pelophylax lessonae,Rana bosci,Rana esculenta var. lessonae,Rana lessonae pannonica,Rana lessonae,Rana maritima;Grenouille de Lessona (La);PN
-79287;;;;PN
 536083;faune non-oiseau;Brachyphylla cavernarum cavernarum;Brachyphylle des Antilles;PN
 538284;faune non-oiseau;Tadarida brasiliensis antillularum;;PN
 441709;oiseau;Cairina moschata,Anas moschata;Canard musqué;PN,PD
@@ -120,7 +111,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 782556;oiseau;Forpus modestus modestus;Toui de Sclater;PN,PD
 436889;faune non-oiseau;Sphaenorhynchus lacteus,Hyla lactea;Sphénorhynque lacté (Le),Rainette lactée;PN
 444185;faune non-oiseau;Lygophis lineatus lineatus;;PN
-77605;;;;PN
 77955;faune non-oiseau;Coronella austriaca,Coluber coronella,Coluber levis,Natrix coronilla;Coronelle lisse (La);PN
 967458;faune non-oiseau;Ctenonotus marmoratus chrysops,Anolis chrysops,Anolis marmoratus chrysops,Ctenonotus chrysops;Anolis marbré de La Petite Terre (L');PN
 350770;faune non-oiseau;Sphaerodactylus fantasticus karukera;Sphérodactyle bizarre de Grande-Terre (Le);PN
@@ -169,10 +159,8 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 728238;faune non-oiseau;Amerotyphlops reticulatus,Anguis reticulata,Typhlops reticulatus;Typhlops réticulé,Serpent à deux têtes;PN
 299;faune non-oiseau;Rana arvalis,Rana palustris,Rana ulginosa;Grenouille des champs (La),Grenouille oxyrhine;PN
 79289;faune non-oiseau;Archaeolacerta bedriagae bedriagae,Lacerta bedriagae bedriagae;Lézard de Bedriaga (Le);PN
-77819;;;;PN
 967459;faune non-oiseau;Ctenonotus marmoratus desiradei,Anolis desiradei,Anolis marmoratus desiradei,Ctenonotus desiradei;Anolis marbré de La Désirade (L');PN
 809486;faune non-oiseau;Sphaerodactylus phyzacinus,Sphaerodactylus fantasticus phyzacinus;Sphérodactyle des Saintes (Le);PN
-701486;;;;PN
 78048;faune non-oiseau;Natrix maura,Coluber maurus,Coluber terstriatus,Coluber viperinus var. auro-lineatus,Coluber viperinus var. ichthyocharis,Coluber viperinus,Natrix cherseoides,Natrix ocellata,Natrix viperina var. bilineata,Natrix viperina,Tropidonotus bonellii,Tropidonotus chersoides,Tropidonotus viperinus var. bilineata,Tropidonotus viperinus var. incerta,Tropidonotus viperinus,Vipera vissena;Couleuvre vipérine (La);PN
 77490;faune non-oiseau;Anguis fragilis,Anguis eryx,Anguis fragilis fragilis,Anguis gamma,Anguis orvet,Anguis vittatus,Dorfia punctata;Orvet fragile (L');PN
 828899;oiseau;Nycticorax nycticorax hoactli,Ardea hoactli;;PN,PD
@@ -500,7 +488,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 202;faune non-oiseau;Alytes obstetricans obstetricans;Alyte accoucheur (L');PN
 79266;faune non-oiseau;Rana pyrenaica;Grenouille des Pyrénées (La);PN
 444427;faune non-oiseau;Calotriton asper,Euproctus asper f. castelmouliensis,Euproctus asper,Hemitriton asper,Salamandra tuberculata;Calotriton des Pyrénées (Le),Euprocte des Pyrénées;PN
-699863;;;;PN
 77826;faune non-oiseau;Podarcis tiliguerta rodulphisimonii;Lézard tyrrhénien de Simoni  (Le);PN
 444446;faune non-oiseau;Zamenis longissimus,Coluber auculapii,Coluber sellmanni,Elaphe longissima,Natrix longissima,Zamenis aesculapii var. nigra;Couleuvre d'Esculape (La);PN
 120812;flore;Saponaria bellidifolia,Smegmathamnium bellidifolium;Saponaire à feuilles de pâquerette;PN
@@ -530,14 +517,10 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 436893;faune non-oiseau;Phyllomedusa bicolor,Rana bicolor;Phylloméduse bicolore (La);PN
 436930;faune non-oiseau;Lithobates palmipes,Rana palmipes;Grenouille de l'Amazone;PN
 77614;faune non-oiseau;Archaeolacerta bedriagae,Lacerta bedriagae,Lacerta oxycephala bedriagae;Lézard de Bedriaga (Le);PN
-79288;;;;PN
 721407;faune non-oiseau;Erythrolamprus cursor,Coluber cursor,Dromicus cursor,Liophis cursor;Couresse de la Martinique;PN
-77820;;;;PN
-77961;;;;PN
 654867;faune non-oiseau;Ctenonotus terraealtae,Anolis terraealtae terraealtae x caryae,Anolis terraealtae;Anolis des Saintes (L');PN
 350771;faune non-oiseau;Sphaerodactylus fantasticus karukera x tartaropylorus;;PN
 78162;faune non-oiseau;Vipera seoanei seoanei;Vipère de Seoane (La);PN
-102;;;;PN
 77570;faune non-oiseau;Tarentola mauritanica,Ascalabotes mauritanicus,Ascalobotes mauritanicus,Gecko stellio,Gekko mauritanicus,Lacerta mauritanica;Tarente de Maurétanie (La);PN
 195352;faune non-oiseau;Odobenus;;PN
 249356;faune non-oiseau;Gortyna borelii,Gortyna borelii borelii,Gortyna borelii lunata,Gortyna lunata,Hydroecia leucographa boreli;Noctuelle des Peucédans (La);PN
@@ -567,7 +550,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444068;faune non-oiseau;Hydrodynastes bicinctus,Coluber bicinctus,Dugandia bicincta,Liophis bi-cinctus,Urotheca bicinctus;Hydrodynaste annelé (L');PN
 654832;faune non-oiseau;Ctenonotus gingivinus,Anolis gingivinus;Anolis d'Anguilla (L');PN
 721489;faune non-oiseau;Oxyrhopus petolarius digitalis,Coluber digitalis,Oxyrhopus petola digitalis;;PN
-67001;;;;PN
 719215;flore;Anacamptis morio subsp. champagneuxii,Anacamptis champagneuxii,Herorchis champagneuxii,Orchis champagneuxii,Orchis morio proles champagneuxii,Orchis morio subsp. champagneuxii;Anacamptide de Champagneux,Orchis de Champagneux;PR
 92097;flore;Coeloglossum viride,Coeloglossum bracteatum,Coeloglossum islandicum,Coeloglossum purpureum,Coeloglossum viride subsp. bracteatum,Dactylorhiza viridis,Entaticus viridis,Gymnadenia viridis,Habenaria viridis,Orchis batrachites,Orchis bracteata,Orchis virens,Orchis viridis,Peristylus islandicus,Peristylus viridis,Platanthera viridis,Satyrium alpinum,Satyrium ferrugineum,Satyrium fuscum,Satyrium viride;Coeloglosse vert,Orchis grenouille,Dactylorhize vert,Orchis vert;PR
 128520;flore;Veratrum album,Melanthium album,Veratrum album subsp. album,Veratrum album proles lobelianum,Veratrum album subsp. lobelianum,Veratrum lobelianum,Veratrum viride;Vératre blanc,Varaire,Varaire blanc;PR
@@ -619,8 +601,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 215;faune non-oiseau;Bombina variegata variegata;Sonneur à ventre jaune (Le);PN
 967329;faune non-oiseau;Mabuya desiradae parviterrae,Mabuya parviterrae;Scinque guadeloupéen de La Petite Terre (Le);PN
 78148;faune non-oiseau;Vipera berus berus;Vipère péliade (La);PN
-265;;;;PN
-701488;;;;PN
 654847;faune non-oiseau;Ctenonotus marmoratus setosus,Anolis marmoratus setosus;Anolis marbré hérissé (L');PN
 77871;faune non-oiseau;Chalcides striatus,Chalcides chalcides striatus,Chalcides chalcides,Chalcides lineatus,Seps lineatus,Zygnis striata;Seps strié (Le);PN
 351;faune non-oiseau;Rana temporaria,Rana alpina,Rana rufa,Rana temporaria gracilis;Grenouille rousse (La);PN
@@ -635,13 +615,9 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 721442;faune non-oiseau;Epictia tenella,Leptotyphlops albifrons,Leptotyphlops tenella;Serpent aveugle menu;PN
 77381;faune non-oiseau;Emys orbicularis,Emys antiquorum,Emys europaea,Emys hofmanni,Emys iberica,Emys tigris,Testudo europaea,Testudo lutaria,Testudo orbicularis,Testudo pulchella,Testudo punctata,Testudo rotunda;Cistude d'Europe (La);PN
 436940;faune non-oiseau;Allobates chalcopis,Colostethus chalcopis;Allobate de la Martinique (L');PN
-77608;;;;PN
 444439;faune non-oiseau;Pelophylax kl. grafi,Pelophylax grafi,Rana grafi,Rana (Pelophylax) kl. grafi;Grenouille de Graf (La);PN
 782738;faune non-oiseau;Sphaerodactylus festus,Sphaerodactylus vincenti festus,Sphaerodactylus vincenti paulmarinae,Sphaerodactylus vincenti pheristus,Sphaerodactylus vincenti ronaldi;Sphérodactyle cocardé,Sphérodactyle de la Martinique;PN
-77606;;;;PN
 444444;faune non-oiseau;Podarcis liolepis,Lacerta muralis var. liolepis;Lézard catalan (Le);PN
-77769;;;;PN
-79275;;;;PN
 967322;faune non-oiseau;Mabuya desiradae cochonae,Mabuya cochonae;Scinque guadeloupéen de l’îlet à Cochons (Le);PN
 350716;faune non-oiseau;Alsophis sanctonum sanctonum,Alsophis antillensis sanctonum;Couleuvre des Saintes de Terre-de-Haut (La);PN
 78166;faune non-oiseau;Vipera ursinii ursinii,Pelias ursinii alpesdehautensis,Vipera ursinii wettsteini;Vipère d'Orsini (La);PN
@@ -654,14 +630,11 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 829178;oiseau;Myiopagis caniceps cinerea,Elaenia cinerea;;PN,PD
 829043;oiseau;Empidonomus varius varius;;PN,PD
 442392;oiseau;Sublegatus arenarum,Elainea arenarum;Tyranneau des palétuviers;PN,PD
-77763;;;;PN
 77825;faune non-oiseau;Podarcis tiliguerta pardii;Lézard tyrrhénien de Pardi (Le);PN
 79273;faune non-oiseau;Timon lepidus,Lacerta lepida;Lézard ocellé (Le);PN
 350748;faune non-oiseau;Eleutherodactylus barlagnei;Éleuthérodactyle de Barlagne (L');PN
 809502;faune non-oiseau;Erythrolamprus juliae copeae,Dromicus juliae copeae,Liophis juliae copeae;Couleuvre de Julia guadeloupéenne (La),Couleuvre de Julia de la Guadeloupe,petite couresse de la Guadeloupe;PN
 78135;faune non-oiseau;Vipera aspis aspis,Vipera aspis atra,Vipera atra;Vipère aspic (La);PN
-701480;;;;PN
-103;;;;PN
 350779;faune non-oiseau;Thecadactylus rapicauda,Gekko rapicauda;Thécadactyle à queue turbinée (Le);PN
 77338;faune non-oiseau;Chelonia mydas,Caretta Cepedii,Chelonia lachrymata,Chelonia mydas japonica,Chelonia viridis,Testudo cepediana,Testudo japonica,Testudo macropus,Testudo marina vulgaris,Testudo mydas,Testudo viridis;Tortue verte,Tortue franche;PN,POM,PD
 654848;faune non-oiseau;Ctenonotus marmoratus setosus x girafus,Anolis marmoratus setosus x girafus;;PN
@@ -736,7 +709,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 222673;faune non-oiseau;Trichaphaenops gounellei,Trechus gounellei;;PN
 795429;faune non-oiseau;Aphaenops penacollaradensis weilli,Hydraphaenops penacollaradensis weilli;;PN
 67765;faune non-oiseau;Salmo salar,Salmo brevipes,Salmo caerulescens,Salmo fario var. salmulus,Salmo gloverii,Salmo goedenii,Salmo gracilis,Salmo hamatus,Salmo hardinii,Salmo nobilis,Salmo ocla,Salmo punctatus,Salmo renatus,Salmo rilla,Salmo salar americanus,Salmo salar biennis,Salmo salar brevipes natio relictus,Salmo salar brevipes,Salmo salar europaeus,Salmo salar infraspecies nobilis,Salmo salar var. lacustris,Salmo salar nobilis,Salmo salar ouananiche,Salmo salar saimensis,Salmo salar sebago,Salmo salar tasmanicus,Salmo salmo,Salmo salmulus,Salmo sebago,Salmo strom,Trutta salar relicta,Trutta salar;Saumon de l'Atlantique,Saumon atlantique;PN
-913652;;;;PN
 1027059;faune non-oiseau;Aphaenops vanderberghi,Geotrechus vanderberghi;;PN
 1027096;faune non-oiseau;Aphaenops gallicus bigerricus,Geotrechus gallicus bigerricus;;PN
 627334;oiseau;Leucophaeus pipixcan,Larus pipixcan;Mouette de Franklin;PN,PD
@@ -897,7 +869,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 199369;oiseau;Glareola maldivarum,Glareola (Pratincola) maldivarum;Glaréole orientale,Glaréole des Maldives;PN,PD
 3314;oiseau;Rhodostethia rosea,Larus rosea,Larus roseus,Larus rossii;Mouette de Ross;PN
 4170;oiseau;Locustella fluviatilis,Sylvia fluviatilis;Locustelle fluviatile;PN
-1026963;;;;PN
 4239;oiseau;Sylvia nana,Curruca nana;Fauvette naine;PN
 60902;faune non-oiseau;Lagenorhynchus albirostris,Delphinus albirostris,Delphinus ibseni,Delphinus pseudotursio,Delphinus tursio;Lagénorhynque à bec blanc,Lagénorhynque à rostre blanc;PN
 898916;faune non-oiseau;Stenella attenuata attenuata;;PN,POM
@@ -1011,7 +982,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444111;faune non-oiseau;Thamnodynastes pallidus,Coluber pallidus,Dryophylas pallidus pallidus,Dryophylas pallidus;Thamnodynastes pâle (Le);PN
 444125;faune non-oiseau;Micrurus hemprichii,Elaps hemprichii;Serpent-Corail d'Hemprich (Le);PN
 819825;faune non-oiseau;Bufotes viridis viridis,Bufo viridis viridis;Crapaud vert (Le);PN
-77403;;;;PN
 77396;faune non-oiseau;Emys orbicularis orbicularis,Emys lutaria taurica,Emys orbicularis colchica;Cistude d'Europe (La);PN
 441707;oiseau;Cacicus haemorrhous,Oriolus haemorrhous;Cassique cul-rouge;PN,PD
 441834;oiseau;Cyanerpes caeruleus,Certhia caerulea;Guit-guit céruléen;PN,PD
@@ -1039,7 +1009,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 626165;oiseau;Parkesia noveboracensis,Motacilla noveboracensis,Seiurus noveboracensis;Paruline des ruisseaux,Sylvette des ruisseaux;PD,PN,POM
 130792;flore;Aconitum napellus subsp. vulgare,Aconitum capciriense,Aconitum compactum,Aconitum humile,Aconitum napellus subsp. compactum,Aconitum napellus var. capciriense,Aconitum napellus var. compactum,Aconitum napellus var. occidentale,Aconitum napellus var. splendens,Aconitum napellus var. vulgare,Aconitum napellus,Aconitum occidentale var. splendens,Aconitum occidentale,Aconitum pyramidale var. capciriense,Aconitum willemetianum;Aconit commun,Aconit vulgaire;PD,PR
 6795;flore;Sphagnum tenellum,Sphagnum molluscum;;PD
-6772;;;;PD
 6802;flore;Sphagnum warnstorfii,Sphagnum warnstorfianum;;PD,PR
 88921;flore;Carex trinervis,Carex cerina,Carex frisica,Carex glauca subsp. trinervis,Osculisa trinervis,Vignea cerina;Laîche à trois nervures;PR
 613147;flore;Carex umbrosa var. umbrosa,Carex polyrrhiza var. gynobasis,Carex umbrosa subsp. umbrosa;Laîche des ombrages,Laîche des lieux ombragés,Laîche à racines nombreuses;PR
@@ -1310,7 +1279,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 223427;faune non-oiseau;Cybister lateralimarginalis,Cybister laterale marginalis,Dytiscus lateralimarginalis;Cybister à côtés bordés;PR
 133619;flore;Cystopteris fragilis subsp. diaphana,Aspidium viridulum,Asplenium diaphanum,Cystopteris atrovirens,Cystopteris canariensis,Cystopteris diaphana,Cystopteris fragilis proles viridula,Cystopteris fragilis subsp. canariensis,Cystopteris fragilis,Cystopteris viridula,Polypodium diaphanum;Cystoptéride diaphane,Cystoptéris diaphane,Asplenium vert;PR,PD,PN
 1038298;flore;Cystopteris fragilis subsp. alpina x Cystopteris fragilis subsp. fragilis,Cystopteris alpina x Cystopteris fragilis;Hybride entre la Cystoptéride des Alpes et la Cystoptéride fragile;PR,PD
-159464;;;;PR
 110468;flore;Ophrys scolopax,Ophrys fuciflora subsp. scolopax,Ophrys insectifera subsp. scolopax;Ophrys bécasse;PR,PD
 4913;flore;Cinclidium stygium;;PR
 5516;flore;Drepanocladus lycopodioides,Pseudocalliergon lycopodioides,Scorpidium lycopodioides;;PR
@@ -1583,7 +1551,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 112778;flore;Petasites albus,Petasites albus var. ramosus,Petasites ramosus,Petasites sabaudus,Petasites stylosus,Petasites vulgaris subsp. albus,Petasites vulgaris,Tussilago alba,Tussilago lutea,Tussilago ramosa,Tussilago riparia;Pétasite blanc;PR
 441887;oiseau;Elaenia ruficeps;Élénie tête-de-feu;PD,PN
 440377;oiseau;Empidonomus;;PD
-440549;;;;PD
 886304;oiseau;Tityroidea;;PD
 627661;oiseau;Setophaga discolor,Dendroica discolor,Sylvia discolor;Sylvette à moustache,Paruline des prés;PD
 441672;oiseau;Athene cunicularia,Strix cunicularia;Chevêche des terriers,Chouette des terriers;PD,PN
@@ -2357,7 +2324,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 102842;flore;Hippocrepis comosa,Coronilla depressa,Hippocrepis alpestris,Hippocrepis ambigua,Hippocrepis comosa proles prostrata,Hippocrepis comosa subsp. macedonica,Hippocrepis comosa var. alpestris,Hippocrepis comosa var. alpina,Hippocrepis comosa var. major,Hippocrepis comosa var. prostrata,Hippocrepis montgronyana,Hippocrepis perennis,Hippocrepis rolandii;Hippocrépide chevelue,Hippocrépide fer-à-cheval,Fer-à-cheval,Hippocrépide à toupet,Hippocrépide en ombelle,Hippocrépis chevelu;PD
 720298;oiseau;Steatornis;;PD
 443699;faune non-oiseau;Phyllostomus discolor;Phyllostome des fleurs;PD
-186060;;;;PD
 782581;oiseau;Orthopsittaca;;PD
 368943;faune non-oiseau;Charonia tritonis,Eutritonium tritonis,Murex tritonis,Septa tritonia,Triton marmoratum,Triton umbricata;Triton géant,Triton,Conque;PD,POM
 526879;faune non-oiseau;Cypraecassis rufa,Buccinum rufum,Cassis rufa;;PD,POM
@@ -2371,7 +2337,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 445199;faune non-oiseau;Acropora subulata;;PD
 185964;oiseau;Anseriformes;Canards,Oies,Cygnes;PD
 440505;oiseau;Nasica;;PD
-440516;;;;PD
 442398;oiseau;Synallaxis rutilans;Synallaxe ardent;PD
 888950;oiseau;Hydropsalis cayennensis manati,Stenopsis cayennensis manati;Engoulevent coré;PD
 804989;faune non-oiseau;Goniastrea stelligera,Dipsastraea stelligera,Favia hombroni,Favia pseudostelligera,Favia stelligera,Orbicella stelligera;;PD
@@ -2405,7 +2370,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 628564;faune non-oiseau;Stauropora;;PD
 459477;oiseau;Cyphorhinus arada,Cyphorhinus aradus;Troglodyte arada;PD,PN
 442179;oiseau;Pachyramphus surinamus,Muscicapa surinama;Bécarde du Surinam;PD,PN
-440542;;;;PD
 442429;oiseau;Thamnomanes caesius,Muscicapa caesia;Batara cendré;PD,PN
 441891;oiseau;Empidonax alnorum,Empidonax traillii alnorum;Moucherolle des aulnes;PD,POM
 442218;oiseau;Phylloscartes virescens;Tyranneau verdâtre;PD,PN
@@ -2575,7 +2539,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 828894;oiseau;Gelochelidon nilotica gronvoldi;;PD,PN
 440513;oiseau;Nomonyx;;PD
 836221;oiseau;Spatula;;PD
-440618;;;;PD
 961064;faune non-oiseau;Lichonycteris degener,Lichonycteris obscura;Lichonyctère du Brésil;PD
 443606;faune non-oiseau;Micronycteris;;PD
 186073;oiseau;Columbiformes;Columbiformes;PD
@@ -2715,7 +2678,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 442294;oiseau;Pteroglossus aracari,Ramphastos aracari;Araçari grigri;PD,PN
 828886;oiseau;Tyto alba hellmayri;;PD,PN
 440533;oiseau;Pachyramphus;;PD
-440632;;;;PD
 441858;oiseau;Dendrocolaptes certhia,Picus certhia;Grimpar barré;PD,PN
 441909;oiseau;Euphonia chlorotica,Tanagra chlorotica;Organiste chlorotique;PD
 442434;oiseau;Thamnophilus nigrocinereus;Batara demi-deuil;PD,PN
@@ -2743,7 +2705,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 1038883;faune non-oiseau;Pachyseridae;;PD
 441889;oiseau;Elanus leucurus,Milvus leucurus;Elanion à queue blanche;PD,PN
 458507;faune non-oiseau;Salamis augustina augustina;;PD
-720195;;;;PD
 443761;faune non-oiseau;Cebus olivaceus,Cebus nigrivittatus;Capucin olive,Capucin à tête blanche,Sapajou brun,Singe musqué,Capucin blanc;PD
 443536;faune non-oiseau;Artibeus;;PD
 441828;oiseau;Crypturellus brevirostris,Tinamus brevirostris;Tinamou rubigineux;PD,PN
@@ -2804,7 +2765,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 352432;faune non-oiseau;Antipathidae;;PD
 627455;oiseau;Setophaga americana,Parula americana,Parus americanus;Paruline à collier,Sylvette parula;PD,PN
 706436;flore;Jumellea recurva,Aeranthes recta var. recurva,Aerobion recurvum,Angorkis curvangis,Angorkis recurva,Angraecum recurvum;;PD
-6793;;;;PD
 142047;flore;Vaccinium uliginosum subsp. microphyllum,Vaccinium gaultherioides,Vaccinium microphyllum,Vaccinium sednense,Vaccinium uliginosum subsp. gaultherioides,Vaccinium uliginosum var. sednense,Vaccinium uliginosum [rang non précisé] microphyllum;Airelle à petites feuilles;PD
 110920;flore;Orchis militaris,Orchis cinerea,Orchis galeata,Orchis militaris subsp. galeata,Orchis militaris var. intercedens,Orchis militaris var. perplexans,Orchis mimusops,Orchis nervata,Orchis raddeana,Orchis rivini,Strateuma militaris;Orchis militaire,Casque militaire,Orchis casqué;PD,PR
 83279;flore;Arabis alpina,Arabidium alpestre,Arabis alpina subsp. alpina,Arabis alpina subsp. cantabrica,Arabis alpina subsp. lerchenfeldiana,Arabis alpina var. clusiana,Arabis alpina var. corsica,Arabis alpina var. crispata,Arabis alpina var. declinata,Arabis alpina var. saxeticola,Arabis alpina var. verlotii,Arabis canescens,Arabis cantabrica,Arabis clusiana,Arabis crispata,Arabis cuneifolia,Arabis declinata,Arabis incana,Arabis janitrix,Arabis lerchenfeldiana,Arabis merinoi,Arabis monticola,Arabis obtusifolia,Arabis pieninica,Arabis saxeticola,Crucifera arabis,Turrita alpestris,Turritis verna;Arabette des Alpes,Corbeille d'argent;PD,PR
@@ -2941,7 +2901,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 445222;faune non-oiseau;Pavona venosa,Pavona obtusata,Polyastra venosa;;PD
 706264;flore;Erythroxylum sideroxyloides,Erythroxylum lamprocarpum,Erythroxylum laurifolium,Erythroxylum longifolium;Bois de ronde;PD
 706327;flore;Glinus oppositifolius,Mollugo oppositifolia,Mollugo spergula;;PD
-774870;;;;PD
 912653;faune non-oiseau;Plesiastreidae;;PD
 445167;faune non-oiseau;Porites rus,Madrepora rus,Porites convexa,Porites danai,Porites (Synaraea) irregularis,Porites iwayamaensis,Synaraea convexa,Synaraea irregularis,Synaraea rus;;PD
 444990;faune non-oiseau;Psammocora digitata;;PD
@@ -2950,7 +2909,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 440462;oiseau;Lophostrix;;PD
 442476;oiseau;Trogon melanurus;Trogon à queue noire;PD,PN
 1039276;faune non-oiseau;Carijoidae;;PD
-796711;;;;PD
 445098;faune non-oiseau;Blastomussa merleti,Bantamia merleti;;PD
 190908;faune non-oiseau;Clavularia;;PD
 444509;faune non-oiseau;Cyphastrea;;PD
@@ -3113,7 +3071,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 671273;flore;Calanthe x oreadum;;POM
 60867;faune non-oiseau;Megaptera novaeangliae,Balaena allamack,Balaena atlanticus,Balaena boops,Balaena gibbosa,Balaena lalandii,Balaena longimana,Balaena nodosa,Balaena novaeangliae,Balaena sulcata antarctica,Balaenoptera antarctica,Balaenoptera astrolabe,Balaenoptera australis,Balaenoptera capensis,Balaenoptera leucopteron,Balaenoptera syncondylus,Kyphobalaena keporkak,Megaptera americana,Megaptera antarctica,Megaptera australis,Megaptera bellicosa,Megaptera boops,Megaptera brasiliensis,Megaptera braziliensis,Megaptera burmeisteri,Megaptera gigas,Megaptera indica,Megaptera kusira,Megaptera kuzira,Megaptera lalandii,Megaptera longimana morei,Megaptera longimana,Megaptera longipinna,Megaptera nodosa bellicosa,Megaptera nodosa lalandii,Megaptera nodosa nodosa,Megaptera nodosa novaezealandiae,Megaptera nodosa,Megaptera novaezelandiae,Megaptera osphya,Megaptera osphyia,Megaptera poescop,Megaptera versabilis,Poescopia lalandii,Rorqualus antarcticus,Rorqualus australis;Baleine à bosse,Mégaptère;POM,PN
 60908;faune non-oiseau;Peponocephala electra,Delphinus pectoralis,Electra asia,Electra electra,Electra fusiformis,Electra obtusa,Lagenorhynchus asia,Lagenorhynchus electra,Lagenorhynchus pectoralis;Péponocéphale,Dauphin d'Electre;POM,PN
-672756;;;;POM
 446263;flore;Schoenorchis;;POM
 830208;flore;Taeniophyllum rudolfii,Microtatorchis schlechteri var. schlechteri,Microtatorchis schlechteri var. productilis,Microtatorchis schlechteri;;POM
 199516;oiseau;Passerella iliaca,Fringilla iliaca,Zonotrichia iliaca;Bruant fauve;POM
@@ -3333,7 +3290,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 526775;faune non-oiseau;Cassis cornuta,Buccinum cornutum;;POM,PD
 671314;flore;Liparis disepala;;POM
 673340;flore;Megastylis paradoxa,Lyperanthus humboldtianus,Phaius paradoxus;;POM
-672742;;;;POM
 671837;flore;Pittosporum muricatum;;POM
 673575;flore;Planchonella contermina,Pouteria contermina;;POM
 674357;flore;Zygogynum oligostigma;;POM
@@ -3430,7 +3386,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 3243;oiseau;Phalaropus lobatus,Lobipes lobatus,Tringa lobata,Tringa tobata;Phalarope à bec étroit;POM,PN
 456585;faune non-oiseau;Emoia impar,Lygosoma impar;Émoia à queue verte du Pacifique;POM
 671299;flore;Dendrobium steatoglossum,Cannaeorchis steatoglossa;;POM
-672584;;;;POM
 714983;faune non-oiseau;Myomorpha;;POM
 522926;faune non-oiseau;Theria;;POM
 534682;oiseau;Chroicocephalus philadelphia,Larus philadelphia,Sterna philadelphia;Mouette de Bonaparte;POM,PN
@@ -3768,7 +3723,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 828904;oiseau;Coragyps atratus brasiliensis,Cathartes brasiliensis;;PD,PN
 459526;oiseau;Seiurus aurocapilla,Motacilla aurocapilla,Seiurus aurocapillus;Paruline couronnée,Sylvette couronnée;PD,POM
 886301;oiseau;Tyrannida;;PD
-440219;;;;PD
 440311;oiseau;Cathartes;;PD
 829096;oiseau;Vireo olivaceus vividior;;PD,PN
 445065;faune non-oiseau;Acropora intermedia,Madrepora intermedia;;PD
@@ -3823,7 +3777,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 440596;oiseau;Rhynchocyclus;;PD
 440602;oiseau;Sakesphorus;;PD
 532702;oiseau;Megaceryle torquata stictipennis,Ceryle stictipennis,Ceryle torquatus stictipennis;Martin-pêcheur à ventre roux;PD
-440267;;;;PD
 885395;oiseau;Locustelloidea;;PD
 186000;oiseau;Charadriidae;;PD
 441714;oiseau;Camptostoma obsoletum,Muscicapa obsoleta;Tyranneau passegris;PD,PN
@@ -4085,7 +4038,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 602130;faune non-oiseau;Porites profundus;;PD
 706721;flore;Psiadia salaziana;Psiadie de Salazie;PD
 706780;flore;Scolopia heterophylla,Ludia heterophylla,Ludia myrtifolia,Ludia sessiliflora,Scolopia borbonica;Scolopie héterophylle,Bois de prune,Bois à fièvre,Bois d'oiseau,Bois de balai,Bois de Quivi,Bois de tisane rouge,Prune marron;PD
-774869;;;;PD
 445059;faune non-oiseau;Acropora humilis,Acropora ocellata,Acropora spectabilis,Madrepora humilis;;PD
 459497;oiseau;Megascops watsonii,Ephialtes watsonii,Otus watsonii;Petit-duc de Watson;PD,PN
 192065;oiseau;Egretta;;PD
@@ -4103,13 +4055,11 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 809617;faune non-oiseau;Dipsastraea amicorum,Barabattoia amicorum,Favia amicorum,Parastrea amicorum;;PD
 447192;flore;Erythrina variegata,Erythrina corallodendron var. orientalis,Erythrina corallodendrum var. orientalis,Erythrina fastigiata,Erythrina indica var. a,Erythrina indica var. fastigiata,Erythrina indica var. β,Erythrina indica var. orientalis,Erythrina indica var. picta,Erythrina indica,Erythrina orientalis var. fastigiata,Erythrina orientalis var. variegata,Erythrina orientalis,Erythrina parcellii,Erythrina picta,Erythrina variegata var. variegata,Erythrina variegata var. fastigiata,Erythrina variegata var. orientalis,Erythrina variegata 'Picta';Pignon d'Inde de l'Inde,Nourouc;PD
 807430;flore;Ocotea comoriensis;;PD
-440605;;;;PD
 440609;oiseau;Sclerurus;;PD
 418427;oiseau;Amazona;;PD
 197628;oiseau;Setophaga,Dendroica,Parula,Wilsonia;;PD
 440273;oiseau;Anhinga;;PD
 720229;oiseau;Colibri delphinae,Ornismya Delphinae;Colibri de Delphine;PD,PN
-440275;;;;PD
 895982;oiseau;Buteogallus solitarius,Circaëtus solitarius,Harpyhaliaetus solitarius;;PD
 626255;oiseau;Stercorarius antarcticus,Catharacta antarctica,Catharacta skua antarctica,Lestris antarcticus,Megalestris antarctica,Stercorarius antarctica;Labbe antarctique;PD,PN
 4064;oiseau;Oenanthe oenanthe,Motacilla oeanthe,Oenanthe oenanthe schiöleri;Traquet motteux;PD,PN,POM
@@ -5076,7 +5026,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 139444;flore;Prunus padus var. padus;Prunier à grappes,Cerisier à grappes,Merisier à grappes,Putier,Bois puant;PR
 86394;flore;Brassica montana,Brassica balearica,Brassica oleracea subsp. pourretii,Brassica oleracea subsp. robertiana,Brassica oleracea subvar. ligustica,Brassica oleracea var. leronensis,Brassica oleracea var. ligustica,Brassica pourretii,Brassica robertiana var. leronensis,Brassica robertiana;Chou des montagnes;PR
 148091;flore;Lathyrus niger var. angustifolius;Gesse noire à feuilles étroites,Orobe noir à feuilles étroites;PR
-611420;;;;PR
 126213;flore;Thalictrum simplex,Thalictrum angustifolium subsp. simplex,Thalictrum auriculatum,Thalictrum bauhini proles subfalcatum,Thalictrum elongatum,Thalictrum flavum subsp. simplex,Thalictrum gallicum proles medianum,Thalictrum gallicum subsp. nitidulum,Thalictrum medianum,Thalictrum nestleri var. latifolium,Thalictrum nitidulum,Thalictrum porrigens;Pigamon simple,Pigamon à tiges simples;PR
 88669;flore;Carex melanostachya,Carex ledebourii,Carex nutans,Carex sulcata;Laîche à épis noirs;PR
 125456;flore;Tanacetum audibertii,Balsamita audibertii,Chrysanthemum audibertii;Tanaisie d'Audibert;PR
@@ -5312,7 +5261,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 194164;oiseau;Limosa;;PD,POM
 886303;oiseau;Cotingoidea;;PD
 441666;oiseau;Ardea cocoi;Héron cocoi,Héron cocoï;PD,PN
-440355;;;;PD
 440360;oiseau;Cyphorhinus;;PD
 440365;oiseau;Deconychura;;PD
 440523;oiseau;Onychorhynchus;;PD
@@ -5424,7 +5372,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 741629;flore;Turnera rupestris var. frutescens,Turnera frutescens;;PR
 629645;flore;Epidendrum revertianum,Epidendrum calanthum subsp. revertianum,Epidendrum calanthum var. revertianum;;PR
 119691;flore;Ruppia maritima,Ruppia brachypus,Ruppia curvicarpa,Ruppia maritima var. maritima,Ruppia maritima proles brachypus,Ruppia maritima subsp. brachypus,Ruppia maritima subsp. brevirostris,Ruppia maritima subsp. intermedia,Ruppia maritima subsp. obliqua,Ruppia maritima subsp. rostellata,Ruppia maritima var. brachypus,Ruppia maritima var. brevirostris,Ruppia maritima var. exigua,Ruppia maritima var. intermedia,Ruppia maritima var. longipes,Ruppia maritima var. obliqua,Ruppia maritima var. rostellata,Ruppia maritima var. rostrata,Ruppia maritima var. subcapitata,Ruppia obliqua,Ruppia rostellata;Ruppie maritime;PR,PD
-353067;;;;PD,POM
 418690;faune non-oiseau;Phelsuma robertmertensi;Gecko de Mertens (Le),Gecko diurne à ligne dorsale rouge;PD
 104613;flore;Koeleria cenisia,Koeleria brevifolia var. cenisia,Koeleria brevifolia var. flavida,Koeleria brevifolia var. monticola,Koeleria brevifolia,Koeleria cristata subsp. brevifolia,Koeleria gracilis var. brevifolia,Koeleria gracilis var. cenisia,Koeleria gracilis var. monticola,Koeleria hirsuta subsp. brevifolia,Koeleria hirsuta var. brevifolia,Koeleria reuteri;Koelérie du mont Cenis;PR
 718249;flore;Melica ciliata nothosubsp. thuringiaca,Melica x thuringiaca;Mélique de Thuringe;PR
@@ -5460,7 +5407,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 440648;oiseau;Todirostrum;;PD
 888936;oiseau;Coereba flaveola martinicana,Certhiola martinicana;Sucrier à ventre jaune,Sucrier falle jaune;PD
 888959;oiseau;Vireo altiloquus barbadensis,Vireosylvia calidris barbadense;Viréo à moustaches;PD
-440285;;;;PD
 442239;oiseau;Pipra aureola,Parus Aureola;Manakin auréole;PD,PN
 186162;oiseau;Tyrannoidea;;PD
 695969;oiseau;Ardenna pacifica,Procellaria pacifica,Puffinus pacificus;Puffin fouquet,Puffin du Pacifique;PD
@@ -6130,7 +6076,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 655280;faune non-oiseau;Stenodermatinae;;PD
 655294;faune non-oiseau;Vampyriscus;;PD
 655296;faune non-oiseau;Vampyriscus brocki,Vampyressa brocki;Vampyresse de Brock;PD
-440420;;;;PD
 198176;oiseau;Tachybaptus;;PD
 819843;oiseau;Procellariimorphae;;PD
 442060;oiseau;Melanerpes candidus,Picus candidus;Pic dominicain;PD,PN
@@ -6398,7 +6343,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 627727;oiseau;Chroicocephalus cirrocephalus,Larus cirrocephalus;Mouette à tête grise;PD,PN
 442016;oiseau;Jacana jacana,Parra Jacana;Jacana noir;PD,PN
 442229;oiseau;Picumnus exilis,Picus exilis;Picumne de Buffon;PD,PN
-440560;;;;PD
 721637;flore;Cheirostylis gymnochiloides,Monochilus gymnochiloides;Cheirostyle faux-gymnochile;PD
 807338;flore;Eulophia livingstoniana,Lissochilus livingstonianus;;PD
 809296;flore;Thecacoris humbertii var. anjanaharibes;;PD
@@ -6491,7 +6435,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 673918;flore;Oxera neriifolia subsp. sororia,Oxera macrocalyx subsp. sororia,Oxera sororia;;POM
 921591;flore;Acropogon mesophilus;;POM
 674532;flore;Dipodium punctatum var. squamatum,Dipodium gracile,Dipodium heimianum,Dipodium squamatum,Ophrys squamata;;POM
-672610;;;;POM
 900891;faune non-oiseau;Rattini;;POM
 186211;faune non-oiseau;Suidae;Sangliers;POM
 3307;oiseau;Larus glaucoides;Goéland à ailes blanches,Goéland arctique;POM,PN
@@ -6553,7 +6496,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 443526;faune non-oiseau;Eumops;;PD
 443482;faune non-oiseau;Furipteridae;;PD
 961075;faune non-oiseau;Gardnerycteris crenulatum,Mimon crenulatum;Mimon crénelé;PD
-185970;;;;PD
 440350;oiseau;Crotophaga;;PD
 441829;oiseau;Crypturellus cinereus,Tetrao cinereus;Tinamou cendré;PD,PN
 720237;oiseau;Griseotyrannus;;PD
@@ -6619,7 +6561,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 440343;oiseau;Corapipo;;PD
 186107;oiseau;Corvidae;Corbeaux,Corneilles,Pies,Geais,Casse-noix;PD
 441819;oiseau;Coryphospingus pileatus,Fringilla pileata;Araguira gris;PD,PN
-440348;;;;PD
 440352;oiseau;Cyanerpes;;PD
 828943;oiseau;Cyanoloxia rothschildii,Cyanocompsa cyanoides rothschildii,Guiraca rothschildii;Évêque de Rothschild;PD
 440545;oiseau;Phaeomyias;;PD
@@ -6678,7 +6619,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 673033;flore;Phyllanthus koumacensis var. brevitepalus;;POM
 813933;faune non-oiseau;Amauris nossima,Danais nossima;;PD
 900544;faune non-oiseau;Orthetrum azureum lugubre;;PD
-188140;;;;PD
 628716;faune non-oiseau;Holothuria edulis,Halodeima edulis,Holothuria albida;;PD
 628704;faune non-oiseau;Holothuria scabra,Holothuria albida,Holothuria gallensis,Holothuria saecularis;Le gris;PD
 628496;faune non-oiseau;Polycheira;;PD
@@ -6805,7 +6745,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 807326;flore;Embelia comorensis;;PD
 852784;flore;Syzygium comorense;;PD
 3362;oiseau;Thalasseus sandvicensis,Sterna sandvicensis;Sterne caugek;PD,PN
-440568;;;;PD
 442475;oiseau;Trogon collaris;Trogon rosalba;PD,PN
 602123;faune non-oiseau;Craterastrea levis;;PD
 854163;faune non-oiseau;Dipsastraea helianthoides,Favia helianthoides;;PD
@@ -6819,11 +6758,9 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 673277;flore;Phyllanthus vulcani var. baumannii,Phyllanthus baumanii,Phyllanthus hurlimannii;;POM
 671982;flore;Homalium sleumerianum;;POM
 417298;faune non-oiseau;Sigaloseps;;POM
-782433;;;;POM
 432719;oiseau;Limosa lapponica baueri;Barge rousse;POM
 674303;flore;Didymoplexis micradenia,Didymoplexis minor,Didymoplexis neocaledonica,Epiphanes micradenia;;POM
 446245;flore;Eria;;POM
-672621;;;;POM
 522701;faune non-oiseau;Pinnipedia;Pinnipèdes;POM
 520953;oiseau;Clytorhynchus pachycephaloides pachycephaloides;Monarque brun;POM
 671272;flore;Calanthe hololeuca,Calanthe neocaledonica;;POM
@@ -6842,7 +6779,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 720243;oiseau;Epinecrophylla;;PD
 828876;oiseau;Thamnophilus nigrocinereus kulczynskii,Myrmelastes kulczynskii;;PD,PN
 895903;oiseau;Thripophaga;;PD
-440642;;;;PD
 441713;oiseau;Campephilus rubricollis,Picus rubricollis;Pic à cou rouge;PD,PN
 199247;oiseau;Chaetura;;PD
 441688;oiseau;Brachygalba lugubris,Galbula lugubris;Jacamar brun;PD,PN
@@ -6883,7 +6819,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 106049;flore;Limonium bonifaciense,Limonium acutifolium;Limonium de Bonifacio,Statice de Bonifacio;PD
 110331;flore;Ophrys annae,Ophrys fuciflora subsp. annae,Ophrys holoserica subsp. annae;Ophrys d'Anne;PD
 610936;flore;Ophrys arachnitiformis x Ophrys bertolonii;Hybride entre l’Ophrys arachnitiforme et l’Ophrys de Bertoloni;PD
-159478;;;;PD
 441808;oiseau;Contopus cinereus,Platyrhynchus cinereus;Moucherolle cendré;PD,PN
 441849;oiseau;Dacnis cayana,Motacilla cayana;Dacnis bleu;PD,PN
 829060;oiseau;Pachyramphus marginatus nanus;;PD,PN
@@ -7023,7 +6958,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 443597;faune non-oiseau;Anoura;;PD
 443634;faune non-oiseau;Cormura brevirostris;Cormure des souches;PD
 443646;faune non-oiseau;Eumops auripendulus;Eumope des palmiers;PD
-185962;;;;PD
 440527;oiseau;Ortalis;;PD
 186237;faune non-oiseau;Molossidae;;PD
 443527;faune non-oiseau;Molossops;;PD
@@ -7055,7 +6989,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 828784;oiseau;Hydrobates matsudairae,Oceanodroma matsudairae;océanite de Matsudaira;PD
 810735;oiseau;Leptosomus discolor discolor;;PD
 728081;oiseau;Puffinus bailloni;Puffin tropical,Puffin de Baillon;PD
-774873;;;;PD
 445157;faune non-oiseau;Turbinaria reniformis;;PD
 706897;flore;Turraea ovata,Gilibertia ovata,Quivisia mauritiana var. ovata,Quivisia mauritiana,Quivisia ovata,Trichilia mauritiana;Petit quivi,Bois de quivi,Bois de quivi des hauts,Quivi;PD
 160018;flore;Limonium portovecchiense;Limonium de Porto-Vecchio,Statice de Porto-Vecchio;PD
@@ -7195,7 +7128,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 191030;oiseau;Colinus;;PD
 441659;oiseau;Aramus guarauna,Scolopax Guarauna;Courlan brun;PD,PN
 199260;oiseau;Tachycineta;;PD
-440453;;;;PD
 829151;oiseau;Anabacerthia ruficaudata flavipectus;;PD,PN
 185961;oiseau;Aves;Oiseaux;PD
 440474;oiseau;Megarynchus;;PD
@@ -7572,15 +7504,12 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 124572;flore;Spergularia media,Alsine marginata,Arenaria marginata,Arenaria marina,Arenaria maritima,Arenaria media,Cerastium medium,Corion medium,Lepigonum azoricum,Lepigonum medium,Melargyra media,Spergula marginata,Spergula maritima,Spergula media,Spergularia azorica,Spergularia branlyi,Spergularia halophila var. media,Spergularia marginata subsp. angustata,Spergularia marginata subsp. attalii,Spergularia marginata var. angustata,Spergularia marginata,Spergularia maritima subsp. angustata,Spergularia maritima,Spergularia media var. media,Spergularia media subsp. angustata,Spergularia media subsp. marginata,Spergularia media var. marginata,Spergularia nobreana,Spergularia rubra subsp. marginata,Spergularia rubra subsp. media,Spergularia rubra var. media,Spergularia salina subsp. marginata,Stipularia marina,Stipularia media,Tissa media;Spergulaire moyenne,Spergulaire marginée,Spargoute moyenne;PR
 136730;flore;Hypecoum procumbens subsp. procumbens;Hypecoum couché,Cumin couché;PR
 654837;faune non-oiseau;Ctenonotus marmoratus alliaceus x speciosus,Anolis marmoratus alliaceus x speciosus;;PN
-78170;;;;PN
 699691;faune non-oiseau;Lissotriton helveticus helveticus,Triturus helveticus helveticus;Triton palmé (Le);PN
-110;;;;PN
 967460;faune non-oiseau;Ctenonotus marmoratus kahouannensis,Anolis kahouannensis,Anolis marmoratus kahouannensis,Ctenonotus kahouannensis;Anolis marbré de Kahouanne (L');PN
 825054;faune non-oiseau;Ctenonotus terraealtae caryae,Anolis marmoratus caryae,Anolis terraealtae caryae,Ctenonotus marmoratus caryae;Anolis des Saintes de Terre-de-Bas (L');PN
 967323;faune non-oiseau;Mabuya desiradae desiradae;Scinque guadeloupéen de La Désirade (Le);PN
 654833;faune non-oiseau;Ctenonotus marmoratus,Anolis marmoratus;Anolis marbré (L'),Anolis de la Guadeloupe;PN
 699564;faune non-oiseau;Lissotriton vulgaris vulgaris,Triturus vulgaris vulgaris;Triton ponctué (Le);PN
-109;;;;PN
 109584;flore;Nerium oleander,Nerium flavescens,Nerium floridum,Nerium grandiflorum,Nerium indicum x Nerium oleander,Nerium indicum,Nerium kotschyi,Nerium latifolium,Nerium lauriforme,Nerium mascatense,Nerium odoratum,Nerium odorum,Nerium oleander 'Haqueville',Nerium oleander subsp. oleander,Nerium oleander var. oleander,Nerium oleander subsp. kurdicum,Nerium oleander var. indicum,Nerium splendens,Nerium thyrsiflorum,Nerium verecundum,Oleander indica,Oleander vulgaris;Nérion laurier-rose,Laurier rose,Oléandre;PN
 123672;flore;Silene velutina,Silene mollissima subsp. velutina,Silene mollissima,Silene salzmannii;Silène velouté;PN
 81522;flore;Allium strictum,Allium halleri,Allium lineare,Allium microcephalum,Allium reticulatum,Allium schrenkii,Allium volhynicum,Porrum strictum;Ail dressé,Ail raide;PN
@@ -7614,9 +7543,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444202;faune non-oiseau;Micrurus psyches psyches;;PN
 287;faune non-oiseau;Hyla arborea arborea;Rainette verte (La);PN
 292;faune non-oiseau;Hyla meridionalis,Hyla africana,Hyla arborea var. meridionalis,Hyla barytonus,Hyla perezii,Hyla arborea meridionalis;Rainette méridionale (La);PN
-87;;;;PN
-79286;;;;PN
-77607;;;;PN
 127934;flore;Tulipa gesneriana,Tulipa connivens,Tulipa coronaria,Tulipa fransoniana,Tulipa hortensis,Tulipa lurida,Tulipa neglecta,Tulipa passeriniana,Tulipa pubescens,Tulipa repens,Tulipa scythica,Tulipa variopicta;Tulipe de Gesner;PN
 127956;flore;Tulipa raddii,Tulipa maleolens,Tulipa praecox subsp. raddii,Tulipa praecox;Tulipe précoce;PN
 528704;faune non-oiseau;Eubalaena australis,Balaena antarctica,Balaena antipodum,Balaena australis,Balaena capensis,Balaena glacialis australis,Balaena glacialis,Balaena hectori,Balaena mysticetus antarcticus,Baloena australis,Eubalaena capensis,Eubalaena glacialis australis,Halibalaena britannica,Hunterus temminckii,Macleayius australiensis;Baleine franche australe;PN
@@ -7674,8 +7600,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 459455;faune non-oiseau;Pristimantis zeuctotylus,Eleutherodactylus zeuctotylus;Pristimante zeuctotyle (Le),Éleutherodactyle zeuctotyle;PN
 79283;faune non-oiseau;Iberolacerta aranica,Lacerta bonnali aranica,Lacerta bonnali,Lacerta monticola bonnali;Lézard du Val d'Aran (Le);PN
 77619;faune non-oiseau;Lacerta bilineata,Lacerta europaea,Lacerta viridis,Lacerta viridissima;Lézard à deux raies (Le),Lézard vert occidental;PN
-77962;;;;PN
-699929;;;;PN
 350788;faune non-oiseau;Sphaerodactylus fantasticus;Sphérodactyle bizarre (Le);PN
 77397;faune non-oiseau;Emys orbicularis hellenica,Cistuda hellenica;Cistude d'Europe hellénique (La);PN
 929480;faune non-oiseau;Gymnophthalmus pleii pleii;Gymnophthalme de Plée martiniquais (Le);PN
@@ -7712,7 +7636,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 459638;oiseau;Regulus ignicapilla,Regulus ignicapillus,Sylvia ignicapilla;Roitelet à triple bandeau;PN
 4116;oiseau;Turdus torquatus torquatus;;PN
 60801;faune non-oiseau;Pusa hispida,Phoca hispida;Phoque annelé;PN
-535703;;;;PN
 535689;faune non-oiseau;Pusa;;PN
 4763;flore;Dicranum viride,Paraleucobryum viride;;PN
 829113;oiseau;Thalurania furcata fissilis;;PN,PD
@@ -7733,7 +7656,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 889056;oiseau;Spinus spinus,Carduelis spinus,Fringilla spinus;Tarin des aulnes;PN
 4680;oiseau;Emberiza melanocephala,Euspiza melanocephala;Bruant mélanocéphale;PN
 526248;faune non-oiseau;Mycetophyllia aliciae;Corail cactus rugueux;PN
-535723;;;;PN
 60765;faune non-oiseau;Cystophora cristata,Cystophora borealis,Phoca cristata;Phoque à capuchon,Phoque à crête;PN
 54499;faune non-oiseau;Parnassius phoebus,Papilio phoebus,Parnassius corybas;Petit Apollon (Le),Phoebus (Le);PN
 795648;faune non-oiseau;Rosalia alpina alpina;Rosalie;PN
@@ -7761,9 +7683,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 350769;faune non-oiseau;Sphaerodactylus fantasticus hippomanes;Sphérodactyle bizarre de La Désirade (Le);PN
 654834;faune non-oiseau;Ctenonotus marmoratus alliaceus,Anolis alliaceus,Anolis marmoratus alliaceus;Anolis marbré montagnard (L');PN
 78140;faune non-oiseau;Vipera aspis francisciredi,Vipera francisci redi,Viperae redi;;PN
-78169;;;;PN
 78130;faune non-oiseau;Vipera aspis,Aspera aspic,Coluber aspis,Vipera (Echidna) aspis;Vipère aspic (La);PN
-108;;;;PN
 5036;flore;Orthotrichum rogeri,Orthotrichum rogeri var. rogeri;Orthotric de Roger;PN
 721408;faune non-oiseau;Erythrolamprus juliae,Aporophis juliae,Liophis juliae;Couleuvre de Julia (La),petite couresse;PN
 701823;faune non-oiseau;Vipera seoanei,Vipera berus seoanei,Vipera seoanei cantabrica;Vipère de Seoane (La);PN
@@ -7827,7 +7747,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 829038;oiseau;Corythopis torquatus anthoides,Muscicapa anthoïdes;;PN,PD
 441982;oiseau;Hemitriccus zosterops,Euscarthmus Zosterops;Todirostre zostérops;PN,PD
 77815;faune non-oiseau;Podarcis tiliguerta maresi,Lacerta tiliguerta maresi;Lézard tyrrhénien de Mares (Le);PN
-902269;;;;PN
 199356;oiseau;Limosa haemastica,Scolopax haemastica;Barge hudsonienne;PN,PD
 99194;flore;Gagea pratensis,Gagea bracteolaris,Gagea lutea subsp. stenopetala,Gagea pratensis subsp. pratensis,Gagea pratensis subsp. stenopetala,Gagea schreberi,Gagea stenopetala subsp. pratensis,Gagea stenopetala,Gagea succedanea,Ornithogalum pratense,Ornithogalum stenopetalum,Ornithogalum tunicatum,Ornithoxanthum pratense,Ornithoxanthum stenopetalum;Gagée des prés,Gagée à pétales étroits;PN
 53651;faune non-oiseau;Coenonympha hero,Papilio hero,Satyrus hero;Mélibée (Le),Moelibée (Le),Fadet de l'Élyme (Le);PN
@@ -7848,7 +7767,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444335;faune non-oiseau;Taeniophallus brevirostris,Dromicus brevirostris,Liophis brevirostris,Rhadinaea brevirostris,Urotheca brevirostris;Téniophalle à nez court (Le);PN
 808534;faune non-oiseau;Micrurus diutius,Micrurus lemniscatus diutius;Serpent-Corail de Burger (Le);PN
 721445;faune non-oiseau;Siagonodon septemstriatus,Anguis septemstriatus,Leptotyphlops septemstriatus,Typhlops septemstriatus;Serpent aveugle à sept raies;PN
-203;;;;PN
 139;faune non-oiseau;Triturus cristatus,Lacerta lacustris,Lacerta triton,Salamandra lati-caudata,Salamandra platyura,Triton cristatus,Triton intermedius,Triton trouessarti,Triturus cristatus cristatus,Triturus (cristatus) cristatus;Triton crêté (Le);PN
 77402;faune non-oiseau;Emys orbicularis galloitalica,Emys orbicularis capolongoi,Emys orbicularis lanzai;Cistude d'Europe franco-italienne (La);PN
 442367;oiseau;Sporophila americana,Loxia americana;Sporophile à ailes blanches;PN,PD
@@ -7864,12 +7782,9 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 350761;faune non-oiseau;Mabuya mabouya,Lacerta mabouya,Lacertus mabouya;Scinque mabouya (Le);PN
 444153;faune non-oiseau;Peltocephalus dumerilianus,Emys dumeriliana,Emys macrocephala,Emys tracaxa,Peltocephalus macrocephala,Peltocephalus tracaxa,Peltocephalus tracaxus;Peltocéphale de Duméril (Le);PN
 444214;faune non-oiseau;Cercosaura ocellata,Cercosaura ocellata ocellata;Cercosaure ocellé (Le);PN
-77604;;;;PN
 969289;faune non-oiseau;Natrix astreptophora astreptophora;;PN
 350767;faune non-oiseau;Sphaerodactylus fantasticus fantasticus;Sphérodactyle bizarre de Duméril et Bibron (Le);PN
 967327;faune non-oiseau;Mabuya desiradae guadeloupae,Mabuya guadeloupae;Scinque guadeloupéen de Basse-Terre (Le);PN
-78136;;;;PN
-105;;;;PN
 654852;faune non-oiseau;Ctenonotus marmoratus speciosus x setosus,Anolis marmoratus speciosus x setosus;;PN
 66964;faune non-oiseau;Alosa agone,Alosa africana,Alosa fallax nilotica,Alosa fallax rhodanensis,Alosa fallax,Alosa finta gracilis,Alosa finta lacustris,Alosa finta rhodanensis,Alosa lacustris benacensis,Alosa lacustris ceresioverbana,Alosa lacustris lariana,Alosa lacustrus benacensis,Alosa lacustrus ceresioverbana,Alosa lacustrus lariana,Alosa nilotica,Clupea finta lacustris,Clupea nilotica,Clupea sardinella,Cyprinus agone;Alose feinte méditerranéenne;PN
 84316;flore;Asperula occidentalis,Asperula cynanchica subsp. occidentalis,Asperula occidentalis var. cynanchiciformis,Asperula occidentalis var. galiiformis,x Asperugalium occidentale;Aspérule occidentale;PN
@@ -7943,8 +7858,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 77603;faune non-oiseau;Lacerta agilis agilis;Lézard des souches (Le);PN
 699670;faune non-oiseau;Podarcis liolepis liolepis,Lacerta hispanica,Lacerta oxycephala var. hispanica,Podarcis hispanica hispanica,Podarcis hispanica,Podarcis hispanicus;Lézard catalan (Le);PN
 77828;faune non-oiseau;Podarcis tiliguerta contii,Podarcis muralis contii;Lézard tyrrhénien de Conti (Le);PN
-79276;;;;PN
-902271;;;;PN
 951923;faune non-oiseau;Hierophis viridiflavus viridiflavus,Coluber viridiflavus viridiflavus;;PN
 538283;faune non-oiseau;Natalus stramineus stramineus;;PN
 536085;faune non-oiseau;Molossus molossus molossus;;PN
@@ -8219,7 +8132,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 794326;faune non-oiseau;Aphaenops blancheti,Hydraphaenops blancheti;;PN
 60527;faune non-oiseau;Plecotus austriacus,Plecotes auritus hispanicus,Plecotus austriacus austriacus,Plecotus brevipes,Plecotus kirschbaumii,Plecotus meridionalis;Oreillard gris,Oreillard méridional;PN
 223990;faune non-oiseau;Phryganophilus ruficollis,Cantharis analis,Dircaea ruficollis,Lymexylon paradoxus;Phryganophile à cou roux;PN
-535722;;;;PN
 191493;faune non-oiseau;Cystophora;;PN
 54472;faune non-oiseau;Papilio alexanor;Alexanor (L'),Grand Sélésier (Le);PN
 610431;faune non-oiseau;Parnassius mnemosyne ceuzensis,Driopa mnemosyne ceuzensis;;PN
@@ -8362,7 +8274,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 252;faune non-oiseau;Pelodytes punctatus,Rana daudini,Rana plicata,Rana punctata;Pélodyte ponctué (Le);PN
 699198;faune non-oiseau;Pelophylax lessonae bergeri,Pelophylax bergeri,Rana bergeri,Rana esculenta,Rana lessonae bergeri;Grenouille de Lessona de Berger (La);PN
 521741;faune non-oiseau;Sphaerodactylus vincenti josephinae;Sphérodactyle de Saint-Vincent des Trois-Îlets (Le);PN
-77764;;;;PN
 77814;faune non-oiseau;Podarcis tiliguerta tiliguerta;Lézard tyrrhénien (Le);PN
 851675;faune non-oiseau;Natrix helvetica helvetica,Natrix natrix helvetica;Couleuvre helvétique (La);PN
 162290;flore;Rubus polyoplon,Rubus koehleri proles polyoplon,Rubus koehleri subsp. polyoplon;;PR
@@ -8452,7 +8363,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 199889;faune non-oiseau;Pseudunio auricularius,Margaritifera auricularia,Pseudunio auricularius auricularius,Unio auricularius,Unio sinuata,Unio sinuatus;Grande mulette;PN
 458962;faune non-oiseau;Aphaenops chappuisi,Aphoenops chappuisi;;PN
 1018048;faune non-oiseau;Aphaenops riberai;;PN
-426013;;;;PN
 66775;faune non-oiseau;Acipenser sturio,Accipenser atlanticus,Accipenser attilus,Accipenser sturio,Acipenser attilus,Acipenser ducissae,Acipenser europaeus,Acipenser fitzingeri,Acipenser fitzingerii,Acipenser laevissimus,Acipenser latirostris,Acipenser milberti,Acipenser nehelae,Acipenser podapos,Acipenser sturioides,Acipenser thompsoni,Acipenser thompsonii,Acipenser valenciennii,Acipenser yarrellii,Arcipenser sturio,Sturio vulgaris;Esturgeon,Esturgeon européen,Esturgeon de l'Europe Occidentale;PN
 533102;faune non-oiseau;Natalus stramineus;Natalide isabelle,Natalide paillée;PN
 100269;flore;Gladiolus dubius,Gladiolus atrorubens,Gladiolus communis proles dubius,Gladiolus communis var. ramosus,Gladiolus communis,Gladiolus dubius var. dubius,Gladiolus hanrii,Gladiolus illyricus,Gladiolus imbricatus,Gladiolus narbonensis;Glaïeul douteux;PN
@@ -8507,7 +8417,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444100;faune non-oiseau;Pseudoboa coronata;Pseudoboa écarlate;PN
 444120;faune non-oiseau;Xenopholis scalaris,Elapomorphus scalaris;Xénophole à échelons (Le);PN
 444356;faune non-oiseau;Bothrops bilineatus bilineatus,Bothrops bilineata bilineata;;PN
-288;;;;PN
 304;faune non-oiseau;Rana arvalis arvalis;Grenouille des champs (La),Grenouille oxyrhine;PN
 444442;faune non-oiseau;Pelophylax perezi,Rana esculenta perezi,Rana perezi,Rana ridibunda perezi;Grenouille de Pérez (La);PN
 86;faune non-oiseau;Salamandra atra atra,Geotriton fuscus,Salamandra atra,Salamandra fusca,Salamandra nigra;Salamandre noire (La);PN
@@ -8536,8 +8445,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444203;faune non-oiseau;Micrurus surinamensis surinamensis;;PN
 197;faune non-oiseau;Alytes obstetricans,Bufo obstetricans,Obstetricans vulgaris,Rana campanisona;Alyte accoucheur (L'),Crapaud accoucheur;PN
 350783;faune non-oiseau;Alsophis antillensis,Alsophis antillensis antillensis,Psammophis antillensis;Couleuvre des Antilles (La),Couleuvre antillaise,Couresse de la Guadeloupe;PN
-78168;;;;PN
-107;;;;PN
 77559;faune non-oiseau;Hemidactylus turcicus,Lacerta turcica;Gecko verruqueux (Le),Hémidactyle verruqueux;PN
 654843;faune non-oiseau;Ctenonotus marmoratus marmoratus,Anolis marmoratus marmoratus;Anolis marbré de Basse-Terre (L');PN
 78039;faune non-oiseau;Malpolon monspessulanus,Coelopeltis monspessulanus var. occidentalis,Coluber monspeliensis,Coluber monspessulanus,Coluber rupestris,Malpolon monspessulanus monspessulanus,Natrix lacertina;Couleuvre de Montpellier (La);PN
@@ -8576,7 +8483,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 538282;faune non-oiseau;Ardops nichollsi montserratensis;;PN
 721428;faune non-oiseau;Trilepida macrolepis,Leptotyphlops macrolepis,Stenostoma macrolepis,Tricheilostoma macrolepis;Serpent aveugle à grandes écailles;PN
 459628;faune non-oiseau;Epidalea calamita,Bufo calamita,Bufo cruciatus,Bufo cursor,Rana ecaudata,Rana fetidissima,Rana mephitica,Rana portentosa;Crapaud calamite (Le);PN
-305;;;;PN
 77811;faune non-oiseau;Podarcis tiliguerta,Lacerta muralis tiliguerta,Lacerta tiliguerta,Podarcis tiliguertus;Lézard tyrrhénien (Le);PN
 117139;flore;Ranunculus nodiflorus;Renoncule à fleurs nodales,Renoncule à fleurs en boules,Renoncule à noeuds florifères,Renoncule nodiflore;PN
 139441;flore;Prunus lusitanica subsp. lusitanica;Prunier du Portugal;PN
@@ -10371,7 +10277,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 673254;flore;Tapeinosperma gracile,Tapeinosperma acutangulum,Tapeinosperma lecardii,Tapeinosperma platycarpa;;POM
 673410;flore;Dacrycarpus vieillardii,Podocarpus vieillardii;;POM
 443631;faune non-oiseau;Procyon cancrivorus,Ursus cancrivorus;Raton crabier,Chien crabier;PD
-440640;;;;PD
 351704;faune non-oiseau;Rhizangiidae,Siderastreidae;;PD
 195717;oiseau;Pandion;;PD
 441811;oiseau;Contopus virens,Muscicapa virens;Pioui de l'Est;PD
@@ -10441,7 +10346,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 444206;faune non-oiseau;Crotalus durissus durissus,Crotalus Dryinas,Crotalus durissus dryinas,Crotalus durissus dryinus;;PN
 849373;faune non-oiseau;Dactyloa punctata punctata,Anolis punctatus punctatus;;PN
 199308;oiseau;Melanitta americana,Melanitta nigra americana,Oidemia Americana;Macreuse à bec jaune;PN
-291;;;;PN
 106353;flore;Liparis loeselii,Leptorkis loeselii,Malaxis loeselii,Ophrys latifolia,Ophrys liliiflora,Ophrys loeselii,Ophrys pulchella,Paliris loeselii,Pseudorchis loeselii,Serapias loeselii,Sturmia loeselii;Liparis de Loesel;PN
 436877;faune non-oiseau;Osteocephalus leprieurii,Hyla leprieurii;Ostéocéphale de Leprieur (L');PN
 440444;oiseau;Jacamerops;;PD
@@ -10462,7 +10366,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 199526;oiseau;Emberiza chrysophrys;Bruant à sourcils jaunes;PN
 608267;faune non-oiseau;Colias palaeno europomene,Colias europomene,Colias palaeno europomene f. jurassica;;PN
 195317;oiseau;Oceanites;;PD
-627677;;;;PD
 138359;flore;Ophrys x personei nothosubsp. bourlieri,Ophrys x bourlieri;Ophrys de Bourlier;PD
 674248;flore;Pristiglottis montana,Anoectochilus montanus,Cystopus montanus;;POM
 452714;flore;Sclerotheca longistigmata,Apetahia longistigmata;;POM
@@ -10580,7 +10483,6 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 783241;faune non-oiseau;Rhinella castaneotica,Bufo castaneoticus;Crapaud feuille (Le);PN
 4571;oiseau;Serinus serinus,Carduelis serinus,Fringilla serinus;Serin cini;PN
 898617;faune non-oiseau;Balaenoptera borealis borealis;;PN
-443602;;;;PD
 106720;flore;Lotus tetragonolobus,Lotus purpureus,Lotus tetragonolobus subsp. palaestinus,Tetragonolobus palaestinus,Tetragonolobus pseudopurpureus,Tetragonolobus purpureus;Lotier tétragonolobe,Tétragonolobe pourpre,Lotier pourpre,Lotier rouge;PR
 93695;flore;Cyclamen balearicum,Cyclamen repandum proles balearicum,Cyclamen repandum subsp. balearicum;Cyclamen des Baléares;PR
 993136;flore;Paratrophis pendulina,Morus brunoniana,Morus pendulina,Pseudomorus brunoniana subvar. castaneaefolia,Pseudomorus brunoniana subvar. castaneifolia,Pseudomorus brunoniana var. australiana,Pseudomorus brunoniana var. obtusa,Pseudomorus brunoniana var. pendulina,Pseudomorus brunoniana var. sandwicensis,Pseudomorus brunoniana,Pseudomorus pendulina var. australiana,Pseudomorus pendulina var. obtusa,Pseudomorus pendulina var. sandwicensis,Pseudomorus pendulina,Pseudomorus sandwicensis,Streblus brunonianus,Streblus pendulinus,Streblus sandwicensis;;POM
