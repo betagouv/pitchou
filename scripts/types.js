@@ -57,15 +57,6 @@
  * @typedef {StringValues<EspèceProtégées>} EspèceProtégéesString 
  */
 
-/**
- * @typedef {Object} Espèce
- * @prop { TAXREF_ROW['CD_NOM'] } CD_NOM
- * @prop { TAXREF_ROW['NOM_VERN'] } NOM_VERN
- * @prop { TAXREF_ROW['LB_NOM'] } LB_NOM
- * @prop { TAXREF_ROW['CLASSE'] } CLASSE 
- * @prop { TAXREF_ROW['REGNE'] } REGNE 
- * 
- */
 
 /** 
  * @typedef { Object } ActivitéMenançante
@@ -137,8 +128,8 @@
 /** @typedef {string} NomGroupeEspèces */
 /**
  * @typedef {Object} EspèceSimplifiée
- * @prop { Espèce['CD_NOM'] } CD_NOM
- * @prop { Espèce['LB_NOM'] } LB_NOM
+ * @prop { EspèceProtégées['CD_REF'] } CD_REF
+ * @prop { EspèceProtégées['nomsScientifiques'] } nomsScientifiques
  */
 /** @typedef {Record<NomGroupeEspèces, (EspèceSimplifiée | string)[]>} GroupesEspèces */
 

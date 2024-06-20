@@ -6,8 +6,6 @@
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
 
-    import {filtreParClassification} from '../../commun/outils-espèces.js'
-
     import '../../types.js'
 
     /** @type {Map<ClassificationEtreVivant, EspèceProtégées[]>} */

@@ -23,9 +23,9 @@ const lignesGroupeEspècesP = readFile('data/ListeGroupesEspeces.ods')
         return sheetRawContentToObjects(actualSheetRaw)
     })
 
-const espèceParNomScientifiqueP = readFile('data/liste_especes.csv', 'utf8')
+const espèceParNomScientifiqueP = readFile('data/liste-espèces-protégées.csv', 'utf8')
     .then(str => {
-        /** @type {Espèce[]} */
+        /** @type {EspèceProtégées[]} */
         const espèces = dsvFormat(';').parse(str)
 
         return new Map(espèces.map(e => {

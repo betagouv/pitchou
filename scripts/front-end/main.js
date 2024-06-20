@@ -18,7 +18,6 @@ import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
 import { normalizeNomCommune } from '../commun/typeFormat.js';
-import {filtreParClassification} from '../commun/outils-espèces.js'
 
 import '../types.js'
 
