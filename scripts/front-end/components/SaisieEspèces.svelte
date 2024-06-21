@@ -15,12 +15,16 @@
     export let activitesParClassificationEtreVivant
     export let méthodesParClassificationEtreVivant
     export let transportsParClassificationEtreVivant
+
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     export let groupesEspèces
 
-
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
+
+    function rerender(){
+        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+    }    
 
     const mailto = "mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
 
@@ -83,8 +87,18 @@
                 surfaceHabitatDétruit: 0
             })
         }
-        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+        
     }
+
+    /**
+     * 
+     * @param {EspèceProtégée} espèce
+     */
+    function ajouterUneEspèce(espèce){
+        ajouterEspèce(espèce)
+        rerender()
+    }
+
 
     /**
      * 
@@ -229,16 +243,54 @@
     /**
      * @param {Set<EspèceProtégée>} _espècesÀPréremplir
      */
-     function préremplirFormulaire(_espècesÀPréremplir){
+    function préremplirFormulaire(_espècesÀPréremplir){
         for(const espèce of _espècesÀPréremplir){
             ajouterEspèce(espèce)
         }
         
         texteEspèces = ''
         nomGroupChoisi = ''
+
+        rerender()
     }
 
+    /**
+     * Pré-calculs pour AutocompleteEspèces
+     */
+    /**
+	 * 
+	 * @param {EspèceProtégée} esp
+	 */
+    function espèceLabel(esp){
+		return `${[...esp.nomsVernaculaires][0]} (${[...esp.nomsScientifiques][0]})`
+	}
 
+	/**
+	 * 
+	 * @param {EspèceProtégée[]} espèces
+	 */
+	function makeEspèceToLabel(espèces){
+		return new Map(espèces.map(e => [e, espèceLabel(e)]))
+	}
+	
+	/**
+	 * 
+	 * @param {EspèceProtégée[]} espèces
+	 */
+	function makeEspèceToKeywords(espèces){
+		return new Map(espèces.map(e => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(' ')]))
+	}
+
+    $: classifToLabelFunction = new Map(
+        [...espècesProtégéesParClassification]
+            .map(([classif, espèces]) => [classif, makeEspèceToLabel(espèces)])
+            .map(([classif, espèceToLabel]) => [classif, (e => espèceToLabel.get(e))])
+    )    
+    $: classifToKeywordsFunction = new Map(
+        [...espècesProtégéesParClassification]
+            .map(([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)])
+            .map(([classif, espèceToKeywords]) => [classif, (e => espèceToKeywords.get(e))])
+    )
 
 </script>
 
@@ -272,7 +324,7 @@
                     </section>
                 </details>
 
-                <details open>
+                <details>
                     <summary><h3>Rajouter un groupe d'espèces</h3></summary>
                     <div class="fr-select-group">
                         <label class="fr-label" for="select">
@@ -331,7 +383,13 @@
                                     {#each etresVivantsAtteints as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                                         <tr>
                                             <td>
-                                                <AutocompleteEspeces bind:selectedItem={espèce} espèces={espècesProtégéesParClassification.get(classification)} htmlClass="fr-input"/>
+                                                <AutocompleteEspeces 
+                                                    bind:selectedItem={espèce} 
+                                                    espèces={espècesProtégéesParClassification.get(classification)} 
+                                                    htmlClass="fr-input"
+                                                    labelFunction={classifToLabelFunction.get(classification)}
+                                                    keywordsFunction={classifToKeywordsFunction.get(classification)}
+                                                />
                                             </td>
                                             <td>
                                                 <select bind:value={activité} class="fr-select">
@@ -374,7 +432,13 @@
                                     {/each}
                                     <tr>
                                         <td>
-                                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp)}} htmlClass="fr-input search"/>
+                                            <AutocompleteEspeces 
+                                            espèces={espècesProtégéesParClassification.get(classification)} 
+                                            onChange={esp => {ajouterUneEspèce(esp)}} 
+                                            htmlClass="fr-input search"
+                                            labelFunction={classifToLabelFunction.get(classification)}
+                                            keywordsFunction={classifToKeywordsFunction.get(classification)}
+                                        />
                                         </td>
                                         <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
                                         {#if classification !== "flore"}
