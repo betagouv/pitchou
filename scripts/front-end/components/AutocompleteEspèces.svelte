@@ -1,30 +1,17 @@
 <script>
 	//@ts-check
-
 	import AutoComplete from "simple-svelte-autocomplete"
-	/** @type {Espèce[]} */
+
+    import '../../types.js'
+
+	/** @type {EspèceProtégée[]} */
 	export let espèces;
+	/** @type {EspèceProtégée | undefined} */
 	export let selectedItem = undefined;
 	export let onChange = undefined
 	export let htmlClass
-
-	$: espèceToLabel = makeEspèceToLabel(espèces)
-
-	/**
-	 * 
-	 * @param {Espèce} esp
-	 */
-	function espèceLabel(esp){
-		return `${esp["NOM_VERN"]} (${esp["LB_NOM"]})`
-	}
-
-	/**
-	 * 
-	 * @param {Espèce[]} espèces
-	 */
-	function makeEspèceToLabel(espèces){
-		return new Map(espèces.map(e => [e, espèceLabel(e)]))
-	}
+	export let labelFunction
+	export let keywordsFunction
 
 	function beforeChange (oldSelectedItem, newSelectedItem) {
 		// Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36
@@ -39,16 +26,15 @@
 <AutoComplete 
 	bind:selectedItem={selectedItem}
 	items={espèces}
-	labelFunction={e => espèceToLabel.get(e)}
-	maxItemsToShowInList=20
+	{labelFunction}
+	{keywordsFunction}
+	maxItemsToShowInList=12
 	cleanUserText=false
 	{beforeChange}
 	class={htmlClass}
 	hideArrow={true}
+	ignoreAccents={false}
 >
-	<div slot="item" let:item>
-		{item["NOM_VERN"]} (<i>{item["LB_NOM"]}</i>)
-	</div>
 </AutoComplete>
 
 <style lang="scss">

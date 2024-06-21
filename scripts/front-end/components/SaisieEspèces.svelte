@@ -2,22 +2,29 @@
     //@ts-check
     import Squelette from './Squelette.svelte'
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
+    import NomEspèce from "./NomEspèce.svelte"
 
-    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
-
-    import {filtreParClassification} from '../../commun/outils-espèces.js'
+    import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
 
     import '../../types.js'
+    import { descriptionMenacesEspècesToJSON } from '../../commun/outils-espèces';
 
-    /** @type {Map<ClassificationEtreVivant, Espèce[]>} */
+    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
     export let activitesParClassificationEtreVivant
     export let méthodesParClassificationEtreVivant
     export let transportsParClassificationEtreVivant
 
+    /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
+    export let groupesEspèces
+
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
+
+    function rerender(){
+        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+    }    
 
     const mailto = "mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
 
@@ -37,15 +44,7 @@
         return regex.test(str);
     }*/
     
-    // adapted from https://developer.mozilla.org/en-US/docs/Glossary/Base64#solution_1_%E2%80%93_escaping_the_string_before_encoding_it
-    /**
-     *
-     * @param {string} s // cleartext string
-     * @returns {string} // utf-8-encoded base64 string
-     */
-    export function UTF8ToB64(s) {
-        return btoa(unescape(encodeURIComponent(s)))
-    }
+
 
     /** @type {Map<ClassificationEtreVivant, any>} */
     const etreVivantClassificationToBloc = new Map([
@@ -66,16 +65,15 @@
 
     /**
      * 
-     * @param {Espèce} espèce
-     * @param {ClassificationEtreVivant} classification
+     * @param {EspèceProtégée} espèce
      */
-    function ajouterEspèce(espèce, classification){
+    function ajouterEspèce(espèce){
         //@ts-expect-error La description pour la classification va être trouvée
-        const etresVivantsAtteints = descriptionMenacesEspèces.find(d => d.classification === classification).etresVivantsAtteints
+        const etresVivantsAtteints = descriptionMenacesEspèces.find(d => d.classification === espèce.classification).etresVivantsAtteints
 
-        if(classification === 'oiseau'){
+        if(espèce.classification === 'oiseau'){
             etresVivantsAtteints.push({
-                espece: espèce,
+                espèce,
                 nombreIndividus: 0,
                 nombreNids: 0,
                 nombreOeufs: 0,
@@ -84,20 +82,33 @@
         }
         else{
             etresVivantsAtteints.push({
-                espece: espèce,
+                espèce,
                 nombreIndividus: 0,
                 surfaceHabitatDétruit: 0
             })
         }
-        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+        
     }
+
+    /**
+     * 
+     * @param {EspèceProtégée} espèce
+     */
+    function ajouterUneEspèce(espèce){
+        ajouterEspèce(espèce)
+        rerender()
+    }
+
 
     /**
      * 
      * @param {EtreVivantAtteint} _
      * @param {EtreVivantAtteint} _
      */
-    function etresVivantsAtteintsCompareEspèce({espece: {NOM_VERN: nom1}}, {espece: {NOM_VERN: nom2}}) {
+    function etresVivantsAtteintsCompareEspèce({espèce: {nomsScientifiques: noms1}}, {espèce: {nomsScientifiques: noms2}}) {
+        const [nom1] = noms1
+        const [nom2] = noms2
+
         if (nom1 < nom2) {
             return -1;
         }
@@ -109,11 +120,11 @@
 
     /**
      * 
-     * @param {EtreVivantAtteint} etresVivantsAtteints
-     * @param {Espèce} _espece 
+     * @param {EtreVivantAtteint[]} etresVivantsAtteints
+     * @param {EspèceProtégée} _espèce 
      */
-    function supprimerLigne(etresVivantsAtteints, _espece){
-        const index = etresVivantsAtteints.findIndex(({espece}) => espece === _espece);
+    function supprimerLigne(etresVivantsAtteints, _espèce){
+        const index = etresVivantsAtteints.findIndex(({espèce}) => espèce === _espèce);
         if (index > -1) { 
             etresVivantsAtteints.splice(index, 1);
         }
@@ -121,56 +132,7 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
-    /**
-     * 
-     * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
-     * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
-     */
-    function etreVivantAtteintToJSON(etreVivantAtteint){
-        const {
-            espece, 
-            activité, méthode, transport,
-            nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
-        } = etreVivantAtteint
 
-        if(nombreNids || nombreOeufs){
-            return {
-                espece: espece['CD_NOM'],
-                activité: activité && activité.Code, 
-                méthode: méthode && méthode.Code, 
-                transport: transport && transport.Code,
-                nombreIndividus, 
-                nombreNids, 
-                nombreOeufs, 
-                surfaceHabitatDétruit
-            }
-        }
-        else{
-            return {
-                espece: espece['CD_NOM'],
-                activité: activité && activité.Code, 
-                méthode: méthode && méthode.Code, 
-                transport: transport && transport.Code,
-                nombreIndividus,
-                surfaceHabitatDétruit
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param { DescriptionMenaceEspèce[] } descriptionMenacesEspèces
-     * @returns { DescriptionMenaceEspècesJSON }
-     */
-    function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints}) => {
-            return {
-                classification, 
-                etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
-                
-            }
-        })
-    }
 
     /** @type {HTMLButtonElement} */
     let copyButton;
@@ -203,24 +165,27 @@
 
     /**
      * 
-     * @param {Map<ClassificationEtreVivant, Espèce[]>} espècesProtégéesParClassification
-     * @returns {Map<string, Espèce>}
+     * @param {Map<ClassificationEtreVivant, EspèceProtégée[]>} espècesProtégéesParClassification
+     * @returns {Map<string, EspèceProtégée>}
      */
     function créerNomVersEspèceClassif(espècesProtégéesParClassification){
-        /** @type {Map<string, Espèce>}>} */
+        /** @type {Map<string, EspèceProtégée>}>} */
         const nomVersEspèceClassif = new Map()
 
         for(const espèces of espècesProtégéesParClassification.values()){
             for(const espèce of espèces){
-                const {NOM_VERN, LB_NOM} = espèce;
-                if(LB_NOM && LB_NOM.length >= 3){
-                    const normalized = normalizeNomEspèce(LB_NOM)
-                    nomVersEspèceClassif.set(normalized, espèce)
+                const {nomsScientifiques, nomsVernaculaires} = espèce;
+                if(nomsScientifiques.size >= 1){
+                    for(const nom of nomsScientifiques){
+                        const normalized = normalizeNomEspèce(nom)
+                        if(normalized && normalized.length >= 3){
+                            nomVersEspèceClassif.set(normalized, espèce)
+                        }
+                    }
                 }
-
-                if(NOM_VERN){
-                    const noms = NOM_VERN.split(',')
-                    for(const nom of noms){
+                
+                if(nomsVernaculaires.size >= 1){
+                    for(const nom of nomsVernaculaires){
                         const normalized = normalizeNomEspèce(nom)
                         if(normalized && normalized.length >= 3){
                             nomVersEspèceClassif.set(normalized, espèce)
@@ -233,6 +198,9 @@
         return nomVersEspèceClassif
     }
 
+    /**
+     * Aide saisie par texte
+     */
 
     let texteEspèces = '';
 
@@ -241,10 +209,10 @@
     /**
      * 
      * @param {string} texte
-     * @returns {Set<Espèce>}
+     * @returns {Set<EspèceProtégée>}
      */
-     function chercherEspèces(texte){
-        /** @type {Set<Espèce>}*/
+     function chercherEspècesDansTexte(texte){
+        /** @type {Set<EspèceProtégée>}*/
         const espècesTrouvées = new Set()
 
         for(const [nom, espClassif] of nomVersEspèceClassif){
@@ -256,26 +224,73 @@
         return espècesTrouvées
     }
 
-    /** @type {Set<Espèce> | undefined} */
-    $: espècesÀPréremplir = chercherEspèces(normalizeTexteEspèce(texteEspèces))
+    /** @type {Set<EspèceProtégée> | undefined} */
+    $: espècesÀPréremplirParTexte = chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces))
 
     /**
-     * @param {Set<Espèce>} _espècesÀPréremplir
+     * Aide saisie par groupe
+     */
+    /** @type {string} */
+    let nomGroupChoisi = '';
+
+    /** @type {EspèceProtégée[] | undefined} */
+    $: groupeChoisi = groupesEspèces.get(nomGroupChoisi)
+    $: espècesÀPréremplirParGroupe = groupeChoisi || []
+
+    /** @type {Set<EspèceProtégée>} */
+    $: espècesÀPréremplir = new Set([...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe])
+
+    /**
+     * @param {Set<EspèceProtégée>} _espècesÀPréremplir
      */
     function préremplirFormulaire(_espècesÀPréremplir){
         for(const espèce of _espècesÀPréremplir){
-            // PPP pas une manière super-efficace de récupérer 
-            for(const [classification, filtre] of filtreParClassification){
-                if(filtre(espèce)){
-                    ajouterEspèce(espèce, classification)
-                    continue;
-                }
-            }
+            ajouterEspèce(espèce)
         }
         
         texteEspèces = ''
+        nomGroupChoisi = ''
+
+        rerender()
     }
 
+    /**
+     * Pré-calculs pour AutocompleteEspèces
+     */
+    /**
+	 * 
+	 * @param {EspèceProtégée} esp
+	 */
+    function espèceLabel(esp){
+		return `${[...esp.nomsVernaculaires][0]} (${[...esp.nomsScientifiques][0]})`
+	}
+
+	/**
+	 * 
+	 * @param {EspèceProtégée[]} espèces
+	 */
+	function makeEspèceToLabel(espèces){
+		return new Map(espèces.map(e => [e, espèceLabel(e)]))
+	}
+	
+	/**
+	 * 
+	 * @param {EspèceProtégée[]} espèces
+	 */
+	function makeEspèceToKeywords(espèces){
+		return new Map(espèces.map(e => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(' ')]))
+	}
+
+    $: classifToLabelFunction = new Map(
+        [...espècesProtégéesParClassification]
+            .map(([classif, espèces]) => [classif, makeEspèceToLabel(espèces)])
+            .map(([classif, espèceToLabel]) => [classif, (e => espèceToLabel.get(e))])
+    )    
+    $: classifToKeywordsFunction = new Map(
+        [...espècesProtégéesParClassification]
+            .map(([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)])
+            .map(([classif, espèceToKeywords]) => [classif, (e => espèceToKeywords.get(e))])
+    )
 
 </script>
 
@@ -295,8 +310,10 @@
 
         <div class="fr-grid-row fr-mt-6w">
             <div class="fr-col">
+                <h2>Aide à la saisie d'espèce</h2>
+
                 <details>
-                    <summary><h2>Saisie approximative</h2></summary>
+                    <summary><h3>Saisie approximative</h3></summary>
                     <section>
                         <p>
                             Dans la boîte de texte ci-dessous, coller du texte approximatif.
@@ -305,19 +322,35 @@
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
                     </section>
-                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
+                </details>
+
+                <details>
+                    <summary><h3>Rajouter un groupe d'espèces</h3></summary>
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="select">
+                            Choisir un groupe d'espèces à ajouter
+                        </label>
+                        <select bind:value={nomGroupChoisi} class="fr-select" id="select">
+                            <option value="" selected disabled hidden>Sélectionner une option</option>
+                            {#each [...groupesEspèces.keys()] as nomGroupe}
+                                <option value={nomGroupe}>{nomGroupe}</option>
+                            {/each}
+                        </select>
+                    </div>
+                </details>
+
+                {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
                     <section>
-                        <h3>{espècesÀPréremplir.size} espèce.s trouvée.s dans le texte</h3>
+                        <h3>{espècesÀPréremplir.size} espèce.s</h3>
                         <ul>
                             {#each [...espècesÀPréremplir] as espèce}
-                                <li>{espèce["NOM_VERN"]} (<i>{espèce["LB_NOM"]}</i>)</li>
+                                <li><NomEspèce {espèce}/></li>
                             {/each}
                         </ul>
 
                         <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     </section>
-                    {/if}
-                </details>
+                {/if}
             </div>
         </div>
 
@@ -347,10 +380,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {#each etresVivantsAtteints as {espece, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
+                                    {#each etresVivantsAtteints as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
                                         <tr>
                                             <td>
-                                                <AutocompleteEspeces bind:selectedItem={espece} espèces={espècesProtégéesParClassification.get(classification)} htmlClass="fr-input"/>
+                                                <AutocompleteEspeces 
+                                                    bind:selectedItem={espèce} 
+                                                    espèces={espècesProtégéesParClassification.get(classification)} 
+                                                    htmlClass="fr-input"
+                                                    labelFunction={classifToLabelFunction.get(classification)}
+                                                    keywordsFunction={classifToKeywordsFunction.get(classification)}
+                                                />
                                             </td>
                                             <td>
                                                 <select bind:value={activité} class="fr-select">
@@ -388,12 +427,18 @@
                                             <td><input type="number" bind:value={nombreOeufs} min="0" step="1" class="fr-input"></td>
                                             {/if}
                                             <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input"></td>
-                                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espece)}>❌</button></td>
+                                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espèce)}>❌</button></td>
                                         </tr>
                                     {/each}
                                     <tr>
                                         <td>
-                                            <AutocompleteEspeces espèces={espècesProtégéesParClassification.get(classification)} onChange={esp => {ajouterEspèce(esp, classification, etresVivantsAtteints)}} htmlClass="fr-input search"/>
+                                            <AutocompleteEspeces 
+                                            espèces={espècesProtégéesParClassification.get(classification)} 
+                                            onChange={esp => {ajouterUneEspèce(esp)}} 
+                                            htmlClass="fr-input search"
+                                            labelFunction={classifToLabelFunction.get(classification)}
+                                            keywordsFunction={classifToKeywordsFunction.get(classification)}
+                                        />
                                         </td>
                                         <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
                                         {#if classification !== "flore"}
@@ -415,8 +460,8 @@
                         {#if etresVivantsAtteints.length >= 1}
                         <section class="arrete-prefectoral fr-p-1w">
                             <h3>Liste des espèces</h3>
-                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espece}, index }
-                                {#if index !== 0 },&nbsp;{/if}{espece["NOM_VERN"]} (<i>{espece["LB_NOM"]}</i>)
+                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index }
+                                {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
                             {/each} 
                         </section>
                         {/if}
@@ -453,7 +498,7 @@
             cursor: default; // surcharge dsfr parce que c'est bizarre
         }
 
-        summary h2{
+        summary h3{
             display: inline-block;
         }
 

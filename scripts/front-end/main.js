@@ -18,7 +18,7 @@ import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
 import { normalizeNomCommune } from '../commun/typeFormat.js';
-import {filtreParClassification} from '../commun/outils-espèces.js'
+import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../commun/outils-espèces';
 
 import '../types.js'
 
@@ -100,16 +100,6 @@ page('/dossier/:dossierId', ({params: {dossierId}}) => {
 
 page('/saisie-especes', async () => {
     /**
-     * @param {string} x 
-     * @returns {x is ClassificationEtreVivant}
-     */
-    function isClassif(x){
-        // @ts-expect-error indeed
-        return classificationEtreVivants.includes(x)
-    }
-
-    /**
-     * 
      * @param {string} selector 
      * @returns {string}
      */
@@ -117,32 +107,27 @@ page('/saisie-especes', async () => {
         const element = document.head.querySelector(selector)
     
         if(!element){
-        throw new TypeError(`Élément ${selector} manquant`)
+            throw new TypeError(`Élément ${selector} manquant`)
         }
     
         const hrefAttribute = element.getAttribute('href')
     
         if(!hrefAttribute){
-        throw new TypeError(`Attribut "href" manquant sur ${selector}`)
+            throw new TypeError(`Attribut "href" manquant sur ${selector}`)
         }
     
         return hrefAttribute
     }
     
-    /** @type { [any[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[]] } */
+    /** @type { [EspèceProtégéeStrings[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
     // @ts-ignore
-    const [dataEspèces, activites, methodes, transports] = await Promise.all([
+    const [dataEspèces, activites, methodes, transports, groupesEspècesBrutes] = await Promise.all([
         dsv(";", getURL('link#especes-data')),
         dsv(";", getURL('link#activites-data')),
         dsv(";", getURL('link#methodes-data')),
         dsv(";", getURL('link#transports-data')),
+        json(getURL('link#groupes-especes-data')),
     ])
-
-    console.log(dataEspèces, activites, methodes, transports)
-
-    /** @type {readonly ClassificationEtreVivant[]} */
-    const classificationEtreVivants = Object.freeze(["oiseau", "faune non-oiseau", "flore"])
-
 
 
     /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
@@ -156,7 +141,7 @@ page('/saisie-especes', async () => {
         }
 
         if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
         }
         
         const classifActivz = activitesParClassificationEtreVivant.get(classif) || []
@@ -175,7 +160,7 @@ page('/saisie-especes', async () => {
         }
 
         if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
         }
         
         const classifMeth = méthodesParClassificationEtreVivant.get(classif) || []
@@ -194,7 +179,7 @@ page('/saisie-especes', async () => {
         }
 
         if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
         }
         
         const classifTrans = transportsParClassificationEtreVivant.get(classif) || []
@@ -202,21 +187,28 @@ page('/saisie-especes', async () => {
         transportsParClassificationEtreVivant.set(classif, classifTrans)
     }
 
+    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
+    const espècesProtégéesParClassification = new Map()
+    /** @type {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} */
+    const espèceByCD_REF = new Map()
 
+    for(const espStr of dataEspèces){
+        const {classification} = espStr
 
-    const espèceByCD_NOM = new Map()
-    dataEspèces.forEach(d => {
-        espèceByCD_NOM.set(d["CD_NOM"], d)
-    })
-    console.log(espèceByCD_NOM)
+        if(!isClassif(classification)){
+            throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`)
+        }
 
-    /** @type { Espèce[] } */
-    const listeEspècesProtégées = [...espèceByCD_NOM.values()]
+        const espèces = espècesProtégéesParClassification.get(classification) || []
 
+        /** @type {EspèceProtégée} */
+        const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr))
 
-    const espècesProtégéesParClassification = new Map(
-        [...filtreParClassification].map(([classif, filtre]) => ([classif, listeEspècesProtégées.filter(filtre)]))
-    )
+        espèces.push(espèce)
+        espèceByCD_REF.set(espèce['CD_REF'], espèce)
+
+        espècesProtégéesParClassification.set(classification, espèces)
+    }
 
     console.log('espècesProtégéesParClassification', espècesProtégéesParClassification)
 
@@ -230,18 +222,22 @@ page('/saisie-especes', async () => {
     }
 
 
+
+
+
     /**
      * 
      * @param { DescriptionMenaceEspècesJSON } descriptionMenacesEspècesJSON
      * @returns { DescriptionMenaceEspèce[] }
      */
     function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON){
+        //@ts-ignore
         return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
             console.log('classification, etresVivantsAtteints', classification, etresVivantsAtteints)
             return {
                 classification, 
-                etresVivantsAtteints: etresVivantsAtteints.map(({espece, activité, méthode, transport, ...rest}) => ({
-                    espece: espèceByCD_NOM.get(espece),
+                etresVivantsAtteints: etresVivantsAtteints.map(({espèce, activité, méthode, transport, ...rest}) => ({
+                    espèce: espèceByCD_REF.get(espèce),
                     activité: activites.find((a) => a.Code === activité),
                     méthode: methodes.find((m) => m.Code === méthode),	
                     transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
@@ -268,12 +264,31 @@ page('/saisie-especes', async () => {
         }
     }
 
+    /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
+    const groupesEspèces = new Map()
+    for(const [nomGroupe, espèces] of Object.entries(groupesEspècesBrutes)){
+        groupesEspèces.set(
+            nomGroupe,
+            //@ts-ignore TS doesn't understand what happens with .filter
+            espèces.map(e => {
+                if(typeof e === 'string'){
+                    return undefined
+                }
+    
+                return espèceByCD_REF.get(e['CD_REF']) // may be undefined and that's ok
+            })
+            .filter(x => !!x)
+        )
+    }
+
+
     function mapStateToProps(){
         return {
             espècesProtégéesParClassification,
             activitesParClassificationEtreVivant, 
             méthodesParClassificationEtreVivant, 
             transportsParClassificationEtreVivant,
+            groupesEspèces,
             /** @type {DescriptionMenaceEspèce[]} */
             // @ts-ignore
             descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || [
