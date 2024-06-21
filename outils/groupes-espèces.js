@@ -4,6 +4,8 @@ import {readFile, writeFile} from 'node:fs/promises'
 import {sheetRawContentToObjects, getODSTableRawContent} from 'ods-xlsx'
 import { dsvFormat } from 'd3-dsv';
 
+import {espèceProtégéeStringToEspèceProtégée} from '../scripts/commun/outils-espèces.js'
+
 import '../scripts/types.js'
 
 /**
@@ -23,14 +25,24 @@ const lignesGroupeEspècesP = readFile('data/ListeGroupesEspeces.ods')
         return sheetRawContentToObjects(actualSheetRaw)
     })
 
+/** @type {Promise<Map<string, EspèceProtégée>>} */    
 const espèceParNomScientifiqueP = readFile('data/liste-espèces-protégées.csv', 'utf8')
     .then(str => {
-        /** @type {EspèceProtégées[]} */
-        const espèces = dsvFormat(';').parse(str)
+        /** @type {EspèceProtégéeStrings[]} */
+        const espèceStrs = dsvFormat(';').parse(str)
 
-        return new Map(espèces.map(e => {
-            return [e['LB_NOM'], e]
-        }))
+        const espèces = espèceStrs.map(espèceProtégéeStringToEspèceProtégée)
+
+        /** @type {Map<string, EspèceProtégée>} */
+        const ret = new Map()
+
+        for(const espèce of espèces){
+            for(const nom of espèce.nomsScientifiques){
+                ret.set(nom, espèce)
+            }
+        }
+
+        return ret
     })
     
 const outputPath = 'data/groupes_especes.json'
@@ -44,14 +56,15 @@ Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
 
     for(const ligne of lignesGroupeEspèces){
         const {'Nom scientifique': nomScientifique, 'Nom du groupe': nomGroupe} = ligne
-        const espèceDuGroupe = espèceParNomScientifique.get(nomScientifique)
-        
+
+        let espèceDuGroupe = espèceParNomScientifique.get(nomScientifique)
+
         /** @type {EspèceSimplifiée | string} */
         let jsonableEspèce;
         
         if(espèceDuGroupe){
-            const {LB_NOM, CD_NOM} = espèceDuGroupe
-            jsonableEspèce = {LB_NOM, CD_NOM}
+            const {nomsScientifiques, CD_REF} = espèceDuGroupe
+            jsonableEspèce = {nom: [...nomsScientifiques][0], CD_REF}
         }
         else{
             espècesNonReconnues.push(ligne)
@@ -66,7 +79,11 @@ Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
     if(espècesNonReconnues.length >= 1){
         const set = new Set(espècesNonReconnues.map(e => e['Nom scientifique']))
         console.log([...set].join('\n'))
-        console.log(set.size, 'espèces non reconnues', espècesNonReconnues.length, lignesGroupeEspèces.length)
+        console.log(
+            set.size, 
+            'espèces non reconnues sur', 
+            (new Set(lignesGroupeEspèces.map(e => e['Nom scientifique'])).size)
+        )
     }
 
     const jsonOutput = JSON.stringify(groupesEspèces);

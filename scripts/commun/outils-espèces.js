@@ -65,3 +65,55 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
         nomsVernaculaires: new Set(nomsVernaculaires.split(',')), 
     }
 }
+
+
+/**
+ * 
+ * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
+ * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
+ */
+function etreVivantAtteintToJSON(etreVivantAtteint){
+    const {
+        espèce, 
+        activité, méthode, transport,
+        nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
+    } = etreVivantAtteint
+
+    if(nombreNids || nombreOeufs){
+        return {
+            espèce: espèce['CD_REF'],
+            activité: activité && activité.Code, 
+            méthode: méthode && méthode.Code, 
+            transport: transport && transport.Code,
+            nombreIndividus, 
+            nombreNids, 
+            nombreOeufs, 
+            surfaceHabitatDétruit
+        }
+    }
+    else{
+        return {
+            espèce: espèce['CD_REF'],
+            activité: activité && activité.Code, 
+            méthode: méthode && méthode.Code, 
+            transport: transport && transport.Code,
+            nombreIndividus,
+            surfaceHabitatDétruit
+        }
+    }
+}
+
+/**
+ * 
+ * @param { DescriptionMenaceEspèce[] } descriptionMenacesEspèces
+ * @returns { DescriptionMenaceEspècesJSON }
+ */
+export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
+    return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints}) => {
+        return {
+            classification, 
+            etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
+            
+        }
+    })
+}

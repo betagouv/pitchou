@@ -4,9 +4,10 @@
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import NomEspèce from "./NomEspèce.svelte"
 
-    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
+    import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
 
     import '../../types.js'
+    import { descriptionMenacesEspècesToJSON } from '../../commun/outils-espèces';
 
     /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
@@ -14,8 +15,9 @@
     export let activitesParClassificationEtreVivant
     export let méthodesParClassificationEtreVivant
     export let transportsParClassificationEtreVivant
-    /** @type {GroupesEspèces} */
+    /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     export let groupesEspèces
+
 
     /** @type { DescriptionMenaceEspèce[] } */
     export let descriptionMenacesEspèces;
@@ -38,15 +40,7 @@
         return regex.test(str);
     }*/
     
-    // adapted from https://developer.mozilla.org/en-US/docs/Glossary/Base64#solution_1_%E2%80%93_escaping_the_string_before_encoding_it
-    /**
-     *
-     * @param {string} s // cleartext string
-     * @returns {string} // utf-8-encoded base64 string
-     */
-    export function UTF8ToB64(s) {
-        return btoa(unescape(encodeURIComponent(s)))
-    }
+
 
     /** @type {Map<ClassificationEtreVivant, any>} */
     const etreVivantClassificationToBloc = new Map([
@@ -124,56 +118,7 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
-    /**
-     * 
-     * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
-     * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
-     */
-    function etreVivantAtteintToJSON(etreVivantAtteint){
-        const {
-            espèce, 
-            activité, méthode, transport,
-            nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
-        } = etreVivantAtteint
 
-        if(nombreNids || nombreOeufs){
-            return {
-                espèce: espèce['CD_REF'],
-                activité: activité && activité.Code, 
-                méthode: méthode && méthode.Code, 
-                transport: transport && transport.Code,
-                nombreIndividus, 
-                nombreNids, 
-                nombreOeufs, 
-                surfaceHabitatDétruit
-            }
-        }
-        else{
-            return {
-                espèce: espèce['CD_REF'],
-                activité: activité && activité.Code, 
-                méthode: méthode && méthode.Code, 
-                transport: transport && transport.Code,
-                nombreIndividus,
-                surfaceHabitatDétruit
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param { DescriptionMenaceEspèce[] } descriptionMenacesEspèces
-     * @returns { DescriptionMenaceEspècesJSON }
-     */
-    function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-        return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints}) => {
-            return {
-                classification, 
-                etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
-                
-            }
-        })
-    }
 
     /** @type {HTMLButtonElement} */
     let copyButton;
@@ -239,6 +184,9 @@
         return nomVersEspèceClassif
     }
 
+    /**
+     * Aide saisie par texte
+     */
 
     let texteEspèces = '';
 
@@ -249,7 +197,7 @@
      * @param {string} texte
      * @returns {Set<EspèceProtégée>}
      */
-     function chercherEspèces(texte){
+     function chercherEspècesDansTexte(texte){
         /** @type {Set<EspèceProtégée>}*/
         const espècesTrouvées = new Set()
 
@@ -263,20 +211,34 @@
     }
 
     /** @type {Set<EspèceProtégée> | undefined} */
-    $: espècesÀPréremplir = chercherEspèces(normalizeTexteEspèce(texteEspèces))
+    $: espècesÀPréremplirParTexte = chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces))
+
+    /**
+     * Aide saisie par groupe
+     */
+    /** @type {string} */
+    let nomGroupChoisi = '';
+
+    /** @type {EspèceProtégée[] | undefined} */
+    $: groupeChoisi = groupesEspèces.get(nomGroupChoisi)
+    $: espècesÀPréremplirParGroupe = groupeChoisi || []
+
+    /** @type {Set<EspèceProtégée>} */
+    $: espècesÀPréremplir = new Set([...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe])
 
     /**
      * @param {Set<EspèceProtégée>} _espècesÀPréremplir
      */
-    function préremplirFormulaire(_espècesÀPréremplir){
+     function préremplirFormulaire(_espècesÀPréremplir){
         for(const espèce of _espècesÀPréremplir){
             ajouterEspèce(espèce)
         }
         
         texteEspèces = ''
+        nomGroupChoisi = ''
     }
 
-    let groupChoisi;
+
 
 </script>
 
@@ -296,8 +258,10 @@
 
         <div class="fr-grid-row fr-mt-6w">
             <div class="fr-col">
+                <h2>Aide à la saisie d'espèce</h2>
+
                 <details>
-                    <summary><h2>Saisie approximative</h2></summary>
+                    <summary><h3>Saisie approximative</h3></summary>
                     <section>
                         <p>
                             Dans la boîte de texte ci-dessous, coller du texte approximatif.
@@ -306,40 +270,26 @@
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
                     </section>
-                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
-                    <section>
-                        <h3>{espècesÀPréremplir.size} espèce.s trouvée.s dans le texte</h3>
-                        <ul>
-                            {#each [...espècesÀPréremplir] as espèce}
-                                <li><NomEspèce {espèce}/></li>
-                            {/each}
-                        </ul>
-
-                        <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
-                    </section>
-                    {/if}
                 </details>
-            </div>
-        </div>
 
-        <div class="fr-grid-row fr-mt-6w">
-            <div class="fr-col">
-                <details>
-                    <summary><h2>Rajouter un groupe d'espèces</h2></summary>
+                <details open>
+                    <summary><h3>Rajouter un groupe d'espèces</h3></summary>
                     <div class="fr-select-group">
                         <label class="fr-label" for="select">
                             Choisir un groupe d'espèces à ajouter
                         </label>
-                        <select bind:value={groupChoisi} class="fr-select" id="select" name="select">
+                        <select bind:value={nomGroupChoisi} class="fr-select" id="select">
                             <option value="" selected disabled hidden>Sélectionner une option</option>
-                            {#each [...Object.entries(groupesEspèces)] as [nomGroupe, listeEspèces]}
-                                <option value={[nomGroupe, listeEspèces]}>{nomGroupe}</option>
+                            {#each [...groupesEspèces.keys()] as nomGroupe}
+                                <option value={nomGroupe}>{nomGroupe}</option>
                             {/each}
                         </select>
                     </div>
-                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
+                </details>
+
+                {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
                     <section>
-                        <h3>{espècesÀPréremplir.size} espèce.s trouvée.s dans le texte</h3>
+                        <h3>{espècesÀPréremplir.size} espèce.s</h3>
                         <ul>
                             {#each [...espècesÀPréremplir] as espèce}
                                 <li><NomEspèce {espèce}/></li>
@@ -348,8 +298,7 @@
 
                         <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     </section>
-                    {/if}
-                </details>
+                {/if}
             </div>
         </div>
 
@@ -485,7 +434,7 @@
             cursor: default; // surcharge dsfr parce que c'est bizarre
         }
 
-        summary h2{
+        summary h3{
             display: inline-block;
         }
 

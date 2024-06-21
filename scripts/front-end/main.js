@@ -121,16 +121,13 @@ page('/saisie-especes', async () => {
     
     /** @type { [EspèceProtégéeStrings[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
     // @ts-ignore
-    const [dataEspèces, activites, methodes, transports, groupesEspèces] = await Promise.all([
+    const [dataEspèces, activites, methodes, transports, groupesEspècesBrutes] = await Promise.all([
         dsv(";", getURL('link#especes-data')),
         dsv(";", getURL('link#activites-data')),
         dsv(";", getURL('link#methodes-data')),
         dsv(";", getURL('link#transports-data')),
-        dsv(";", getURL('link#groupes-especes-data')),
+        json(getURL('link#groupes-especes-data')),
     ])
-
-
-    console.log(dataEspèces, activites, methodes, transports, groupesEspèces)
 
 
     /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
@@ -205,7 +202,7 @@ page('/saisie-especes', async () => {
         const espèces = espècesProtégéesParClassification.get(classification) || []
 
         /** @type {EspèceProtégée} */
-        const espèce = espèceProtégéeStringToEspèceProtégée(espStr)
+        const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr))
 
         espèces.push(espèce)
         espèceByCD_REF.set(espèce['CD_REF'], espèce)
@@ -266,6 +263,24 @@ page('/saisie-especes', async () => {
             }
         }
     }
+
+    /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
+    const groupesEspèces = new Map()
+    for(const [nomGroupe, espèces] of Object.entries(groupesEspècesBrutes)){
+        groupesEspèces.set(
+            nomGroupe,
+            //@ts-ignore TS doesn't understand what happens with .filter
+            espèces.map(e => {
+                if(typeof e === 'string'){
+                    return undefined
+                }
+    
+                return espèceByCD_REF.get(e['CD_REF']) // may be undefined and that's ok
+            })
+            .filter(x => !!x)
+        )
+    }
+
 
     function mapStateToProps(){
         return {
