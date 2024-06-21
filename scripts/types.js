@@ -43,7 +43,7 @@
  * Lignes du fichier liste-espèces-protégées.csv
  * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
  * 
- * @typedef {Object} EspèceProtégées
+ * @typedef {Object} EspèceProtégée
  * @prop { TAXREF_ROW['CD_REF'] } CD_REF
  * @prop { Set<TAXREF_ROW['NOM_VERN']> } nomsVernaculaires - TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
  * @prop { Set<TAXREF_ROW['LB_NOM']> } nomsScientifiques - plusieurs noms si plusieurs CD_NOM pour le même CD_REF
@@ -54,7 +54,7 @@
 
 /** 
  * Les Set<string> deviennent des string séparés par des `,`
- * @typedef {StringValues<EspèceProtégées>} EspèceProtégéesString 
+ * @typedef {StringValues<EspèceProtégée>} EspèceProtégéeStrings 
  */
 
 
@@ -85,7 +85,7 @@
 
 /**
  * @typedef {Object} EtreVivantAtteint
- * @prop { EspèceProtégées } espèce
+ * @prop { EspèceProtégée } espèce
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  * @prop { ActivitéMenançante } activité
@@ -95,7 +95,7 @@
 
 /**
  * @typedef {Object} EtreVivantAtteintJSON
- * @prop { EspèceProtégées['CD_REF'] } espèce
+ * @prop { EspèceProtégée['CD_REF'] } espèce
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  * @prop { string } activité // Code
@@ -128,8 +128,8 @@
 /** @typedef {string} NomGroupeEspèces */
 /**
  * @typedef {Object} EspèceSimplifiée
- * @prop { EspèceProtégées['CD_REF'] } CD_REF
- * @prop { EspèceProtégées['nomsScientifiques'] } nomsScientifiques
+ * @prop { EspèceProtégée['CD_REF'] } CD_REF
+ * @prop { string } nom
  */
 /** @typedef {Record<NomGroupeEspèces, (EspèceSimplifiée | string)[]>} GroupesEspèces */
 

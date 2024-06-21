@@ -8,7 +8,7 @@
 
     import '../../types.js'
 
-    /** @type {Map<ClassificationEtreVivant, EspèceProtégées[]>} */
+    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
     export let activitesParClassificationEtreVivant
@@ -67,7 +67,7 @@
 
     /**
      * 
-     * @param {EspèceProtégées} espèce
+     * @param {EspèceProtégée} espèce
      */
     function ajouterEspèce(espèce){
         //@ts-expect-error La description pour la classification va être trouvée
@@ -113,7 +113,7 @@
     /**
      * 
      * @param {EtreVivantAtteint[]} etresVivantsAtteints
-     * @param {EspèceProtégées} _espèce 
+     * @param {EspèceProtégée} _espèce 
      */
     function supprimerLigne(etresVivantsAtteints, _espèce){
         const index = etresVivantsAtteints.findIndex(({espèce}) => espèce === _espèce);
@@ -206,11 +206,11 @@
 
     /**
      * 
-     * @param {Map<ClassificationEtreVivant, EspèceProtégées[]>} espècesProtégéesParClassification
-     * @returns {Map<string, EspèceProtégées>}
+     * @param {Map<ClassificationEtreVivant, EspèceProtégée[]>} espècesProtégéesParClassification
+     * @returns {Map<string, EspèceProtégée>}
      */
     function créerNomVersEspèceClassif(espècesProtégéesParClassification){
-        /** @type {Map<string, EspèceProtégées>}>} */
+        /** @type {Map<string, EspèceProtégée>}>} */
         const nomVersEspèceClassif = new Map()
 
         for(const espèces of espècesProtégéesParClassification.values()){
@@ -247,10 +247,10 @@
     /**
      * 
      * @param {string} texte
-     * @returns {Set<EspèceProtégées>}
+     * @returns {Set<EspèceProtégée>}
      */
      function chercherEspèces(texte){
-        /** @type {Set<EspèceProtégées>}*/
+        /** @type {Set<EspèceProtégée>}*/
         const espècesTrouvées = new Set()
 
         for(const [nom, espClassif] of nomVersEspèceClassif){
@@ -262,11 +262,11 @@
         return espècesTrouvées
     }
 
-    /** @type {Set<EspèceProtégées> | undefined} */
+    /** @type {Set<EspèceProtégée> | undefined} */
     $: espècesÀPréremplir = chercherEspèces(normalizeTexteEspèce(texteEspèces))
 
     /**
-     * @param {Set<EspèceProtégées>} _espècesÀPréremplir
+     * @param {Set<EspèceProtégée>} _espècesÀPréremplir
      */
     function préremplirFormulaire(_espècesÀPréremplir){
         for(const espèce of _espècesÀPréremplir){

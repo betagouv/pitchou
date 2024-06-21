@@ -4,9 +4,9 @@
 
     import '../../types.js'
 
-	/** @type {EspèceProtégées[]} */
+	/** @type {EspèceProtégée[]} */
 	export let espèces;
-	/** @type {EspèceProtégées | undefined} */
+	/** @type {EspèceProtégée | undefined} */
 	export let selectedItem = undefined;
 	export let onChange = undefined
 	export let htmlClass
@@ -14,7 +14,7 @@
 
 	/**
 	 * 
-	 * @param {EspèceProtégées} esp
+	 * @param {EspèceProtégée} esp
 	 */
 	function espèceLabel(esp){
 		return `${[...esp.nomsVernaculaires][0]} (${[...esp.nomsScientifiques][0]})`
@@ -22,7 +22,7 @@
 
 	/**
 	 * 
-	 * @param {EspèceProtégées[]} espèces
+	 * @param {EspèceProtégée[]} espèces
 	 */
 	function makeEspèceToLabel(espèces){
 		return new Map(espèces.map(e => [e, espèceLabel(e)]))
@@ -32,7 +32,7 @@
 	
 	/**
 	 * 
-	 * @param {EspèceProtégées[]} espèces
+	 * @param {EspèceProtégée[]} espèces
 	 */
 	function makeEspèceToKeywords(espèces){
 		return new Map(espèces.map(e => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(' ')]))

@@ -1,5 +1,17 @@
 //@ts-check
 
+/** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
+const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
+
+/**
+ * @param {string} x 
+ * @returns {x is ClassificationEtreVivant}
+ */
+export function isClassif(x){
+    return classificationEtreVivants.has(x)
+}
+
+
 /**
  * 
  * @param {TAXREF_ROW} _ 
@@ -31,4 +43,25 @@ export function nomsVernaculaires(NOM_VERN){
     if(NOM_VERN === '')
         return []
     return NOM_VERN.split(',').map(n => n.trim())
+}
+
+/**
+ * 
+ * @param {EspèceProtégéeStrings} param0 
+ * @returns {EspèceProtégée}
+ */
+export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STATUTS, classification, nomsScientifiques, nomsVernaculaires}){
+    if(!isClassif(classification)){
+        throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+    }
+
+    return {
+        CD_REF,
+        //@ts-ignore trusting data generation
+        CD_TYPE_STATUTS: new Set(CD_TYPE_STATUTS.split(',')), 
+        //@ts-ignore trusting data generation
+        classification,
+        nomsScientifiques: new Set(nomsScientifiques.split(',')),
+        nomsVernaculaires: new Set(nomsVernaculaires.split(',')), 
+    }
 }

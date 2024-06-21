@@ -2,7 +2,7 @@
     //@ts-check
     import '../../types.js'
 
-    /** @type {EspèceProtégées} */
+    /** @type {EspèceProtégée} */
     export let espèce
 
     let [premierNomVernaculaire, ...autresNomsVernaculaires] = [...espèce.nomsVernaculaires]

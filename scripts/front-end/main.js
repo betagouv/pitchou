@@ -18,6 +18,7 @@ import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
 import { normalizeNomCommune } from '../commun/typeFormat.js';
+import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../commun/outils-espèces';
 
 import '../types.js'
 
@@ -118,7 +119,7 @@ page('/saisie-especes', async () => {
         return hrefAttribute
     }
     
-    /** @type { [EspèceProtégéesString[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
+    /** @type { [EspèceProtégéeStrings[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
     // @ts-ignore
     const [dataEspèces, activites, methodes, transports, groupesEspèces] = await Promise.all([
         dsv(";", getURL('link#especes-data')),
@@ -131,17 +132,6 @@ page('/saisie-especes', async () => {
 
     console.log(dataEspèces, activites, methodes, transports, groupesEspèces)
 
-    /** @type {readonly ClassificationEtreVivant[]} */
-    const classificationEtreVivants = Object.freeze(["oiseau", "faune non-oiseau", "flore"])
-
-    /**
-     * @param {string} x 
-     * @returns {x is ClassificationEtreVivant}
-     */
-    function isClassif(x){
-        // @ts-expect-error indeed
-        return classificationEtreVivants.includes(x)
-    }
 
     /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
     const activitesParClassificationEtreVivant = new Map()
@@ -154,7 +144,7 @@ page('/saisie-especes', async () => {
         }
 
         if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
         }
         
         const classifActivz = activitesParClassificationEtreVivant.get(classif) || []
@@ -173,7 +163,7 @@ page('/saisie-especes', async () => {
         }
 
         if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
         }
         
         const classifMeth = méthodesParClassificationEtreVivant.get(classif) || []
@@ -192,7 +182,7 @@ page('/saisie-especes', async () => {
         }
 
         if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classif}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
         }
         
         const classifTrans = transportsParClassificationEtreVivant.get(classif) || []
@@ -200,29 +190,22 @@ page('/saisie-especes', async () => {
         transportsParClassificationEtreVivant.set(classif, classifTrans)
     }
 
-    /** @type {Map<ClassificationEtreVivant, EspèceProtégées[]>} */
+    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     const espècesProtégéesParClassification = new Map()
-    /** @type {Map<EspèceProtégées['CD_REF'], EspèceProtégées>} */
+    /** @type {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} */
     const espèceByCD_REF = new Map()
 
     for(const espStr of dataEspèces){
-        const {CD_REF, CD_TYPE_STATUTS, classification, nomsScientifiques, nomsVernaculaires} = espStr
+        const {classification} = espStr
 
         if(!isClassif(classification)){
-            throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+            throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`)
         }
 
         const espèces = espècesProtégéesParClassification.get(classification) || []
 
-        /** @type {EspèceProtégées} */
-        const espèce = {
-            CD_REF,
-            //@ts-ignore trusting data generation
-            CD_TYPE_STATUTS: new Set(CD_TYPE_STATUTS.split(',')), 
-            classification,
-            nomsScientifiques: new Set(nomsScientifiques.split(',')),
-            nomsVernaculaires: new Set(nomsVernaculaires.split(',')), 
-        }
+        /** @type {EspèceProtégée} */
+        const espèce = espèceProtégéeStringToEspèceProtégée(espStr)
 
         espèces.push(espèce)
         espèceByCD_REF.set(espèce['CD_REF'], espèce)
