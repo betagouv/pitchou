@@ -50,15 +50,15 @@
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
-            sectionTitre: `Espèces d’oiseaux concernées 🐦`
+            sectionTitre: `Oiseaux 🐦`
         }],
         ["faune non-oiseau", {
             sectionClass: "saisie-faune",
-            sectionTitre: `Espèces animales (hors oiseaux) concernées 🐸`
+            sectionTitre: `Animaux (hors oiseaux) 🐸`
         }],
         ["flore", {
             sectionClass: "saisie-flore",
-            sectionTitre: `Espèces végétales concernées 🍀`
+            sectionTitre: `Végétaux 🍀`
         }]
     ])
 
@@ -297,24 +297,15 @@
 
 <Squelette nav={false}>
     <article>
-        <div class="fr-grid-row fr-mt-6w">
+        <h1 class="fr-mt-6w">Saisie des espèces protégées impactées</h1>
+
+        <div class="fr-grid-row fr-mt-6w fr-mb-4w">
             <div class="fr-col">
-                <h1>Saisie des espèces protégées impactées</h1>
+                <details open>
+                    <summary><h2>Pré-remplissage automatique</h2></summary>
 
-                <section>
-                    <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
-                    <button class="fr-btn copy-link" bind:this={copyButton} on:click={créerEtCopierLienPartage}>Créer le lien et le copier dans le presse-papier</button>
-                </section>
-            </div>
-        </div>
-
-        <div class="fr-grid-row fr-mt-6w">
-            <div class="fr-col">
-                <h2>Aide à la saisie d'espèce</h2>
-
-                <details>
-                    <summary><h3>Saisie approximative</h3></summary>
-                    <section>
+                    <section class="fr-mb-4w">
+                        <h3>Depuis un copier/coller</h3>
                         <p>
                             Dans la boîte de texte ci-dessous, coller du texte approximatif.
                             Par exemple, en copiant à partir d'un tableau dans un pdf, ou une liste d'espèces qui trainent.
@@ -322,25 +313,24 @@
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
                     </section>
-                </details>
+                    
+                    <section class="fr-mb-4w">
+                        <h3>Depuis un groupe d'espèces</h3>
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="select">
+                                Choisir un groupe d'espèces à ajouter
+                            </label>
+                            <select bind:value={nomGroupChoisi} class="fr-select" id="select">
+                                <option value="" selected disabled hidden>Sélectionner une option</option>
+                                {#each [...groupesEspèces.keys()] as nomGroupe}
+                                    <option value={nomGroupe}>{nomGroupe}</option>
+                                {/each}
+                            </select>
+                        </div>
+                    </section>
 
-                <details>
-                    <summary><h3>Rajouter un groupe d'espèces</h3></summary>
-                    <div class="fr-select-group">
-                        <label class="fr-label" for="select">
-                            Choisir un groupe d'espèces à ajouter
-                        </label>
-                        <select bind:value={nomGroupChoisi} class="fr-select" id="select">
-                            <option value="" selected disabled hidden>Sélectionner une option</option>
-                            {#each [...groupesEspèces.keys()] as nomGroupe}
-                                <option value={nomGroupe}>{nomGroupe}</option>
-                            {/each}
-                        </select>
-                    </div>
-                </details>
-
-                {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
-                    <section>
+                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
+                    <section class="fr-mb-4w">
                         <h3>{espècesÀPréremplir.size} espèce.s</h3>
                         <ul>
                             {#each [...espècesÀPréremplir] as espèce}
@@ -350,16 +340,18 @@
 
                         <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     </section>
-                {/if}
+                    {/if}
+                </details>
             </div>
         </div>
 
-        <form>
+        <form class="fr-mb-4w">
+            <h2>Liste des espèces</h2>
             {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
-            <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+            <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
                 <div class="fr-col">
                     <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
-                        <h2>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h2>
+                        <h3>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h3>
                         <div class="fr-table fr-table--bordered">
                             <table>
                                 <thead>
@@ -459,7 +451,7 @@
 
                         {#if etresVivantsAtteints.length >= 1}
                         <section class="arrete-prefectoral fr-p-1w">
-                            <h3>Liste des espèces</h3>
+                            <h4>Récapitulatif des espèces</h4>
                             {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index }
                                 {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
                             {/each} 
@@ -468,24 +460,32 @@
                     </section>
                 </div>
             </div>
-            
             {/each}
         </form>
-        <div class="fr-grid-row fr-pt-6w">
+        <div class="fr-grid-row fr-mb-4w">
             <div class="fr-col-8">
-                <section class="espece-manquante">
-                    <h1>ℹ️ Une espèce est manquante&nbsp;?</h1>
-                    <p>
-                        Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
-                        <a target="_blank" href={mailto}>d’envoyer un mail à especes-protegees@beta.gouv.fr</a>en 
-                        indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
-                        Le <code>CD_NOM</code> est disponible sur 
-                        <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 
-                        en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
-                        Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
-                            <code>4221</code></a>.
-                    </p>
-                </section>
+                <div class="fr-callout">
+                    <details>
+                        <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
+                        <p class="fr-callout__text">
+                            Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
+                            <a target="_blank" href={mailto}>d’envoyer un mail à especes-protegees@beta.gouv.fr</a>en 
+                            indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
+                            Le <code>CD_NOM</code> est disponible sur 
+                            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 
+                            en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
+                            Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
+                                <code>4221</code></a>.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </div>
+        <div class="fr-grid-row fr-mb-10w">
+            <div class="fr-col-8">
+                <h2>Lien pour votre dossier</h2>
+                <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
+                <button class="fr-btn fr-btn--lg copy-link" bind:this={copyButton} on:click={créerEtCopierLienPartage}>Créer le lien et le copier dans le presse-papier</button>
             </div>
         </div>
     </article>
@@ -498,8 +498,10 @@
             cursor: default; // surcharge dsfr parce que c'est bizarre
         }
 
-        summary h3{
-            display: inline-block;
+        summary{
+            h2, h3{
+                display: inline-block;
+            }
         }
 
         .saisie-oiseau, .saisie-flore, .saisie-faune {
