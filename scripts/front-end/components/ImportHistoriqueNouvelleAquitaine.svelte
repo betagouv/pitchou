@@ -73,15 +73,14 @@
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col-8">
-                <h2>Import csv</h2>
+                <h2>Importer un tableau CSV</h2>
                 <p>
-                    Exportez le tableau de suivi Nouvelle Aquitaine au format .csv (utilisant le point-virgule 
-                    comme "séparateur de champ").<br>
-                    Et déposez le fichier .csv ici : 
+                    Exportez le tableau de suivi Nouvelle Aquitaine au <strong>format .csv</strong> (utilisant le point-virgule 
+                    comme "séparateur de champ").
                 </p>
                 <label class="file">
-                    <strong>Fichier d'import :</strong>
-                    <input bind:files={fichiersImportRaw} type="file" class="fr-input">
+                    <strong>Importer le fichier .csv&nbsp;:</strong>
+                    <input bind:files={fichiersImportRaw} type="file" accept=".csv" class="fr-input">
                 </label>
             </div>
         </section>
@@ -116,7 +115,7 @@
                                         {#each dossier['Commune(s) où se situe le projet'] as commune, i}
                                             {#if i !== 0},{/if}
                                             {#if typeof commune === 'string'}
-                                                <span class="non-reconnu" title="Nom de commune non reconnu">⚠️ {commune}</span>
+                                                <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
                                             {:else}
                                                 {commune.nom} ({commune.codeDepartement})
                                             {/if}
@@ -145,22 +144,24 @@
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
-                <h2>Dossiers déja créés</h2>
+                <h2>Ajouter des annotations privées à un dossier</h2>
+                <strong>
+                    PPP: Pour toutes les données dans le tableau, proposer d'affecter les données à un dossier dans DS
+                        Essayer de retrouver le dossier avec le même algo (nom de projet, porteur, représentant)
+                </strong>
+            </div>
+        </section>
+
+
+
+        <section class="fr-grid-row fr-mb-6w">
+            <div class="fr-col">
+                <h2>Dossiers créés dans Démarches Simplifiées, avec annotations privées</h2>
                 <strong>
                     PPP: Tableau replié
                         Les dossiers sont reconnus d'abord par nom de projet
                         puis par nom de porteur (si unique)
                         puis par nom de représentant (si unique)
-                </strong>
-            </div>
-        </section>
-
-        <section class="fr-grid-row fr-mb-6w">
-            <div class="fr-col">
-                <h2>Annotations à rajouter à un dossier</h2>
-                <strong>
-                    PPP: Pour toutes les données dans le tableau, proposer d'affecter les données à un dossier dans DS
-                        Essayer de retrouver le dossier avec le même algo (nom de projet, porteur, représentant)
                 </strong>
             </div>
         </section>
