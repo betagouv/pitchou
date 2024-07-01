@@ -308,7 +308,7 @@
                         <h3>Depuis un copier/coller</h3>
                         <p>
                             Dans la boîte de texte ci-dessous, coller du texte approximatif.
-                            Par exemple, en copiant à partir d'un tableau dans un pdf, ou une liste d'espèces qui trainent.
+                            Par exemple, en copiant à partir d'un tableau dans un pdf.
                             Les espèces seront reconnues et permettront le pré-remplissage du formulaire
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
@@ -333,7 +333,7 @@
                     <section class="fr-mb-4w">
                         <h3>{espècesÀPréremplir.size} espèce.s</h3>
                         <ul>
-                            {#each [...espècesÀPréremplir] as espèce}
+                            {#each [...espècesÀPréremplir] as espèce (espèce)}
                                 <li><NomEspèce {espèce}/></li>
                             {/each}
                         </ul>
