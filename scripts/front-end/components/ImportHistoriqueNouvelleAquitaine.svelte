@@ -92,6 +92,23 @@
             {:then candidatsImportsMap} 
                 {#if candidatsImportsMap}
                     <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsImportsMap.size}) </h2>
+                    <details>
+                        <summary>Aide commune/département non-reconnu</summary>
+                        <p>
+                            Si la commune n'est pas reconnue, il peut s'agir d'un problème d'apostrophe, de tiret, de majuscule ou de St/Saint.
+                            Vous pouvez trouver le <strong>nom exact des communes</strong> dans la 
+                            <a href="https://geo.api.gouv.fr/decoupage-administratif/communes#name">boîte essayez-moi du service géo des communes</a>. <br>
+                            S'il y a plusieurs communes, assurez-vous de les <strong>séparer avec une virgule</strong> (<code>,</code>) (et pas un <code>et</code>)<br>
+                            Corrigez le tableau, ré-importez-le pour ré-essayer
+                        </p>
+                        <p>
+                            Si le département n'est pas reconnu, vous pouvez trouver le <strong>nom exact des départements</strong> dans la
+                            <a href="https://geo.api.gouv.fr/decoupage-administratif/departements#name">boîte essayez-moi du service géo des départements</a>. <br>
+                            Vous pouvez aussi mettre le numéro de département<br>
+                            Corrigez le tableau, ré-importez-le pour ré-essayer
+                        </p>
+                    </details>
+
                     <div class="fr-table">
                         <table>
                             <thead>
