@@ -452,7 +452,7 @@
                         {#if etresVivantsAtteints.length >= 1}
                         <section class="arrete-prefectoral fr-p-1w">
                             <h4>Récapitulatif des espèces</h4>
-                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index }
+                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index (espèce) }
                                 {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
                             {/each} 
                         </section>
