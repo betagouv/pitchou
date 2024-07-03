@@ -102,7 +102,6 @@
                                     <th>Commune(s)</th>
                                     <th><abbr title="Autorisation environnementale">AE</abbr></th>
                                     <th>Préremplissage</th>
-                                    <th>Email au porteur de projet</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -123,15 +122,6 @@
                                     </td>
                                     <td>{dossier['Le projet est-il soumis à une autorisation environnementale ?'] ? 'oui' : 'non'}</td>
                                     <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
-                                    <td>
-                                        {#if dossier['Nom du représentant'] && dossier['Adresse mail de contact']}
-                                            <a href={`mailto:${dossier['Adresse mail de contact']}`}>
-                                                Envoyer un email à {dossier['Nom du représentant']} {dossier['Prénom du représentant'] || ''}
-                                            </a>
-                                        {:else}
-                                            (adresse email ou nom/prénom manquant)
-                                        {/if}
-                                    </td>
                                 </tr>
                             {/each}
                             </tbody>
