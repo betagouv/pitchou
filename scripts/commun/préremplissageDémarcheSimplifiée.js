@@ -22,7 +22,7 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 */
 
-/** @typedef {import('../types.js').DossierDémarcheSimplifiée88444} DossierDémarcheSimplifiée88444 */
+/** @import {DossierDémarcheSimplifiée88444, GeoAPICommune} from "../types.js" */
 
 
 /** @type {Map< keyof DossierDémarcheSimplifiée88444, string >} */
@@ -221,6 +221,11 @@ export function créerLienPréremplissageDémarche(dossierPartiel){
 
     if(!dossierPartiel['Le demandeur est…']){
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le demandeur est…')}`] = "une personne morale"
+    }
+
+    if(typeof dossierPartiel['Le projet est-il soumis à une autorisation environnementale ?'] === 'boolean'){
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet est-il soumis à une autorisation environnementale ?')}`] = 
+            dossierPartiel['Le projet est-il soumis à une autorisation environnementale ?'] ? 'true' : 'false'
     }
 
     // recups les communes
