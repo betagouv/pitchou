@@ -6,13 +6,12 @@
 
     import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../commun/typeFormat.js'
     import {créerLienPréremplissageDémarche} from '../../commun/préremplissageDémarcheSimplifiée.js'
-    import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
+    // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    import '../../types.js'
+    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune} from "../../types.js" */
 
     const scsv = dsvFormat(';')
-
-    /** @type {import('../../types/database/public/Dossier.js').default[]} */
+    
     //export let dossiers
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
@@ -21,6 +20,7 @@
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet'] } */
     export let typeVersObjet
 
+    /** @type {FileList | undefined} */
     let fichiersImportRaw;
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
@@ -137,7 +137,7 @@
                                             {/if}
                                         {/each}
                                     </td>
-                                    <td>{dossier['Le projet est-il soumis à une autorisation environnementale ?'] ? 'oui' : 'non'}</td>
+                                    <td>{dossier['Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?'] ? 'oui' : 'non'}</td>
                                     <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
                                 </tr>
                             {/each}

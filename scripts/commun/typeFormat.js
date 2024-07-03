@@ -2,7 +2,13 @@
 
 import { parse as parseDate } from "date-fns"
 
+/** @import {_DossierTableauSuiviNouvelleAquitaine2023, AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, StringValues} from "../types.js" */
 
+/**
+ * 
+ * @param {any} d 
+ * @returns {boolean}
+ */
 function isValidDate(d) {
     return d instanceof Date && !Number.isNaN(d.valueOf());
 }
@@ -117,6 +123,17 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
  * @returns {DossierDémarcheSimplifiée88444} 
  */
 export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
+    let communes, départements;
+    
+    throw `PPP
+        if(dossier['Localisation'] est un département par numéro ou numéros séparés par des virgules ou par nom){
+            départements = codes correspondant
+            pareil, plusieurs départements si Dpt a plusieurs départements
+
+            Département principale = premier de Dpt
+        }
+    `
+
     /**
      * @type {DossierDémarcheSimplifiée88444}
      */
@@ -133,7 +150,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
         'Numéro de téléphone de contact': '',
         'Adresse mail de contact': '',
         'Description de la demande': dossier['But'],
-        'Le projet est-il soumis à une autorisation environnementale ?': dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
         'À quelle procédure le projet est-il soumis ?': [],
         'Motif de la dérogation': '',
         'Précisez': '',
@@ -155,7 +172,8 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
         "Bilan d'opérations antérieures": '',
         'Description succincte du projet': '',
         'Dépot du dossier complet de demande de dérogation': '',
-        "Mesures d'évitement, réduction et/ou compensation": undefined
+        "Mesures d'évitement, réduction et/ou compensation": undefined,
+        "Dans quel département se localise majoritairement votre projet ?": dossier['Dpt']
     };
 
     return dossierConverti;

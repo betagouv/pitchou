@@ -28,140 +28,144 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 /** @type {Map< keyof DossierDémarcheSimplifiée88444, string >} */
 const démarcheDossierLabelToId = new Map([
     [
-      "Le demandeur est…",
-      "Q2hhbXAtMzg5ODg5NQ=="
+        "Le demandeur est…",
+        "Q2hhbXAtMzg5ODg5NQ=="
     ],
     [
-      "Numéro de SIRET",
-      "Q2hhbXAtMzg5NzM5NA=="
+        "Numéro de SIRET",
+        "Q2hhbXAtMzg5NzM5NA=="
     ],
     [
-      "Qualification",
-      "Q2hhbXAtMzg5NzM1NQ=="
+        "Qualification",
+        "Q2hhbXAtMzg5NzM1NQ=="
     ],
     [
-      "Adresse",
-      "Q2hhbXAtMzg5NzM2Mg=="
+        "Adresse",
+        "Q2hhbXAtMzg5NzM2Mg=="
     ],
     [
-      "Objet du projet",
-      "Q2hhbXAtMzg5NzQwMA=="
+        "Objet du projet",
+        "Q2hhbXAtMzg5NzQwMA=="
     ],
     [
-      "Nom du représentant",
-      "Q2hhbXAtMzg5NzM5Nw=="
+        "Nom du représentant",
+        "Q2hhbXAtMzg5NzM5Nw=="
     ],
     [
-      "Prénom du représentant",
-      "Q2hhbXAtNDIzMDU1OA=="
+        "Prénom du représentant",
+        "Q2hhbXAtNDIzMDU1OA=="
     ],
     [
-      "Qualité du représentant",
-      "Q2hhbXAtMzg5NzM5OA=="
+        "Qualité du représentant",
+        "Q2hhbXAtMzg5NzM5OA=="
     ],
     [
-      "Numéro de téléphone de contact",
-      "Q2hhbXAtMzkzMzczNg=="
+        "Numéro de téléphone de contact",
+        "Q2hhbXAtMzkzMzczNg=="
     ],
     [
-      "Adresse mail de contact",
-      "Q2hhbXAtMzkzMzc0MA=="
+        "Adresse mail de contact",
+        "Q2hhbXAtMzkzMzc0MA=="
     ],
     [
-      "Le projet est-il soumis à une autorisation environnementale ?",
-      "Q2hhbXAtNDA4MzAxMQ=="
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
+        "Q2hhbXAtNDA4MzAxMQ=="
     ],
     [
-      "À quelle procédure le projet est-il soumis ?",
-      "Q2hhbXAtNDA4Mjk1OA=="
+        "À quelle procédure le projet est-il soumis ?",
+        "Q2hhbXAtNDA4Mjk1OA=="
     ],
     [
-      "Motif de la dérogation",
-      "Q2hhbXAtMzg5NzQwMg=="
+        "Motif de la dérogation",
+        "Q2hhbXAtMzg5NzQwMg=="
     ],
     [
-      "Précisez",
-      "Q2hhbXAtNDAzMzk0OA=="
+        "Précisez",
+        "Q2hhbXAtNDAzMzk0OA=="
     ],
     [
-      "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation",
-      "Q2hhbXAtNDA0MDgyMQ=="
+        "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation",
+        "Q2hhbXAtNDA0MDgyMQ=="
     ],
     [
-      "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet",
-      "Q2hhbXAtNDA0MDgyNg=="
+        "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet",
+        "Q2hhbXAtNDA0MDgyNg=="
     ],
     [
-      "Détails du programme d’activité",
-      "Q2hhbXAtMzg5NzQwNA=="
+        "Détails du programme d’activité",
+        "Q2hhbXAtMzg5NzQwNA=="
     ],
     [
-      "Lien vers la liste des espèces concernées",
-      "Q2hhbXAtMzg5NzQwNQ=="
+        "Lien vers la liste des espèces concernées",
+        "Q2hhbXAtMzg5NzQwNQ=="
     ],
     [
-      "Nom du projet",
-      "Q2hhbXAtNDE0OTExNQ=="
+        "Nom du projet",
+        "Q2hhbXAtNDE0OTExNQ=="
     ],
     [
-      "Cette demande concerne un programme déjà existant",
-      "Q2hhbXAtMzkyMzYyNA=="
+        "Cette demande concerne un programme déjà existant",
+        "Q2hhbXAtMzkyMzYyNA=="
     ],
     [
-      "Le projet se situe au niveau…",
-      "Q2hhbXAtMzg5NzQwOA=="
+        "Dans quel département se localise majoritairement votre projet ?",
+        "Q2hhbXAtNDI3NTM5OA=="
     ],
     [
-      "Commune(s) où se situe le projet",
-      "Q2hhbXAtNDA0MTQ0MQ=="
+        "Le projet se situe au niveau…",
+        "Q2hhbXAtMzg5NzQwOA=="
     ],
     [
-      "Département(s) où se situe le projet",
-      "Q2hhbXAtNDA0MTQ0NQ=="
+        "Commune(s) où se situe le projet",
+        "Q2hhbXAtNDA0MTQ0MQ=="
     ],
     [
-      "Région(s) où se situe le projet",
-      "Q2hhbXAtNDA0MTQ0OA=="
+        "Département(s) où se situe le projet",
+        "Q2hhbXAtNDA0MTQ0NQ=="
     ],
     [
-      "Date de début d’intervention",
-      "Q2hhbXAtMzg5NzQ3NA=="
+        "Région(s) où se situe le projet",
+        "Q2hhbXAtNDA0MTQ0OA=="
     ],
     [
-      "Date de fin d’intervention",
-      "Q2hhbXAtMzkyMzYyNg=="
+        "Date de début d’intervention",
+        "Q2hhbXAtMzg5NzQ3NA=="
     ],
     [
-      "Date de début de chantier",
-      "Q2hhbXAtMzg5NzUwMg=="
+        "Date de fin d’intervention",
+        "Q2hhbXAtMzkyMzYyNg=="
     ],
     [
-      "Date de fin de chantier",
-      "Q2hhbXAtMzkyMzYzMQ=="
+        "Date de début de chantier",
+        "Q2hhbXAtMzg5NzUwMg=="
     ],
     [
-      "Qualification des personnes amenées à intervenir",
-      "Q2hhbXAtMzg5NzQ3Ng=="
+        "Date de fin de chantier",
+        "Q2hhbXAtMzkyMzYzMQ=="
     ],
     [
-      "Modalités techniques de l'intervention",
-      "Q2hhbXAtMzg5NzQ5OQ=="
+        "Qualification des personnes amenées à intervenir",
+        "Q2hhbXAtMzg5NzQ3Ng=="
     ],
     [
-      "Bilan d'opérations antérieures",
-      "Q2hhbXAtMzkyMzY1Ng=="
+        "Modalités techniques de l'intervention",
+        "Q2hhbXAtMzg5NzQ5OQ=="
     ],
     [
-      "Description succincte du projet",
-      "Q2hhbXAtMzkyMzY2OA=="
+        "Bilan d'opérations antérieures",
+        "Q2hhbXAtMzkyMzY1Ng=="
     ],
     [
-      "Dépot du dossier complet de demande de dérogation",
-      "Q2hhbXAtMzkyMzY2OQ=="
+        "Description succincte du projet",
+        "Q2hhbXAtMzkyMzY2OA=="
     ],
     [
-      "Mesures d'évitement, réduction et/ou compensation",
-      "Q2hhbXAtMzg5NzUwOQ=="
+        "Dépot du dossier complet de demande de dérogation",
+        "Q2hhbXAtMzkyMzY2OQ=="
+    ],
+    [
+        "Mesures d'évitement, réduction et/ou compensation",
+        "Q2hhbXAtMzg5NzUwOQ=="
     ]
 ])
 
@@ -169,12 +173,12 @@ const démarcheDossierLabelToId = new Map([
  *  champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]&champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]
  * @param {GeoAPICommune} commune 
  */
-function makeCommuneParam({code, codesPostaux: [codePostal]}){
-  const communeChamp = `champ_${démarcheDossierLabelToId.get('Commune(s) où se situe le projet')}`
-  // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
-  const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
+function makeCommuneParam({ code, codesPostaux: [codePostal] }) {
+    const communeChamp = `champ_${démarcheDossierLabelToId.get('Commune(s) où se situe le projet')}`
+    // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
+    const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 
-  return `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]=["${codePostal}", "${code}"]`
+    return `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]=["${codePostal}", "${code}"]`
 }
 
 /** @type {(keyof DossierDémarcheSimplifiée88444)[]} */
@@ -184,7 +188,7 @@ const champsPourPréremplissage = [
     "Nom du représentant",
     "Prénom du représentant",
     "Adresse mail de contact",
-    "Le projet est-il soumis à une autorisation environnementale ?",
+    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
     "Lien vers la liste des espèces concernées",
     "Nom du projet",
     "Le projet se situe au niveau…",
@@ -198,41 +202,41 @@ const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/dero
 /**
  * @param {DossierDémarcheSimplifiée88444} dossierPartiel
  */
-export function créerLienPréremplissageDémarche(dossierPartiel){
+export function créerLienPréremplissageDémarche(dossierPartiel) {
     /** @type {Record<string, string>} */
     const objetPréremplissage = {};
 
-    for(const champ of champsPourPréremplissage){
-        if(![
-            'Commune(s) où se situe le projet', 
-            'Département(s) où se situe le projet', 
+    for (const champ of champsPourPréremplissage) {
+        if (![
+            'Commune(s) où se situe le projet',
+            'Département(s) où se situe le projet',
             'Région(s) où se situe le projet'
-          ].includes(champ)
-        ){
+        ].includes(champ)
+        ) {
 
-          /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]} */
-          const valeur = dossierPartiel[champ]
-          if(valeur){
-              // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
-              objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
-          }
+            /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]} */
+            const valeur = dossierPartiel[champ]
+            if (valeur) {
+                // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+                objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
+            }
         }
     }
 
-    if(!dossierPartiel['Le demandeur est…']){
+    if (!dossierPartiel['Le demandeur est…']) {
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le demandeur est…')}`] = "une personne morale"
     }
 
-    if(typeof dossierPartiel['Le projet est-il soumis à une autorisation environnementale ?'] === 'boolean'){
-        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet est-il soumis à une autorisation environnementale ?')}`] = 
-            dossierPartiel['Le projet est-il soumis à une autorisation environnementale ?'] ? 'true' : 'false'
+    if (typeof dossierPartiel['Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?'] === 'boolean') {
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?')}`] =
+            dossierPartiel['Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?'] ? 'true' : 'false'
     }
 
     // recups les communes
 
     let communesURLParam = ''
 
-    if(Array.isArray(dossierPartiel['Commune(s) où se situe le projet']) && dossierPartiel['Commune(s) où se situe le projet'].length >= 1){
+    if (Array.isArray(dossierPartiel['Commune(s) où se situe le projet']) && dossierPartiel['Commune(s) où se situe le projet'].length >= 1) {
         // Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.
         // champ_Q2hhbXAtNDA0MTQ0Mw: Un tableau contenant le code postal et le code INSEE de la commune
         // Exemple 	[{"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}, {"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}] 
@@ -258,13 +262,13 @@ export function créerLienPréremplissageDémarche(dossierPartiel){
 
     /*throw `PPP :
         - faire un remplissage spécifique pour le type de projet, basé sur le tableau de Vanessa`
-    */    
+    */
 
     //console.log('objetPréremplissage', objetPréremplissage, dossierPartiel)
 
-    return basePréremplissage + 
-      (new URLSearchParams(objetPréremplissage)).toString() + 
-      (communesURLParam ? '&' + communesURLParam : '')
+    return basePréremplissage +
+        (new URLSearchParams(objetPréremplissage)).toString() +
+        (communesURLParam ? '&' + communesURLParam : '')
 
 }
 

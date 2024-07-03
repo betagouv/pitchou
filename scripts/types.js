@@ -196,6 +196,8 @@
 
 
 /**
+ * 
+ * 
  * @typedef {{
 *   'Porteur de projet': string,
 *   'Le demandeur est…': string,
@@ -209,7 +211,7 @@
 *   'Numéro de téléphone de contact': string,
 *   'Adresse mail de contact': string,
 *   'Description de la demande': string,
-*   'Le projet est-il soumis à une autorisation environnementale ?': boolean,
+*   "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": boolean,
 *   'À quelle procédure le projet est-il soumis ?': string[],
 *   'Motif de la dérogation': string,
 *   'Précisez': string,
@@ -232,7 +234,8 @@
 *   "Bilan d'opérations antérieures": string,
 *   'Description succincte du projet': string,
 *   'Dépot du dossier complet de demande de dérogation': string,
-*   "Mesures d'évitement, réduction et/ou compensation": boolean
+*   "Mesures d'évitement, réduction et/ou compensation": boolean,
+*   "Dans quel département se localise majoritairement votre projet ?": string
 * }} _DossierDémarcheSimplifiée88444
 */
 
