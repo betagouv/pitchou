@@ -120,9 +120,7 @@
                 -->
             </div>
             <div class="fr-footer__content">
-                <p class="fr-footer__content-desc">
-                    Pitchou, plateforme numérique de Demandes de Dérogations Espèces Protégées
-                </p>
+                <!-- <p class="fr-footer__content-desc"></p> -->
                 <ul class="fr-footer__content-list">
                     <li class="fr-footer__content-item">
                         <a
@@ -172,7 +170,7 @@
                 </li>
                 <li class="fr-footer__bottom-item">
                     <span class="fr-footer__bottom-link">
-                        Accessibilité : partiellement
+                        Accessibilité : non conforme
                     </span>
                 </li>
                 <!--<li class="fr-footer__bottom-item">
