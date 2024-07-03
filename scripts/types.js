@@ -267,3 +267,5 @@
 */
 
 /** @typedef {Partial<_AnnotationsPrivéesDémarcheSimplifiée88444>} AnnotationsPrivéesDémarcheSimplifiée88444*/
+
+export default 'TS needs a module'
