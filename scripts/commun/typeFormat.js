@@ -2,7 +2,13 @@
 
 import { parse as parseDate } from "date-fns"
 
+/** @import {_DossierTableauSuiviNouvelleAquitaine2023, AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement, StringValues} from "../types.js" */
 
+/**
+ * 
+ * @param {any} d 
+ * @returns {boolean}
+ */
 function isValidDate(d) {
     return d instanceof Date && !Number.isNaN(d.valueOf());
 }
@@ -51,9 +57,10 @@ export function normalizeNomCommune(nomCommune) {
  * 
  * @param { StringValues<_DossierTableauSuiviNouvelleAquitaine2023>} dossier 
  * @param { Map<string, GeoAPICommune> } nomToCommune
+ * @param { Map<string, GeoAPIDépartement> } stringToDépartement
  * @returns { DossierTableauSuiviNouvelleAquitaine2023 }
  */
-export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune) {
+export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement) {
     /** @type {DossierTableauSuiviNouvelleAquitaine2023} */
     //@ts-expect-error for code simplicity
     const convertedDossier = {...dossier};
@@ -77,26 +84,48 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
             case 'DDEP requise':
                 convertedDossier[key] = dossier[key].trim() === 'oui';
                 break;
-            case 'Localisation':
-                convertedDossier[key] = (dossier[key] || '')
+            case 'Localisation': {
+                const localisationStringValue = dossier[key] || ''
+
+                // test s'il s'agit d'un ensemble de Département
+                const candidatsDépartements = localisationStringValue
                     .split(/,|&|\//)
                     .map(s => s.trim())
                     .filter(s => s.length >= 1)
-                    .map(nomCommune => {
-                        const normalizedNomCommune = normalizeNomCommune(nomCommune)
-                        if(!nomToCommune.has(normalizedNomCommune)){
-                            console.warn(
-                                `Commune '${nomCommune}'`, '-',   
-                                dossier['Dpt'], '-',
-                                dossier['Nom du projet']
-                            )
-                            return nomCommune;
-                        }
-                        else{
-                            return nomToCommune.get(normalizedNomCommune);
-                        }
-                    })
+                    .map(ptetDept => stringToDépartement.get(ptetDept))
+
+                if(candidatsDépartements.length >= 1 && candidatsDépartements.every(d => d === Object(d))){
+                    // Départements
+                    //@ts-expect-error TypeScript limitation with .every
+                    convertedDossier[key] = candidatsDépartements
+                }
+                else{
+                    // Communes
+                    convertedDossier[key] = (dossier[key] || '')
+                        .split(/,|&|\//)
+                        .map(s => s.trim())
+                        .filter(s => s.length >= 1)
+                        .map(nomCommune => {
+                            const normalizedNomCommune = normalizeNomCommune(nomCommune)
+                            return nomToCommune.get(normalizedNomCommune) || nomCommune
+                        })
+                }
                 break;
+            }
+            case 'Dpt': {
+                const DptStringValue = dossier[key] || ''
+
+                // test s'il s'agit d'un ensemble de Département
+                const candidatsDépartements = DptStringValue
+                    .split(/,|&|\//)
+                    .map(s => s.trim())
+                    .filter(s => s.length >= 1)
+                    .map(ptetDept => stringToDépartement.get(ptetDept) || ptetDept)
+
+                convertedDossier[key] = candidatsDépartements
+                
+                break;
+            }
             default:
                 convertedDossier[key] = dossier[key];
                 break;
@@ -114,9 +143,53 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
  * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers DossierDémarcheSimplifiée88444.
  * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
  * @param {Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']>} typeVersObjet 
+ * @param { Map<string, GeoAPIDépartement> } stringToDépartement
  * @returns {DossierDémarcheSimplifiée88444} 
  */
-export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
+export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringToDépartement) {
+    let communes, départements, départementPrincipale;
+
+    const Localisation = dossier['Localisation'] || []
+    const Dpt = dossier['Dpt'] || []
+
+    if(Localisation.length >= 1 && Localisation.every(l => Object(l) === l && l.code && l.nom && !l.codesPostaux)){
+        // il y a un ou des départements dans la colonne 'Localisation'
+        départements = Localisation
+        communes = undefined
+        départementPrincipale = Dpt[0] || départements[0]
+    }
+    else{
+        // il y a une ou des communes dans la colonne 'Localisation'
+        départements = undefined
+        communes = Localisation
+        if(Dpt[0]){
+            départementPrincipale = Dpt[0]
+        }
+        else{
+            if(Array.isArray(communes) && communes.length >= 1){
+                const countByCodeDepartement = new Map()
+
+                for(const commune of communes){
+                    const codeDepartement = typeof commune === 'object' && commune.codeDepartement
+                    if(codeDepartement){
+                        const count = countByCodeDepartement.get(codeDepartement) || 0
+                        countByCodeDepartement.set(codeDepartement, count + 1) 
+                    }
+                }
+
+                const maxCount = Math.max(...[...countByCodeDepartement.values()])
+                const [codeDépartementPrincipale] = [...countByCodeDepartement].find(([_, count]) => count === maxCount)
+                départementPrincipale = stringToDépartement.get(codeDépartementPrincipale)
+            }
+        }
+    }
+
+    /*if(!départementPrincipale){
+        console.warn('Pas de département principale', Localisation, Dpt)
+    }*/
+
+
+
     /**
      * @type {DossierDémarcheSimplifiée88444}
      */
@@ -133,7 +206,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
         'Numéro de téléphone de contact': '',
         'Adresse mail de contact': '',
         'Description de la demande': dossier['But'],
-        'Le projet est-il soumis à une autorisation environnementale ?': dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
         'À quelle procédure le projet est-il soumis ?': [],
         'Motif de la dérogation': '',
         'Précisez': '',
@@ -144,8 +217,8 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
         'Nom du projet': dossier['Nom du projet'],
         'Cette demande concerne un programme déjà existant': false,
         'Le projet se situe au niveau…': undefined,
-        'Commune(s) où se situe le projet': dossier['Localisation'],
-        'Département(s) où se situe le projet': (dossier['Dpt'] || '').split(',').map(d => d.trim()),
+        'Commune(s) où se situe le projet': communes,
+        'Département(s) où se situe le projet': départements,
         'Date de début d’intervention': dossier['Date réception Guichet Unique'],
         'Date de fin d’intervention': undefined,
         'Date de début de chantier': undefined,
@@ -155,7 +228,8 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet) {
         "Bilan d'opérations antérieures": '',
         'Description succincte du projet': '',
         'Dépot du dossier complet de demande de dérogation': '',
-        "Mesures d'évitement, réduction et/ou compensation": undefined
+        "Mesures d'évitement, réduction et/ou compensation": undefined,
+        "Dans quel département se localise majoritairement votre projet ?": départementPrincipale
     };
 
     return dossierConverti;

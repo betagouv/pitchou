@@ -6,21 +6,24 @@
 
     import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../commun/typeFormat.js'
     import {créerLienPréremplissageDémarche} from '../../commun/préremplissageDémarcheSimplifiée.js'
-    import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
+    // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    import '../../types.js'
+    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../types.js" */
 
     const scsv = dsvFormat(';')
-
-    /** @type {import('../../types/database/public/Dossier.js').default[]} */
+    
     //export let dossiers
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     export let nomToCommune
 
+    /** @type { Map<GeoAPICommune['nom'], GeoAPIDépartement> } */
+    export let stringToDépartement
+
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet'] } */
     export let typeVersObjet
 
+    /** @type {FileList | undefined} */
     let fichiersImportRaw;
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
@@ -44,7 +47,9 @@
     $: if(fichiersImportRaw){
         candidatsImportsSuiviNAP = fichiersImportRaw[0].text()
             .then(scsv.parse)
-            .then(dossiers => dossiers.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune)))
+            .then(dossiers => dossiers.map(
+                dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement)
+            ))
             .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
                 candidats.filter(estImportable)
             )
@@ -55,7 +60,7 @@
             return [
                 d, 
                 {
-                    dossier: dossierSuiviNAVersDossierDS88444(d, typeVersObjet),
+                    dossier: dossierSuiviNAVersDossierDS88444(d, typeVersObjet, stringToDépartement),
                     annotations: dossierSuiviNAVersAnnotationsDS88444(d)
                 }
             ]
@@ -85,62 +90,92 @@
             </div>
         </section>
 
+
+        {#await candidatsImportsMapP}
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
-            {#await candidatsImportsMapP}
                 (en chargement)
-            {:then candidatsImportsMap} 
+            </div>
+        </section>
+        {:then candidatsImportsMap} 
+        <section class="fr-grid-row fr-mb-6w">
+            <div class="fr-col">
                 {#if candidatsImportsMap}
                     <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsImportsMap.size}) </h2>
+                    <details>
+                        <summary>Aide commune/département non-reconnu</summary>
+                        <p>
+                            Si la commune n'est pas reconnue, il peut s'agir d'un problème d'apostrophe, de tiret, de majuscule ou de St/Saint.
+                            Vous pouvez trouver le <strong>nom exact des communes</strong> dans la 
+                            <a href="https://geo.api.gouv.fr/decoupage-administratif/communes#name">boîte essayez-moi du service géo des communes</a>. <br>
+                            S'il y a plusieurs communes, assurez-vous de les <strong>séparer avec une virgule</strong> (<code>,</code>) (et pas un <code>et</code>)<br>
+                            Corrigez le tableau, ré-importez-le pour ré-essayer
+                        </p>
+                        <p>
+                            Si le département n'est pas reconnu, vous pouvez trouver le <strong>nom exact des départements</strong> dans la
+                            <a href="https://geo.api.gouv.fr/decoupage-administratif/departements#name">boîte essayez-moi du service géo des départements</a>. <br>
+                            Vous pouvez aussi mettre le numéro de département<br>
+                            Corrigez le tableau, ré-importez-le pour ré-essayer
+                        </p>
+                    </details>
+
                     <div class="fr-table">
                         <table>
                             <thead>
                                 <tr>
-                                    <th><abbr title="Département">Dpt</abbr></th>
+                                    <th>Département principale</th>
                                     <th>Nom du porteur de projet</th>
                                     <th>Nom du projet</th>
-                                    <th>Commune(s)</th>
+                                    <th>Localisation</th>
                                     <th><abbr title="Autorisation environnementale">AE</abbr></th>
                                     <th>Préremplissage</th>
-                                    <th>Email au porteur de projet</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {#each [...candidatsImportsMap.values()] as {dossier, annotations}}
                                 <tr>
-                                    <td>{dossier['Département(s) où se situe le projet'].join(', ')}</td>
+                                    <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
                                     <td>{dossier['Porteur de projet']}</td>
                                     <td>{dossier['Nom du projet']}</td>
                                     <td>
-                                        {#each dossier['Commune(s) où se situe le projet'] as commune, i}
-                                            {#if i !== 0},{/if}
-                                            {#if typeof commune === 'string'}
-                                                <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
-                                            {:else}
-                                                {commune.nom} ({commune.codeDepartement})
-                                            {/if}
-                                        {/each}
-                                    </td>
-                                    <td>{dossier['Le projet est-il soumis à une autorisation environnementale ?'] ? 'oui' : 'non'}</td>
-                                    <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
-                                    <td>
-                                        {#if dossier['Nom du représentant'] && dossier['Adresse mail de contact']}
-                                            <a href={`mailto:${dossier['Adresse mail de contact']}`}>
-                                                Envoyer un email à {dossier['Nom du représentant']} {dossier['Prénom du représentant'] || ''}
-                                            </a>
+                                        {#if Array.isArray(dossier['Département(s) où se situe le projet'])}
+                                            <strong>
+                                                {#if dossier['Département(s) où se situe le projet'].length === 1}
+                                                    Département :
+                                                {:else}
+                                                    Départements :
+                                                {/if}
+                                            </strong>
+
+                                            {#each dossier['Département(s) où se situe le projet'] as département, i}
+                                                {#if i !== 0},{/if}
+                                                {département.code}
+                                            {/each}
                                         {:else}
-                                            (adresse email ou nom/prénom manquant)
+                                            {#each dossier['Commune(s) où se situe le projet'] as commune, i}
+                                                {#if i !== 0},{/if}
+                                                {#if typeof commune === 'string'}
+                                                    <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
+                                                {:else}
+                                                    {commune.nom} ({commune.codeDepartement})
+                                                {/if}
+                                            {/each}
                                         {/if}
+
+                                        
                                     </td>
+                                    <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
+                                    <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
                                 </tr>
                             {/each}
                             </tbody>
                         </table>
                     </div>
                 {/if}
-            {/await}
             </div>
         </section>
+
+        {#if candidatsImportsMap}
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
@@ -151,8 +186,6 @@
                 </strong>
             </div>
         </section>
-
-
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
@@ -165,6 +198,10 @@
                 </strong>
             </div>
         </section>
+
+        {/if}
+        {/await}
+
     </article>
 </Squelette>
 

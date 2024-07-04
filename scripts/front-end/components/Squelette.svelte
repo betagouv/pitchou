@@ -72,6 +72,9 @@
             
             -->
             <li class="fr-nav__item">
+                <a class="fr-nav__link" href="/">Tableau de suivi</a>
+            </li>
+            <li class="fr-nav__item">
                 <a class="fr-nav__link" href="/saisie-especes">Saisie espèces protégées</a>
             </li>
             <li class="fr-nav__item">
@@ -101,6 +104,7 @@
         <div class="fr-footer__body">
             <div class="fr-footer__brand fr-enlarge-link">
                 <p class="fr-logo">République <br />Française</p>
+                <!--
                 <a
                     class="fr-footer__brand-link"
                     href="/"
@@ -112,11 +116,11 @@
                         src="/example/img/placeholder.9x16.png"
                         alt="Logo DGALN"
                     />
-                    <!-- L’alternative de l’image (attribut alt) doit impérativement être renseignée et reprendre le texte visible dans l’image -->
                 </a>
+                -->
             </div>
             <div class="fr-footer__content">
-                <p class="fr-footer__content-desc">Lorem [...] elit ut.</p>
+                <!-- <p class="fr-footer__content-desc"></p> -->
                 <ul class="fr-footer__content-list">
                     <li class="fr-footer__content-item">
                         <a
@@ -162,28 +166,18 @@
         <div class="fr-footer__bottom">
             <ul class="fr-footer__bottom-list">
                 <li class="fr-footer__bottom-item">
-                    <a class="fr-footer__bottom-link" href="#">Plan du site</a>
+                    <a class="fr-footer__bottom-link" href="https://github.com/betagouv/pitchou">Code source</a>
                 </li>
                 <li class="fr-footer__bottom-item">
-                    <a class="fr-footer__bottom-link" href="#"
-                        >Accessibilité : non/partiellement/totalement conforme</a
-                    >
+                    <span class="fr-footer__bottom-link">
+                        Accessibilité : non conforme
+                    </span>
                 </li>
-                <li class="fr-footer__bottom-item">
+                <!--<li class="fr-footer__bottom-item">
                     <a class="fr-footer__bottom-link" href="#"
                         >Mentions légales</a
                     >
-                </li>
-                <li class="fr-footer__bottom-item">
-                    <a class="fr-footer__bottom-link" href="#"
-                        >Données personnelles</a
-                    >
-                </li>
-                <li class="fr-footer__bottom-item">
-                    <a class="fr-footer__bottom-link" href="#"
-                        >Gestion des cookies</a
-                    >
-                </li>
+                </li>-->
             </ul>
             <div class="fr-footer__bottom-copy">
                 <p>

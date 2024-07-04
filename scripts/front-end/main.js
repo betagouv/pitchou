@@ -20,7 +20,8 @@ import { authorizedEmailDomains } from '../commun/constantes.js';
 import { normalizeNomCommune } from '../commun/typeFormat.js';
 import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../commun/outils-espèces';
 
-import '../types.js'
+/** @import {DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
+
 
 
 const svelteTarget = document.querySelector('.svelte-main')
@@ -327,9 +328,10 @@ page('/saisie-especes', async () => {
 
 
 page('/import-historique/nouvelle-aquitaine', async () => {
-    /** @type { [GeoAPICommune[] | undefined, any, any] } */
-    const [communes, typeObjet, schema] = await Promise.all([
+    /** @type { [GeoAPICommune[] | undefined, GeoAPIDépartement[] | undefined, any, any] } */
+    const [communes, départements, typeObjet, schema] = await Promise.all([
         json('https://geo.api.gouv.fr/communes'),
+        json('https://geo.api.gouv.fr/departements'),
         csv('/data/import-historique/Correspondance Nom projet Objet projet.csv'),
         json('/data/schema-DS-88444.json')
     ])
@@ -337,12 +339,23 @@ page('/import-historique/nouvelle-aquitaine', async () => {
     if(!communes){
         throw new TypeError('Communes manquantes')
     }
+    if(!départements){
+        throw new TypeError('Départements manquants')
+    }
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     const nomToCommune = new Map()
 
     for(const commune of communes){
         nomToCommune.set(normalizeNomCommune(commune.nom), commune)
+    }
+
+    /** @type { Map<GeoAPICommune['nom'], GeoAPIDépartement> } */
+    const stringToDépartement = new Map()
+
+    for(const département of départements){
+        stringToDépartement.set(département.code, département)
+        stringToDépartement.set(département.nom, département)
     }
 
 
@@ -361,7 +374,7 @@ page('/import-historique/nouvelle-aquitaine', async () => {
 
         if(type.length >= 1 && objet.length >= 1){
             if(!objetsPossibles.has(objet)){
-                console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
+                //console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
             }
 
             typeVersObjet.set(type, objet)
@@ -375,7 +388,7 @@ page('/import-historique/nouvelle-aquitaine', async () => {
      * @returns 
      */
     function mapStateToProps({dossiers}){
-        return {dossiers, nomToCommune, typeVersObjet}
+        return {dossiers, nomToCommune, stringToDépartement, typeVersObjet}
     }   
     
     const importHistorique = new ImportHistoriqueNouvelleAquitaine({

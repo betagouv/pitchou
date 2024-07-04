@@ -137,6 +137,8 @@
 
 
 /** 
+ * https://geo.api.gouv.fr/communes
+ *
  * @typedef {Object} GeoAPICommune
  * @prop {string} nom
  * @prop {string} code
@@ -149,6 +151,14 @@
  * @prop {number} population
  * 
  */
+/** 
+ * https://geo.api.gouv.fr/departements 
+ *
+ * @typedef {Object} GeoAPIDépartement
+ * @prop {string} nom
+ * @prop {string} code
+ * 
+ */
 
 /**
  * @typedef {{
@@ -156,8 +166,8 @@
 * 'Type de projet': string,
 * 'Nom du projet': string,
 * 'Porteur de projet': string,
-* 'Localisation': (GeoAPICommune | string)[],
-* 'Dpt': string,
+* 'Localisation': (GeoAPICommune | string)[] | GeoAPIDépartement[],
+* 'Dpt': (GeoAPIDépartement | string)[],
 * 'But': string,
 * 'CdM': string,
 * 'Procédure': string,
@@ -196,6 +206,8 @@
 
 
 /**
+ * 
+ * 
  * @typedef {{
 *   'Porteur de projet': string,
 *   'Le demandeur est…': string,
@@ -209,7 +221,7 @@
 *   'Numéro de téléphone de contact': string,
 *   'Adresse mail de contact': string,
 *   'Description de la demande': string,
-*   'Le projet est-il soumis à une autorisation environnementale ?': boolean,
+*   "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": boolean,
 *   'À quelle procédure le projet est-il soumis ?': string[],
 *   'Motif de la dérogation': string,
 *   'Précisez': string,
@@ -221,7 +233,7 @@
 *   'Cette demande concerne un programme déjà existant': boolean,
 *   'Le projet se situe au niveau…': "d'une ou plusieurs communes" | "d'un ou plusieurs départements" | "d'une ou plusieurs régions"
 *   'Commune(s) où se situe le projet': (GeoAPICommune | string)[],
-*   'Département(s) où se situe le projet': string[],
+*   'Département(s) où se situe le projet': GeoAPIDépartement[],
 *   'Région(s) où se situe le projet': string[],
 *   'Date de début d’intervention': Date,
 *   'Date de fin d’intervention': Date,
@@ -232,7 +244,8 @@
 *   "Bilan d'opérations antérieures": string,
 *   'Description succincte du projet': string,
 *   'Dépot du dossier complet de demande de dérogation': string,
-*   "Mesures d'évitement, réduction et/ou compensation": boolean
+*   "Mesures d'évitement, réduction et/ou compensation": boolean,
+*   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement
 * }} _DossierDémarcheSimplifiée88444
 */
 
@@ -267,3 +280,5 @@
 */
 
 /** @typedef {Partial<_AnnotationsPrivéesDémarcheSimplifiée88444>} AnnotationsPrivéesDémarcheSimplifiée88444*/
+
+export default 'TS needs a module'

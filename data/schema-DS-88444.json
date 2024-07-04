@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-06-05T15:40:41+02:00",
+    "dateDerniereModification": "2024-07-03T16:35:25+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://plop.fr",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTQ4MTkz",
-        "datePublication": "2024-06-05T15:40:41+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTQ4NTk2",
+        "datePublication": "2024-06-12T15:11:54+02:00",
         "champDescriptors": [
             {
                 "__typename": "HeaderSectionChampDescriptor",
@@ -155,7 +155,7 @@
             {
                 "__typename": "YesNoChampDescriptor",
                 "id": "Q2hhbXAtNDA4MzAxMQ==",
-                "label": "Le projet est-il soumis à une autorisation environnementale ?",
+                "label": "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
                 "description": "",
                 "required": false
             },
@@ -164,9 +164,9 @@
                 "id": "Q2hhbXAtNDA4Mjk1OA==",
                 "label": "À quelle procédure le projet est-il soumis ?",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
-                    "ICPE",
+                    "Autorisation ICPE",
                     "Autorisation loi sur l'eau"
                 ]
             },
@@ -234,7 +234,7 @@
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwNQ==",
                 "label": "Lien vers la liste des espèces concernées",
-                "description": "Lien vers la liste des espèces concernées à remplir sur https://especes-protegees.osc-fr1.scalingo.io/saisie-especes",
+                "description": "Lien vers la liste des espèces concernées à remplir sur https://pitchou.beta.gouv.fr/saisie-especes",
                 "required": false
             },
             {
@@ -257,6 +257,13 @@
                 "label": "Cette demande concerne un programme déjà existant",
                 "description": "",
                 "required": false
+            },
+            {
+                "__typename": "DepartementChampDescriptor",
+                "id": "Q2hhbXAtNDI3NTM5OA==",
+                "label": "Dans quel département se localise majoritairement votre projet ?",
+                "description": "",
+                "required": true
             },
             {
                 "__typename": "DropDownListChampDescriptor",
