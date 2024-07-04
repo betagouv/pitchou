@@ -332,7 +332,7 @@ page('/import-historique/nouvelle-aquitaine', async () => {
     const [communes, départements, typeObjet, schema] = await Promise.all([
         json('https://geo.api.gouv.fr/communes'),
         json('https://geo.api.gouv.fr/departements'),
-        csv('/data/import-historique/Correspondance Nom projet Objet projet.csv'),
+        csv('/data/import-historique/Nouvelle-Aquitaine/Correspondance Nom projet Objet projet.csv'),
         json('/data/schema-DS-88444.json')
     ])
 
@@ -368,13 +368,13 @@ page('/import-historique/nouvelle-aquitaine', async () => {
 
     const objetsPossibles = new Set(schema.revision.champDescriptors.find(champ => champ.id === 'Q2hhbXAtMzg5NzQwMA==').options)
 
-    for(let {'Tableau de suivi': type, 'Objet du projet (ONAGRE)': objet} of typeObjet){
+    for(let {'Tableau de suivi': type, 'Objet du projet (à utiliser dans DS)': objet} of typeObjet){
         type = type.trim()
         objet = objet.trim()
 
         if(type.length >= 1 && objet.length >= 1){
-            if(!objetsPossibles.has(objet)){
-                //console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
+            if(!objetsPossibles.has(objet) && objet !== 'à supprimer'){
+                console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
             }
 
             typeVersObjet.set(type, objet)
