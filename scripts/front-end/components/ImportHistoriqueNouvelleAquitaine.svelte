@@ -8,7 +8,7 @@
     import {créerLienPréremplissageDémarche} from '../../commun/préremplissageDémarcheSimplifiée.js'
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune} from "../../types.js" */
+    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../types.js" */
 
     const scsv = dsvFormat(';')
     
@@ -16,6 +16,9 @@
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     export let nomToCommune
+
+    /** @type { Map<GeoAPICommune['nom'], GeoAPIDépartement> } */
+    export let stringToDépartement
 
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet'] } */
     export let typeVersObjet
@@ -44,7 +47,9 @@
     $: if(fichiersImportRaw){
         candidatsImportsSuiviNAP = fichiersImportRaw[0].text()
             .then(scsv.parse)
-            .then(dossiers => dossiers.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune)))
+            .then(dossiers => dossiers.map(
+                dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement)
+            ))
             .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
                 candidats.filter(estImportable)
             )
@@ -55,7 +60,7 @@
             return [
                 d, 
                 {
-                    dossier: dossierSuiviNAVersDossierDS88444(d, typeVersObjet),
+                    dossier: dossierSuiviNAVersDossierDS88444(d, typeVersObjet, stringToDépartement),
                     annotations: dossierSuiviNAVersAnnotationsDS88444(d)
                 }
             ]
@@ -113,10 +118,10 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th><abbr title="Département">Dpt</abbr></th>
+                                    <th><abbr title="Département">Département principale</abbr></th>
                                     <th>Nom du porteur de projet</th>
                                     <th>Nom du projet</th>
-                                    <th>Commune(s)</th>
+                                    <th>Localisation</th>
                                     <th><abbr title="Autorisation environnementale">AE</abbr></th>
                                     <th>Préremplissage</th>
                                 </tr>
@@ -124,20 +129,37 @@
                             <tbody>
                             {#each [...candidatsImportsMap.values()] as {dossier, annotations}}
                                 <tr>
-                                    <td>{dossier['Département(s) où se situe le projet'].join(', ')}</td>
+                                    <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
                                     <td>{dossier['Porteur de projet']}</td>
                                     <td>{dossier['Nom du projet']}</td>
                                     <td>
-                                        {#each dossier['Commune(s) où se situe le projet'] as commune, i}
-                                            {#if i !== 0},{/if}
-                                            {#if typeof commune === 'string'}
-                                                <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
-                                            {:else}
-                                                {commune.nom} ({commune.codeDepartement})
-                                            {/if}
-                                        {/each}
+                                        {#if Array.isArray(dossier['Département(s) où se situe le projet'])}
+                                            <strong>
+                                                {#if dossier['Département(s) où se situe le projet'].length === 1}
+                                                    Département :
+                                                {:else}
+                                                    Départements :
+                                                {/if}
+                                            </strong>
+
+                                            {#each dossier['Département(s) où se situe le projet'] as département, i}
+                                                {#if i !== 0},{/if}
+                                                {département.code}
+                                            {/each}
+                                        {:else}
+                                            {#each dossier['Commune(s) où se situe le projet'] as commune, i}
+                                                {#if i !== 0},{/if}
+                                                {#if typeof commune === 'string'}
+                                                    <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
+                                                {:else}
+                                                    {commune.nom} ({commune.codeDepartement})
+                                                {/if}
+                                            {/each}
+                                        {/if}
+
+                                        
                                     </td>
-                                    <td>{dossier['Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?'] ? 'oui' : 'non'}</td>
+                                    <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
                                     <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
                                 </tr>
                             {/each}

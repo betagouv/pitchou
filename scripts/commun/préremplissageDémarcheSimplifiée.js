@@ -24,6 +24,7 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 /** @import {DossierDémarcheSimplifiée88444, GeoAPICommune} from "../types.js" */
 
+const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
 
 /** @type {Map< keyof DossierDémarcheSimplifiée88444, string >} */
 const démarcheDossierLabelToId = new Map([
@@ -68,7 +69,7 @@ const démarcheDossierLabelToId = new Map([
         "Q2hhbXAtMzkzMzc0MA=="
     ],
     [
-        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
+        clefAE,
         "Q2hhbXAtNDA4MzAxMQ=="
     ],
     [
@@ -227,9 +228,14 @@ export function créerLienPréremplissageDémarche(dossierPartiel) {
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le demandeur est…')}`] = "une personne morale"
     }
 
-    if (typeof dossierPartiel['Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?'] === 'boolean') {
-        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?')}`] =
-            dossierPartiel['Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?'] ? 'true' : 'false'
+    if (typeof dossierPartiel[clefAE] === 'boolean') {
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get(clefAE)}`] =
+            dossierPartiel[clefAE] ? 'true' : 'false'
+    }
+
+    if (dossierPartiel['Dans quel département se localise majoritairement votre projet ?']) {
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Dans quel département se localise majoritairement votre projet ?')}`] =
+            dossierPartiel['Dans quel département se localise majoritairement votre projet ?'].code
     }
 
     // recups les communes

@@ -137,6 +137,8 @@
 
 
 /** 
+ * https://geo.api.gouv.fr/communes
+ *
  * @typedef {Object} GeoAPICommune
  * @prop {string} nom
  * @prop {string} code
@@ -149,6 +151,14 @@
  * @prop {number} population
  * 
  */
+/** 
+ * https://geo.api.gouv.fr/departements 
+ *
+ * @typedef {Object} GeoAPIDépartement
+ * @prop {string} nom
+ * @prop {string} code
+ * 
+ */
 
 /**
  * @typedef {{
@@ -156,8 +166,8 @@
 * 'Type de projet': string,
 * 'Nom du projet': string,
 * 'Porteur de projet': string,
-* 'Localisation': (GeoAPICommune | string)[],
-* 'Dpt': string,
+* 'Localisation': (GeoAPICommune | string)[] | GeoAPIDépartement[],
+* 'Dpt': (GeoAPIDépartement | string)[],
 * 'But': string,
 * 'CdM': string,
 * 'Procédure': string,
@@ -223,7 +233,7 @@
 *   'Cette demande concerne un programme déjà existant': boolean,
 *   'Le projet se situe au niveau…': "d'une ou plusieurs communes" | "d'un ou plusieurs départements" | "d'une ou plusieurs régions"
 *   'Commune(s) où se situe le projet': (GeoAPICommune | string)[],
-*   'Département(s) où se situe le projet': string[],
+*   'Département(s) où se situe le projet': GeoAPIDépartement[],
 *   'Région(s) où se situe le projet': string[],
 *   'Date de début d’intervention': Date,
 *   'Date de fin d’intervention': Date,
@@ -235,7 +245,7 @@
 *   'Description succincte du projet': string,
 *   'Dépot du dossier complet de demande de dérogation': string,
 *   "Mesures d'évitement, réduction et/ou compensation": boolean,
-*   "Dans quel département se localise majoritairement votre projet ?": string
+*   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement
 * }} _DossierDémarcheSimplifiée88444
 */
 
