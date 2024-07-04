@@ -199,7 +199,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
         'Numéro de SIRET': '', // Peut-être laisser vide si non fourni dans le premier objet
         'Qualification': '', // Peut-être laisser vide si non fourni dans le premier objet
         'Adresse': '', // Peut-être laisser vide si non fourni dans le premier objet
-        'Objet du projet': typeVersObjet.get(dossier['Type de projet']),
+        'Objet du projet': typeVersObjet.get(dossier['Objet du projet']), // on n'utilise plus la colonne "Type de projet" du tableau de suivi NA
         'Nom du représentant': '',
         'Prénom du représentant': '',
         'Qualité du représentant': '',
