@@ -163,6 +163,7 @@
 /**
  * @typedef {{
 * 'n° ligne': number,
+* 'Objet du projet': string,
 * 'Type de projet': string,
 * 'Nom du projet': string,
 * 'Porteur de projet': string,
