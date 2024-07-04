@@ -90,11 +90,16 @@
             </div>
         </section>
 
+
+        {#await candidatsImportsMapP}
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
-            {#await candidatsImportsMapP}
                 (en chargement)
-            {:then candidatsImportsMap} 
+            </div>
+        </section>
+        {:then candidatsImportsMap} 
+        <section class="fr-grid-row fr-mb-6w">
+            <div class="fr-col">
                 {#if candidatsImportsMap}
                     <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsImportsMap.size}) </h2>
                     <details>
@@ -167,9 +172,10 @@
                         </table>
                     </div>
                 {/if}
-            {/await}
             </div>
         </section>
+
+        {#if candidatsImportsMap}
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
@@ -180,8 +186,6 @@
                 </strong>
             </div>
         </section>
-
-
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
@@ -194,6 +198,10 @@
                 </strong>
             </div>
         </section>
+
+        {/if}
+        {/await}
+
     </article>
 </Squelette>
 
