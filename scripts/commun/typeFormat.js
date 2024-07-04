@@ -152,7 +152,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
     const Localisation = dossier['Localisation'] || []
     const Dpt = dossier['Dpt'] || []
 
-    if(Localisation.every(l => Object(l) === l && l.code && l.nom && !l.codesPostaux)){
+    if(Localisation.length >= 1 && Localisation.every(l => Object(l) === l && l.code && l.nom && !l.codesPostaux)){
         // il y a un ou des départements dans la colonne 'Localisation'
         départements = Localisation
         communes = undefined
@@ -166,19 +166,21 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
             départementPrincipale = Dpt[0]
         }
         else{
-            const countByCodeDepartement = new Map()
+            if(Array.isArray(communes) && communes.length >= 1){
+                const countByCodeDepartement = new Map()
 
-            for(const commune of communes){
-                const codeDepartement = typeof commune === 'object' && commune.codeDepartement
-                if(codeDepartement){
-                    const count = countByCodeDepartement.get(codeDepartement) || 0
-                    countByCodeDepartement.set(codeDepartement, count + 1) 
+                for(const commune of communes){
+                    const codeDepartement = typeof commune === 'object' && commune.codeDepartement
+                    if(codeDepartement){
+                        const count = countByCodeDepartement.get(codeDepartement) || 0
+                        countByCodeDepartement.set(codeDepartement, count + 1) 
+                    }
                 }
-            }
 
-            const maxCount = Math.max(...[...countByCodeDepartement.values()])
-            const [codeDépartementPrincipale] = [...countByCodeDepartement].find(([_, count]) => count === maxCount)
-            départementPrincipale = stringToDépartement.get(codeDépartementPrincipale)
+                const maxCount = Math.max(...[...countByCodeDepartement.values()])
+                const [codeDépartementPrincipale] = [...countByCodeDepartement].find(([_, count]) => count === maxCount)
+                départementPrincipale = stringToDépartement.get(codeDépartementPrincipale)
+            }
         }
     }
 

@@ -374,7 +374,7 @@ page('/import-historique/nouvelle-aquitaine', async () => {
 
         if(type.length >= 1 && objet.length >= 1){
             if(!objetsPossibles.has(objet)){
-                console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
+                //console.warn(`L'objet dans le fichier de correpondance ne fait pas partie des options du schema`, objet, objetsPossibles)
             }
 
             typeVersObjet.set(type, objet)

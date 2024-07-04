@@ -22,7 +22,7 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 */
 
-/** @import {DossierDémarcheSimplifiée88444, GeoAPICommune} from "../types.js" */
+/** @import {DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
 
 const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
 
@@ -172,7 +172,7 @@ const démarcheDossierLabelToId = new Map([
 
 /**
  *  champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]&champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]
- * @param {GeoAPICommune} commune 
+ * @param {GeoAPICommune} _ 
  */
 function makeCommuneParam({ code, codesPostaux: [codePostal] }) {
     const communeChamp = `champ_${démarcheDossierLabelToId.get('Commune(s) où se situe le projet')}`
@@ -180,6 +180,18 @@ function makeCommuneParam({ code, codesPostaux: [codePostal] }) {
     const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 
     return `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]=["${codePostal}", "${code}"]`
+}
+
+/**
+ * champ_Q2hhbXAtNDA0MTQ0NQ[][champ_Q2hhbXAtNDA0MTQ0Nw]=56&champ_Q2hhbXAtNDA0MTQ0NQ[][champ_Q2hhbXAtNDA0MTQ0Nw]=56
+ * @param {GeoAPIDépartement} _ 
+ */
+function makeDépartementParam({code}){
+    const départementChamp = `champ_${démarcheDossierLabelToId.get('Département(s) où se situe le projet')}`
+    // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
+    const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`
+
+    return `${encodeURIComponent(départementChamp)}[][${départementChampRépété}]=${code}`
 }
 
 /** @type {(keyof DossierDémarcheSimplifiée88444)[]} */
@@ -238,43 +250,53 @@ export function créerLienPréremplissageDémarche(dossierPartiel) {
             dossierPartiel['Dans quel département se localise majoritairement votre projet ?'].code
     }
 
-    // recups les communes
-
+    let departementsURLParam = ''
     let communesURLParam = ''
 
-    if (Array.isArray(dossierPartiel['Commune(s) où se situe le projet']) && dossierPartiel['Commune(s) où se situe le projet'].length >= 1) {
+    // recups les départements
+    if (Array.isArray(dossierPartiel['Département(s) où se situe le projet']) && dossierPartiel['Département(s) où se situe le projet'].length >= 1) {
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet se situe au niveau…')}`] = "d'un ou plusieurs départements"
         // Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.
-        // champ_Q2hhbXAtNDA0MTQ0Mw: Un tableau contenant le code postal et le code INSEE de la commune
-        // Exemple 	[{"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}, {"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}] 
+        // champ_Q2hhbXAtNDA0MTQ0Nw: Un numéro de département   
 
-        /*
-        throw `PPP
-          Ce code ne fonctionne pas pour le moment
-          https://mattermost.incubateur.net/betagouv/pl/77jbtccr17fjdjk794nu3y6kpo
-          https://mattermost.incubateur.net/betagouv/pl/nppj3hai1trg5qut8aqhkekdxh
-        `
-
-        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet se situe au niveau…')}`] = "d'une ou plusieurs communes"
-
-        communesURLParam = dossierPartiel['Commune(s) où se situe le projet']
+        departementsURLParam = dossierPartiel['Département(s) où se situe le projet']
           .filter(commune => Object(commune) === commune)
-          .map(makeCommuneParam)
+          .map(makeDépartementParam)
           .join('&')
-        */
+    }
+    else{
+        // recups les communes
+        if (Array.isArray(dossierPartiel['Commune(s) où se situe le projet']) && dossierPartiel['Commune(s) où se situe le projet'].length >= 1) {
+            // Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.
+            // champ_Q2hhbXAtNDA0MTQ0Mw: Un tableau contenant le code postal et le code INSEE de la commune
+            // Exemple 	[{"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}, {"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}] 
 
+            /*
+            throw `PPP
+            Ce code ne fonctionne pas pour le moment
+            https://mattermost.incubateur.net/betagouv/pl/77jbtccr17fjdjk794nu3y6kpo
+            https://mattermost.incubateur.net/betagouv/pl/nppj3hai1trg5qut8aqhkekdxh
+            `
+
+            objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet se situe au niveau…')}`] = "d'une ou plusieurs communes"
+
+            communesURLParam = dossierPartiel['Commune(s) où se situe le projet']
+            .filter(commune => Object(commune) === commune)
+            .map(makeCommuneParam)
+            .join('&')
+            */
+            
+            console.log('communesURLParam', communesURLParam)
+        }
     }
 
-    console.log('communesURLParam', communesURLParam)
-
-    /*throw `PPP :
-        - faire un remplissage spécifique pour le type de projet, basé sur le tableau de Vanessa`
-    */
 
     //console.log('objetPréremplissage', objetPréremplissage, dossierPartiel)
 
     return basePréremplissage +
         (new URLSearchParams(objetPréremplissage)).toString() +
-        (communesURLParam ? '&' + communesURLParam : '')
+        (communesURLParam ? '&' + communesURLParam : '') +
+        (departementsURLParam ? '&' + departementsURLParam : '')
 
 }
 

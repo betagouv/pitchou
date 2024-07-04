@@ -123,7 +123,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th><abbr title="Département">Département principale</abbr></th>
+                                    <th>Département principale</th>
                                     <th>Nom du porteur de projet</th>
                                     <th>Nom du projet</th>
                                     <th>Localisation</th>
