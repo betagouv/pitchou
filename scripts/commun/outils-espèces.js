@@ -1,5 +1,8 @@
 //@ts-check
 
+/** @import {ClassificationEtreVivant, EspèceProtégée, DescriptionMenaceEspèce, EtreVivantAtteint, TAXREF_ROW, EspèceProtégéeStrings, OiseauAtteint, OiseauAtteintJSON, EtreVivantAtteintJSON, DescriptionMenaceEspècesJSON, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../types.js" */
+
+
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
 
@@ -8,6 +11,7 @@ const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"
  * @returns {x is ClassificationEtreVivant}
  */
 export function isClassif(x){
+    // @ts-ignore
     return classificationEtreVivants.has(x)
 }
 
@@ -47,12 +51,12 @@ export function nomsVernaculaires(NOM_VERN){
 
 /**
  * 
- * @param {EspèceProtégéeStrings} param0 
+ * @param {EspèceProtégéeStrings} _ 
  * @returns {EspèceProtégée}
  */
 export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STATUTS, classification, nomsScientifiques, nomsVernaculaires}){
     if(!isClassif(classification)){
-        throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${classificationEtreVivants.join(', ')}`)
+        throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${[...classificationEtreVivants].join(', ')}`)
     }
 
     return {
@@ -113,6 +117,32 @@ export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
         return {
             classification, 
             etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
+            
+        }
+    })
+}
+
+/**
+ * @param {DescriptionMenaceEspècesJSON} descriptionMenacesEspècesJSON
+ * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
+ * @param {ActivitéMenançante[]} activites
+ * @param {MéthodeMenançante[]} methodes
+ * @param {TransportMenançant[]} transports
+ * @returns {DescriptionMenaceEspèce[]}
+ */
+export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
+    //@ts-ignore
+    return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
+
+        return {
+            classification, 
+            etresVivantsAtteints: etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => ({
+                espèce: espèceByCD_REF.get(espèce) || espèceByCD_REF.get(espece),
+                activité: activites.find((a) => a.Code === activité),
+                méthode: methodes.find((m) => m.Code === méthode),	
+                transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                ...rest
+            })), 
             
         }
     })

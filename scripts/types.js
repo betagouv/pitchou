@@ -96,6 +96,7 @@
 /**
  * @typedef {Object} EtreVivantAtteintJSON
  * @prop { EspèceProtégée['CD_REF'] } espèce
+ * @prop { EspèceProtégée['CD_REF'] } [espece] // @deprecated
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
  * @prop { string } activité // Code

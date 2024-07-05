@@ -5,9 +5,10 @@
     import NomEspèce from "./NomEspèce.svelte"
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../commun/manipulationStrings.js'
-
-    import '../../types.js'
     import { descriptionMenacesEspècesToJSON } from '../../commun/outils-espèces';
+
+    /** @import {ClassificationEtreVivant, EspèceProtégée, NomGroupeEspèces, DescriptionMenaceEspèce, EtreVivantAtteint} from "../../types.js" */
+
 
     /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;

@@ -18,9 +18,9 @@ import {envoiEmailConnexion} from './serveur.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js';
 import { normalizeNomCommune } from '../commun/typeFormat.js';
-import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../commun/outils-espèces';
+import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, isClassif } from '../commun/outils-espèces';
 
-/** @import {DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
+/** @import {ActivitéMenançante, ClassificationEtreVivant, DescriptionMenaceEspèce, DescriptionMenaceEspècesJSON, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, EspèceProtégée, EspèceProtégéeStrings, GeoAPICommune, GeoAPIDépartement, GroupesEspèces, MéthodeMenançante, NomGroupeEspèces, TransportMenançant} from "../types.js" */
 
 
 
@@ -223,38 +223,12 @@ page('/saisie-especes', async () => {
     }
 
 
-
-
-
-    /**
-     * 
-     * @param { DescriptionMenaceEspècesJSON } descriptionMenacesEspècesJSON
-     * @returns { DescriptionMenaceEspèce[] }
-     */
-    function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON){
-        //@ts-ignore
-        return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
-            console.log('classification, etresVivantsAtteints', classification, etresVivantsAtteints)
-            return {
-                classification, 
-                etresVivantsAtteints: etresVivantsAtteints.map(({espèce, activité, méthode, transport, ...rest}) => ({
-                    espèce: espèceByCD_REF.get(espèce),
-                    activité: activites.find((a) => a.Code === activité),
-                    méthode: methodes.find((m) => m.Code === méthode),	
-                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
-                    ...rest
-                })), 
-                
-            }
-        })
-    }
-
     function importDescriptionMenacesEspècesFromURL(){
         const urlData = new URLSearchParams(location.search).get('data')
         if(urlData){
             try{
                 const data = JSON.parse(b64ToUTF8(urlData))
-                const desc = descriptionMenacesEspècesFromJSON(data)
+                const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, transports)
                 console.log('desc', desc)
                 return desc
             }
