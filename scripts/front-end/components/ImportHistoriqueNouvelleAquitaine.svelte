@@ -1,5 +1,7 @@
 <script>
     //@ts-check
+    import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
+
     import {dsvFormat} from 'd3-dsv'
 
     import Squelette from './Squelette.svelte'
@@ -31,6 +33,9 @@
     /** @type {Promise< Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} > >} */
     let candidatsImportsMapP
 
+    /** @type {FileReader}*/
+    let reader = new FileReader()
+
     /**
      * 
      * @param {DossierTableauSuiviNouvelleAquitaine2023} candidat
@@ -43,16 +48,9 @@
                 (Array.isArray(candidat['Localisation']) && candidat['Localisation'].length >= 1)
             )
     }
-
+    
     $: if(fichiersImportRaw){
-        candidatsImportsSuiviNAP = fichiersImportRaw[0].text()
-            .then(scsv.parse)
-            .then(dossiers => dossiers.map(
-                dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement)
-            ))
-            .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
-                candidats.filter(estImportable)
-            )
+        reader.readAsArrayBuffer(fichiersImportRaw[0])
     }
     $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(console.log)
     $: if(candidatsImportsSuiviNAP) candidatsImportsMapP = candidatsImportsSuiviNAP.then(dossiers => 
@@ -69,6 +67,21 @@
 
     $: if(candidatsImportsMapP) candidatsImportsMapP.then(console.log)
 
+    reader.addEventListener("load", () => {
+        candidatsImportsSuiviNAP = getODSTableRawContent(reader.result)
+            .then(tableRaw => tableRaw.get("Dossiers en cours"))
+            .then(dossiers => {
+                const dossiersObject = sheetRawContentToObjects(dossiers)
+                console.log(dossiersObject)
+
+                return dossiersObject.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement))
+            })
+            .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => {
+                console.log('CANDIDATS', candidats)
+                return candidats
+            })
+            .catch((e) => console.log(e))
+    })
 </script>
 
 <Squelette>
@@ -78,14 +91,14 @@
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col-8">
-                <h2>Importer un tableau CSV</h2>
+                <h2>Importer un tableau ODS</h2>
                 <p>
-                    Exportez le tableau de suivi Nouvelle Aquitaine au <strong>format .csv</strong> (utilisant le point-virgule 
+                    Exportez le tableau de suivi Nouvelle Aquitaine au <strong>format .ods</strong> (utilisant le point-virgule 
                     comme "séparateur de champ").
                 </p>
                 <label class="file">
-                    <strong>Importer le fichier .csv&nbsp;:</strong>
-                    <input bind:files={fichiersImportRaw} type="file" accept=".csv" class="fr-input">
+                    <strong>Importer le fichier .ods&nbsp;:</strong>
+                    <input bind:files={fichiersImportRaw} type="file" accept=".ods" class="fr-input">
                 </label>
             </div>
         </section>

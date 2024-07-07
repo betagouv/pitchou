@@ -116,7 +116,7 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
                 const DptStringValue = dossier[key] || ''
 
                 // test s'il s'agit d'un ensemble de Département
-                const candidatsDépartements = DptStringValue
+                const candidatsDépartements = String(DptStringValue)
                     .split(/,|&|\//)
                     .map(s => s.trim())
                     .filter(s => s.length >= 1)

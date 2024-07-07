@@ -41,7 +41,8 @@ export default [
 		output: {
 			sourcemap: true,
 			format: 'es',
-			file: 'build/rollup-bundle-pitchou.js'
+			file: 'build/rollup-bundle-pitchou.js',
+			inlineDynamicImports: true
 		},
 		plugins: plugins({cssOutput: 'rollup-bundle-pitchou.css'}),
 		watch: {
