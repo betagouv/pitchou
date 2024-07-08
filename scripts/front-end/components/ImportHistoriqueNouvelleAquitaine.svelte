@@ -11,8 +11,6 @@
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
     /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../types.js" */
-
-    const scsv = dsvFormat(';')
     
     //export let dossiers
 
@@ -52,14 +50,12 @@
             .then(tableRaw => tableRaw.get("Dossiers en cours"))
             .then(dossiers => {
                 const dossiersObject = sheetRawContentToObjects(dossiers)
-                console.log(dossiersObject)
 
                 return dossiersObject.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement))
             })
             .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
                 candidats.filter(estImportable)
             )
-            .catch((e) => console.log(e))
         
     }
     $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(console.log)
