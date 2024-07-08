@@ -33,9 +33,6 @@
     /** @type {Promise< Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} > >} */
     let candidatsImportsMapP
 
-    /** @type {FileReader}*/
-    let reader = new FileReader()
-
     /**
      * 
      * @param {DossierTableauSuiviNouvelleAquitaine2023} candidat
@@ -50,7 +47,20 @@
     }
     
     $: if(fichiersImportRaw){
-        reader.readAsArrayBuffer(fichiersImportRaw[0])
+        candidatsImportsSuiviNAP = fichiersImportRaw[0].arrayBuffer()
+            .then(buffer => getODSTableRawContent(buffer))
+            .then(tableRaw => tableRaw.get("Dossiers en cours"))
+            .then(dossiers => {
+                const dossiersObject = sheetRawContentToObjects(dossiers)
+                console.log(dossiersObject)
+
+                return dossiersObject.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement))
+            })
+            .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
+                candidats.filter(estImportable)
+            )
+            .catch((e) => console.log(e))
+        
     }
     $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(console.log)
     $: if(candidatsImportsSuiviNAP) candidatsImportsMapP = candidatsImportsSuiviNAP.then(dossiers => 
@@ -66,22 +76,6 @@
     )
 
     $: if(candidatsImportsMapP) candidatsImportsMapP.then(console.log)
-
-    reader.addEventListener("load", () => {
-        candidatsImportsSuiviNAP = getODSTableRawContent(reader.result)
-            .then(tableRaw => tableRaw.get("Dossiers en cours"))
-            .then(dossiers => {
-                const dossiersObject = sheetRawContentToObjects(dossiers)
-                console.log(dossiersObject)
-
-                return dossiersObject.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement))
-            })
-            .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => {
-                console.log('CANDIDATS', candidats)
-                return candidats
-            })
-            .catch((e) => console.log(e))
-    })
 </script>
 
 <Squelette>
