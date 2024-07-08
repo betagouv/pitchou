@@ -20,7 +20,7 @@
     /** @type { Map<GeoAPICommune['nom'], GeoAPIDépartement> } */
     export let stringToDépartement
 
-    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet'] } */
+    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']> } */
     export let typeVersObjet
 
     /** @type {FileList | undefined} */
@@ -152,7 +152,7 @@
                                                 {département.code}
                                             {/each}
                                         {:else}
-                                            {#each dossier['Commune(s) où se situe le projet'] as commune, i}
+                                            {#each dossier['Commune(s) où se situe le projet'] || [] as commune, i}
                                                 {#if i !== 0},{/if}
                                                 {#if typeof commune === 'string'}
                                                     <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
