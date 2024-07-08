@@ -15,9 +15,19 @@ function isValidDate(d) {
 
 /**
  * 
- * @param {string | undefined} d // peut-être une date
+ * @param {string | Date | number | undefined} d // peut-être une date
  */
 function recoverDate(d){
+    if (typeof d === 'number') { return undefined }
+
+    if (typeof d === 'object') {
+        if (isValidDate(d)) { 
+            return d 
+        } else {
+            return undefined
+        }
+    } 
+
     if(!d)
         return undefined
 
@@ -85,7 +95,7 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
                 convertedDossier[key] = dossier[key].trim() === 'oui';
                 break;
             case 'Localisation': {
-                const localisationStringValue = dossier[key] || ''
+                const localisationStringValue = String(dossier[key]) || ''
 
                 // test s'il s'agit d'un ensemble de Département
                 const candidatsDépartements = localisationStringValue
@@ -101,7 +111,7 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
                 }
                 else{
                     // Communes
-                    convertedDossier[key] = (dossier[key] || '')
+                    convertedDossier[key] = localisationStringValue
                         .split(/,|&|\//)
                         .map(s => s.trim())
                         .filter(s => s.length >= 1)
@@ -113,10 +123,10 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
                 break;
             }
             case 'Dpt': {
-                const DptStringValue = dossier[key] || ''
+                const DptStringValue = String(dossier[key]) || ''
 
                 // test s'il s'agit d'un ensemble de Département
-                const candidatsDépartements = String(DptStringValue)
+                const candidatsDépartements = DptStringValue
                     .split(/,|&|\//)
                     .map(s => s.trim())
                     .filter(s => s.length >= 1)
