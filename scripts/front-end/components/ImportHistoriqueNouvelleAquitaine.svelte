@@ -2,8 +2,6 @@
     //@ts-check
     import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
 
-    import {dsvFormat} from 'd3-dsv'
-
     import Squelette from './Squelette.svelte'
 
     import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../commun/typeFormat.js'
