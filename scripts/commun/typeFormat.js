@@ -196,15 +196,15 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
     const dossierConverti = {
         'Porteur de projet': dossier['Porteur de projet'],
         'Le demandeur est…': '',
-        'Numéro de SIRET': '', // Peut-être laisser vide si non fourni dans le premier objet
-        'Qualification': '', // Peut-être laisser vide si non fourni dans le premier objet
-        'Adresse': '', // Peut-être laisser vide si non fourni dans le premier objet
-        'Objet du projet': typeVersObjet.get(dossier['Objet du projet']), // on n'utilise plus la colonne "Type de projet" du tableau de suivi NA
-        'Nom du représentant': '',
-        'Prénom du représentant': '',
+        'Numéro de SIRET': String(dossier['SIRET']) || '',
+        'Qualification': '',
+        'Adresse': '',
+        'Objet du projet': typeVersObjet.get(dossier['Type de projet']) || '',
+        'Nom du représentant': dossier['Nom contact'] || '',
+        'Prénom du représentant': dossier['Prénom contact'] || '',
         'Qualité du représentant': '',
         'Numéro de téléphone de contact': '',
-        'Adresse mail de contact': '',
+        'Adresse mail de contact': dossier['mail de contact'],
         'Description de la demande': dossier['But'],
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
         'À quelle procédure le projet est-il soumis ?': [],
