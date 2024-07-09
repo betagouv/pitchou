@@ -163,7 +163,6 @@
 /**
  * @typedef {{
 * 'n° ligne': number,
-* 'Objet du projet': string,
 * 'Type de projet': string,
 * 'Nom du projet': string,
 * 'Porteur de projet': string,
@@ -199,6 +198,10 @@
 * 'enjeu politique': string,
 * 'enjeu écologique': string,
 * 'commentaires sur les enjeux et le contexte': string
+* 'SIRET': string,
+* 'mail de contact': string,
+* 'Prénom contact': string,
+* 'Nom contact': string,
 * }} _DossierTableauSuiviNouvelleAquitaine2023
 */
 

@@ -124,18 +124,31 @@
                             <thead>
                                 <tr>
                                     <th>Département principale</th>
-                                    <th>Nom du porteur de projet</th>
+                                    <th>Porteur de projet</th>
                                     <th>Nom du projet</th>
                                     <th>Localisation</th>
+                                    <th>Objet du projet</th>
                                     <th><abbr title="Autorisation environnementale">AE</abbr></th>
-                                    <th>Préremplissage</th>
+                                    <th>Créer le dossier pré-rempli</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {#each [...candidatsImportsMap.values()] as {dossier, annotations}}
                                 <tr>
                                     <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
-                                    <td>{dossier['Porteur de projet']}</td>
+                                    <td>
+                                        <strong>{dossier['Porteur de projet']}</strong> 
+                                        {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
+                                        {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
+                                            <br>
+                                            <em>Contact</em><br>
+                                            {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
+                                            {#if dossier['Adresse mail de contact']}
+                                                <br>
+                                                {dossier['Adresse mail de contact']}
+                                            {/if}
+                                        {/if}
+                                    </td>
                                     <td>{dossier['Nom du projet']}</td>
                                     <td>
                                         {#if Array.isArray(dossier['Département(s) où se situe le projet'])}
@@ -161,11 +174,10 @@
                                                 {/if}
                                             {/each}
                                         {/if}
-
-                                        
                                     </td>
+                                    <td>{dossier['Objet du projet']}</td>
                                     <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
-                                    <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Créer le dossier pré-rempli</a></td>
+                                    <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Go !</a></td>
                                 </tr>
                             {/each}
                             </tbody>
