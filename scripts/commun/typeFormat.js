@@ -196,7 +196,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
     const dossierConverti = {
         'Porteur de projet': dossier['Porteur de projet'],
         'Le demandeur est…': '',
-        'Numéro de SIRET': String(dossier['SIRET']) || '',
+        'Numéro de SIRET': dossier['SIRET'] && String(dossier['SIRET']) || '',
         'Qualification': '',
         'Adresse': '',
         'Objet du projet': typeVersObjet.get(dossier['Type de projet']) || '',
