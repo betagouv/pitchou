@@ -36,5 +36,6 @@ export function normalizeTexteEspèce(texte){
         .trim()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '') // remove accents
+        .replaceAll("’", "'")
         .toLowerCase()
 }
