@@ -12,6 +12,8 @@
 
     const scsv = dsvFormat(';')
     
+    export let email
+
     //export let dossiers
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
@@ -71,7 +73,7 @@
 
 </script>
 
-<Squelette>
+<Squelette {email}>
     <article>
 
         <h1>Import dossiers historiques</h1>

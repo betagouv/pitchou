@@ -42,6 +42,12 @@ function showLoginByEmail(){
     replaceComponent(loginViaEmail, mapStateToProps)
 }
 
+function mapStateToSqueletteProps(state){
+    return {
+        email: store.state.secret ? '@' : undefined
+    }
+}
+
 
 page('/', async () => {
     console.info('route', '/')
@@ -61,7 +67,11 @@ page('/', async () => {
 
     if(store.state.dossiers){
         function mapStateToProps({dossiers}){
-            return {dossiers}
+            return {
+                ...mapStateToSqueletteProps(store.state),
+                dossiers,
+                
+            }
         }    
         
         const suiviInstructeur = new SuiviInstruction({
@@ -87,7 +97,10 @@ page('/dossier/:dossierId', ({params: {dossierId}}) => {
     function mapStateToProps({dossiers}){
         const dossierIdNb = Number(dossierId)
 
-        return {dossier: dossiers.find(({id}) => id === dossierIdNb)}
+        return {
+            ...mapStateToSqueletteProps(store.state),
+            dossier: dossiers.find(({id}) => id === dossierIdNb)
+        }
     }   
     
     const dossier = new Dossier({
@@ -259,6 +272,7 @@ page('/saisie-especes', async () => {
 
     function mapStateToProps(){
         return {
+            ...mapStateToSqueletteProps(store.state),
             espècesProtégéesParClassification,
             activitesParClassificationEtreVivant, 
             méthodesParClassificationEtreVivant, 
@@ -362,7 +376,10 @@ page('/import-historique/nouvelle-aquitaine', async () => {
      * @returns 
      */
     function mapStateToProps({dossiers}){
-        return {dossiers, nomToCommune, stringToDépartement, typeVersObjet}
+        return {
+            ...mapStateToSqueletteProps(store.state),
+            dossiers, nomToCommune, stringToDépartement, typeVersObjet
+        }
     }   
     
     const importHistorique = new ImportHistoriqueNouvelleAquitaine({

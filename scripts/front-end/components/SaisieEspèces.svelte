@@ -10,6 +10,8 @@
     /** @import {ClassificationEtreVivant, EspèceProtégée, NomGroupeEspèces, DescriptionMenaceEspèce, EtreVivantAtteint} from "../../types.js" */
 
 
+    export let email
+
     /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
@@ -296,7 +298,7 @@
 </script>
 
 
-<Squelette nav={false}>
+<Squelette nav={false} {email}>
     <article>
         <h1 class="fr-mt-6w">Saisie des espèces protégées impactées</h1>
 
