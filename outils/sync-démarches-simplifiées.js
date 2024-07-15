@@ -11,9 +11,9 @@ import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupére
 
 // récups les données de DS
 
-const API_TOKEN = process.env.API_TOKEN
-if(!API_TOKEN){
-  throw new TypeError(`Variable d'environnement API_TOKEN manquante`)
+const DEMARCHE_SIMPLIFIEE_API_TOKEN = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN
+if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
+  throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
 }
 
 const DEMARCHE_NUMBER = process.env.DEMARCHE_NUMBER
@@ -29,7 +29,7 @@ if(!DATABASE_URL){
 
 
 const démarche = await recupérerDossiersRécemmentModifiés({
-    token: API_TOKEN, 
+    token: DEMARCHE_SIMPLIFIEE_API_TOKEN, 
     démarcheId: DEMARCHE_NUMBER, 
     updatedSince: formatISO(new Date(2020, 1, 22))
 })
