@@ -53,6 +53,13 @@
             </div>
         </div>
     </div>
+    <div class="fr-header__menu fr-modal" id="modal-2568" aria-labelledby="button-2569">
+        <div class="fr-container">
+            <button aria-controls="modal-2568" id="button-2571" title="Fermer" class="fr-btn--close fr-btn">Fermer</button>
+            <div class="fr-header__menu-links">
+            </div>
+        </div>
+    </div>
 </header>
 
 {#if nav}

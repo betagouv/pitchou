@@ -467,7 +467,7 @@
         </form>
         <div class="fr-grid-row fr-mb-4w">
             <div class="fr-col-8">
-                <div class="fr-callout">
+                <div class="fr-callout fr-icon-information-line">
                     <details>
                         <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
                         <p class="fr-callout__text">
