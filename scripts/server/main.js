@@ -75,9 +75,9 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
     return créerPersonneOuMettreÀJourCodeAccès(email)
     .then(codeAccès => {
       const lienConnexion = `${request.headers.origin}/?secret=${codeAccès}`
-      // PPP enlever le return quand on enverra pour de vrai un email
       return envoyerEmailConnexion(email, lienConnexion)
     })
+    .then( () => reply.code(204).send() )
   }
 
 })
