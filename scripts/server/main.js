@@ -15,11 +15,6 @@ if(!PORT){
   throw new TypeError(`Variable d'environnement PORT manquante`)
 }
 
-const API_TOKEN = process.env.API_TOKEN
-if(!API_TOKEN){
-  throw new TypeError(`Variable d'environnement API_TOKEN manquante`)
-}
-
 const DEMARCHE_NUMBER = process.env.DEMARCHE_NUMBER
 if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
