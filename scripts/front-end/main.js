@@ -376,3 +376,6 @@ page('/import-historique/nouvelle-aquitaine', async () => {
 
 init()
 .then(() => page.start())
+.catch( error => {
+    console.error(`Erreur à l'initialisation`, error)
+})

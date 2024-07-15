@@ -1,13 +1,25 @@
 <script>
     import Squelette from './Squelette.svelte'
+    import Loader from './Loader.svelte'
 
     /** @type {Set<string>} */
     export let authorizedEmailDomains
 
     /** @type {(email: string) => Promise<void>}  */
     export let envoiEmailConnexion
+    /** @type {string} */
     let email;
 
+    /**
+     * @type {Promise<void>}
+     */
+    let emailInProgress;
+
+    function onSubmit(){
+        emailInProgress = envoiEmailConnexion(email)
+    }
+
+    
 
 </script>
 
@@ -28,11 +40,23 @@
 
     <div class="fr-grid-row fr-pb-6w fr-grid-row--center">
         <div class="fr-col-6">
-            <form on:submit|preventDefault={() => envoiEmailConnexion(email)}>
+            <form on:submit|preventDefault={onSubmit}>
                 <label class="fr-label" for="email">Adresse email</label>
                 <input class="fr-input" autocomplete="email" type="email" id="email" bind:value={email}>
-                <button class="fr-btn">Obtenir un lien de connexion par email</button>
+                <button class="fr-btn">Obtenir un lien de connexion par email</button> 
+                {#if emailInProgress}
+                    {#await emailInProgress}
+                        <Loader/>
+                    {/await}
+                {/if}
             </form>
+            {#if emailInProgress}
+                <!-- svelte-ignore empty-block -->
+                {#await emailInProgress}
+                {:then}
+                    ✅ 📧 Vous devriez avoir reçu un email avec votre lien de connexion
+                {/await}
+            {/if}
         </div>
     </div>
 </Squelette>

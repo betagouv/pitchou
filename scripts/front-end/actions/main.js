@@ -34,6 +34,7 @@ export function init(){
                 return chargerDossiers()
             }
         })
+        .catch(() => logout())
 }
 
 export async function secretFromURL(){
