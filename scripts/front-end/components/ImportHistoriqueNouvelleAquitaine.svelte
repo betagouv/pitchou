@@ -1,6 +1,6 @@
 <script>
     //@ts-check
-    import {dsvFormat} from 'd3-dsv'
+    import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
 
     import Squelette from './Squelette.svelte'
 
@@ -9,8 +9,6 @@
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
     /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../types.js" */
-
-    const scsv = dsvFormat(';')
     
     export let email
 
@@ -45,16 +43,20 @@
                 (Array.isArray(candidat['Localisation']) && candidat['Localisation'].length >= 1)
             )
     }
-
+    
     $: if(fichiersImportRaw){
-        candidatsImportsSuiviNAP = fichiersImportRaw[0].text()
-            .then(scsv.parse)
-            .then(dossiers => dossiers.map(
-                dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement)
-            ))
+        candidatsImportsSuiviNAP = fichiersImportRaw[0].arrayBuffer()
+            .then(buffer => getODSTableRawContent(buffer))
+            .then(tableRaw => tableRaw.get("Dossiers en cours"))
+            .then(dossiers => {
+                const dossiersObject = sheetRawContentToObjects(dossiers)
+
+                return dossiersObject.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement))
+            })
             .then((/** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */ candidats) => 
                 candidats.filter(estImportable)
             )
+        
     }
     $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(console.log)
     $: if(candidatsImportsSuiviNAP) candidatsImportsMapP = candidatsImportsSuiviNAP.then(dossiers => 
@@ -70,7 +72,6 @@
     )
 
     $: if(candidatsImportsMapP) candidatsImportsMapP.then(console.log)
-
 </script>
 
 <Squelette {email}>
@@ -80,14 +81,14 @@
 
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col-8">
-                <h2>Importer un tableau CSV</h2>
+                <h2>Importer un tableau ODS</h2>
                 <p>
-                    Exportez le tableau de suivi Nouvelle Aquitaine au <strong>format .csv</strong> (utilisant le point-virgule 
+                    Exportez le tableau de suivi Nouvelle Aquitaine au <strong>format .ods</strong> (utilisant le point-virgule 
                     comme "séparateur de champ").
                 </p>
                 <label class="file">
-                    <strong>Importer le fichier .csv&nbsp;:</strong>
-                    <input bind:files={fichiersImportRaw} type="file" accept=".csv" class="fr-input">
+                    <strong>Importer le fichier .ods&nbsp;:</strong>
+                    <input bind:files={fichiersImportRaw} type="file" accept=".ods" class="fr-input">
                 </label>
             </div>
         </section>

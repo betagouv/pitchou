@@ -41,7 +41,7 @@ export default [
 		output: {
 			sourcemap: true,
 			format: 'es',
-			file: 'build/rollup-bundle-pitchou.js'
+			file: 'build/rollup-bundle-pitchou.js',
 		},
 		plugins: plugins({cssOutput: 'rollup-bundle-pitchou.css'}),
 		watch: {
