@@ -1,6 +1,17 @@
 <script>
+    import page from 'page'
+    import {logout} from '../actions/main.js'
+
+    function logoutAndRedirect(){
+        logout()
+        .then( () => page('/'))
+    }
+
+
     /** @type {boolean} */
     export let nav = true;
+
+    export let email = undefined;
 </script>
 
 <header class="fr-header">
@@ -25,19 +36,27 @@
                         </p>
                     </div>
                 </div>
-                <!--
+                
+                {#if email}
                 <div class="fr-header__tools">
                     <div class="fr-header__tools-links">
                         <ul class="fr-btns-group">
                             <li>
-                                <a class="fr-btn fr-icon-lock-line" href="[url - à modifier]">
+                                <button class="fr-btn fr-icon-lock-line" on:click={logoutAndRedirect}>
                                     Se déconnecter
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </div>
                 </div>
-                -->
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="fr-header__menu fr-modal" id="modal-2568" aria-labelledby="button-2569">
+        <div class="fr-container">
+            <button aria-controls="modal-2568" id="button-2571" title="Fermer" class="fr-btn--close fr-btn">Fermer</button>
+            <div class="fr-header__menu-links">
             </div>
         </div>
     </div>

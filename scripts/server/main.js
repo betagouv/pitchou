@@ -15,11 +15,6 @@ if(!PORT){
   throw new TypeError(`Variable d'environnement PORT manquante`)
 }
 
-const API_TOKEN = process.env.API_TOKEN
-if(!API_TOKEN){
-  throw new TypeError(`Variable d'environnement API_TOKEN manquante`)
-}
-
 const DEMARCHE_NUMBER = process.env.DEMARCHE_NUMBER
 if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
@@ -80,9 +75,9 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
     return créerPersonneOuMettreÀJourCodeAccès(email)
     .then(codeAccès => {
       const lienConnexion = `${request.headers.origin}/?secret=${codeAccès}`
-      // PPP enlever le return quand on enverra pour de vrai un email
       return envoyerEmailConnexion(email, lienConnexion)
     })
+    .then( () => reply.code(204).send() )
   }
 
 })

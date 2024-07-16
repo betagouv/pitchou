@@ -171,15 +171,19 @@ const démarcheDossierLabelToId = new Map([
 ])
 
 /**
- *  champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]&champ_Q2hhbXAtNDA0MTQ0MQ[][champ_Q2hhbXAtNDA0MTQ0Mw]=["01500", "01004"]
+ * Buggé, mais on sait pas encore pourquoi 
+ * Sûrement un bug côté Démarches Simplifiées
+ * https://mattermost.incubateur.net/betagouv/pl/tipfbemo1tfymr6qoguggag4gc
+ * 
  * @param {GeoAPICommune} _ 
  */
-function makeCommuneParam({ code, codesPostaux: [codePostal] }) {
+function makeCommuneParam({ code: codeInsee, codesPostaux: [codePostal] }) {
     const communeChamp = `champ_${démarcheDossierLabelToId.get('Commune(s) où se situe le projet')}`
     // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
     const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
+    const champCommuneRépétéURLParamKey = `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]`
 
-    return `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]=["${codePostal}", "${code}"]`
+    return `${champCommuneRépétéURLParamKey}=${encodeURIComponent(`["${codePostal}","${codeInsee}"]`)}`
 }
 
 /**
@@ -240,6 +244,10 @@ export function créerLienPréremplissageDémarche(dossierPartiel) {
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le demandeur est…')}`] = "une personne morale"
     }
 
+    if (dossierPartiel['Numéro de SIRET']) {
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Numéro de SIRET')}`] = dossierPartiel['Numéro de SIRET']
+    }
+
     if (typeof dossierPartiel[clefAE] === 'boolean') {
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get(clefAE)}`] =
             dossierPartiel[clefAE] ? 'true' : 'false'
@@ -269,24 +277,14 @@ export function créerLienPréremplissageDémarche(dossierPartiel) {
         if (Array.isArray(dossierPartiel['Commune(s) où se situe le projet']) && dossierPartiel['Commune(s) où se situe le projet'].length >= 1) {
             // Un tableau de dictionnaires avec les valeurs possibles pour chaque champ de la répétition.
             // champ_Q2hhbXAtNDA0MTQ0Mw: Un tableau contenant le code postal et le code INSEE de la commune
-            // Exemple 	[{"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}, {"champ_Q2hhbXAtNDA0MTQ0Mw"=>"[\"01500\", \"01004\"]"}] 
-
-            /*
-            throw `PPP
-            Ce code ne fonctionne pas pour le moment
-            https://mattermost.incubateur.net/betagouv/pl/77jbtccr17fjdjk794nu3y6kpo
-            https://mattermost.incubateur.net/betagouv/pl/nppj3hai1trg5qut8aqhkekdxh
-            `
 
             objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le projet se situe au niveau…')}`] = "d'une ou plusieurs communes"
 
             communesURLParam = dossierPartiel['Commune(s) où se situe le projet']
             .filter(commune => Object(commune) === commune)
+            // @ts-expect-error TypeScript ne comprend pas l'effet du filter
             .map(makeCommuneParam)
             .join('&')
-            */
-            
-            console.log('communesURLParam', communesURLParam)
         }
     }
 

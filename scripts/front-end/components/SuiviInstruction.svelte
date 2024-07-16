@@ -8,9 +8,11 @@
 
     console.log('dossiers', dossiers)
 
+    export let email
+
 </script>
 
-<Squelette>
+<Squelette {email}>
     <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
         <div class="fr-col">
 

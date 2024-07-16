@@ -34,6 +34,7 @@ export function init(){
                 return chargerDossiers()
             }
         })
+        .catch(() => logout())
 }
 
 export async function secretFromURL(){
@@ -52,5 +53,6 @@ export async function secretFromURL(){
 
 export async function logout(){
     store.mutations.setSecret(undefined)
+    store.mutations.setDossiers(undefined)
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }
