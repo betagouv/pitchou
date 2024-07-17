@@ -62,13 +62,14 @@ const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
 const dossiers = démarche.dossiers.nodes.map(({
-    id: id_demarches_simplifiées, 
+    number,
     dateDepot: date_dépôt, 
     state: statut, 
     demandeur,
     champs,
     annotations
 }) => {
+    const id_demarches_simplifiées = String(number)
 
     const espèces_protégées_concernées = champs.find(({id}) => id === pitchouKeyToChampDS["espèces_protégées_concernées"]).stringValue
 
@@ -254,7 +255,7 @@ dossiers.forEach(d => {
     Rajouter les entreprises demandeuses qui ne sont pas déjà en BDD
 */
 
-/** @type {Map<Entreprise['siret'], Entreprise} */
+/** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
 for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers){
