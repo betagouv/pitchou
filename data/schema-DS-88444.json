@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-07-03T16:35:25+02:00",
+    "dateDerniereModification": "2024-07-17T16:48:09+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://plop.fr",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTQ4NTk2",
-        "datePublication": "2024-06-12T15:11:54+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTUzOTAx",
+        "datePublication": "2024-07-17T16:46:36+02:00",
         "champDescriptors": [
             {
                 "__typename": "HeaderSectionChampDescriptor",
@@ -61,7 +61,7 @@
             {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwMA==",
-                "label": "Objet du projet",
+                "label": "Activité principale",
                 "description": "",
                 "required": false,
                 "options": [
@@ -90,7 +90,7 @@
                     "Plate-formes logistiques, centres commerciaux",
                     "Préservation de la sécurité et santé publique",
                     "Production énergie autre-projets liés au nucléaire",
-                    "Production énergie renouvelable - Eolien",
+                    "Production énergie renouvelable - Éolien",
                     "Production énergie renouvelable - Photovoltaïque",
                     "Production énergie renouvelable - Hydroélectricité",
                     "Production énergie renouvelable - Méthaniseur, biomasse",
@@ -106,7 +106,8 @@
                     "Transport hydrocarbures",
                     "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
                     "UTN (Unité Touristique Nouvelle)",
-                    "ZAC"
+                    "ZAC",
+                    "Autre"
                 ],
                 "otherOption": false
             },
@@ -164,11 +165,25 @@
                 "id": "Q2hhbXAtNDA4Mjk1OA==",
                 "label": "À quelle procédure le projet est-il soumis ?",
                 "description": "",
-                "required": true,
+                "required": false,
                 "options": [
                     "Autorisation ICPE",
                     "Autorisation loi sur l'eau"
                 ]
+            },
+            {
+                "__typename": "CheckboxChampDescriptor",
+                "id": "Q2hhbXAtNDA0MDgyMQ==",
+                "label": "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDA0MDgyNg==",
+                "label": "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet",
+                "description": "",
+                "required": false
             },
             {
                 "__typename": "DropDownListChampDescriptor",
@@ -189,6 +204,55 @@
             },
             {
                 "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODY3NA==",
+                "label": "Votre demande concerne t'elle :",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Suivi de mortalité pour un parc éolien",
+                    "Autre"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM3NTk0Ng==",
+                "label": "Votre demande concerne t'elle ?",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Destruction de nids d'Hirondelles",
+                    "Autre"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM3NTk0Nw==",
+                "label": "Votre demande concerne t'elle ?",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Destruction de nids de Cigognes",
+                    "Autre"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "MultipleDropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM2NzY1NQ==",
+                "label": "Précisez, votre demande concerne :",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Une/des capture(s)/relâcher(s) immédiat(s) sur place sans marquage",
+                    "Une/des capture(s)/relâcher(s) immédiat(s) sur place avec marquage",
+                    "Prélèvement de matériel biologique",
+                    "Autre cas"
+                ]
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDAzMzk0OA==",
                 "label": "Précisez",
                 "description": "",
@@ -203,25 +267,24 @@
                 "otherOption": false
             },
             {
-                "__typename": "CheckboxChampDescriptor",
-                "id": "Q2hhbXAtNDA0MDgyMQ==",
-                "label": "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation",
+                "__typename": "MultipleDropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM2Nzc5Ng==",
+                "label": "Finalité(s) de la demande",
                 "description": "",
-                "required": false
+                "required": false,
+                "options": [
+                    "Pour établissement public ayant une activité de recherche, pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre d'études scientifiques",
+                    "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'évaluation préalable et du suivi des impacts sur la biodiversité de projets de travaux, d'ouvrages et d'aménagements",
+                    "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'élaboration ou du suivi de plans, de schémas, de programmes ou d'autres documents de planification nécessitant l'acquisition de connaissances ou visant à la préservation du patrimoine naturel prévus par des dispositions du code de l'environnement."
+                ]
             },
             {
-                "__typename": "TextareaChampDescriptor",
-                "id": "Q2hhbXAtNDA0MDgyNg==",
-                "label": "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet",
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDM2NzgwNQ==",
+                "label": "Joindre les pièces justifiant de la finalité de la demande",
                 "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextareaChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzQwNA==",
-                "label": "Détails du programme d’activité",
-                "description": "",
-                "required": false
+                "required": false,
+                "fileTemplate": null
             },
             {
                 "__typename": "HeaderSectionChampDescriptor",
@@ -245,6 +308,13 @@
                 "required": false
             },
             {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODA0NA==",
+                "label": "Identification du projet",
+                "description": "",
+                "required": false
+            },
+            {
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtNDE0OTExNQ==",
                 "label": "Nom du projet",
@@ -252,9 +322,110 @@
                 "required": false
             },
             {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzQwNA==",
+                "label": "Description synthétique du projet",
+                "description": "",
+                "required": false
+            },
+            {
                 "__typename": "YesNoChampDescriptor",
                 "id": "Q2hhbXAtMzkyMzYyNA==",
-                "label": "Cette demande concerne un programme déjà existant",
+                "label": "Cette demande concerne un programme de suivi déjà existant",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtMzkyMzY1Ng==",
+                "label": "Joindre le bilan des opérations antérieures",
+                "description": "",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "YesNoChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODcwOQ==",
+                "label": "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODcxMA==",
+                "label": "Précisez ces mesures :",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODcxMQ==",
+                "label": "Ajoutez un fichier décrivant ces mesures complémentaires :",
+                "description": "",
+                "required": true,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODY5NQ==",
+                "label": "Description du parc éolien concerné",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODY5Ng==",
+                "label": "Année de mise en service",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODY5Nw==",
+                "label": "Nombre d'éoliennes",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DecimalNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODY5OA==",
+                "label": "Hauteur totale bout de pale (m)",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DecimalNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODY5OQ==",
+                "label": "Diamètre du rotor (m)",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DecimalNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODcwMQ==",
+                "label": "Garde au sol (m)",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODcwMg==",
+                "label": "Plan des installations",
+                "description": "",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODE2NA==",
+                "label": "Lieu et période de l'opération",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODU4NA==",
+                "label": "Localisation",
                 "description": "",
                 "required": false
             },
@@ -328,37 +499,197 @@
                 ]
             },
             {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODE3Mw==",
+                "label": "Précisez le périmètre d'intervention (si besoin)",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODE3Nw==",
+                "label": "Joindre une carte du périmètre d'intervention si besoin",
+                "description": "",
+                "required": true,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODU4Mw==",
+                "label": "Période",
+                "description": "",
+                "required": false
+            },
+            {
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQ3NA==",
                 "label": "Date de début d’intervention",
-                "description": "",
+                "description": "Suivi écologique, chantier...",
                 "required": false
             },
             {
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtMzkyMzYyNg==",
                 "label": "Date de fin d’intervention",
+                "description": "Suivi écologique, chantier...",
+                "required": false
+            },
+            {
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM3NDY3MA==",
+                "label": "Durée de la dérogation",
+                "description": "(en années)",
+                "required": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODA3NQ==",
+                "label": "Modalités de l'opération",
                 "description": "",
                 "required": false
             },
             {
-                "__typename": "DateChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzUwMg==",
-                "label": "Date de début de chantier",
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODcxMg==",
+                "label": "Description du protocole de suivi",
                 "description": "",
                 "required": false
             },
             {
-                "__typename": "DateChampDescriptor",
-                "id": "Q2hhbXAtMzkyMzYzMQ==",
-                "label": "Date de fin de chantier",
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY2MQ==",
+                "label": "Nombre d'éoliennes à suivre",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY2Mw==",
+                "label": "Période des inventaires terrain",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY2Nw==",
+                "label": "Nombre de passages pendant le suivi",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY2OQ==",
+                "label": "Nombre de passages par semaine de suivi",
+                "description": "",
+                "required": true
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY3MQ==",
+                "label": "Pièces jointes décrivant précisément le protocole qui sera mis en place",
+                "description": "",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "MultipleDropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY3Mg==",
+                "label": "Votre demande de dérogation concerne :",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Transport des individus blessés vers un centre de soin",
+                    "Transport des cadavres pour analyse au bureau",
+                    "Envoi des cadavres collectés vers le MNHN/UMR CESCO pour abonder au programme de veille sanitaire"
+                ]
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY3Ng==",
+                "label": "Précisions sur le transport des cadavres pour analyse au bureau",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY3OA==",
+                "label": "Description du mode de collecte sur le terrain",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY3OQ==",
+                "label": "Méthode de conservation",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "AddressChampDescriptor",
+                "id": "Q2hhbXAtNDM3MjY4MQ==",
+                "label": "Adresse des locaux où seront examinés les cadavres",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "MultipleDropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODA4Mw==",
+                "label": "En cas de nécessité de capture d'individus, précisez le mode de capture",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Manuelle",
+                    "Au filet",
+                    "Avec épuisette",
+                    "Autre moyen de capture (préciser)"
+                ]
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODEwMg==",
+                "label": "Préciser le(s) autre(s) moyen(s) de capture",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "YesNoChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODEwOQ==",
+                "label": "Utilisez-vous des sources lumineuses ?",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODEyMg==",
+                "label": "Précisez les modalités de l'utilisation des sources lumineuses",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODEzMA==",
+                "label": "Précisez les modalités de marquage pour chaque taxon",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODEzNQ==",
+                "label": "Précisez les modalités de transport et la destination concernant la collecte de matériel biologique",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODE1MA==",
+                "label": "Personnes amenées à intervenir",
                 "description": "",
                 "required": false
             },
             {
                 "__typename": "RepetitionChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQ3Ng==",
-                "label": "Qualification des personnes amenées à intervenir",
+                "label": "Qualification des intervenants",
                 "description": "",
                 "required": false,
                 "champDescriptors": [
@@ -388,23 +719,36 @@
             },
             {
                 "__typename": "TextareaChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzQ5OQ==",
-                "label": "Modalités techniques de l'intervention",
+                "id": "Q2hhbXAtNDM2ODE1Ng==",
+                "label": "Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)",
                 "description": "",
                 "required": false
             },
             {
-                "__typename": "PieceJustificativeChampDescriptor",
-                "id": "Q2hhbXAtMzkyMzY1Ng==",
-                "label": "Bilan d'opérations antérieures",
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM3Mjc3NQ==",
+                "label": "Mesures d'évitement, réduction et/ou compensation",
                 "description": "",
-                "required": false,
-                "fileTemplate": null
+                "required": false
             },
             {
-                "__typename": "TextareaChampDescriptor",
-                "id": "Q2hhbXAtMzkyMzY2OA==",
-                "label": "Description succincte du projet",
+                "__typename": "YesNoChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzUwOQ==",
+                "label": "Des mesures ERC sont-elles prévues ?",
+                "description": "en particulier mesures de bridage dans le cas de suivi mortalité éolien",
+                "required": false
+            },
+            {
+                "__typename": "IntegerNumberChampDescriptor",
+                "id": "Q2hhbXAtNDM3NjA4Nw==",
+                "label": "Indiquer le nombre de nids artificiels posés en compensation",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODIzMQ==",
+                "label": "Pièces jointes",
                 "description": "",
                 "required": false
             },
@@ -417,18 +761,88 @@
                 "fileTemplate": null
             },
             {
-                "__typename": "YesNoChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzUwOQ==",
-                "label": "Mesures d'évitement, réduction et/ou compensation",
+                "__typename": "RepetitionChampDescriptor",
+                "id": "Q2hhbXAtNDM2ODI2OA==",
+                "label": "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande",
                 "description": "",
-                "required": false
+                "required": false,
+                "champDescriptors": [
+                    {
+                        "__typename": "PieceJustificativeChampDescriptor",
+                        "id": "Q2hhbXAtNDM2ODI3MA==",
+                        "label": "PJ",
+                        "description": "",
+                        "required": false,
+                        "fileTemplate": null
+                    }
+                ]
             }
         ],
         "annotationDescriptors": [
             {
                 "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM4MDE5MA==",
+                "label": "Identification du projet",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtNDM3OTk5Mg==",
+                "label": "Nom du porteur de projet",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtNDM3OTk5NA==",
+                "label": "Localisation du projet",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
+                "required": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM3NTA2Mg==",
+                "label": "DDEP",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM2MTc3Ng==",
+                "label": "DDEP nécessaire ?",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Oui",
+                    "Non",
+                    "A déterminer"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDM3NDc3Ng==",
+                "label": "Statut du dossier",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDM3NDc2Nw==",
+                "label": "Dossier en attente de",
+                "description": "Ce champ permet de prioriser les dossiers",
+                "required": false,
+                "options": [
+                    "Action Instructeur",
+                    "Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4MQ==",
-                "label": "ENJEUX",
+                "label": "Enjeux",
                 "description": "",
                 "required": false
             },
@@ -456,7 +870,7 @@
             {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4Mw==",
-                "label": "INSTRUCTION DDEP",
+                "label": "Instruction DDEP",
                 "description": "",
                 "required": false
             },
@@ -501,7 +915,7 @@
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtNDE0NzgzMQ==",
                 "label": "N° Demande ONAGRE",
-                "description": "",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false
             },
             {
@@ -537,7 +951,7 @@
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtNDE0ODM2OQ==",
                 "label": "Date avis CSRPN",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
+                "description": "",
                 "required": false
             },
             {
@@ -571,7 +985,7 @@
             {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4Nw==",
-                "label": "CONSULTATION DU PUBLIC",
+                "label": "Consultation du public",
                 "description": "",
                 "required": false
             },
@@ -585,7 +999,7 @@
             {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4OA==",
-                "label": "DECISION",
+                "label": "Décision",
                 "description": "",
                 "required": false
             },
@@ -593,7 +1007,7 @@
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDE0MTk1Ng==",
                 "label": "Décision",
-                "description": "",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false,
                 "options": [
                     "AP dérogation",
@@ -613,7 +1027,7 @@
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtNDE0MTk1Mw==",
                 "label": "Référence de l'AP",
-                "description": "",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false
             },
             {
@@ -627,14 +1041,14 @@
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtNDE0MTk1NQ==",
                 "label": "Référence de l'AM",
-                "description": "",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false
             },
             {
                 "__typename": "PieceJustificativeChampDescriptor",
                 "id": "Q2hhbXAtNDE0ODk0Nw==",
                 "label": "AP/AM",
-                "description": "",
+                "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false,
                 "fileTemplate": null
             }

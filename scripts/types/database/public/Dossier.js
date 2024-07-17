@@ -23,6 +23,8 @@
  * @property {string | null} number_demarches_simplifiées
  * @property {string | null} historique_nom_porteur
  * @property {string | null} historique_localisation
+ * @property {string | null} ddep_nécessaire
+ * @property {string | null} en_attente_de
  * @property {boolean | null} enjeu_politique
  * @property {string | null} commentaire
  * @property {Date | null} historique_date_réception_ddep
@@ -59,6 +61,8 @@
  * @property {string | null} [number_demarches_simplifiées]
  * @property {string | null} [historique_nom_porteur]
  * @property {string | null} [historique_localisation]
+ * @property {string | null} [ddep_nécessaire]
+ * @property {string | null} [en_attente_de]
  * @property {boolean | null} [enjeu_politique]
  * @property {string | null} [commentaire]
  * @property {Date | null} [historique_date_réception_ddep]
@@ -95,6 +99,8 @@
  * @property {string | null} [number_demarches_simplifiées]
  * @property {string | null} [historique_nom_porteur]
  * @property {string | null} [historique_localisation]
+ * @property {string | null} [ddep_nécessaire]
+ * @property {string | null} [en_attente_de]
  * @property {boolean | null} [enjeu_politique]
  * @property {string | null} [commentaire]
  * @property {Date | null} [historique_date_réception_ddep]

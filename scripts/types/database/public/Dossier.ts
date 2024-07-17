@@ -39,6 +39,10 @@ export default interface Dossier {
 
   historique_localisation: string | null;
 
+  ddep_nécessaire: string | null;
+
+  en_attente_de: string | null;
+
   enjeu_politique: boolean | null;
 
   commentaire: string | null;
@@ -107,6 +111,10 @@ export interface DossierInitializer {
 
   historique_localisation?: string | null;
 
+  ddep_nécessaire?: string | null;
+
+  en_attente_de?: string | null;
+
   enjeu_politique?: boolean | null;
 
   commentaire?: string | null;
@@ -173,6 +181,10 @@ export interface DossierMutator {
   historique_nom_porteur?: string | null;
 
   historique_localisation?: string | null;
+
+  ddep_nécessaire?: string | null;
+
+  en_attente_de?: string | null;
 
   enjeu_politique?: boolean | null;
 

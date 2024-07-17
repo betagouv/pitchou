@@ -5,12 +5,15 @@
 export function up(knex) {
     return knex.schema.alterTable('dossier', (table) => {
         // nom du projet
-        table.string('nom')
-        table.string('number_demarches_simplifiées')
+        table.string('nom', (2**10)-1)
+        table.bigint('number_demarches_simplifiées')
 
         // annotations privées
         table.string('historique_nom_porteur')
         table.string('historique_localisation')
+
+        table.string('ddep_nécessaire')
+        table.string('en_attente_de')
 
         table.boolean('enjeu_politique')
 
@@ -64,6 +67,9 @@ export function down(knex) {
 
         table.dropColumn('historique_nom_porteur')
         table.dropColumn('historique_localisation')
+
+        table.dropColumn('ddep_nécessaire')
+        table.dropColumn('en_attente_de')
 
         table.dropColumn('enjeu_politique')
 

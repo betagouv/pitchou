@@ -79,6 +79,10 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 `node --env-file=.env outils/sync-démarches-simplifiées.js`
 
+ou, en dev, depuis le container du serveur : 
+
+`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js`
+
 ### Fabriquer le JSON de la liste des groupes d'espèces
 
 `node outils/groupes-espèces.js`

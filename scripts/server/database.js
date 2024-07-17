@@ -132,7 +132,7 @@ export function listAllDossiersComplets() {
             "statut", 
             "date_dépôt",
             "espèces_protégées_concernées", 
-            "enjeu_écologiques", 
+            "enjeu_écologique", 
             // localisation
             "départements", 
             "communes", 
