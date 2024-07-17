@@ -57,11 +57,11 @@ page('/', async () => {
             .catch(err => {
                 if(err.message.includes('403')){
                     console.info('Invalid token. Logout.')
+                    logout().then(showLoginByEmail)
                 }
                 else{
                     console.error('Erreur de chargement des dossiers', err)
                 }
-                logout().then(showLoginByEmail)
             })
     }
 
