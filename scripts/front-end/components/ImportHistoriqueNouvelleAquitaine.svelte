@@ -9,10 +9,17 @@
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
     /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../types.js" */
+    /** @import {default as Dossier} from "../../types/database/public/Dossier.ts" */
+    /** @import {DossierComplet} from '../../server/database.js' */
+
     
     export let email
 
-    //export let dossiers
+    /** @type {DossierComplet[]} */
+    export let dossiers
+    $: dossiersStoackésEnBaseDeDonnées = dossiers
+
+    $: console.log('dossiersStoackésEnBaseDeDonnées', dossiersStoackésEnBaseDeDonnées)
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     export let nomToCommune
@@ -28,8 +35,8 @@
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
     let candidatsImportsSuiviNAP
-    /** @type {Promise< Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} > >} */
-    let candidatsImportsMapP
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    let candidatsImportsMap
 
     /**
      * 
@@ -49,6 +56,7 @@
             .then(buffer => getODSTableRawContent(buffer))
             .then(tableRaw => tableRaw.get("Dossiers en cours"))
             .then(dossiers => {
+                /** @type {DossierTableauSuiviNouvelleAquitaine2023[]} */
                 const dossiersObject = sheetRawContentToObjects(dossiers)
 
                 return dossiersObject.map(dossier => toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune, stringToDépartement))
@@ -58,9 +66,9 @@
             )
         
     }
-    $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(console.log)
-    $: if(candidatsImportsSuiviNAP) candidatsImportsMapP = candidatsImportsSuiviNAP.then(dossiers => 
-        new Map( dossiers.map(d => {
+    
+    $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(dossiers => 
+        candidatsImportsMap = new Map( dossiers.map(d => {
             return [
                 d, 
                 {
@@ -71,7 +79,50 @@
         }))
     )
 
-    $: if(candidatsImportsMapP) candidatsImportsMapP.then(console.log)
+    $: console.log('candidatsImportsMap', candidatsImportsMap)
+
+
+    /**
+     * 
+     * @param {Dossier} dossier
+     * @returns {boolean}
+     */
+    function dossierHasAnnotations(dossier){
+        return false && dossier;
+    }
+    
+    // Dossiers reconnus
+
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    let candidatsDossierÀCréer
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    let candidatsAnnotationsÀAjouter
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    let candidatsDossiersComplet
+
+    $: if(candidatsImportsMap && dossiersStoackésEnBaseDeDonnées) {
+        candidatsDossierÀCréer = new Map()
+        candidatsAnnotationsÀAjouter = new Map()
+        candidatsDossiersComplet = new Map()
+
+        for(const [dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444}] of candidatsImportsMap){
+            const nomProjetDossierCandidat = dossierPartiel88444['Nom du projet']
+            const dossierEnBaseDeDonnéeCorrespondant = dossiersStoackésEnBaseDeDonnées.find(d => d.nom_dossier === nomProjetDossierCandidat)
+
+            if(!dossierEnBaseDeDonnéeCorrespondant){
+                candidatsDossierÀCréer.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
+            }
+            else{
+                if(!dossierHasAnnotations(dossierEnBaseDeDonnéeCorrespondant)){
+                    candidatsAnnotationsÀAjouter.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
+                }
+                else{
+                    candidatsDossiersComplet.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
+                }
+            }
+        }
+    }
+
 </script>
 
 <Squelette {email}>
@@ -80,11 +131,11 @@
         <h1>Import dossiers historiques</h1>
 
         <section class="fr-grid-row fr-mb-6w">
-            <div class="fr-col-8">
-                <h2>Importer un tableau ODS</h2>
+            <div class="fr-col">
+                <h2>Importer le Tableau de suivi DREP 2023 au format .ods</h2>
                 <p>
-                    Exportez le tableau de suivi Nouvelle Aquitaine au <strong>format .ods</strong> (utilisant le point-virgule 
-                    comme "séparateur de champ").
+                    Télécharger le tableau de suivi Nouvelle-Aquitaine au <strong>format .ods</strong>.<br>
+                    Sur Google Spreadsheet, suivre <code>Fichier</code> ➡️ <code>Télécharger</code> ➡️ <code>OpenDocument (.ods)</code>
                 </p>
                 <label class="file">
                     <strong>Importer le fichier .ods&nbsp;:</strong>
@@ -94,17 +145,17 @@
         </section>
 
 
-        {#await candidatsImportsMapP}
+        {#await candidatsImportsSuiviNAP}
         <section class="fr-grid-row fr-mb-6w">
             <div class="fr-col">
                 (en chargement)
             </div>
         </section>
-        {:then candidatsImportsMap} 
-        <section class="fr-grid-row fr-mb-6w">
-            <div class="fr-col">
-                {#if candidatsImportsMap}
-                    <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsImportsMap.size}) </h2>
+        {:then} 
+            {#if candidatsDossierÀCréer}
+            <section class="fr-grid-row fr-mb-6w">
+                <div class="fr-col">
+                    <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsDossierÀCréer.size}) </h2>
                     <details>
                         <summary>Aide commune/département non-reconnu</summary>
                         <p>
@@ -136,7 +187,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {#each [...candidatsImportsMap.values()] as {dossier, annotations}}
+                            {#each [...candidatsDossierÀCréer.values()] as {dossier}}
                                 <tr>
                                     <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
                                     <td>
@@ -186,35 +237,73 @@
                             </tbody>
                         </table>
                     </div>
-                {/if}
-            </div>
-        </section>
+                </div>
+            </section>
+            {/if}
 
-        {#if candidatsImportsMap}
+            {#if candidatsAnnotationsÀAjouter}
+            <section class="fr-grid-row fr-mb-6w">
+                <div class="fr-col">
+                    <h2>Dossiers sur lesquels ajouter des annotations privées ({candidatsAnnotationsÀAjouter.size})</h2>
+                    
+                    <div class="fr-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Département principale</th>
+                                    <th>Porteur de projet</th>
+                                    <th>Nom du projet</th>
+                                    <th>Annoations privées</th>
+                                    <th>Ajouter les annotations privées</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {#each [...candidatsAnnotationsÀAjouter.values()] as {dossier, annotations}}
+                                <tr>
+                                    <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
+                                    <td>
+                                        <strong>{dossier['Porteur de projet']}</strong> 
+                                        {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
+                                        {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
+                                            <br>
+                                            <em>Contact</em><br>
+                                            {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
+                                            {#if dossier['Adresse mail de contact']}
+                                                <br>
+                                                {dossier['Adresse mail de contact']}
+                                            {/if}
+                                        {/if}
+                                    </td>
+                                    <td>{dossier['Nom du projet']}</td>
+                                    <td>
+                                        x
+                                    </td>
+                                    <td><button disabled>Ajouter</button></td>
+                                </tr>
+                            {/each}
+                            </tbody>
+                        </table>
+                    </div>
 
-        <section class="fr-grid-row fr-mb-6w">
-            <div class="fr-col">
-                <h2>Ajouter des annotations privées à un dossier</h2>
-                <strong>
-                    PPP: Pour toutes les données dans le tableau, proposer d'affecter les données à un dossier dans DS
-                        Essayer de retrouver le dossier avec le même algo (nom de projet, porteur, représentant)
-                </strong>
-            </div>
-        </section>
+                </div>
+            </section>
+            {/if}
 
-        <section class="fr-grid-row fr-mb-6w">
-            <div class="fr-col">
-                <h2>Dossiers créés dans Démarches Simplifiées, avec annotations privées</h2>
-                <strong>
-                    PPP: Tableau replié
-                        Les dossiers sont reconnus d'abord par nom de projet
-                        puis par nom de porteur (si unique)
-                        puis par nom de représentant (si unique)
-                </strong>
-            </div>
-        </section>
-
-        {/if}
+            {#if candidatsDossiersComplet}
+            <section class="fr-grid-row fr-mb-6w">
+                <div class="fr-col">
+                    <h2>Dossiers créés dans Démarches Simplifiées, avec annotations privées ({candidatsDossiersComplet.size})</h2>
+                    <!--
+                    <strong>
+                        PPP: Tableau replié
+                            Les dossiers sont reconnus d'abord par nom de projet
+                            puis par nom de porteur (si unique)
+                            puis par nom de représentant (si unique)
+                    </strong>
+                    -->
+                </div>
+            </section>
+            {/if}
         {/await}
 
     </article>
@@ -233,6 +322,10 @@
             .non-reconnu{
                 text-decoration: underline dotted;
             }
+        }
+
+        p code {
+            font-weight: bold;
         }
     }
 </style>

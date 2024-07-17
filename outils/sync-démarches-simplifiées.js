@@ -5,9 +5,9 @@ import { formatISO } from 'date-fns';
 import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
 
-/** @typedef {import('../scripts/types/database/public/Dossier.js').default} Dossier */
-/** @typedef {import('../scripts/types/database/public/Personne.js').default} Personne */
-/** @typedef {import('../scripts/types/database/public/Entreprise.js').default} Entreprise */
+/** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
+/** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
+/** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 
 // récups les données de DS
 
@@ -31,7 +31,7 @@ if(!DATABASE_URL){
 const démarche = await recupérerDossiersRécemmentModifiés({
     token: DEMARCHE_SIMPLIFIEE_API_TOKEN, 
     démarcheId: DEMARCHE_NUMBER, 
-    updatedSince: formatISO(new Date(2020, 1, 22))
+    updatedSince: formatISO(new Date(2024, 1, 1))
 })
 
 //console.log('démarche', démarche)
@@ -45,7 +45,7 @@ console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
 
 const pitchouKeyToChampDS = {
     "SIRET": "Q2hhbXAtMzg5NzM5NA==",
-    "Nom-Prénom": "Q2hhbXAtMzg5NzM1NA==",
+    "Nom du projet": "Q2hhbXAtNDE0OTExNQ==",
     "espèces_protégées_concernées": 'Q2hhbXAtMzg5NzQwNQ==',
     "communes": 'Q2hhbXAtNDA0MTQ0MQ==',
     "départements" : 'Q2hhbXAtNDA0MTQ0NQ==',
@@ -53,8 +53,44 @@ const pitchouKeyToChampDS = {
     "Le projet se situe au niveau…": 'Q2hhbXAtMzg5NzQwOA=='
 }
 
+/*
+
+Avec l'aide de 
+ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema')
+    .then(r => r.json())
+    .then(schema => JSON.stringify(Object.fromEntries(schema.revision.annotationDescriptors
+        .filter(c => c.__typename !== 'HeaderSectionChampDescriptor')
+        .map(({id, label}) => [label, id])), null, 4
+    )) 
+
+ */
+
 const pitchouKeyToAnnotationDS = {
-    "enjeu_écologiques": "Q2hhbXAtNDAwMTQ3MQ=="
+    "Nom du porteur de projet": "Q2hhbXAtNDM3OTk5Mg==",
+    "Localisation du projet": "Q2hhbXAtNDM3OTk5NA==",
+    "DDEP nécessaire ?": "Q2hhbXAtNDM2MTc3Ng==",
+    "Dossier en attente de": "Q2hhbXAtNDM3NDc2Nw==",
+    "Enjeu écologique": "Q2hhbXAtNDAwMTQ3MQ==",
+    "Enjeu politique": "Q2hhbXAtNDA5ODY5NQ==",
+    "Commentaires sur les enjeux et la procédure": "Q2hhbXAtNDA5ODY5Ng==",
+    "Date de réception DDEP": "Q2hhbXAtNDE0NzgzMg==",
+    "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
+    "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzgzMw==",
+    "Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
+    "N° Demande ONAGRE": "Q2hhbXAtNDE0NzgzMQ==",
+    "Saisine de l'instructeur": "Q2hhbXAtNDI2NDUwMQ==",
+    "Date saisine CSRPN": "Q2hhbXAtNDE0ODM2Nw==",
+    "Date saisine CNPN": "Q2hhbXAtNDI2MDQ3Ng==",
+    "Date avis CSRPN": "Q2hhbXAtNDE0ODM2OQ==",
+    "Date avis CNPN": "Q2hhbXAtNDI2MDQ3Nw==",
+    "Avis CSRPN/CNPN": "Q2hhbXAtNDE0ODk0NQ==",
+    "Date de début de la consultation du public ou enquête publique": "Q2hhbXAtNDE0MTM0Mg==",
+    "Décision": "Q2hhbXAtNDE0MTk1Ng==",
+    "Date de signature de l'AP": "Q2hhbXAtNDE0MTk1Mg==",
+    "Référence de l'AP": "Q2hhbXAtNDE0MTk1Mw==",
+    "Date de l'AM": "Q2hhbXAtNDE0MTk1NA==",
+    "Référence de l'AM": "Q2hhbXAtNDE0MTk1NQ==",
+    "AP/AM": "Q2hhbXAtNDE0ODk0Nw=="
 }
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
@@ -62,21 +98,61 @@ const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
 const dossiers = démarche.dossiers.nodes.map(({
-    id: id_demarches_simplifiées, 
+    id: id_demarches_simplifiées,
+    number,
     dateDepot: date_dépôt, 
     state: statut, 
     demandeur,
     champs,
     annotations
 }) => {
+    /**
+     * Meta données
+     */
+    const number_demarches_simplifiées = number
 
-    const espèces_protégées_concernées = champs.find(({id}) => id === pitchouKeyToChampDS["espèces_protégées_concernées"]).stringValue
+    /*
+        Déposant 
+
+        Le déposant est la personne qui dépose le dossier sur DS
+        Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique 
+        qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose 
+        le dossier
+        Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur
+
+        Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" 
+        (qui est différent de notre "demandeur")
+
+    */
+    /** @type {PersonneInitializer} */
+    let déposant;
+    {
+        const {prenom: prénoms, nom, email} = demandeur
+        déposant = {
+            prénoms,
+            nom,
+            email: email === '' ? undefined : email
+        }
+    }
+
+    /** 
+     * Champs 
+     */
+    /** @type {Map<string, any>} */
+    const champById = new Map()
+    for(const champ of champs){
+        champById.set(champ.id, champ)
+    }
+
+    const nom = champById.get(pitchouKeyToChampDS['Nom du projet']).stringValue
+    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS['espèces_protégées_concernées']).stringValue
+
 
     /* localisation */
-    const projetSitué = champs.find(({id}) => id === pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
-    const champCommunes = champs.find(({id}) => id === pitchouKeyToChampDS["communes"])
-    const champDépartements = champs.find(({id}) => id === pitchouKeyToChampDS["départements"])
-    const champRégions = champs.find(({id}) => id === pitchouKeyToChampDS["régions"])
+    const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
+    const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
+    const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
+    const champRégions = champById.get(pitchouKeyToChampDS["régions"])
 
     let communes;
     let départements;
@@ -106,45 +182,19 @@ const dossiers = démarche.dossiers.nodes.map(({
         }
     }
 
-    const enjeu_écologiques = annotations.find(({id}) => id === pitchouKeyToAnnotationDS["enjeu_écologiques"]).stringValue
 
     /*
-    déposant 
-
-    Le déposant est la personne qui dépose le dossier sur DS
-    Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique 
-    qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose le dossier, 
-    Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur
-
-    Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" 
-    (qui est différent de notre "demandeur")
-
-    */
-
-    /** @type {import('../scripts/types/database/public/Personne.js').PersonneInitializer} */
-    let déposant;
-    {
-        const {prenom: prénoms, nom, email} = demandeur
-        déposant = {
-            prénoms,
-            nom,
-            email: email === '' ? undefined : email
-        }
-    }
-
-    /*
-        demandeur
+        Demandeur
      
         Personne physique ou morale qui formule la demande de dérogation espèces protégées
-
     */
 
-    /** @type {import('../scripts/types/database/public/Personne.js').PersonneInitializer | undefined} */
+    /** @type {PersonneInitializer | undefined} */
     let demandeur_personne_physique = undefined;
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
 
-    const SIRETChamp = champs.find(({id}) => id === pitchouKeyToChampDS["SIRET"])
+    const SIRETChamp = champById.get(pitchouKeyToChampDS["SIRET"])
     if(!SIRETChamp){
         demandeur_personne_physique = déposant;
     }
@@ -165,20 +215,87 @@ const dossiers = démarche.dossiers.nodes.map(({
     }
 
 
+    /** 
+     * Annotations privées 
+     */
+    /** @type {Map<string, any>} */
+    const annotationById = new Map()
+    for(const annotation of annotations){
+        annotationById.set(annotation.id, annotation)
+    }
+
+    const historique_nom_porteur = annotationById.get(pitchouKeyToAnnotationDS["Nom du porteur de projet"])?.stringValue
+    const historique_localisation = annotationById.get(pitchouKeyToAnnotationDS["Localisation du projet"])?.stringValue
+    const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS["DDEP nécessaire ?"])?.stringValue
+    const en_attente_de = annotationById.get(pitchouKeyToAnnotationDS["Dossier en attente de"])?.stringValue
+
+    const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu écologique"]).checked
+    const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu politique"]).checked
+    const commentaire = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).stringValue
+
+    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).date
+    const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS["Date d'envoi de la dernière contribution en lien avec l'instruction DDEP"]).date
+    const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS["N° Demande ONAGRE"]).stringValue
+
+    const historique_date_saisine_csrpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CSRPN"]).date
+    const historique_date_saisine_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CNPN"]).date
+    const date_avis_csrpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CSRPN"]).date
+    const date_avis_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CNPN"]).date
+    const avis_csrpn_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Avis CSRPN/CNPN"]).stringValue
+
+    const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS["Date de début de la consultation du public ou enquête publique"]).date
+
+    const historique_décision = annotationById.get(pitchouKeyToAnnotationDS["Décision"]).stringValue
+    const historique_date_signature_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS["Date de signature de l'AP"]).date
+    const historique_référence_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS["Référence de l'AP"]).stringValue
+    const historique_date_signature_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS["Date de l'AM"]).date
+    const historique_référence_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS["Référence de l'AM"]).stringValue
+
     return {
+        // méta-données
         id_demarches_simplifiées,
+        number_demarches_simplifiées,
+        nom,
         statut,
         date_dépôt,
+
+        // demandeur/déposant
         demandeur_personne_physique,
         demandeur_personne_morale,
         déposant,
         //représentant,
+
+        // champs
         espèces_protégées_concernées,
-        enjeu_écologiques,
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
-        régions: JSON.stringify(régions)
+        régions: JSON.stringify(régions),
+
+        // annotations privées
+        historique_nom_porteur,
+        historique_localisation,
+        ddep_nécessaire,
+        en_attente_de,
+
+        enjeu_écologique,
+        enjeu_politique,
+        commentaire,
+        
+        historique_date_réception_ddep,
+        historique_date_envoi_dernière_contribution,
+        historique_identifiant_demande_onagre,
+        historique_date_saisine_csrpn,
+        historique_date_saisine_cnpn,
+        date_avis_csrpn,
+        date_avis_cnpn,
+        avis_csrpn_cnpn,
+        date_consultation_public,
+        historique_décision,
+        historique_date_signature_arrêté_préfectoral,
+        historique_référence_arrêté_préfectoral,
+        historique_date_signature_arrêté_ministériel,
+        historique_référence_arrêté_ministériel
     }
     
 })
@@ -254,7 +371,7 @@ dossiers.forEach(d => {
     Rajouter les entreprises demandeuses qui ne sont pas déjà en BDD
 */
 
-/** @type {Map<Entreprise['siret'], Entreprise} */
+/** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
 for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers){
@@ -266,8 +383,6 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
         
         entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale)
     }
-    
-    
 }
 
 await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
@@ -278,14 +393,6 @@ await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
 dossiers.forEach(d => {
     d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
 })
-
-
-/*throw `PPP 
-    - le demandeur est une personne physique ou morale (foreign key)
-    - le représentant est une personne physique (foreign key)
-    - les instructeurs sont des personnes (foreign key)
-        - besoin de recup les groupes d'instructeurs de la démarche
-`*/
 
 
 

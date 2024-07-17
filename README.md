@@ -62,6 +62,8 @@ URL pour pgadmin en dev :
 
 `knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
 
+Pour revenir en arrière sur une migration : `knex migrate:down --env docker_dev`
+
 ### Fabriquer la liste des espèces protégées
 
 pour les autocomplete de saisie espèces notamment
@@ -76,6 +78,10 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 ### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
 
 `node --env-file=.env outils/sync-démarches-simplifiées.js`
+
+ou, en dev, depuis le container du serveur : 
+
+`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js`
 
 ### Fabriquer le JSON de la liste des groupes d'espèces
 

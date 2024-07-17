@@ -113,11 +113,17 @@ export function listAllDossier() {
 }
 
 /**
- * @typedef {Dossier} DossierComplet
+ * @typedef {Object} DossierComplément
+ * @property {string} nom_dossier
  * @property {string} déposant_nom
  * @property {string} déposant_prénoms
+ * @property {string} demandeur_personne_physique_nom
+ * @property {string} demandeur_personne_physique_prénoms
+ * @property {string} demandeur_personne_morale_raison_sociale
+ * @property {string} demandeur_personne_morale_siret
  * 
  */
+/** @typedef {Dossier & DossierComplément} DossierComplet */
 
 
 /**
@@ -129,14 +135,17 @@ export function listAllDossiersComplets() {
         .select([ 
             "dossier.id as id",
             "id_demarches_simplifiées", 
+            "number_demarches_simplifiées",
             "statut", 
             "date_dépôt",
+            "dossier.nom as nom_dossier",
             "espèces_protégées_concernées", 
-            "enjeu_écologiques", 
             // localisation
             "départements", 
             "communes", 
             "régions", 
+            // annotations privées
+            "enjeu_écologique", 
             // déposant
             "déposant.nom as déposant_nom",
             "déposant.prénoms as déposant_prénoms",

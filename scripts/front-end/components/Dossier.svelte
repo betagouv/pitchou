@@ -5,12 +5,18 @@
     
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    /** @type {import('../../types/database/public/Dossier.js').default} */
+    /** @import {DossierComplet} from '../../server/database.js' */
+
+    /** @type {DossierComplet} */
     export let dossier
 
-    const {date_dépôt, statut, déposant_nom} = dossier
+    const {date_dépôt, statut, déposant_nom, number_demarches_simplifiées: numdos} = dossier
 
     export let email
+
+    /*
+    <td><a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/17842913`}>Allé !</a></td>
+    */
 
 </script>
 
@@ -19,7 +25,7 @@
         <div class="fr-col">
 
             <article>
-                <h1>Dossier {dossier.id} - {statut}</h1>
+                <h1>Dossier {dossier.nom_dossier} - {statut}</h1>
 
                 <section>
                     <h2>Demandeur</h2>
@@ -49,6 +55,22 @@
 
                     <h3>Représentant du demandeur</h3>
                     (à faire)
+                </section>
+
+                <section>
+                    <h2>Sur Démarches Simplifiée</h2>
+
+                    <ul>
+                        <li>
+                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+                        </li>
+                        <li>
+                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
+                        </li>
+                        <li>
+                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
+                        </li>
+                    </ul>
                 </section>
 
             </article>

@@ -4,7 +4,7 @@ services:
     container_name: node_server
     depends_on:
       - db
-    restart: always
+    restart: on-failure:3
     ports:
       - "2648:2648"
     volumes:

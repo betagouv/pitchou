@@ -3,7 +3,9 @@
     import Squelette from './Squelette.svelte'
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative, formatDateAbsolue} from '../affichageDossier.js'
 
-    /** @type {import('../../types/database/public/Dossier.js').default[]} */
+    /** @import {DossierComplet} from '../../server/database.js' */
+
+    /** @type {DossierComplet[]} */
     export let dossiers = []
 
     console.log('dossiers', dossiers)
@@ -26,26 +28,24 @@
                             <th>Date de dépôt</th>
                             <th>Déposant</th>
                             <th>Demandeur de la dérogation</th>
+                            <th>Nom du projet</th>
                             <th>Localisation</th>
                             <th>Espèces protégées concernées, impacts, méthodes</th>
-                            <th>Enjeu écologique</th>
-                            <th>Dossier sur Démarche Simplifiée <strong>(pour de faux)</strong></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each dossiers as { id, statut, date_dépôt, déposant_nom, déposant_prénoms, demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret, espèces_protégées_concernées, enjeu_écologiques, communes, départements, régions }}
+                        {#each dossiers as { id, statut, nom_dossier, date_dépôt, déposant_nom, déposant_prénoms, demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret, espèces_protégées_concernées, communes, départements, régions }}
                             <tr>
                                 <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                 <td>{statut}</td>
                                 <td title={formatDateAbsolue(date_dépôt)}>{formatDateRelative(date_dépôt)}</td>
                                 <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
                                 <td>{formatDemandeur({demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret})}</td>
+                                <td>{nom_dossier || ''}</td>
                                 <td>{formatLocalisation({communes, départements, régions})}</td>
                                 <td>{#if espèces_protégées_concernées}
                                     <a href={espèces_protégées_concernées}>Espèces protégées concernées, impacts, méthodes</a>
                                 {/if}</td>
-                                <td>{enjeu_écologiques}</td>
-                                <td><a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/17842913`}>Allé !</a></td>
                             </tr>
                         {/each}
                     </tbody>
