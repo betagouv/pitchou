@@ -62,6 +62,8 @@ URL pour pgadmin en dev :
 
 `knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
 
+Pour revenir en arrière sur une migration : `knex migrate:down --env docker_dev`
+
 ### Fabriquer la liste des espèces protégées
 
 pour les autocomplete de saisie espèces notamment

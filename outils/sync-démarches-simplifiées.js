@@ -5,9 +5,9 @@ import { formatISO } from 'date-fns';
 import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
 
-/** @typedef {import('../scripts/types/database/public/Dossier.js').default} Dossier */
-/** @typedef {import('../scripts/types/database/public/Personne.js').default} Personne */
-/** @typedef {import('../scripts/types/database/public/Entreprise.js').default} Entreprise */
+/** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
+/** @import {default as Personne} from '../scripts/types/database/public/Personne.ts' */
+/** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 
 // récups les données de DS
 
@@ -62,6 +62,7 @@ const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
 const dossiers = démarche.dossiers.nodes.map(({
+    id: id_demarches_simplifiées,
     number,
     dateDepot: date_dépôt, 
     state: statut, 
@@ -69,7 +70,7 @@ const dossiers = démarche.dossiers.nodes.map(({
     champs,
     annotations
 }) => {
-    const id_demarches_simplifiées = String(number)
+    const number_demarches_simplifiées = String(number)
 
     const espèces_protégées_concernées = champs.find(({id}) => id === pitchouKeyToChampDS["espèces_protégées_concernées"]).stringValue
 
@@ -168,6 +169,7 @@ const dossiers = démarche.dossiers.nodes.map(({
 
     return {
         id_demarches_simplifiées,
+        number_demarches_simplifiées,
         statut,
         date_dépôt,
         demandeur_personne_physique,
@@ -267,8 +269,6 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
         
         entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale)
     }
-    
-    
 }
 
 await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
@@ -279,14 +279,6 @@ await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
 dossiers.forEach(d => {
     d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
 })
-
-
-/*throw `PPP 
-    - le demandeur est une personne physique ou morale (foreign key)
-    - le représentant est une personne physique (foreign key)
-    - les instructeurs sont des personnes (foreign key)
-        - besoin de recup les groupes d'instructeurs de la démarche
-`*/
 
 
 
