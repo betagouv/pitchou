@@ -1,6 +1,6 @@
 <script>
     //@ts-check
-    import '../../types.js'
+    import '../../../../types.js'
 
     /** @type {EspèceProtégée} */
     export let espèce

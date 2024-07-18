@@ -4,11 +4,11 @@ import page from 'page'
 
 import {csv, dsv, json} from 'd3-fetch'
 
-import LoginViaEmail from './components/LoginViaEmail.svelte';
-import SuiviInstruction from './components/SuiviInstruction.svelte';
-import SaisieEspèces from './components/SaisieEspèces.svelte';
-import Dossier from './components/Dossier.svelte';
-import ImportHistoriqueNouvelleAquitaine from './components/ImportHistoriqueNouvelleAquitaine.svelte';
+import LoginViaEmail from './components/screens/LoginViaEmail.svelte';
+import SuiviInstruction from './components/screens/SuiviInstruction.svelte';
+import SaisieEspèces from './components/screens/SaisieEspèces.svelte';
+import Dossier from './components/screens/Dossier.svelte';
+import ImportHistoriqueNouvelleAquitaine from './components/screens/ImportHistoriqueNouvelleAquitaine.svelte';
 
 import { replaceComponent } from './routeComponentLifeCycle.js'
 import store from './store.js'

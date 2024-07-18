@@ -1,10 +1,10 @@
 <script>
-    import Squelette from './Squelette.svelte'
-    import Loader from './Loader.svelte'
+    import Squelette from '../Squelette.svelte'
+    import Loader from '../Loader.svelte'
 
     /** @type {Set<string>} */
     export let authorizedEmailDomains
-
+s
     /** @type {(email: string) => Promise<void>}  */
     export let envoiEmailConnexion
     /** @type {string} */
