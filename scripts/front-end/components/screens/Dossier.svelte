@@ -1,11 +1,11 @@
 <script>
     //@ts-check
 
-    import Squelette from './Squelette.svelte'
+    import Squelette from '../Squelette.svelte'
     
-    import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
+    import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../server/database.js' */
+    /** @import {DossierComplet} from '../../../server/database.js' */
 
     /** @type {DossierComplet} */
     export let dossier
