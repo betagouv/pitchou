@@ -205,7 +205,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
      */
     const dossierConverti = {
         'Porteur de projet': dossier['Porteur de projet'],
-        'Le demandeur est…': '',
+        'Le demandeur est…': "une personne morale", // harcoder le pré-remplissage quand le dossier vient du tableau de suivi NA
         'Numéro de SIRET': dossier['SIRET'] && String(dossier['SIRET']) || '',
         'Qualification': '',
         'Adresse': '',

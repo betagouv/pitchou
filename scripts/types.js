@@ -215,7 +215,7 @@
  * 
  * @typedef {{
 *   'Porteur de projet': string,
-*   'Le demandeur est…': string,
+*   'Le demandeur est…': "une personne physique" | "une personne morale",
 *   'Numéro de SIRET': string,
 *   'Qualification': string,
 *   'Adresse': string,

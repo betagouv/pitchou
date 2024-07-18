@@ -240,10 +240,6 @@ export function créerLienPréremplissageDémarche(dossierPartiel) {
         }
     }
 
-    if (!dossierPartiel['Le demandeur est…']) {
-        objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Le demandeur est…')}`] = "une personne morale"
-    }
-
     if (dossierPartiel['Numéro de SIRET']) {
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get('Numéro de SIRET')}`] = dossierPartiel['Numéro de SIRET']
     }
