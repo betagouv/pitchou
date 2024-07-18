@@ -1,8 +1,8 @@
 <script>
     //@ts-check
     import Squelette from '../Squelette.svelte'
-    import AutocompleteEspeces from "./SaisieEspèces/AutocompleteEspèces.svelte"
-    import NomEspèce from "./SaisieEspèces/NomEspèce.svelte"
+    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import NomEspèce from "../NomEspèce.svelte"
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces';
