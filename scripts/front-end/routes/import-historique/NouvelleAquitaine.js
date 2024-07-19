@@ -26,7 +26,7 @@ export default async () => {
         json('https://geo.api.gouv.fr/communes'),
         json('https://geo.api.gouv.fr/departements'),
         csv('/data/import-historique/Nouvelle-Aquitaine/Correspondance Nom projet Objet projet.csv'),
-        json('/data/schema-DS-88444.json')
+        json('/data/démarches-simplifiées/schema-DS-88444.json')
     ])
 
     if(!communes){

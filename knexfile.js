@@ -7,7 +7,7 @@ export default {
 
   docker_dev: {
     client: 'postgresql',
-    connection: "postgresql://dev:dev_password@localhost:5432/principale",
+    connection: "postgresql://dev:dev_password@postgres_db:5432/principale",
     pool: {
       min: 2,
       max: 10
