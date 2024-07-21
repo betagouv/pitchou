@@ -4,7 +4,7 @@
 
     /** @type {Set<string>} */
     export let authorizedEmailDomains
-s
+
     /** @type {(email: string) => Promise<void>}  */
     export let envoiEmailConnexion
     /** @type {string} */
