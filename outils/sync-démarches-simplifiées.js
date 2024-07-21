@@ -8,6 +8,7 @@ import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupére
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
+/** @import {DossierDémarcheSimplifiée88444, DémarchesSimpliféesCommune} from '../scripts/types.js' */
 
 // récups les données de DS
 
@@ -149,16 +150,18 @@ const dossiers = démarche.dossiers.nodes.map(({
 
 
     /* localisation */
+    /** @type {DossierDémarcheSimplifiée88444['Le projet se situe au niveau…']} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
     const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
     const champRégions = champById.get(pitchouKeyToChampDS["régions"])
 
+    /** @type {DémarchesSimpliféesCommune[] | undefined} */
     let communes;
     let départements;
     let régions;
 
-    if(champCommunes){
+    if(projetSitué === `d'une ou plusieurs communes` && champCommunes){
         communes = champCommunes.rows.map(c => c.champs[0].commune).filter(x => !!x)
         
         if(Array.isArray(communes) && communes.length >= 1){
@@ -166,11 +169,11 @@ const dossiers = démarche.dossiers.nodes.map(({
         }
     }
     else{
-        if(champDépartements){
+        if(projetSitué === `d'un ou plusieurs départements` && champDépartements){
             départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement.code))]
         }
         else{
-            if(champRégions){
+            if(projetSitué === `d'une ou plusieurs régions` && champRégions){
                 régions = [... new Set(champRégions.rows.map(c => c.champs[0].stringValue))]
             }
             else{

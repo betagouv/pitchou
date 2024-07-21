@@ -5,7 +5,7 @@
     
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../server/database.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier

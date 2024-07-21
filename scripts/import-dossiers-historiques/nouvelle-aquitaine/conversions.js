@@ -2,7 +2,7 @@
 
 import { normalizeNomCommune, recoverDate } from "../../commun/typeFormat.js";
 
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, StringValues} from "../../types.js" */
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet, DémarchesSimpliféesCommune} from "../../types.js" */
 /** @import {_DossierTableauSuiviNouvelleAquitaine2023, DossierTableauSuiviNouvelleAquitaine2023} from "./types.js" */
 
 /**
@@ -201,37 +201,57 @@ function getDateRéception(dossier){
 }
 
 /**
+ * 
+ * @param {Dossier} dossierPitchou 
+ * @returns {boolean}
+ */
+function dossierHasValidLocation(dossierPitchou){
+    /** @type {DémarchesSimpliféesCommune[] | undefined} */
+    const communes = dossierPitchou.communes
+
+    const validCommunes = Array.isArray(communes) && communes.length >= 1
+
+
+    
+}
+
+/**
  * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers AnnotationsPrivéesDémarcheSimplifiée88444.
- * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
+ * @param {DossierTableauSuiviNouvelleAquitaine2023} dossierTableauSuivi 
+ * @param {DossierComplet} dossierPitchou 
  * @returns {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
  */
-export function dossierSuiviNAVersAnnotationsDS88444(dossier) {
+export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi, dossierPitchou) {
     /**
      * @type {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
      */
     const annotationsConverties = {
-        'Enjeu écologique': dossier['enjeu écologique'] === 'oui',
-        'Enjeu politique': dossier['enjeu politique'] === 'oui', 
-        'Commentaires sur les enjeux et la procédure': dossier['commentaires sur les enjeux et le contexte'],
-        'Date de réception DDEP': getDateRéception(dossier),
+        "Historique - nom porteur": dossierPitchou.demandeur_personne_morale_siret || dossierPitchou.demandeur_personne_physique_nom ? undefined : dossierTableauSuivi['Porteur de projet'],
+        "Historique - localisation": dossierHasValidLocation(dossierPitchou) ? undefined : dossierTableauSuivi['Localisation']?.map(cOuD => typeof cOuD === 'string' ? cOuD : cOuD.nom).join(', '),
+        'DDEP nécessaire ?': 1,
+        'Dossier en attente de': 1,
+        'Enjeu écologique': dossierTableauSuivi['enjeu écologique'] === 'oui',
+        'Enjeu politique': dossierTableauSuivi['enjeu politique'] === 'oui', 
+        'Commentaires sur les enjeux et la procédure': dossierTableauSuivi['commentaires sur les enjeux et le contexte'],
+        'Date de réception DDEP': getDateRéception(dossierTableauSuivi),
         'Dernière contribution en lien avec l\'instruction DDEP': '',
-        'Date d\'envoi de la dernière contribution en lien avec l\'instruction DDEP': dossier['Date envoi dernier avis SPN'],
+        'Date d\'envoi de la dernière contribution en lien avec l\'instruction DDEP': dossierTableauSuivi['Date envoi dernier avis SPN'],
         'Autres documents relatifs au dossier': '',
-        'N° Demande ONAGRE': dossier['N°ONAGRE de demande'],
+        'N° Demande ONAGRE': dossierTableauSuivi['N°ONAGRE de demande'],
         'Saisine de l\'instructeur': '',
-        'Date saisine CSRPN': dossier['Date saisine CSRPN'],
-        'Date saisine CNPN': dossier['Date saisine CNPN'],
-        'Date avis CSRPN': dossier['Date avis CNPN / CSRPN'], 
-        'Date avis CNPN': dossier['Date avis CNPN / CSRPN'], 
+        'Date saisine CSRPN': dossierTableauSuivi['Date saisine CSRPN'],
+        'Date saisine CNPN': dossierTableauSuivi['Date saisine CNPN'],
+        'Date avis CSRPN': dossierTableauSuivi['Date avis CNPN / CSRPN'], 
+        'Date avis CNPN': dossierTableauSuivi['Date avis CNPN / CSRPN'], 
         'Avis CSRPN/CNPN': '',
         'Avis CSRPN/CNPN fichier': '',
-        'Date de début de la consultation du public ou enquête publique': recoverDate(dossier['Dates consultation public']),
-        'Décision': dossier['Décision'],
-        'Date de signature de l\'AP': dossier['Date arrêté (AP)'],
-        'Référence de l\'AP': dossier['Réf arrêté (AP)'],
-        'Date de l\'AM': dossier['Date AM'],
+        'Date de début de la consultation du public ou enquête publique': recoverDate(dossierTableauSuivi['Dates consultation public']),
+        'Décision': dossierTableauSuivi['Décision'],
+        'Date de signature de l\'AP': dossierTableauSuivi['Date arrêté (AP)'],
+        'Référence de l\'AP': dossierTableauSuivi['Réf arrêté (AP)'],
+        'Date de l\'AM': dossierTableauSuivi['Date AM'],
         'Référence de l\'AM': '',
-        'AP/AM': dossier['Type d\'arrêté']
+        'AP/AM': dossierTableauSuivi['Type d\'arrêté']
     };
 
     return annotationsConverties;

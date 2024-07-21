@@ -4,13 +4,13 @@
 
     import Squelette from '../Squelette.svelte'
 
-    import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../../commun/typeFormat.js'
+    import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../../import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
     import {créerLienPréremplissageDémarche} from '../../../commun/préremplissageDémarcheSimplifiée.js'
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
     /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
     /** @import {default as Dossier} from "../../../types/database/public/Dossier.ts" */
-    /** @import {DossierComplet} from '../../../server/database.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
 
     
     export let email
@@ -134,7 +134,7 @@
 
     /**
      * 
-     * @param {Dossier} dossier
+     * @param {DossierComplet} dossier
      * @returns {boolean}
      */
     function dossierHasAnnotations(dossier){

@@ -152,6 +152,18 @@
  * @prop {number} population
  * 
  */
+
+/** 
+ * https://geo.api.gouv.fr/communes
+ *
+ * @typedef {Object} DémarchesSimpliféesCommune
+ * @prop {string} name
+ * @prop {string} code
+ * @prop {string} postalCode
+ * 
+ */
+
+
 /** 
  * https://geo.api.gouv.fr/departements 
  *
@@ -242,5 +254,20 @@
 *  'AP/AM': string
 * }} AnnotationsPrivéesDémarcheSimplifiée88444
 */
+
+
+/**
+ * @typedef {Object} DossierComplément
+ * @property {string} nom_dossier
+ * @property {string} déposant_nom
+ * @property {string} déposant_prénoms
+ * @property {string} demandeur_personne_physique_nom
+ * @property {string} demandeur_personne_physique_prénoms
+ * @property {string} demandeur_personne_morale_raison_sociale
+ * @property {string} demandeur_personne_morale_siret
+ * 
+ */
+/** @typedef {Dossier & DossierComplément} DossierComplet */
+
 
 export default 'TS needs a module'
