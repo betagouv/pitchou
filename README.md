@@ -83,6 +83,10 @@ ou, en dev, depuis le container du serveur :
 
 `docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js`
 
+#### En prod
+
+Pour modifier le cron : https://crontab.guru/
+
 ### Fabriquer le JSON de la liste des groupes d'espèces
 
 `node outils/groupes-espèces.js`
