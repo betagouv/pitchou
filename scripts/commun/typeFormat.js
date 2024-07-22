@@ -29,13 +29,25 @@ export function recoverDate(d){
     if(!d)
         return undefined
 
-    let date = parseDate(d, 'dd/MM/yy', new Date())
+    // typeof d === 'string'
+    d = d.trim()
+
+    let date = parseDate(d, 'dd/MM/yyyy', new Date())
 
     if(!isValidDate(date)){
-        date = parseDate(d, 'dd/MM/yyyy', new Date())
+        date = parseDate(d, 'dd/MM/yy', new Date())
     }
     if(!isValidDate(date)){
         date = parseDate(d, 'yyyy', new Date())
+    }
+
+    // let's try the first chars in case there are several dates
+
+    if(!isValidDate(date)){
+        date = parseDate(d.slice(0, 'dd/MM/yyyy'.length), 'dd/MM/yyyy', new Date())
+    }
+    if(!isValidDate(date)){
+        date = parseDate(d.slice(0, 'dd/MM/yy'.length), 'dd/MM/yy', new Date())
     }
 
     if(isValidDate(date)){

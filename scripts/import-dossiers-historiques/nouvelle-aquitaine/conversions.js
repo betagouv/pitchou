@@ -25,15 +25,13 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
             case 'Date réception DDEP':
             case 'Date saisine CSRPN':
             case 'Date saisine CNPN':
-            case 'Date avis CNPN / CSRPN':
+            case 'Date avis CNPN / CSRPN)':
             case 'Date arrêté (AP)':
             case 'Date AM':
             case 'Date envoi avis SPN n°2':
             case 'Date envoi avis SPN n°3':
+            case 'Dates consultation public':
                 convertedDossier[key] = recoverDate(dossier[key]);
-                break;
-            case 'DDEP requise':
-                convertedDossier[key] = dossier[key].trim() === 'oui';
                 break;
             case 'Localisation': {
                 const localisationStringValue = String(dossier[key]) || ''
@@ -61,6 +59,9 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
                             return nomToCommune.get(normalizedNomCommune) || nomCommune
                         })
                 }
+
+                convertedDossier['Localisation string'] = localisationStringValue
+
                 break;
             }
             case 'Dpt': {
@@ -215,43 +216,95 @@ function dossierHasValidLocation(dossierPitchou){
     
 }
 
+/** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['DDEP requise'], AnnotationsPrivéesDémarcheSimplifiée88444['DDEP nécessaire ?']>} */
+const DDEPRequiseToDDEPNécessaire = new Map([
+    ['oui', 'Oui'],
+    ['non', 'Non'],
+    ['?', 'A déterminer']
+])
+
+/** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['Attente de'], AnnotationsPrivéesDémarcheSimplifiée88444['Dossier en attente de']>} */
+const AttenteDeMap = new Map([
+    ['DREP', 'Action Instructeur'],
+    ['SPN', 'Action Instructeur'],
+    ['DDT(M)', 'Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)'],
+    ['Expert', 'Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)'],
+    ['Ministère', 'Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)'],
+    ['Préfecture', 'Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)'],
+    ['Pétitionnaire', 'Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)'],
+])
+
+/**
+ * @param {DossierTableauSuiviNouvelleAquitaine2023} dossierTableauSuivi 
+ * @returns {AnnotationsPrivéesDémarcheSimplifiée88444['Décision'] | undefined}
+ */
+function décision(dossierTableauSuivi){
+    const typeArrêté = dossierTableauSuivi[`Type d'arrêté`]
+    const dateArrêté = dossierTableauSuivi['Date arrêté (AP)']
+    const refArrêté = dossierTableauSuivi['Réf arrêté (AP)']
+    const décision = dossierTableauSuivi['Décision']
+    
+    if(décision === 'Anulation' || décision === 'Refus' || décision === 'Rejet'){
+        return 'AP Refus'
+    }
+
+    if(décision === "Dérogation" || dateArrêté || refArrêté){
+        if(typeArrêté === "Arrêté modificatif"){
+            return "AP modificatif"
+        }
+        else{
+            return "AP dérogation"
+        }
+    }
+
+
+}
+
 /**
  * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers AnnotationsPrivéesDémarcheSimplifiée88444.
- * @param {DossierTableauSuiviNouvelleAquitaine2023} dossierTableauSuivi 
- * @param {DossierComplet} dossierPitchou 
+ * @param {DossierTableauSuiviNouvelleAquitaine2023} dossierTableauSuivi
  * @returns {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
  */
-export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi, dossierPitchou) {
+export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi) {
+
+    console.log('DDEP req', dossierTableauSuivi['DDEP requise'], DDEPRequiseToDDEPNécessaire.get(dossierTableauSuivi['DDEP requise']))
+
+    /** @type {AnnotationsPrivéesDémarcheSimplifiée88444['Décision'] | undefined} */
+    const décisionDossier = décision(dossierTableauSuivi)
+
     /**
      * @type {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
      */
     const annotationsConverties = {
-        "Historique - nom porteur": dossierPitchou.demandeur_personne_morale_siret || dossierPitchou.demandeur_personne_physique_nom ? undefined : dossierTableauSuivi['Porteur de projet'],
-        "Historique - localisation": dossierHasValidLocation(dossierPitchou) ? undefined : dossierTableauSuivi['Localisation']?.map(cOuD => typeof cOuD === 'string' ? cOuD : cOuD.nom).join(', '),
-        'DDEP nécessaire ?': 1,
-        'Dossier en attente de': 1,
-        'Enjeu écologique': dossierTableauSuivi['enjeu écologique'] === 'oui',
-        'Enjeu politique': dossierTableauSuivi['enjeu politique'] === 'oui', 
-        'Commentaires sur les enjeux et la procédure': dossierTableauSuivi['commentaires sur les enjeux et le contexte'],
+        "Historique - nom porteur": dossierTableauSuivi['Porteur de projet'],
+        "Historique - localisation": dossierTableauSuivi['Localisation string'],
+        'DDEP nécessaire ?': DDEPRequiseToDDEPNécessaire.get(dossierTableauSuivi['DDEP requise']),
+        'Dossier en attente de': AttenteDeMap.get(dossierTableauSuivi['Attente de']),
+        'Enjeu écologique': dossierTableauSuivi['enjeu écologique'].length >= 1 || undefined,
+        'Enjeu politique': dossierTableauSuivi['enjeu politique'].length >= 1 || undefined, 
+        'Commentaires sur les enjeux et la procédure': dossierTableauSuivi['commentaires sur les enjeux et le contexte'] || undefined,
+        "Commentaires libre sur l'état de l'instruction": dossierTableauSuivi['Remarques internes DREP'],
         'Date de réception DDEP': getDateRéception(dossierTableauSuivi),
-        'Dernière contribution en lien avec l\'instruction DDEP': '',
+        'Dernière contribution en lien avec l\'instruction DDEP': undefined,
         'Date d\'envoi de la dernière contribution en lien avec l\'instruction DDEP': dossierTableauSuivi['Date envoi dernier avis SPN'],
-        'Autres documents relatifs au dossier': '',
-        'N° Demande ONAGRE': dossierTableauSuivi['N°ONAGRE de demande'],
-        'Saisine de l\'instructeur': '',
+        'Autres documents relatifs au dossier': undefined,
+        'N° Demande ONAGRE': dossierTableauSuivi['N°ONAGRE de demande '],
+        'Saisine de l\'instructeur': undefined,
         'Date saisine CSRPN': dossierTableauSuivi['Date saisine CSRPN'],
         'Date saisine CNPN': dossierTableauSuivi['Date saisine CNPN'],
-        'Date avis CSRPN': dossierTableauSuivi['Date avis CNPN / CSRPN'], 
-        'Date avis CNPN': dossierTableauSuivi['Date avis CNPN / CSRPN'], 
-        'Avis CSRPN/CNPN': '',
-        'Avis CSRPN/CNPN fichier': '',
-        'Date de début de la consultation du public ou enquête publique': recoverDate(dossierTableauSuivi['Dates consultation public']),
-        'Décision': dossierTableauSuivi['Décision'],
-        'Date de signature de l\'AP': dossierTableauSuivi['Date arrêté (AP)'],
-        'Référence de l\'AP': dossierTableauSuivi['Réf arrêté (AP)'],
-        'Date de l\'AM': dossierTableauSuivi['Date AM'],
-        'Référence de l\'AM': '',
-        'AP/AM': dossierTableauSuivi['Type d\'arrêté']
+        'Date avis CSRPN': dossierTableauSuivi['Date saisine CSRPN'] ? dossierTableauSuivi['Date avis CNPN / CSRPN)'] : undefined, 
+        'Date avis CNPN': dossierTableauSuivi['Date saisine CNPN'] ? dossierTableauSuivi['Date avis CNPN / CSRPN)'] : undefined, 
+        'Avis CSRPN/CNPN': undefined, // pas dans le tableau de suivi
+        'Avis CSRPN/CNPN fichier': undefined,
+        'Date de début de la consultation du public ou enquête publique': dossierTableauSuivi['Dates consultation public'],
+        'Décision': décisionDossier,
+        'Date de signature de l\'AP': décisionDossier === 'AP dérogation' ? dossierTableauSuivi['Date arrêté (AP)'] : undefined,
+        'Référence de l\'AP': décisionDossier === 'AP dérogation' ? dossierTableauSuivi['Réf arrêté (AP)'] : undefined,
+        
+        'Date de l\'AM': dossierTableauSuivi['Date AM'] || décisionDossier === 'AP modificatif' ? dossierTableauSuivi['Date arrêté (AP)'] : undefined,
+        'Référence de l\'AM': décisionDossier === 'AP modificatif' ? dossierTableauSuivi['Réf arrêté (AP)'] : undefined,
+        
+        'AP/AM': undefined
     };
 
     return annotationsConverties;
