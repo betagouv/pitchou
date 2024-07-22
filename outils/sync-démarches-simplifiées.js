@@ -36,10 +36,10 @@ const démarche = await recupérerDossiersRécemmentModifiés({
 })
 
 //console.log('démarche', démarche)
-//console.log('dossiers', démarche.dossiers.nodes.length)
+console.log('Nombre de dossiers', démarche.dossiers.nodes.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
+//console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
 
 
 // stocker les dossiers en BDD
@@ -388,8 +388,9 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
     }
 }
 
-await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
-
+if(entreprisesInDossiersBySiret.size >= 1){
+    await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
+}
 /*
     Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
 */
