@@ -104,7 +104,7 @@
         if(Array.isArray(communesDossierTableauSuivi)){
             const dossierAvecNomEt1CommuneEnCommun = dossiersAvecCeNom.find(dossierBDD => {
                 return communesDossierTableauSuivi
-                    .some(communeTableauSuivi => dossierBDD['communes']
+                    .some(communeTableauSuivi => (dossierBDD['communes'] || [])
                         .some(communeDossierBDD => communeTableauSuivi && communeTableauSuivi.code === communeDossierBDD.code)
                     )
             })
@@ -120,7 +120,7 @@
         if(Array.isArray(départementsDossierTableauSuivi)){
             const dossierAvecNomEt1DépartementEnCommun = dossiersAvecCeNom.find(dossierBDD => {
                 return départementsDossierTableauSuivi
-                    .some(départementTableauSuivi => dossierBDD['départements']
+                    .some(départementTableauSuivi => (dossierBDD['départements'] || [])
                         .some(départementDossierBDD => départementTableauSuivi && départementTableauSuivi.code === départementDossierBDD)
                     )
             })
