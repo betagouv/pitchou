@@ -5,7 +5,7 @@
     import Squelette from '../Squelette.svelte'
 
     import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../../import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
-    import {créerLienPréremplissageDémarche} from '../../../commun/préremplissageDémarcheSimplifiée.js'
+    import {créerLienGETPréremplissageDémarche} from '../../../commun/préremplissageDémarcheSimplifiée.js'
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
     /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
@@ -289,7 +289,7 @@
                                         </td>
                                         <td>{dossier['Objet du projet']}</td>
                                         <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
-                                        <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Go !</a></td>
+                                        <td><a target="_blank" href={créerLienGETPréremplissageDémarche(dossier)}>Go !</a></td>
                                     </tr>
                                 {/each}
                                 </tbody>

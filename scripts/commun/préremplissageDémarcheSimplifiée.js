@@ -217,9 +217,12 @@ const champsPourPréremplissage = [
 const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?`
 
 /**
+ * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Cette fonction créé un lien GET
+ * 
  * @param {DossierDémarcheSimplifiée88444} dossierPartiel
  */
-export function créerLienPréremplissageDémarche(dossierPartiel) {
+export function créerLienGETPréremplissageDémarche(dossierPartiel) {
     /** @type {Record<string, string>} */
     const objetPréremplissage = {};
 
