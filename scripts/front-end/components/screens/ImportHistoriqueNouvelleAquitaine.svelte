@@ -1,15 +1,16 @@
 <script>
     //@ts-check
+    import {text} from 'd3-fetch';
     import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
 
     import Squelette from '../Squelette.svelte'
 
     import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../../import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
-    import {créerLienGETPréremplissageDémarche} from '../../../commun/préremplissageDémarcheSimplifiée.js'
+    import Loader from '../Loader.svelte';
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
-    /** @import {default as Dossier} from "../../../types/database/public/Dossier.ts" */
+    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
+    /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
     /** @import {DossierComplet} from '../../../types.js' */
 
     
@@ -35,7 +36,7 @@
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
     let candidatsImportsSuiviNAP
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
     let candidatsImportsMap
 
     /**
@@ -143,11 +144,11 @@
     
     // Dossiers reconnus
 
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
     let candidatsDossierÀCréer
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
     let candidatsAnnotationsÀAjouter
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
     let candidatsDossiersComplet
 
     $: if(candidatsImportsMap && dossiersStockésEnBaseDeDonnées) {
@@ -178,6 +179,28 @@
         }
     }
 
+    let dossierToLienPréremplissage = new Map()
+
+    /**
+     * @param {DossierDémarcheSimplifiée88444} dossierPartiel 
+     */
+    function créerLienPréremplissage(dossierPartiel) {
+        dossierToLienPréremplissage.set(
+            dossierPartiel,
+            text(
+                '/lien-preremplissage', 
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dossierPartiel)
+                }
+            )
+        )
+
+        dossierToLienPréremplissage = dossierToLienPréremplissage // re-render
+    }
 </script>
 
 <Squelette {email}>
@@ -289,7 +312,19 @@
                                         </td>
                                         <td>{dossier['Objet du projet']}</td>
                                         <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
-                                        <td><a target="_blank" href={créerLienGETPréremplissageDémarche(dossier)}>Go !</a></td>
+                                        <td>
+                                            {#if dossierToLienPréremplissage.has(dossier)}
+                                                {#await dossierToLienPréremplissage.get(dossier)}
+                                                    <Loader/>
+                                                {:then lienPréremplissage} 
+                                                    <a href={lienPréremplissage} target="_blank">Créer le dossier pré-rempli !</a>
+                                                {:catch err}
+                                                    <strong>Erreur ({err})</strong>
+                                                {/await}
+                                            {:else}
+                                                <button class="fr-btn" type="button" on:click={() => créerLienPréremplissage(dossier)}>Créer un lien de pré-remplissage</button>
+                                            {/if}
+                                        </td>
                                     </tr>
                                 {/each}
                                 </tbody>
@@ -303,7 +338,7 @@
             {#if candidatsAnnotationsÀAjouter}
             <section class="fr-grid-row fr-mb-6w">
                 <div class="fr-col">
-                    <details open>
+                    <details>
                         <summary>
                             <h2>Dossiers sur lesquels ajouter des annotations privées ({candidatsAnnotationsÀAjouter.size})</h2>
                         </summary>

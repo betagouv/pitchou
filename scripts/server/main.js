@@ -9,6 +9,9 @@ import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJou
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
+import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
+
+/** @import {DossierDémarcheSimplifiée88444} from '../types.js' */
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -54,6 +57,16 @@ fastify.get('/dossiers', async function (request, reply) {
   } else {
     reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
   }
+})
+
+fastify.post('/lien-preremplissage', async function (request) {
+  /** @type {Partial<DossierDémarcheSimplifiée88444>} */
+  // @ts-ignore
+  const donnéesPreRemplissage = request.body
+
+  return demanderLienPréremplissage(donnéesPreRemplissage)
+    // @ts-ignore
+    .then(({dossier_url}) => dossier_url)
 })
 
 

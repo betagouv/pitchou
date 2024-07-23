@@ -97,7 +97,7 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
  * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
  * @param {Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']>} typeVersObjet 
  * @param { Map<string, GeoAPIDépartement> } stringToDépartement
- * @returns {DossierDémarcheSimplifiée88444} 
+ * @returns {Partial<DossierDémarcheSimplifiée88444>} 
  */
 export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringToDépartement) {
     let communes, départements, départementPrincipale;
@@ -144,29 +144,29 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
 
 
     /**
-     * @type {DossierDémarcheSimplifiée88444}
+     * @type {Partial<DossierDémarcheSimplifiée88444>}
      */
     const dossierConverti = {
         'Porteur de projet': dossier['Porteur de projet'],
-        'Le demandeur est…': '',
-        'Numéro de SIRET': dossier['SIRET'] && String(dossier['SIRET']) || '',
-        'Qualification': '',
-        'Adresse': '',
-        'Objet du projet': typeVersObjet.get(dossier['Type de projet']) || '',
-        'Nom du représentant': dossier['Nom contact'] || '',
-        'Prénom du représentant': dossier['Prénom contact'] || '',
-        'Qualité du représentant': '',
-        'Numéro de téléphone de contact': '',
-        'Adresse mail de contact': dossier['mail de contact'],
+        'Le demandeur est…': "une personne morale",
+        'Numéro de SIRET': dossier['SIRET'] && String(dossier['SIRET']) || undefined,
+        'Qualification': undefined,
+        'Adresse': undefined,
+        'Objet du projet': typeVersObjet.get(dossier['Type de projet']) || undefined,
+        'Nom du représentant': dossier['Nom contact'] || undefined,
+        'Prénom du représentant': dossier['Prénom contact'] || undefined,
+        'Qualité du représentant': undefined,
+        'Numéro de téléphone de contact': undefined,
+        'Adresse mail de contact': dossier['mail de contact'] || undefined,
         'Description de la demande': dossier['But'],
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": dossier['Procédure'] === 'AE avec DDEP' || dossier['Procédure'] === 'AE sans DDEP',
-        'À quelle procédure le projet est-il soumis ?': [],
-        'Motif de la dérogation': '',
-        'Précisez': '',
+        'À quelle procédure le projet est-il soumis ?': undefined,
+        'Motif de la dérogation': undefined,
+        'Précisez': undefined,
         "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation": undefined,
-        "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": '',
-        'Détails du programme d’activité': '',
-        'Lien vers la liste des espèces concernées': '',
+        "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": undefined,
+        'Détails du programme d’activité': undefined,
+        'Lien vers la liste des espèces concernées': undefined,
         'Nom du projet': dossier['Nom du projet'],
         'Cette demande concerne un programme déjà existant': false,
         'Le projet se situe au niveau…': undefined,
@@ -176,11 +176,11 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
         'Date de fin d’intervention': undefined,
         'Date de début de chantier': undefined,
         'Date de fin de chantier': undefined,
-        'Qualification des personnes amenées à intervenir': [],
-        "Modalités techniques de l'intervention": '',
-        "Bilan d'opérations antérieures": '',
-        'Description succincte du projet': '',
-        'Dépot du dossier complet de demande de dérogation': '',
+        'Qualification des personnes amenées à intervenir': undefined,
+        "Modalités techniques de l'intervention": undefined,
+        "Bilan d'opérations antérieures": undefined,
+        'Description succincte du projet': undefined,
+        'Dépot du dossier complet de demande de dérogation': undefined,
         "Mesures d'évitement, réduction et/ou compensation": undefined,
         "Dans quel département se localise majoritairement votre projet ?": départementPrincipale
     };
@@ -266,8 +266,6 @@ function décision(dossierTableauSuivi){
  * @returns {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
  */
 export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi) {
-
-    console.log('DDEP req', dossierTableauSuivi['DDEP requise'], DDEPRequiseToDDEPNécessaire.get(dossierTableauSuivi['DDEP requise']))
 
     /** @type {AnnotationsPrivéesDémarcheSimplifiée88444['Décision'] | undefined} */
     const décisionDossier = décision(dossierTableauSuivi)
