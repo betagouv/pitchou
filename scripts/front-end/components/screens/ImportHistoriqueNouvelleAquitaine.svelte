@@ -1,16 +1,17 @@
 <script>
     //@ts-check
+    import {text} from 'd3-fetch';
     import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
 
     import Squelette from '../Squelette.svelte'
 
-    import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../../commun/typeFormat.js'
-    import {créerLienPréremplissageDémarche} from '../../../commun/préremplissageDémarcheSimplifiée.js'
+    import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../../../import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
+    import Loader from '../Loader.svelte';
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DossierTableauSuiviNouvelleAquitaine2023, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
-    /** @import {default as Dossier} from "../../../types/database/public/Dossier.ts" */
-    /** @import {DossierComplet} from '../../../server/database.js' */
+    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
+    /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
 
     
     export let email
@@ -35,7 +36,7 @@
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
     let candidatsImportsSuiviNAP
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
     let candidatsImportsMap
 
     /**
@@ -134,7 +135,7 @@
 
     /**
      * 
-     * @param {Dossier} dossier
+     * @param {DossierComplet} dossier
      * @returns {boolean}
      */
     function dossierHasAnnotations(dossier){
@@ -143,11 +144,11 @@
     
     // Dossiers reconnus
 
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
     let candidatsDossierÀCréer
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
     let candidatsAnnotationsÀAjouter
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
     let candidatsDossiersComplet
 
     $: if(candidatsImportsMap && dossiersStockésEnBaseDeDonnées) {
@@ -178,6 +179,28 @@
         }
     }
 
+    let dossierToLienPréremplissage = new Map()
+
+    /**
+     * @param {DossierDémarcheSimplifiée88444} dossierPartiel 
+     */
+    function créerLienPréremplissage(dossierPartiel) {
+        dossierToLienPréremplissage.set(
+            dossierPartiel,
+            text(
+                '/lien-preremplissage', 
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dossierPartiel)
+                }
+            )
+        )
+
+        dossierToLienPréremplissage = dossierToLienPréremplissage // re-render
+    }
 </script>
 
 <Squelette {email}>
@@ -210,88 +233,104 @@
             {#if candidatsDossierÀCréer}
             <section class="fr-grid-row fr-mb-6w">
                 <div class="fr-col">
-                    <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsDossierÀCréer.size}) </h2>
                     <details>
-                        <summary>Aide commune/département non-reconnu</summary>
-                        <p>
-                            Si la commune n'est pas reconnue, il peut s'agir d'un problème d'apostrophe, de tiret, de majuscule ou de St/Saint.
-                            Vous pouvez trouver le <strong>nom exact des communes</strong> dans la 
-                            <a href="https://geo.api.gouv.fr/decoupage-administratif/communes#name">boîte essayez-moi du service géo des communes</a>. <br>
-                            S'il y a plusieurs communes, assurez-vous de les <strong>séparer avec une virgule</strong> (<code>,</code>) (et pas un <code>et</code>)<br>
-                            Corrigez le tableau, ré-importez-le pour ré-essayer
-                        </p>
-                        <p>
-                            Si le département n'est pas reconnu, vous pouvez trouver le <strong>nom exact des départements</strong> dans la
-                            <a href="https://geo.api.gouv.fr/decoupage-administratif/departements#name">boîte essayez-moi du service géo des départements</a>. <br>
-                            Vous pouvez aussi mettre le numéro de département<br>
-                            Corrigez le tableau, ré-importez-le pour ré-essayer
-                        </p>
-                    </details>
+                        <summary>
+                            <h2>Dossiers à créer sur Démarches Simplifiées ({candidatsDossierÀCréer.size})</h2>
+                        </summary>
+                        <details>
+                            <summary>Aide commune/département non-reconnu</summary>
+                            <p>
+                                Si la commune n'est pas reconnue, il peut s'agir d'un problème d'apostrophe, de tiret, de majuscule ou de St/Saint.
+                                Vous pouvez trouver le <strong>nom exact des communes</strong> dans la 
+                                <a href="https://geo.api.gouv.fr/decoupage-administratif/communes#name">boîte essayez-moi du service géo des communes</a>. <br>
+                                S'il y a plusieurs communes, assurez-vous de les <strong>séparer avec une virgule</strong> (<code>,</code>) (et pas un <code>et</code>)<br>
+                                Corrigez le tableau, ré-importez-le pour ré-essayer
+                            </p>
+                            <p>
+                                Si le département n'est pas reconnu, vous pouvez trouver le <strong>nom exact des départements</strong> dans la
+                                <a href="https://geo.api.gouv.fr/decoupage-administratif/departements#name">boîte essayez-moi du service géo des départements</a>. <br>
+                                Vous pouvez aussi mettre le numéro de département<br>
+                                Corrigez le tableau, ré-importez-le pour ré-essayer
+                            </p>
+                        </details>
 
-                    <div class="fr-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Département principale</th>
-                                    <th>Porteur de projet</th>
-                                    <th>Nom du projet</th>
-                                    <th>Localisation</th>
-                                    <th>Objet du projet</th>
-                                    <th><abbr title="Autorisation environnementale">AE</abbr></th>
-                                    <th>Créer le dossier pré-rempli</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {#each [...candidatsDossierÀCréer.values()] as {dossier}}
-                                <tr>
-                                    <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
-                                    <td>
-                                        <strong>{dossier['Porteur de projet']}</strong> 
-                                        {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
-                                        {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
-                                            <br>
-                                            <em>Contact</em><br>
-                                            {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
-                                            {#if dossier['Adresse mail de contact']}
+                        <div class="fr-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Département principale</th>
+                                        <th>Porteur de projet</th>
+                                        <th>Nom du projet</th>
+                                        <th>Localisation</th>
+                                        <th>Objet du projet</th>
+                                        <th><abbr title="Autorisation environnementale">AE</abbr></th>
+                                        <th>Créer le dossier pré-rempli</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {#each [...candidatsDossierÀCréer.values()] as {dossier}}
+                                    <tr>
+                                        <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
+                                        <td>
+                                            <strong>{dossier['Porteur de projet']}</strong> 
+                                            {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
+                                            {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
                                                 <br>
-                                                {dossier['Adresse mail de contact']}
+                                                <em>Contact</em><br>
+                                                {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
+                                                {#if dossier['Adresse mail de contact']}
+                                                    <br>
+                                                    {dossier['Adresse mail de contact']}
+                                                {/if}
                                             {/if}
-                                        {/if}
-                                    </td>
-                                    <td>{dossier['Nom du projet']}</td>
-                                    <td>
-                                        {#if Array.isArray(dossier['Département(s) où se situe le projet'])}
-                                            <strong>
-                                                {#if dossier['Département(s) où se situe le projet'].length === 1}
-                                                    Département :
-                                                {:else}
-                                                    Départements :
-                                                {/if}
-                                            </strong>
+                                        </td>
+                                        <td>{dossier['Nom du projet']}</td>
+                                        <td>
+                                            {#if Array.isArray(dossier['Département(s) où se situe le projet'])}
+                                                <strong>
+                                                    {#if dossier['Département(s) où se situe le projet'].length === 1}
+                                                        Département :
+                                                    {:else}
+                                                        Départements :
+                                                    {/if}
+                                                </strong>
 
-                                            {#each dossier['Département(s) où se situe le projet'] as département, i}
-                                                {#if i !== 0},{/if}
-                                                {département.code}
-                                            {/each}
-                                        {:else}
-                                            {#each dossier['Commune(s) où se situe le projet'] || [] as commune, i}
-                                                {#if i !== 0},{/if}
-                                                {#if typeof commune === 'string'}
-                                                    <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
-                                                {:else}
-                                                    {commune.nom} ({commune.codeDepartement})
-                                                {/if}
-                                            {/each}
-                                        {/if}
-                                    </td>
-                                    <td>{dossier['Objet du projet']}</td>
-                                    <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
-                                    <td><a target="_blank" href={créerLienPréremplissageDémarche(dossier)}>Go !</a></td>
-                                </tr>
-                            {/each}
-                            </tbody>
-                        </table>
-                    </div>
+                                                {#each dossier['Département(s) où se situe le projet'] as département, i}
+                                                    {#if i !== 0},{/if}
+                                                    {département.code}
+                                                {/each}
+                                            {:else}
+                                                {#each dossier['Commune(s) où se situe le projet'] || [] as commune, i}
+                                                    {#if i !== 0},{/if}
+                                                    {#if typeof commune === 'string'}
+                                                        <span class="non-reconnu" title="Nom de commune non reconnu. Ne sera pas pré-remplie dans le dossier">⚠️ {commune}</span>
+                                                    {:else}
+                                                        {commune.nom} ({commune.codeDepartement})
+                                                    {/if}
+                                                {/each}
+                                            {/if}
+                                        </td>
+                                        <td>{dossier['Objet du projet']}</td>
+                                        <td>{dossier["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"] ? 'oui' : 'non'}</td>
+                                        <td>
+                                            {#if dossierToLienPréremplissage.has(dossier)}
+                                                {#await dossierToLienPréremplissage.get(dossier)}
+                                                    <Loader/>
+                                                {:then lienPréremplissage} 
+                                                    <a href={lienPréremplissage} target="_blank">Créer le dossier pré-rempli !</a>
+                                                {:catch err}
+                                                    <strong>Erreur ({err})</strong>
+                                                {/await}
+                                            {:else}
+                                                <button class="fr-btn" type="button" on:click={() => créerLienPréremplissage(dossier)}>Créer un lien de pré-remplissage</button>
+                                            {/if}
+                                        </td>
+                                    </tr>
+                                {/each}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
                 </div>
             </section>
             {/if}
@@ -299,53 +338,73 @@
             {#if candidatsAnnotationsÀAjouter}
             <section class="fr-grid-row fr-mb-6w">
                 <div class="fr-col">
-                    <h2>Dossiers sur lesquels ajouter des annotations privées ({candidatsAnnotationsÀAjouter.size})</h2>
+                    <details>
+                        <summary>
+                            <h2>Dossiers sur lesquels ajouter des annotations privées ({candidatsAnnotationsÀAjouter.size})</h2>
+                        </summary>
                     
-                    <div class="fr-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Département principale</th>
-                                    <th>Porteur de projet</th>
-                                    <th>Nom du projet</th>
-                                    <th>Dossier sur Démarches Simplifiées</th>
-                                    <th>Annoations privées</th>
-                                    <th>Ajouter les annotations privées</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {#each [...candidatsAnnotationsÀAjouter.values()] as {dossier, annotations, dossierPitchou}}
-                                <tr>
-                                    <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
-                                    <td>
-                                        <strong>{dossier['Porteur de projet']}</strong> 
-                                        {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
-                                        {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
-                                            <br>
-                                            <em>Contact</em><br>
-                                            {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
-                                            {#if dossier['Adresse mail de contact']}
+                        <div class="fr-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Département principale</th>
+                                        <th>Porteur de projet</th>
+                                        <th>Nom du projet</th>
+                                        <th>Localisation</th>
+                                        <th>Dossier sur Démarches Simplifiées</th>
+                                        <th>Annoations privées</th>
+                                        <th>Ajouter les annotations privées</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {#each [...candidatsAnnotationsÀAjouter.values()] as {dossier, annotations, dossierPitchou}}
+                                    <tr>
+                                        <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
+                                        <td>
+                                            <strong>{dossier['Porteur de projet']}</strong> 
+                                            {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
+                                            {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
                                                 <br>
-                                                {dossier['Adresse mail de contact']}
+                                                <em>Contact</em><br>
+                                                {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
+                                                {#if dossier['Adresse mail de contact']}
+                                                    <br>
+                                                    {dossier['Adresse mail de contact']}
+                                                {/if}
                                             {/if}
-                                        {/if}
-                                    </td>
-                                    <td>{dossier['Nom du projet']}</td>
-                                    <td>
-                                        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
-                                            Dossier {dossierPitchou.number_demarches_simplifiées}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <pre>{JSON.stringify(annotations, null, 2)}</pre>
-                                    </td>
-                                    <td><button disabled>Ajouter</button></td>
-                                </tr>
-                            {/each}
-                            </tbody>
-                        </table>
-                    </div>
-
+                                        </td>
+                                        <td>{dossier['Nom du projet']}</td>
+                                        <td>{annotations['Historique - localisation']}</td>
+                                        <td>
+                                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
+                                                Dossier {dossierPitchou.number_demarches_simplifiées}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <table class="previz-annotations">
+                                                <tbody>
+                                                    {#each Object.entries(annotations) as [clef, valeur]}
+                                                        {#if valeur !== undefined && valeur !== '' && valeur !== null}
+                                                            <tr>
+                                                                <td><strong>{clef}</strong></td>
+                                                                {#if typeof valeur === 'object'}
+                                                                    <td>{valeur.toISOString().slice(0, 'YYYY-MM-DD'.length)}</td>
+                                                                {:else}
+                                                                    <td>{valeur}</td>
+                                                                {/if}
+                                                            </tr>
+                                                        {/if}
+                                                    {/each}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><button disabled>Ajouter</button></td>
+                                    </tr>
+                                {/each}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
                 </div>
             </section>
             {/if}
@@ -388,5 +447,50 @@
         p code {
             font-weight: bold;
         }
+
+        table.previz-annotations{
+            td{
+                max-width: 10rem;
+                overflow: hidden;
+            }
+        }
+    }
+
+    details {
+        cursor: auto;
+
+        &> summary{
+            &> h1, &> h2, &> h3, &> h4, &> h5, &> h6 {
+                display: inline-block;
+            }
+
+            &::marker{
+                content: '';
+            }
+
+            &::after{
+                font-size: 0.9em;
+                display: inline-block;
+                vertical-align: middle;
+                
+                border-radius: 5px;
+
+                padding: 2px 0.5rem;
+                margin: 0 1em;
+
+                border: 1px solid var(--text-action-high-blue-france);
+                color: var(--text-action-high-blue-france);
+            }
+        }
+
+        &:not([open]) > summary::after{
+            content: 'Déplier ▼'
+        }
+        
+
+        &[open] > summary::after{
+            content: 'Replier ▲'
+        }
+
     }
 </style>

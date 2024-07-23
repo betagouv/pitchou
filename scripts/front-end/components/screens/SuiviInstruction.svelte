@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../server/database.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
 
     /** @type {DossierComplet[]} */
     export let dossiers = []

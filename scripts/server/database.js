@@ -112,18 +112,7 @@ export function listAllDossier() {
     return database('dossier').select()
 }
 
-/**
- * @typedef {Object} DossierComplément
- * @property {string} nom_dossier
- * @property {string} déposant_nom
- * @property {string} déposant_prénoms
- * @property {string} demandeur_personne_physique_nom
- * @property {string} demandeur_personne_physique_prénoms
- * @property {string} demandeur_personne_morale_raison_sociale
- * @property {string} demandeur_personne_morale_siret
- * 
- */
-/** @typedef {Dossier & DossierComplément} DossierComplet */
+
 
 
 /**

@@ -152,6 +152,18 @@
  * @prop {number} population
  * 
  */
+
+/** 
+ * https://geo.api.gouv.fr/communes
+ *
+ * @typedef {Object} DémarchesSimpliféesCommune
+ * @prop {string} name
+ * @prop {string} code
+ * @prop {string} postalCode
+ * 
+ */
+
+
 /** 
  * https://geo.api.gouv.fr/departements 
  *
@@ -161,57 +173,10 @@
  * 
  */
 
-/**
- * @typedef {{
-* 'n° ligne': number,
-* 'Type de projet': string,
-* 'Nom du projet': string,
-* 'Porteur de projet': string,
-* 'Localisation': (GeoAPICommune | string)[] | GeoAPIDépartement[],
-* 'Dpt': (GeoAPIDépartement | string)[],
-* 'But': string,
-* 'CdM': string,
-* 'Procédure': string,
-* 'Date réception Guichet Unique': Date,
-* 'Date réception DBEC': Date,
-* 'Echéance rép': string,
-* 'Etat du dossier': string,
-* 'DDEP requise': boolean,
-* 'Date envoi dernier avis SPN': Date,
-* 'Nombre d\'avis émis': number,
-* 'Date réception DDEP': Date,
-* 'Attente de': string,
-* 'N°ONAGRE de demande': string,
-* 'Date saisine CSRPN': Date,
-* 'Date saisine CNPN': Date,
-* 'Date avis CNPN / CSRPN': Date,
-* 'Dates consultation public': string,
-* 'Type d\'arrêté': string,
-* 'Date arrêté (AP)': Date,
-* 'Réf arrêté (AP)': string,
-* 'Décision': string,
-* 'Date AM': Date,
-* 'Remarques internes DREP': string,
-* 'Sollicitation n°2': string,
-* 'Date envoi avis SPN n°2': Date,
-* 'Sollicitation n°3': string,
-* 'Date envoi avis SPN n°3': Date,
-* 'enjeu politique': string,
-* 'enjeu écologique': string,
-* 'commentaires sur les enjeux et le contexte': string
-* 'SIRET': string,
-* 'mail de contact': string,
-* 'Prénom contact': string,
-* 'Nom contact': string,
-* }} _DossierTableauSuiviNouvelleAquitaine2023
-*/
-
-/** @typedef {Partial<_DossierTableauSuiviNouvelleAquitaine2023>} DossierTableauSuiviNouvelleAquitaine2023 */
-
 
 
 /**
- * 
+ * Ce type va souvent être utilisé en tant que Partial<DossierDémarcheSimplifiée88444>
  * 
  * @typedef {{
 *   'Porteur de projet': string,
@@ -251,39 +216,59 @@
 *   'Dépot du dossier complet de demande de dérogation': string,
 *   "Mesures d'évitement, réduction et/ou compensation": boolean,
 *   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement
-* }} _DossierDémarcheSimplifiée88444
+* }} DossierDémarcheSimplifiée88444
 */
 
-/** @typedef {Partial<_DossierDémarcheSimplifiée88444>} DossierDémarcheSimplifiée88444 */
+
 
 
 /**
+ * Ce type va souvent être utilisé en tant que Partial<AnnotationsPrivéesDémarcheSimplifiée88444>
+ * 
  * @typedef {{
-*   'Enjeu écologique': boolean,
-*   'Enjeu politique': boolean,
-*   'Commentaires sur les enjeux et la procédure': string,
-*   'Date de réception DDEP': Date,
-*   'Dernière contribution en lien avec l\'instruction DDEP': string,
-*   'Date d\'envoi de la dernière contribution en lien avec l\'instruction DDEP': Date,
-*   'Autres documents relatifs au dossier': string,
-*   'N° Demande ONAGRE': string,
-*   'Saisine de l\'instructeur': string,
-*   'Date saisine CSRPN': Date,
-*   'Date saisine CNPN': Date,
-*   'Date avis CSRPN': Date,
-*   'Date avis CNPN': Date,
-*   'Avis CSRPN/CNPN': string,
-*   'Avis CSRPN/CNPN fichier': string,
-*   'Date de début de la consultation du public ou enquête publique': Date,
-*   'Décision': string,
-*   'Date de signature de l\'AP': Date,
-*   'Référence de l\'AP': string,
-*   'Date de l\'AM': Date,
-*   'Référence de l\'AM': string,
-*   'AP/AM': string
-* }} _AnnotationsPrivéesDémarcheSimplifiée88444
+*  "Historique - nom porteur": string,
+*  "Historique - localisation": string,
+*  "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer" | undefined,
+*  "Dossier en attente de": "Action Instructeur" | "Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)",
+*  'Enjeu écologique': boolean,
+*  'Enjeu politique': boolean,
+*  'Commentaires sur les enjeux et la procédure': string,
+*  "Commentaires libre sur l'état de l'instruction": string,
+*  'Date de réception DDEP': Date,
+*  "Dernière contribution en lien avec l'instruction DDEP": string,
+*  "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": Date,
+*  'Autres documents relatifs au dossier': string,
+*  'N° Demande ONAGRE': string,
+*  "Saisine de l'instructeur": string,
+*  'Date saisine CSRPN': Date,
+*  'Date saisine CNPN': Date,
+*  'Date avis CSRPN': Date,
+*  'Date avis CNPN': Date,
+*  'Avis CSRPN/CNPN': "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable",
+*  'Avis CSRPN/CNPN fichier': string,
+*  'Date de début de la consultation du public ou enquête publique': Date,
+*  'Décision': "AP dérogation" | "AP modificatif" | "AP Refus",
+*  "Date de signature de l'AP": Date,
+*  "Référence de l'AP": string,
+*  "Date de l'AM": Date,
+*  "Référence de l'AM": string,
+*  'AP/AM': string
+* }} AnnotationsPrivéesDémarcheSimplifiée88444
 */
 
-/** @typedef {Partial<_AnnotationsPrivéesDémarcheSimplifiée88444>} AnnotationsPrivéesDémarcheSimplifiée88444*/
+
+/**
+ * @typedef {Object} DossierComplément
+ * @property {string} nom_dossier
+ * @property {string} déposant_nom
+ * @property {string} déposant_prénoms
+ * @property {string} demandeur_personne_physique_nom
+ * @property {string} demandeur_personne_physique_prénoms
+ * @property {string} demandeur_personne_morale_raison_sociale
+ * @property {string} demandeur_personne_morale_siret
+ * 
+ */
+/** @typedef {Dossier & DossierComplément} DossierComplet */
+
 
 export default 'TS needs a module'

@@ -13,12 +13,13 @@ import ImportHistoriqueNouvelleAquitaine from '../../components/screens/ImportHi
 import { normalizeNomCommune } from '../../../commun/typeFormat.js';
 
 /** @import {
- *    DossierDémarcheSimplifiée88444,
- *    DossierTableauSuiviNouvelleAquitaine2023, 
+ *    DossierDémarcheSimplifiée88444, 
  *    GeoAPICommune, 
  *    GeoAPIDépartement, 
  *  } from "../../../types.js" 
  **/
+/** @import {DossierTableauSuiviNouvelleAquitaine2023} from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
+
 
 export default async () => {
     /** @type { [GeoAPICommune[] | undefined, GeoAPIDépartement[] | undefined, any, any] } */
