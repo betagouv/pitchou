@@ -3,7 +3,6 @@
     import Squelette from '../Squelette.svelte'
     import Loader from '../Loader.svelte'
     import { json } from 'd3-fetch';
-    import { isFuture } from 'date-fns/isFuture';
 
     /** @import {DossierDémarcheSimplifiée88444} from "../../../types.js" */
 
@@ -24,6 +23,7 @@
         "MultipleDropDownListChampDescriptor",
         "YesNoChampDescriptor",
         "CheckboxChampDescriptor",
+        "HeaderSectionChampDescriptor",
     ]
     
     let champsRemplissablesP = json(démarcheSimplifiée88444SchemaPath).then((schema) => {
@@ -43,36 +43,40 @@
             {:then champsRemplissables}
                 <form>
                     {#each champsRemplissables as champ}
-                        <fieldset class="fr-fieldset fr-p-1-5v">
-                            <div class="fr-fieldset__element">
-                                <div class="fr-input-group">
-                                    <label class="fr-label" for="{champ["label"]}">
-                                        {champ["label"]} 
-                                        {#if nouveauDossierPartiel[champ["label"]]}
-                                        ✅
-                                        {/if}
-                                    </label>
+                        {#if champ["__typename"] == "HeaderSectionChampDescriptor"}
+                            <h3>{champ["label"]}</h3>
+                        {:else}
+                            <fieldset class="fr-fieldset fr-p-1-5v">
+                                <div class="fr-fieldset__element">
+                                    <div class="fr-input-group">
+                                        <label class="fr-label" for="{champ["label"]}">
+                                            {champ["label"]} 
+                                            {#if nouveauDossierPartiel[champ["label"]]}
+                                            ✅
+                                            {/if}
+                                        </label>
 
-                                    <select 
-                                        bind:value={nouveauDossierPartiel[champ["label"]]} 
-                                        on:change={onSelectChanged}
-                                        id="{champ["label"]}"
-                                        class="fr-select"
-                                    >
-                                        {#if champ["options"]}
-                                            <option value="" selected></option>
-                                            {#each champ["options"] as option}
-                                                <option value="{option}">{option}</option>
-                                            {/each}
-                                        {:else}
-                                            <option value="" selected></option>
-                                            <option value="false">non</option>
-                                            <option value="true">oui</option>
-                                        {/if}
-                                    </select>
+                                        <select 
+                                            bind:value={nouveauDossierPartiel[champ["label"]]} 
+                                            on:change={onSelectChanged}
+                                            id="{champ["label"]}"
+                                            class="fr-select"
+                                        >
+                                            {#if champ["options"]}
+                                                <option value="" selected></option>
+                                                {#each champ["options"] as option}
+                                                    <option value="{option}">{option}</option>
+                                                {/each}
+                                            {:else}
+                                                <option value="" selected></option>
+                                                <option value="false">non</option>
+                                                <option value="true">oui</option>
+                                            {/if}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                        </fieldset>
+                            </fieldset>
+                        {/if}
                     {/each}
                 </form>
 
