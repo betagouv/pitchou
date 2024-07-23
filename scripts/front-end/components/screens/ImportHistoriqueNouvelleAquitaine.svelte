@@ -44,8 +44,7 @@
      * @param {DossierTableauSuiviNouvelleAquitaine2023} candidat
      */
     function estImportable(candidat){
-        return !candidat['Décision'] &&
-            (
+        return (
                 candidat['Porteur de projet'] || 
                 candidat['Nom du projet'] || 
                 (Array.isArray(candidat['Localisation']) && candidat['Localisation'].length >= 1)
