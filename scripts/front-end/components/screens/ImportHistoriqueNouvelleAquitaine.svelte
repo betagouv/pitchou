@@ -17,9 +17,9 @@
 
     /** @type {DossierComplet[]} */
     export let dossiers
-    $: dossiersStoackésEnBaseDeDonnées = dossiers
+    $: dossiersStockésEnBaseDeDonnées = dossiers
 
-    $: console.log('dossiersStoackésEnBaseDeDonnées', dossiersStoackésEnBaseDeDonnées)
+    $: console.log('dossiersStoackésEnBaseDeDonnées', dossiersStockésEnBaseDeDonnées)
 
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     export let nomToCommune
@@ -81,6 +81,56 @@
 
     $: console.log('candidatsImportsMap', candidatsImportsMap)
 
+    /**
+     * 
+     * @param {DossierComplet[]} dossiersStockésEnBaseDeDonnées 
+     * @param {DossierDémarcheSimplifiée88444} dossierPartiel88444DepuisTableauSuivi
+     * @returns {DossierComplet | undefined}
+     */
+    function trouverDossierEnBDDCorrespondant(dossiersStockésEnBaseDeDonnées, dossierPartiel88444DepuisTableauSuivi){
+        const nomProjetDossierCandidat = dossierPartiel88444DepuisTableauSuivi['Nom du projet']
+        const dossiersAvecCeNom = dossiersStockésEnBaseDeDonnées.filter(d => d.nom_dossier === nomProjetDossierCandidat)
+        if(dossiersAvecCeNom.length === 0)
+            return undefined
+        
+        if(dossiersAvecCeNom.length === 1)
+            return dossiersAvecCeNom[0]
+        
+        // dossiersAvecCeNom.length >= 2
+
+        const communesDossierTableauSuivi = dossierPartiel88444DepuisTableauSuivi['Commune(s) où se situe le projet']
+
+        if(Array.isArray(communesDossierTableauSuivi)){
+            const dossierAvecNomEt1CommuneEnCommun = dossiersAvecCeNom.find(dossierBDD => {
+                return communesDossierTableauSuivi
+                    .some(communeTableauSuivi => dossierBDD['communes']
+                        .some(communeDossierBDD => communeTableauSuivi && communeTableauSuivi.code === communeDossierBDD.code)
+                    )
+            })
+
+            if(dossierAvecNomEt1CommuneEnCommun){
+                return dossierAvecNomEt1CommuneEnCommun
+            }
+        }
+
+        /** @type {GeoAPIDépartement[] | undefined} */
+        const départementsDossierTableauSuivi = dossierPartiel88444DepuisTableauSuivi['Département(s) où se situe le projet']
+        
+        if(Array.isArray(départementsDossierTableauSuivi)){
+            const dossierAvecNomEt1DépartementEnCommun = dossiersAvecCeNom.find(dossierBDD => {
+                return départementsDossierTableauSuivi
+                    .some(départementTableauSuivi => dossierBDD['départements']
+                        .some(départementDossierBDD => départementTableauSuivi && départementTableauSuivi.code === départementDossierBDD)
+                    )
+            })
+
+            if(dossierAvecNomEt1DépartementEnCommun){
+                return dossierAvecNomEt1DépartementEnCommun
+            }
+        }
+
+        return undefined
+    }
 
     /**
      * 
@@ -95,29 +145,34 @@
 
     /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
     let candidatsDossierÀCréer
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
     let candidatsAnnotationsÀAjouter
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: DossierDémarcheSimplifiée88444, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
     let candidatsDossiersComplet
 
-    $: if(candidatsImportsMap && dossiersStoackésEnBaseDeDonnées) {
+    $: if(candidatsImportsMap && dossiersStockésEnBaseDeDonnées) {
         candidatsDossierÀCréer = new Map()
         candidatsAnnotationsÀAjouter = new Map()
         candidatsDossiersComplet = new Map()
 
         for(const [dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444}] of candidatsImportsMap){
-            const nomProjetDossierCandidat = dossierPartiel88444['Nom du projet']
-            const dossierEnBaseDeDonnéeCorrespondant = dossiersStoackésEnBaseDeDonnées.find(d => d.nom_dossier === nomProjetDossierCandidat)
+            const dossierEnBaseDeDonnéeCorrespondant = trouverDossierEnBDDCorrespondant(dossiersStockésEnBaseDeDonnées, dossierPartiel88444)
 
             if(!dossierEnBaseDeDonnéeCorrespondant){
                 candidatsDossierÀCréer.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
             }
             else{
                 if(!dossierHasAnnotations(dossierEnBaseDeDonnéeCorrespondant)){
-                    candidatsAnnotationsÀAjouter.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
+                    candidatsAnnotationsÀAjouter.set(
+                        dossierTableauSuivi, 
+                        {dossier: dossierPartiel88444, annotations: annotationsPartielle88444, dossierPitchou: dossierEnBaseDeDonnéeCorrespondant}
+                    )
                 }
                 else{
-                    candidatsDossiersComplet.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
+                    candidatsDossiersComplet.set(
+                        dossierTableauSuivi, 
+                        {dossier: dossierPartiel88444, annotations: annotationsPartielle88444, dossierPitchou: dossierEnBaseDeDonnéeCorrespondant}
+                    )
                 }
             }
         }
@@ -253,12 +308,13 @@
                                     <th>Département principale</th>
                                     <th>Porteur de projet</th>
                                     <th>Nom du projet</th>
+                                    <th>Dossier sur Démarches Simplifiées</th>
                                     <th>Annoations privées</th>
                                     <th>Ajouter les annotations privées</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {#each [...candidatsAnnotationsÀAjouter.values()] as {dossier, annotations}}
+                            {#each [...candidatsAnnotationsÀAjouter.values()] as {dossier, annotations, dossierPitchou}}
                                 <tr>
                                     <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
                                     <td>
@@ -276,7 +332,12 @@
                                     </td>
                                     <td>{dossier['Nom du projet']}</td>
                                     <td>
-                                        x
+                                        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
+                                            Dossier {dossierPitchou.number_demarches_simplifiées}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <pre>{JSON.stringify(annotations, null, 2)}</pre>
                                     </td>
                                     <td><button disabled>Ajouter</button></td>
                                 </tr>
