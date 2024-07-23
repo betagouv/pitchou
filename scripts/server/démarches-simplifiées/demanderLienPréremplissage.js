@@ -88,8 +88,6 @@ function créerObjetPréremplissageChamp(dossierPartiel){
 export function demanderLienPréremplissage(dossierPartiel){
     const préRemplissageURL = `https://www.demarches-simplifiees.fr/api/public/v1/demarches/88444/dossiers`
 
-    console.log('pre-remp', créerObjetPréremplissageChamp(dossierPartiel))
-
     return ky.post(
         préRemplissageURL, 
         {
