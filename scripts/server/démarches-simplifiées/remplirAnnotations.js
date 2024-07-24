@@ -43,7 +43,7 @@ const annotationTextMutationQuery = `mutation ModifierAnnotationText(
  */
 function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationTextMutationQuery, {
-        dossierId, instructeurId, annotationId, value, clientMutationId: Math.random().toString(36).slice(2)
+        dossierId, instructeurId, annotationId, value: value || '', clientMutationId: Math.random().toString(36).slice(2)
     })
 }
 
@@ -80,7 +80,7 @@ const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
  */
 function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationCheckboxMutationQuery, {
-        dossierId, instructeurId, annotationId, value
+        dossierId, instructeurId, annotationId, value: value || false
     })
 }
 
@@ -117,7 +117,7 @@ const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
  */
 function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationDateMutationQuery, {
-        dossierId, instructeurId, annotationId, value: value.toISOString().split('T')[0]
+        dossierId, instructeurId, annotationId, value: value ? value.toISOString().split('T')[0] : '1987-03-08'
     })
 }
 
@@ -156,6 +156,8 @@ const annotationTypeToFonctionRemplissage = new Map([
 export default function remplirAnnotations(token, annotations, { dossierId, instructeurId }) {
     return Promise.all(Object.entries(annotations).map(([key, value]) => {
         const annotationDescriptor = labelToAnnotationDescriptor.get(key)
+
+        console.log('annotationDescriptor', annotationDescriptor, value)
 
         if (!annotationDescriptor) {
             console.error(`annotationDescriptor manquant pour le label "${key}"`)

@@ -245,7 +245,7 @@
 *  'Date avis CSRPN': Date,
 *  'Date avis CNPN': Date,
 *  'Avis CSRPN/CNPN': "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable",
-*  'Avis CSRPN/CNPN fichier': string,
+*  'Avis CSRPN/CNPN': string,
 *  'Date de début de la consultation du public ou enquête publique': Date,
 *  'Décision': "AP dérogation" | "AP modificatif" | "AP Refus",
 *  "Date de signature de l'AP": Date,
