@@ -156,7 +156,7 @@ export default function remplirAnnotations(token, { dossierId, instructeurId, an
     return Promise.all(Object.entries(annotations).map(([key, value]) => {
         const annotationDescriptor = labelToAnnotationDescriptor.get(key)
 
-        console.log('annotationDescriptor', annotationDescriptor, value)
+        //console.log('annotationDescriptor', annotationDescriptor, value)
 
         if (!annotationDescriptor) {
             console.error(`annotationDescriptor manquant pour le label "${key}"`)
@@ -179,7 +179,7 @@ export default function remplirAnnotations(token, { dossierId, instructeurId, an
                 return undefined;
 
             const mutationResult = r.dossierModifierAnnotationText || r.dossierModifierAnnotationCheckbox || r.dossierModifierAnnotationDate
-            return mutationResult.errors
+            return Array.isArray(mutationResult.errors) ? mutationResult.errors.map(e => e.message) : undefined
         })
         .filter(x => !!x)
         .flat()

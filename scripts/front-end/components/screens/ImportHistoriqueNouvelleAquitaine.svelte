@@ -32,8 +32,6 @@
     /** @type {string} */
     export let remplirAnnotationsURL
 
-    $: console.log('remplirAnnotationsURL', remplirAnnotationsURL)
-
     /** @type {FileList | undefined} */
     let fichiersImportRaw;
     
@@ -434,7 +432,7 @@
                                                     <strong>Annotations correctement ajoutées&nbsp;!</strong>
                                                     <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}/annotations-privees`}>Vérifier sur le dossier</a>
                                                 {:catch err}
-                                                    <strong>Erreur ({err})</strong>
+                                                    <strong>Erreur - certaines annotations n'ont pas été remplies ({err})</strong>
                                                 {/await}
                                             {:else}
                                                 <button class="fr-btn" type="button" on:click={() => ajouterAnnotations(dossierPitchou, annotations)}>Ajouter</button>
