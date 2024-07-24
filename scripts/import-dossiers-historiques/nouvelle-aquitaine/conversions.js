@@ -274,8 +274,8 @@ export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi) {
      * @type {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
      */
     const annotationsConverties = {
-        "Historique - nom porteur": dossierTableauSuivi['Porteur de projet'],
-        "Historique - localisation": dossierTableauSuivi['Localisation string'],
+        "Nom du porteur de projet": dossierTableauSuivi['Porteur de projet'],
+        "Localisation du projet": dossierTableauSuivi['Localisation string'],
         'DDEP nécessaire ?': DDEPRequiseToDDEPNécessaire.get(dossierTableauSuivi['DDEP requise']),
         'Dossier en attente de': AttenteDeMap.get(dossierTableauSuivi['Attente de']),
         'Enjeu écologique': dossierTableauSuivi['enjeu écologique'].length >= 1 || undefined,

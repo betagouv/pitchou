@@ -4,15 +4,13 @@
 /** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/types.ts' */
 
 import queryGraphQL from './queryGraphQL.js'
-import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.json' // with {type: 'json'}
+import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 
 
 /** @type {Map<keyof AnnotationsPrivéesDémarcheSimplifiée88444, ChampDescriptor>} */
-const labelToAnnotationDescriptor = new Map([
+const labelToAnnotationDescriptor = new Map(
     schema88444.revision.annotationDescriptors.map(annotationDescriptor => ([annotationDescriptor.label, annotationDescriptor]))
-])
-
-
+)
 
 
 const annotationTextMutationQuery = `mutation ModifierAnnotationText(
@@ -31,10 +29,8 @@ const annotationTextMutationQuery = `mutation ModifierAnnotationText(
         value: $value
       }
     ) {
-      dossierId
-      instructeurId
-      annotationId
-      value
+      clientMutationId
+      errors { message }
     }
   }
 `
@@ -47,7 +43,7 @@ const annotationTextMutationQuery = `mutation ModifierAnnotationText(
  */
 function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationTextMutationQuery, {
-        dossierId, instructeurId, annotationId, value
+        dossierId, instructeurId, annotationId, value, clientMutationId: Math.random().toString(36).slice(2)
     })
 }
 
@@ -61,7 +57,7 @@ const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
     $clientMutationId: String,
     $value: Boolean!
   ) {
-    ModifierAnnotationCheckbox(
+    dossierModifierAnnotationCheckbox(
       input: {
         dossierId: $dossierId,
         instructeurId: $instructeurId,
@@ -70,10 +66,8 @@ const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
         value: $value
       }
     ) {
-      dossierId
-      instructeurId
-      annotationId
-      value
+        clientMutationId
+        errors { message }
     }
   }
 `
@@ -100,7 +94,7 @@ const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
     $clientMutationId: String,
     $value: ISO8601Date!
   ) {
-    ModifierAnnotationCheckbox(
+    dossierModifierAnnotationDate(
       input: {
         dossierId: $dossierId,
         instructeurId: $instructeurId,
@@ -109,10 +103,8 @@ const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
         value: $value
       }
     ) {
-      dossierId
-      instructeurId
-      annotationId
-      value
+        clientMutationId
+        errors { message }
     }
   }
 `
@@ -136,10 +128,12 @@ const annotationTypeToFonctionRemplissage = new Map([
         "TextChampDescriptor",
         remplirAnnotationText
     ],
-    [
+    // N'existe pas encore https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/10638
+    /*[
+        
         "DropDownListChampDescriptor",
-        remplirAnnotationText // à défaut de mieux pour le moment, on va tenter ça
-    ],
+        remplirAnnotationText 
+    ],*/
     [
         "YesNoChampDescriptor",
         remplirAnnotationCheckbox

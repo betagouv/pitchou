@@ -226,8 +226,8 @@
  * Ce type va souvent être utilisé en tant que Partial<AnnotationsPrivéesDémarcheSimplifiée88444>
  * 
  * @typedef {{
-*  "Historique - nom porteur": string,
-*  "Historique - localisation": string,
+*  "Nom du porteur de projet": string,
+*  "Localisation du projet": string,
 *  "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer" | undefined,
 *  "Dossier en attente de": "Action Instructeur" | "Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)",
 *  'Enjeu écologique': boolean,

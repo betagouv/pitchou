@@ -90,3 +90,7 @@ Pour modifier le cron : https://crontab.guru/
 ### Fabriquer le JSON de la liste des groupes d'espèces
 
 `node outils/groupes-espèces.js`
+
+### Remplir des annotations privées
+
+node --env-file=.env outils/remplir-annotations.js

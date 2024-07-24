@@ -373,7 +373,7 @@
                                             {/if}
                                         </td>
                                         <td>{dossier['Nom du projet']}</td>
-                                        <td>{annotations['Historique - localisation']}</td>
+                                        <td>{annotations['Localisation du projet']}</td>
                                         <td>
                                             <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
                                                 Dossier {dossierPitchou.number_demarches_simplifiées}
