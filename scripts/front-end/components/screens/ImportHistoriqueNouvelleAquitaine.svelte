@@ -20,8 +20,6 @@
     export let dossiers
     $: dossiersStockésEnBaseDeDonnées = dossiers
 
-    $: console.log('dossiersStoackésEnBaseDeDonnées', dossiersStockésEnBaseDeDonnées)
-
     /** @type { Map<GeoAPICommune['nom'], GeoAPICommune> } */
     export let nomToCommune
 
@@ -30,6 +28,11 @@
 
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']> } */
     export let typeVersObjet
+
+    /** @type {string} */
+    export let remplirAnnotationsURL
+
+    $: console.log('remplirAnnotationsURL', remplirAnnotationsURL)
 
     /** @type {FileList | undefined} */
     let fichiersImportRaw;
@@ -44,8 +47,7 @@
      * @param {DossierTableauSuiviNouvelleAquitaine2023} candidat
      */
     function estImportable(candidat){
-        return !candidat['Décision'] &&
-            (
+        return (
                 candidat['Porteur de projet'] || 
                 candidat['Nom du projet'] || 
                 (Array.isArray(candidat['Localisation']) && candidat['Localisation'].length >= 1)
@@ -79,8 +81,6 @@
             ]
         }))
     )
-
-    $: console.log('candidatsImportsMap', candidatsImportsMap)
 
     /**
      * 
@@ -201,6 +201,34 @@
 
         dossierToLienPréremplissage = dossierToLienPréremplissage // re-render
     }
+
+    let dossierPitchouToRemplissageAnnotation = new Map()
+
+    /**
+     * @param {Dossier} dossierPitchou 
+     * @param {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} annotations 
+     */
+     function ajouterAnnotations(dossierPitchou, annotations) {
+        dossierPitchouToRemplissageAnnotation.set(
+            dossierPitchou,
+            text(
+                remplirAnnotationsURL, 
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dossierId: dossierPitchou.id_demarches_simplifiées,
+                        annotations
+                    })
+                }
+            )
+        )
+
+        dossierPitchouToRemplissageAnnotation = dossierPitchouToRemplissageAnnotation // re-render
+    }
+
 </script>
 
 <Squelette {email}>
@@ -374,7 +402,7 @@
                                             {/if}
                                         </td>
                                         <td>{dossier['Nom du projet']}</td>
-                                        <td>{annotations['Historique - localisation']}</td>
+                                        <td>{annotations['Localisation du projet']}</td>
                                         <td>
                                             <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
                                                 Dossier {dossierPitchou.number_demarches_simplifiées}
@@ -398,7 +426,20 @@
                                                 </tbody>
                                             </table>
                                         </td>
-                                        <td><button disabled>Ajouter</button></td>
+                                        <td>
+                                            {#if dossierPitchouToRemplissageAnnotation.has(dossierPitchou)}
+                                                {#await dossierPitchouToRemplissageAnnotation.get(dossierPitchou)}
+                                                    <Loader/>
+                                                {:then} 
+                                                    <strong>Annotations correctement ajoutées&nbsp;!</strong>
+                                                    <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}/annotations-privees`}>Vérifier sur le dossier</a>
+                                                {:catch err}
+                                                    <strong>Erreur ({err})</strong>
+                                                {/await}
+                                            {:else}
+                                                <button class="fr-btn" type="button" on:click={() => ajouterAnnotations(dossierPitchou, annotations)}>Ajouter</button>
+                                            {/if}
+                                        </td>
                                     </tr>
                                 {/each}
                                 </tbody>

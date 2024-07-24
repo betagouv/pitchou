@@ -14,10 +14,6 @@
 
     export let email
 
-    /*
-    <td><a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/17842913`}>Allé !</a></td>
-    */
-
 </script>
 
 <Squelette {email}>

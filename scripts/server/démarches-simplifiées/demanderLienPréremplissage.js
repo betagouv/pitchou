@@ -88,8 +88,6 @@ function créerObjetPréremplissageChamp(dossierPartiel){
 export function demanderLienPréremplissage(dossierPartiel){
     const préRemplissageURL = `https://www.demarches-simplifiees.fr/api/public/v1/demarches/88444/dossiers`
 
-    console.log('pre-remp', créerObjetPréremplissageChamp(dossierPartiel))
-
     return ky.post(
         préRemplissageURL, 
         {
@@ -102,27 +100,3 @@ export function demanderLienPréremplissage(dossierPartiel){
     )
     .then(resp => resp.json())
 }
-
-/*
-
-curl --request POST ''      
---header 'Content-Type: application/json'      
---data '{
-    "champ_Q2hhbXAtMzg5NzQwOA":"d'\''une ou plusieurs communes",
-    "champ_Q2hhbXAtNDA0MTQ0MQ":[
-        {"champ_Q2hhbXAtNDA0MTQ0Mw":["01500", "01004"]},
-        {"champ_Q2hhbXAtNDA0MTQ0Mw":["01500", "01004"]}
-    ]
-}'
-
-
-{
-    "dossier_url":"https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?prefill_token=tpVcYj3YZ6VUAaEyr3rQoHwz",
-    "state":"prefilled",
-    "dossier_id":"RG9zc2llci0xOTE0NjI5NQ==",
-    "dossier_number":19146295,
-    "dossier_prefill_token":"tpVcYj3YZ6VUAaEyr3rQoHwz"
-}
-
-*/
-

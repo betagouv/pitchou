@@ -11,7 +11,10 @@ import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
 
-/** @import {DossierDémarcheSimplifiée88444} from '../types.js' */
+import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
+
+
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444} from '../types.js' */
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -23,6 +26,10 @@ if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
 }
 
+const DEMARCHE_SIMPLIFIEE_API_TOKEN = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN
+if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
+  throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
+}
 
 
 
@@ -42,22 +49,6 @@ fastify.get('/import-historique/nouvelle-aquitaine', (request, reply) => {
   reply.sendFile('index.html')
 })
 
-
-// Privileged routes
-fastify.get('/dossiers', async function (request, reply) {
-  // @ts-ignore
-  const code_accès = request.query.secret
-  if (code_accès) {
-    const personne = await getPersonneByCode(code_accès)
-    if (personne) {
-      return listAllDossiersComplets()
-    } else {
-      reply.code(403).send("Code d'accès non valide.")
-    }
-  } else {
-    reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
-  }
-})
 
 fastify.post('/lien-preremplissage', async function (request) {
   /** @type {Partial<DossierDémarcheSimplifiée88444>} */
@@ -94,6 +85,90 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
   }
 
 })
+
+
+/**
+ * Routes qui nécessite des privilèges 
+ */
+
+fastify.get('/dossiers', async function (request, reply) {
+  // @ts-ignore
+  const code_accès = request.query.secret
+  if (code_accès) {
+    const personne = await getPersonneByCode(code_accès)
+    if (personne) {
+      return listAllDossiersComplets()
+    } else {
+      reply.code(403).send("Code d'accès non valide.")
+    }
+  } else {
+    reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
+  }
+})
+
+
+fastify.post('/remplir-annotations', async (request, reply) => {
+  // @ts-ignore
+  const cap = request.query.cap
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+  else{
+    const personne = await getPersonneByCode(cap)
+    if (!personne) {
+      reply.code(403).send(`Le paramètre 'cap' est invalide`)
+      return
+    } 
+    else{
+      /** @type { {dossierId: string, annotations: Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} } */
+      // @ts-ignore
+      const {dossierId, annotations} = request.body
+
+      if(!dossierId){
+        reply.code(400).send(`Donnée 'dossierId' manquante dans le body`)
+        return
+      }
+
+      if(!annotations){
+        reply.code(400).send(`Donnée 'annotations' manquante dans le body`)
+        return
+      }
+
+      /** @type {(keyof AnnotationsPrivéesDémarcheSimplifiée88444)[]} */
+      const dateKeys = [
+        'Date de réception DDEP', 
+        'Date saisine CSRPN', 
+        'Date saisine CNPN',
+        'Date avis CNPN', 
+        'Date avis CSRPN',
+        "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP",
+        "Date de début de la consultation du public ou enquête publique",
+        "Date de signature de l'AP",
+        "Date de l'AM"
+      ]
+
+      for(const k of dateKeys){
+        if(annotations[k]){
+          annotations[k] = new Date(annotations[k])
+        }
+      }
+
+      return remplirAnnotations(
+        DEMARCHE_SIMPLIFIEE_API_TOKEN,
+        {
+          dossierId, 
+          // PPP : à dés-hardcoder https://github.com/betagouv/pitchou/issues/46
+          instructeurId: `SW5zdHJ1Y3RldXItOTY3Mjk=`,
+          annotations
+        }
+      )
+    }
+  }
+
+})
+
+
 
 
 // Run the server!

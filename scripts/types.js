@@ -226,8 +226,8 @@
  * Ce type va souvent être utilisé en tant que Partial<AnnotationsPrivéesDémarcheSimplifiée88444>
  * 
  * @typedef {{
-*  "Historique - nom porteur": string,
-*  "Historique - localisation": string,
+*  "Nom du porteur de projet": string,
+*  "Localisation du projet": string,
 *  "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer" | undefined,
 *  "Dossier en attente de": "Action Instructeur" | "Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)",
 *  'Enjeu écologique': boolean,
@@ -245,7 +245,7 @@
 *  'Date avis CSRPN': Date,
 *  'Date avis CNPN': Date,
 *  'Avis CSRPN/CNPN': "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable",
-*  'Avis CSRPN/CNPN fichier': string,
+*  'Avis CSRPN/CNPN': string,
 *  'Date de début de la consultation du public ou enquête publique': Date,
 *  'Décision': "AP dérogation" | "AP modificatif" | "AP Refus",
 *  "Date de signature de l'AP": Date,
