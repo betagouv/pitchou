@@ -75,6 +75,8 @@ export default async () => {
         }
     }
 
+    const remplirAnnotationsURL = store.state.secret ? `/remplir-annotations?cap=${store.state.secret}` : undefined
+
     
     /**
      * 
@@ -84,7 +86,8 @@ export default async () => {
     function mapStateToProps({dossiers}){
         return {
             ...mapStateToSqueletteProps(store.state),
-            dossiers, nomToCommune, stringToDépartement, typeVersObjet
+            dossiers, nomToCommune, stringToDépartement, typeVersObjet,
+            remplirAnnotationsURL
         }
     }   
     

@@ -10,11 +10,11 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 
 const annotationsVides = dossierSuiviNAVersAnnotationsDS88444({})
 
-//const dossier = annotationsVides
+//const annotations = annotationsVides
 
 // Dossier 19155152
 
-const dossier = {
+const annotations = {
     "Nom du porteur de projet": 'Steven Universe',
     "Localisation du projet": 'Beach city',
     "DDEP nécessaire ?": 'Oui',
@@ -41,11 +41,11 @@ const dossier = {
 
 
 const result = await remplirAnnotations(
-    DEMARCHE_SIMPLIFIEE_API_TOKEN, 
-    dossier, 
+    DEMARCHE_SIMPLIFIEE_API_TOKEN,
     {
         dossierId: 'RG9zc2llci0xOTE1NTE1Mg',
-        instructeurId: 'SW5zdHJ1Y3RldXItMTAyMjAx'
+        instructeurId: 'SW5zdHJ1Y3RldXItMTAyMjAx',
+        annotations
     }
 )
 

@@ -150,10 +150,9 @@ const annotationTypeToFonctionRemplissage = new Map([
 
 /**
  * @param {string} token
- * @param {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} annotations
- * @param {{dossierId: string, instructeurId: string}} _
+ * @param {{dossierId: string, instructeurId: string, annotations: Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}} _
  */
-export default function remplirAnnotations(token, annotations, { dossierId, instructeurId }) {
+export default function remplirAnnotations(token, { dossierId, instructeurId, annotations }) {
     return Promise.all(Object.entries(annotations).map(([key, value]) => {
         const annotationDescriptor = labelToAnnotationDescriptor.get(key)
 
@@ -175,5 +174,24 @@ export default function remplirAnnotations(token, annotations, { dossierId, inst
 
         return fonctionRemplissage(token, { dossierId, instructeurId, annotationId: annotationDescriptor.id, value })
     }))
+    .then(allResults => allResults.map(r => {
+            if (!r)
+                return undefined;
+
+            const mutationResult = r.dossierModifierAnnotationText || r.dossierModifierAnnotationCheckbox || r.dossierModifierAnnotationDate
+            return mutationResult.errors
+        })
+        .filter(x => !!x)
+        .flat()
+    )
+    .then(errors => {
+        if(Array.isArray(errors) && errors.length >= 1){
+            throw new Error(`Erreurs GraphQL pendant le remplissage des annotations: ${JSON.stringify(errors, null, 2)}`)
+        }
+        else{
+            return undefined
+        }
+    })
+
 
 }
