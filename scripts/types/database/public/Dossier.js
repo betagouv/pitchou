@@ -1,6 +1,6 @@
 /** @typedef {import('./Personne').PersonneId} PersonneId */
 /** @typedef {import('./Entreprise').EntrepriseSiret} EntrepriseSiret */
-
+export {};
 /**
  * Identifier type for public.dossier
  * @typedef {number & { __brand: 'DossierId' }} DossierId
@@ -26,7 +26,7 @@
  * @property {string | null} ddep_nécessaire
  * @property {string | null} en_attente_de
  * @property {boolean | null} enjeu_politique
- * @property {string | null} commentaire
+ * @property {string | null} commentaire_enjeu
  * @property {Date | null} historique_date_réception_ddep
  * @property {Date | null} historique_date_envoi_dernière_contribution
  * @property {string | null} historique_identifiant_demande_onagre
@@ -42,6 +42,7 @@
  * @property {Date | null} historique_date_signature_arrêté_ministériel
  * @property {string | null} historique_référence_arrêté_ministériel
  * @property {boolean | null} enjeu_écologique
+ * @property {string | null} commentaire_libre
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -64,7 +65,7 @@
  * @property {string | null} [ddep_nécessaire]
  * @property {string | null} [en_attente_de]
  * @property {boolean | null} [enjeu_politique]
- * @property {string | null} [commentaire]
+ * @property {string | null} [commentaire_enjeu]
  * @property {Date | null} [historique_date_réception_ddep]
  * @property {Date | null} [historique_date_envoi_dernière_contribution]
  * @property {string | null} [historique_identifiant_demande_onagre]
@@ -80,6 +81,7 @@
  * @property {Date | null} [historique_date_signature_arrêté_ministériel]
  * @property {string | null} [historique_référence_arrêté_ministériel]
  * @property {boolean | null} [enjeu_écologique]
+ * @property {string | null} [commentaire_libre]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -102,7 +104,7 @@
  * @property {string | null} [ddep_nécessaire]
  * @property {string | null} [en_attente_de]
  * @property {boolean | null} [enjeu_politique]
- * @property {string | null} [commentaire]
+ * @property {string | null} [commentaire_enjeu]
  * @property {Date | null} [historique_date_réception_ddep]
  * @property {Date | null} [historique_date_envoi_dernière_contribution]
  * @property {string | null} [historique_identifiant_demande_onagre]
@@ -118,4 +120,5 @@
  * @property {Date | null} [historique_date_signature_arrêté_ministériel]
  * @property {string | null} [historique_référence_arrêté_ministériel]
  * @property {boolean | null} [enjeu_écologique]
+ * @property {string | null} [commentaire_libre]
  */
