@@ -4,6 +4,7 @@ import {json} from 'd3-fetch'
 import remember, {forget} from 'remember'
 
 import store from '../store.js';
+import { getURL } from '../getLinkURL.js';
 
 /** @typedef {import('../../types/database/public/Dossier.js').default} Dossier */
 
@@ -25,9 +26,7 @@ export function chargerDossiers(){
 }
 
 export function chargerSchemaDS88444() {
-    const démarcheSimplifiée88444SchemaPath = '../../data/démarches-simplifiées/schema-DS-88444.json'
-
-    return json(démarcheSimplifiée88444SchemaPath).then((schema) => { 
+    return json(getURL("link#schema-DS8844")).then((schema) => { 
         store.mutations.setSchemaDS88444(schema)
         return schema
     })
