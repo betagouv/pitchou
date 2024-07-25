@@ -72,9 +72,6 @@
                                 <div class="fr-input-group">
                                     <label class="fr-label" for="{champ["label"]}">
                                         {champ["label"]} 
-                                        {#if nouveauDossierPartiel[champ["label"]]}
-                                        ✅
-                                        {/if}
                                     </label>
 
                                     <select 
