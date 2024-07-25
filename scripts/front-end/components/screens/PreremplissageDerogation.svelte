@@ -76,7 +76,7 @@
         <div class="fr-col-8">
             <h1>Pré-remplissage dérogation espèces protégées</h1>
 
-            <form>
+            <form on:change={onSelectChanged}>
                 {#each champsRemplissables as champ}
                     {#if champ["__typename"] == "HeaderSectionChampDescriptor"}
                         <h3>{champ["label"]}</h3>
@@ -90,7 +90,6 @@
 
                                     <select 
                                         bind:value={nouveauDossierPartiel[correspondanceSchemaDS88444etTypeDossier88444[champ["label"]]]} 
-                                        on:change={onSelectChanged}
                                         id="{champ["label"]}"
                                         class="fr-select"
                                     >
