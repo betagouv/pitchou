@@ -14,12 +14,10 @@
     
     /** @type {Array<DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]>} */
     $: champsPreremplis = Object.keys(nouveauDossierPartiel).filter(champ => {
-        return nouveauDossierPartiel[champ] != ""
+        return nouveauDossierPartiel[champ] !== ""
     })
 
     let onSelectChanged = (e) => {
-        console.log(nouveauDossierPartiel)
-
         lienDePreremplissage = créerLienGETPréremplissageDémarche(nouveauDossierPartiel)
     }
 
@@ -55,7 +53,7 @@
         "Suivi de mortalité - Votre demande concerne :": "Suivi de mortalité - Votre demande concerne :",
         "En cas de nécessité de capture d'individus, précisez le mode de capture": "En cas de nécessité de capture d'individus, précisez le mode de capture",
         "Utilisez-vous des sources lumineuses ?": "Utilisez-vous des sources lumineuses ?",
-        "Des mesures ERC sont-elles prévues ?": "Mesures d'évitement, réduction et/ou compensation"
+        "Des mesures ERC sont-elles prévues ?": "Des mesures ERC sont-elles prévues ?"
     }
 </script>
 
@@ -85,15 +83,15 @@
                                         id="{champ["label"]}"
                                         class="fr-select"
                                     >
+                                        
+                                        <option value="" selected></option>
                                         {#if champ["options"]}
-                                            <option value="" selected></option>
                                             {#each champ["options"] as option}
-                                                <option value="{option}">{option}</option>
+                                                <option value={option}>{option}</option>
                                             {/each}
                                         {:else}
-                                            <option value="" selected></option>
-                                            <option value="false">non</option>
-                                            <option value="true">oui</option>
+                                            <option value={true}>Oui</option>
+                                            <option value={false}>Non</option>
                                         {/if}
                                     </select>
                                 </div>
@@ -115,7 +113,13 @@
                             {#each champsPreremplis as champPrerempli}
                                 <li>
                                     {champPrerempli} : 
-                                    <em>{nouveauDossierPartiel[champPrerempli]}</em>
+                                    <em>
+                                        {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean" }
+                                            {nouveauDossierPartiel[champPrerempli] ? "Oui" : "Non"}
+                                        {:else}
+                                            {nouveauDossierPartiel[champPrerempli]}
+                                        {/if}
+                                    </em>
                                 </li>
                             {/each}
                         </ul>

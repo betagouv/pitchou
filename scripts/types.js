@@ -217,7 +217,7 @@
 *   "Bilan d'opérations antérieures": string,
 *   'Description succincte du projet': string,
 *   'Dépot du dossier complet de demande de dérogation': string,
-*   "Mesures d'évitement, réduction et/ou compensation": boolean,
+*   "Des mesures ERC sont-elles prévues ?": boolean,
 *   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement,
 *   "Éolien - Votre demande concerne :": string,
 *   "Urbanisation - Votre demande concerne :": string,

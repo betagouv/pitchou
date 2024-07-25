@@ -165,7 +165,7 @@ export const démarcheDossierLabelToId = new Map([
         "Q2hhbXAtMzkyMzY2OQ=="
     ],
     [
-        "Mesures d'évitement, réduction et/ou compensation",
+        "Des mesures ERC sont-elles prévues ?",
         "Q2hhbXAtMzg5NzUwOQ=="
     ],
     [
@@ -261,7 +261,7 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel) {
 
             /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]} */
             const valeur = dossierPartiel[champ]
-            if (valeur) {
+            if (valeur !== undefined && valeur !== null && valeur !== "") {
                 // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
