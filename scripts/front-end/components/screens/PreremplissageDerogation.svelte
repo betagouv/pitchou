@@ -31,6 +31,20 @@
     
     let champsRemplissables = schemaDS88444["revision"]["champDescriptors"].filter((champ) => {
         return champsPossibles.includes(champ["__typename"])
+    }).filter((champ, i, tableauActuel) => {
+        if (champ["__typename"] === "HeaderSectionChampDescriptor") {
+            const champSuivant = tableauActuel[i+1]
+
+            if (!champSuivant) return champ["__typename"] !== "HeaderSectionChampDescriptor"
+            
+            if (champSuivant["__typename"] !== "HeaderSectionChampDescriptor") { 
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        } 
     })
 
     /** @type {Record<string, keyof DossierDémarcheSimplifiée88444>} */
