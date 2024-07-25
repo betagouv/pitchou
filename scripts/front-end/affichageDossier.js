@@ -48,7 +48,7 @@ export function formatDemandeur({demandeur_personne_physique_nom, demandeur_pers
 
 /**
  *
- * @param {Date | undefined} date
+ * @param {Date | undefined | null} date
  * @returns {string}
  */
 export function formatDateAbsolue(date) {
@@ -61,7 +61,7 @@ export function formatDateAbsolue(date) {
   
   /**
    *
-   * @param {Date | undefined} date
+   * @param {Date | undefined | null} date
    * @returns {string}
    */
 export function formatDateRelative(date) {
