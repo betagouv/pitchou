@@ -53,15 +53,15 @@
     const etreVivantClassificationToBloc = new Map([
         ["oiseau", {
             sectionClass: "saisie-oiseau",
-            sectionTitre: `Oiseaux 🐦`
+            sectionTitre: `Oiseaux`
         }],
         ["faune non-oiseau", {
             sectionClass: "saisie-faune",
-            sectionTitre: `Animaux (hors oiseaux) 🐸`
+            sectionTitre: `Faune (hors oiseaux)`
         }],
         ["flore", {
             sectionClass: "saisie-flore",
-            sectionTitre: `Végétaux 🍀`
+            sectionTitre: `Végétaux`
         }]
     ])
 
