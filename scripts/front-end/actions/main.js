@@ -24,8 +24,16 @@ export function chargerDossiers(){
     }
 }
 
+export function chargerSchemaDS88444() {
+    const démarcheSimplifiée88444SchemaPath = '../../data/démarches-simplifiées/schema-DS-88444.json'
+
+    return json(démarcheSimplifiée88444SchemaPath).then((schema) => { 
+        store.mutations.setSchemaDS88444(schema)
+        return schema
+    })
+}
+
 export function init(){
-    
     return remember(PITCHOU_SECRET_STORAGE_KEY)
         .then(secret => {
             if(secret){
@@ -34,6 +42,7 @@ export function init(){
                 return chargerDossiers()
             }
         })
+        .then(chargerSchemaDS88444)
         .catch(() => logout())
 }
 
