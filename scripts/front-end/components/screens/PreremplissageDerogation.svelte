@@ -1,6 +1,7 @@
 <script>
     import { créerLienGETPréremplissageDémarche } from '../../../commun/préremplissageDémarcheSimplifiée';
     import Squelette from '../Squelette.svelte'
+    import CopyButton from '../CopyButton.svelte'
 
     /** @import {DossierDémarcheSimplifiée88444} from "../../../types.js" */
 
@@ -58,7 +59,7 @@
     }
 </script>
 
-<Squelette>
+<Squelette {email}>
     <div class="fr-grid-row fr-grid-row--center">
         <div class="fr-col-8">
             <h1>Pré-remplissage dérogation espèces protégées</h1>
@@ -118,9 +119,12 @@
                                 </li>
                             {/each}
                         </ul>
-                        <pre>
-                            <code class="code-block">{lienDePreremplissage}</code>
-                        </pre>
+
+                        <CopyButton
+                            classname="fr-btn fr-btn--lg copy-link"
+                            textToCopy={() => lienDePreremplissage}
+                            initialLabel="Copier le lien de pré-remplissage"
+                        />
 
                         <a href={lienDePreremplissage} target="_blank">
                             Tester le lien de pré-remplissage
@@ -136,20 +140,3 @@
 
     </div>
 </Squelette>
-
-<style lang="scss">
-    .selected { 
-        background-color: red;
-    }
-    
-    .code-block {
-        background-color: #333333;
-        color: #FFFFFF;
-        border-radius: 3px;
-        padding: 2rem;
-        display: flex;
-        align-items: center;
-        font-weight: bold;
-        overflow: auto;
-    }
-</style>
