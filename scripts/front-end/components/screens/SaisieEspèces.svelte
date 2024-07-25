@@ -3,6 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from "../NomEspèce.svelte"
+    import CopyButton from '../CopyButton.svelte'
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces';
@@ -135,30 +136,11 @@
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
     }
 
-
-
-    /** @type {HTMLButtonElement} */
-    let copyButton;
-    let lienPartage;
-
-    function créerEtCopierLienPartage(){
+    function créerLienPartage(){
         const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
-        lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
+        const lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
 
-        copyButton.classList.add("animate");
-        copyButton.addEventListener("animationend", () =>
-            copyButton.classList.remove("animate"),
-        );
-
-        navigator.clipboard
-            .writeText(lienPartage)
-            .then(() => {
-                copyButton.textContent = "Copié dans le presse-papier !";
-            })
-            .catch((error) => {
-                console.error("Une erreur s'est produite lors de la copie : ", error);
-            });
-
+        return lienPartage
     }
 
     /**
@@ -488,7 +470,12 @@
             <div class="fr-col-8">
                 <h2>Lien pour votre dossier</h2>
                 <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
-                <button class="fr-btn fr-btn--lg copy-link" bind:this={copyButton} on:click={créerEtCopierLienPartage}>Créer le lien et le copier dans le presse-papier</button>
+
+                <CopyButton
+                    classname="fr-btn fr-btn--lg copy-link"
+                    textToCopy={créerLienPartage}
+                    initialLabel="Créer le lien et le copier dans le presse-papier"
+                />
             </div>
         </div>
     </article>
@@ -558,36 +545,5 @@
                 background-color: rgba(255, 255, 255, 0.1);
             }
         }
-    }
-
-    .copy-link{
-      z-index: 1;
-      position: relative;
-      font-size: inherit;
-      font-family: inherit;
-
-      &::before {
-        content: '';
-        z-index: -1;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #444;
-        transform-origin: center right;
-        transform: scaleX(0);
-        transition: transform 0.4s ease-in-out;
-      }
-
-      &.animate{
-        color: white;
-      }
-
-      &.animate::before {
-        transform-origin: center left;
-        transform: scaleX(1);
-      }
-    }
-	
+    }	
 </style>
