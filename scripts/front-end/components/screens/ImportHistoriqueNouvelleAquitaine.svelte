@@ -12,7 +12,7 @@
     /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
     /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
     /** @import {DossierComplet} from '../../../types.js' */
-
+    /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
     
     export let email
 
@@ -133,11 +133,50 @@
 
     /**
      * 
-     * @param {DossierComplet} dossier
+     * @param {Dossier} dossierPitchou
+     * @param {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} annotationsPartielles 
      * @returns {boolean}
      */
-    function dossierHasAnnotations(dossier){
-        return false && dossier;
+    function dossierAlreadyHasAnnotations(dossierPitchou, annotationsPartielles){
+
+        /** @type {Record<keyof AnnotationsPrivéesDémarcheSimplifiée88444, keyof Dossier>} */
+        const mapping = {
+            "Nom du porteur de projet": "historique_nom_porteur",
+            "Localisation du projet": "historique_localisation",
+            "DDEP nécessaire ?": "ddep_nécessaire",
+            "Dossier en attente de": "en_attente_de",
+            'Enjeu écologique': "enjeu_écologique",
+            'Enjeu politique': "enjeu_politique",
+            'Commentaires sur les enjeux et la procédure': "commentaire_enjeu",
+            "Commentaires libre sur l'état de l'instruction": "commentaire_libre",
+            'Date de réception DDEP': "historique_date_réception_ddep",
+            "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "historique_date_envoi_dernière_contribution",
+            'N° Demande ONAGRE': "historique_identifiant_demande_onagre",
+            'Date saisine CSRPN': "historique_date_saisine_csrpn",
+            'Date saisine CNPN': "historique_date_saisine_cnpn",
+            'Date avis CSRPN': "date_avis_csrpn",
+            'Date avis CNPN': "date_avis_cnpn",
+            'Date de début de la consultation du public ou enquête publique': "date_consultation_public",
+            'Décision': "historique_décision",
+            "Date de signature de l'AP": "historique_date_signature_arrêté_préfectoral",
+            "Référence de l'AP": "historique_référence_arrêté_préfectoral",
+            "Date de l'AM": "historique_date_signature_arrêté_ministériel",
+            "Référence de l'AM": "historique_référence_arrêté_ministériel"
+        };
+
+        //console.log('Object.entries(annotationsPartielles)', Object.entries(annotationsPartielles))
+
+        for (const [key, value] of Object.entries(annotationsPartielles)) {
+
+            if (value) {
+                const correspondingKey = mapping[key];
+                //console.log('key', key, 'values', value, dossierPitchou[correspondingKey])
+                if (dossierPitchou[correspondingKey]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     // Dossiers reconnus
@@ -161,7 +200,7 @@
                 candidatsDossierÀCréer.set(dossierTableauSuivi, {dossier: dossierPartiel88444, annotations: annotationsPartielle88444})
             }
             else{
-                if(!dossierHasAnnotations(dossierEnBaseDeDonnéeCorrespondant)){
+                if(!dossierAlreadyHasAnnotations(dossierEnBaseDeDonnéeCorrespondant, annotationsPartielle88444)){
                     candidatsAnnotationsÀAjouter.set(
                         dossierTableauSuivi, 
                         {dossier: dossierPartiel88444, annotations: annotationsPartielle88444, dossierPitchou: dossierEnBaseDeDonnéeCorrespondant}
@@ -373,19 +412,22 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Département principale</th>
+                                        <th>Localisation</th>
                                         <th>Porteur de projet</th>
                                         <th>Nom du projet</th>
-                                        <th>Localisation</th>
                                         <th>Dossier sur Démarches Simplifiées</th>
-                                        <th>Annoations privées</th>
+                                        <th>Annotations privées</th>
                                         <th>Ajouter les annotations privées</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 {#each [...candidatsAnnotationsÀAjouter.values()] as {dossier, annotations, dossierPitchou}}
                                     <tr>
-                                        <td>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</td>
+                                        <td>
+                                            <strong>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</strong>
+                                            <br>
+                                            {annotations['Localisation du projet']}
+                                        </td>
                                         <td>
                                             <strong>{dossier['Porteur de projet']}</strong> 
                                             {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
@@ -400,7 +442,6 @@
                                             {/if}
                                         </td>
                                         <td>{dossier['Nom du projet']}</td>
-                                        <td>{annotations['Localisation du projet']}</td>
                                         <td>
                                             <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
                                                 Dossier {dossierPitchou.number_demarches_simplifiées}
@@ -451,15 +492,60 @@
             {#if candidatsDossiersComplet}
             <section class="fr-grid-row fr-mb-6w">
                 <div class="fr-col">
-                    <h2>Dossiers créés dans Démarches Simplifiées, avec annotations privées ({candidatsDossiersComplet.size})</h2>
-                    <!--
-                    <strong>
-                        PPP: Tableau replié
-                            Les dossiers sont reconnus d'abord par nom de projet
-                            puis par nom de porteur (si unique)
-                            puis par nom de représentant (si unique)
-                    </strong>
-                    -->
+                    <details>
+                        <summary>
+                            <h2>Dossiers complets dans Démarches Simplifiées ({candidatsDossiersComplet.size})</h2>
+                        </summary>
+
+                        <div class="fr-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Localisation</th>
+                                        <th>Porteur de projet</th>
+                                        <th>Nom du projet</th>
+                                        <th>Dossier sur Démarches Simplifiées</th>
+                                        <th>Annotations sur Démarches Simplifiées</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {#each [...candidatsDossiersComplet.values()] as {dossier, annotations, dossierPitchou}}
+                                    <tr>
+                                        <td>
+                                            <strong>{(dossier['Dans quel département se localise majoritairement votre projet ?'] || {}).code}</strong>
+                                            <br>
+                                            {annotations['Localisation du projet']}
+                                        </td>
+                                        <td>
+                                            <strong>{dossier['Porteur de projet']}</strong> 
+                                            {#if dossier['Numéro de SIRET']} (<em>{dossier['Numéro de SIRET']}</em>) {/if}
+                                            {#if dossier['Nom du représentant'] || dossier['Prénom du représentant'] || dossier['Adresse mail de contact']} 
+                                                <br>
+                                                <em>Contact</em><br>
+                                                {dossier['Prénom du représentant']} {dossier['Nom du représentant']}
+                                                {#if dossier['Adresse mail de contact']}
+                                                    <br>
+                                                    {dossier['Adresse mail de contact']}
+                                                {/if}
+                                            {/if}
+                                        </td>
+                                        <td>{dossier['Nom du projet']}</td>
+                                        <td>
+                                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}`}>
+                                                Dossier {dossierPitchou.number_demarches_simplifiées}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${dossierPitchou.number_demarches_simplifiées}/annotations-privees`}>
+                                                Annotations privées
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {/each}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
                 </div>
             </section>
             {/if}
