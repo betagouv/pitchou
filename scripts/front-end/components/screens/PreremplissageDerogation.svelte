@@ -112,8 +112,6 @@
             </form>
 
             <div class="fr-callout fr-callout--brown-caramel">
-                <h3 class="fr-callout__title">Votre lien de préremplissage pour une dérogation espèces protégées</h3>
-
                 <div class="fr-callout__text">
                     {#if champsPreremplis.length > 0}
                         <p class="fr-mt-2w">
@@ -145,7 +143,7 @@
                         </a>
                     {:else}
                         <p class="fr-mt-2w">
-                            Vous n'avez encore pré-rempli aucun champ de la dérogation. Vous pouvez sélectionnez des options ci-dessus afin d'obtenir votre lien de pré-remplissage.
+                            Vous n'avez encore pré-rempli aucun champ de la dérogation. Vous pouvez sélectionner des options ci-dessus afin d'obtenir votre lien de pré-remplissage.
                         </p>
                     {/if}
                 </div>
