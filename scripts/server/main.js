@@ -88,12 +88,6 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
 
 })
 
-fastify.addHook("onSend", async function(request, reply) {
-  reply.headers({
-		"Cache-Control": "public, max-age=`600`",
-	});
-})
-
 /**
  * Routes qui nécessite des privilèges 
  */
