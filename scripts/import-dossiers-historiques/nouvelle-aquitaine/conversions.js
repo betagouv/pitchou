@@ -181,7 +181,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
         "Bilan d'opérations antérieures": undefined,
         'Description succincte du projet': undefined,
         'Dépot du dossier complet de demande de dérogation': undefined,
-        "Mesures d'évitement, réduction et/ou compensation": undefined,
+        "Des mesures ERC sont-elles prévues ?": undefined,
         "Dans quel département se localise majoritairement votre projet ?": départementPrincipale
     };
 

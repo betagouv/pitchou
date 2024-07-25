@@ -48,7 +48,9 @@ fastify.get('/dossier/:dossierId', (request, reply) => {
 fastify.get('/import-historique/nouvelle-aquitaine', (request, reply) => {
   reply.sendFile('index.html')
 })
-
+fastify.get('/preremplissage-derogation', (request, reply) => {
+  reply.sendFile('index.html')
+})
 
 fastify.post('/lien-preremplissage', async function (request) {
   /** @type {Partial<DossierDémarcheSimplifiée88444>} */
@@ -85,7 +87,6 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
   }
 
 })
-
 
 /**
  * Routes qui nécessite des privilèges 

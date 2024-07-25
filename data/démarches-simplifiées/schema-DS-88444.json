@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-07-24T15:35:22+02:00",
+    "dateDerniereModification": "2024-07-25T16:03:46+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://plop.fr",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTU0MzA3",
-        "datePublication": "2024-07-23T15:57:35+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTU0NzMz",
+        "datePublication": "2024-07-25T16:03:46+02:00",
         "champDescriptors": [
             {
                 "__typename": "HeaderSectionChampDescriptor",
@@ -205,7 +205,7 @@
             {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDM2ODY3NA==",
-                "label": "Votre demande concerne t'elle :",
+                "label": "Éolien - Votre demande concerne :",
                 "description": "",
                 "required": false,
                 "options": [
@@ -217,7 +217,7 @@
             {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDM3NTk0Ng==",
-                "label": "Votre demande concerne t'elle ?",
+                "label": "Urbanisation - Votre demande concerne :",
                 "description": "",
                 "required": false,
                 "options": [
@@ -229,7 +229,7 @@
             {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDM3NTk0Nw==",
-                "label": "Votre demande concerne t'elle ?",
+                "label": "Transport ferroviaire ou électrique - Votre demande concerne :",
                 "description": "",
                 "required": false,
                 "options": [
@@ -241,7 +241,7 @@
             {
                 "__typename": "MultipleDropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDM2NzY1NQ==",
-                "label": "Précisez, votre demande concerne :",
+                "label": "Recherche scientifique - Votre demande concerne :",
                 "description": "",
                 "required": false,
                 "options": [
@@ -254,7 +254,7 @@
             {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDAzMzk0OA==",
-                "label": "Précisez",
+                "label": "Prise ou détention limité ou spécifié - Précisez",
                 "description": "",
                 "required": false,
                 "options": [
@@ -269,7 +269,7 @@
             {
                 "__typename": "MultipleDropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDM2Nzc5Ng==",
-                "label": "Finalité(s) de la demande",
+                "label": "Captures/Relâchers/Prélèvement - Finalité(s) de la demande",
                 "description": "",
                 "required": false,
                 "options": [
@@ -594,7 +594,7 @@
             {
                 "__typename": "MultipleDropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDM3MjY3Mg==",
-                "label": "Votre demande de dérogation concerne :",
+                "label": "Suivi de mortalité - Votre demande concerne :",
                 "description": "",
                 "required": false,
                 "options": [

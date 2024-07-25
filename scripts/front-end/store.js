@@ -24,6 +24,7 @@ import '../types.js'
  * @typedef {Object} PitchouState
  * @property {Personne['code_accès']} [secret]
  * @property {Dossier[]} [dossiers] // pas vraiment des Dossier vu que venant d'un join
+ * @property {Object} [schemaDS88444]
  */
 
 /** @type {PitchouState} */
@@ -46,6 +47,13 @@ const mutations = {
    */
   setDossiers(state, dossiers) {
     state.dossiers = dossiers
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['schemaDS88444']} schemaDS88444
+   */
+  setSchemaDS88444(state, schemaDS88444) {
+    state.schemaDS88444 = schemaDS88444
   }
 }
 

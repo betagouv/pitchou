@@ -183,7 +183,7 @@
  * 
  * @typedef {{
 *   'Porteur de projet': string,
-*   'Le demandeur est…': string,
+*   'Le demandeur est…': "une personne physique" | "une personne morale",
 *   'Numéro de SIRET': string,
 *   'Qualification': string,
 *   'Adresse': string,
@@ -217,8 +217,18 @@
 *   "Bilan d'opérations antérieures": string,
 *   'Description succincte du projet': string,
 *   'Dépot du dossier complet de demande de dérogation': string,
-*   "Mesures d'évitement, réduction et/ou compensation": boolean,
-*   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement
+*   "Des mesures ERC sont-elles prévues ?": boolean,
+*   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement,
+*   "Éolien - Votre demande concerne :": string,
+*   "Urbanisation - Votre demande concerne :": string,
+*   "Transport ferroviaire ou électrique - Votre demande concerne :": string,
+*   "Recherche scientifique - Votre demande concerne :": string[],
+*   "Prise ou détention limité ou spécifié - Précisez": string,
+*   "Captures/Relâchers/Prélèvement - Finalité(s) de la demande": string[],
+*   "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?": boolean,
+*   "Suivi de mortalité - Votre demande concerne :": string[],
+*   "En cas de nécessité de capture d'individus, précisez le mode de capture": string[], 
+*   "Utilisez-vous des sources lumineuses ?": boolean
 * }} DossierDémarcheSimplifiée88444
 */
 

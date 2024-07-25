@@ -4,6 +4,7 @@ import {json} from 'd3-fetch'
 import remember, {forget} from 'remember'
 
 import store from '../store.js';
+import { getURL } from '../getLinkURL.js';
 
 /** @typedef {import('../../types/database/public/Dossier.js').default} Dossier */
 
@@ -24,8 +25,14 @@ export function chargerDossiers(){
     }
 }
 
+export function chargerSchemaDS88444() {
+    return json(getURL("link#schema-DS8844")).then((schema) => { 
+        store.mutations.setSchemaDS88444(schema)
+        return schema
+    })
+}
+
 export function init(){
-    
     return remember(PITCHOU_SECRET_STORAGE_KEY)
         .then(secret => {
             if(secret){
@@ -34,6 +41,7 @@ export function init(){
                 return chargerDossiers()
             }
         })
+        .then(chargerSchemaDS88444)
         .catch(() => logout())
 }
 

@@ -10,6 +10,7 @@ import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
 import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
+import { getURL } from '../getLinkURL.js';
 
 /** @import {
  *    ActivitéMenançante, 
@@ -24,27 +25,7 @@ import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspècePro
  *  } from "../../types.js" 
  **/
 
-export default async () => {
-    /**
-     * @param {string} selector 
-     * @returns {string}
-     */
-    function getURL(selector){
-        const element = document.head.querySelector(selector)
-    
-        if(!element){
-            throw new TypeError(`Élément ${selector} manquant`)
-        }
-    
-        const hrefAttribute = element.getAttribute('href')
-    
-        if(!hrefAttribute){
-            throw new TypeError(`Attribut "href" manquant sur ${selector}`)
-        }
-    
-        return hrefAttribute
-    }
-    
+export default async () => { 
     /** @type { [EspèceProtégéeStrings[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
     // @ts-ignore
     const [dataEspèces, activites, methodes, transports, groupesEspècesBrutes] = await Promise.all([
