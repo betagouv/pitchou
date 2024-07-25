@@ -3,6 +3,8 @@
 // ce script recups les dossier de la démarche 88444
 
 import ky from 'ky';
+import { formatISO } from 'date-fns';
+
 
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
 
@@ -30,14 +32,14 @@ query getDemarche(
   $deletedSince: ISO8601DateTime
   $includeDossiers: Boolean = true
   $includePendingDeletedDossiers: Boolean = false
-  $includeDeletedDossiers: Boolean = false
+  $includeDeletedDossiers: Boolean = true
   $includeChamps: Boolean = true
   $includeAnotations: Boolean = true
   $includeTraitements: Boolean = true
   $includeInstructeurs: Boolean = true
   $includeAvis: Boolean = true
   $includeMessages: Boolean = true
-  $includeCorrections: Boolean = true
+  $includeCorrections: Boolean = false
 ) {
   demarche(number: $demarcheNumber) {
     id
@@ -416,26 +418,61 @@ fragment PageInfoFragment on PageInfo {
 
 `;
 
-export async function recupérerDossiersRécemmentModifiés({token, démarcheId, updatedSince}) {
-  const response = await ky.post(ENDPOINT, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    json: {
-      query: QUERY,
-      variables: {
-        demarcheNumber: parseInt(démarcheId),
-        last: 100,
-        updatedSince
-      }
+
+/**
+ * @param {string} token
+ * @param {number} demarcheNumber
+ * @param {Date} updatedSince
+ * @param {string} [before]
+ * @returns {Promise<any>}
+ */
+function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, before) {
+    return ky.post(ENDPOINT, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        json: {
+            query: QUERY,
+            variables: {
+                demarcheNumber,
+                
+                last: 100, 
+                updatedSince: formatISO(updatedSince), 
+                before
+            }
+        }
+    }).json();
+}
+
+
+/**
+ * @param {string} token
+ * @param {number} demarcheNumber
+ * @param {Date} updatedSince
+ * @returns {Promise<any>}
+ */
+export async function recupérerDossiersRécemmentModifiés(token, demarcheNumber, updatedSince) {
+    let dossiers = []
+    let hasPreviousPage = true;
+    let startCursor = undefined
+    
+    while(hasPreviousPage){
+        console.log('nouvelle page !', startCursor)
+        const page = await récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, startCursor)
+        const pageDossiers = page.data.demarche.dossiers.nodes
+
+        console.log('pageDossiers', pageDossiers.length)
+
+        dossiers = pageDossiers.concat(dossiers)
+
+        const pageInfo = page.data.demarche.dossiers.pageInfo;
+
+        hasPreviousPage = pageInfo.hasPreviousPage
+        startCursor = pageInfo.startCursor
     }
-  }).json();
 
+    console.log('dossiers', dossiers.length)
 
-  if(response.errors){
-    console.error('request page error', response.errors)
-  }
-  
-  return response.data.demarche;
+    return dossiers;
 }

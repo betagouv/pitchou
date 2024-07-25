@@ -1,6 +1,5 @@
 //@ts-check
 
-import { formatISO } from 'date-fns';
 
 import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
@@ -17,7 +16,8 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
 }
 
-const DEMARCHE_NUMBER = process.env.DEMARCHE_NUMBER
+/** @type {number} */
+const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER)
 if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
 }
@@ -29,14 +29,15 @@ if(!DATABASE_URL){
 
 
 
-const démarche = await recupérerDossiersRécemmentModifiés({
-    token: DEMARCHE_SIMPLIFIEE_API_TOKEN, 
-    démarcheId: DEMARCHE_NUMBER, 
-    updatedSince: formatISO(new Date(2024, 1, 1))
-})
+const dossiersDS = await recupérerDossiersRécemmentModifiés(
+    DEMARCHE_SIMPLIFIEE_API_TOKEN, 
+    DEMARCHE_NUMBER, 
+    new Date('2024-03-01')
+)
+
 
 //console.log('démarche', démarche)
-console.log('Nombre de dossiers', démarche.dossiers.nodes.length)
+console.log('Nombre de dossiers', dossiersDS.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
 //console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
@@ -100,7 +101,7 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
-const dossiers = démarche.dossiers.nodes.map(({
+const dossiers = dossiersDS.map(({
     id: id_demarches_simplifiées,
     number,
     dateDepot: date_dépôt, 
@@ -248,9 +249,20 @@ const dossiers = démarche.dossiers.nodes.map(({
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS["N° Demande ONAGRE"]).stringValue
 
     const historique_date_saisine_csrpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CSRPN"]).date
-    const historique_date_saisine_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CNPN"]).date
+
+    const historique_date_saisine_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CNPN"]) ?
+        annotationById.get(pitchouKeyToAnnotationDS["Date saisine CNPN"]).date : 
+        undefined
+    
+    
     const date_avis_csrpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CSRPN"]).date
-    const date_avis_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CNPN"]).date
+    
+    const date_avis_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CNPN"]) ?
+        annotationById.get(pitchouKeyToAnnotationDS["Date avis CNPN"]).date : 
+        undefined
+
+
+
     const avis_csrpn_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Avis CSRPN/CNPN"]).stringValue
 
     const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS["Date de début de la consultation du public ou enquête publique"]).date
@@ -396,16 +408,16 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
     }
 }
 
+
+
 if(entreprisesInDossiersBySiret.size >= 1){
     await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
 }
-/*
-    Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
-*/
+
+// Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
 dossiers.forEach(d => {
     d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
 })
-
 
 
 dumpDossiers(dossiers)
