@@ -167,6 +167,46 @@ export const démarcheDossierLabelToId = new Map([
     [
         "Mesures d'évitement, réduction et/ou compensation",
         "Q2hhbXAtMzg5NzUwOQ=="
+    ],
+    [
+        "Éolien - Votre demande concerne :",
+        "Q2hhbXAtNDM2ODY3NA=="
+    ],
+    [
+        "Urbanisation - Votre demande concerne :",
+        "Q2hhbXAtNDM3NTk0Ng=="
+    ],
+    [
+        "Transport ferroviaire ou électrique - Votre demande concerne :",
+        "Q2hhbXAtNDM3NTk0Nw=="
+    ],
+    [
+        "Recherche scientifique - Votre demande concerne :",
+        "Q2hhbXAtNDM2NzY1NQ=="
+    ],
+    [
+        "Prise ou détention limité ou spécifié - Précisez",
+        "Q2hhbXAtNDAzMzk0OA=="
+    ],
+    [
+        "Captures/Relâchers/Prélèvement - Finalité(s) de la demande",
+        "Q2hhbXAtNDM2Nzc5Ng=="
+    ],
+    [
+        "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?",
+        "Q2hhbXAtNDM2ODcwOQ=="
+    ],
+    [
+        "Suivi de mortalité - Votre demande concerne :",
+        "Q2hhbXAtNDM3MjY3Mg=="
+    ],
+    [
+        "En cas de nécessité de capture d'individus, précisez le mode de capture",
+        "Q2hhbXAtNDM2ODA4Mw=="
+    ],
+    [
+        "Utilisez-vous des sources lumineuses ?",
+        "Q2hhbXAtNDM2ODEwOQ=="
     ]
 ])
 
@@ -198,36 +238,20 @@ function makeDépartementParam({code}){
     return `${encodeURIComponent(départementChamp)}[][${départementChampRépété}]=${code}`
 }
 
-/** @type {(keyof DossierDémarcheSimplifiée88444)[]} */
-export const champsPourPréremplissage = [
-    "Le demandeur est…",
-    "Objet du projet",
-    "Nom du représentant",
-    "Prénom du représentant",
-    "Adresse mail de contact",
-    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
-    "Lien vers la liste des espèces concernées",
-    "Nom du projet",
-    "Le projet se situe au niveau…",
-    "Commune(s) où se situe le projet",
-    "Département(s) où se situe le projet",
-    "Région(s) où se situe le projet"
-]
-
 const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?`
 
 /**
  * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction créé un lien GET
  * 
- * @param {DossierDémarcheSimplifiée88444} dossierPartiel
+ * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel
  * @returns {string}
  */
 export function créerLienGETPréremplissageDémarche(dossierPartiel) {
     /** @type {Record<string, string>} */
     const objetPréremplissage = {};
 
-    for (const champ of champsPourPréremplissage) {
+    for (const champ of démarcheDossierLabelToId.keys()) {
         if (![
             'Commune(s) où se situe le projet',
             'Département(s) où se situe le projet',

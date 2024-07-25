@@ -1,7 +1,7 @@
 //@ts-check
 
 import ky from "ky"
-import { champsPourPréremplissage, clefAE, démarcheDossierLabelToId } from "../../commun/préremplissageDémarcheSimplifiée.js";
+import { clefAE, démarcheDossierLabelToId } from "../../commun/préremplissageDémarcheSimplifiée.js";
 
 /** @import {DossierDémarcheSimplifiée88444} from "../../types.js" */
 
@@ -17,7 +17,7 @@ function créerObjetPréremplissageChamp(dossierPartiel){
     /** @type {ReturnType<créerObjetPréremplissageChamp>} */
     const objetPréremplissage = {};
 
-    for (const champ of champsPourPréremplissage) {
+    for (const champ of démarcheDossierLabelToId.keys()) {
         if (![
             'Commune(s) où se situe le projet',
             'Département(s) où se situe le projet',

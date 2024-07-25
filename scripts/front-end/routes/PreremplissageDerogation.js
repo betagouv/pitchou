@@ -16,6 +16,7 @@ export default () => {
     function mapStateToProps(){
         return {
             ...mapStateToSqueletteProps(store.state),
+            schemaDS88444: store.state.schemaDS88444,
         }
     }   
     
