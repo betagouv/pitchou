@@ -1,3 +1,6 @@
+
+/** @import {default as Dossier} from './types/database/public/Dossier.ts' */
+
 /**
  * @template T
  * @typedef { {[K in keyof T]: string} } StringValues
@@ -245,7 +248,6 @@
 *  'Date avis CSRPN': Date,
 *  'Date avis CNPN': Date,
 *  'Avis CSRPN/CNPN': "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable",
-*  'Avis CSRPN/CNPN': string,
 *  'Date de début de la consultation du public ou enquête publique': Date,
 *  'Décision': "AP dérogation" | "AP modificatif" | "AP Refus",
 *  "Date de signature de l'AP": Date,
@@ -258,7 +260,7 @@
 
 
 /**
- * @typedef {Object} DossierComplément
+ * @typedef {Object} DossierComplémentPersonnesImpliquées
  * @property {string} nom_dossier
  * @property {string} déposant_nom
  * @property {string} déposant_prénoms
@@ -267,8 +269,9 @@
  * @property {string} demandeur_personne_morale_raison_sociale
  * @property {string} demandeur_personne_morale_siret
  * 
- */
-/** @typedef {Dossier & DossierComplément} DossierComplet */
+ */ 
+
+/** @typedef {Dossier & DossierComplémentPersonnesImpliquées} DossierComplet */
 
 
 export default 'TS needs a module'

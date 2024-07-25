@@ -8,7 +8,7 @@ import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupére
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {DossierDémarcheSimplifiée88444, DémarchesSimpliféesCommune} from '../scripts/types.js' */
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DémarchesSimpliféesCommune} from '../scripts/types.js' */
 
 // récups les données de DS
 
@@ -66,6 +66,7 @@ Avec l'aide de
 
  */
 
+/** @type {Record<keyof AnnotationsPrivéesDémarcheSimplifiée88444, string>}  */
 const pitchouKeyToAnnotationDS = {
     "Nom du porteur de projet": "Q2hhbXAtNDM3OTk5Mg==",
     "Localisation du projet": "Q2hhbXAtNDM3OTk5NA==",
@@ -75,6 +76,7 @@ const pitchouKeyToAnnotationDS = {
     "Enjeu politique": "Q2hhbXAtNDA5ODY5NQ==",
     "Commentaires sur les enjeux et la procédure": "Q2hhbXAtNDA5ODY5Ng==",
     "Date de réception DDEP": "Q2hhbXAtNDE0NzgzMg==",
+    "Commentaires libre sur l'état de l'instruction": "Q2hhbXAtNDM4OTkxMg==",
     "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
     "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzgzMw==",
     "Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
@@ -234,9 +236,14 @@ const dossiers = démarche.dossiers.nodes.map(({
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu écologique"]).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu politique"]).checked
-    const commentaire = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).stringValue
+    const commentaire_enjeu = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).stringValue
 
-    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).date
+    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS["Date de réception DDEP"]).date
+    
+    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS["Commentaires libre sur l'état de l'instruction"]) ?
+        annotationById.get(pitchouKeyToAnnotationDS["Commentaires libre sur l'état de l'instruction"]).stringValue :
+        undefined;
+        
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS["Date d'envoi de la dernière contribution en lien avec l'instruction DDEP"]).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS["N° Demande ONAGRE"]).stringValue
 
@@ -283,9 +290,10 @@ const dossiers = démarche.dossiers.nodes.map(({
 
         enjeu_écologique,
         enjeu_politique,
-        commentaire,
+        commentaire_enjeu,
         
         historique_date_réception_ddep,
+        commentaire_libre,
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
         historique_date_saisine_csrpn,
