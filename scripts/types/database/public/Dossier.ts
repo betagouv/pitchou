@@ -45,7 +45,7 @@ export default interface Dossier {
 
   enjeu_politique: boolean | null;
 
-  commentaire: string | null;
+  commentaire_enjeu: string | null;
 
   historique_date_réception_ddep: Date | null;
 
@@ -76,6 +76,8 @@ export default interface Dossier {
   historique_référence_arrêté_ministériel: string | null;
 
   enjeu_écologique: boolean | null;
+
+  commentaire_libre: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -117,7 +119,7 @@ export interface DossierInitializer {
 
   enjeu_politique?: boolean | null;
 
-  commentaire?: string | null;
+  commentaire_enjeu?: string | null;
 
   historique_date_réception_ddep?: Date | null;
 
@@ -148,6 +150,8 @@ export interface DossierInitializer {
   historique_référence_arrêté_ministériel?: string | null;
 
   enjeu_écologique?: boolean | null;
+
+  commentaire_libre?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -188,7 +192,7 @@ export interface DossierMutator {
 
   enjeu_politique?: boolean | null;
 
-  commentaire?: string | null;
+  commentaire_enjeu?: string | null;
 
   historique_date_réception_ddep?: Date | null;
 
@@ -219,4 +223,6 @@ export interface DossierMutator {
   historique_référence_arrêté_ministériel?: string | null;
 
   enjeu_écologique?: boolean | null;
+
+  commentaire_libre?: string | null;
 }

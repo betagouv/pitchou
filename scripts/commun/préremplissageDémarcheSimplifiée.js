@@ -24,10 +24,10 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 /** @import {DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
 
-const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
+export const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
 
 /** @type {Map< keyof DossierDémarcheSimplifiée88444, string >} */
-const démarcheDossierLabelToId = new Map([
+export const démarcheDossierLabelToId = new Map([
     [
         "Le demandeur est…",
         "Q2hhbXAtMzg5ODg5NQ=="
@@ -199,7 +199,7 @@ function makeDépartementParam({code}){
 }
 
 /** @type {(keyof DossierDémarcheSimplifiée88444)[]} */
-const champsPourPréremplissage = [
+export const champsPourPréremplissage = [
     "Le demandeur est…",
     "Objet du projet",
     "Nom du représentant",
@@ -217,9 +217,13 @@ const champsPourPréremplissage = [
 const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?`
 
 /**
+ * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Cette fonction créé un lien GET
+ * 
  * @param {DossierDémarcheSimplifiée88444} dossierPartiel
+ * @returns {string}
  */
-export function créerLienPréremplissageDémarche(dossierPartiel) {
+export function créerLienGETPréremplissageDémarche(dossierPartiel) {
     /** @type {Record<string, string>} */
     const objetPréremplissage = {};
 

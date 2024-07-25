@@ -5,7 +5,7 @@
     
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../server/database.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier
@@ -13,10 +13,6 @@
     const {date_dépôt, statut, déposant_nom, number_demarches_simplifiées: numdos} = dossier
 
     export let email
-
-    /*
-    <td><a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/17842913`}>Allé !</a></td>
-    */
 
 </script>
 

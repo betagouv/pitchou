@@ -77,11 +77,12 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 ### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
 
-`node --env-file=.env outils/sync-démarches-simplifiées.js`
-
-ou, en dev, depuis le container du serveur : 
+En dev, depuis le container du serveur : 
 
 `docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js`
+
+
+(ou depuis l'extérieur : `node --env-file=.env outils/sync-démarches-simplifiées.js`)
 
 #### En prod
 
@@ -90,3 +91,7 @@ Pour modifier le cron : https://crontab.guru/
 ### Fabriquer le JSON de la liste des groupes d'espèces
 
 `node outils/groupes-espèces.js`
+
+### Remplir des annotations privées
+
+`node --env-file=.env outils/remplir-annotations.js`

@@ -112,18 +112,7 @@ export function listAllDossier() {
     return database('dossier').select()
 }
 
-/**
- * @typedef {Object} DossierComplément
- * @property {string} nom_dossier
- * @property {string} déposant_nom
- * @property {string} déposant_prénoms
- * @property {string} demandeur_personne_physique_nom
- * @property {string} demandeur_personne_physique_prénoms
- * @property {string} demandeur_personne_morale_raison_sociale
- * @property {string} demandeur_personne_morale_siret
- * 
- */
-/** @typedef {Dossier & DossierComplément} DossierComplet */
+
 
 
 /**
@@ -140,21 +129,52 @@ export function listAllDossiersComplets() {
             "date_dépôt",
             "dossier.nom as nom_dossier",
             "espèces_protégées_concernées", 
+            
             // localisation
             "départements", 
             "communes", 
             "régions", 
+            
             // annotations privées
             "enjeu_écologique", 
+            
             // déposant
             "déposant.nom as déposant_nom",
             "déposant.prénoms as déposant_prénoms",
+            
             // demandeur_personne_physique
             "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
             "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+            
             // demandeur_personne_morale
             "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
             "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
+
+            // annotations privées
+            "historique_nom_porteur",
+            "historique_localisation",
+            "ddep_nécessaire",
+            "en_attente_de",
+
+            "enjeu_écologique",
+            "enjeu_politique",
+            "commentaire_enjeu",
+            
+            "historique_date_réception_ddep",
+            "commentaire_libre",
+            "historique_date_envoi_dernière_contribution",
+            "historique_identifiant_demande_onagre",
+            "historique_date_saisine_csrpn",
+            "historique_date_saisine_cnpn",
+            "date_avis_csrpn",
+            "date_avis_cnpn",
+            "avis_csrpn_cnpn",
+            "date_consultation_public",
+            "historique_décision",
+            "historique_date_signature_arrêté_préfectoral",
+            "historique_référence_arrêté_préfectoral",
+            "historique_date_signature_arrêté_ministériel",
+            "historique_référence_arrêté_ministériel"
         ])
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})

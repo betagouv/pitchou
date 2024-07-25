@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-07-17T16:48:09+02:00",
+    "dateDerniereModification": "2024-07-24T15:35:22+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://plop.fr",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTUzOTAx",
-        "datePublication": "2024-07-17T16:46:36+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTU0MzA3",
+        "datePublication": "2024-07-23T15:57:35+02:00",
         "champDescriptors": [
             {
                 "__typename": "HeaderSectionChampDescriptor",
@@ -362,7 +362,7 @@
                 "id": "Q2hhbXAtNDM2ODcxMQ==",
                 "label": "Ajoutez un fichier décrivant ces mesures complémentaires :",
                 "description": "",
-                "required": true,
+                "required": false,
                 "fileTemplate": null
             },
             {
@@ -510,7 +510,7 @@
                 "id": "Q2hhbXAtNDM2ODE3Nw==",
                 "label": "Joindre une carte du périmètre d'intervention si besoin",
                 "description": "",
-                "required": true,
+                "required": false,
                 "fileTemplate": null
             },
             {
@@ -581,7 +581,7 @@
                 "id": "Q2hhbXAtNDM3MjY2OQ==",
                 "label": "Nombre de passages par semaine de suivi",
                 "description": "",
-                "required": true
+                "required": false
             },
             {
                 "__typename": "PieceJustificativeChampDescriptor",
@@ -879,6 +879,13 @@
                 "id": "Q2hhbXAtNDE0NzgzMg==",
                 "label": "Date de réception DDEP",
                 "description": "Pour les dossiers historiques en cours de saisie dans DS",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDM4OTkxMg==",
+                "label": "Commentaires libre sur l'état de l'instruction",
+                "description": "Ce champ peut être utilisé librement par les instructeur.rices pour se laisser des notes sur où en est l'instruction du dossier",
                 "required": false
             },
             {

@@ -8,6 +8,7 @@ import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupére
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DémarchesSimpliféesCommune} from '../scripts/types.js' */
 
 // récups les données de DS
 
@@ -35,10 +36,10 @@ const démarche = await recupérerDossiersRécemmentModifiés({
 })
 
 //console.log('démarche', démarche)
-//console.log('dossiers', démarche.dossiers.nodes.length)
+console.log('Nombre de dossiers', démarche.dossiers.nodes.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
+//console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
 
 
 // stocker les dossiers en BDD
@@ -65,6 +66,7 @@ Avec l'aide de
 
  */
 
+/** @type {Record<keyof AnnotationsPrivéesDémarcheSimplifiée88444, string>}  */
 const pitchouKeyToAnnotationDS = {
     "Nom du porteur de projet": "Q2hhbXAtNDM3OTk5Mg==",
     "Localisation du projet": "Q2hhbXAtNDM3OTk5NA==",
@@ -74,6 +76,7 @@ const pitchouKeyToAnnotationDS = {
     "Enjeu politique": "Q2hhbXAtNDA5ODY5NQ==",
     "Commentaires sur les enjeux et la procédure": "Q2hhbXAtNDA5ODY5Ng==",
     "Date de réception DDEP": "Q2hhbXAtNDE0NzgzMg==",
+    "Commentaires libre sur l'état de l'instruction": "Q2hhbXAtNDM4OTkxMg==",
     "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
     "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzgzMw==",
     "Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
@@ -149,16 +152,18 @@ const dossiers = démarche.dossiers.nodes.map(({
 
 
     /* localisation */
+    /** @type {DossierDémarcheSimplifiée88444['Le projet se situe au niveau…']} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
     const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
     const champRégions = champById.get(pitchouKeyToChampDS["régions"])
 
+    /** @type {DémarchesSimpliféesCommune[] | undefined} */
     let communes;
     let départements;
     let régions;
 
-    if(champCommunes){
+    if(projetSitué === `d'une ou plusieurs communes` && champCommunes){
         communes = champCommunes.rows.map(c => c.champs[0].commune).filter(x => !!x)
         
         if(Array.isArray(communes) && communes.length >= 1){
@@ -166,11 +171,11 @@ const dossiers = démarche.dossiers.nodes.map(({
         }
     }
     else{
-        if(champDépartements){
+        if(projetSitué === `d'un ou plusieurs départements` && champDépartements){
             départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement.code))]
         }
         else{
-            if(champRégions){
+            if(projetSitué === `d'une ou plusieurs régions` && champRégions){
                 régions = [... new Set(champRégions.rows.map(c => c.champs[0].stringValue))]
             }
             else{
@@ -231,9 +236,14 @@ const dossiers = démarche.dossiers.nodes.map(({
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu écologique"]).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu politique"]).checked
-    const commentaire = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).stringValue
+    const commentaire_enjeu = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).stringValue
 
-    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).date
+    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS["Date de réception DDEP"]).date
+    
+    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS["Commentaires libre sur l'état de l'instruction"]) ?
+        annotationById.get(pitchouKeyToAnnotationDS["Commentaires libre sur l'état de l'instruction"]).stringValue :
+        undefined;
+        
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS["Date d'envoi de la dernière contribution en lien avec l'instruction DDEP"]).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS["N° Demande ONAGRE"]).stringValue
 
@@ -280,9 +290,10 @@ const dossiers = démarche.dossiers.nodes.map(({
 
         enjeu_écologique,
         enjeu_politique,
-        commentaire,
+        commentaire_enjeu,
         
         historique_date_réception_ddep,
+        commentaire_libre,
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
         historique_date_saisine_csrpn,
@@ -385,8 +396,9 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
     }
 }
 
-await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
-
+if(entreprisesInDossiersBySiret.size >= 1){
+    await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
+}
 /*
     Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
 */
