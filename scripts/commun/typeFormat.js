@@ -7,7 +7,7 @@ import { parse as parseDate } from "date-fns"
  * @param {any} d 
  * @returns {boolean}
  */
-function isValidDate(d) {
+export function isValidDate(d) {
     return d instanceof Date && !Number.isNaN(d.valueOf());
 }
 
