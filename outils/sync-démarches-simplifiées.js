@@ -1,8 +1,12 @@
 //@ts-check
 
+import parseArgs from 'minimist'
+import {sub} from 'date-fns'
 
 import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
+import {isValidDate} from '../scripts/commun/typeFormat.js'
+
 
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -27,12 +31,24 @@ if(!DATABASE_URL){
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
 }
 
+const args = parseArgs(process.argv)
 
+/** @type {Date} */
+let lastModified;
+
+if(typeof args.lastModified === 'string' && isValidDate(new Date(args.lastModified))){
+    lastModified = new Date(args.lastModified)
+}
+else{
+    lastModified = sub(new Date(), {hours: 24})
+}
+
+console.log(`Synchronisation des dossiers de la démarche`, DEMARCHE_NUMBER, 'modifiés depuis', lastModified)
 
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
     DEMARCHE_SIMPLIFIEE_API_TOKEN, 
     DEMARCHE_NUMBER, 
-    new Date('2024-03-01')
+    lastModified
 )
 
 
