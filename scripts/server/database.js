@@ -2,9 +2,11 @@
 
 import knex from 'knex';
 
-/** @typedef {import('../types/database/public/Personne.js').default} Personne */
-/** @typedef {import('../types/database/public/Dossier.js').default} Dossier */
-/** @typedef {import('../types/database/public/Entreprise.js').default} Entreprise */
+/** @import {DossierComplet} from '../types.js' */
+/** @import {GroupeInstructeurs} from "../types/démarches-simplifiées/api.js" */
+/** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
+/** @import {default as Personne} from '../types/database/public/Personne.ts' */
+/** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
 
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
@@ -253,4 +255,51 @@ export function dumpEntreprises(entreprises){
     .insert(entreprises)
     .onConflict('siret')
     .merge()
+}
+
+/**
+ * 
+ * @returns {Promise< Map<string, Personne['email'][]> >}
+ */
+async function getGroupesInstructeurs(){
+    const groupesInstructeursBDD = await database('groupe_instructeurs')
+        .select([
+            'groupe_instructeurs.nom as nom_groupe',
+            'email'
+        ])
+        .leftJoin('arête_groupe_instructeurs__personne', {'arête_groupe_instructeurs__personne.groupe_instructeurs': 'groupe_instructeurs.id'})
+        .leftJoin('personne', {'personne.id': 'arête_groupe_instructeurs__personne.personne'})
+
+    const groupeByNom = new Map()
+
+    for(const {nom_groupe, email} of groupesInstructeursBDD){
+        const groupeInstructeurs = groupeByNom.get(nom_groupe) || []
+        groupeInstructeurs.push(email)
+        groupeByNom.set(nom_groupe, groupeInstructeurs)
+    }
+
+    return groupeByNom
+}
+
+/**
+ * Synchroniser le groupes instructeurs dans la base de données avec ceux qui viennent de l'API 
+ *
+ * @param {GroupeInstructeurs[]} groupesInstructeursAPI 
+ */
+export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
+    
+    const groupesInstructeursBDD = await getGroupesInstructeurs()
+
+    throw `PPP
+        - créer une transaction
+        - créer les groupes qui n'existent pas
+        - supprimer les groupes qui sont absents
+        - mettre à jours les groupes si besoin
+    `
+
+    console.log('groupesInstructeursAPI', groupesInstructeursAPI)
+    console.log('synchroniserGroupesInstructeurs', groupesInstructeurs)
+
+
+
 }

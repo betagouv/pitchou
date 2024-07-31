@@ -1,7 +1,7 @@
 {
     "jobs": [
       {
-        "command": "*/10 * * * * node outils/sync-démarches-simplifiées.js",
+        "command": "*/10 * * * * node outils/sync-démarches-simplifiées-88444.js",
         "size": "S"
       },
       {
