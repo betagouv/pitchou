@@ -1,7 +1,7 @@
 //@ts-check
 
 /** @import {AnnotationsPrivéesDémarcheSimplifiée88444} from '../../types.js' */
-/** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/types.ts' */
+/** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
 
 import queryGraphQL from './queryGraphQL.js'
 import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}

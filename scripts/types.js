@@ -156,16 +156,6 @@
  * 
  */
 
-/** 
- * https://geo.api.gouv.fr/communes
- *
- * @typedef {Object} DémarchesSimpliféesCommune
- * @prop {string} name
- * @prop {string} code
- * @prop {string} postalCode
- * 
- */
-
 
 /** 
  * https://geo.api.gouv.fr/departements 
