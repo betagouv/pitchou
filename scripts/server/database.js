@@ -181,16 +181,56 @@ export function listAllDossiersComplets() {
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
 }
 
+
+
+/** @type {(keyof Dossier)[]} */
+const varcharKeys = [
+    'statut', 
+    'nom', 
+    'historique_nom_porteur', 
+    'historique_localisation', 
+    'ddep_nécessaire',
+    'en_attente_de',
+    'historique_décision',
+    'historique_référence_arrêté_préfectoral',
+    'historique_référence_arrêté_ministériel',
+]
+
+
 /**
  * 
  * @param {Dossier[]} dossiers 
  * @returns {Promise<any>}
  */
 export function dumpDossiers(dossiers){
+    for(const d of dossiers){
+        for(const k of varcharKeys){
+            if(d[k] && d[k].length >= 255){
+                console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
+                console.warn('Valeur:', d[k])
+                
+                //console.warn(`On va couper la valeur pour qu'elle rentre en base de données`)
+                //d[k] = d[k].slice(0, 255)
+            }
+        }
+    }
+
     return database('dossier')
     .insert(dossiers)
-    .onConflict('id_demarches_simplifiées')
+    .onConflict('number_demarches_simplifiées')
     .merge()
+}
+
+
+/**
+ * 
+ * @param {number[]} numbers 
+ * @returns 
+ */
+export function deleteDossierByDSNumber(numbers){
+    return database('dossier')
+        .whereIn('number_demarches_simplifiées', numbers)
+        .delete()
 }
 
 
