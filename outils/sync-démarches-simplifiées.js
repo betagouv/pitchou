@@ -1,10 +1,13 @@
 //@ts-check
 
 import parseArgs from 'minimist'
-import {sub} from 'date-fns'
+import {sub, format, formatDistanceToNow} from 'date-fns'
+import { fr } from "date-fns/locale";
 
-import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes} from '../scripts/server/database.js'
+import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, deleteDossierByDSNumber} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
+import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
+
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 
@@ -43,7 +46,20 @@ else{
     lastModified = sub(new Date(), {hours: 24})
 }
 
-console.log(`Synchronisation des dossiers de la démarche`, DEMARCHE_NUMBER, 'modifiés depuis', lastModified)
+console.log(
+    `Synchronisation des dossiers de la démarche`, 
+    DEMARCHE_NUMBER, 
+    'modifiés depuis le', 
+    format(lastModified, 'd MMMM yyyy (HH:mm O) ', {locale: fr}),
+    `(${formatDistanceToNow(lastModified, {locale: fr})})`
+)
+
+
+
+const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
+
+
+
 
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
     DEMARCHE_SIMPLIFIEE_API_TOKEN, 
@@ -442,3 +458,8 @@ dumpDossiers(dossiers)
     process.exit(1)
 })
 .then(() => process.exit())
+
+
+const dossiersSupp = await dossSuppP;
+
+await deleteDossierByDSNumber(dossiersSupp.map(({number}) => number))
