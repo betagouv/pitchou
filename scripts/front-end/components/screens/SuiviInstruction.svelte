@@ -24,28 +24,33 @@
                     <thead>
                         <tr>
                             <th>Voir le dossier</th>
-                            <th>Statut</th>
-                            <th>Date de dépôt</th>
-                            <th>Déposant</th>
-                            <th>Demandeur de la dérogation</th>
-                            <th>Nom du projet</th>
                             <th>Localisation</th>
-                            <th>Espèces protégées concernées, impacts, méthodes</th>
+                            <th>Porteur de projet</th>
+                            <th>Nom du projet</th>
+                            <th>Enjeux</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each dossiers as { id, statut, nom_dossier, date_dépôt, déposant_nom, déposant_prénoms, demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret, espèces_protégées_concernées, communes, départements, régions }}
+                        {#each dossiers as { id, nom_dossier, déposant_nom, déposant_prénoms, communes, départements, régions, enjeu_politique, enjeu_écologique }}
                             <tr>
                                 <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
-                                <td>{statut}</td>
-                                <td title={formatDateAbsolue(date_dépôt)}>{formatDateRelative(date_dépôt)}</td>
-                                <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
-                                <td>{formatDemandeur({demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret})}</td>
-                                <td>{nom_dossier || ''}</td>
                                 <td>{formatLocalisation({communes, départements, régions})}</td>
-                                <td>{#if espèces_protégées_concernées}
-                                    <a href={espèces_protégées_concernées}>Espèces protégées concernées, impacts, méthodes</a>
-                                {/if}</td>
+                                <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
+                                <td>{nom_dossier || ''}</td>
+                                <td>
+                                    {#if enjeu_politique}
+                                        <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
+                                            Enjeu politique
+                                        </p>
+                                    {/if}
+
+                                    {#if enjeu_écologique}
+                                    <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
+                                        Enjeu écologique
+                                    </p>
+                                    {/if}
+
+                                </td>
                             </tr>
                         {/each}
                     </tbody>
@@ -60,5 +65,9 @@
 <style lang="scss">
     td, th{
         vertical-align: top;
+    }
+
+    .fr-badge {
+        white-space: nowrap;
     }
 </style>
