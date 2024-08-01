@@ -1,7 +1,7 @@
 <script>
     //@ts-check
     import Squelette from '../Squelette.svelte'
-    import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
+    import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types.js' */
 
@@ -28,10 +28,11 @@
                             <th>Porteur de projet</th>
                             <th>Nom du projet</th>
                             <th>Enjeux</th>
+                            <th>Soumis au régime AE</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each dossiers as { id, nom_dossier, déposant_nom, déposant_prénoms, communes, départements, régions, enjeu_politique, enjeu_écologique }}
+                        {#each dossiers as { id, nom_dossier, déposant_nom, déposant_prénoms, communes, départements, régions, enjeu_politique, enjeu_écologique, soumis_au_regime_ae }}
                             <tr>
                                 <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                 <td>{formatLocalisation({communes, départements, régions})}</td>
@@ -51,6 +52,9 @@
                                     {/if}
 
                                 </td>
+                                <td>
+                                    {soumis_au_regime_ae ? "oui" : "non"}
+                                </td>
                             </tr>
                         {/each}
                     </tbody>
@@ -65,6 +69,10 @@
 <style lang="scss">
     td, th{
         vertical-align: top;
+    }
+
+    th {
+        min-width: 6rem;
     }
 
     .fr-badge {

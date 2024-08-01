@@ -78,6 +78,8 @@ export default interface Dossier {
   enjeu_écologique: boolean | null;
 
   commentaire_libre: string | null;
+
+  soumis_au_regime_ae: boolean;
 }
 
 /** Represents the initializer for the table public.dossier */
