@@ -84,7 +84,8 @@ const pitchouKeyToChampDS = {
     "communes": 'Q2hhbXAtNDA0MTQ0MQ==',
     "départements" : 'Q2hhbXAtNDA0MTQ0NQ==',
     "régions" : 'Q2hhbXAtNDA0MTQ0OA==',
-    "Le projet se situe au niveau…": 'Q2hhbXAtMzg5NzQwOA=='
+    "Le projet se situe au niveau…": 'Q2hhbXAtMzg5NzQwOA==',
+    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" : "Q2hhbXAtNDA4MzAxMQ==",
 }
 
 /*
@@ -252,6 +253,8 @@ const dossiers = dossiersDS.map(({
         }
     }
 
+    /** Régime AE */
+    const soumis_au_regime_ae = champById.get(pitchouKeyToChampDS["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"]).checked
 
     /** 
      * Annotations privées 
@@ -325,6 +328,7 @@ const dossiers = dossiersDS.map(({
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
         régions: JSON.stringify(régions),
+        soumis_au_regime_ae,
 
         // annotations privées
         historique_nom_porteur,
