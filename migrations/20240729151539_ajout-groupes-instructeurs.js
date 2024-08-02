@@ -10,11 +10,15 @@ export async function up(knex) {
     });
 
     await knex.schema.createTable('arête_groupe_instructeurs__personne', function (table) {
-        table.uuid('groupe_instructeurs').index()
-        table.foreign('groupe_instructeurs').references('id').inTable('groupe_instructeurs')
+        table.uuid('groupe_instructeurs').notNullable().index()
+        table.foreign('groupe_instructeurs')
+            .references('id').inTable('groupe_instructeurs')
+            .onDelete('CASCADE')
 
-        table.integer('personne').index()
-        table.foreign('personne').references('id').inTable('personne')
+        table.integer('personne').notNullable().index()
+        table.foreign('personne')
+            .references('id').inTable('personne')
+            .onDelete('CASCADE')
     });
 
 };
