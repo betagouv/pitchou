@@ -10,94 +10,106 @@
     /** @type {DossierComplet} */
     export let dossier
 
-    const {date_dépôt, statut, déposant_nom, number_demarches_simplifiées: numdos} = dossier
+    const {number_demarches_simplifiées: numdos} = dossier
 
     export let email
-
 </script>
 
 <Squelette {email}>
-    <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+    <div class="fr-grid-row fr-pt-6w">
         <div class="fr-col">
+            <h1 class="fr-mb-8w">Dossier {dossier.nom_dossier || "sans nom"}</h1>
 
-            <article>
-                <h1>Dossier {dossier.nom_dossier} - {statut}</h1>
+            <nav class="dossier-nav fr-mb-2w">
+                <ul class="fr-btns-group fr-btns-group--inline-lg">
+                    <li> 
+                        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
+                    </li>
+                </ul>
+            </nav>
 
+            <article class="fr-p-3w fr-mb-4w">
                 <section>
-                    <h2>Demandeur</h2>
-                    <p>{formatDemandeur(dossier)}</p>
-
-                    <h2>Localisation</h2>
-                    <p>{formatLocalisation(dossier)}</p>
-                </section>
-
-                <section>
-                    <h2>Chronologie</h2>
-                    <ol class="chronologie">
+                    <h2 class="fr-h5">Prochaine action attendue</h2>
+                    <ul class="fr-mb-3w">
                         <li>
-                            <span class="text">Dépôt sur Démarche Simplifiée</span>
-                            <span class="moment">{formatDateRelative(date_dépôt)}</span>
+                            <strong>Phase </strong>: Instruction
                         </li>
-                    </ol>
+                        <li>
+                            <strong>Acteur(s) concerné(s)</strong> : Instructeur
+                        </li>
+                        <li>
+                            <strong>Action</strong> : Traitement du dossier
+                        </li>
+                    </ul> 
+                    <p>
+                        <a 
+                            class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line fr-mb-2w"
+                            href="/dossier/{dossier.id}/modifier"
+                        >
+                            Mettre à jour la prochaine action
+                        </a>
+                    </p>
                 </section>
-
                 <section>
-                    <h2>Interlocueurs</h2>
-
-                    {#if déposant_nom}
-                    <h3>Déposant</h3>
-                    {formatDéposant(dossier)}
-                    {/if}
-
-                    <h3>Représentant du demandeur</h3>
-                    (à faire)
-                </section>
-
-                <section>
-                    <h2>Sur Démarches Simplifiée</h2>
-
+                    <h2 class="fr-h5">Informations</h2>
                     <ul>
                         <li>
-                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+                            <strong>Porteur de projet</strong> : {formatDéposant(dossier)}<br />
                         </li>
                         <li>
-                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
+                            <strong>Localisation</strong> : {formatLocalisation(dossier)}
                         </li>
-                        <li>
-                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
-                        </li>
+
+                        {#if dossier.enjeu_politique || dossier.enjeu_ecologique}
+                            <li>
+                                <strong>Enjeux</strong> : 
+                                {#if dossier.enjeu_politique}
+                                    <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">
+                                        Enjeu politique
+                                    </span>
+                                {/if}
+
+                                {#if dossier.enjeu_écologique}
+                                <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">
+                                    Enjeu écologique
+                                </span>
+                                {/if}
+                            </li>
+                        {/if}
                     </ul>
                 </section>
-
             </article>
         </div>
     </div>
 </Squelette>
 
 <style lang="scss">
-    article{
+    article {
+        background-color: var(--background-alt-grey);
+    }
 
-        h1{
-            text-align: center;
-        }
-
-        section{
+    section {
             margin-bottom: 3rem;
-        }
+    }
 
-        .chronologie{
-            list-style: none;
+    select {
+        max-width: 90%;
+    }
 
-            .text{
-                display: inline-block;
-                min-width: 20rem;
+    nav.dossier-nav {
+        display: flex;
+        justify-content: flex-end;
+    }
 
-                font-weight: bold;
-            }
-
-            .moment{
-
-            }
-        }
+    nav.fr-breadcrumb {
+        margin-bottom: .5rem;
+        margin-top: 0;
     }
 </style>
