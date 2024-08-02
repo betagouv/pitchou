@@ -18,7 +18,7 @@ interface Instructeur{
 
 export interface GroupeInstructeurs{
     label: string
-    instructeur: Instructeur[]
+    instructeurs: Instructeur[]
 }
 
 

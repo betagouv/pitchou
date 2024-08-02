@@ -3,17 +3,18 @@
 import knex from 'knex';
 
 /** @import {DossierComplet} from '../types.js' */
-/** @import {GroupeInstructeurs} from "../types/démarches-simplifiées/api.js" */
+/** @import * as API_DS from "../types/démarches-simplifiées/api.js" */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
+/** @import {default as GroupeInstructeurs} from '../types/database/public/GroupeInstructeurs.ts' */
 
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
 }
 
-const database = knex({
+const directDatabaseConnection = knex({
     client: 'pg',
     connection: DATABASE_URL,
 });
@@ -23,7 +24,7 @@ const database = knex({
  * @param {import('../types/database/public/Personne.js').PersonneInitializer} personne
  */
 export function créerPersonne(personne){
-    return database('personne')
+    return directDatabaseConnection('personne')
     .insert(personne)
 }
 
@@ -32,7 +33,7 @@ export function créerPersonne(personne){
  * @returns { Promise<{id: Personne['id']}[]> }
  */
 export function créerPersonnes(personnes){
-    return database('personne')
+    return directDatabaseConnection('personne')
     .insert(personnes, ['id'])
 }
 
@@ -43,7 +44,7 @@ export function créerPersonnes(personnes){
  * @returns {Promise<Personne> | Promise<undefined>}
  */
 export function getPersonneByCode(code_accès) {
-    return database('personne')
+    return directDatabaseConnection('personne')
     .where({ code_accès })
     .select('id')
     .first()
@@ -55,7 +56,7 @@ export function getPersonneByCode(code_accès) {
  * @returns {Promise<Personne> | Promise<undefined>}
  */
 export function getPersonneByEmail(email) {
-    return database('personne')
+    return directDatabaseConnection('personne')
     .where({ email })
     .select()
     .first()
@@ -68,7 +69,7 @@ export function getPersonneByEmail(email) {
  * @returns 
  */
 function updateCodeAccès(email, code_accès){
-    return database('personne')
+    return directDatabaseConnection('personne')
     .where({ email })
     .update({code_accès})
 }
@@ -99,7 +100,7 @@ export function créerPersonneOuMettreÀJourCodeAccès(email){
  * @returns {Promise<Personne[]>}
  */
 export function listAllPersonnes(){
-    return database('personne').select()
+    return directDatabaseConnection('personne').select()
 }
 
 
@@ -111,7 +112,7 @@ export function listAllPersonnes(){
  * @returns {Promise<Dossier[]>}
  */
 export function listAllDossier() {
-    return database('dossier').select()
+    return directDatabaseConnection('dossier').select()
 }
 
 
@@ -122,7 +123,7 @@ export function listAllDossier() {
  * @returns {Promise<DossierComplet[]>}
  */
 export function listAllDossiersComplets() {
-    return database('dossier')
+    return directDatabaseConnection('dossier')
         .select([ 
             "dossier.id as id",
             "id_demarches_simplifiées", 
@@ -218,7 +219,7 @@ export function dumpDossiers(dossiers){
         }
     }
 
-    return database('dossier')
+    return directDatabaseConnection('dossier')
     .insert(dossiers)
     .onConflict('number_demarches_simplifiées')
     .merge()
@@ -231,7 +232,7 @@ export function dumpDossiers(dossiers){
  * @returns 
  */
 export function deleteDossierByDSNumber(numbers){
-    return database('dossier')
+    return directDatabaseConnection('dossier')
         .whereIn('number_demarches_simplifiées', numbers)
         .delete()
 }
@@ -242,7 +243,7 @@ export function deleteDossierByDSNumber(numbers){
  * @returns {Promise<Entreprise[]>}
  */
 export function listAllEntreprises(){
-    return database('entreprise').select()
+    return directDatabaseConnection('entreprise').select()
 }
 
 /**
@@ -251,19 +252,20 @@ export function listAllEntreprises(){
  * @returns {Promise<any>}
  */
 export function dumpEntreprises(entreprises){
-    return database('entreprise')
+    return directDatabaseConnection('entreprise')
     .insert(entreprises)
     .onConflict('siret')
     .merge()
 }
 
 /**
- * 
- * @returns {Promise< Map<string, Personne['email'][]> >}
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise< Map<string, {id: string, instructeurs: Set<Personne['email']>}> >}
  */
-async function getGroupesInstructeurs(){
-    const groupesInstructeursBDD = await database('groupe_instructeurs')
+async function getGroupesInstructeurs(databaseConnection = directDatabaseConnection){
+    const groupesInstructeursBDD = await databaseConnection('groupe_instructeurs')
         .select([
+            'groupe_instructeurs.id as id_groupe',
             'groupe_instructeurs.nom as nom_groupe',
             'email'
         ])
@@ -272,34 +274,186 @@ async function getGroupesInstructeurs(){
 
     const groupeByNom = new Map()
 
-    for(const {nom_groupe, email} of groupesInstructeursBDD){
-        const groupeInstructeurs = groupeByNom.get(nom_groupe) || []
-        groupeInstructeurs.push(email)
+    for(const {id_groupe, nom_groupe, email} of groupesInstructeursBDD){
+        const groupeInstructeurs = groupeByNom.get(nom_groupe) || {id: id_groupe, instructeurs: new Set()}
+        if(email){
+            groupeInstructeurs.instructeurs.add(email)
+        }
         groupeByNom.set(nom_groupe, groupeInstructeurs)
     }
 
     return groupeByNom
 }
 
+
+/**
+ * 
+ * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI 
+ * @param {Map<Personne['email'], Partial<Personne>>} instructeurParEmail 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ */
+async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParEmail, databaseConnection = directDatabaseConnection){
+    const nomsGroupes = groupesInstructeursAPI.map(g => ({nom: g.label}))
+    
+    const nouveauxGroupes = await databaseConnection('groupe_instructeurs')
+        .insert(nomsGroupes)
+        .returning(['id', 'nom'])
+
+
+    const arêtes = groupesInstructeursAPI
+        .map(({label, instructeurs}) => {
+            const groupe_instructeurs = nouveauxGroupes.find(g => g.nom === label).id
+
+            return instructeurs.map(({email}) => {
+                //@ts-ignore TS ne peut pas comprendre que le get retourne toujours
+                const personne = instructeurParEmail.get(email).id
+                return ({groupe_instructeurs, personne})
+            })
+        })
+        .flat(Infinity)
+
+    console.log('arêtes', arêtes)
+
+    return databaseConnection('arête_groupe_instructeurs__personne')
+        .insert(arêtes)
+}
+
+/**
+ * 
+ * @param {GroupeInstructeurs[]} groupeIds 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns 
+ */
+async function supprimerGroupesInstructeurs(groupeIds, databaseConnection = directDatabaseConnection){
+    return databaseConnection('groupe_instructeurs')
+        .delete()
+        .whereIn('id', groupeIds);
+}
+
+
+/**
+ * 
+ * @param {string[]} emails 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<Pick<Personne, 'id' | 'email'>[]>}
+ */
+async function insertOrSelectPersonneParEmail(emails, databaseConnection = directDatabaseConnection){
+    await databaseConnection('personne')
+        .insert(emails.map(email => ({ email })))
+        .onConflict('email')
+        .ignore()
+
+    // @ts-ignore
+    return databaseConnection('personne')
+        .select(['id', 'email'])
+        .whereIn('email', emails);
+}
+
+
+
 /**
  * Synchroniser le groupes instructeurs dans la base de données avec ceux qui viennent de l'API 
  *
- * @param {GroupeInstructeurs[]} groupesInstructeursAPI 
+ * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI 
  */
 export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
-    
-    const groupesInstructeursBDD = await getGroupesInstructeurs()
+    // tmp for testing
+    //groupesInstructeursAPI.splice(groupesInstructeursAPI.findIndex(g => g.label === 'Dév Pitchou'), 1)
 
-    throw `PPP
-        - créer une transaction
-        - créer les groupes qui n'existent pas
-        - supprimer les groupes qui sont absents
-        - mettre à jours les groupes si besoin
-    `
+    return directDatabaseConnection.transaction(async trx => {
+        
+        const instructeursEnBDD = await insertOrSelectPersonneParEmail(
+            [...new Set(
+                groupesInstructeursAPI
+                    .map(({instructeurs}) => instructeurs.map(({email}) => email))
+                    .flat(Infinity)
+            )]
+        )
 
-    console.log('groupesInstructeursAPI', groupesInstructeursAPI)
-    console.log('synchroniserGroupesInstructeurs', groupesInstructeurs)
+        const instructeurParEmail = new Map(instructeursEnBDD.map(i => [i.email, i]))
 
+        console.log('instructeursEnBDD', instructeurParEmail)
+
+        const groupesInstructeursBDD = await getGroupesInstructeurs(trx)
+
+        console.log('groupesInstructeursAPI', groupesInstructeursAPI)
+        console.log('synchroniserGroupesInstructeurs', groupesInstructeursBDD)
+
+        // Créer en BDD les groupes qui n'y sont pas encore
+        const groupesInstructeursDansDSAbsentEnBDD = groupesInstructeursAPI.filter(({label}) => !groupesInstructeursBDD.has(label))
+
+        console.log('groupesInstructeursDansDSAbsentEnBDD', groupesInstructeursDansDSAbsentEnBDD)
+
+        const groupesInstructeursManquantsEnBDDCréés = groupesInstructeursDansDSAbsentEnBDD.length >= 1 ?
+            créerGroupesInstructeurs(groupesInstructeursDansDSAbsentEnBDD, instructeurParEmail, trx) : 
+            Promise.resolve()
+
+        
+        // Supprimer en BDD les groupes qui sont absents de DS
+        const groupesInstructeursEnBDDAbsentsDansDS = new Map([...groupesInstructeursBDD]
+            .filter(([nom_groupe]) => !groupesInstructeursAPI.find(({label}) => label === nom_groupe))
+        )
+
+
+        console.log('groupesInstructeurs En BDD Absents Dans DS (donc à supprimer)', groupesInstructeursEnBDDAbsentsDansDS)
+
+        const groupesInstructeursEnTropEnBDDSupprimés = groupesInstructeursEnBDDAbsentsDansDS.size >= 1 ?
+            supprimerGroupesInstructeurs([...groupesInstructeursEnBDDAbsentsDansDS.values()].map(({id}) => id), trx) : 
+            Promise.resolve()
+        
+        throw `PPP jusque-là, ça va, ensuite, c'est pas testé`
+
+        // Pour les groupes qui sont présents dans les deux, trouver les groupes qui ont besoin 
+        // d'une mise à jour de la liste des personnes
+        const miseÀJourEmailsDansGroupe = Promise.all(groupesInstructeursAPI.map(({label, instructeurs: groupeAPIEmails}) => {
+            const groupeBDD = groupesInstructeursBDD.get(label)
+
+            if(groupeBDD){
+                const {id: idGroupeInstructeurs, instructeurs} = groupeBDD
+
+                const groupeBDDEmailsÀEnlever = new Set(instructeurs)
+                /** @type {Set<string>} */
+                const groupeBDDEmailÀAJouter = new Set()
+
+                for(const {email} of groupeAPIEmails){
+                    if(groupeBDDEmailsÀEnlever.has(email)){
+                        // l'email est dans les deux, c'est cool
+                        groupeBDDEmailsÀEnlever.delete(email)
+                    }
+                    else{
+                        // l'email est dans le groupe dans l'API, mais pas encore en BDD
+                        groupeBDDEmailÀAJouter.add(email)
+                    }   
+                }
+                // à la fin de cette opération, dans groupeBDDEmailsÀEnlever, 
+                // il reste les emails à enlever (parce qu'ils sont absents de la réponse de l'API)
+
+                let ajoutEmailsDansGroupe = Promise.resolve()
+                let suppressionEmailsDansGroupe = Promise.resolve()
+
+                /*if(groupeBDDEmailÀAJouter.size >= 1){
+                    ajoutEmailsDansGroupe = ajouterPersonnesDansGroupeParEmails(idGroupeInstructeurs, groupeBDDEmailÀAJouter, trx)
+                }
+
+                if(groupeBDDEmailsÀEnlever.size >= 1){
+                    suppressionEmailsDansGroupe = supprmerPersonnesDansGroupeParEmail(idGroupeInstructeurs, groupeBDDEmailsÀEnlever, trx)
+                }*/
+
+                return Promise.all([ajoutEmailsDansGroupe, suppressionEmailsDansGroupe])
+            }
+            else{
+                // les groupes d'instructeurs dans l'API et absents de la BDD ont été créé dans créerGroupesInstructeurs
+                return Promise.resolve()
+            }
+        }))
+
+        return Promise.all([
+            groupesInstructeursManquantsEnBDDCréés,
+            groupesInstructeursEnTropEnBDDSupprimés,
+            miseÀJourEmailsDansGroupe
+        ])
+
+    })
 
 
 }
