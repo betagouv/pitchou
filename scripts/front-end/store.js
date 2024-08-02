@@ -50,6 +50,22 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
+   * @param {Dossier} nouveauDossier
+   */
+  setDossier(state, nouveauDossier) {
+    return
+    if (!state.dossiers) { state.dossiers = [] }
+
+    const newDossiers = state.dossiers.map((dossier) => {
+      if (dossier.id === nouveauDossier.id) return nouveauDossier
+
+      return dossier
+    })
+
+    state.dossiers = newDossiers
+  },
+  /**
+   * @param {PitchouState} state
    * @param {PitchouState['schemaDS88444']} schemaDS88444
    */
   setSchemaDS88444(state, schemaDS88444) {

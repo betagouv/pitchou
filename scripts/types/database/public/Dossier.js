@@ -5,6 +5,20 @@ export {};
  * Identifier type for public.dossier
  * @typedef {number & { __brand: 'DossierId' }} DossierId
  */
+
+/** Possible values for public.dossier.phase
+ * @typedef {"accompagnement amont" | "accompagnement amont terminé" | "instruction" | "décision" | "refus tacite" | null} DossierPhase
+*/
+
+  /** Possible values for public.dossier.prochaine_action_attendue_par
+   * @typedef {"instructeur" | "CNPN/CSRPN" | "pétitionnaire" | "consultation du public" | "autre administration" | "sans objet" |  null} DossierProchaineActionAttenduePar
+   *
+  */
+
+/** Possible values for public.dossier.prochaine_action_attendue
+ * @typedef {"traitement" |"lancement consultation" | "rédaction AP" | "Avis" | "DDEP" | "complément dossier" | "mémoire en réponse avis CNPN" | "à préciser" | "Prise en compte des mesures E et R" | null} DossierProchaineActionAttendue
+*/
+
 /**
  * Represents the table public.dossier
  * @typedef {Object} Dossier
@@ -44,6 +58,9 @@ export {};
  * @property {boolean | null} enjeu_écologique
  * @property {string | null} commentaire_libre
  * @property {boolean | null} rattaché_au_régime_ae
+ * @property {DossierPhase} phase
+ * @property {DossierProchaineActionAttenduePar} prochaine_action_attendue_par
+ * @property {DossierProchaineActionAttendue} prochaine_action_attendue
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -84,6 +101,9 @@ export {};
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
+ * @property {DossierPhase} phase
+ * @property {DossierProchaineActionAttenduePar} prochaine_action_attendue_par
+ * @property {DossierProchaineActionAttendue} prochaine_action_attendue
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -124,4 +144,7 @@ export {};
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
+ * @property {DossierPhase} phase
+ * @property {DossierProchaineActionAttenduePar} prochaine_action_attendue_par
+ * @property {DossierProchaineActionAttendue} prochaine_action_attendue
  */

@@ -136,6 +136,11 @@ export function listAllDossiersComplets() {
             "communes", 
             "régions", 
             
+            // prochaine action attendue
+            "phase",
+            "prochaine_action_attendue_par",
+            "prochaine_action_attendue",
+
             // annotations privées
             "enjeu_écologique", 
             
@@ -234,6 +239,18 @@ export function deleteDossierByDSNumber(numbers){
         .delete()
 }
 
+/**
+ * 
+ * @param {Dossier.id} id 
+ * @param {Partial<Dossier>} dossierParams
+ * @returns {Promise<Dossier>}
+ */
+export function updateDossier(id, dossierParams) {
+    return database('dossier')
+    .where({ id })
+    .returning('*')
+    .update(dossierParams)
+}
 
 /**
  * 
