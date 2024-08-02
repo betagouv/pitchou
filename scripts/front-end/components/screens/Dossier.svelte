@@ -23,13 +23,13 @@
             <nav class="dossier-nav fr-mb-2w">
                 <ul class="fr-btns-group fr-btns-group--inline-lg">
                     <li> 
-                        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+                        <a class="fr-btn fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
                     </li>
                     <li>
-                        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
                     </li>
                     <li>
-                        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
                     </li>
                 </ul>
             </nav>
@@ -39,13 +39,13 @@
                     <h2 class="fr-h5">Prochaine action attendue</h2>
                     <ul class="fr-mb-3w">
                         <li>
-                            <strong>Phase </strong>: Instruction
+                            <strong>Phase </strong>: {dossier.phase || " non renseigné"}
                         </li>
                         <li>
-                            <strong>Acteur(s) concerné(s)</strong> : Instructeur
+                            <strong>Acteur(s) concerné(s)</strong> : {dossier.prochaine_action_attendue_par || " non renseigné"}
                         </li>
                         <li>
-                            <strong>Action</strong> : Traitement du dossier
+                            <strong>Action</strong> : {dossier.prochaine_action_attendue || " non renseigné"}
                         </li>
                     </ul> 
                     <p>
