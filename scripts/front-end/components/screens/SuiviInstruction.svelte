@@ -28,11 +28,14 @@
                             <th>Porteur de projet</th>
                             <th>Nom du projet</th>
                             <th>Enjeux</th>
-                            <th>Soumis au régime AE</th>
+                            <th>Rattaché au régime AE</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each dossiers as { id, nom_dossier, déposant_nom, déposant_prénoms, communes, départements, régions, enjeu_politique, enjeu_écologique, soumis_au_regime_ae }}
+                        {#each dossiers as { id, nom_dossier, déposant_nom,
+                          déposant_prénoms, communes, départements, régions,
+                          enjeu_politique, enjeu_écologique,
+                          rattaché_au_régime_ae }}
                             <tr>
                                 <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                 <td>{formatLocalisation({communes, départements, régions})}</td>
@@ -53,7 +56,7 @@
 
                                 </td>
                                 <td>
-                                    {soumis_au_regime_ae ? "oui" : "non"}
+                                    {rattaché_au_régime_ae ? "oui" : "non"}
                                 </td>
                             </tr>
                         {/each}

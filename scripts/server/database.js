@@ -129,7 +129,7 @@ export function listAllDossiersComplets() {
             "date_dépôt",
             "dossier.nom as nom_dossier",
             "espèces_protégées_concernées", 
-            "soumis_au_regime_ae",
+            "rattaché_au_régime_ae",
             
             // localisation
             "départements", 

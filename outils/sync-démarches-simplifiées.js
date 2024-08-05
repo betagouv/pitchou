@@ -254,10 +254,10 @@ const dossiers = dossiersDS.map(({
     }
 
     /** Régime AE */
-    const soumis_au_regime_ae = champById.get(pitchouKeyToChampDS["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"]).checked
+    const rattaché_au_régime_ae = champById.get(pitchouKeyToChampDS["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"]).checked
 
-    /** 
-     * Annotations privées 
+    /**
+     * Annotations privées
      */
     /** @type {Map<string, any>} */
     const annotationById = new Map()
@@ -328,7 +328,7 @@ const dossiers = dossiersDS.map(({
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
         régions: JSON.stringify(régions),
-        soumis_au_regime_ae,
+        rattaché_au_régime_ae,
 
         // annotations privées
         historique_nom_porteur,
