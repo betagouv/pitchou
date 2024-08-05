@@ -8,36 +8,42 @@ import { type EntrepriseSiret } from './Entreprise';
 export type DossierId = number & { __brand: 'DossierId' };
 
 /** Possible values for public.dossier.phase */
-export type DossierPhase =
-  "accompagnement amont" |
-  "accompagnement amont terminé" |
-  "instruction" |
-  "décision" |
-  "refus tacite" |
-  null;
+export const DossierPhasePossibleValues = [
+  "accompagnement amont", 
+  "accompagnement amont terminé", 
+  "instruction", 
+  "décision",
+  "refus tacite", 
+  null,
+] as const
+export type DossierPhase = typeof DossierPhasePossibleValues[number]
 
   /** Possible values for public.dossier.prochaine_action_attendue_par */
-export type DossierProchaineActionAttenduePar =
-  "instructeur" |
-  "CNPN/CSRPN" |
-  "pétitionnaire" |
-  "consultation du public" |
-  "autre administration" |
-  "sans objet" |
-  null;
+export const DossierProchaineActionAttendueParPossibleValues = [
+  "instructeur",
+  "CNPN/CSRPN",
+  "pétitionnaire",
+  "consultation du public",
+  "autre administration",
+  "sans objet",
+  null,
+] 
+export type DossierProchaineActionAttenduePar = typeof DossierProchaineActionAttendueParPossibleValues[number]
 
 /** Possible values for public.dossier.prochaine_action_attendue */
-export type DossierProchaineActionAttendue =
-  "traitement" |
-  "lancement consultation" |
-  "rédaction AP" |
-  "Avis" |
-  "DDEP" |
-  "complément dossier" |
-  "mémoire en réponse avis CNPN" |
-  "à préciser" |
-  "Prise en compte des mesures E et R" |
-  null;
+export const DossierProchaineActionAttenduePossibleValues = [
+  "traitement",
+  "lancement consultation",
+  "rédaction AP",
+  "Avis",
+  "DDEP",
+  "complément dossier",
+  "mémoire en réponse avis CNPN",
+  "à préciser",
+  "Prise en compte des mesures E et R",
+  null,
+] as const
+export type DossierProchaineActionAttendue = typeof DossierProchaineActionAttenduePossibleValues[number]
 
 /** Represents the table public.dossier */
 export default interface Dossier {
