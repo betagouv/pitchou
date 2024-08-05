@@ -436,9 +436,9 @@ function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updat
             query: QUERY,
             variables: {
                 demarcheNumber,
-                
-                last: 100, 
-                updatedSince: formatISO(updatedSince), 
+
+                last: 100,
+                updatedSince: formatISO(updatedSince),
                 before
             }
         }
@@ -456,8 +456,8 @@ export async function recupérerDossiersRécemmentModifiés(token, demarcheNumbe
     let dossiers = []
     let hasPreviousPage = true;
     let startCursor = undefined
-    
-    while(hasPreviousPage){
+
+    while (hasPreviousPage) {
         console.log('nouvelle page !', startCursor)
         const page = await récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, startCursor)
         const pageDossiers = page.data.demarche.dossiers.nodes
@@ -476,3 +476,5 @@ export async function recupérerDossiersRécemmentModifiés(token, demarcheNumbe
 
     return dossiers;
 }
+
+

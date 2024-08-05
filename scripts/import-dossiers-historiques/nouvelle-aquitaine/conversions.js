@@ -2,8 +2,10 @@
 
 import { normalizeNomCommune, recoverDate } from "../../commun/typeFormat.js";
 
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet, DémarchesSimpliféesCommune} from "../../types.js" */
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet} from "../../types.js" */
 /** @import {_DossierTableauSuiviNouvelleAquitaine2023, DossierTableauSuiviNouvelleAquitaine2023} from "./types.js" */
+/** @import {DémarchesSimpliféesCommune} from "../../types/démarches-simplifiées/api.js" */
+/** @import {default as Dossier} from "../../types/database/public/Dossier.js" */
 
 /**
  * 
