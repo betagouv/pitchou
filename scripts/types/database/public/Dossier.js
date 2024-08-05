@@ -101,9 +101,9 @@ export {};
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
- * @property {DossierPhase} phase
- * @property {DossierProchaineActionAttenduePar} prochaine_action_attendue_par
- * @property {DossierProchaineActionAttendue} prochaine_action_attendue
+ * @property {DossierPhase} [phase]
+ * @property {DossierProchaineActionAttenduePar} [prochaine_action_attendue_par]
+ * @property {DossierProchaineActionAttendue} [prochaine_action_attendue]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -144,7 +144,7 @@ export {};
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
- * @property {DossierPhase} phase
- * @property {DossierProchaineActionAttenduePar} prochaine_action_attendue_par
- * @property {DossierProchaineActionAttendue} prochaine_action_attendue
+ * @property {DossierPhase} [phase]
+ * @property {DossierProchaineActionAttenduePar} [prochaine_action_attendue_par]
+ * @property {DossierProchaineActionAttendue} [prochaine_action_attendue]
  */
