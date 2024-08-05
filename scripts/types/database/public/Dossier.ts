@@ -7,6 +7,44 @@ import { type EntrepriseSiret } from './Entreprise';
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: 'DossierId' };
 
+/** Possible values for public.dossier.phase */
+export const DossierPhasePossibleValues = [
+  "accompagnement amont", 
+  "accompagnement amont terminé", 
+  "instruction", 
+  "décision",
+  "refus tacite", 
+  null,
+] as const
+export type DossierPhase = typeof DossierPhasePossibleValues[number]
+
+  /** Possible values for public.dossier.prochaine_action_attendue_par */
+export const DossierProchaineActionAttendueParPossibleValues = [
+  "instructeur",
+  "CNPN/CSRPN",
+  "pétitionnaire",
+  "consultation du public",
+  "autre administration",
+  "sans objet",
+  null,
+] 
+export type DossierProchaineActionAttenduePar = typeof DossierProchaineActionAttendueParPossibleValues[number]
+
+/** Possible values for public.dossier.prochaine_action_attendue */
+export const DossierProchaineActionAttenduePossibleValues = [
+  "traitement",
+  "lancement consultation",
+  "rédaction AP",
+  "Avis",
+  "DDEP",
+  "complément dossier",
+  "mémoire en réponse avis CNPN",
+  "à préciser",
+  "Prise en compte des mesures E et R",
+  null,
+] as const
+export type DossierProchaineActionAttendue = typeof DossierProchaineActionAttenduePossibleValues[number]
+
 /** Represents the table public.dossier */
 export default interface Dossier {
   id: DossierId;
@@ -80,7 +118,14 @@ export default interface Dossier {
   commentaire_libre: string | null;
 
   rattaché_au_régime_ae: boolean | null;
+
+  phase: DossierPhase;
+
+  prochaine_action_attendue_par: DossierProchaineActionAttenduePar;
+
+  prochaine_action_attendue: DossierProchaineActionAttendue;
 }
+
 
 /** Represents the initializer for the table public.dossier */
 export interface DossierInitializer {
@@ -156,6 +201,12 @@ export interface DossierInitializer {
   commentaire_libre?: string | null;
 
   rattaché_au_régime_ae: boolean | null;
+
+  phase?: DossierPhase;
+
+  prochaine_action_attendue_par?: DossierProchaineActionAttenduePar;
+
+  prochaine_action_attendue?: DossierProchaineActionAttendue;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -231,4 +282,10 @@ export interface DossierMutator {
   commentaire_libre?: string | null;
 
   rattaché_au_régime_ae: boolean | null;
+
+  phase?: DossierPhase;
+
+  prochaine_action_attendue_par?: DossierProchaineActionAttenduePar;
+
+  prochaine_action_attendue?: DossierProchaineActionAttendue;
 }

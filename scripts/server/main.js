@@ -5,7 +5,7 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
-import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès } from './database.js'
+import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, updateDossier } from './database.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -105,6 +105,31 @@ fastify.get('/dossiers', async function (request, reply) {
   } else {
     reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
   }
+})
+
+fastify.get('/dossier/:dossierId/modifier', (request, reply) => {
+  reply.sendFile('index.html')
+})
+
+fastify.put('/dossier/:dossierId', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const personne = await getPersonneByCode(cap)
+  if (!personne) {
+    reply.code(403).send(`Le paramètre 'cap' est invalide`)
+    return
+  } 
+  
+  const { dossierId } = request.params
+  const dossierParams = JSON.parse(request.body).dossierParams
+
+  return updateDossier(dossierId, dossierParams)
 })
 
 

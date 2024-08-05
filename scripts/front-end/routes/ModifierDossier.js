@@ -5,7 +5,7 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 
-import Dossier from '../components/screens/Dossier.svelte';
+import ModifierDossier from '../components/screens/ModifierDossier.svelte';
 
 export default ({params: {dossierId}}) => {
     /**
@@ -20,11 +20,10 @@ export default ({params: {dossierId}}) => {
         }
     }   
     
-    const dossier = new Dossier({
+    const modifierDossier = new ModifierDossier({
         target: svelteTarget,
         props: mapStateToProps(store.state)
     });
 
-    replaceComponent(dossier, mapStateToProps)
-
+    replaceComponent(modifierDossier, mapStateToProps)
 }

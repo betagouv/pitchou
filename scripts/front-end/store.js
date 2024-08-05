@@ -23,7 +23,7 @@ import '../types.js'
 /**
  * @typedef {Object} PitchouState
  * @property {Personne['code_accès']} [secret]
- * @property {Dossier[]} [dossiers] // pas vraiment des Dossier vu que venant d'un join
+ * @property {Record<Dossier['id'], Dossier>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
  * @property {Object} [schemaDS88444]
  */
 
@@ -47,6 +47,15 @@ const mutations = {
    */
   setDossiers(state, dossiers) {
     state.dossiers = dossiers
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {Dossier} nouveauDossier
+   */
+  setDossier(state, nouveauDossier) {
+    if (!state.dossiers) { state.dossiers = {} }
+
+    state.dossiers[nouveauDossier.id] = nouveauDossier
   },
   /**
    * @param {PitchouState} state
