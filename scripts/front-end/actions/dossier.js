@@ -25,7 +25,7 @@ export function modifierDossier(id, dossierParams) {
 
             console.log(`${status} ${statusText}`)
         })
-        .then(/** @type {Dossier} */ databaseResponse  => {
+        .then(/** @type {Dossier[]} */ databaseResponse  => {
             const dossierAJour = databaseResponse[0]
             store.mutations.setDossier(dossierAJour)
             return dossierAJour
