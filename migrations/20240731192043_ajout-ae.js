@@ -4,7 +4,7 @@
  */
 export function up(knex) {
     return knex.schema.alterTable('dossier', (table) => {
-        table.boolean('soumis_au_regime_ae').defaultTo(false)
+        table.boolean('rattaché_au_régime_ae')
     });
 };
 
@@ -14,6 +14,6 @@ export function up(knex) {
  */
 export function down(knex) {
     return knex.schema.alterTable('dossier', (table) => {
-        table.dropColumn('soumis_au_regime_ae')
+        table.dropColumn('rattaché_au_régime_ae')
     });
 };
