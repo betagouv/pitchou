@@ -14,12 +14,15 @@
     export let email
 
     /** @type {Partial<Dossier>} */
-    let dossierParams = {}
+    let dossierParams = {
+        phase: dossier.phase,
+        prochaine_action_attendue: dossier.prochaine_action_attendue,
+        prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
+    }
     const {number_demarches_simplifiées: numdos} = dossier
 
     const mettreAJourDossier = (e) => {
         e.preventDefault()
-        console.log(dossier.id, dossierParams)
         modifierDossier(dossier.id, dossierParams).then(() => page(`/dossier/${dossier.id}`))
     }
 
@@ -31,14 +34,6 @@
         "refus tacite",
     ]
 
-   /*  const prochaineActionAttendue = {
-        "instructeur":   ["traitement", "lancement consultation", "rédaction AP"],
-        "CNPN/CSRPN": ["Avis"],
-        "pétitionnaire": ["DDEP", "complément dossier", "mémoire en réponse avis CNPN"],
-        "consultation du public": [],
-        "autre administration": ["à préciser", "Prise en compte des mesures E et R"],
-        "sans objet": [],
-    } */
    const prochaineActionAttenduePar = [
         "instructeur",
         "CNPN/CSRPN",
