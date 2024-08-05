@@ -14,11 +14,9 @@ export default ({params: {dossierId}}) => {
      * @returns 
      */
     function mapStateToProps({dossiers}){
-        const dossierIdNb = Number(dossierId)
-
         return {
             ...mapStateToSqueletteProps(store.state),
-            dossier: dossiers.find(({id}) => id === dossierIdNb)
+            dossier: dossiers[dossierId],
         }
     }   
     

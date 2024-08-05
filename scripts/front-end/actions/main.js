@@ -15,8 +15,13 @@ export function chargerDossiers(){
     if(store.state.secret){
         return json(`/dossiers?secret=${store.state.secret}`)
             .then(/** @type {Dossier[]} */ dossiers => {
-                console.log('dossiers', dossiers)
-                store.mutations.setDossiers(dossiers)
+                /** @type {Record<Dossier['id'], Dossier>} */ 
+                const dossiersById = dossiers.reduce((objetFinal, dossier) => {
+                    objetFinal[dossier.id] = dossier
+                    return objetFinal
+                }, {})
+                console.log('dossiersById', dossiersById)
+                store.mutations.setDossiers(dossiersById)
                 return dossiers
             })
     }

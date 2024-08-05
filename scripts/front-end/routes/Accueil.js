@@ -45,10 +45,10 @@ export default async () => {
     }
 
     if(store.state.dossiers){
-        function mapStateToProps({dossiers}){
+        function mapStateToProps({dossiers: dossiersById}){
             return {
                 ...mapStateToSqueletteProps(store.state),
-                dossiers,
+                dossiers: Object.values(dossiersById),
                 
             }
         }    
