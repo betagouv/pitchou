@@ -19,18 +19,17 @@ export function modifierDossier(id, dossierParams) {
             }
         )
         .then(response => {
-            if (response.ok) { return response.json() }
-            
-            const { status, statusText } = response
+            if (response.ok) { return response.json() } 
 
-            console.log(`${status} ${statusText}`)
+            const { status, statusText } = response
+            
+            throw new Error(`${status} ${statusText}`)
         })
-        .then(/** @type {Dossier[]} */ databaseResponse  => {
+        .then(/** @type {Dossier} */ databaseResponse  => {
             const dossierAJour = databaseResponse[0]
             store.mutations.setDossier(dossierAJour)
             return dossierAJour
         })
-        .catch((err) => console.log(err))
     }
     else{
         return Promise.reject(new TypeError('Impossible de modifier le dossier, secret manquant'))

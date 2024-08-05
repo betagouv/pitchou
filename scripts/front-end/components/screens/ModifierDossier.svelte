@@ -20,11 +20,20 @@
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
     }
     const {number_demarches_simplifiées: numdos} = dossier
+    let errorMessage = "" 
 
     const mettreAJourDossier = (e) => {
         e.preventDefault()
-        modifierDossier(dossier.id, dossierParams).then(() => page(`/dossier/${dossier.id}`))
+
+        modifierDossier(dossier.id, dossierParams)
+            .then(() => page(`/dossier/${dossier.id}`))
+            .catch((error) => {
+                console.info(error)
+                errorMessage = "Quelque chose s'est mal passé du côté serveur."
+            })
     }
+
+    const retirerErreur = () => errorMessage = ""
 
     const phases = [
         "accompagnement amont",
@@ -83,8 +92,14 @@
                 </ul>
             </nav>
 
-            <form class="fr-p-3w fr-mb-4w" on:submit={mettreAJourDossier}>
+            <form class="fr-p-3w fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerErreur}>
                 <h3 class="fr-h4">Mettre à jour la prochaine action attendue</h3>
+                {#if errorMessage}
+                    <div class="fr-alert fr-alert--error fr-mb-3w">
+                        <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
+                        <p>{errorMessage}</p>
+                    </div>
+                {/if}
                 <div class="fr-input-group">
                     <label class="fr-label" for="phase">
                         Phase du dossier
