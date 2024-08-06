@@ -78,6 +78,8 @@ export default interface Dossier {
   enjeu_écologique: boolean | null;
 
   commentaire_libre: string | null;
+
+  rattaché_au_régime_ae: boolean | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -152,6 +154,8 @@ export interface DossierInitializer {
   enjeu_écologique?: boolean | null;
 
   commentaire_libre?: string | null;
+
+  rattaché_au_régime_ae: boolean | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -225,4 +229,6 @@ export interface DossierMutator {
   enjeu_écologique?: boolean | null;
 
   commentaire_libre?: string | null;
+
+  rattaché_au_régime_ae: boolean | null;
 }
