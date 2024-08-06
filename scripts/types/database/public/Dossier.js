@@ -43,6 +43,7 @@ export {};
  * @property {string | null} historique_référence_arrêté_ministériel
  * @property {boolean | null} enjeu_écologique
  * @property {string | null} commentaire_libre
+ * @property {boolean | null} rattaché_au_régime_ae
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -82,6 +83,7 @@ export {};
  * @property {string | null} [historique_référence_arrêté_ministériel]
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
+ * @property {boolean | null} [rattaché_au_régime_ae]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -121,4 +123,5 @@ export {};
  * @property {string | null} [historique_référence_arrêté_ministériel]
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
+ * @property {boolean | null} [rattaché_au_régime_ae]
  */
