@@ -4,7 +4,7 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale";
 
-import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber} from '../scripts/server/database.js'
+import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -64,7 +64,6 @@ const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_T
 const groupesInstructeursAPI = await recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 await synchroniserGroupesInstructeurs(groupesInstructeursAPI)
 
-process.exit()
 
 
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
@@ -462,14 +461,16 @@ dossiers.forEach(d => {
 })
 
 
-dumpDossiers(dossiers)
+const dossiersSynchronisés = dumpDossiers(dossiers)
 .catch(err => {
     console.error('sync démarche simplifiée database error', err)
     process.exit(1)
 })
-.then(() => process.exit())
 
+const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
 
-const dossiersSupp = await dossSuppP;
-
-await deleteDossierByDSNumber(dossiersSupp.map(({number}) => number))
+await Promise.all([
+    dossiersSynchronisés,
+    dossiersSupprimés
+])
+.then(closeDatabaseConnection)

@@ -20,6 +20,10 @@ const directDatabaseConnection = knex({
 });
 
 
+export function closeDatabaseConnection(){
+    return directDatabaseConnection.destroy()
+}
+
 /**
  * @param {import('../types/database/public/Personne.js').PersonneInitializer} personne
  */
@@ -260,7 +264,7 @@ export function dumpEntreprises(entreprises){
 
 /**
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise< Map<string, {id: string, instructeurs: Set<Personne['email']>}> >}
+ * @returns {Promise< Map<string, {id: GroupeInstructeurs['id'], instructeurs: Set<NonNullable<Personne['email']>>}> >}
  */
 async function getGroupesInstructeurs(databaseConnection = directDatabaseConnection){
     const groupesInstructeursBDD = await databaseConnection('groupe_instructeurs')
@@ -271,6 +275,7 @@ async function getGroupesInstructeurs(databaseConnection = directDatabaseConnect
         ])
         .leftJoin('arête_groupe_instructeurs__personne', {'arête_groupe_instructeurs__personne.groupe_instructeurs': 'groupe_instructeurs.id'})
         .leftJoin('personne', {'personne.id': 'arête_groupe_instructeurs__personne.personne'})
+            .whereNotNull('email')
 
     const groupeByNom = new Map()
 
@@ -312,7 +317,7 @@ async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParE
         })
         .flat(Infinity)
 
-    console.log('arêtes', arêtes)
+    //console.log('arêtes', arêtes)
 
     return databaseConnection('arête_groupe_instructeurs__personne')
         .insert(arêtes)
@@ -320,7 +325,7 @@ async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParE
 
 /**
  * 
- * @param {GroupeInstructeurs[]} groupeIds 
+ * @param {GroupeInstructeurs['id'][]} groupeIds 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns 
  */
@@ -343,10 +348,52 @@ async function insertOrSelectPersonneParEmail(emails, databaseConnection = direc
         .onConflict('email')
         .ignore()
 
-    // @ts-ignore
     return databaseConnection('personne')
         .select(['id', 'email'])
         .whereIn('email', emails);
+}
+
+
+/**
+ * 
+ * @param {GroupeInstructeurs['id']} groupe_instructeurs 
+ * @param {Set<string>} emails
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @return {Promise<void>}
+ */
+async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
+    const personnesAvecCesEmails = await databaseConnection('personne')
+        .select('id')
+        .whereIn('email', [...emails]);
+
+    const arêtes = personnesAvecCesEmails
+        .map(({id: personne}) => ({groupe_instructeurs, personne}))
+
+    return databaseConnection('arête_groupe_instructeurs__personne')
+        .insert(arêtes)
+}
+
+
+/**
+ * 
+ * @param {GroupeInstructeurs['id']} groupe_instructeurs 
+ * @param {Set<string>} emails
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<void>}
+ */
+async function supprmerPersonnesDansGroupeParEmail(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
+    const personnesAvecCesEmails = await databaseConnection('personne')
+        .select('id')
+        .whereIn('email', [...emails]);
+
+    return databaseConnection('arête_groupe_instructeurs__personne')
+        .whereIn(
+            ['groupe_instructeurs', 'personne'],
+            personnesAvecCesEmails.map(({id: personne}) => 
+                ( [groupe_instructeurs, personne] )
+            )
+        )
+        .delete()
 }
 
 
@@ -372,17 +419,17 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
         const instructeurParEmail = new Map(instructeursEnBDD.map(i => [i.email, i]))
 
-        console.log('instructeursEnBDD', instructeurParEmail)
+        //console.log('instructeursEnBDD', instructeurParEmail)
 
         const groupesInstructeursBDD = await getGroupesInstructeurs(trx)
 
-        console.log('groupesInstructeursAPI', groupesInstructeursAPI)
-        console.log('synchroniserGroupesInstructeurs', groupesInstructeursBDD)
+        //console.log('groupesInstructeursAPI', groupesInstructeursAPI)
+        //console.log('synchroniserGroupesInstructeurs', groupesInstructeursBDD)
 
         // Créer en BDD les groupes qui n'y sont pas encore
         const groupesInstructeursDansDSAbsentEnBDD = groupesInstructeursAPI.filter(({label}) => !groupesInstructeursBDD.has(label))
 
-        console.log('groupesInstructeursDansDSAbsentEnBDD', groupesInstructeursDansDSAbsentEnBDD)
+        //console.log('groupesInstructeursDansDSAbsentEnBDD', groupesInstructeursDansDSAbsentEnBDD)
 
         const groupesInstructeursManquantsEnBDDCréés = groupesInstructeursDansDSAbsentEnBDD.length >= 1 ?
             créerGroupesInstructeurs(groupesInstructeursDansDSAbsentEnBDD, instructeurParEmail, trx) : 
@@ -395,13 +442,11 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
         )
 
 
-        console.log('groupesInstructeurs En BDD Absents Dans DS (donc à supprimer)', groupesInstructeursEnBDDAbsentsDansDS)
+        //console.log('groupesInstructeurs En BDD Absents Dans DS (donc à supprimer)', groupesInstructeursEnBDDAbsentsDansDS)
 
         const groupesInstructeursEnTropEnBDDSupprimés = groupesInstructeursEnBDDAbsentsDansDS.size >= 1 ?
             supprimerGroupesInstructeurs([...groupesInstructeursEnBDDAbsentsDansDS.values()].map(({id}) => id), trx) : 
             Promise.resolve()
-        
-        throw `PPP jusque-là, ça va, ensuite, c'est pas testé`
 
         // Pour les groupes qui sont présents dans les deux, trouver les groupes qui ont besoin 
         // d'une mise à jour de la liste des personnes
@@ -410,7 +455,7 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
             if(groupeBDD){
                 const {id: idGroupeInstructeurs, instructeurs} = groupeBDD
-
+                /** @type {Set<string>} */
                 const groupeBDDEmailsÀEnlever = new Set(instructeurs)
                 /** @type {Set<string>} */
                 const groupeBDDEmailÀAJouter = new Set()
@@ -428,21 +473,26 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
                 // à la fin de cette opération, dans groupeBDDEmailsÀEnlever, 
                 // il reste les emails à enlever (parce qu'ils sont absents de la réponse de l'API)
 
+                //console.log('groupeBDD', label)
+                //console.log('groupeBDDEmailÀAJouter', groupeBDDEmailÀAJouter)
+                //console.log('groupeBDDEmailsÀEnlever', groupeBDDEmailsÀEnlever)
+
                 let ajoutEmailsDansGroupe = Promise.resolve()
                 let suppressionEmailsDansGroupe = Promise.resolve()
 
-                /*if(groupeBDDEmailÀAJouter.size >= 1){
+                if(groupeBDDEmailÀAJouter.size >= 1){
                     ajoutEmailsDansGroupe = ajouterPersonnesDansGroupeParEmails(idGroupeInstructeurs, groupeBDDEmailÀAJouter, trx)
                 }
 
                 if(groupeBDDEmailsÀEnlever.size >= 1){
                     suppressionEmailsDansGroupe = supprmerPersonnesDansGroupeParEmail(idGroupeInstructeurs, groupeBDDEmailsÀEnlever, trx)
-                }*/
+                }
 
                 return Promise.all([ajoutEmailsDansGroupe, suppressionEmailsDansGroupe])
             }
             else{
                 // les groupes d'instructeurs dans l'API et absents de la BDD ont été créé dans créerGroupesInstructeurs
+                // donc rien à faire
                 return Promise.resolve()
             }
         }))
