@@ -1,18 +1,72 @@
 <script>
     //@ts-check
+    
+    import page from 'page'
 
     import Squelette from '../Squelette.svelte'
     
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
+    import { modifierDossier } from '../../actions/dossier.js';
 
     /** @import {DossierComplet} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier
+    export let email
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    export let email
+    /** @type {Partial<Dossier>} */
+     let dossierParams = {
+        phase: dossier.phase,
+        prochaine_action_attendue: dossier.prochaine_action_attendue,
+        prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
+    }
+    let messageErreur = "" 
+    let afficherMessageSucces = false
+
+    const mettreAJourDossier = (e) => {
+        e.preventDefault()
+
+        modifierDossier(dossier.id, dossierParams)
+            .then(() => afficherMessageSucces = true)
+            .catch((error) => {
+                console.info(error)
+                messageErreur = "Quelque chose s'est mal passé du côté serveur."
+            })
+    }
+
+    const retirerAlert = () => { 
+        messageErreur = ""
+        afficherMessageSucces = false
+    }
+
+    const phases = [
+        "accompagnement amont",
+        "accompagnement amont terminé", 
+        "instruction",
+        "décision",
+        "refus tacite",
+    ]
+
+   const prochaineActionAttenduePar = [
+        "instructeur",
+        "CNPN/CSRPN",
+        "pétitionnaire",
+        "consultation du public",
+        "autre administration",
+        "sans objet",
+    ]
+
+    const prochaineActionAttendue = [
+        "traitement", 
+        "lancement consultation", 
+        "rédaction AP",
+        "Avis",
+        "DDEP",
+        "complément dossier",
+        "mémoire en réponse avis CNPN",
+    ]
 </script>
 
 <Squelette {email}>
@@ -36,26 +90,57 @@
 
             <article class="fr-p-3w fr-mb-4w">
                 <section>
-                    <h2 class="fr-h5">Prochaine action attendue</h2>
-                    <ul class="fr-mb-3w">
-                        <li>
-                            <strong>Phase </strong>: {dossier.phase || " non renseigné"}
-                        </li>
-                        <li>
-                            <strong>Acteur(s) concerné(s)</strong> : {dossier.prochaine_action_attendue_par || " non renseigné"}
-                        </li>
-                        <li>
-                            <strong>Action</strong> : {dossier.prochaine_action_attendue || " non renseigné"}
-                        </li>
-                    </ul> 
-                    <p>
-                        <a 
-                            class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line fr-mb-2w"
-                            href="/dossier/{dossier.id}/modifier"
-                        >
+                    <h2 class="fr-h5">Phase et prochaine action attendue</h2>
+                    
+                    <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
+                        {#if messageErreur}
+                            <div class="fr-alert fr-alert--error fr-mb-3w">
+                                <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
+                                <p>{messageErreur}</p>
+                            </div>
+                        {/if}
+                        {#if afficherMessageSucces}
+                        <div class="fr-alert fr-alert--success fr-mb-3w">
+                            <p>La phase et la prochaine action attendue ont été mises à jour !</p>
+                        </div>
+                        {/if}
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="phase">
+                                Phase du dossier
+                            </label>
+                    
+                            <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
+                                {#each phases as phase}
+                                    <option value={phase}>{phase}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="prochaine_action_attendue_par">
+                                Acteur(s) concerné(s)
+                            </label>
+                    
+                            <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
+                                {#each prochaineActionAttenduePar as acteur}
+                                    <option value={acteur}>{acteur}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="prochaine_action_attendue">
+                                Action
+                            </label>
+                    
+                            <select bind:value={dossierParams["prochaine_action_attendue"]} class="fr-select" id="prochaine_action_attendue">
+                                {#each prochaineActionAttendue as action}
+                                    <option value={action}>{action}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <button class="fr-btn" type="submit">
                             Mettre à jour la phase ou la prochaine action
-                        </a>
-                    </p>
+                        </button>
+                    </form>
                 </section>
                 <section>
                     <h2 class="fr-h5">Informations</h2>
