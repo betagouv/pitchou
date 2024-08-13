@@ -1,5 +1,7 @@
 //@ts-check
 
+import {json} from 'd3-fetch'
+
 import store from "../store"
 
 /** @typedef {import('../../types/database/public/Dossier').default} Dossier */
@@ -11,20 +13,13 @@ import store from "../store"
  */
 export function modifierDossier(id, dossierParams) {
     if(store.state.secret){
-        return fetch(
+        return json(
             `/dossier/${id}?cap=${store.state.secret}`, 
             {
                 method: "PUT",
                 body: JSON.stringify({ dossierParams }),
             }
         )
-        .then(response => {
-            if (response.ok) { return response.json() } 
-
-            const { status, statusText } = response
-            
-            throw new Error(`${status} ${statusText}`)
-        })
         .then(/** @type {Dossier} */ databaseResponse  => {
             const dossierAJour = databaseResponse[0]
             store.mutations.setDossier(dossierAJour)
