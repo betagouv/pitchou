@@ -381,7 +381,7 @@ async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<void>}
  */
-async function supprmerPersonnesDansGroupeParEmail(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
+async function supprimerPersonnesDansGroupeParEmail(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
     const personnesAvecCesEmails = await databaseConnection('personne')
         .select('id')
         .whereIn('email', [...emails]);
@@ -485,7 +485,7 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
                 }
 
                 if(groupeBDDEmailsÀEnlever.size >= 1){
-                    suppressionEmailsDansGroupe = supprmerPersonnesDansGroupeParEmail(idGroupeInstructeurs, groupeBDDEmailsÀEnlever, trx)
+                    suppressionEmailsDansGroupe = supprimerPersonnesDansGroupeParEmail(idGroupeInstructeurs, groupeBDDEmailsÀEnlever, trx)
                 }
 
                 return Promise.all([ajoutEmailsDansGroupe, suppressionEmailsDansGroupe])
