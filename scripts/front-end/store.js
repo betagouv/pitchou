@@ -23,7 +23,7 @@ import '../types.js'
 /**
  * @typedef {Object} PitchouState
  * @property {Personne['code_accès']} [secret]
- * @property {Record<Dossier['id'], Dossier>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
+ * @property {Map<Dossier['id'], Dossier>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
  * @property {Object} [schemaDS88444]
  */
 
@@ -43,7 +43,7 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['dossiers']} dossiers
+   * @param {PitchouState['dossiers']} dossiers 
    */
   setDossiers(state, dossiers) {
     state.dossiers = dossiers
@@ -53,9 +53,9 @@ const mutations = {
    * @param {Dossier} nouveauDossier
    */
   setDossier(state, nouveauDossier) {
-    if (!state.dossiers) { state.dossiers = {} }
+    if (!state.dossiers) { state.dossiers = new Map() }
 
-    state.dossiers[nouveauDossier.id] = nouveauDossier
+    state.dossiers.set(nouveauDossier.id, nouveauDossier)
   },
   /**
    * @param {PitchouState} state

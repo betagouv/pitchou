@@ -7,6 +7,11 @@ import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 
 import Dossier from '../components/screens/Dossier.svelte';
 
+/**
+ * @param {Object} ctx
+ * @param {Object} ctx.params
+ * @param {string} ctx.params.dossierId
+ */
 export default ({params: {dossierId}}) => {
     /**
      * 
@@ -16,7 +21,8 @@ export default ({params: {dossierId}}) => {
     function mapStateToProps({dossiers}){
         return {
             ...mapStateToSqueletteProps(store.state),
-            dossier: dossiers[dossierId],
+            //@ts-ignore
+            dossier: dossiers.get(Number(dossierId)),
         }
     }   
     

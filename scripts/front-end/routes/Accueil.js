@@ -45,10 +45,16 @@ export default async () => {
     }
 
     if(store.state.dossiers){
+        /**
+        * 
+        * @param {import('../store.js').PitchouState} _ 
+        * @returns 
+        */
         function mapStateToProps({dossiers: dossiersById}){
             return {
                 ...mapStateToSqueletteProps(store.state),
-                dossiers: Object.values(dossiersById),
+                //@ts-ignore
+                dossiers: Array.from(dossiersById.values()),
                 
             }
         }    
