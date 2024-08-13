@@ -53,7 +53,7 @@
                             class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line fr-mb-2w"
                             href="/dossier/{dossier.id}/modifier"
                         >
-                            Mettre à jour la prochaine action
+                            Mettre à jour la phase ou la prochaine action
                         </a>
                     </p>
                 </section>
