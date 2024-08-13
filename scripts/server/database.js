@@ -404,8 +404,6 @@ async function supprimerPersonnesDansGroupeParEmail(groupe_instructeurs, emails,
  * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI 
  */
 export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
-    // tmp for testing
-    //groupesInstructeursAPI.splice(groupesInstructeursAPI.findIndex(g => g.label === 'Dév Pitchou'), 1)
 
     return directDatabaseConnection.transaction(async trx => {
         
