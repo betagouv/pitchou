@@ -35,26 +35,6 @@ console.log('NODE_ENV', process.env.NODE_ENV)
 
 const fastify = Fastify({logger: true})
 
-
-// Rajouter HSTS
-if(process.env.NODE_ENV === 'production'){
-    // 5 minutes pour commencer, sur recommandation de https://hstspreload.org/
-    const HSTS_VALUE = 'max-age=300; includeSubDomains'
-    // une semaine
-    //const HSTS_VALUE = 'max-age=604800; includeSubDomains'
-    // un mois
-    //const HSTS_VALUE = 'max-age=2592000; includeSubDomains'
-    // 2 ans
-    //const HSTS_VALUE = 'max-age=63072000; includeSubDomains'
-
-    console.log('Ajout des header HSTS', HSTS_VALUE)
-
-    fastify.addHook('onSend', async (_req, reply, _payload) => {
-        reply.header('Strict-Transport-Security', HSTS_VALUE);
-    });
-}
-
-
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
