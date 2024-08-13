@@ -4,11 +4,12 @@ import {json} from 'd3-fetch'
 
 import store from "../store"
 
-/** @typedef {import('../../types/database/public/Dossier').default} Dossier */
+/** @import {DossierComplet} from '../../types.js' */
+/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 
 /**
- * @param {Dossier['id']} id 
- * @param {Partial<Dossier>} dossierParams
+ * @param {DossierComplet['id']} id
+ * @param {Partial<DossierComplet>} dossierParams
  * @returns {Promise<Dossier>}
  */
 export function modifierDossier(id, dossierParams) {

@@ -281,7 +281,28 @@
  * 
  */ 
 
-/** @typedef {Dossier & DossierComplémentPersonnesImpliquées} DossierComplet */
+/** 
+ * On génère automatiquement les types des propriétés d'un Dossier via Kanel
+ * On a choisi d'utiliser un type `string` pour les propriétés
+ * 'phase', 'prochaine_action_attendue_par' et 'prochaine_action_attendue' 
+ * pour plus de flexibilité (au lieu d'un enum).
+ * 
+ * On surcharge ici ces propriétés pour contraindre les valeurs de ces propriétés.
+ * 
+ * @typedef {"accompagnement amont" | "accompagnement amont terminé" | "instruction" | "décision" | "refus tacite" | null} DossierPhase
+ 
+ * @typedef {"instructeur" | "CNPN/CSRPN" | "pétitionnaire" | "consultation du public" | "autre administration" | "sans objet" |  null} DossierProchaineActionAttenduePar
+ *
+ * @typedef {"traitement" |"lancement consultation" | "rédaction AP" | "Avis" | "DDEP" | "complément dossier" | "mémoire en réponse avis CNPN" | "à préciser" | "Prise en compte des mesures E et R" | null} DossierProchaineActionAttendue
+ * 
+ * @typedef {Object} DossierPhaseEtProchaineAction
+ * @property {DossierPhase} phase
+ * @property {DossierProchaineActionAttenduePar} prochaine_action_attendue_par
+ * @property {DossierProchaineActionAttendue} prochaine_action_attendue
+*/
+
+
+/** @typedef {Dossier & DossierComplémentPersonnesImpliquées & DossierPhaseEtProchaineAction} DossierComplet */
 
 
 export default 'TS needs a module'

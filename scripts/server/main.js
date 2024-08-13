@@ -122,7 +122,9 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
     return
   } 
   
+  // @ts-ignore
   const { dossierId } = request.params
+  // @ts-ignore
   const dossierParams = JSON.parse(request.body).dossierParams
 
   return updateDossier(dossierId, dossierParams)

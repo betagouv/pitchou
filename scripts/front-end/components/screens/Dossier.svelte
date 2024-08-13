@@ -8,7 +8,7 @@
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier
@@ -16,7 +16,7 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    /** @type {Partial<Dossier>} */
+    /** @type {DossierPhaseEtProchaineAction} */
      let dossierParams = {
         phase: dossier.phase,
         prochaine_action_attendue: dossier.prochaine_action_attendue,

@@ -241,7 +241,7 @@ export function deleteDossierByDSNumber(numbers){
 
 /**
  * 
- * @param {Dossier.id} id 
+ * @param {Dossier['id']} id 
  * @param {Partial<Dossier>} dossierParams
  * @returns {Promise<Dossier>}
  */
