@@ -9,11 +9,11 @@ export type DossierId = number & { __brand: 'DossierId' };
 
 /** Possible values for public.dossier.phase */
 export const DossierPhasePossibleValues = [
-  "accompagnement amont", 
-  "accompagnement amont terminé", 
-  "instruction", 
+  "accompagnement amont",
+  "accompagnement amont terminé",
+  "instruction",
   "décision",
-  "refus tacite", 
+  "refus tacite",
   null,
 ] as const
 export type DossierPhase = typeof DossierPhasePossibleValues[number]
@@ -27,7 +27,7 @@ export const DossierProchaineActionAttendueParPossibleValues = [
   "autre administration",
   "sans objet",
   null,
-] 
+]
 export type DossierProchaineActionAttenduePar = typeof DossierProchaineActionAttendueParPossibleValues[number]
 
 /** Possible values for public.dossier.prochaine_action_attendue */

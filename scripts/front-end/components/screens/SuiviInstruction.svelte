@@ -63,7 +63,7 @@
                                 <td>{phase || "non renseigné"}</td>
                                 <td>
                                     {#if prochaine_action_attendue_par}
-                                        <strong>{prochaine_action_attendue_par}</strong> : 
+                                        <strong>{prochaine_action_attendue_par}</strong> :
                                     {/if}
                                     {#if prochaine_action_attendue}
                                         <br />{prochaine_action_attendue}
