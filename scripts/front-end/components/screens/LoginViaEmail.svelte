@@ -24,7 +24,7 @@
 </script>
 
 <Squelette nav={false}>
-    <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+    <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col-8">
             <h1>Connexion par email</h1>
 

@@ -16,7 +16,7 @@
 </script>
 
 <Squelette {email}>
-    <div class="fr-grid-row fr-pt-6w">
+    <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
             <h1 class="fr-mb-8w">Dossier {dossier.nom_dossier || "sans nom"}</h1>
 

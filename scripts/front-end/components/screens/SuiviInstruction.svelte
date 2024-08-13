@@ -15,7 +15,7 @@
 </script>
 
 <Squelette {email}>
-    <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+    <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col">
 
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
