@@ -107,10 +107,6 @@ fastify.get('/dossiers', async function (request, reply) {
   }
 })
 
-fastify.get('/dossier/:dossierId/modifier', (request, reply) => {
-  reply.sendFile('index.html')
-})
-
 fastify.put('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   const { cap } = request.query
