@@ -3,6 +3,7 @@
 node_modules/
 
 build/*
+backups/*
 
 data/sources_especes/*
 !data/sources_especes/README.md

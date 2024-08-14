@@ -55,6 +55,31 @@ URL pour pgadmin en dev :
 
 `npm start:production`
 
+### Base de données
+
+On utilise une base de données Postgres 15.7 en prod
+
+#### Backups
+
+Scalingo fournit des backups
+https://doc.scalingo.com/databases/postgresql/backing-up
+
+Actuellement, on a un backup quotidien des 7 derniers jours, un backup hebdomadaire des 4 dernières semaines et 10 backups manuels
+
+
+##### Restorer un backup en local
+
+Après avoir récupéré un backup, le mettre dans le dossier `backups` et lancer : 
+
+```sh
+docker exec postgres_db pg_restore --username=dev --clean --jobs=6 -d principale /var/lib/pitchou/backups/<nom_fichier>
+```
+
+##### Restorer un backup en prod
+
+
+
+
 
 ## Outils
 
@@ -87,7 +112,7 @@ En dev, depuis le container du serveur
 `docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 
-#### En prod
+### Cron
 
 Pour modifier le cron : https://crontab.guru/
 
