@@ -253,7 +253,7 @@ export function deleteDossierByDSNumber(numbers){
  * @returns {Promise<Dossier>}
  */
 export function updateDossier(id, dossierParams) {
-    return database('dossier')
+    return directDatabaseConnection('dossier')
     .where({ id })
     .returning('*')
     .update(dossierParams)
