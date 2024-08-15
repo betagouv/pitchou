@@ -33,7 +33,17 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 
 console.log('NODE_ENV', process.env.NODE_ENV)
 
-const fastify = Fastify({logger: true})
+const fastify = Fastify({
+  logger: {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname,req.remotePort,req.remoteAddress,req.hostname,',
+      },
+    }
+  }
+})
 
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
