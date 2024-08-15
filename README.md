@@ -79,13 +79,12 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 En dev, depuis le container du serveur
 
-`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js` (dernières heures par défaut)
+`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées-88444.js` (dernières heures par défaut)
 
-`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js --lastModified 2024-07-25` (synchroniser les dossiers modifiés depuis le 25 juillet 2024)
+`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-07-25` (synchroniser les dossiers modifiés depuis le 25 juillet 2024)
 
 
-`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
-
+`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 #### En prod
 

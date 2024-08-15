@@ -4,17 +4,18 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale";
 
-import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, deleteDossierByDSNumber} from '../scripts/server/database.js'
-import {recupérerDossiersRécemmentModifiés} from '../scripts/server/recupérerDossiersRécemmentModifiés.js'
+import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
+import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, DémarchesSimpliféesCommune} from '../scripts/types.js' */
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444} from '../scripts/types.js' */
+/** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
 
 // récups les données de DS
 
@@ -58,6 +59,10 @@ console.log(
 
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
+
+
+const groupesInstructeursAPI = await recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
+await synchroniserGroupesInstructeurs(groupesInstructeursAPI)
 
 
 
@@ -456,14 +461,16 @@ dossiers.forEach(d => {
 })
 
 
-dumpDossiers(dossiers)
+const dossiersSynchronisés = dumpDossiers(dossiers)
 .catch(err => {
     console.error('sync démarche simplifiée database error', err)
     process.exit(1)
 })
-.then(() => process.exit())
 
+const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
 
-const dossiersSupp = await dossSuppP;
-
-await deleteDossierByDSNumber(dossiersSupp.map(({number}) => number))
+await Promise.all([
+    dossiersSynchronisés,
+    dossiersSupprimés
+])
+.then(closeDatabaseConnection)

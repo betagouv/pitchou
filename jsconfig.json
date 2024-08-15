@@ -12,9 +12,9 @@
       "target": "esnext",
       "lib": ["es2022", "dom", "dom.iterable"],
       "downlevelIteration": true,
-      "types": ["node"],
+      "types": [],
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "allowImportingTsExtensions": true
     }
-  }
+}
