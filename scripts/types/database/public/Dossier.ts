@@ -80,6 +80,12 @@ export default interface Dossier {
   commentaire_libre: string | null;
 
   rattaché_au_régime_ae: boolean | null;
+
+  phase: string | null;
+
+  prochaine_action_attendue_par: string | null;
+
+  prochaine_action_attendue: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -155,7 +161,13 @@ export interface DossierInitializer {
 
   commentaire_libre?: string | null;
 
-  rattaché_au_régime_ae: boolean | null;
+  rattaché_au_régime_ae?: boolean | null;
+
+  phase?: string | null;
+
+  prochaine_action_attendue_par?: string | null;
+
+  prochaine_action_attendue?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -230,5 +242,11 @@ export interface DossierMutator {
 
   commentaire_libre?: string | null;
 
-  rattaché_au_régime_ae: boolean | null;
+  rattaché_au_régime_ae?: boolean | null;
+
+  phase?: string | null;
+
+  prochaine_action_attendue_par?: string | null;
+
+  prochaine_action_attendue?: string | null;
 }

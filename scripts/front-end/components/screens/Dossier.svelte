@@ -1,103 +1,200 @@
 <script>
     //@ts-check
+    
+    import page from 'page'
 
     import Squelette from '../Squelette.svelte'
     
     import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
+    import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier
-
-    const {date_dépôt, statut, déposant_nom, number_demarches_simplifiées: numdos} = dossier
-
     export let email
 
+    const {number_demarches_simplifiées: numdos} = dossier
+
+    /** @type {DossierPhaseEtProchaineAction} */
+     let dossierParams = {
+        phase: dossier.phase,
+        prochaine_action_attendue: dossier.prochaine_action_attendue,
+        prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
+    }
+    let messageErreur = "" 
+    let afficherMessageSucces = false
+
+    const mettreAJourDossier = (e) => {
+        e.preventDefault()
+
+        modifierDossier(dossier.id, dossierParams)
+            .then(() => afficherMessageSucces = true)
+            .catch((error) => {
+                console.info(error)
+                messageErreur = "Quelque chose s'est mal passé du côté serveur."
+            })
+    }
+
+    const retirerAlert = () => { 
+        messageErreur = ""
+        afficherMessageSucces = false
+    }
+
+    const phases = [
+        "accompagnement amont",
+        "accompagnement amont terminé", 
+        "instruction",
+        "décision",
+        "refus tacite",
+    ]
+
+   const prochaineActionAttenduePar = [
+        "instructeur",
+        "CNPN/CSRPN",
+        "pétitionnaire",
+        "consultation du public",
+        "autre administration",
+        "sans objet",
+    ]
+
+    const prochaineActionAttendue = [
+        "traitement", 
+        "lancement consultation", 
+        "rédaction AP",
+        "Avis",
+        "DDEP",
+        "complément dossier",
+        "mémoire en réponse avis CNPN",
+    ]
 </script>
 
 <Squelette {email}>
-    <div class="fr-grid-row fr-pt-6w fr-grid-row--center">
+    <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
+            <h1 class="fr-mb-8w">Dossier {dossier.nom_dossier || "sans nom"}</h1>
 
-            <article>
-                <h1>Dossier {dossier.nom_dossier} - {statut}</h1>
+            <nav class="dossier-nav fr-mb-2w">
+                <ul class="fr-btns-group fr-btns-group--inline-lg">
+                    <li> 
+                        <a class="fr-btn fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
+                    </li>
+                </ul>
+            </nav>
 
+            <article class="fr-p-3w fr-mb-4w">
                 <section>
-                    <h2>Demandeur</h2>
-                    <p>{formatDemandeur(dossier)}</p>
-
-                    <h2>Localisation</h2>
-                    <p>{formatLocalisation(dossier)}</p>
+                    <h2 class="fr-h5">Phase et prochaine action attendue</h2>
+                    
+                    <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
+                        {#if messageErreur}
+                            <div class="fr-alert fr-alert--error fr-mb-3w">
+                                <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
+                                <p>{messageErreur}</p>
+                            </div>
+                        {/if}
+                        {#if afficherMessageSucces}
+                        <div class="fr-alert fr-alert--success fr-mb-3w">
+                            <p>La phase et la prochaine action attendue ont été mises à jour !</p>
+                        </div>
+                        {/if}
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="phase">
+                                Phase du dossier
+                            </label>
+                    
+                            <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
+                                {#each phases as phase}
+                                    <option value={phase}>{phase}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="prochaine_action_attendue_par">
+                                Acteur(s) concerné(s)
+                            </label>
+                    
+                            <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
+                                {#each prochaineActionAttenduePar as acteur}
+                                    <option value={acteur}>{acteur}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="prochaine_action_attendue">
+                                Action
+                            </label>
+                    
+                            <select bind:value={dossierParams["prochaine_action_attendue"]} class="fr-select" id="prochaine_action_attendue">
+                                {#each prochaineActionAttendue as action}
+                                    <option value={action}>{action}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <button class="fr-btn" type="submit">
+                            Mettre à jour la phase ou la prochaine action
+                        </button>
+                    </form>
                 </section>
-
                 <section>
-                    <h2>Chronologie</h2>
-                    <ol class="chronologie">
-                        <li>
-                            <span class="text">Dépôt sur Démarche Simplifiée</span>
-                            <span class="moment">{formatDateRelative(date_dépôt)}</span>
-                        </li>
-                    </ol>
-                </section>
-
-                <section>
-                    <h2>Interlocueurs</h2>
-
-                    {#if déposant_nom}
-                    <h3>Déposant</h3>
-                    {formatDéposant(dossier)}
-                    {/if}
-
-                    <h3>Représentant du demandeur</h3>
-                    (à faire)
-                </section>
-
-                <section>
-                    <h2>Sur Démarches Simplifiée</h2>
-
+                    <h2 class="fr-h5">Informations</h2>
                     <ul>
                         <li>
-                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+                            <strong>Porteur de projet</strong> : {formatDéposant(dossier)}<br />
                         </li>
                         <li>
-                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
+                            <strong>Localisation</strong> : {formatLocalisation(dossier)}
                         </li>
-                        <li>
-                            <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
-                        </li>
+
+                        {#if dossier.enjeu_politique || dossier.enjeu_ecologique}
+                            <li>
+                                <strong>Enjeux</strong> : 
+                                {#if dossier.enjeu_politique}
+                                    <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">
+                                        Enjeu politique
+                                    </span>
+                                {/if}
+
+                                {#if dossier.enjeu_écologique}
+                                <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">
+                                    Enjeu écologique
+                                </span>
+                                {/if}
+                            </li>
+                        {/if}
                     </ul>
                 </section>
-
             </article>
         </div>
     </div>
 </Squelette>
 
 <style lang="scss">
-    article{
+    article {
+        background-color: var(--background-alt-grey);
+    }
 
-        h1{
-            text-align: center;
-        }
-
-        section{
+    section {
             margin-bottom: 3rem;
-        }
+    }
 
-        .chronologie{
-            list-style: none;
+    select {
+        max-width: 90%;
+    }
 
-            .text{
-                display: inline-block;
-                min-width: 20rem;
+    nav.dossier-nav {
+        display: flex;
+        justify-content: flex-end;
+    }
 
-                font-weight: bold;
-            }
-
-            .moment{
-
-            }
-        }
+    nav.fr-breadcrumb {
+        margin-bottom: .5rem;
+        margin-top: 0;
     }
 </style>
