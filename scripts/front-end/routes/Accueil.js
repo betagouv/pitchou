@@ -54,7 +54,7 @@ export default async () => {
             return {
                 ...mapStateToSqueletteProps(store.state),
                 //@ts-ignore
-                dossiers: Array.from(dossiersById.values()),
+                dossiers: [...dossiersById.values()],
                 
             }
         }    
