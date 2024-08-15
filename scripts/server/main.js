@@ -5,7 +5,7 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
-import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, updateDossier } from './database.js'
+import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, updateDossier, closeDatabaseConnection } from './database.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -203,3 +203,21 @@ try {
   console.error(err)
   process.exit(1)
 }
+
+
+
+/**
+ * @param {string} signal
+ */
+async function shutdown(signal){
+  console.log('shutdown on', signal)  
+  await Promise.all([
+    closeDatabaseConnection(),
+    fastify.close()
+  ])
+  process.exit()
+}
+
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
