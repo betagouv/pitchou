@@ -7,7 +7,7 @@ export default {
 
   docker_dev: {
     client: 'postgresql',
-    connection: "postgresql://dev:dev_password@postgres_db:5432/principale",
+    connection: process.env.DATABASE_URL,
     pool: {
       min: 2,
       max: 10

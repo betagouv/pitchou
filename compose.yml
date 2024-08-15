@@ -13,6 +13,8 @@ services:
     command: npm run start:server
     environment:
       PORT: 2648
+      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/principale"
+    user: "${UID}:${GID}"
 
   db:
     image: postgres:15.7
