@@ -66,18 +66,30 @@ https://doc.scalingo.com/databases/postgresql/backing-up
 
 Actuellement, on a un backup quotidien des 7 derniers jours, un backup hebdomadaire des 4 dernières semaines et 10 backups manuels
 
+Ces backups se trouvent dans l'onglet `BACKUPS` du dashboard de l'addon PostgreSQL
+
 
 ##### Restorer un backup en local
 
-Après avoir récupéré un backup, le mettre dans le dossier `backups` et lancer : 
+Après avoir téléchargé un backup de la prod, le mettre dans le dossier `backups` et lancer : 
 
 ```sh
-docker exec postgres_db pg_restore --username=dev --clean --jobs=6 -d principale /var/lib/pitchou/backups/<nom_fichier>
+tar -xf <nom_fichier>.tar.gz
+```
+
+Cela va dévoiler un fichier `.pgsql` du même nom
+
+Ensuite :
+
+```sh
+docker exec postgres_db pg_restore --username=dev -d principale --clean --no-owner --jobs=6 /var/lib/pitchou/backups/<nom_fichier>.pgsql
 ```
 
 ##### Restorer un backup en prod
 
+On peut faire un restore en un clic d'un backup dans l'onglet `BACKUPS` du dashboard de l'addon PostgreSQL
 
+Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.scalingo.com/databases/postgresql/restoring)
 
 
 
