@@ -2,9 +2,12 @@
 
 import knex from 'knex';
 
+/** @import {DossierComplet} from '../types.js' */
+
 /** @typedef {import('../types/database/public/Personne.js').default} Personne */
 /** @typedef {import('../types/database/public/Dossier.js').default} Dossier */
 /** @typedef {import('../types/database/public/Entreprise.js').default} Entreprise */
+
 
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
@@ -85,7 +88,7 @@ export function créerPersonneOuMettreÀJourCodeAccès(email){
         email,
         code_accès: codeAccès
     })
-    .catch(err => {
+    .catch(_err => {
         // suppose qu'il y a une erreur parce qu'une personne avec cette adresse email existe déjà
         return updateCodeAccès(email, codeAccès)
     })
@@ -206,7 +209,7 @@ const varcharKeys = [
 export function dumpDossiers(dossiers){
     for(const d of dossiers){
         for(const k of varcharKeys){
-            if(d[k] && d[k].length >= 255){
+            if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
                 console.warn('Valeur:', d[k])
                 

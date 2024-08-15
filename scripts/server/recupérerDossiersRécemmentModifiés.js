@@ -445,6 +445,7 @@ function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updat
     }).json();
 }
 
+/** @typedef {any} DossierAPI */
 
 /**
  * @param {string} token
@@ -453,6 +454,7 @@ function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updat
  * @returns {Promise<any>}
  */
 export async function recupérerDossiersRécemmentModifiés(token, demarcheNumber, updatedSince) {
+    /** @type {DossierAPI[]} */
     let dossiers = []
     let hasPreviousPage = true;
     let startCursor = undefined

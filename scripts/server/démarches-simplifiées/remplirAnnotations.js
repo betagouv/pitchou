@@ -8,6 +8,7 @@ import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.j
 
 
 /** @type {Map<keyof AnnotationsPrivéesDémarcheSimplifiée88444, ChampDescriptor>} */
+//@ts-expect-error TS ne comprends pas que annotationDescriptor.label du schema donne forcément keyof AnnotationsPrivéesDémarcheSimplifiée88444
 const labelToAnnotationDescriptor = new Map(
     schema88444.revision.annotationDescriptors.map(annotationDescriptor => ([annotationDescriptor.label, annotationDescriptor]))
 )
@@ -121,8 +122,10 @@ function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, 
     })
 }
 
+/** @typedef {(token: string, config: {dossierId: string, instructeurId: string, annotationId: string, value: any}) => Promise<any>} FonctionRemplissageAnnotation */
 
-/** @type {Map<ChampDescriptorTypename, (...args: any[]) => any>} */
+/** @type {Map<ChampDescriptorTypename, FonctionRemplissageAnnotation>} */
+//@ts-ignore
 const annotationTypeToFonctionRemplissage = new Map([
     [
         "TextChampDescriptor",
@@ -154,6 +157,7 @@ const annotationTypeToFonctionRemplissage = new Map([
  */
 export default function remplirAnnotations(token, { dossierId, instructeurId, annotations }) {
     return Promise.all(Object.entries(annotations).map(([key, value]) => {
+        //@ts-expect-error TS ne comprend pas que key est forcément un 'keyof AnnotationsPrivéesDémarcheSimplifiée88444'
         const annotationDescriptor = labelToAnnotationDescriptor.get(key)
 
         //console.log('annotationDescriptor', annotationDescriptor, value)
@@ -179,7 +183,7 @@ export default function remplirAnnotations(token, { dossierId, instructeurId, an
                 return undefined;
 
             const mutationResult = r.dossierModifierAnnotationText || r.dossierModifierAnnotationCheckbox || r.dossierModifierAnnotationDate
-            return Array.isArray(mutationResult.errors) ? mutationResult.errors.map(e => e.message) : undefined
+            return Array.isArray(mutationResult.errors) ? mutationResult.errors.map((/** @type {{ message: any; }} */ e) => e.message) : undefined
         })
         .filter(x => !!x)
         .flat()
