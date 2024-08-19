@@ -427,9 +427,10 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
         const instructeursEnBDD = await insertOrSelectPersonneParEmail(
             [...new Set(
-                groupesInstructeursAPI
+                /** @type {string[]} */
+                (groupesInstructeursAPI
                     .map(({instructeurs}) => instructeurs.map(({email}) => email))
-                    .flat(Infinity)
+                    .flat(Infinity))
             )]
         )
 
