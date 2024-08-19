@@ -4,7 +4,9 @@ import {json} from 'd3-fetch'
 
 import store from "../store"
 
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {DossierComplet} from '../../types.js' */
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 
 /**
