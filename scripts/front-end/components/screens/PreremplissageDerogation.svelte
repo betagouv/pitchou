@@ -3,16 +3,16 @@
     import Squelette from '../Squelette.svelte'
     import CopyButton from '../CopyButton.svelte'
 
-    /** @import {DossierDémarcheSimplifiée88444} from "../../../types.js" */
+    /** @import {DossierDemarcheSimplifiee88444} from "../../../types.js" */
 
     export let schemaDS88444
     export let email
 
-    /** @type {Partial<DossierDémarcheSimplifiée88444>} */
+    /** @type {Partial<DossierDemarcheSimplifiee88444>} */
     let nouveauDossierPartiel = {}
     let lienDePreremplissage = ""
     
-    /** @type {Array<DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]>} */
+    /** @type {Array<DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444]>} */
     $: champsPreremplis = Object.keys(nouveauDossierPartiel).filter(champ => {
         return nouveauDossierPartiel[champ] !== ""
     })
@@ -47,7 +47,7 @@
         } 
     })
 
-    /** @type {Record<string, keyof DossierDémarcheSimplifiée88444>} */
+    /** @type {Record<string, keyof DossierDemarcheSimplifiee88444>} */
     const correspondanceSchemaDS88444etTypeDossier88444 = {
         "Le demandeur est…": "Le demandeur est…",
         "Activité principale": "Objet du projet",

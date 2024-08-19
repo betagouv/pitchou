@@ -9,7 +9,7 @@
     import Loader from '../Loader.svelte';
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
+    /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
     /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
     /** @import {DossierComplet} from '../../../types.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
@@ -26,7 +26,7 @@
     /** @type { Map<GeoAPICommune['nom'], GeoAPIDépartement> } */
     export let stringToDépartement
 
-    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']> } */
+    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDemarcheSimplifiee88444['Objet du projet']> } */
     export let typeVersObjet
 
     /** @type {string} */
@@ -37,7 +37,7 @@
     
     /** @type {Promise<DossierTableauSuiviNouvelleAquitaine2023[]>} */
     let candidatsImportsSuiviNAP
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444} >} */
     let candidatsImportsMap
 
     /**
@@ -84,7 +84,7 @@
     /**
      * 
      * @param {DossierComplet[]} dossiersStockésEnBaseDeDonnées 
-     * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel88444DepuisTableauSuivi
+     * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel88444DepuisTableauSuivi
      * @returns {DossierComplet | undefined}
      */
     function trouverDossierEnBDDCorrespondant(dossiersStockésEnBaseDeDonnées, dossierPartiel88444DepuisTableauSuivi){
@@ -136,13 +136,13 @@
     /**
      * 
      * @param {Dossier} dossierPitchou
-     * @param {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} annotationsPartielles 
+     * @param {Partial<AnnotationsPriveesDemarcheSimplifiee88444>} annotationsPartielles 
      * @returns {boolean}
      */
     function dossierAlreadyHasAnnotations(dossierPitchou, annotationsPartielles){
 
-        /** @type {Record<keyof AnnotationsPrivéesDémarcheSimplifiée88444, keyof Dossier>} */
         //@ts-ignore
+        /** @type {Record<keyof AnnotationsPriveesDemarcheSimplifiee88444, keyof Dossier>} */
         const mapping = {
             "Nom du porteur de projet": "historique_nom_porteur",
             "Localisation du projet": "historique_localisation",
@@ -186,11 +186,11 @@
     
     // Dossiers reconnus
 
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444} >} */
     let candidatsDossierÀCréer
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444, dossierPitchou: DossierComplet} >} */
     let candidatsAnnotationsÀAjouter
-    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDémarcheSimplifiée88444>, annotations: AnnotationsPrivéesDémarcheSimplifiée88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444, dossierPitchou: DossierComplet} >} */
     let candidatsDossiersComplet
 
     $: if(candidatsImportsMap && dossiersStockésEnBaseDeDonnées) {
@@ -224,7 +224,7 @@
     let dossierToLienPréremplissage = new Map()
 
     /** 
-     * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel 
+     * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel 
      */
     function créerLienPréremplissage(dossierPartiel) {
         dossierToLienPréremplissage.set(
@@ -248,7 +248,7 @@
 
     /**
      * @param {Dossier} dossierPitchou 
-     * @param {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} annotations 
+     * @param {Partial<AnnotationsPriveesDemarcheSimplifiee88444>} annotations 
      */
      function ajouterAnnotations(dossierPitchou, annotations) {
         dossierPitchouToRemplissageAnnotation.set(

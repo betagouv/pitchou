@@ -14,7 +14,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
 
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444} from '../types.js' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types.js' */
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -70,7 +70,7 @@ fastify.get('/preremplissage-derogation', (_request, reply) => {
 })
 
 fastify.post('/lien-preremplissage', async function (request) {
-  /** @type {Partial<DossierDémarcheSimplifiée88444>} */
+  /** @type {Partial<DossierDemarcheSimplifiee88444>} */
   // @ts-ignore
   const donnéesPreRemplissage = request.body
 
@@ -162,7 +162,7 @@ fastify.post('/remplir-annotations', async (request, reply) => {
       return
     } 
     else{
-      /** @type { {dossierId: string, annotations: Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} } */
+      /** @type { {dossierId: string, annotations: Partial<AnnotationsPriveesDemarcheSimplifiee88444>} } */
       // @ts-ignore
       const {dossierId, annotations} = request.body
 
@@ -176,7 +176,7 @@ fastify.post('/remplir-annotations', async (request, reply) => {
         return
       }
 
-      /** @type {(keyof AnnotationsPrivéesDémarcheSimplifiée88444)[]} */
+      /** @type {(keyof AnnotationsPriveesDemarcheSimplifiee88444)[]} */
       const dateKeys = [
         'Date de réception DDEP', 
         'Date saisine CSRPN', 

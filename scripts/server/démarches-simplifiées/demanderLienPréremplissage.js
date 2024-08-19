@@ -3,14 +3,14 @@
 import ky from "ky"
 import { clefAE, démarcheDossierLabelToId } from "../../commun/préremplissageDémarcheSimplifiée.js";
 
-/** @import {DossierDémarcheSimplifiée88444} from "../../types.js" */
+/** @import {DossierDemarcheSimplifiee88444} from "../../types.js" */
 
 const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`
 
 /**
  * 
- * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel
+ * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel
  * @returns {Record<string, string | string[] | any[]>}
  */
 function créerObjetPréremplissageChamp(dossierPartiel){
@@ -25,7 +25,7 @@ function créerObjetPréremplissageChamp(dossierPartiel){
         ].includes(champ)
         ) {
 
-            /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444] | undefined} */
+            /** @type {DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444] | undefined} */
             const valeur = dossierPartiel[champ]
             if (valeur) {
                 // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
@@ -82,7 +82,7 @@ function créerObjetPréremplissageChamp(dossierPartiel){
  * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction demande un lien via POST
  * 
- * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel
+ * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel
  * @returns {Promise<{dossier_url: string}>}
  */
 export function demanderLienPréremplissage(dossierPartiel){

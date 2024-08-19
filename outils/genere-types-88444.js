@@ -168,7 +168,7 @@ const dossierDémarcheSimplifiée88444JSONSchema = {
 const dossierDémarcheSimplifiée88444InterfaceP = compile(
     //@ts-ignore
     dossierDémarcheSimplifiée88444JSONSchema, 
-    'DossierDémarcheSimplifiée88444', 
+    'DossierDemarcheSimplifiee88444', 
     { bannerComment: '' }
 )
 
@@ -206,7 +206,7 @@ const annotationsDémarcheSimplifiée88444JSONSchema = {
 const annotationsDémarcheSimplifiée88444InterfaceP = compile(
     //@ts-ignore
     annotationsDémarcheSimplifiée88444JSONSchema, 
-    'AnnotationsDémarcheSimplifiée88444', 
+    'AnnotationsPriveesDemarcheSimplifiee88444', 
     { bannerComment: '' }
 )
 

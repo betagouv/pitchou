@@ -180,7 +180,7 @@
 
 
 /**
- * Ce type va souvent être utilisé en tant que Partial<DossierDémarcheSimplifiée88444>
+ * Ce type va souvent être utilisé en tant que Partial<DossierDemarcheSimplifiee88444>
  * 
  * @typedef {{
 *   'Porteur de projet': string,
@@ -230,14 +230,14 @@
 *   "Suivi de mortalité - Votre demande concerne :": string[],
 *   "En cas de nécessité de capture d'individus, précisez le mode de capture": string[], 
 *   "Utilisez-vous des sources lumineuses ?": boolean
-* }} DossierDémarcheSimplifiée88444
+* }} DossierDemarcheSimplifiee88444
 */
 
 
 
 
 /**
- * Ce type va souvent être utilisé en tant que Partial<AnnotationsPrivéesDémarcheSimplifiée88444>
+ * Ce type va souvent être utilisé en tant que Partial<AnnotationsPriveesDemarcheSimplifiee88444>
  * 
  * @typedef {{
 *  "Nom du porteur de projet": string,
@@ -266,7 +266,7 @@
 *  "Date de l'AM": Date,
 *  "Référence de l'AM": string,
 *  'AP/AM': string
-* }} AnnotationsPrivéesDémarcheSimplifiée88444
+* }} AnnotationsPriveesDemarcheSimplifiee88444
 */
 
 

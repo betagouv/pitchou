@@ -3,7 +3,7 @@
 import { normalizeNomCommune, recoverDate } from "../../commun/typeFormat.js";
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet} from "../../types.js" */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet} from "../../types.js" */
 /** @import {_DossierTableauSuiviNouvelleAquitaine2023, DossierTableauSuiviNouvelleAquitaine2023} from "./types.js" */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {DémarchesSimpliféesCommune} from "../../types/démarches-simplifiées/api.js" */
@@ -98,11 +98,11 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
 
 
 /**
- * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers DossierDémarcheSimplifiée88444.
+ * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers DossierDemarcheSimplifiee88444.
  * @param {DossierTableauSuiviNouvelleAquitaine2023} dossier 
- * @param {Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']>} typeVersObjet 
+ * @param {Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDemarcheSimplifiee88444['Objet du projet']>} typeVersObjet 
  * @param { Map<string, GeoAPIDépartement> } stringToDépartement
- * @returns {Partial<DossierDémarcheSimplifiée88444>} 
+ * @returns {Partial<DossierDemarcheSimplifiee88444>} 
  */
 export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringToDépartement) {
     let communes, départements, départementPrincipale;
@@ -161,7 +161,7 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
 
 
     /**
-     * @type {Partial<DossierDémarcheSimplifiée88444>}
+     * @type {Partial<DossierDemarcheSimplifiee88444>}
      */
     const dossierConverti = {
         'Porteur de projet': dossier['Porteur de projet'],
@@ -218,14 +218,29 @@ function getDateRéception(dossier){
     return dateRéception
 }
 
-/** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['DDEP requise'], AnnotationsPrivéesDémarcheSimplifiée88444['DDEP nécessaire ?']>} */
+/**
+ * 
+ * @param {Dossier} dossierPitchou 
+ * @returns {boolean}
+ */
+function dossierHasValidLocation(dossierPitchou){
+    /** @type {DémarchesSimpliféesCommune[] | undefined} */
+    const communes = dossierPitchou.communes
+
+    const validCommunes = Array.isArray(communes) && communes.length >= 1
+
+
+    
+}
+
+/** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['DDEP requise'], AnnotationsPriveesDemarcheSimplifiee88444['DDEP nécessaire ?']>} */
 const DDEPRequiseToDDEPNécessaire = new Map([
     ['oui', 'Oui'],
     ['non', 'Non'],
     ['?', 'A déterminer']
 ])
 
-/** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['Attente de'], AnnotationsPrivéesDémarcheSimplifiée88444['Dossier en attente de']>} */
+/** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['Attente de'], AnnotationsPriveesDemarcheSimplifiee88444['Dossier en attente de']>} */
 const AttenteDeMap = new Map([
     ['DREP', 'Action Instructeur'],
     ['SPN', 'Action Instructeur'],
@@ -238,7 +253,7 @@ const AttenteDeMap = new Map([
 
 /**
  * @param {DossierTableauSuiviNouvelleAquitaine2023} dossierTableauSuivi 
- * @returns {AnnotationsPrivéesDémarcheSimplifiée88444['Décision'] | undefined}
+ * @returns {AnnotationsPriveesDemarcheSimplifiee88444['Décision'] | undefined}
  */
 function décision(dossierTableauSuivi){
     const typeArrêté = dossierTableauSuivi[`Type d'arrêté`]
@@ -263,17 +278,17 @@ function décision(dossierTableauSuivi){
 }
 
 /**
- * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers AnnotationsPrivéesDémarcheSimplifiée88444.
+ * Convertit un objet du type DossierTableauSuiviNouvelleAquitaine2023 vers AnnotationsPriveesDemarcheSimplifiee88444.
  * @param {DossierTableauSuiviNouvelleAquitaine2023} dossierTableauSuivi
- * @returns {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
+ * @returns {Partial<AnnotationsPriveesDemarcheSimplifiee88444>}
  */
 export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi) {
 
-    /** @type {AnnotationsPrivéesDémarcheSimplifiée88444['Décision'] | undefined} */
+    /** @type {AnnotationsPriveesDemarcheSimplifiee88444['Décision'] | undefined} */
     const décisionDossier = décision(dossierTableauSuivi)
 
     /**
-     * @type {Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}
+     * @type {Partial<AnnotationsPriveesDemarcheSimplifiee88444>}
      */
     const annotationsConverties = {
         "Nom du porteur de projet": dossierTableauSuivi['Porteur de projet'],

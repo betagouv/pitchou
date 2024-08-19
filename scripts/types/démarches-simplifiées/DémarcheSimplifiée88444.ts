@@ -168,7 +168,7 @@ export interface DossierDemarcheSimplifiee88444 {
 }
 
 
-export interface AnnotationsDemarcheSimplifiee88444 {
+export interface AnnotationsPriveesDemarcheSimplifiee88444 {
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */

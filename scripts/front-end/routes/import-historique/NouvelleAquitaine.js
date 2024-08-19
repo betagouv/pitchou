@@ -13,7 +13,7 @@ import ImportHistoriqueNouvelleAquitaine from '../../components/screens/ImportHi
 import { normalizeNomCommune } from '../../../commun/typeFormat.js';
 
 /** @import {
- *    DossierDémarcheSimplifiée88444, 
+ *    DossierDemarcheSimplifiee88444, 
  *    GeoAPICommune, 
  *    GeoAPIDépartement, 
  *  } from "../../../types.js" 
@@ -61,7 +61,7 @@ export default async () => {
         throw new TypeError('Correspondance type/objet manquante')
     }
 
-    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']> } */
+    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDemarcheSimplifiee88444['Objet du projet']> } */
     const typeVersObjet = new Map()
 
     const objetsPossibles = new Set(schema.revision.champDescriptors.find(

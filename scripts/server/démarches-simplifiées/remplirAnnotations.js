@@ -5,10 +5,10 @@ import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.j
 import {annotationTextMutationQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery} from './graphQLqueries.js'
 
 
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444} from '../../types.js' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../types.js' */
 /** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
 
-/** @type {Map<keyof AnnotationsPrivéesDémarcheSimplifiée88444, ChampDescriptor>} */
+/** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor>} */
 //@ts-expect-error TS ne comprends pas que annotationDescriptor.label du schema donne forcément keyof AnnotationsPrivéesDémarcheSimplifiée88444
 const labelToAnnotationDescriptor = new Map(
     schema88444.revision.annotationDescriptors.map(annotationDescriptor => ([annotationDescriptor.label, annotationDescriptor]))
@@ -84,7 +84,7 @@ const annotationTypeToFonctionRemplissage = new Map([
 
 /**
  * @param {string} token
- * @param {{dossierId: string, instructeurId: string, annotations: Partial<AnnotationsPrivéesDémarcheSimplifiée88444>}} _
+ * @param {{dossierId: string, instructeurId: string, annotations: Partial<AnnotationsPriveesDemarcheSimplifiee88444>}} _
  */
 export default function remplirAnnotations(token, { dossierId, instructeurId, annotations }) {
     return Promise.all(Object.entries(annotations).map(([key, value]) => {

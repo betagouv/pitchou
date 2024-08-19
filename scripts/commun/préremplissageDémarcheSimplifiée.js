@@ -22,11 +22,11 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 */
 
-/** @import {DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
+/** @import {DossierDemarcheSimplifiee88444, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
 
 export const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
 
-/** @type {Map< keyof DossierDémarcheSimplifiée88444, string >} */
+/** @type {Map< keyof DossierDemarcheSimplifiee88444, string >} */
 export const démarcheDossierLabelToId = new Map([
     [
         "Le demandeur est…",
@@ -244,7 +244,7 @@ const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/dero
  * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction créé un lien GET
  * 
- * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel
+ * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel
  * @returns {string}
  */
 export function créerLienGETPréremplissageDémarche(dossierPartiel) {
@@ -259,7 +259,7 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel) {
         ].includes(champ)
         ) {
 
-            /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444] | undefined} */
+            /** @type {DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444] | undefined} */
             const valeur = dossierPartiel[champ]
             if (valeur !== undefined && valeur !== null && valeur !== "") {
                 // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
