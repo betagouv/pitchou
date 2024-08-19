@@ -22,10 +22,14 @@ import { normalizeNomCommune } from '../../../commun/typeFormat.js';
 
 
 export default async () => {
-    /** @type { [GeoAPICommune[] | undefined, GeoAPIDépartement[] | undefined, any, any] } */
-    const [communes, départements, typeObjet, schema] = await Promise.all([
-        json('https://geo.api.gouv.fr/communes'),
-        json('https://geo.api.gouv.fr/departements'),
+    /** @type {GeoAPICommune[] | undefined} */
+    const communes = (await json('https://geo.api.gouv.fr/communes'))
+
+    /** @type {GeoAPIDépartement[] | undefined} */
+    const départements = (await json('https://geo.api.gouv.fr/departements'))
+
+     /** @type { [any, any] } */
+    const [typeObjet, schema] = await Promise.all([
         csv('/data/import-historique/Nouvelle-Aquitaine/Correspondance Nom projet Objet projet.csv'),
         json('/data/démarches-simplifiées/schema-DS-88444.json')
     ])
@@ -60,7 +64,13 @@ export default async () => {
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDémarcheSimplifiée88444['Objet du projet']> } */
     const typeVersObjet = new Map()
 
-    const objetsPossibles = new Set(schema.revision.champDescriptors.find(champ => champ.id === 'Q2hhbXAtMzg5NzQwMA==').options)
+    const objetsPossibles = new Set(schema.revision.champDescriptors.find(
+        /** 
+         * @param {Object} champ 
+         * @param {string} champ.id
+         */ 
+        champ => champ.id === 'Q2hhbXAtMzg5NzQwMA==').options
+    )
 
     for(let {'Tableau de suivi': type, 'Objet du projet (à utiliser dans DS)': objet} of typeObjet){
         type = type.trim()
