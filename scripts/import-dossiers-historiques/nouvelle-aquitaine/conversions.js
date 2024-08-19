@@ -2,14 +2,17 @@
 
 import { normalizeNomCommune, recoverDate } from "../../commun/typeFormat.js";
 
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet} from "../../types.js" */
 /** @import {_DossierTableauSuiviNouvelleAquitaine2023, DossierTableauSuiviNouvelleAquitaine2023} from "./types.js" */
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {DémarchesSimpliféesCommune} from "../../types/démarches-simplifiées/api.js" */
-/** @import {default as Dossier} from "../../types/database/public/Dossier.js" */
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
+/** @import {default as Dossier} from "../../types/database/public/Dossier.ts" */
 
 /**
  * 
- * @param { StringValues<_DossierTableauSuiviNouvelleAquitaine2023>} dossier 
+ * @param { DossierTableauSuiviNouvelleAquitaine2023} dossier 
  * @param { Map<string, GeoAPICommune> } nomToCommune
  * @param { Map<string, GeoAPIDépartement> } stringToDépartement
  * @returns { DossierTableauSuiviNouvelleAquitaine2023 }
@@ -107,21 +110,30 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
     const Localisation = dossier['Localisation'] || []
     const Dpt = dossier['Dpt'] || []
 
-    if(Localisation.length >= 1 && Localisation.every(l => Object(l) === l && l.code && l.nom && !l.codesPostaux)){
+    if(
+        Localisation.length >= 1 && 
+        //@ts-expect-error TS ne comprend pas le check du type avec Object(l) === l
+        Localisation.every(l => Object(l) === l && l.code && l.nom && !l.codesPostaux)
+    ){
         // il y a un ou des départements dans la colonne 'Localisation'
-        départements = Localisation
+        /** @type {GeoAPIDépartement[]} */
+        départements = (Localisation)
         communes = undefined
-        départementPrincipale = Dpt[0] || départements[0]
+        /** @type {GeoAPIDépartement} */
+        départementPrincipale = (Dpt[0] || départements[0])
     }
     else{
         // il y a une ou des communes dans la colonne 'Localisation'
         départements = undefined
-        communes = Localisation
+        /** @type{GeoAPICommune[]} */
+        communes = (Localisation)
         if(Dpt[0]){
-            départementPrincipale = Dpt[0]
+            /** @type {GeoAPIDépartement} */
+            départementPrincipale = (Dpt[0])
         }
         else{
             if(Array.isArray(communes) && communes.length >= 1){
+                /** @type {Map<string, number>} */
                 const countByCodeDepartement = new Map()
 
                 for(const commune of communes){
@@ -133,8 +145,11 @@ export function dossierSuiviNAVersDossierDS88444(dossier, typeVersObjet, stringT
                 }
 
                 const maxCount = Math.max(...[...countByCodeDepartement.values()])
+                //@ts-expect-error TS ne comprend pas que le find retourne toujours une valeur
                 const [codeDépartementPrincipale] = [...countByCodeDepartement].find(([_, count]) => count === maxCount)
-                départementPrincipale = stringToDépartement.get(codeDépartementPrincipale)
+                
+                /** @type {GeoAPIDépartement} */
+                départementPrincipale = (stringToDépartement.get(codeDépartementPrincipale))
             }
         }
     }
@@ -203,21 +218,6 @@ function getDateRéception(dossier){
     return dateRéception
 }
 
-/**
- * 
- * @param {Dossier} dossierPitchou 
- * @returns {boolean}
- */
-function dossierHasValidLocation(dossierPitchou){
-    /** @type {DémarchesSimpliféesCommune[] | undefined} */
-    const communes = dossierPitchou.communes
-
-    const validCommunes = Array.isArray(communes) && communes.length >= 1
-
-
-    
-}
-
 /** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['DDEP requise'], AnnotationsPrivéesDémarcheSimplifiée88444['DDEP nécessaire ?']>} */
 const DDEPRequiseToDDEPNécessaire = new Map([
     ['oui', 'Oui'],
@@ -278,7 +278,9 @@ export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi) {
     const annotationsConverties = {
         "Nom du porteur de projet": dossierTableauSuivi['Porteur de projet'],
         "Localisation du projet": dossierTableauSuivi['Localisation string'],
+        //@ts-ignore
         'DDEP nécessaire ?': DDEPRequiseToDDEPNécessaire.get(dossierTableauSuivi['DDEP requise']),
+        //@ts-ignore
         'Dossier en attente de': AttenteDeMap.get(dossierTableauSuivi['Attente de']),
         'Enjeu écologique': typeof dossierTableauSuivi['enjeu écologique'] === 'string' && dossierTableauSuivi['enjeu écologique'].length >= 1 || undefined,
         'Enjeu politique': typeof dossierTableauSuivi['enjeu politique'] === 'string' && dossierTableauSuivi['enjeu politique'].length >= 1 || undefined, 
@@ -295,7 +297,6 @@ export function dossierSuiviNAVersAnnotationsDS88444(dossierTableauSuivi) {
         'Date avis CSRPN': dossierTableauSuivi['Date saisine CSRPN'] ? dossierTableauSuivi['Date avis CNPN / CSRPN)'] : undefined, 
         'Date avis CNPN': dossierTableauSuivi['Date saisine CNPN'] ? dossierTableauSuivi['Date avis CNPN / CSRPN)'] : undefined, 
         'Avis CSRPN/CNPN': undefined, // pas dans le tableau de suivi
-        'Avis CSRPN/CNPN': undefined,
         'Date de début de la consultation du public ou enquête publique': dossierTableauSuivi['Dates consultation public'],
         'Décision': décisionDossier,
         'Date de signature de l\'AP': décisionDossier === 'AP dérogation' ? dossierTableauSuivi['Date arrêté (AP)'] : undefined,
