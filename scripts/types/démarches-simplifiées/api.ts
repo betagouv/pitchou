@@ -10,6 +10,7 @@ interface GraphQLNodes<T>{
 
 type Dossier = any // PPP
 type DeletedDossier = any // PPP
+type PendingDeletedDossier = any // PPP
 
 interface Instructeur{
     id: string
@@ -29,6 +30,7 @@ export interface demarcheQueryResultDemarche{
     groupeInstructeurs: GroupeInstructeurs[]
     dossiers: GraphQLNodes<Dossier[]>
     deletedDossiers: GraphQLNodes<DeletedDossier[]>
+    pendingDeletedDossiers: GraphQLNodes<PendingDeletedDossier[]>
 }
 
 export interface demarcheQueryResult<DemarchePart>{

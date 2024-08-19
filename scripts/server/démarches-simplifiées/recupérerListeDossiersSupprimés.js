@@ -2,6 +2,8 @@
 
 import queryGraphQL from './queryGraphQL.js'
 
+/** @import {demarcheQueryResult, demarcheQueryResultDemarche} from "../../types/démarches-simplifiées/api.js" */
+
 // ne pas récupérer l'id https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/10669
 const deletedDossiersQuery = `query getDemarche(
   $demarcheNumber: Int!
@@ -50,7 +52,8 @@ fragment PageInfoFragment on PageInfo {
  * @returns 
  */
 async function recupérerListeDeletedDossiers(token, demarcheNumber){
-    const delDoss = await queryGraphQL(token, deletedDossiersQuery, {demarcheNumber, last: 100})
+    const delDoss = await /** @type {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'deletedDossiers'>>>} */(queryGraphQL(token, deletedDossiersQuery, {demarcheNumber, last: 100}))
+
     return delDoss.demarche.deletedDossiers.nodes
 }
 
@@ -103,7 +106,8 @@ const pendingDeletedDossiersQuery = `query getDemarche(
  * @returns 
  */
 async function recupérerListePendingDeletedDossiers(token, demarcheNumber){
-    const pendDelDoss = await queryGraphQL(token, pendingDeletedDossiersQuery, {demarcheNumber, last: 100})
+    const pendDelDoss = await /** @type {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'pendingDeletedDossiers'>>>} */(queryGraphQL(token, pendingDeletedDossiersQuery, {demarcheNumber, last: 100}))
+
     return pendDelDoss.demarche.pendingDeletedDossiers.nodes
 }
 
