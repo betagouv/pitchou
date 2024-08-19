@@ -40,7 +40,7 @@ const annotationTextMutationQuery = `mutation ModifierAnnotationText(
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: string }} _ 
- * @returns {Promise<void>}
+ * @returns {Promise<unknown>}
  */
 function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationTextMutationQuery, {
@@ -77,7 +77,7 @@ const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: boolean }} _ 
- * @returns {Promise<void>}
+ * @returns {Promise<unknown>}
  */
 function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationCheckboxMutationQuery, {
@@ -114,7 +114,7 @@ const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: Date }} _ 
- * @returns {Promise<void>}
+ * @returns {Promise<unknown>}
  */
 function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationDateMutationQuery, {
