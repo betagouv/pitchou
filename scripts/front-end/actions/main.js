@@ -14,15 +14,18 @@ export function chargerDossiers(){
     console.log('store.state.secret', store.state.secret)
     if(store.state.secret){
         return json(`/dossiers?secret=${store.state.secret}`)
-            .then(/** @type {Dossier[]} */ dossiers => {
-                //@ts-ignore
-                const dossiersById = dossiers.reduce((objetFinal, dossier) => {
-                    objetFinal.set(dossier.id, dossier)
-                    return objetFinal
-                }, new Map())
-                console.log('dossiersById', dossiersById)
-                store.mutations.setDossiers(dossiersById)
-                return dossiers
+            .then(dossiers => {
+                if (Array.isArray(dossiers)) {
+                    const dossiersById = dossiers.reduce((objetFinal, dossier) => {
+                        objetFinal.set(dossier.id, dossier)
+                        return objetFinal
+                    }, new Map())
+                    console.log('dossiersById', dossiersById)
+                    store.mutations.setDossiers(dossiersById)
+                    return dossiers
+                } else {
+                    return Promise.reject(new TypeError('La requête à /dossiers renvoie une 204 ou une 205'))
+                }
             })
     }
     else{
