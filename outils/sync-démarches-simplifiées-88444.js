@@ -44,7 +44,7 @@ if(typeof args.lastModified === 'string' && isValidDate(new Date(args.lastModifi
     lastModified = new Date(args.lastModified)
 }
 else{
-    lastModified = sub(new Date(), {hours: 24})
+    lastModified = sub(new Date(), {hours: 12})
 }
 
 console.log(
