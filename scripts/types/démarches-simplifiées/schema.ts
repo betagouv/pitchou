@@ -6,4 +6,15 @@ export interface ChampDescriptor {
     label: string;
     description: string;
     required: boolean;
+    options: [string[]]
+}
+
+
+interface RevisionSchemaDémarcheSimplifiée{
+    champs: ChampDescriptor[]
+    annotations: ChampDescriptor[]
+}
+
+export interface SchemaDémarcheSimplifiée {
+    revision: RevisionSchemaDémarcheSimplifiée
 }
