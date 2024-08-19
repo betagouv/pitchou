@@ -1,0 +1,1 @@
+Les backups vont dans ce dossier et sont gitignorées

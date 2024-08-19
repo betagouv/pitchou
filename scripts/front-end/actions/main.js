@@ -15,8 +15,13 @@ export function chargerDossiers(){
     if(store.state.secret){
         return json(`/dossiers?secret=${store.state.secret}`)
             .then(/** @type {Dossier[]} */ dossiers => {
-                console.log('dossiers', dossiers)
-                store.mutations.setDossiers(dossiers)
+                //@ts-ignore
+                const dossiersById = dossiers.reduce((objetFinal, dossier) => {
+                    objetFinal.set(dossier.id, dossier)
+                    return objetFinal
+                }, new Map())
+                console.log('dossiersById', dossiersById)
+                store.mutations.setDossiers(dossiersById)
                 return dossiers
             })
     }
@@ -27,6 +32,7 @@ export function chargerDossiers(){
 
 export function chargerSchemaDS88444() {
     return json(getURL("link#schema-DS8844")).then((schema) => { 
+        //@ts-ignore
         store.mutations.setSchemaDS88444(schema)
         return schema
     })

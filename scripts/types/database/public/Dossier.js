@@ -44,6 +44,9 @@ export {};
  * @property {boolean | null} enjeu_écologique
  * @property {string | null} commentaire_libre
  * @property {boolean | null} rattaché_au_régime_ae
+ * @property {string | null} phase
+ * @property {string | null} prochaine_action_attendue_par
+ * @property {string | null} prochaine_action_attendue
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -84,6 +87,9 @@ export {};
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
+ * @property {string | null} [phase]
+ * @property {string | null} [prochaine_action_attendue_par]
+ * @property {string | null} [prochaine_action_attendue]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -124,4 +130,7 @@ export {};
  * @property {boolean | null} [enjeu_écologique]
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
+ * @property {string | null} [phase]
+ * @property {string | null} [prochaine_action_attendue_par]
+ * @property {string | null} [prochaine_action_attendue]
  */

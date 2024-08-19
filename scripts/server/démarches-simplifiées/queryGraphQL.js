@@ -10,12 +10,12 @@ const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
  * @param {string} token
  * @param {string} query
  * @param {Record<string, any>} variables
- * @returns {Promise<any>}
+ * @returns {Promise<unknown>}
  */
 export default async function(token, query, variables) {
     //console.log('graphQL query', query, variables)
 
-    /** @type {{errors: any, data: any}} */
+    /** @type {{errors: any, data: unknown}} */
     const response = await ky.post(ENDPOINT, {
         headers: {
             'Content-Type': 'application/json',
