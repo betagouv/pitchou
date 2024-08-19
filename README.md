@@ -18,8 +18,6 @@ Base de données Postgres
 Le serveur récupère les données des dossiers via [l'API Démarches Simplifiées](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
 
 
-
-
 ## En dév
 
 En dev, on peut lancer `npm run dev` pour lancer le tout.\
@@ -36,11 +34,25 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 
 [documentation sur les migrations knex](https://knexjs.org/guide/migrations.html)
 
-#### Regénérer les types jsdoc des tables SQL
+### Types
 
-exécuter `npm run build-db-types`
+Pour régénérer tous les types :
+`npm run build-types`
+
+#### Regénérer les types des tables SQL
+
+exécuter `npm run build-types:db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 Dans le fichier .js du type supprimer l'export ligne 3 `export {};`
+
+
+#### Régénérer les types à partir du schema DS 88444
+
+Mettre à jour le schema `data/démarches-simplifiées/schema-DS-88444.json`
+à partir de https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
+
+puis lancer `npm run build-types:ds-88444`
+
 
 
 ### Pour pgadmin

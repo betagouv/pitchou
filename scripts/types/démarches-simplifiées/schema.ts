@@ -1,4 +1,20 @@
-export type ChampDescriptorTypename = 'TextChampDescriptor' | 'DropDownListChampDescriptor' | 'YesNoChampDescriptor' | 'TextareaChampDescriptor' | 'DateChampDescriptor';
+export type ChampDescriptorTypename = 
+    | 'TextChampDescriptor' 
+    | 'DropDownListChampDescriptor' 
+    | 'YesNoChampDescriptor' 
+    | 'TextareaChampDescriptor' 
+    | 'DateChampDescriptor'
+    | 'SiretChampDescriptor'
+    | 'MultipleDropDownListChampDescriptor'
+    | 'AddressChampDescriptor'
+    | 'PhoneChampDescriptor'
+    | 'EmailChampDescriptor'
+    | 'CheckboxChampDescriptor'
+    | 'IntegerNumberChampDescriptor'
+    | 'DecimalNumberChampDescriptor' 
+    | 'DepartementChampDescriptor'
+    | 'RepetitionChampDescriptor'
+    | 'CommuneChampDescriptor'
 
 export interface ChampDescriptor {
     __typename: ChampDescriptorTypename;
@@ -11,8 +27,8 @@ export interface ChampDescriptor {
 
 
 interface RevisionSchemaDémarcheSimplifiée{
-    champs: ChampDescriptor[]
-    annotations: ChampDescriptor[]
+    champDescriptors: ChampDescriptor[]
+    annotationDescriptors: ChampDescriptor[]
 }
 
 export interface SchemaDémarcheSimplifiée {
