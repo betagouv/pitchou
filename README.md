@@ -53,11 +53,15 @@ Mettre à jour le schema `data/démarches-simplifiées/schema-DS-88444.json`
 
 puis lancer `npm run build-types:ds-88444`
 
+Cette commande télécharge aussi la dernière version du schema avant de créer les types
+
+Pour éviter le téléchargement et créer les types à partir du fichier schema existant dans le repo, ajouter l'option `--skipDownload`:
+`node outils/genere-types-88444.js --skipDownload`
 
 
 ### Pour pgadmin
 
-Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser le `container_name` comme hostname 
+Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser `postgres_db` (le `container_name` de la base de donnée Postgres) comme hostname 
 
 URL pour pgadmin en dev : 
 `http://localhost:5050/`
