@@ -1,5 +1,5 @@
 
-import {json, dsv} from 'd3-fetch'
+import {json} from 'd3-fetch'
 
 
 /**
