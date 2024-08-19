@@ -172,11 +172,11 @@ export default async () => {
             transportsParClassificationEtreVivant,
             groupesEspèces,
             /** @type {DescriptionMenaceEspèce[]} */
-            // @ts-ignore
             descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || [
                 {
                     classification: "oiseau", // Type d'espèce menacée
                     etresVivantsAtteints: [],
+                    //@ts-ignore
                     activité: undefined, // Activité menaçante
                     méthode: undefined, // Méthode menaçante
                     transport: undefined // Transport impliqué dans la menace
