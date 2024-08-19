@@ -23,8 +23,7 @@ const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
  * @returns {Promise<GroupeInstructeurs[]>}
  */
 export async function recupérerGroupesInstructeurs(token, demarcheNumber) {
-    /** @type {demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'groupeInstructeurs'>>} */
-    const res = await graphQLQuery(token, GroupeInstructeursQuery, {demarcheNumber})
+    const res = await /** @type {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'groupeInstructeurs'>>>} */(graphQLQuery(token, GroupeInstructeursQuery, {demarcheNumber}))
 
     return res.demarche.groupeInstructeurs
 }
