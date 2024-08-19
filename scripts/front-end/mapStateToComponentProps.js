@@ -1,7 +1,10 @@
-import store from './store.js'
-
+/**
+ * 
+ * @param {import('../front-end/store.js').PitchouState} state
+ * @returns 
+*/
 export const mapStateToSqueletteProps = (state) => {
     return {
-        email: store.state.secret ? '@' : undefined
+        email: state.secret ? '@' : undefined
     }
 }
