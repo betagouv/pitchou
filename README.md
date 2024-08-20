@@ -74,7 +74,9 @@ Ces backups se trouvent dans l'onglet `BACKUPS` du dashboard de l'addon PostgreS
 Après avoir téléchargé un backup de la prod, le mettre dans le dossier `backups` et lancer : 
 
 ```sh
+cd backups
 tar -xf <nom_fichier>.tar.gz
+cd -
 ```
 
 Cela va dévoiler un fichier `.pgsql` du même nom

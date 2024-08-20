@@ -7,10 +7,10 @@ export default {
 
   docker_dev: {
     client: 'postgresql',
-    connection: "postgresql://dev:dev_password@postgres_db:5432/principale",
+    connection: process.env.DATABASE_URL,
     pool: {
-      min: 2,
-      max: 10
+      min: 0,
+      max: 5
     },
     migrations: {
       tableName: 'knex_migrations'
@@ -21,8 +21,8 @@ export default {
     client: 'postgresql',
     connection: process.env.DATABASE_URL,
     pool: {
-      min: 2,
-      max: 10
+      min: 0,
+      max: 30
     },
     migrations: {
       tableName: 'knex_migrations'
