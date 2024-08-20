@@ -111,6 +111,9 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
 
 })
 
+
+
+
 /**
  * Routes qui nécessite des privilèges 
  */

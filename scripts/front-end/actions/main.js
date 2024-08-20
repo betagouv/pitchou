@@ -44,18 +44,6 @@ export function chargerSchemaDS88444() {
     })
 }
 
-export function init(){
-    return remember(PITCHOU_SECRET_STORAGE_KEY)
-        .then(secret => {
-            if(secret){
-                // @ts-ignore
-                store.mutations.setSecret(secret)
-                return chargerDossiers()
-            }
-        })
-        .then(chargerSchemaDS88444)
-        .catch(() => logout())
-}
 
 export async function secretFromURL(){
     const secret =  new URLSearchParams(location.search).get("secret")
@@ -64,10 +52,14 @@ export async function secretFromURL(){
         const newURL = new URL(location.href)
         newURL.searchParams.delete("secret")
 
+        // nettoyer l'url pour que le secret n'y apparaisse plus
         history.replaceState(null, "", newURL)
         store.mutations.setSecret(secret)
 
-        return remember(PITCHOU_SECRET_STORAGE_KEY, secret)
+        return Promise.all([
+            remember(PITCHOU_SECRET_STORAGE_KEY, secret),
+            initCapabilities(secret)
+        ])
     }
 }
 
@@ -75,4 +67,33 @@ export async function logout(){
     store.mutations.setSecret(undefined)
     store.mutations.setDossiers(undefined)
     return forget(PITCHOU_SECRET_STORAGE_KEY)
+}
+
+/**
+ * 
+ * @param {string} secret 
+ * @returns 
+ */
+function initCapabilities(secret){
+    return json(`/caps?secret=${secret}`)
+        .then(caps => {
+            store.mutations.setCapabilities(caps)
+
+            return Promise.all([
+                caps.listeDossiers ? chargerDossiers(caps.listeDossiers) : undefined
+            ])
+        })
+}
+
+
+export function init(){
+
+    return Promise.all([
+        remember(PITCHOU_SECRET_STORAGE_KEY)
+            //@ts-ignore
+            .then(secret => secret ? initCapabilities(secret) : undefined)
+            .catch(logout),
+        chargerSchemaDS88444
+    ])
+        
 }
