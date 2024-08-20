@@ -176,22 +176,14 @@ export default async () => {
                 {
                     classification: "oiseau", // Type d'espèce menacée
                     etresVivantsAtteints: [],
-                    //@ts-ignore
-                    activité: undefined, // Activité menaçante
-                    méthode: undefined, // Méthode menaçante
-                    transport: undefined // Transport impliqué dans la menace
                 },
                 {
                     classification: "faune non-oiseau",
                     etresVivantsAtteints: [],
-                    activité: undefined, // Activité menaçante
-                    méthode: undefined, // Méthode menaçante
-                    transport: undefined // Transport impliqué dans la menace
                 },
                 {
                     classification: "flore",
                     etresVivantsAtteints: [],
-                    activité: undefined, // Activité menaçante
                 }
             ]
         }
