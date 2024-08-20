@@ -6,6 +6,8 @@ import remember, {forget} from 'remember'
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
+import { isDossierArray } from '../../types/typeguards.js';
+
 /** @typedef {import('../../types/database/public/Dossier.js').default} Dossier */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
@@ -15,17 +17,18 @@ export function chargerDossiers(){
     if(store.state.secret){
         return json(`/dossiers?secret=${store.state.secret}`)
             .then(dossiers => {
-                if (Array.isArray(dossiers)) {
-                    const dossiersById = dossiers.reduce((objetFinal, dossier) => {
-                        objetFinal.set(dossier.id, dossier)
-                        return objetFinal
-                    }, new Map())
-                    console.log('dossiersById', dossiersById)
-                    store.mutations.setDossiers(dossiersById)
-                    return dossiers
-                } else {
-                    return Promise.reject(new TypeError('La requête à /dossiers renvoie une 204 ou une 205'))
+                if (!isDossierArray(dossiers)) {
+                    throw new Error("On attendait un tableau de dossiers ici !")
                 }
+
+                const dossiersById = dossiers.reduce((objetFinal, dossier) => {
+                    objetFinal.set(dossier.id, dossier)
+                    return objetFinal
+                }, new Map())
+                console.log('dossiersById', dossiersById)
+                store.mutations.setDossiers(dossiersById)
+
+                return dossiers
             })
     }
     else{
