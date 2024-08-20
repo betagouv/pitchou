@@ -13,6 +13,9 @@ services:
     command: npm run start:server
     environment:
       PORT: 2648
+      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/principale"
+    user: "${UID}:${GID}"
+    stop_grace_period: 2s
 
   db:
     image: postgres:15.7
@@ -40,3 +43,4 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
     restart: unless-stopped
+    stop_grace_period: 2s

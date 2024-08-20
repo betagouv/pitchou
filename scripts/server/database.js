@@ -20,7 +20,10 @@ const directDatabaseConnection = knex({
     connection: DATABASE_URL,
 });
 
-
+/**
+ * 
+ * @returns {ReturnType<knex.Knex['destroy']>}
+ */
 export function closeDatabaseConnection(){
     return directDatabaseConnection.destroy()
 }
