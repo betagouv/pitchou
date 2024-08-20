@@ -38,8 +38,15 @@ const fastify = Fastify({
     transport: {
       target: 'pino-pretty',
       options: {
+        colorize: true,
         translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname,req.remotePort,req.remoteAddress,req.hostname,',
+        ignore: 'pid,hostname,req.remotePort,req.remoteAddress,req.hostname,reqId,req,res',
+        messageFormat: '[{reqId}] {req.method} {req.url} {res.statusCode} {msg}',
+        /*customPrettifiers: {
+          responseTime: (value, key, log, { colors }) => {
+            return `${value.toFixed(0)}ms`
+          }
+        }*/
       },
     }
   }
