@@ -1,6 +1,8 @@
+/** @import {PitchouState} from '../front-end/store.js' */
+
 /**
  * 
- * @param {import('../front-end/store.js').PitchouState} state
+ * @param {PitchouState} state
  * @returns 
 */
 export const mapStateToSqueletteProps = (state) => {
