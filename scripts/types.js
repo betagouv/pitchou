@@ -303,8 +303,8 @@
  * 
  * @typedef {Object} DossierLocalisation
  * @property {DossierDémarcheSimplifiée88444Communes[]} communes
- * @property {string[]} départements
- * @property {string[]} régions
+ * @property {string[] | null | undefined} départements
+ * @property {string[] | null | undefined} régions
  */
 
 /** @typedef {Dossier & DossierComplémentPersonnesImpliquées & DossierPhaseEtProchaineAction & DossierLocalisation} DossierComplet */

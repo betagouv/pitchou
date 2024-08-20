@@ -13,6 +13,15 @@ export function isValidDate(d) {
 
 /**
  * 
+ * @param {any} d
+ * @returns {boolean}
+ */
+export function isValidDateString(d) {
+    return !Number.isNaN(Date.parse(d))
+}
+
+/**
+ * 
  * @param {string | Date | number | undefined} d // peut-être une date
  */
 export function recoverDate(d){
