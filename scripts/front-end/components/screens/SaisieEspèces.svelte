@@ -66,7 +66,12 @@
         }]
     ])
 
-
+    /** 
+     * 
+     * @param {EspèceProtégée} esp 
+     * */ 
+    const onChange = esp => { ajouterUneEspèce(esp) }
+    
     /**
      * 
      * @param {EspèceProtégée} espèce
@@ -78,7 +83,7 @@
         if(espèce.classification === 'oiseau'){
             etresVivantsAtteints.push({
                 espèce,
-                nombreIndividus: 0,
+                nombreIndividus: "0",
                 nombreNids: 0,
                 nombreOeufs: 0,
                 surfaceHabitatDétruit: 0
@@ -87,7 +92,7 @@
         else{
             etresVivantsAtteints.push({
                 espèce,
-                nombreIndividus: 0,
+                nombreIndividus: "0",
                 surfaceHabitatDétruit: 0
             })
         }
@@ -268,13 +273,33 @@
 
     $: classifToLabelFunction = new Map(
         [...espècesProtégéesParClassification]
-            .map(([classif, espèces]) => [classif, makeEspèceToLabel(espèces)])
-            .map(([classif, espèceToLabel]) => [classif, (e => espèceToLabel.get(e))])
+            .map(
+                /**
+                 * 
+                 * @param {[ClassificationEtreVivant, EspèceProtégée[]]} params
+                 * @returns {[ClassificationEtreVivant, Map<EspèceProtégée, string>]} 
+                 */
+                ([classif, espèces]) => [classif, makeEspèceToLabel(espèces)]
+            )
+            .map(([classif, espèceToLabel]) => [
+                classif,
+                (/** @param {EspèceProtégée} e */ e => (espèceToLabel).get(e)),
+            ])
     )    
     $: classifToKeywordsFunction = new Map(
         [...espècesProtégéesParClassification]
-            .map(([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)])
-            .map(([classif, espèceToKeywords]) => [classif, (e => espèceToKeywords.get(e))])
+            .map(
+                /**
+                 * 
+                 * @param {[ClassificationEtreVivant, EspèceProtégée[]]} params
+                 * @returns {[ClassificationEtreVivant, Map<EspèceProtégée, string>]} 
+                 */
+                ([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)]
+            )
+            .map(([classif, espèceToKeywords]) => [
+                classif, 
+                (/** @param {EspèceProtégée} e */ e => espèceToKeywords.get(e))]
+            )
     )
 
 </script>
@@ -411,7 +436,7 @@
                                         <td>
                                             <AutocompleteEspeces 
                                             espèces={espècesProtégéesParClassification.get(classification)} 
-                                            onChange={esp => {ajouterUneEspèce(esp)}} 
+                                            onChange={onChange} 
                                             htmlClass="fr-input search"
                                             labelFunction={classifToLabelFunction.get(classification)}
                                             keywordsFunction={classifToKeywordsFunction.get(classification)}
