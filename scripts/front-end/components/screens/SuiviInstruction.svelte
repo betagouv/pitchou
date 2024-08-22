@@ -10,6 +10,7 @@
 
     console.log('dossiers', dossiers)
 
+    /** @type {string | undefined} */
     export let email
 
 </script>

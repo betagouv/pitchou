@@ -17,13 +17,13 @@ import Store from 'baredux'
 import '../types.js'
 
 /** @typedef {import('../types/database/public/Personne.js').default} Personne */
-/** @typedef {import('../types/database/public/Dossier.js').default} Dossier */
+/** @import {DossierComplet} from '../types.js' */
 
 
 /**
  * @typedef {Object} PitchouState
  * @property {Personne['code_accès']} [secret]
- * @property {Map<Dossier['id'], Dossier>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
+ * @property {Map<DossierComplet['id'], DossierComplet>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
  * @property {Object} [schemaDS88444]
  */
 
@@ -50,7 +50,7 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {Dossier} nouveauDossier
+   * @param {DossierComplet} nouveauDossier
    */
   setDossier(state, nouveauDossier) {
     if (!state.dossiers) { state.dossiers = new Map() }

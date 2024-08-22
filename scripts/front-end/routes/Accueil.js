@@ -12,6 +12,8 @@ import {envoiEmailConnexion} from '../serveur.js'
 import { authorizedEmailDomains } from '../../commun/constantes.js';
 import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
 
+/** @import {PitchouState} from '../store.js' */
+
 function showLoginByEmail(){
     function mapStateToProps(){
         return {
@@ -44,16 +46,17 @@ export default async () => {
             })
     }
 
-    if(store.state.dossiers){
+    if(store.state.dossiers && store.state.dossiers.size > 0){
         /**
-        * 
-        * @param {import('../store.js').PitchouState} _ 
-        * @returns 
-        */
-        function mapStateToProps({dossiers: dossiersById}){
+         * 
+         * @param {PitchouState} state 
+         * @returns 
+         */
+        function mapStateToProps(state){
+            const dossiersById = state.dossiers || []
+
             return {
-                ...mapStateToSqueletteProps(store.state),
-                //@ts-ignore
+                ...mapStateToSqueletteProps(state),
                 dossiers: [...dossiersById.values()],
                 
             }
