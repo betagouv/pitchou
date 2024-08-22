@@ -1,10 +1,10 @@
 //@ts-check
 
-/** @import {demarcheQueryResult, demarcheQueryResultDemarche, GroupeInstructeurs} from "../../types/démarches-simplifiées/api.js" */
-
 import graphQLQuery from './queryGraphQL.js'
 
-const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
+/** @import {GroupeInstructeurs} from "../../types/démarches-simplifiées/api.js" */
+
+export const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
     demarche(number: $demarcheNumber) {
         groupeInstructeurs {
             label
@@ -23,8 +23,7 @@ const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
  * @returns {Promise<GroupeInstructeurs[]>}
  */
 export async function recupérerGroupesInstructeurs(token, demarcheNumber) {
-    const res = await /** @type {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'groupeInstructeurs'>>>} */(graphQLQuery(token, GroupeInstructeursQuery, {demarcheNumber}))
-
+    const res = await graphQLQuery(token, GroupeInstructeursQuery, {demarcheNumber})
     return res.demarche.groupeInstructeurs
 }
 
