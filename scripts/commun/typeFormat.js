@@ -13,11 +13,11 @@ export function isValidDate(d) {
 
 /**
  * 
- * @param {any} d
+ * @param {string} dateString
  * @returns {boolean}
  */
-export function isValidDateString(d) {
-    return !Number.isNaN(Date.parse(d))
+export function isValidDateString(dateString) {
+    return !Number.isNaN(Date.parse(dateString))
 }
 
 /**
