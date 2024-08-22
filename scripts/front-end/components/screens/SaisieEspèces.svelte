@@ -7,6 +7,7 @@
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces';
+    import { isOiseauAtteint } from '../../../types/typeguards.js';
 
     /** @import {ClassificationEtreVivant, EspèceProtégée, NomGroupeEspèces, DescriptionMenaceEspèce, EtreVivantAtteint} from "../../../types.js" */
 
@@ -66,7 +67,12 @@
         }]
     ])
 
-
+    /** 
+     * 
+     * @param {EspèceProtégée} esp 
+     * */ 
+    const onChange = esp => { ajouterUneEspèce(esp) }
+    
     /**
      * 
      * @param {EspèceProtégée} espèce
@@ -78,7 +84,7 @@
         if(espèce.classification === 'oiseau'){
             etresVivantsAtteints.push({
                 espèce,
-                nombreIndividus: 0,
+                nombreIndividus: "0",
                 nombreNids: 0,
                 nombreOeufs: 0,
                 surfaceHabitatDétruit: 0
@@ -87,7 +93,7 @@
         else{
             etresVivantsAtteints.push({
                 espèce,
-                nombreIndividus: 0,
+                nombreIndividus: "0",
                 surfaceHabitatDétruit: 0
             })
         }
@@ -266,15 +272,44 @@
 		return new Map(espèces.map(e => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(' ')]))
 	}
 
+    /**
+     * 
+     * @param {ClassificationEtreVivant} classification
+     * @returns {EspèceProtégée[]}
+     */
+    function getEspècesPourClassification(classification) {
+        return espècesProtégéesParClassification.get(classification) || []
+    }
+
     $: classifToLabelFunction = new Map(
         [...espècesProtégéesParClassification]
-            .map(([classif, espèces]) => [classif, makeEspèceToLabel(espèces)])
-            .map(([classif, espèceToLabel]) => [classif, (e => espèceToLabel.get(e))])
+            .map(
+                /**
+                 * 
+                 * @param {[ClassificationEtreVivant, EspèceProtégée[]]} params
+                 * @returns {[ClassificationEtreVivant, Map<EspèceProtégée, string>]} 
+                 */
+                ([classif, espèces]) => [classif, makeEspèceToLabel(espèces)]
+            )
+            .map(([classif, espèceToLabel]) => [
+                classif,
+                (/** @param {EspèceProtégée} e */ e => (espèceToLabel).get(e)),
+            ])
     )    
     $: classifToKeywordsFunction = new Map(
         [...espècesProtégéesParClassification]
-            .map(([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)])
-            .map(([classif, espèceToKeywords]) => [classif, (e => espèceToKeywords.get(e))])
+            .map(
+                /**
+                 * 
+                 * @param {[ClassificationEtreVivant, EspèceProtégée[]]} params
+                 * @returns {[ClassificationEtreVivant, Map<EspèceProtégée, string>]} 
+                 */
+                ([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)]
+            )
+            .map(([classif, espèceToKeywords]) => [
+                classif, 
+                (/** @param {EspèceProtégée} e */ e => espèceToKeywords.get(e))]
+            )
     )
 
 </script>
@@ -356,20 +391,21 @@
                                         <th>Supprimer la ligne</th>
                                     </tr>
                                 </thead>
+                                
                                 <tbody>
-                                    {#each etresVivantsAtteints as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit, nombreNids, nombreOeufs}}
+                                    {#each etresVivantsAtteints as etreVivantAtteint}
                                         <tr>
                                             <td>
                                                 <AutocompleteEspeces 
-                                                    bind:selectedItem={espèce} 
-                                                    espèces={espècesProtégéesParClassification.get(classification)} 
+                                                    bind:selectedItem={etreVivantAtteint.espèce} 
+                                                    espèces={getEspècesPourClassification(classification)} 
                                                     htmlClass="fr-input"
                                                     labelFunction={classifToLabelFunction.get(classification)}
                                                     keywordsFunction={classifToKeywordsFunction.get(classification)}
                                                 />
                                             </td>
                                             <td>
-                                                <select bind:value={activité} class="fr-select">
+                                                <select bind:value={etreVivantAtteint.activité} class="fr-select">
                                                     <option>-</option>
                                                     {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
                                                     <option value={act}>{act['étiquette affichée']}</option>
@@ -378,7 +414,7 @@
                                             </td>
                                             {#if classification !== "flore"}
                                             <td>
-                                                <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'} class="fr-select">
+                                                <select bind:value={etreVivantAtteint.méthode} disabled={etreVivantAtteint.activité && etreVivantAtteint.activité['Méthode'] === 'n'} class="fr-select">
                                                     <option>-</option>
                                                     {#each méthodesParClassificationEtreVivant.get(classification) as met}
                                                         <option value={met}>{met['étiquette affichée']}</option>
@@ -386,7 +422,7 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <select bind:value={transport} disabled={activité && activité['transport'] === 'n'} class="fr-select">
+                                                <select bind:value={etreVivantAtteint.transport} disabled={etreVivantAtteint.activité && etreVivantAtteint.activité['transport'] === 'n'} class="fr-select">
                                                     <option>-</option>
                                                     {#each transportsParClassificationEtreVivant.get(classification) as trans}
                                                         <option value={trans}>{trans['étiquette affichée']}</option>
@@ -394,24 +430,26 @@
                                                 </select>
                                             </td>
                                             {/if}
-                                            <td><select bind:value={nombreIndividus} class="fr-select">
+                                            <td><select bind:value={etreVivantAtteint.nombreIndividus} class="fr-select">
                                                 {#each fourchettesIndividus as fourchette}
                                                     <option value={fourchette}>{fourchette}</option>
                                                 {/each}
                                             </select></td>
-                                            {#if classification === "oiseau"}
-                                            <td><input type="number" bind:value={nombreNids} min="0" step="1" class="fr-input"></td>
-                                            <td><input type="number" bind:value={nombreOeufs} min="0" step="1" class="fr-input"></td>
+
+                                            {#if isOiseauAtteint(etreVivantAtteint)}
+                                                <td><input type="number" bind:value={etreVivantAtteint.nombreNids} min="0" step="1" class="fr-input"></td>
+                                                <td><input type="number" bind:value={etreVivantAtteint.nombreOeufs} min="0" step="1" class="fr-input"></td>
                                             {/if}
-                                            <td><input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input"></td>
-                                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, espèce)}>❌</button></td>
+
+                                            <td><input type="number" bind:value={etreVivantAtteint.surfaceHabitatDétruit} min="0" step="1" class="fr-input"></td>
+                                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, etreVivantAtteint.espèce)}>❌</button></td>
                                         </tr>
                                     {/each}
                                     <tr>
                                         <td>
                                             <AutocompleteEspeces 
-                                            espèces={espècesProtégéesParClassification.get(classification)} 
-                                            onChange={esp => {ajouterUneEspèce(esp)}} 
+                                            espèces={getEspècesPourClassification(classification)} 
+                                            onChange={onChange} 
                                             htmlClass="fr-input search"
                                             labelFunction={classifToLabelFunction.get(classification)}
                                             keywordsFunction={classifToKeywordsFunction.get(classification)}

@@ -65,3 +65,23 @@ function isDossier(x) {
     (typeof x.prochaine_action_attendue === "string" || x.prochaine_action_attendue === null)
   )
 }
+
+/**
+ * 
+ * @param {any} e 
+ * @returns {e is OiseauAtteint} 
+ */
+export function isOiseauAtteint(e) {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    typeof e.espèce === "string" &&
+    typeof e.nombreIndividus === "string" &&
+    typeof e.surfaceHabitatDétruit === "number" &&
+    (e.activité === undefined || typeof e.activité === "string") &&
+    (e.méthode === undefined || typeof e.méthode === "string") &&
+    (e.transport === undefined || typeof e.transport === "string") &&
+    typeof e.nombreNids === "number" &&
+    typeof e.nombreOeufs === "number"
+  )
+}
