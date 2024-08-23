@@ -57,20 +57,7 @@ else{
 }
 
 
-
-
 const { revision: { champDescriptors, annotationDescriptors } } = schema88444
-
-const commentaireInitial = `/**
-* Ce fichier a été généré automatiquement par outils/genere-types-88444.js
-* en prenant data/démarches-simplifiées/schema-DS-88444.json comme source
-* 
-* Ne pas le modifier à la main
-* 
-* À la place, mettre à jour data/démarches-simplifiées/schema-DS-88444.json
-* d'après https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
-* et faire relancer outils/genere-types-88444.js
-*/`
 
 
 /**
@@ -113,6 +100,14 @@ function champToNumberJSONSchema({ description }){
     return { type: 'number', description }
 }
 
+/**
+ * @param {ChampDescriptor} _ 
+ * @returns {JSONSchema}
+ */
+function champToDépartementJSONSchema({ description }){
+    return { type: 'object', tsType: 'DémarchesSimpliféesDépartement', description }
+}
+
 /** @type {Map<ChampDescriptorTypename, (cd: ChampDescriptor) => JSONSchema>} */
 const DSTypenameToJSONSchema = new Map([
     [ "DropDownListChampDescriptor", champToStringEnumJSONSchema ],
@@ -127,7 +122,7 @@ const DSTypenameToJSONSchema = new Map([
     [ "TextareaChampDescriptor", champToStringJSONSchema ],
     [ "IntegerNumberChampDescriptor", champToNumberJSONSchema ],
     [ "DecimalNumberChampDescriptor", champToNumberJSONSchema ],
-    [ "DepartementChampDescriptor", champToStringJSONSchema ],
+    [ "DepartementChampDescriptor", champToDépartementJSONSchema ],
     // PPP : invalide, mais ne sait pas encore comment bien le gérer
     [ "RepetitionChampDescriptor", champToStringJSONSchema ],
     [ "CommuneChampDescriptor", champToStringJSONSchema ],
@@ -211,6 +206,20 @@ const annotationsDémarcheSimplifiée88444InterfaceP = compile(
 )
 
 
+const commentaireInitial = `/**
+* Ce fichier a été généré automatiquement par outils/genere-types-88444.js
+* en prenant data/démarches-simplifiées/schema-DS-88444.json comme source
+* 
+* Ne pas le modifier à la main
+* 
+* À la place, mettre à jour data/démarches-simplifiées/schema-DS-88444.json
+* d'après https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
+* et faire relancer outils/genere-types-88444.js
+*/`
+
+const imports = `import { DémarchesSimpliféesDépartement, DémarchesSimpliféesCommune } from "./api.ts";`
+
+
 await Promise.all([
     dossierDémarcheSimplifiée88444InterfaceP,
     annotationsDémarcheSimplifiée88444InterfaceP
@@ -220,6 +229,7 @@ await Promise.all([
     annotationsDémarcheSimplifiée88444Interface
 ]) => [
     commentaireInitial, 
+    imports,
     dossierDémarcheSimplifiée88444Interface,
     annotationsDémarcheSimplifiée88444Interface
 ].join('\n\n'))

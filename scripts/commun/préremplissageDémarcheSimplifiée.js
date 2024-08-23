@@ -22,7 +22,8 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 */
 
-/** @import {DossierDemarcheSimplifiee88444, GeoAPICommune, GeoAPIDépartement} from "../types.js" */
+/** @import {GeoAPICommune, GeoAPIDépartement} from "../types.js" */
+/** @import {DossierDemarcheSimplifiee88444} from "../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
 
 export const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
 
@@ -45,7 +46,7 @@ export const démarcheDossierLabelToId = new Map([
         "Q2hhbXAtMzg5NzM2Mg=="
     ],
     [
-        "Objet du projet",
+        "Activité principale",
         "Q2hhbXAtMzg5NzQwMA=="
     ],
     [
@@ -306,7 +307,6 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel) {
 
             communesURLParam = dossierPartiel['Commune(s) où se situe le projet']
             .filter(commune => Object(commune) === commune)
-            // @ts-expect-error TypeScript ne comprend pas l'effet du filter
             .map(makeCommuneParam)
             .join('&')
         }

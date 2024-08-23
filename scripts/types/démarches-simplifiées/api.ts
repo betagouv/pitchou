@@ -4,6 +4,11 @@ export interface DémarchesSimpliféesCommune{
     postalCode: string
 }
 
+export interface DémarchesSimpliféesDépartement{
+    name: string
+    code: string
+}
+
 interface GraphQLNodes<T>{
     nodes: T[]
 }

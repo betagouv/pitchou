@@ -218,20 +218,6 @@ function getDateRéception(dossier){
     return dateRéception
 }
 
-/**
- * 
- * @param {Dossier} dossierPitchou 
- * @returns {boolean}
- */
-function dossierHasValidLocation(dossierPitchou){
-    /** @type {DémarchesSimpliféesCommune[] | undefined} */
-    const communes = dossierPitchou.communes
-
-    const validCommunes = Array.isArray(communes) && communes.length >= 1
-
-
-    
-}
 
 /** @type {Map<_DossierTableauSuiviNouvelleAquitaine2023['DDEP requise'], AnnotationsPriveesDemarcheSimplifiee88444['DDEP nécessaire ?']>} */
 const DDEPRequiseToDDEPNécessaire = new Map([

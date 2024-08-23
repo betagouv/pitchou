@@ -9,6 +9,8 @@
 * et faire relancer outils/genere-types-88444.js
 */
 
+import { DémarchesSimpliféesDépartement, DémarchesSimpliféesCommune } from "./api.ts";
+
 export interface DossierDemarcheSimplifiee88444 {
   "Le demandeur est…": "une personne physique" | "une personne morale";
   "Numéro de SIRET": string;
@@ -113,7 +115,7 @@ export interface DossierDemarcheSimplifiee88444 {
   "Hauteur totale bout de pale (m)": number;
   "Diamètre du rotor (m)": number;
   "Garde au sol (m)": number;
-  "Dans quel département se localise majoritairement votre projet ?": string;
+  "Dans quel département se localise majoritairement votre projet ?": DémarchesSimpliféesDépartement;
   "Le projet se situe au niveau…":
     | "d'une ou plusieurs communes"
     | "d'un ou plusieurs départements"
