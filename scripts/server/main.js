@@ -56,16 +56,16 @@ fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
 })
-fastify.get('/saisie-especes', (request, reply) => {
+fastify.get('/saisie-especes', (_request, reply) => {
   reply.sendFile('index.html')
 })
-fastify.get('/dossier/:dossierId', (request, reply) => {
+fastify.get('/dossier/:dossierId', (_request, reply) => {
   reply.sendFile('index.html')
 })
-fastify.get('/import-historique/nouvelle-aquitaine', (request, reply) => {
+fastify.get('/import-historique/nouvelle-aquitaine', (_request, reply) => {
   reply.sendFile('index.html')
 })
-fastify.get('/preremplissage-derogation', (request, reply) => {
+fastify.get('/preremplissage-derogation', (_request, reply) => {
   reply.sendFile('index.html')
 })
 
@@ -88,7 +88,7 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
     return reply.code(400).send(`Paramètre 'email' manquant dans l'URL`)
   }
 
-  const [name, domain] = email.split('@')
+  const [_name, domain] = email.split('@')
 
   if(!authorizedEmailDomains.has(domain)){
     return reply.code(403).send(`Le domaine '${domain}' ne fait pas partie des domaines autorisés`)
@@ -190,9 +190,10 @@ fastify.post('/remplir-annotations', async (request, reply) => {
       ]
 
       for(const k of dateKeys){
-        if(annotations[k]){
-          annotations[k] = new Date(annotations[k])
-        }
+            if(annotations[k]){
+                //@ts-expect-error TS ne peut pas savoir qu'on n'a sélectionner que les clefs pour des dates
+                annotations[k] = new Date(annotations[k])
+            }
       }
 
       return remplirAnnotations(

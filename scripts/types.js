@@ -291,8 +291,23 @@
  * @property {DossierProchaineActionAttendue} prochaine_action_attendue
 */
 
+/**
+ * Kanel génère un type `unknown` pour les champs JSON. 
+ * 
+ * On surcharge ici les propriétés `communes`, `départements` et `régions` pour contraindre le type des valeurs du JSON.
+ * 
+ * @typedef {Object} DossierDémarcheSimplifiée88444Communes
+ * @property {string} name
+ * @property {string} code
+ * @property {string} postalCode
+ * 
+ * @typedef {Object} DossierLocalisation
+ * @property {DossierDémarcheSimplifiée88444Communes[]} communes
+ * @property {string[] | null | undefined} départements
+ * @property {string[] | null | undefined} régions
+ */
 
-/** @typedef {Dossier & DossierComplémentPersonnesImpliquées & DossierPhaseEtProchaineAction} DossierComplet */
+/** @typedef {Dossier & DossierComplémentPersonnesImpliquées & DossierPhaseEtProchaineAction & DossierLocalisation} DossierComplet */
 
 
 export default 'TS needs a module'

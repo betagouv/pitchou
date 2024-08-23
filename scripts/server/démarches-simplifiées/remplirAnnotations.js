@@ -1,44 +1,24 @@
 //@ts-check
 
+import queryGraphQL from './queryGraphQL.js'
+import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import {annotationTextMutationQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery} from './graphQLqueries.js'
+
+
 /** @import {AnnotationsPrivéesDémarcheSimplifiée88444} from '../../types.js' */
 /** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
 
-import queryGraphQL from './queryGraphQL.js'
-import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-
-
 /** @type {Map<keyof AnnotationsPrivéesDémarcheSimplifiée88444, ChampDescriptor>} */
+//@ts-expect-error TS ne comprends pas que annotationDescriptor.label du schema donne forcément keyof AnnotationsPrivéesDémarcheSimplifiée88444
 const labelToAnnotationDescriptor = new Map(
     schema88444.revision.annotationDescriptors.map(annotationDescriptor => ([annotationDescriptor.label, annotationDescriptor]))
 )
 
 
-const annotationTextMutationQuery = `mutation ModifierAnnotationText(
-    $dossierId: ID!,
-    $instructeurId: ID!,
-    $annotationId: ID!,
-    $clientMutationId: String,
-    $value: String!
-  ) {
-    dossierModifierAnnotationText(
-      input: {
-        dossierId: $dossierId,
-        instructeurId: $instructeurId,
-        annotationId: $annotationId,
-        clientMutationId: $clientMutationId,
-        value: $value
-      }
-    ) {
-      clientMutationId
-      errors { message }
-    }
-  }
-`
-
 /**
  * 
  * @param {string} token 
- * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: string }} _ 
+ * @param {{ dossierId: string, instructeurId:string, annotationId:string, value: string }} _ 
  * @returns {Promise<void>}
  */
 function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, value }) {
@@ -47,30 +27,6 @@ function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, 
     })
 }
 
-
-
-
-const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
-    $dossierId: ID!,
-    $instructeurId: ID!,
-    $annotationId: ID!,
-    $clientMutationId: String,
-    $value: Boolean!
-  ) {
-    dossierModifierAnnotationCheckbox(
-      input: {
-        dossierId: $dossierId,
-        instructeurId: $instructeurId,
-        annotationId: $annotationId,
-        clientMutationId: $clientMutationId,
-        value: $value
-      }
-    ) {
-        clientMutationId
-        errors { message }
-    }
-  }
-`
 
 /**
  * 
@@ -85,30 +41,6 @@ function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotation
 }
 
 
-
-
-const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
-    $dossierId: ID!,
-    $instructeurId: ID!,
-    $annotationId: ID!,
-    $clientMutationId: String,
-    $value: ISO8601Date!
-  ) {
-    dossierModifierAnnotationDate(
-      input: {
-        dossierId: $dossierId,
-        instructeurId: $instructeurId,
-        annotationId: $annotationId,
-        clientMutationId: $clientMutationId,
-        value: $value
-      }
-    ) {
-        clientMutationId
-        errors { message }
-    }
-  }
-`
-
 /**
  * 
  * @param {string} token 
@@ -121,8 +53,10 @@ function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, 
     })
 }
 
+/** @typedef {(token: string, config: {dossierId: string, instructeurId: string, annotationId: string, value: any}) => Promise<any>} FonctionRemplissageAnnotation */
 
-/** @type {Map<ChampDescriptorTypename, (...args: any[]) => any>} */
+/** @type {Map<ChampDescriptorTypename, FonctionRemplissageAnnotation>} */
+//@ts-ignore
 const annotationTypeToFonctionRemplissage = new Map([
     [
         "TextChampDescriptor",
@@ -154,6 +88,7 @@ const annotationTypeToFonctionRemplissage = new Map([
  */
 export default function remplirAnnotations(token, { dossierId, instructeurId, annotations }) {
     return Promise.all(Object.entries(annotations).map(([key, value]) => {
+        //@ts-expect-error TS ne comprend pas que key est forcément un 'keyof AnnotationsPrivéesDémarcheSimplifiée88444'
         const annotationDescriptor = labelToAnnotationDescriptor.get(key)
 
         //console.log('annotationDescriptor', annotationDescriptor, value)
@@ -179,7 +114,7 @@ export default function remplirAnnotations(token, { dossierId, instructeurId, an
                 return undefined;
 
             const mutationResult = r.dossierModifierAnnotationText || r.dossierModifierAnnotationCheckbox || r.dossierModifierAnnotationDate
-            return Array.isArray(mutationResult.errors) ? mutationResult.errors.map(e => e.message) : undefined
+            return Array.isArray(mutationResult.errors) ? mutationResult.errors.map((/** @type {{ message: any; }} */ e) => e.message) : undefined
         })
         .filter(x => !!x)
         .flat()

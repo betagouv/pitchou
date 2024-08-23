@@ -445,6 +445,7 @@ function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updat
     }).json();
 }
 
+/** @typedef {any} DossierAPI */
 
 /**
  * @param {string} token

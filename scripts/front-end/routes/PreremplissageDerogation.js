@@ -10,12 +10,12 @@ import PreremplissageDerogation from '../components/screens/PreremplissageDeroga
 export default () => {
     /**
      * 
-     * @param {import('../store.js').PitchouState} _ 
+     * @param {import('../store.js').PitchouState} state
      * @returns 
      */
-    function mapStateToProps(){
+    function mapStateToProps(state){
         return {
-            ...mapStateToSqueletteProps(store.state),
+            ...mapStateToSqueletteProps(state),
             schemaDS88444: store.state.schemaDS88444,
         }
     }   

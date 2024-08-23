@@ -3,6 +3,12 @@
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
+/** @import {DossierComplet} from '../types.js'*/
+
+/**
+ * @param {Partial<DossierComplet>} localisation
+ * @returns {string} 
+ */
 export function formatLocalisation({communes, départements, régions}){
     // Régions
     if(!communes && !départements && régions){
@@ -15,13 +21,24 @@ export function formatLocalisation({communes, départements, régions}){
     }
 
     // Communes
-    if((!communes && !départements) || (communes.length === 0 && (!départements || départements.length === 0))){
+    if(
+        !communes ||
+        (!communes && !départements) || 
+        (
+            (communes && Array.isArray(communes) && communes.length === 0) && 
+            (!départements || départements.length === 0)
+        )
+    ){
         return '(inconnue)'
     }
 
     return communes.map(({name}) => name).join(', ') + ' ' + `(${Array.isArray(départements) ? départements.join(', ') : ''})`
 }
 
+/**
+ * @param {Partial<DossierComplet>} déposant
+ * @returns {string} 
+ */
 export function formatDéposant({déposant_nom, déposant_prénoms}){
     if(!déposant_nom){
         déposant_nom = ''
@@ -33,6 +50,10 @@ export function formatDéposant({déposant_nom, déposant_prénoms}){
     return déposant_nom ? déposant_nom + ' ' + déposant_prénoms : déposant_prénoms
 }
 
+/**
+ * @param {Partial<DossierComplet>} demandeur
+ * @returns {string} 
+ */
 export function formatDemandeur({demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret}){
     if(demandeur_personne_physique_nom){
         return demandeur_personne_physique_nom + ' ' + demandeur_personne_physique_prénoms

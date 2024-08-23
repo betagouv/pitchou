@@ -1,0 +1,67 @@
+import { isValidDateString } from '../commun/typeFormat.js'
+
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
+/** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
+
+/** 
+ * 
+ * @param {any} x 
+ * @returns {x is Dossier[]} 
+ */
+export function isDossierArray(x){
+  return Array.isArray(x) && x.every(isDossier) 
+}
+
+/**
+ * 
+ * @param {any} x 
+ * @returns {x is Dossier} 
+ */
+function isDossier(x) {
+  return (
+    typeof x === "object" &&
+    x !== null &&
+    typeof x.id === "number" &&
+    (typeof x.id_demarches_simplifiées === "string" || x.id_demarches_simplifiées === null) &&
+    (typeof x.statut === "string" || x.statut === null) &&
+    (isValidDateString(x.date_dépôt) || x.date_dépôt === null) &&
+    (typeof x.espèces_protégées_concernées === "string" || x.espèces_protégées_concernées === null) &&
+    (x.departements === null || x.departements === undefined || Array.isArray(x.departements)) &&
+    (x.communes === null || x.communes === undefined || Array.isArray(x.communes)) &&
+    (typeof x.nom_dossier === "string" || x.nom_dossier === null) &&
+    (typeof x.déposant_nom === "string" || x.déposant_nom === null) &&
+    (typeof x.déposant_prénoms === "string" || x.déposant_prénoms === null) &&
+    (typeof x.demandeur_personne_physique_nom === "string" || x.demandeur_personne_physique_nom === null) &&
+    (typeof x.demandeur_personne_physique_prénoms === "string" || x.demandeur_personne_physique_prénoms === null) &&
+    (typeof x.demandeur_personne_morale_raison_sociale === "string" || x.demandeur_personne_morale_raison_sociale === null) &&
+    (typeof x.demandeur_personne_morale_siret === "string" || x.demandeur_personne_morale_siret === null) &&
+    (x.régions === null || x.régions === undefined || Array.isArray(x.régions)) &&
+    (typeof x.number_demarches_simplifiées === "string" || x.number_demarches_simplifiées === null) &&
+    (typeof x.historique_nom_porteur === "string" || x.historique_nom_porteur === null) &&
+    (typeof x.historique_localisation === "string" || x.historique_localisation === null) &&
+    (typeof x.ddep_nécessaire === "string" || x.ddep_nécessaire === null) &&
+    (typeof x.en_attente_de === "string" || x.en_attente_de === null) &&
+    (typeof x.enjeu_politique === "boolean" || x.enjeu_politique === null) &&
+    (typeof x.commentaire_enjeu === "string" || x.commentaire_enjeu === null) &&
+    (isValidDateString(x.historique_date_réception_ddep) || x.historique_date_réception_ddep === null) &&
+    (isValidDateString(x.historique_date_envoi_dernière_contribution) || x.historique_date_envoi_dernière_contribution === null) &&
+    (typeof x.historique_identifiant_demande_onagre === "string" || x.historique_identifiant_demande_onagre === null) &&
+    (isValidDateString(x.historique_date_saisine_csrpn) || x.historique_date_saisine_csrpn === null) &&
+    (isValidDateString(x.historique_date_saisine_cnpn) || x.historique_date_saisine_cnpn === null) &&
+    (isValidDateString(x.date_avis_csrpn) || x.date_avis_csrpn === null) &&
+    (isValidDateString(x.date_avis_cnpn) || x.date_avis_cnpn === null) &&
+    (typeof x.avis_csrpn_cnpn === "string" || x.avis_csrpn_cnpn === null) &&
+    (isValidDateString(x.date_consultation_public) || x.date_consultation_public === null) &&
+    (typeof x.historique_décision === "string" || x.historique_décision === null) &&
+    (isValidDateString(x.historique_date_signature_arrêté_préfectoral) || x.historique_date_signature_arrêté_préfectoral === null) &&
+    (typeof x.historique_référence_arrêté_préfectoral === "string" || x.historique_référence_arrêté_préfectoral === null) &&
+    (isValidDateString(x.historique_date_signature_arrêté_ministériel) || x.historique_date_signature_arrêté_ministériel === null) &&
+    (typeof x.historique_référence_arrêté_ministériel === "string" || x.historique_référence_arrêté_ministériel === null) &&
+    (typeof x.enjeu_écologique === "boolean" || x.enjeu_écologique === null) &&
+    (typeof x.commentaire_libre === "string" || x.commentaire_libre === null) &&
+    (typeof x.rattaché_au_régime_ae === "boolean" || x.rattaché_au_régime_ae === null) &&
+    (typeof x.phase === "string" || x.phase === null) &&
+    (typeof x.prochaine_action_attendue_par === "string" || x.prochaine_action_attendue_par === null) &&
+    (typeof x.prochaine_action_attendue === "string" || x.prochaine_action_attendue === null)
+  )
+}

@@ -1,20 +1,11 @@
 //@ts-check
 
-/** @import {demarcheQueryResult, demarcheQueryResultDemarche, GroupeInstructeurs} from "../../types/démarches-simplifiées/api.js" */
-
 import graphQLQuery from './queryGraphQL.js'
 
-const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
-    demarche(number: $demarcheNumber) {
-        groupeInstructeurs {
-            label
-            instructeurs {
-                id
-                email
-            }
-        }
-    }
-}`
+import {GroupeInstructeursQuery} from './graphQLqueries.js'
+
+//@ts-ignore erreur incompréhensible
+/** @import {GroupeInstructeurs} from '../../types/démarches-simplifiées/api.js' */
 
 /**
  * 
@@ -23,9 +14,7 @@ const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
  * @returns {Promise<GroupeInstructeurs[]>}
  */
 export async function recupérerGroupesInstructeurs(token, demarcheNumber) {
-    /** @type {demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'groupeInstructeurs'>>} */
     const res = await graphQLQuery(token, GroupeInstructeursQuery, {demarcheNumber})
-
     return res.demarche.groupeInstructeurs
 }
 

@@ -259,7 +259,7 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel) {
         ].includes(champ)
         ) {
 
-            /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444]} */
+            /** @type {DossierDémarcheSimplifiée88444[keyof DossierDémarcheSimplifiée88444] | undefined} */
             const valeur = dossierPartiel[champ]
             if (valeur !== undefined && valeur !== null && valeur !== "") {
                 // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées

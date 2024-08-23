@@ -1,6 +1,6 @@
 //@ts-check
 
-/** @import {ClassificationEtreVivant, EspèceProtégée, DescriptionMenaceEspèce, EtreVivantAtteint, TAXREF_ROW, EspèceProtégéeStrings, OiseauAtteint, OiseauAtteintJSON, EtreVivantAtteintJSON, DescriptionMenaceEspècesJSON, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../types.js" */
+/** @import {ClassificationEtreVivant, EspèceProtégée, DescriptionMenaceEspèce, EtreVivantAtteint, TAXREF_ROW, EspèceProtégéeStrings, OiseauAtteintJSON, EtreVivantAtteintJSON, DescriptionMenaceEspècesJSON, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../types.js" */
 
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
@@ -72,16 +72,17 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
 
 
 /**
+ * @typedef {EtreVivantAtteint & {nombreNids?: number, nombreOeufs?: number }} EtreVivantOuOiseauAtteint
  * 
- * @param { OiseauAtteint | EtreVivantAtteint } etreVivantAtteint
+ * @param { EtreVivantOuOiseauAtteint } EtreVivantOuOiseauAtteint
  * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
  */
-function etreVivantAtteintToJSON(etreVivantAtteint){
+function etreVivantAtteintToJSON(EtreVivantOuOiseauAtteint){
     const {
         espèce, 
         activité, méthode, transport,
         nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
-    } = etreVivantAtteint
+    } = EtreVivantOuOiseauAtteint
 
     if(nombreNids || nombreOeufs){
         return {
@@ -136,14 +137,19 @@ export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSO
 
         return {
             classification, 
-            etresVivantsAtteints: etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => ({
-                espèce: espèceByCD_REF.get(espèce) || espèceByCD_REF.get(espece),
-                activité: activites.find((a) => a.Code === activité),
-                méthode: methodes.find((m) => m.Code === méthode),	
-                transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
-                ...rest
-            })), 
-            
+            etresVivantsAtteints: etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
+                //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
+                // renseigné alors `espece` l'est forcément
+                const espèceParamDéprécié = espèceByCD_REF.get(espece)
+
+                return {
+                    espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
+                    activité: activites.find((a) => a.Code === activité),
+                    méthode: methodes.find((m) => m.Code === méthode),	
+                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                    ...rest
+                }
+            }), 
         }
     })
 }
