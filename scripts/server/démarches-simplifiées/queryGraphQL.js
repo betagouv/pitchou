@@ -4,7 +4,61 @@
 
 import ky from 'ky';
 
+import {GroupeInstructeursQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery, annotationTextMutationQuery, deletedDossiersQuery, pendingDeletedDossiersQuery} from './graphQLqueries.js'
+
+/** @import {demarcheQueryResult, demarcheQueryResultDemarche, } from '../../types/démarches-simplifiées/api.js' */
+
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {GroupeInstructeursQuery} query
+ * @param {{demarcheNumber: number}} variables
+ * @returns {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'groupeInstructeurs'>>>}
+ */
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {deletedDossiersQuery} query
+ * @param {{demarcheNumber: number, last: number}} variables
+ * @returns {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'deletedDossiers'>>>}
+ */
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {pendingDeletedDossiersQuery} query
+ * @param {{demarcheNumber: number, last: number}} variables
+ * @returns {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'pendingDeletedDossiers'>>>}
+ */
+
+// Mutations
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {annotationTextMutationQuery} query
+ * @param {{dossierId: string, instructeurId: string, annotationId: string, clientMutationId: string, value: string}} variables
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {annotationCheckboxMutationQuery} query
+ * @param {{dossierId: string, instructeurId: string, annotationId: string, value: boolean}} variables
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {annotationDateMutationQuery} query
+ * @param {{dossierId: string, instructeurId: string, annotationId: string, value: string}} variables
+ * @returns {Promise<void>}
+ */
 
 /**
  * @param {string} token

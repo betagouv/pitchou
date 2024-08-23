@@ -2,19 +2,10 @@
 
 import graphQLQuery from './queryGraphQL.js'
 
-/** @import {GroupeInstructeurs} from "../../types/démarches-simplifiées/api.js" */
+import {GroupeInstructeursQuery} from './graphQLqueries.js'
 
-export const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
-    demarche(number: $demarcheNumber) {
-        groupeInstructeurs {
-            label
-            instructeurs {
-                id
-                email
-            }
-        }
-    }
-}`
+//@ts-ignore erreur incompréhensible
+/** @import {GroupeInstructeurs} from '../../types/démarches-simplifiées/api.js' */
 
 /**
  * 

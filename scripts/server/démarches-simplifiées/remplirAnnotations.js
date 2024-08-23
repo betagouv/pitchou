@@ -1,11 +1,12 @@
 //@ts-check
 
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444} from '../../types.js' */
-/** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
-
 import queryGraphQL from './queryGraphQL.js'
 import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import {annotationTextMutationQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery} from './graphQLqueries.js'
 
+
+/** @import {AnnotationsPrivéesDémarcheSimplifiée88444} from '../../types.js' */
+/** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
 
 /** @type {Map<keyof AnnotationsPrivéesDémarcheSimplifiée88444, ChampDescriptor>} */
 //@ts-expect-error TS ne comprends pas que annotationDescriptor.label du schema donne forcément keyof AnnotationsPrivéesDémarcheSimplifiée88444
@@ -14,33 +15,11 @@ const labelToAnnotationDescriptor = new Map(
 )
 
 
-const annotationTextMutationQuery = `mutation ModifierAnnotationText(
-    $dossierId: ID!,
-    $instructeurId: ID!,
-    $annotationId: ID!,
-    $clientMutationId: String,
-    $value: String!
-  ) {
-    dossierModifierAnnotationText(
-      input: {
-        dossierId: $dossierId,
-        instructeurId: $instructeurId,
-        annotationId: $annotationId,
-        clientMutationId: $clientMutationId,
-        value: $value
-      }
-    ) {
-      clientMutationId
-      errors { message }
-    }
-  }
-`
-
 /**
  * 
  * @param {string} token 
- * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: string }} _ 
- * @returns {Promise<unknown>}
+ * @param {{ dossierId: string, instructeurId:string, annotationId:string, value: string }} _ 
+ * @returns {Promise<void>}
  */
 function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationTextMutationQuery, {
@@ -49,35 +28,11 @@ function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, 
 }
 
 
-
-
-const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
-    $dossierId: ID!,
-    $instructeurId: ID!,
-    $annotationId: ID!,
-    $clientMutationId: String,
-    $value: Boolean!
-  ) {
-    dossierModifierAnnotationCheckbox(
-      input: {
-        dossierId: $dossierId,
-        instructeurId: $instructeurId,
-        annotationId: $annotationId,
-        clientMutationId: $clientMutationId,
-        value: $value
-      }
-    ) {
-        clientMutationId
-        errors { message }
-    }
-  }
-`
-
 /**
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: boolean }} _ 
- * @returns {Promise<unknown>}
+ * @returns {Promise<void>}
  */
 function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationCheckboxMutationQuery, {
@@ -86,35 +41,11 @@ function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotation
 }
 
 
-
-
-const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
-    $dossierId: ID!,
-    $instructeurId: ID!,
-    $annotationId: ID!,
-    $clientMutationId: String,
-    $value: ISO8601Date!
-  ) {
-    dossierModifierAnnotationDate(
-      input: {
-        dossierId: $dossierId,
-        instructeurId: $instructeurId,
-        annotationId: $annotationId,
-        clientMutationId: $clientMutationId,
-        value: $value
-      }
-    ) {
-        clientMutationId
-        errors { message }
-    }
-  }
-`
-
 /**
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: Date }} _ 
- * @returns {Promise<unknown>}
+ * @returns {Promise<void>}
  */
 function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationDateMutationQuery, {
