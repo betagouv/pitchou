@@ -3,7 +3,7 @@
 import ky from "ky"
 import { clefAE, démarcheDossierLabelToId } from "../../commun/préremplissageDémarcheSimplifiée.js";
 
-/** @import {DossierDemarcheSimplifiee88444} from "../../types.js" */
+/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
 
 const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`
@@ -22,10 +22,12 @@ function créerObjetPréremplissageChamp(dossierPartiel){
             'Commune(s) où se situe le projet',
             'Département(s) où se situe le projet',
             'Région(s) où se situe le projet'
+        // @ts-ignore
         ].includes(champ)
         ) {
 
             /** @type {DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444] | undefined} */
+            // @ts-ignore
             const valeur = dossierPartiel[champ]
             if (valeur) {
                 // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées

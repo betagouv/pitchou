@@ -14,7 +14,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
 
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types.js' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){

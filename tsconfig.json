@@ -1,6 +1,10 @@
 {
     "include": ["scripts/**/*.js", "scripts/**/*.ts", "scripts/**/*.d.ts"],
-    "exclude": ["node_modules"],
+    "exclude": [
+      "node_modules", 
+      "scripts/import-dossiers-historiques/nouvelle-aquitaine/**/*.js",
+      "scripts/front-end/routes/import-historique/NouvelleAquitaine.js"
+    ],
     "compilerOptions": {
       "allowJs": true,
       "checkJs": true,

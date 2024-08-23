@@ -5,7 +5,7 @@ import schema88444 from '../../../data/démarches-simplifiées/schema-DS-88444.j
 import {annotationTextMutationQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery} from './graphQLqueries.js'
 
 
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../types.js' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
 
 /** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor>} */
