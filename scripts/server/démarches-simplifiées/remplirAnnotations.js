@@ -32,7 +32,7 @@ function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, 
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: boolean }} _ 
- * @returns {Promise<unknown>}
+ * @returns {Promise<void>}
  */
 function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationCheckboxMutationQuery, {
@@ -45,7 +45,7 @@ function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotation
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: Date }} _ 
- * @returns {Promise<unknown>}
+ * @returns {Promise<void>}
  */
 function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationDateMutationQuery, {
