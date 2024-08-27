@@ -2,48 +2,8 @@
 
 import queryGraphQL from './queryGraphQL.js'
 
-/** @import {demarcheQueryResult, demarcheQueryResultDemarche} from "../../types/démarches-simplifiées/api.js" */
+import {pendingDeletedDossiersQuery, deletedDossiersQuery} from './graphQLqueries.js'
 
-// ne pas récupérer l'id https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/10669
-const deletedDossiersQuery = `query getDemarche(
-  $demarcheNumber: Int!
-  $deletedFirst: Int
-  $deletedLast: Int
-  $deletedBefore: String
-  $deletedAfter: String
-  $deletedSince: ISO8601DateTime
-) {
-  demarche(number: $demarcheNumber) {
-    deletedDossiers(
-      first: $deletedFirst
-      last: $deletedLast
-      before: $deletedBefore
-      after: $deletedAfter
-      deletedSince: $deletedSince
-    ) {
-      pageInfo {
-        ...PageInfoFragment
-      }
-      nodes {
-        ...DeletedDossierFragment
-      }
-    }
-  }
-}
-
-fragment DeletedDossierFragment on DeletedDossier {
-  number
-  dateSupression
-  state
-  reason
-}
-
-fragment PageInfoFragment on PageInfo {
-  hasPreviousPage
-  hasNextPage
-  startCursor
-  endCursor
-}`;
 
 /**
  * 
@@ -52,51 +12,10 @@ fragment PageInfoFragment on PageInfo {
  * @returns 
  */
 async function recupérerListeDeletedDossiers(token, demarcheNumber){
-    const delDoss = await /** @type {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'deletedDossiers'>>>} */(queryGraphQL(token, deletedDossiersQuery, {demarcheNumber, last: 100}))
-
+    const delDoss = await queryGraphQL(token, deletedDossiersQuery, {demarcheNumber, last: 100})
     return delDoss.demarche.deletedDossiers.nodes
 }
 
-// ne pas récupérer l'id https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/10669
-const pendingDeletedDossiersQuery = `query getDemarche(
-    $demarcheNumber: Int!
-    $deletedFirst: Int
-    $deletedLast: Int
-    $deletedBefore: String
-    $deletedAfter: String
-    $deletedSince: ISO8601DateTime
-  ) {
-    demarche(number: $demarcheNumber) {
-      pendingDeletedDossiers (
-        first: $deletedFirst
-        last: $deletedLast
-        before: $deletedBefore
-        after: $deletedAfter
-        deletedSince: $deletedSince
-      ) {
-        pageInfo {
-          ...PageInfoFragment
-        }
-        nodes {
-          ...DeletedDossierFragment
-        }
-      }
-    }
-  }
-  
-  fragment DeletedDossierFragment on DeletedDossier {
-    number
-    dateSupression
-    state
-    reason
-  }
-  
-  fragment PageInfoFragment on PageInfo {
-    hasPreviousPage
-    hasNextPage
-    startCursor
-    endCursor
-  }`;
 
 
 /**
@@ -106,8 +25,7 @@ const pendingDeletedDossiersQuery = `query getDemarche(
  * @returns 
  */
 async function recupérerListePendingDeletedDossiers(token, demarcheNumber){
-    const pendDelDoss = await /** @type {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'pendingDeletedDossiers'>>>} */(queryGraphQL(token, pendingDeletedDossiersQuery, {demarcheNumber, last: 100}))
-
+    const pendDelDoss = await queryGraphQL(token, pendingDeletedDossiersQuery, {demarcheNumber, last: 100})
     return pendDelDoss.demarche.pendingDeletedDossiers.nodes
 }
 

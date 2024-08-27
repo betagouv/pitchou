@@ -17,12 +17,11 @@ interface Instructeur{
     email: string
 }
 
+
 export interface GroupeInstructeurs{
     label: string
     instructeurs: Instructeur[]
 }
-
-
 
 
 export interface demarcheQueryResultDemarche{

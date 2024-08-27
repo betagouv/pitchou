@@ -1,5 +1,5 @@
 {
-    "include": ["scripts/types/customTypes.d.ts", "scripts/**/*.js"],
+    "include": ["scripts/**/*.js", "scripts/**/*.ts", "scripts/**/*.d.ts"],
     "exclude": ["node_modules"],
     "compilerOptions": {
       "allowJs": true,
