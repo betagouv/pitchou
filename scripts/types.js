@@ -116,10 +116,21 @@
 /** @typedef {EtreVivantAtteint & OiseauAtteintSpecifique} OiseauAtteint */
 /** @typedef {EtreVivantAtteintJSON & OiseauAtteintSpecifique} OiseauAtteintJSON */
 
+
 /**
- * @typedef {Object} DescriptionMenaceEspèce
- * @prop { ClassificationEtreVivant } classification
- * @prop { (OiseauAtteint | EtreVivantAtteint)[] } etresVivantsAtteints
+ * @typedef {Object} DescriptionMenaceOiseau
+ * @prop { "oiseau" } classification
+ * @prop { OiseauAtteint[] } etresVivantsAtteints
+ */
+
+/**
+ * @typedef {Object} DescriptionMenaceNonOiseau
+ * @prop { "faune non-oiseau" | "flore" } classification
+ * @prop { EtreVivantAtteint[] } etresVivantsAtteints
+ */
+
+/**
+ * @typedef {DescriptionMenaceOiseau | DescriptionMenaceNonOiseau} DescriptionMenaceEspèce
  */
 
 /**

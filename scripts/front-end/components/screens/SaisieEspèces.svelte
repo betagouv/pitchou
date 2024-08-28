@@ -78,11 +78,14 @@
      * @param {EspèceProtégée} espèce
      */
     function ajouterEspèce(espèce){
-        //@ts-expect-error La description pour la classification va être trouvée
-        const etresVivantsAtteints = descriptionMenacesEspèces.find(d => d.classification === espèce.classification).etresVivantsAtteints
+        const descriptionMenaceEspèces = descriptionMenacesEspèces.find(d => d.classification === espèce.classification)
 
-        if(espèce.classification === 'oiseau'){
-            etresVivantsAtteints.push({
+        if(!descriptionMenaceEspèces){
+            throw new TypeError(`descriptionMenaceEspèces non trouvée avec classification=${espèce.classification}`)
+        }
+
+        if(descriptionMenaceEspèces.classification === 'oiseau'){
+            descriptionMenaceEspèces.etresVivantsAtteints.push({
                 espèce,
                 nombreIndividus: "0",
                 nombreNids: 0,
@@ -91,7 +94,7 @@
             })
         }
         else{
-            etresVivantsAtteints.push({
+            descriptionMenaceEspèces.etresVivantsAtteints.push({
                 espèce,
                 nombreIndividus: "0",
                 surfaceHabitatDétruit: 0
@@ -436,7 +439,7 @@
                                                 {/each}
                                             </select></td>
 
-                                            {#if isOiseauAtteint(etreVivantAtteint)}
+                                            {#if classification === 'oiseau'}
                                                 <td><input type="number" bind:value={etreVivantAtteint.nombreNids} min="0" step="1" class="fr-input"></td>
                                                 <td><input type="number" bind:value={etreVivantAtteint.nombreOeufs} min="0" step="1" class="fr-input"></td>
                                             {/if}
