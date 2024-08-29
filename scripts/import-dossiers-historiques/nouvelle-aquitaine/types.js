@@ -1,6 +1,6 @@
 //@ts-check
 
-/** @import {GeoAPICommune, GeoAPIDépartement} from "../../types.js" */
+/** @import {GeoAPICommune, GeoAPIDépartement} from "../../types/GeoAPI.ts" */
 
 
 /**

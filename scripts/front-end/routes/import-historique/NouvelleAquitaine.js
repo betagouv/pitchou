@@ -12,7 +12,7 @@ import ImportHistoriqueNouvelleAquitaine from '../../components/screens/ImportHi
 
 import { normalizeNomCommune } from '../../../commun/typeFormat.js';
 
-/** @import { GeoAPICommune, GeoAPIDépartement } from "../../../types.js" */
+/** @import { GeoAPICommune, GeoAPIDépartement } from "../../../types/GeoAPI.ts" */
 /** @import {DossierTableauSuiviNouvelleAquitaine2023} from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
 /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 

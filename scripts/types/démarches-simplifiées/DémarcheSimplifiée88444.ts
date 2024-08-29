@@ -9,7 +9,7 @@
 * et faire relancer outils/genere-types-88444.js
 */
 
-import { DémarchesSimpliféesDépartement, DémarchesSimpliféesCommune } from "./api.ts";
+import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 
 export interface DossierDemarcheSimplifiee88444 {
   "Le demandeur est…": "une personne physique" | "une personne morale";
@@ -115,14 +115,14 @@ export interface DossierDemarcheSimplifiee88444 {
   "Hauteur totale bout de pale (m)": number;
   "Diamètre du rotor (m)": number;
   "Garde au sol (m)": number;
-  "Dans quel département se localise majoritairement votre projet ?": DémarchesSimpliféesDépartement;
+  "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
   "Le projet se situe au niveau…":
     | "d'une ou plusieurs communes"
     | "d'un ou plusieurs départements"
     | "d'une ou plusieurs régions"
     | "de toute la France";
-  "Commune(s) où se situe le projet": DémarchesSimpliféesCommune[];
-  "Département(s) où se situe le projet": DémarchesSimpliféesDépartement[];
+  "Commune(s) où se situe le projet": (GeoAPICommune | string)[];
+  "Département(s) où se situe le projet": GeoAPIDépartement[];
   "Région(s) où se situe le projet": string[];
   "Précisez le périmètre d'intervention (si besoin)": string;
   /**

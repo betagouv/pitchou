@@ -22,7 +22,7 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 
 */
 
-/** @import {GeoAPICommune, GeoAPIDépartement} from "../types.js" */
+/** @import {GeoAPICommune, GeoAPIDépartement} from "../types/GeoAPI.ts" */
 /** @import {DossierDemarcheSimplifiee88444} from "../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 
@@ -142,6 +142,7 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel, schema8844
 
             communesURLParam = dossierPartiel['Commune(s) où se situe le projet']
             .filter(commune => Object(commune) === commune)
+            //@ts-expect-error TS ne comprend pas qu'on n'a gardé que les objets après le filter
             .map(c => makeCommuneParam(c, démarcheDossierLabelToId))
             .join('&')
         }

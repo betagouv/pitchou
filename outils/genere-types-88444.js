@@ -104,7 +104,7 @@ function champToNumberJSONSchema({ description }){
  * @returns {JSONSchema}
  */
 function champToDépartementJSONSchema({ description }){
-    return { type: 'object', tsType: 'DémarchesSimpliféesDépartement', description }
+    return { type: 'object', tsType: 'GeoAPIDépartement', description }
 }
 
 /**
@@ -112,7 +112,7 @@ function champToDépartementJSONSchema({ description }){
  * @returns {JSONSchema}
  */
 function champToCommuneJSONSchema({ description }){
-    return { type: 'object', tsType: 'DémarchesSimpliféesCommune', description }
+    return { type: 'object', tsType: '(GeoAPICommune | string)', description }
 }
 
 /**
@@ -277,7 +277,7 @@ const commentaireInitial = `/**
 * et faire relancer outils/genere-types-88444.js
 */`
 
-const imports = `import { DémarchesSimpliféesDépartement, DémarchesSimpliféesCommune } from "./api.ts";`
+const imports = `import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`
 
 
 await Promise.all([
