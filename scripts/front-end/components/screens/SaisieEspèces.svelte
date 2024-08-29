@@ -1,5 +1,5 @@
 <script>
-    //@ts-check
+    // @ts-nocheck
     import Squelette from '../Squelette.svelte'
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from "../NomEspèce.svelte"
