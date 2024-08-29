@@ -129,27 +129,34 @@ export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
  * @param {ActivitéMenançante[]} activites
  * @param {MéthodeMenançante[]} methodes
  * @param {TransportMenançant[]} transports
- * @returns {DescriptionMenaceEspèce[]}
+ * @returns {Map<ClassificationEtreVivant, DescriptionMenaceEspèce>}
  */
 export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
-    //@ts-ignore
-    return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
+    /** @type {Map<ClassificationEtreVivant, DescriptionMenaceEspèce>} */
+    const descriptionMenacesEspèces = new Map()
 
-        return {
-            classification, 
-            etresVivantsAtteints: etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
-                //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
-                // renseigné alors `espece` l'est forcément
-                const espèceParamDéprécié = espèceByCD_REF.get(espece)
+    descriptionMenacesEspècesJSON.forEach(({classification, etresVivantsAtteints}) => {
+        descriptionMenacesEspèces.set(
+            classification,
+            {
+                //@ts-ignore
+                etresVivantsAtteints: etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
+                    //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
+                    // renseigné alors `espece` l'est forcément
+                    const espèceParamDéprécié = espèceByCD_REF.get(espece)
 
-                return {
-                    espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
-                    activité: activites.find((a) => a.Code === activité),
-                    méthode: methodes.find((m) => m.Code === méthode),	
-                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
-                    ...rest
-                }
-            }), 
-        }
+                    return {
+                        espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
+                        activité: activites.find((a) => a.Code === activité),
+                        méthode: methodes.find((m) => m.Code === méthode),	
+                        transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                        ...rest
+                    }
+                }), 
+                classification,
+            }
+        )
     })
+
+    return descriptionMenacesEspèces
 }

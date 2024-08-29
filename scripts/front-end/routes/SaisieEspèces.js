@@ -171,21 +171,31 @@ export default async () => {
             méthodesParClassificationEtreVivant, 
             transportsParClassificationEtreVivant,
             groupesEspèces,
-            /** @type {DescriptionMenaceEspèce[]} */
-            descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || [
-                {
-                    classification: "oiseau", // Type d'espèce menacée
-                    etresVivantsAtteints: [],
-                },
-                {
-                    classification: "faune non-oiseau",
-                    etresVivantsAtteints: [],
-                },
-                {
-                    classification: "flore",
-                    etresVivantsAtteints: [],
-                }
-            ]
+            /** @type {Map<ClassificationEtreVivant, DescriptionMenaceEspèce>} */
+            descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || new Map([
+                [
+                    "oiseau",
+                    {
+                        classification: "oiseau", // Type d'espèce menacée
+                        etresVivantsAtteints: [],
+                    },
+                ],
+                [
+                    "faune non-oiseau",
+                    {
+                        classification: "faune non-oiseau",
+                        etresVivantsAtteints: [],
+                    },
+
+                ],
+                [
+                    "flore",
+                    {
+                        classification: "flore",
+                        etresVivantsAtteints: [],
+                    }
+                ]
+            ])
         }
     }
 

@@ -28,7 +28,7 @@
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     export let groupesEspèces
 
-    /** @type { DescriptionMenaceEspèce[] } */
+    /** @type {Map<ClassificationEtreVivant, DescriptionMenaceEspèce} */
     export let descriptionMenacesEspèces;
 
     function rerender(){
@@ -82,7 +82,7 @@
      * @param {EspèceProtégée} espèce
      */
     function ajouterEspèce(espèce){
-        const descriptionMenaceEspèces = descriptionMenacesEspèces.find(d => d.classification === espèce.classification)
+        const descriptionMenaceEspèces = descriptionMenacesEspèces.get(espèce.classification)
 
         if(!descriptionMenaceEspèces){
             throw new TypeError(`descriptionMenaceEspèces non trouvée avec classification=${espèce.classification}`)
@@ -315,7 +315,7 @@
 
         <form class="fr-mb-4w">
             <h2>Liste des espèces</h2>
-            {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
+            {#each [...descriptionMenacesEspèces.values()] as {classification, etresVivantsAtteints}}
             <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
                 <div class="fr-col">
                     <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
