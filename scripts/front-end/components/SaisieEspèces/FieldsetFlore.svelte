@@ -23,6 +23,10 @@
       */
     export let supprimerLigne
 
+    /**
+     * Les fourchettes sont des chaînes de caractères toujours au format 'x-y' où x et y sont des integer
+     */
+    
     /** @type {string[]}*/
     export let fourchettesIndividus = [
         '0-10',
