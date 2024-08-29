@@ -103,6 +103,7 @@ export default async () => {
     
     const importHistorique = new ImportHistoriqueNouvelleAquitaine({
         target: svelteTarget,
+        //@ts-ignore
         props: mapStateToProps(store.state)
     });
 

@@ -2,18 +2,24 @@
 	//@ts-check
 	import AutoComplete from "simple-svelte-autocomplete"
 
-    import '../../types.js'
+	/** @import {EspèceProtégée} from '../../types.js' */
 
 	/** @type {EspèceProtégée[]} */
 	export let espèces;
 	/** @type {EspèceProtégée | undefined} */
 	export let selectedItem = undefined;
+	/** @type {function | undefined}*/
 	export let onChange = undefined
 	export let htmlClass
 	export let labelFunction
 	export let keywordsFunction
 
-	function beforeChange (oldSelectedItem, newSelectedItem) {
+	/**
+	 * 
+	 * @param {EspèceProtégée} _
+	 * @param {EspèceProtégée} newSelectedItem
+	 */
+	function beforeChange (_, newSelectedItem) {
 		// Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36
 		// Donc on utilise beforeChange
 		if (onChange) {

@@ -69,6 +69,7 @@
     }
     
     $: if(candidatsImportsSuiviNAP) candidatsImportsSuiviNAP.then(dossiers => 
+        //@ts-ignore
         candidatsImportsMap = new Map( dossiers.map(d => {
             return [
                 d, 
@@ -83,7 +84,7 @@
     /**
      * 
      * @param {DossierComplet[]} dossiersStockésEnBaseDeDonnées 
-     * @param {DossierDémarcheSimplifiée88444} dossierPartiel88444DepuisTableauSuivi
+     * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel88444DepuisTableauSuivi
      * @returns {DossierComplet | undefined}
      */
     function trouverDossierEnBDDCorrespondant(dossiersStockésEnBaseDeDonnées, dossierPartiel88444DepuisTableauSuivi){
@@ -103,6 +104,7 @@
             const dossierAvecNomEt1CommuneEnCommun = dossiersAvecCeNom.find(dossierBDD => {
                 return communesDossierTableauSuivi
                     .some(communeTableauSuivi => (dossierBDD['communes'] || [])
+                        //@ts-ignore
                         .some(communeDossierBDD => communeTableauSuivi && communeTableauSuivi.code === communeDossierBDD.code)
                     )
             })
@@ -140,6 +142,7 @@
     function dossierAlreadyHasAnnotations(dossierPitchou, annotationsPartielles){
 
         /** @type {Record<keyof AnnotationsPrivéesDémarcheSimplifiée88444, keyof Dossier>} */
+        //@ts-ignore
         const mapping = {
             "Nom du porteur de projet": "historique_nom_porteur",
             "Localisation du projet": "historique_localisation",
@@ -169,8 +172,10 @@
         for (const [key, value] of Object.entries(annotationsPartielles)) {
 
             if (value) {
+                //@ts-ignore
                 const correspondingKey = mapping[key];
                 //console.log('key', key, 'values', value, dossierPitchou[correspondingKey])
+                //@ts-ignore
                 if (dossierPitchou[correspondingKey]) {
                     return true;
                 }
@@ -218,8 +223,8 @@
 
     let dossierToLienPréremplissage = new Map()
 
-    /**
-     * @param {DossierDémarcheSimplifiée88444} dossierPartiel 
+    /** 
+     * @param {Partial<DossierDémarcheSimplifiée88444>} dossierPartiel 
      */
     function créerLienPréremplissage(dossierPartiel) {
         dossierToLienPréremplissage.set(
@@ -585,7 +590,7 @@
         cursor: auto;
 
         &> summary{
-            &> h1, &> h2, &> h3, &> h4, &> h5, &> h6 {
+            &> h2 {
                 display: inline-block;
             }
 

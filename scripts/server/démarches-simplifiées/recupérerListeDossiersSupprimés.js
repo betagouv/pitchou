@@ -13,7 +13,7 @@ import {pendingDeletedDossiersQuery, deletedDossiersQuery} from './graphQLquerie
  */
 async function recupérerListeDeletedDossiers(token, demarcheNumber){
     const delDoss = await queryGraphQL(token, deletedDossiersQuery, {demarcheNumber, last: 100})
-
+    
     return delDoss.demarche.deletedDossiers.nodes
 }
 

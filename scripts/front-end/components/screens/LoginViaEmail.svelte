@@ -5,13 +5,13 @@
     /** @type {Set<string>} */
     export let authorizedEmailDomains
 
-    /** @type {(email: string) => Promise<void>}  */
+    /** @type {(email: string) => Promise<unknown>}  */
     export let envoiEmailConnexion
     /** @type {string} */
     let email;
 
     /**
-     * @type {Promise<void>}
+     * @type {Promise<unknown>}
      */
     let emailInProgress;
 

@@ -91,7 +91,7 @@
  * @prop { EspèceProtégée } espèce
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
- * @prop { ActivitéMenançante } activité
+ * @prop { ActivitéMenançante } [activité]
  * @prop { MéthodeMenançante } [méthode]
  * @prop { TransportMenançant } [transport]
  */
@@ -102,7 +102,7 @@
  * @prop { EspèceProtégée['CD_REF'] } [espece] // @deprecated
  * @prop { string } nombreIndividus
  * @prop { number } surfaceHabitatDétruit
- * @prop { string } activité // Code
+ * @prop { string } [activité] // Code
  * @prop { string } [méthode] // Code
  * @prop { string } [transport] // Code
  */
@@ -116,10 +116,21 @@
 /** @typedef {EtreVivantAtteint & OiseauAtteintSpecifique} OiseauAtteint */
 /** @typedef {EtreVivantAtteintJSON & OiseauAtteintSpecifique} OiseauAtteintJSON */
 
+
 /**
- * @typedef {Object} DescriptionMenaceEspèce
- * @prop { ClassificationEtreVivant } classification
- * @prop { (OiseauAtteint | EtreVivantAtteint)[] } etresVivantsAtteints
+ * @typedef {Object} DescriptionMenaceOiseau
+ * @prop { "oiseau" } classification
+ * @prop { OiseauAtteint[] } etresVivantsAtteints
+ */
+
+/**
+ * @typedef {Object} DescriptionMenaceNonOiseau
+ * @prop { "faune non-oiseau" | "flore" } classification
+ * @prop { EtreVivantAtteint[] } etresVivantsAtteints
+ */
+
+/**
+ * @typedef {DescriptionMenaceOiseau | DescriptionMenaceNonOiseau} DescriptionMenaceEspèce
  */
 
 /**

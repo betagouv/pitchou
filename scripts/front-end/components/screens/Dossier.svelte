@@ -1,17 +1,17 @@
 <script>
     //@ts-check
-    
-    import page from 'page'
 
     import Squelette from '../Squelette.svelte'
     
-    import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../../affichageDossier.js'
+    import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
     /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier
+
+    /** @type {string | undefined} */
     export let email
 
     const {number_demarches_simplifiées: numdos} = dossier
@@ -25,6 +25,10 @@
     let messageErreur = "" 
     let afficherMessageSucces = false
 
+    /**
+     * 
+     * @param {Event} e
+     */
     const mettreAJourDossier = (e) => {
         e.preventDefault()
 
@@ -152,7 +156,7 @@
                             <strong>Localisation</strong> : {formatLocalisation(dossier)}
                         </li>
 
-                        {#if dossier.enjeu_politique || dossier.enjeu_ecologique}
+                        {#if dossier.enjeu_politique || dossier.enjeu_écologique}
                             <li>
                                 <strong>Enjeux</strong> : 
                                 {#if dossier.enjeu_politique}
@@ -191,10 +195,5 @@
     nav.dossier-nav {
         display: flex;
         justify-content: flex-end;
-    }
-
-    nav.fr-breadcrumb {
-        margin-bottom: .5rem;
-        margin-top: 0;
     }
 </style>

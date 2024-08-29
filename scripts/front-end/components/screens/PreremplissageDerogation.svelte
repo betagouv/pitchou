@@ -17,7 +17,7 @@
         return nouveauDossierPartiel[champ] !== ""
     })
 
-    let onSelectChanged = (e) => {
+    let onSelectChanged = () => {
         lienDePreremplissage = créerLienGETPréremplissageDémarche(nouveauDossierPartiel)
     }
 
