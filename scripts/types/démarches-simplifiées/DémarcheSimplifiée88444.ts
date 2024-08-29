@@ -121,9 +121,9 @@ export interface DossierDemarcheSimplifiee88444 {
     | "d'un ou plusieurs départements"
     | "d'une ou plusieurs régions"
     | "de toute la France";
-  "Commune(s) où se situe le projet": string;
-  "Département(s) où se situe le projet": string;
-  "Région(s) où se situe le projet": string;
+  "Commune(s) où se situe le projet": DémarchesSimpliféesCommune[];
+  "Département(s) où se situe le projet": DémarchesSimpliféesDépartement[];
+  "Région(s) où se situe le projet": string[];
   "Précisez le périmètre d'intervention (si besoin)": string;
   /**
    * Suivi écologique, chantier...
@@ -159,14 +159,16 @@ export interface DossierDemarcheSimplifiee88444 {
   "Précisez les modalités de l'utilisation des sources lumineuses": string;
   "Précisez les modalités de marquage pour chaque taxon": string;
   "Précisez les modalités de transport et la destination concernant la collecte de matériel biologique": string;
-  "Qualification des intervenants": string;
+  "Qualification des intervenants": {
+    "Nom Prénom": string;
+    Qualification: string;
+  }[];
   "Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)": string;
   /**
    * en particulier mesures de bridage dans le cas de suivi mortalité éolien
    */
   "Des mesures ERC sont-elles prévues ?": boolean;
   "Indiquer le nombre de nids artificiels posés en compensation": number;
-  "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande": string;
 }
 
 

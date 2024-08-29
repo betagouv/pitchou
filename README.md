@@ -46,12 +46,9 @@ Les types sont crées dans le dossier `./scripts/types/database/public`
 Dans le fichier .js du type supprimer l'export ligne 3 `export {};`
 
 
-#### Régénérer les types à partir du schema DS 88444
+#### Re-générer les types à partir du schema DS 88444
 
-Mettre à jour le schema `data/démarches-simplifiées/schema-DS-88444.json`
-à partir de https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
-
-puis lancer `npm run build-types:ds-88444`
+`npm run build-types:ds-88444`
 
 Cette commande télécharge aussi la dernière version du schema avant de créer les types
 

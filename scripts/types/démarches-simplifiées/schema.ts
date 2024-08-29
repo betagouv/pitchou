@@ -16,6 +16,7 @@ export type ChampDescriptorTypename =
     | 'RepetitionChampDescriptor'
     | 'CommuneChampDescriptor'
     | 'HeaderSectionChampDescriptor'
+    | 'PieceJustificativeChampDescriptor'
 
 export interface ChampDescriptor {
     __typename: ChampDescriptorTypename;
@@ -23,7 +24,8 @@ export interface ChampDescriptor {
     label: string;
     description: string;
     required: boolean;
-    options: [string[]]
+    options?: string[]
+    champDescriptors?: ChampDescriptor[] // Seulement pour __typename === 'RepetitionChampDescriptor'
 }
 
 

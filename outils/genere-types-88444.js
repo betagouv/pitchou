@@ -57,7 +57,6 @@ else{
 }
 
 
-const { revision: { champDescriptors, annotationDescriptors } } = schema88444
 
 
 /**
@@ -108,7 +107,53 @@ function champToDépartementJSONSchema({ description }){
     return { type: 'object', tsType: 'DémarchesSimpliféesDépartement', description }
 }
 
-/** @type {Map<ChampDescriptorTypename, (cd: ChampDescriptor) => JSONSchema>} */
+/**
+ * @param {ChampDescriptor} _ 
+ * @returns {JSONSchema}
+ */
+function champToCommuneJSONSchema({ description }){
+    return { type: 'object', tsType: 'DémarchesSimpliféesCommune', description }
+}
+
+/**
+ * @param {ChampDescriptor} champ
+ * @returns {JSONSchema | undefined}
+ */
+function champToArrayJSONSchema({description, champDescriptors}){
+    if(!champDescriptors){
+        throw new TypeError('missing champDescriptors')
+    }
+
+    champDescriptors = champDescriptors.filter(({__typename}) => {
+        return __typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor'
+    })
+
+    /** @type {JSONSchema} */
+    let items
+
+    if(champDescriptors.length === 0){
+        return undefined
+    }
+
+    if(champDescriptors.length === 1){
+        const { __typename } = champDescriptors[0]
+        const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
+        if(!DSChampToJSONSchema){ throw new TypeError(`__typename non reconnu : ${__typename}`) }
+        items = DSChampToJSONSchema(champDescriptors[0])
+    }
+    else{
+        // @ts-ignore
+        items = champDescriptorsToJSONSchemaObjectType(champDescriptors)
+    }
+
+    return { 
+        type: 'array', 
+        description: description,
+        items
+    }
+}
+
+/** @type {Map<ChampDescriptorTypename, (cd: ChampDescriptor) => (JSONSchema | undefined)>} */
 const DSTypenameToJSONSchema = new Map([
     [ "DropDownListChampDescriptor", champToStringEnumJSONSchema ],
     [ "MultipleDropDownListChampDescriptor", champToStringEnumJSONSchema ],
@@ -123,42 +168,57 @@ const DSTypenameToJSONSchema = new Map([
     [ "IntegerNumberChampDescriptor", champToNumberJSONSchema ],
     [ "DecimalNumberChampDescriptor", champToNumberJSONSchema ],
     [ "DepartementChampDescriptor", champToDépartementJSONSchema ],
+    [ "CommuneChampDescriptor", champToCommuneJSONSchema ],
     // PPP : invalide, mais ne sait pas encore comment bien le gérer
-    [ "RepetitionChampDescriptor", champToStringJSONSchema ],
-    [ "CommuneChampDescriptor", champToStringJSONSchema ],
+    [ "RepetitionChampDescriptor", champToArrayJSONSchema ],
     [ "DateChampDescriptor", champToDateJSONSchema ]
 ])
 
 
-
+const { revision: { champDescriptors, annotationDescriptors } } = schema88444
 
 /**
  * champDescriptors vers JSONSchema
+ * @param {ChampDescriptor[]} champDescriptors 
  */
+function champDescriptorsToJSONSchemaObjectType(champDescriptors){
+    const properties = Object.create(null)
+    const required = []
 
-const dossier88444JsonSchemaProperties = Object.create(null)
-const requiredDossier88444 = []
+    for (const champDescriptor of champDescriptors) {
+        const { __typename, label } = champDescriptor
+    
+        if(__typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor'){
+            const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
+    
+            if(!DSChampToJSONSchema){
+                throw new TypeError(`__typename non reconnu : ${__typename}`)
+            }
+    
+            const type = DSChampToJSONSchema(champDescriptor);
 
-for (const champDescriptor of champDescriptors) {
-    const { __typename, label } = champDescriptor
+            if(type){
+                properties[label] = DSChampToJSONSchema(champDescriptor);
+        
+                // ignore champDescriptor.required
+                required.push(label)
+            }
+        }
+    }
 
-    const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
-
-    if (DSChampToJSONSchema) {
-        dossier88444JsonSchemaProperties[label] = DSChampToJSONSchema(champDescriptor);
-
-        // ignore champDescriptor.required
-        requiredDossier88444.push(label)
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        type: "object",
+        properties,
+        required,
+        additionalProperties: false
     }
 }
 
-const dossierDémarcheSimplifiée88444JSONSchema = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    type: "object",
-    properties: dossier88444JsonSchemaProperties,
-    additionalProperties: false,
-    required: requiredDossier88444
-}
+
+
+
+const dossierDémarcheSimplifiée88444JSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
 
 const dossierDémarcheSimplifiée88444InterfaceP = compile(
     //@ts-ignore
