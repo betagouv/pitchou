@@ -15,6 +15,7 @@ export type ChampDescriptorTypename =
     | 'DepartementChampDescriptor'
     | 'RepetitionChampDescriptor'
     | 'CommuneChampDescriptor'
+    | 'HeaderSectionChampDescriptor'
 
 export interface ChampDescriptor {
     __typename: ChampDescriptorTypename;

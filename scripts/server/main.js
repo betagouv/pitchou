@@ -13,8 +13,14 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
-
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
+
+import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+
+/** @type {SchemaDémarcheSimplifiée} */
+// @ts-expect-error TS ne peut pas le savoir
+const schema88444 = _schema88444
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -74,7 +80,7 @@ fastify.post('/lien-preremplissage', async function (request) {
   // @ts-ignore
   const donnéesPreRemplissage = request.body
 
-  return demanderLienPréremplissage(donnéesPreRemplissage)
+  return demanderLienPréremplissage(donnéesPreRemplissage, schema88444)
     // @ts-ignore
     .then(({dossier_url}) => dossier_url)
 })
