@@ -225,9 +225,9 @@ export function dumpDossiers(dossiers){
             if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
                 console.warn('Valeur:', d[k])
-
-                //console.warn(`On va couper la valeur pour qu'elle rentre en base de données`)
-                //d[k] = d[k].slice(0, 255)
+                
+                console.warn(`La valeur est coupée pour qu'elle rentre en base de données`)
+                d[k] = d[k].slice(0, 255)
             }
         }
     }

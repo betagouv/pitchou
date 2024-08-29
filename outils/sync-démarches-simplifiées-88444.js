@@ -44,7 +44,7 @@ if(typeof args.lastModified === 'string' && isValidDate(new Date(args.lastModifi
     lastModified = new Date(args.lastModified)
 }
 else{
-    lastModified = sub(new Date(), {hours: 24})
+    lastModified = sub(new Date(), {hours: 12})
 }
 
 console.log(
@@ -460,12 +460,14 @@ dossiers.forEach(d => {
     d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
 })
 
-
-const dossiersSynchronisés = dumpDossiers(dossiers)
-.catch(err => {
-    console.error('sync démarche simplifiée database error', err)
-    process.exit(1)
-})
+let dossiersSynchronisés
+if(dossiers.length >= 1){
+    dossiersSynchronisés = dumpDossiers(dossiers)
+    .catch(err => {
+        console.error('sync démarche simplifiée database error', err)
+        process.exit(1)
+    })
+}
 
 const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
 

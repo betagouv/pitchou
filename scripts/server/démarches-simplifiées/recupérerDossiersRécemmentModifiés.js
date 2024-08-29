@@ -20,19 +20,7 @@ query getDemarche(
   $revision: ID
   $createdSince: ISO8601DateTime
   $updatedSince: ISO8601DateTime
-  $pendingDeletedFirst: Int
-  $pendingDeletedLast: Int
-  $pendingDeletedBefore: String
-  $pendingDeletedAfter: String
-  $pendingDeletedSince: ISO8601DateTime
-  $deletedFirst: Int
-  $deletedLast: Int
-  $deletedBefore: String
-  $deletedAfter: String
-  $deletedSince: ISO8601DateTime
   $includeDossiers: Boolean = true
-  $includePendingDeletedDossiers: Boolean = false
-  $includeDeletedDossiers: Boolean = true
   $includeChamps: Boolean = true
   $includeAnotations: Boolean = true
   $includeTraitements: Boolean = true
@@ -47,10 +35,6 @@ query getDemarche(
     title
     state
     dateCreation
-    dateFermeture
-    groupeInstructeurs {
-      ...GroupeInstructeurFragment
-    }
     dossiers(
       state: $state
       first: $first
@@ -67,34 +51,6 @@ query getDemarche(
       }
       nodes {
         ...DossierFragment
-      }
-    }
-    pendingDeletedDossiers(
-      first: $pendingDeletedFirst
-      last: $pendingDeletedLast
-      before: $pendingDeletedBefore
-      after: $pendingDeletedAfter
-      deletedSince: $pendingDeletedSince
-    ) @include(if: $includePendingDeletedDossiers) {
-      pageInfo {
-        ...PageInfoFragment
-      }
-      nodes {
-        ...DeletedDossierFragment
-      }
-    }
-    deletedDossiers(
-      first: $deletedFirst
-      last: $deletedLast
-      before: $deletedBefore
-      after: $deletedAfter
-      deletedSince: $deletedSince
-    ) @include(if: $includeDeletedDossiers) {
-      pageInfo {
-        ...PageInfoFragment
-      }
-      nodes {
-        ...DeletedDossierFragment
       }
     }
   }
@@ -179,15 +135,6 @@ fragment DossierFragment on Dossier {
   messages @include(if: $includeMessages) {
     ...MessageFragment
   }
-}
-
-
-fragment DeletedDossierFragment on DeletedDossier {
-  id
-  number
-  dateSupression
-  state
-  reason
 }
 
 fragment AvisFragment on Avis {
@@ -462,16 +409,23 @@ export async function recupérerDossiersRécemmentModifiés(token, demarcheNumbe
     while (hasPreviousPage) {
         //console.log('nouvelle page !', startCursor)
         const page = await récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, startCursor)
-        const pageDossiers = page.data.demarche.dossiers.nodes
 
-        dossiers = pageDossiers.concat(dossiers)
+        if(page.errors){
+            console.error('Erreur GraphQL', page.errors)
+            break;
+        }
+        else{
+            const pageDossiers = page.data.demarche.dossiers.nodes
 
-        console.log('dossiers récupérés jusque-là', dossiers.length)
+            dossiers = pageDossiers.concat(dossiers)
 
-        const pageInfo = page.data.demarche.dossiers.pageInfo;
+            console.log('dossiers récupérés jusque-là', dossiers.length)
 
-        hasPreviousPage = pageInfo.hasPreviousPage
-        startCursor = pageInfo.startCursor
+            const pageInfo = page.data.demarche.dossiers.pageInfo;
+
+            hasPreviousPage = pageInfo.hasPreviousPage
+            startCursor = pageInfo.startCursor
+        }
     }
 
     return dossiers;
