@@ -16,9 +16,10 @@
 
 	/**
 	 * 
+	 * @param {EspèceProtégée} _
 	 * @param {EspèceProtégée} newSelectedItem
 	 */
-	function beforeChange (newSelectedItem) {
+	function beforeChange (_, newSelectedItem) {
 		// Difficultés avec onChange https://github.com/pstanoev/simple-svelte-autocomplete/issues/36
 		// Donc on utilise beforeChange
 		if (onChange) {
