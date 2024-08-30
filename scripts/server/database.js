@@ -227,6 +227,7 @@ export function dumpDossiers(dossiers){
                 console.warn('Valeur:', d[k])
                 
                 console.warn(`La valeur est coupée pour qu'elle rentre en base de données`)
+                // @ts-ignore
                 d[k] = d[k].slice(0, 255)
             }
         }

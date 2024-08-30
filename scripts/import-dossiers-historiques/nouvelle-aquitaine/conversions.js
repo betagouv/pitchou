@@ -50,7 +50,6 @@ export function toDossierTableauSuiviNouvelleAquitaine2023(dossier, nomToCommune
 
                 if(candidatsDépartements.length >= 1 && candidatsDépartements.every(d => d === Object(d))){
                     // Départements
-                    //@ts-expect-error TypeScript limitation with .every
                     convertedDossier[key] = candidatsDépartements
                 }
                 else{

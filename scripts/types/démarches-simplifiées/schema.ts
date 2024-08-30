@@ -1,3 +1,5 @@
+import { DossierDemarcheSimplifiee88444 } from "./DémarcheSimplifiée88444";
+
 export type ChampDescriptorTypename = 
     | 'TextChampDescriptor' 
     | 'DropDownListChampDescriptor' 
@@ -28,7 +30,6 @@ export interface ChampDescriptor {
     champDescriptors?: ChampDescriptor[] // Seulement pour __typename === 'RepetitionChampDescriptor'
 }
 
-
 interface RevisionSchemaDémarcheSimplifiée{
     champDescriptors: ChampDescriptor[]
     annotationDescriptors: ChampDescriptor[]
@@ -37,3 +38,10 @@ interface RevisionSchemaDémarcheSimplifiée{
 export interface SchemaDémarcheSimplifiée {
     revision: RevisionSchemaDémarcheSimplifiée
 }
+
+
+export type Dossier88444ChampDescriptor = Omit<ChampDescriptor, 'label'> & {label: keyof DossierDemarcheSimplifiee88444}
+
+
+
+

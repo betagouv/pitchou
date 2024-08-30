@@ -4,7 +4,7 @@
     import CopyButton from '../CopyButton.svelte'
 
     /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-    /** @import {SchemaDémarcheSimplifiée} from '../../../types/démarches-simplifiées/schema.js' */
+    /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
 
 
     /** @type {SchemaDémarcheSimplifiée}  */
@@ -15,8 +15,10 @@
     let nouveauDossierPartiel = {}
     let lienDePreremplissage = ""
     
-    /** @type {Array<DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444]>} */
+    /** @type { (keyof DossierDemarcheSimplifiee88444)[] } */
+    //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
     $: champsPreremplis = Object.keys(nouveauDossierPartiel).filter(champ => {
+        //@ts-expect-error pareil
         return nouveauDossierPartiel[champ] !== ""
     })
 
@@ -32,6 +34,10 @@
         "HeaderSectionChampDescriptor",
     ]
     
+
+
+    /** @type {Dossier88444ChampDescriptor[]} */
+    //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
     let champsRemplissables = schemaDS88444["revision"]["champDescriptors"].filter((champ) => {
         return champsPossibles.includes(champ["__typename"])
     }).filter((champ, i, tableauActuel) => {

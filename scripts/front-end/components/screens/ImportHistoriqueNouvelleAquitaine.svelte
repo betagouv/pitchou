@@ -9,7 +9,8 @@
     import Loader from '../Loader.svelte';
     // import {formatLocalisation, formatDemandeur, formatDéposant, formatDateRelative} from '../affichageDossier.js'
 
-    /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444, GeoAPICommune, GeoAPIDépartement} from "../../../types.js" */
+    /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts" */
+    /** @import {GeoAPICommune, GeoAPIDépartement} from "../../../types/GeoAPI.ts" */
     /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
     /** @import {DossierComplet} from '../../../types.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
@@ -26,7 +27,7 @@
     /** @type { Map<GeoAPICommune['nom'], GeoAPIDépartement> } */
     export let stringToDépartement
 
-    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], DossierDemarcheSimplifiee88444['Objet du projet']> } */
+    /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], string> } */
     export let typeVersObjet
 
     /** @type {string} */
@@ -143,6 +144,7 @@
 
         //@ts-ignore
         /** @type {Record<keyof AnnotationsPriveesDemarcheSimplifiee88444, keyof Dossier>} */
+        //@ts-ignore
         const mapping = {
             "Nom du porteur de projet": "historique_nom_porteur",
             "Localisation du projet": "historique_localisation",
@@ -187,10 +189,15 @@
     // Dossiers reconnus
 
     /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: any, annotations: AnnotationsPriveesDemarcheSimplifiee88444} >} */
     let candidatsDossierÀCréer
+    
     /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: any, annotations: AnnotationsPriveesDemarcheSimplifiee88444, dossierPitchou: DossierComplet} >} */
     let candidatsAnnotationsÀAjouter
+
     /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: Partial<DossierDemarcheSimplifiee88444>, annotations: AnnotationsPriveesDemarcheSimplifiee88444, dossierPitchou: DossierComplet} >} */
+    /** @type {Map<DossierTableauSuiviNouvelleAquitaine2023, {dossier: any, annotations: AnnotationsPriveesDemarcheSimplifiee88444, dossierPitchou: DossierComplet} >} */
     let candidatsDossiersComplet
 
     $: if(candidatsImportsMap && dossiersStockésEnBaseDeDonnées) {

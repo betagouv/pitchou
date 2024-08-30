@@ -14,17 +14,17 @@ import Store from 'baredux'
 // DO NOT import x from 'remember' // do it in an action instead
 // DO NOT import x from './actions/*.js' // you're making an action, so add an action instead
 
-import '../types.js'
 
-/** @typedef {import('../types/database/public/Personne.js').default} Personne */
 /** @import {DossierComplet} from '../types.js' */
+/** @import {default as Personne} from '../types/database/public/Personne.js' */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 
 
 /**
  * @typedef {Object} PitchouState
  * @property {Personne['code_accès']} [secret]
  * @property {Map<DossierComplet['id'], DossierComplet>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
- * @property {Object} [schemaDS88444]
+ * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  */
 
 /** @type {PitchouState} */
