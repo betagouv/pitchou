@@ -233,29 +233,7 @@ const dossierDémarcheSimplifiée88444InterfaceP = compile(
  * annotationDescriptors vers JSONSchema
  */
 
-const annotations88444JsonSchemaProperties = Object.create(null)
-const requiredAnnotations88444 = []
-
-for (const annotationDescriptor of annotationDescriptors) {
-    const { __typename, label } = annotationDescriptor
-
-    const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
-
-    if (DSChampToJSONSchema) {
-        annotations88444JsonSchemaProperties[label] = DSChampToJSONSchema(annotationDescriptor);
-
-        // ignore annotationDescriptor.required
-        requiredAnnotations88444.push(label)
-    }
-}
-
-const annotationsDémarcheSimplifiée88444JSONSchema = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    type: "object",
-    properties: annotations88444JsonSchemaProperties,
-    additionalProperties: false,
-    required: requiredAnnotations88444
-}
+const annotationsDémarcheSimplifiée88444JSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
 
 
 const annotationsDémarcheSimplifiée88444InterfaceP = compile(
