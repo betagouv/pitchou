@@ -24,7 +24,7 @@
 * 'Nombre d\'avis émis': number,
 * 'Date réception DDEP': Date,
 * 'Attente de': 'DDT(M)' | 'DREP' | 'Expert' | 'Ministère' | 'Pétitionnaire' | 'Préfecture' | 'SPN',
-* 'N°ONAGRE de demande ': string,
+* 'N°ONAGRE de demande': string,
 * 'Date saisine CSRPN': Date,
 * 'Date saisine CNPN': Date,
 * 'Date avis CNPN / CSRPN)': Date,
