@@ -6,48 +6,6 @@
  * @typedef { {[K in keyof T]: string} } StringValues
  */
 
-/**
- * Lignes du fichier BDC_STATUT.csv (INPN)
- * Il peut y avoir plusieurs lignes avec le même CD_NOM si l'espèce est protégées à plusieurs endroits
- *
- * @typedef {Object} BDC_STATUT_ROW
- * @prop { TAXREF_ROW['CD_NOM'] } CD_NOM 
- * @prop { TAXREF_ROW['CD_REF'] } CD_REF
- * @prop { 'POM' | 'PD' | 'PN' | 'PR' | 'Protection Pitchou' } CD_TYPE_STATUT
- * @prop { string } LABEL_STATUT
- * // incomplet
- */
-
-
-
-/** 
- * Les Set<string> deviennent des string séparés par des `,`
- * @typedef {StringValues<EspèceProtégée>} EspèceProtégéeStrings 
- */
-
-/**
- * @typedef {Object} DescriptionMenaceOiseau
- * @prop { "oiseau" } classification
- * @prop { OiseauAtteint[] } etresVivantsAtteints
- */
-
-/**
- * @typedef {Object} DescriptionMenaceNonOiseau
- * @prop { "faune non-oiseau" | "flore" } classification
- * @prop { EtreVivantAtteint[] } etresVivantsAtteints
- */
-
-/**
- * @typedef {DescriptionMenaceOiseau | DescriptionMenaceNonOiseau} DescriptionMenaceEspèce
- */
-
-/**
- * @typedef {Object} DescriptionMenaceEspèceJSON
- * @prop { ClassificationEtreVivant } classification
- * @prop { (OiseauAtteintJSON | EtreVivantAtteintJSON)[] } etresVivantsAtteints
- */
-/** @typedef {DescriptionMenaceEspèceJSON[]} DescriptionMenaceEspècesJSON */
-
 /** @typedef {string} NomGroupeEspèces */
 /**
  * @typedef {Object} EspèceSimplifiée

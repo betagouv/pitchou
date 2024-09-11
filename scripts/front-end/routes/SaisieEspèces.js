@@ -132,7 +132,6 @@ export default async () => {
         return decodeURIComponent(escape(atob(s)))
     }
 
-
     function importDescriptionMenacesEspècesFromURL(){
         const urlData = new URLSearchParams(location.search).get('data')
         if(urlData){

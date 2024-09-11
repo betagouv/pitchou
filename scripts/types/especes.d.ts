@@ -124,3 +124,12 @@ export interface OiseauAtteintJSON extends EtreVivantAtteintJSON {
     nombreNids?: number,
     nombreOeufs?: number,
 }
+
+export type DescriptionMenacesEspèces = Map<ClassificationEtreVivant,(OiseauAtteint|FauneNonOiseauAtteinte|FloreAtteinte)[]>
+
+export interface DescriptionMenaceEspèceJSON {
+    classification: ClassificationEtreVivant,
+    etresVivantsAtteints: (OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON)[],
+}
+
+export type DescriptionMenacesEspècesJSON = DescriptionMenaceEspèceJSON[]

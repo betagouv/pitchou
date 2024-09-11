@@ -57,7 +57,11 @@
     }*/
     
     function créerLienPartage(){
-        const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
+        const jsonable = descriptionMenacesEspècesToJSON(new Map([
+            ["oiseau", oiseauxAtteints],
+            ["faune non-oiseau", faunesNonOiseauxAtteintes],
+            ["flore", floresAtteintes],
+        ]))
         const lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
 
         return lienPartage
