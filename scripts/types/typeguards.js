@@ -2,6 +2,7 @@ import { isValidDateString } from '../commun/typeFormat.js'
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {OiseauAtteint, FauneNonOiseauAtteinte} from '../types/especes.d.ts' */
 
 /** 
