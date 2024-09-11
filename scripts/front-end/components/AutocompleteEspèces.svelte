@@ -2,7 +2,7 @@
 	//@ts-check
 	import AutoComplete from "simple-svelte-autocomplete"
 
-	/** @import {EspèceProtégée} from '../../types.js' */
+	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
 
 	/** @type {EspèceProtégée[]} */
 	export let espèces;
