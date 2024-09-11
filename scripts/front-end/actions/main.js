@@ -13,12 +13,12 @@ import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
 export function chargerDossiers(){
-    console.log('store.state.capabilities', store.state.capabilities)
+
     if(store.state.capabilities?.listerDossier){
         return store.state.capabilities?.listerDossier()
             .then(dossiers => {
                 if (!isDossierArray(dossiers)) {
-                    throw new Error("On attendait un tableau de dossiers ici !")
+                    throw new TypeError("On attendait un tableau de dossiers ici !")
                 }
 
                 const dossiersById = dossiers.reduce((objetFinal, dossier) => {
@@ -28,11 +28,11 @@ export function chargerDossiers(){
                 console.log('dossiersById', dossiersById)
                 store.mutations.setDossiers(dossiersById)
 
-                return dossiers
+                return dossiersById
             })
     }
     else{
-        return Promise.reject(new TypeError('Impossible de charger les dossiers, secret manquant'))
+        return Promise.reject(new TypeError('Impossible de charger les dossiers, capability manquante'))
     }
 }
 
@@ -95,7 +95,7 @@ export function init(){
             //@ts-ignore
             .then(secret => secret ? initCapabilities(secret) : undefined)
             .catch(logout),
-        chargerSchemaDS88444
+        chargerSchemaDS88444()
     ])
         
 }

@@ -13,6 +13,7 @@
     /** @import {GeoAPICommune, GeoAPIDépartement} from "../../../types/GeoAPI.ts" */
     /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
     /** @import {DossierComplet} from '../../../types.js' */
+    //@ts-ignore
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
     
     export let email
