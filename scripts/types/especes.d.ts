@@ -133,3 +133,12 @@ export interface DescriptionMenaceEspèceJSON {
 }
 
 export type DescriptionMenacesEspècesJSON = DescriptionMenaceEspèceJSON[]
+
+export type NomGroupeEspèces = string
+
+export interface EspèceSimplifiée {
+    CD_REF: EspèceProtégée['CD_REF'],
+    nom: string
+}
+
+export type GroupesEspèces = Record<NomGroupeEspèces, (EspèceSimplifiée | string)[]>

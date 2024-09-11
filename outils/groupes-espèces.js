@@ -11,6 +11,8 @@ import '../scripts/types.js'
 /** @import {
  *   EspèceProtégée,
  *   EspèceProtégéeStrings,
+ *   EspèceSimplifiée, 
+ *   GroupesEspèces
  * } from '../scripts/types/especes.d.ts' */
 
 /**

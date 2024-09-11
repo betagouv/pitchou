@@ -13,18 +13,16 @@ import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspècePro
 import { getURL } from '../getLinkURL.js';
 
 /** @import {ComponentProps} from 'svelte' */
-/** @import {
- *    GroupesEspèces, 
- *    NomGroupeEspèces
- *  } from "../../types.js" 
- **/
+
 /** @import {
  *    ClassificationEtreVivant,
  *    EspèceProtégée, 
  *    EspèceProtégéeStrings,
  *    ActivitéMenançante, 
  *    MéthodeMenançante, 
- *    TransportMenançant
+ *    TransportMenançant,
+ *    GroupesEspèces, 
+ *    NomGroupeEspèces
  *  } from "../../types/especes.d.ts" 
  **/
 /** @import {PitchouState} from '../store.js' */

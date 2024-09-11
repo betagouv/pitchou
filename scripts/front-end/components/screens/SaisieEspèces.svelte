@@ -11,15 +11,15 @@
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces'
-
-    /** @import {ClassificationEtreVivant, NomGroupeEspèces} from "../../../types.js" */
     
     /** @import {
+     *    ClassificationEtreVivant,
      *    EspèceProtégée,
      *    EtreVivantAtteint, 
      *    OiseauAtteint, 
      *    FauneNonOiseauAtteinte, 
-     *    FloreAtteinte
+     *    FloreAtteinte, 
+     *    NomGroupeEspèces
      *  } from '../../../types/especes.d.ts' 
      **/
 

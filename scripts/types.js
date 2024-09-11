@@ -6,17 +6,6 @@
  * @typedef { {[K in keyof T]: string} } StringValues
  */
 
-/** @typedef {string} NomGroupeEspèces */
-/**
- * @typedef {Object} EspèceSimplifiée
- * @prop { EspèceProtégée['CD_REF'] } CD_REF
- * @prop { string } nom
- */
-/** @typedef {Record<NomGroupeEspèces, (EspèceSimplifiée | string)[]>} GroupesEspèces */
-
-
-
-
 /** 
  * https://geo.api.gouv.fr/communes
  *
