@@ -26,10 +26,12 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
     /** @param {EspèceProtégée} flore */
-     function ajouterFlore(flore) {
+    function ajouterFlore(flore) {
         floresAtteintes.push({
             espèce: flore,
         })
+
+        floresAtteintes = floresAtteintes
     }
 
     /** @param {EspèceProtégée} _espèce */

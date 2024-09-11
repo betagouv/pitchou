@@ -36,6 +36,8 @@
         faunesNonOiseauxAtteintes.push({
             espèce: fauneNonOiseau,
         })
+
+        faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
     }
 
     /** @param {EspèceProtégée} _espèce */

@@ -36,10 +36,7 @@
         oiseauxAtteints.push({
             espèce: oiseau,
         })
-    }
-
-    function ajouterOiseauEtRerender(oiseau) {
-        ajouterOiseau(oiseau)
+        
         oiseauxAtteints = oiseauxAtteints
     }
 
@@ -141,7 +138,7 @@
                             <td>
                                 <AutocompleteEspeces 
                                     espèces={espècesProtégéesOiseau} 
-                                    onChange={ajouterOiseauEtRerender} 
+                                    onChange={ajouterOiseau} 
                                     htmlClass="fr-input search"
                                     labelFunction={autocompleteLabelFunction}
                                     keywordsFunction={autocompleteKeywordsFunction}
