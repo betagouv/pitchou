@@ -51,7 +51,7 @@
  * @prop { Set<TAXREF_ROW['NOM_VERN']> } nomsVernaculaires - TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
  * @prop { Set<TAXREF_ROW['LB_NOM']> } nomsScientifiques - plusieurs noms si plusieurs CD_NOM pour le même CD_REF
  * @prop { ClassificationEtreVivant } classification
- * @prop { Set<BDC_STATUT_ROW['CD_TYPE_STATUT']> } CD_TYPE_STATUTS
+ * @prop { Set<BDC_STATUT_ROW['CD_TYPE_STATUT']> } CD_TYPE_STATUTS - types de protection associées à cette espèce
  */
 
 

@@ -1,19 +1,17 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../precalculsAutocompleteEspèces.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel, etresVivantsAtteintsCompareEspèce, fourchettesIndividus} from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import NomEspèce from "../NomEspèce.svelte"
     
-    /** @import {EtreVivantAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types.js" */
+    /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
-    /** @type {EtreVivantAtteint} */
-    export let etreVivantAtteint
-
-    /** @type {EtreVivantAtteint[]} */
-    export let etresVivantsAtteints
+    /** @type {FauneNonOiseauAtteinte[]} */
+    export let faunesNonOiseauxAtteintes
 
     /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesNonOiseau
+    export let espècesProtégéesFauneNonOiseau
 
     /** @type {ActivitéMenançante[]} */
     export let activitésMenaçantes
@@ -24,88 +22,147 @@
     /** @type {TransportMenançant[]} */
     export let transportMenaçants
     
-    /** @param {EtreVivantAtteint[]} etresVivantsAtteints
-      * @param {EspèceProtégée} _espèce 
-      */
-    export let supprimerLigne
-
-    /**
-     * Les fourchettes sont des chaînes de caractères toujours au format 'x-y' où x et y sont des integer
-     */
-    
-    /** @type {string[]}*/
-    export let fourchettesIndividus = [
-        '0-10',
-        '11-100',
-        '101-1000',
-        '1001-10000',
-        '10001+'
-    ]
-
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesNonOiseau)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesNonOiseau)
+    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
+    const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
 
     /** @param {EspèceProtégée} esp */
     const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
 
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
+    
+    /** @param {EspèceProtégée} fauneNonOiseau */
+    function ajouterFauneNonOiseau(fauneNonOiseau) {
+        faunesNonOiseauxAtteintes.push({
+            espèce: fauneNonOiseau,
+        })
+    }
+
+    /** @param {EspèceProtégée} _espèce */
+    function supprimerLigne(_espèce){
+        const index = faunesNonOiseauxAtteintes.findIndex(({espèce}) => espèce === _espèce);
+        if (index > -1) { 
+            faunesNonOiseauxAtteintes.splice(index, 1);
+        }
+    }
 </script>
 
-<tr>
-    <td>
-        <AutocompleteEspeces 
-            bind:selectedItem={etreVivantAtteint.espèce} 
-            espèces={espècesProtégéesNonOiseau} 
-            htmlClass="fr-input"
-            labelFunction={autocompleteLabelFunction}
-            keywordsFunction={autocompleteKeywordsFunction}
-        />
-    </td>
-    <td>
-        <select bind:value={etreVivantAtteint.activité} class="fr-select">
-            <option>-</option>
-            {#each activitésMenaçantes || [] as act}
-            <option value={act}>
-                {act['étiquette affichée']}
-            </option>
-            {/each}
-        </select>
-    </td>
+<div class="fr-grid-row fr-mb-4w fr-grid-row--center">
+    <div class="fr-col">
+        <section class="saisie-faune">
+            <h3>Faune (hors oiseaux)</h3>
+            <div class="fr-table fr-table--bordered">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Espèce</th>
+                            <th>Type d’impact</th>
+                            <th>Méthode</th>
+                            <th>Moyen de poursuite</th>
+                            <th>Nombre d'individus</th>
+                            <th>Surface habitat détruit (m²)</th>
+                            <th>Supprimer la ligne</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {#each faunesNonOiseauxAtteintes as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit}}
+                            <tr>
+                                <td>
+                                    <AutocompleteEspeces 
+                                        bind:selectedItem={espèce} 
+                                        espèces={espècesProtégéesFauneNonOiseau} 
+                                        htmlClass="fr-input"
+                                        labelFunction={autocompleteLabelFunction}
+                                        keywordsFunction={autocompleteKeywordsFunction}
+                                    />
+                                </td>
+                                <td>
+                                    <select bind:value={activité} class="fr-select">
+                                        <option>-</option>
+                                        {#each activitésMenaçantes || [] as act}
+                                        <option value={act}>
+                                            {act['étiquette affichée']}
+                                        </option>
+                                        {/each}
+                                    </select>
+                                </td>
 
-    <td>
-        <select bind:value={etreVivantAtteint.méthode} disabled={etreVivantAtteint.activité && etreVivantAtteint.activité['Méthode'] === 'n'} class="fr-select">
-            <option>-</option>
-            {#each méthodesMenaçantes as met}
-                <option value={met}>{met['étiquette affichée']}</option>
-            {/each}
-        </select>
-    </td>
+                                <td>
+                                    <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'} class="fr-select">
+                                        <option>-</option>
+                                        {#each méthodesMenaçantes as met}
+                                            <option value={met}>{met['étiquette affichée']}</option>
+                                        {/each}
+                                    </select>
+                                </td>
 
-    <td>
-        <select bind:value={etreVivantAtteint.transport} disabled={etreVivantAtteint.activité && etreVivantAtteint.activité['transport'] === 'n'} class="fr-select">
-            <option>-</option>
-            {#each transportMenaçants as trans}
-                <option value={trans}>{trans['étiquette affichée']}</option>
-            {/each}
-        </select>
-    </td>
+                                <td>
+                                    <select bind:value={transport} disabled={activité && activité['transport'] === 'n'} class="fr-select">
+                                        <option>-</option>
+                                        {#each transportMenaçants as trans}
+                                            <option value={trans}>{trans['étiquette affichée']}</option>
+                                        {/each}
+                                    </select>
+                                </td>
 
-    <td>
-        <select bind:value={etreVivantAtteint.nombreIndividus} class="fr-select">
-            {#each fourchettesIndividus as fourchette}
-                <option value={fourchette}>{fourchette}</option>
-            {/each}
-        </select>
-    </td>
+                                <td>
+                                    <select bind:value={nombreIndividus} class="fr-select">
+                                        {#each fourchettesIndividus as fourchette}
+                                            <option value={fourchette}>{fourchette}</option>
+                                        {/each}
+                                    </select>
+                                </td>
 
-    <td>
-        <input type="number" bind:value={etreVivantAtteint.surfaceHabitatDétruit} min="0" step="1" class="fr-input">
-    </td>
-    <td>
-        <button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, etreVivantAtteint.espèce)}>❌</button>
-    </td>
-</tr>
+                                <td>
+                                    <input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input">
+                                </td>
+                                <td>
+                                    <button type="button" on:click={() => supprimerLigne(espèce)}>❌</button>
+                                </td>
+                            </tr>
+                        {/each}
+
+                        <tr>
+                            <td>
+                                <AutocompleteEspeces 
+                                    espèces={espècesProtégéesFauneNonOiseau} 
+                                    onChange={ajouterFauneNonOiseau} 
+                                    htmlClass="fr-input search"
+                                    labelFunction={autocompleteLabelFunction}
+                                    keywordsFunction={autocompleteKeywordsFunction}
+                                />
+                            </td>
+                            <td>
+                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                            </td>
+                            <td>
+                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                            </td>
+                            <td>
+                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                            </td>
+                            <td>
+                                <select disabled class="fr-select"><option>- - - -</option></select> 
+                            </td>
+                            <td><input disabled type="number" class="fr-input"></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {#if faunesNonOiseauxAtteintes.length >= 1}
+                <section class="arrete-prefectoral fr-p-1w">
+                    <h4>Liste des espèces concernées par la demande de dérogation</h4>
+                    {#each faunesNonOiseauxAtteintes.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index (espèce) }
+                        {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
+                    {/each} 
+                </section>
+            {/if}
+        </section>
+    </div>
+</div>
 
 <style lang="scss">
     tr {
@@ -129,6 +186,47 @@
             border-radius: 0.5em;
             padding: 0.4em;
             width: 5em;
+        }
+    }
+
+    .saisie-faune {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        select{
+            max-width: 10rem;
+        }
+
+        label{
+            select{
+                max-width: 30em;
+            }
+        }
+
+        table{
+            // surcharge DSFR pour que l'autocomplete s'affiche correctement
+            overflow: initial;
+
+            tr {
+                th{
+                    padding: 0.2rem;
+
+                    vertical-align: top;
+                }
+
+                button{
+                    all: unset;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .arrete-prefectoral{
+            border-radius: 0.4em;
+            width: 100%;
+
+            background-color: rgba(255, 255, 255, 0.1);
         }
     }
 </style>

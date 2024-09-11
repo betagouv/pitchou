@@ -6,14 +6,22 @@
     import CopyButton from '../CopyButton.svelte'
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
-    import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte';
-    import FieldsetVide from '../SaisieEspèces/FieldsetVide.svelte';
+    import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
 
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces'
 
-    /** @import {ClassificationEtreVivant, EspèceProtégée, NomGroupeEspèces, DescriptionMenaceEspèce, EtreVivantAtteint} from "../../../types.js" */
+    /** @import {ClassificationEtreVivant, NomGroupeEspèces} from "../../../types.js" */
+    
+    /** @import {
+     *    EspèceProtégée,
+     *    EtreVivantAtteint, 
+     *    OiseauAtteint, 
+     *    FauneNonOiseauAtteinte, 
+     *    FloreAtteinte
+     *  } from '../../../types/especes.d.ts' 
+     **/
 
 
     export let email
@@ -28,8 +36,14 @@
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     export let groupesEspèces
 
-    /** @type {Map<ClassificationEtreVivant, DescriptionMenaceEspèce} */
-    export let descriptionMenacesEspèces;
+    /** @type {OiseauAtteint[]}*/
+    export let oiseauxAtteints
+
+    /** @type {FauneNonOiseauAtteinte[]} */
+    export let faunesNonOiseauxAtteintes
+
+    /** @type {FloreAtteinte[]}*/
+    export let floresAtteintes
 
     function rerender(){
         descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
@@ -41,101 +55,7 @@
         const regex = /^\d+-\d+$/;
         return regex.test(str);
     }*/
-
-    /** @type {Map<ClassificationEtreVivant, any>} */
-    const etreVivantClassificationToBloc = new Map([
-        ["oiseau", {
-            sectionClass: "saisie-oiseau",
-            sectionTitre: `Oiseaux`
-        }],
-        ["faune non-oiseau", {
-            sectionClass: "saisie-faune",
-            sectionTitre: `Faune (hors oiseaux)`
-        }],
-        ["flore", {
-            sectionClass: "saisie-flore",
-            sectionTitre: `Végétaux`
-        }]
-    ])
-
-    /** 
-     * 
-     * @param {EspèceProtégée} esp 
-     */ 
-    const autocompleteOnChange = esp => { ajouterUneEspèce(esp) }
     
-    /**
-     * 
-     * @param {EspèceProtégée} espèce
-     */
-    function ajouterEspèce(espèce){
-        const descriptionMenaceEspèces = descriptionMenacesEspèces.get(espèce.classification)
-
-        if(!descriptionMenaceEspèces){
-            throw new TypeError(`descriptionMenaceEspèces non trouvée avec classification=${espèce.classification}`)
-        }
-
-        if(descriptionMenaceEspèces.classification === 'oiseau'){
-            descriptionMenaceEspèces.etresVivantsAtteints.push({
-                espèce,
-                nombreIndividus: "0",
-                nombreNids: 0,
-                nombreOeufs: 0,
-                surfaceHabitatDétruit: 0
-            })
-        }
-        else{
-            descriptionMenaceEspèces.etresVivantsAtteints.push({
-                espèce,
-                nombreIndividus: "0",
-                surfaceHabitatDétruit: 0
-            })
-        }
-        
-    }
-
-    /**
-     * 
-     * @param {EspèceProtégée} espèce
-     */
-    function ajouterUneEspèce(espèce){
-        ajouterEspèce(espèce)
-        rerender()
-    }
-
-
-    /**
-     * 
-     * @param {EtreVivantAtteint} _
-     * @param {EtreVivantAtteint} _
-     */
-    function etresVivantsAtteintsCompareEspèce({espèce: {nomsScientifiques: noms1}}, {espèce: {nomsScientifiques: noms2}}) {
-        const [nom1] = noms1
-        const [nom2] = noms2
-
-        if (nom1 < nom2) {
-            return -1;
-        }
-        if (nom1 > nom2) {
-            return 1;
-        }
-        return 0;
-    }
-
-    /**
-     * 
-     * @param {EtreVivantAtteint[]} etresVivantsAtteints
-     * @param {EspèceProtégée} _espèce 
-     */
-    function supprimerLigne(etresVivantsAtteints, _espèce){
-        const index = etresVivantsAtteints.findIndex(({espèce}) => espèce === _espèce);
-        if (index > -1) { 
-            etresVivantsAtteints.splice(index, 1);
-        }
-
-        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
-    }
-
     function créerLienPartage(){
         const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
         const lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
@@ -302,85 +222,26 @@
 
         <form class="fr-mb-4w">
             <h2>Liste des espèces</h2>
-            {#each [...descriptionMenacesEspèces.values()] as {classification, etresVivantsAtteints}}
-            <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
-                <div class="fr-col">
-                    <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
-                        <h3>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h3>
-                        <div class="fr-table fr-table--bordered">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Espèce</th>
-                                        <th>Type d’impact</th>
-                                        {#if classification !== "flore"}
-                                        <th>Méthode</th>
-                                        <th>Moyen de poursuite</th>
-                                        {/if}
-                                        <th>Nombre d'individus</th>
-                                        {#if classification === "oiseau"}
-                                        <th>Nids</th>
-                                        <th>Œufs</th>
-                                        {/if}
-                                        <th>Surface habitat détruit (m²)</th>
-                                        <th>Supprimer la ligne</th>
-                                    </tr>
-                                </thead>
-                                
-                                <tbody>
-                                    {#each etresVivantsAtteints as etreVivantAtteint}
-                                        {#if classification === "oiseau"}
-                                            <FieldsetOiseau
-                                                oiseauAtteint={etreVivantAtteint}
-                                                oiseauxAtteints={etresVivantsAtteints}
-                                                espècesProtégéesOiseau={getEspècesPourClassification(classification)}
-                                                activitésMenaçantes={activitesParClassificationEtreVivant.get(classification)}
-                                                méthodesMenaçantes={méthodesParClassificationEtreVivant.get(classification)}
-                                                transportMenaçants={transportsParClassificationEtreVivant.get(classification)}
-                                                supprimerLigne={supprimerLigne}
-                                            />
-                                        {:else if classification === "faune non-oiseau"}
-                                            <FieldsetNonOiseau
-                                                etreVivantAtteint={etreVivantAtteint}
-                                                etresVivantsAtteints={etresVivantsAtteints}
-                                                espècesProtégéesNonOiseau={getEspècesPourClassification(classification)}
-                                                activitésMenaçantes={activitesParClassificationEtreVivant.get(classification)}
-                                                méthodesMenaçantes={méthodesParClassificationEtreVivant.get(classification)}
-                                                transportMenaçants={transportsParClassificationEtreVivant.get(classification)}
-                                                supprimerLigne={supprimerLigne}
-                                            />
-                                        {:else}
-                                            <FieldsetFlore
-                                                etreVivantAtteint={etreVivantAtteint}
-                                                etresVivantsAtteints={etresVivantsAtteints}
-                                                espècesProtégéesNonOiseau={getEspècesPourClassification(classification)}
-                                                activitésMenaçantes={activitesParClassificationEtreVivant.get(classification)}
-                                                supprimerLigne={supprimerLigne}
-                                            />
-                                        {/if}
-                                    {/each}
-                                    
-                                    <FieldsetVide
-                                        classification={classification}
-                                        espècesProtégéesDeLaClassification={getEspècesPourClassification(classification)}
-                                        autocompleteOnChange={autocompleteOnChange}
-                                    />
-                                </tbody>
-                            </table>
-                        </div>
 
-                        {#if etresVivantsAtteints.length >= 1}
-                        <section class="arrete-prefectoral fr-p-1w">
-                            <h4>Liste des espèces concernées par la demande de dérogation</h4>
-                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index (espèce) }
-                                {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
-                            {/each} 
-                        </section>
-                        {/if}
-                    </section>
-                </div>
-            </div>
-            {/each}
+            <FieldsetOiseau
+                bind:oiseauxAtteints={oiseauxAtteints}
+                espècesProtégéesOiseau={getEspècesPourClassification("oiseau")}
+                activitésMenaçantes={activitesParClassificationEtreVivant.get("oiseau")}
+                méthodesMenaçantes={méthodesParClassificationEtreVivant.get("oiseau")}
+                transportMenaçants={transportsParClassificationEtreVivant.get("oiseau")}
+            />
+            <FieldsetNonOiseau
+                bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
+                espècesProtégéesFauneNonOiseau={getEspècesPourClassification("faune non-oiseau")}
+                activitésMenaçantes={activitesParClassificationEtreVivant.get("faune non-oiseau")}
+                méthodesMenaçantes={méthodesParClassificationEtreVivant.get("faune non-oiseau")}
+                transportMenaçants={transportsParClassificationEtreVivant.get("faune non-oiseau")}
+            />
+            <FieldsetFlore
+                bind:floresAtteintes={floresAtteintes}
+                espècesProtégéesFlore={getEspècesPourClassification("flore")}
+                activitésMenaçantes={activitesParClassificationEtreVivant.get("flore")}
+            />
         </form>
         <div class="fr-grid-row fr-mb-4w">
             <div class="fr-col-8">
@@ -426,47 +287,6 @@
         summary{
             h2, h3{
                 display: inline-block;
-            }
-        }
-
-        .saisie-oiseau, .saisie-flore, .saisie-faune {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-
-            select{
-                max-width: 10rem;
-            }
-
-            label{
-                select{
-                    max-width: 30em;
-                }
-            }
-
-            table{
-                // surcharge DSFR pour que l'autocomplete s'affiche correctement
-                overflow: initial;
-
-                tr {
-                    th{
-                        padding: 0.2rem;
-
-                        vertical-align: top;
-                    }
-
-                    button{
-                        all: unset;
-                        cursor: pointer;
-                    }
-                }
-            }
-
-            .arrete-prefectoral{
-                border-radius: 0.4em;
-                width: 100%;
-
-                background-color: rgba(255, 255, 255, 0.1);
             }
         }
     }	
