@@ -31,13 +31,17 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
+    function rerender() {
+        oiseauxAtteints = oiseauxAtteints
+    }
+
     /** @param {EspèceProtégée} oiseau */
     function ajouterOiseau(oiseau) {
         oiseauxAtteints.push({
             espèce: oiseau,
         })
-        
-        oiseauxAtteints = oiseauxAtteints
+
+        rerender()
     }
 
     /** @param {EspèceProtégée} _espèce */
@@ -46,6 +50,8 @@
         if (index > -1) { 
             oiseauxAtteints.splice(index, 1);
         }
+
+        rerender()
     }
 </script>
 

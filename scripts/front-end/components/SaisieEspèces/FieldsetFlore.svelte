@@ -25,13 +25,17 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
+    function rerender() {
+        floresAtteintes = floresAtteintes
+    }
+
     /** @param {EspèceProtégée} flore */
     function ajouterFlore(flore) {
         floresAtteintes.push({
             espèce: flore,
         })
 
-        floresAtteintes = floresAtteintes
+        rerender()
     }
 
     /** @param {EspèceProtégée} _espèce */
@@ -40,6 +44,8 @@
         if (index > -1) { 
             floresAtteintes.splice(index, 1);
         }
+
+        rerender()
     }
 </script>
 

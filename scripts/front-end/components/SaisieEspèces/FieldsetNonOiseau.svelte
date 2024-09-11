@@ -31,13 +31,17 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
+    function rerender() {
+        faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
+    }
+
     /** @param {EspèceProtégée} fauneNonOiseau */
     function ajouterFauneNonOiseau(fauneNonOiseau) {
         faunesNonOiseauxAtteintes.push({
             espèce: fauneNonOiseau,
         })
 
-        faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
+        rerender()
     }
 
     /** @param {EspèceProtégée} _espèce */
@@ -46,6 +50,8 @@
         if (index > -1) { 
             faunesNonOiseauxAtteintes.splice(index, 1);
         }
+
+        rerender()
     }
 </script>
 
