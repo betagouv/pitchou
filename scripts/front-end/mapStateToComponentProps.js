@@ -11,6 +11,6 @@
 */
 export const mapStateToSqueletteProps = (state) => {
     return {
-        email: state.secret ? '@' : undefined
+        email: state.capabilities ? '@' : undefined
     }
 }

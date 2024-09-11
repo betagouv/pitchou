@@ -30,8 +30,8 @@
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], string> } */
     export let typeVersObjet
 
-    /** @type {string} */
-    export let remplirAnnotationsURL
+    /** @type { (_: {dossierId: string, annotations: any}) => Promise<void> } */
+    export let remplirAnnotations
 
     /** @type {FileList | undefined} */
     let fichiersImportRaw;
@@ -260,19 +260,10 @@
      function ajouterAnnotations(dossierPitchou, annotations) {
         dossierPitchouToRemplissageAnnotation.set(
             dossierPitchou,
-            text(
-                remplirAnnotationsURL, 
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dossierId: dossierPitchou.id_demarches_simplifiées,
-                        annotations
-                    })
-                }
-            )
+            remplirAnnotations({
+                dossierId: dossierPitchou.id_demarches_simplifiées,
+                annotations
+            })
         )
 
         dossierPitchouToRemplissageAnnotation = dossierPitchouToRemplissageAnnotation // re-render

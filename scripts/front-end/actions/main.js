@@ -7,15 +7,15 @@ import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
 import { isDossierArray } from '../../types/typeguards.js';
+import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 
-/** @typedef {import('../../types/database/public/Dossier.js').default} Dossier */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
 export function chargerDossiers(){
-    console.log('store.state.secret', store.state.secret)
-    if(store.state.secret){
-        return json(`/dossiers?secret=${store.state.secret}`)
+    console.log('store.state.capabilities', store.state.capabilities)
+    if(store.state.capabilities?.listerDossier){
+        return store.state.capabilities?.listerDossier()
             .then(dossiers => {
                 if (!isDossierArray(dossiers)) {
                     throw new Error("On attendait un tableau de dossiers ici !")
@@ -54,7 +54,6 @@ export async function secretFromURL(){
 
         // nettoyer l'url pour que le secret n'y apparaisse plus
         history.replaceState(null, "", newURL)
-        store.mutations.setSecret(secret)
 
         return Promise.all([
             remember(PITCHOU_SECRET_STORAGE_KEY, secret),
@@ -64,7 +63,7 @@ export async function secretFromURL(){
 }
 
 export async function logout(){
-    store.mutations.setSecret(undefined)
+    store.mutations.setCapabilities(undefined)
     store.mutations.setDossiers(undefined)
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }
@@ -76,12 +75,15 @@ export async function logout(){
  */
 function initCapabilities(secret){
     return json(`/caps?secret=${secret}`)
-        .then(caps => {
-            store.mutations.setCapabilities(caps)
-
-            return Promise.all([
-                caps.listeDossiers ? chargerDossiers(caps.listeDossiers) : undefined
-            ])
+        .then(capsURLs => {
+            if(capsURLs && typeof capsURLs === 'object'){
+                store.mutations.setCapabilities(
+                    créerObjetCapDepuisURLs(capsURLs)
+                )
+            }
+            else{
+                throw new TypeError(`capsURLs non-reconnu (${typeof capsURLs} - ${capsURLs})`)
+            }
         })
 }
 

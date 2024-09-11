@@ -15,12 +15,15 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
+/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.js' */
+/** @import {StringValues} from '../types.js' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
 const schema88444 = _schema88444
+
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -38,6 +41,7 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 }
 
 console.log('NODE_ENV', process.env.NODE_ENV)
+
 
 const fastify = Fastify({
   logger: {
@@ -118,6 +122,31 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
  * Routes qui nécessite des privilèges 
  */
 
+
+fastify.get('/caps', async function (request, reply) {
+  // @ts-ignore
+  const code_accès = request.query.secret
+  if(!code_accès) {
+    return reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
+  }
+
+  const personne = await getPersonneByCode(code_accès)
+  if(!personne){
+    return reply.code(403).send("Code d'accès non valide.")
+  }
+
+  /** @type {StringValues<PitchouInstructeurCapabilities>} */
+  const ret = {
+    listerDossier: `/dossiers?secret=${code_accès}`,
+    modifierDossier: `/dossier/:dossierId?cap=${code_accès}`,
+    remplirAnnotations: `/remplir-annotations?cap=${code_accès}`,
+  }
+
+  return ret
+})
+
+
+
 fastify.get('/dossiers', async function (request, reply) {
   // @ts-ignore
   const code_accès = request.query.secret
@@ -151,8 +180,9 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   const { dossierId } = request.params
   // @ts-ignore
-  const dossierParams = JSON.parse(request.body).dossierParams
+  const dossierParams = request.body
 
+  // @ts-ignore
   return updateDossier(dossierId, dossierParams)
 })
 

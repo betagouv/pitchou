@@ -81,19 +81,17 @@ export default async () => {
         }
     }
 
-    const remplirAnnotationsURL = store.state.secret ? `/remplir-annotations?cap=${store.state.secret}` : undefined
-
     
     /**
      * 
      * @param {import('../../store.js').PitchouState} _ 
      * @returns 
      */
-    function mapStateToProps({dossiers}){
+    function mapStateToProps({dossiers, capabilities}){
         return {
             ...mapStateToSqueletteProps(store.state),
             dossiers, nomToCommune, stringToDépartement, typeVersObjet,
-            remplirAnnotationsURL
+            remplirAnnotationsURL: capabilities?.remplirAnnotations
         }
     }   
     
