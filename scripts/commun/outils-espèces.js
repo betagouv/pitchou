@@ -1,6 +1,23 @@
 //@ts-check
 
-/** @import {ClassificationEtreVivant, EspèceProtégée, DescriptionMenaceEspèce, EtreVivantAtteint, TAXREF_ROW, EspèceProtégéeStrings, OiseauAtteintJSON, EtreVivantAtteintJSON, DescriptionMenaceEspècesJSON, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../types.js" */
+import { isOiseauAtteint, isFauneNonOiseauAtteinte } from '../types/typeguards.js'
+
+/** @import {DescriptionMenaceEspèce, DescriptionMenaceEspècesJSON} from "../types.js" */
+/** @import {
+ *    ClassificationEtreVivant, 
+ *    EspèceProtégée, 
+ *    EspèceProtégéeStrings,
+ *    TAXREF_ROW, 
+ *    OiseauAtteint,
+ *    FloreAtteinte,
+ *    FauneNonOiseauAtteinte,
+ *    OiseauAtteintJSON, 
+ *    FloreAtteinteJSON,
+ *    FauneNonOiseauAtteinteJSON,
+ *    ActivitéMenançante, 
+ *    MéthodeMenançante, 
+ *    TransportMenançant
+ * } from "../types/especes.d.ts" */
 
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
@@ -72,40 +89,36 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
 
 
 /**
- * @typedef {EtreVivantAtteint & {nombreNids?: number, nombreOeufs?: number }} EtreVivantOuOiseauAtteint
  * 
- * @param { EtreVivantOuOiseauAtteint } EtreVivantOuOiseauAtteint
- * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
+ * @param { OiseauAtteint|FauneNonOiseauAtteinte|FloreAtteinte} etreVivantAtteint
+ * @returns { OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON }
  */
-function etreVivantAtteintToJSON(EtreVivantOuOiseauAtteint){
-    const {
-        espèce, 
-        activité, méthode, transport,
-        nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
-    } = EtreVivantOuOiseauAtteint
+function etreVivantAtteintToJSON(etreVivantAtteint){
+    const etreVivantAtteintJSON = {
+        espèce: etreVivantAtteint.espèce['CD_REF'],
+        activité: etreVivantAtteint.activité && etreVivantAtteint.activité.Code, 
+        nombreIndividus: etreVivantAtteint.nombreIndividus,
+        surfaceHabitatDétruit: etreVivantAtteint.surfaceHabitatDétruit,
+    }
 
-    if(nombreNids || nombreOeufs){
-        return {
-            espèce: espèce['CD_REF'],
-            activité: activité && activité.Code, 
-            méthode: méthode && méthode.Code, 
-            transport: transport && transport.Code,
-            nombreIndividus, 
-            nombreNids, 
-            nombreOeufs, 
-            surfaceHabitatDétruit
-        }
+    if(isOiseauAtteint(etreVivantAtteint)){
+        return Object.assign(etreVivantAtteintJSON, {  
+            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
+            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
+            nombreIndividus: etreVivantAtteint.nombreIndividus,
+            nombreNids: etreVivantAtteint.nombreNids,
+            nombreOeufs: etreVivantAtteint.nombreOeufs,
+        })
     }
-    else{
-        return {
-            espèce: espèce['CD_REF'],
-            activité: activité && activité.Code, 
-            méthode: méthode && méthode.Code, 
-            transport: transport && transport.Code,
-            nombreIndividus,
-            surfaceHabitatDétruit
-        }
-    }
+    else if(isFauneNonOiseauAtteinte(etreVivantAtteint) {
+        return Object.assign(etreVivantAtteintJSON, { 
+            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
+            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
+            nombreIndividus: etreVivantAtteint.nombreIndividus,
+        })
+    } 
+    
+    return etreVivantAtteintJSON
 }
 
 /**

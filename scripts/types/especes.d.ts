@@ -1,3 +1,7 @@
+export type StringValues<T> = {
+    [K in keyof T]: string;
+}
+
 export type Règne = 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista'
 export type Classe = 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' 
 export type ClassificationEtreVivant = "oiseau" | "faune non-oiseau" | "flore"
@@ -17,6 +21,19 @@ export interface TAXREF_ROW {
 }
 
 /**
+ * Lignes du fichier BDC_STATUT.csv (INPN)
+ * Il peut y avoir plusieurs lignes avec le même CD_NOM si l'espèce est protégées à plusieurs endroits
+ */
+
+export interface BDC_STATUT_ROW {
+    CD_NOM: TAXREF_ROW['CD_NOM'],
+    CD_REF: TAXREF_ROW['CD_REF'],
+    CD_TYPE_STATUT: 'POM' | 'PD' | 'PN' | 'PR' | 'Protection Pitchou',
+    LABEL_STATUT: string,
+    // incomplet
+}
+
+/**
  * Lignes du fichier liste-espèces-protégées.csv
  * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
  */
@@ -30,6 +47,11 @@ export interface EspèceProtégée {
     // types de protection associées à cette espèce
     CD_TYPE_STATUTS: Set<BDC_STATUT_ROW['CD_TYPE_STATUT']>,
 }
+
+/** 
+ * Les Set<string> deviennent des string séparés par des `,`
+ */
+export type EspèceProtégéeStrings = StringValues<EspèceProtégée>
 
 export interface ActivitéMenançante {
     Code: string,

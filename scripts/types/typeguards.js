@@ -2,6 +2,7 @@ import { isValidDateString } from '../commun/typeFormat.js'
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
+/** @import {OiseauAtteint, FauneNonOiseauAtteinte} from '../types/especes.d.ts' */
 
 /** 
  * 
@@ -76,12 +77,30 @@ export function isOiseauAtteint(e) {
     typeof e === "object" &&
     e !== null &&
     typeof e.espèce === "string" &&
-    typeof e.nombreIndividus === "string" &&
-    typeof e.surfaceHabitatDétruit === "number" &&
+    (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
+    (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
     (e.activité === undefined || typeof e.activité === "string") &&
     (e.méthode === undefined || typeof e.méthode === "string") &&
     (e.transport === undefined || typeof e.transport === "string") &&
-    typeof e.nombreNids === "number" &&
-    typeof e.nombreOeufs === "number"
+    (e.nombreNids === undefined || typeof e.nombreNids === "number") &&
+    (e.nombreOeufs === undefined || typeof e.nombreOeufs === "number")
+  )
+}
+
+/**
+ * 
+ * @param {any} e 
+ * @returns {e is FauneNonOiseauAtteinte} 
+ */
+export function isFauneNonOiseauAtteinte(e) {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    typeof e.espèce === "string" &&
+    (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
+    (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
+    (e.activité === undefined || typeof e.activité === "string") &&
+    (e.méthode === undefined || typeof e.méthode === "string") &&
+    (e.transport === undefined || typeof e.transport === "string")
   )
 }

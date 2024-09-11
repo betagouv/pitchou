@@ -14,16 +14,18 @@ import { getURL } from '../getLinkURL.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {
- *    ActivitéMenançante, 
- *    ClassificationEtreVivant, 
- *    DescriptionMenaceEspèce, 
- *    EspèceProtégée, 
- *    EspèceProtégéeStrings, 
  *    GroupesEspèces, 
- *    MéthodeMenançante, 
- *    NomGroupeEspèces, 
- *    TransportMenançant
+ *    NomGroupeEspèces
  *  } from "../../types.js" 
+ **/
+/** @import {
+ *    ClassificationEtreVivant,
+ *    EspèceProtégée, 
+ *    EspèceProtégéeStrings,
+ *    ActivitéMenançante, 
+ *    MéthodeMenançante, 
+ *    TransportMenançant
+ *  } from "../../types/especes.d.ts" 
  **/
 /** @import {PitchouState} from '../store.js' */
 
