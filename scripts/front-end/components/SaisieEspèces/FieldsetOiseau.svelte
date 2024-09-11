@@ -117,6 +117,7 @@
 
                                 <td>
                                     <select bind:value={nombreIndividus} class="fr-select">
+                                        <option>-</option>
                                         {#each fourchettesIndividus as fourchette}
                                             <option value={fourchette}>{fourchette}</option>
                                         {/each}
