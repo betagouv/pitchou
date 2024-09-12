@@ -8,6 +8,7 @@ import knex from 'knex';
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
 /** @import {default as GroupeInstructeurs} from '../types/database/public/GroupeInstructeurs.ts' */
+/** @import {default as CapÉcritureAnnotation} from '../types/database/public/CapÉcritureAnnotation.ts' */
 
 
 const DATABASE_URL = process.env.DATABASE_URL
@@ -529,7 +530,47 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
 }
 
+/**
+ * 
+ * @param {CapÉcritureAnnotation['cap']} cap 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<CapÉcritureAnnotation['instructeur_id']>}
+ */
+export async function getInstructeurIdByÉcritureAnnotationCap(cap, databaseConnection = directDatabaseConnection){
+    const res = await databaseConnection('cap_écriture_annotation')
+        .select('instructeur_id')
+        .where({cap})
+        .first()
 
-export async function getInstructeurIdByÉcritureAnnotationCap(cap){
+    return res && res.instructeur_id
+}
+
+
+/**
+ * 
+ * @param {NonNullable<Personne['code_accès']>} code_accès 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, modifierDossier: string}>}
+ */
+export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
     
+    const écritureAnnotationCapP = databaseConnection('arête_personne__cap_écriture_annotation')
+        .select('cap')
+        .leftJoin('cap_écriture_annotation', {
+            'cap_écriture_annotation.cap': 
+            'arête_personne__cap_écriture_annotation.écriture_annotation_cap'
+        })
+        .where({personne_cap: code_accès})
+        .first();
+
+    // hardcodé temporairement
+    const listerDossiersP = Promise.resolve(code_accès)
+    // hardcodé temporairement
+    const modifierDossierP = Promise.resolve(code_accès)
+
+    return Promise.all([écritureAnnotationCapP, listerDossiersP, modifierDossierP])
+        .then(([écritureAnnotationCap, listerDossiers, modifierDossier]) => 
+            ({écritureAnnotationCap, listerDossiers, modifierDossier}))
+    
+
 }

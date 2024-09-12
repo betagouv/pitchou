@@ -1,7 +1,7 @@
 import { DossierComplet } from "../types"
 
 export interface PitchouInstructeurCapabilities{
-    listerDossier?: () => Promise<DossierComplet[]>
+    listerDossiers?: () => Promise<DossierComplet[]>
     modifierDossier?: (dossierId: DossierComplet['id'], dossier: any) => Promise<void> 
     remplirAnnotations?: (annotations: any) => Promise<void>
 }

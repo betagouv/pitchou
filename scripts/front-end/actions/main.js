@@ -14,8 +14,8 @@ const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
 export function chargerDossiers(){
 
-    if(store.state.capabilities?.listerDossier){
-        return store.state.capabilities?.listerDossier()
+    if(store.state.capabilities?.listerDossiers){
+        return store.state.capabilities?.listerDossiers()
             .then(dossiers => {
                 if (!isDossierArray(dossiers)) {
                     throw new TypeError("On attendait un tableau de dossiers ici !")

@@ -83,7 +83,7 @@ function wrapModifierDossier(url){
 export default function(capURLs){
 
     return {
-        listerDossier: wrapGETUrl(capURLs.listerDossier),
+        listerDossiers: wrapGETUrl(capURLs.listerDossiers),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
     }
