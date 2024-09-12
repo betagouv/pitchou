@@ -5,7 +5,8 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
-import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, updateDossier, closeDatabaseConnection } from './database.js'
+import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
+  updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap } from './database.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -195,8 +196,8 @@ fastify.post('/remplir-annotations', async (request, reply) => {
     return 
   }
   else{
-    const personne = await getPersonneByCode(cap)
-    if (!personne) {
+    const instructeurId = await getInstructeurIdByÉcritureAnnotationCap(cap)
+    if (!instructeurId) {
       reply.code(403).send(`Le paramètre 'cap' est invalide`)
       return
     } 

@@ -528,3 +528,8 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
 
 }
+
+
+export async function getInstructeurIdByÉcritureAnnotationCap(cap){
+    
+}
