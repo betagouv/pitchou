@@ -12,13 +12,6 @@
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 
 export interface DossierDemarcheSimplifiee88444 {
-  /**
-   * Ce formulaire vous permet de prendre contact avec les services de l'état, dès la conception amont de votre projet, pour toutes questions relatives aux espèces protégées. Dans cet objectif, tous les champs ne sont pas obligatoires à ce stade.
-   *
-   * Il permet également de déposer votre demande de dérogation espèces protégées auprès des services instructeurs et remplace les cerfas concernés.
-   *
-   */
-  "Réglementation espèces protégées": string;
   "Le demandeur est…": "une personne physique" | "une personne morale";
   "Numéro de SIRET": string;
   Qualification: string;

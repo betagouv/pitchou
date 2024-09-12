@@ -19,6 +19,7 @@ export type ChampDescriptorTypename =
     | 'CommuneChampDescriptor'
     | 'HeaderSectionChampDescriptor'
     | 'PieceJustificativeChampDescriptor'
+    | 'ExplicationChampDescriptor'
 
 export interface ChampDescriptor {
     __typename: ChampDescriptorTypename;

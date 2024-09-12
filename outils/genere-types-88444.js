@@ -125,7 +125,7 @@ function champToArrayJSONSchema({description, champDescriptors}){
     }
 
     champDescriptors = champDescriptors.filter(({__typename}) => {
-        return __typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor'
+        return __typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor' && __typename !== 'ExplicationChampDescriptor'
     })
 
     /** @type {JSONSchema} */
@@ -171,8 +171,7 @@ const DSTypenameToJSONSchema = new Map([
     [ "CommuneChampDescriptor", champToCommuneJSONSchema ],
     // PPP : invalide, mais ne sait pas encore comment bien le gérer
     [ "RepetitionChampDescriptor", champToArrayJSONSchema ],
-    [ "DateChampDescriptor", champToDateJSONSchema ],
-    [ "ExplicationChampDescriptor", champToStringJSONSchema ]
+    [ "DateChampDescriptor", champToDateJSONSchema ]
 ])
 
 
@@ -189,7 +188,7 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors){
     for (const champDescriptor of champDescriptors) {
         const { __typename, label } = champDescriptor
     
-        if(__typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor'){
+        if(__typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor' && __typename !== 'ExplicationChampDescriptor') {
             const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
     
             if(!DSChampToJSONSchema){
