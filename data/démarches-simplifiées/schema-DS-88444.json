@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-07-25T16:03:46+02:00",
+    "dateDerniereModification": "2024-09-11T14:47:47+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,9 +15,18 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://plop.fr",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTU0NzMz",
-        "datePublication": "2024-07-25T16:03:46+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTU4Njk4",
+        "datePublication": "2024-09-06T15:53:50+02:00",
         "champDescriptors": [
+            {
+                "__typename": "ExplicationChampDescriptor",
+                "id": "Q2hhbXAtNDQ4MzE3Ng==",
+                "label": "Réglementation espèces protégées",
+                "description": "Ce formulaire vous permet de prendre contact avec les services de l'état, dès la conception amont de votre projet, pour toutes questions relatives aux espèces protégées. Dans cet objectif, tous les champs ne sont pas obligatoires à ce stade.\r\n\r\nIl permet également de déposer votre demande de dérogation espèces protégées auprès des services instructeurs et remplace les cerfas concernés.\r\n",
+                "required": false,
+                "collapsibleExplanationEnabled": false,
+                "collapsibleExplanationText": null
+            },
             {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzM1Ng==",
@@ -30,7 +39,7 @@
                 "id": "Q2hhbXAtMzg5ODg5NQ==",
                 "label": "Le demandeur est…",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "une personne physique",
                     "une personne morale"
@@ -149,32 +158,7 @@
             {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwMQ==",
-                "label": "Description de la demande",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "YesNoChampDescriptor",
-                "id": "Q2hhbXAtNDA4MzAxMQ==",
-                "label": "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "MultipleDropDownListChampDescriptor",
-                "id": "Q2hhbXAtNDA4Mjk1OA==",
-                "label": "À quelle procédure le projet est-il soumis ?",
-                "description": "",
-                "required": false,
-                "options": [
-                    "Autorisation ICPE",
-                    "Autorisation loi sur l'eau"
-                ]
-            },
-            {
-                "__typename": "CheckboxChampDescriptor",
-                "id": "Q2hhbXAtNDA0MDgyMQ==",
-                "label": "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation",
+                "label": "Respect des deux premiers critères dérogatoires",
                 "description": "",
                 "required": false
             },
@@ -320,6 +304,30 @@
                 "label": "Nom du projet",
                 "description": "",
                 "required": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDA4MzAxMQ==",
+                "label": "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Oui",
+                    "Non",
+                    "Ne sait pas encore"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "MultipleDropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDA4Mjk1OA==",
+                "label": "À quelle procédure le projet est-il soumis ?",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Autorisation ICPE",
+                    "Autorisation loi sur l'eau"
+                ]
             },
             {
                 "__typename": "TextareaChampDescriptor",

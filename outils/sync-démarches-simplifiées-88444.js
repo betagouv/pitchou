@@ -14,7 +14,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444} from '../scripts/types.js' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types.js' */
 /** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
 
 // récups les données de DS
@@ -105,7 +105,7 @@ Avec l'aide de
 
  */
 
-/** @type {Record<keyof AnnotationsPrivéesDémarcheSimplifiée88444, string>}  */
+/** @type {Record<keyof AnnotationsPriveesDemarcheSimplifiee88444, string>}  */
 const pitchouKeyToAnnotationDS = {
     "Nom du porteur de projet": "Q2hhbXAtNDM3OTk5Mg==",
     "Localisation du projet": "Q2hhbXAtNDM3OTk5NA==",
@@ -191,7 +191,7 @@ const dossiers = dossiersDS.map(({
 
 
     /* localisation */
-    /** @type {DossierDémarcheSimplifiée88444['Le projet se situe au niveau…']} */
+    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…']} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
     const champDépartements = champById.get(pitchouKeyToChampDS["départements"])

@@ -1,6 +1,15 @@
 {
-    "include": ["scripts/**/*.js", "scripts/**/*.ts", "scripts/**/*.d.ts"],
-    "exclude": ["node_modules"],
+    "include": [
+      "scripts/**/*.js", 
+      "scripts/**/*.ts", 
+      "scripts/**/*.d.ts"
+    ],
+    "exclude": [
+      "node_modules", 
+      "scripts/import-dossiers-historiques/nouvelle-aquitaine/**/*.js",
+      "scripts/front-end/routes/import-historique/NouvelleAquitaine.js",
+      "scripts/front-end/components/screens/ImportHistoriqueNouvelleAquitaine.svelte"
+    ],
     "compilerOptions": {
       "allowJs": true,
       "checkJs": true,
