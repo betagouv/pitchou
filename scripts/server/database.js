@@ -426,7 +426,7 @@ async function supprimerPersonnesDansGroupeParEmail(groupe_instructeurs, emails,
  * @returns {Promise<any>}
  */
 async function compléterInstructeurIds(instructeurEmailToId, databaseConnection = directDatabaseConnection){
-    console.log('instructeurEmailToId', instructeurEmailToId)
+    //console.log('instructeurEmailToId', instructeurEmailToId)
 
     // chercher les Personne avec un des emails des instructeur qui ont déjà un code d'accès
     /** @type {Promise<Partial<Personne>[]>} */
@@ -465,8 +465,8 @@ async function compléterInstructeurIds(instructeurEmailToId, databaseConnection
     
     return Promise.all([personnesAvecCodeP, instructeurIdToCapsP])
         .then(([personnesAvecCode, instructeurIdToCaps]) => {
-            console.log('personnesAvecCode', personnesAvecCode)
-            console.log('instructeurIdToCaps', instructeurIdToCaps)
+            //console.log('personnesAvecCode', personnesAvecCode)
+            //console.log('instructeurIdToCaps', instructeurIdToCaps)
 
             const personneCodeToCapÉcritureAnnotation = []
 
