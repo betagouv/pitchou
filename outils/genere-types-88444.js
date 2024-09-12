@@ -171,7 +171,8 @@ const DSTypenameToJSONSchema = new Map([
     [ "CommuneChampDescriptor", champToCommuneJSONSchema ],
     // PPP : invalide, mais ne sait pas encore comment bien le gérer
     [ "RepetitionChampDescriptor", champToArrayJSONSchema ],
-    [ "DateChampDescriptor", champToDateJSONSchema ]
+    [ "DateChampDescriptor", champToDateJSONSchema ],
+    [ "ExplicationChampDescriptor", champToStringJSONSchema ]
 ])
 
 

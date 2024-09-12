@@ -12,6 +12,13 @@
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 
 export interface DossierDemarcheSimplifiee88444 {
+  /**
+   * Ce formulaire vous permet de prendre contact avec les services de l'état, dès la conception amont de votre projet, pour toutes questions relatives aux espèces protégées. Dans cet objectif, tous les champs ne sont pas obligatoires à ce stade.
+   *
+   * Il permet également de déposer votre demande de dérogation espèces protégées auprès des services instructeurs et remplace les cerfas concernés.
+   *
+   */
+  "Réglementation espèces protégées": string;
   "Le demandeur est…": "une personne physique" | "une personne morale";
   "Numéro de SIRET": string;
   Qualification: string;
@@ -71,9 +78,6 @@ export interface DossierDemarcheSimplifiee88444 {
   "Qualité du représentant": string;
   "Numéro de téléphone de contact": string;
   "Adresse mail de contact": string;
-  "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": boolean;
-  "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
-  "J'atteste qu'il n'existe aucune alternative satisfaisante permettant d'éviter la dérogation": boolean;
   "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": string;
   "Motif de la dérogation":
     | "Pour des RIIPM (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)"
@@ -106,6 +110,11 @@ export interface DossierDemarcheSimplifiee88444 {
    */
   "Lien vers la liste des espèces concernées": string;
   "Nom du projet": string;
+  "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
+    | "Oui"
+    | "Non"
+    | "Ne sait pas encore";
+  "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
   "Description synthétique du projet": string;
   "Cette demande concerne un programme de suivi déjà existant": boolean;
   "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?": boolean;
