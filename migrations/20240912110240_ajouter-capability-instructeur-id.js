@@ -5,11 +5,11 @@
 export async function up(knex) {
     await knex.schema.createTable('cap_écriture_annotation', function (table) {
         table.uuid('cap').primary().defaultTo(knex.fn.uuid())
-        table.string('instructeur_id').notNullable()
+        table.string('instructeur_id').notNullable().unique()
     });
 
     await knex.schema.createTable('arête_personne__cap_écriture_annotation', function (table) {
-        table.string('personne_cap').index()
+        table.string('personne_cap').unique()
         table.foreign('personne_cap')
             .references('code_accès').inTable('personne').onDelete('CASCADE')
         

@@ -419,6 +419,76 @@ async function supprimerPersonnesDansGroupeParEmail(groupe_instructeurs, emails,
         .delete()
 }
 
+/**
+ *
+ * @param {Map<API_DS.Instructeur['email'], API_DS.Instructeur['id']>} instructeurEmailToId
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+async function compléterInstructeurIds(instructeurEmailToId, databaseConnection = directDatabaseConnection){
+    console.log('instructeurEmailToId', instructeurEmailToId)
+
+    // chercher les Personne avec un des emails des instructeur qui ont déjà un code d'accès
+    /** @type {Promise<Partial<Personne>[]>} */
+    // @ts-ignore
+    const personnesAvecCodeP = databaseConnection('personne')
+        .select(['code_accès', 'email'])
+        .whereIn('email', [...instructeurEmailToId.keys()])
+        .andWhereNot({code_accès: null});
+
+    // Supprimer les cap_écriture_annotation pour les instructeur_id qui n'existent plus
+    const deleteAbsentInstructeurIdsP = databaseConnection('cap_écriture_annotation')
+        .whereNotIn('instructeur_id', [...instructeurEmailToId.values()])
+        .delete();
+
+    // Rajouter les cap_écriture_annotation pour les nouveaux instructeurId s'il y en a
+    const instructeurIdAndCapsP = databaseConnection('cap_écriture_annotation')
+        .insert([...instructeurEmailToId.values()].map(instructeur_id => ({instructeur_id})))
+        .onConflict('instructeur_id')
+        .ignore();
+
+    const instructeurIdToCapsP = Promise.all([deleteAbsentInstructeurIdsP, instructeurIdAndCapsP])
+        .then(() => databaseConnection('cap_écriture_annotation')
+            .select(['cap', 'instructeur_id'])
+            .whereIn('instructeur_id', [...instructeurEmailToId.values()])
+        )
+        .then(instructeurIdAndCaps => {
+            /** @type {Map<CapÉcritureAnnotation['instructeur_id'], CapÉcritureAnnotation['cap']>} */
+            const map = new Map()
+
+            for(const {cap, instructeur_id} of instructeurIdAndCaps){
+                map.set(instructeur_id, cap)
+            }
+
+            return map
+        })
+    
+    return Promise.all([personnesAvecCodeP, instructeurIdToCapsP])
+        .then(([personnesAvecCode, instructeurIdToCaps]) => {
+            console.log('personnesAvecCode', personnesAvecCode)
+            console.log('instructeurIdToCaps', instructeurIdToCaps)
+
+            const personneCodeToCapÉcritureAnnotation = []
+
+            for(const {code_accès, email} of personnesAvecCode){
+                // @ts-ignore
+                const instructeurId = instructeurEmailToId.get(email)
+                // @ts-ignore
+                const capÉcritureAnnotationCorrespondante = instructeurIdToCaps.get(instructeurId)
+
+                personneCodeToCapÉcritureAnnotation.push({
+                    personne_cap: code_accès, 
+                    écriture_annotation_cap: capÉcritureAnnotationCorrespondante
+                })
+            }
+
+            return databaseConnection('arête_personne__cap_écriture_annotation')
+                .insert(personneCodeToCapÉcritureAnnotation)
+                .onConflict('personne_cap')
+                .merge()
+        })
+
+}
 
 
 /**
@@ -519,10 +589,22 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
             }
         }))
 
+        // Rajouter les instructeurId potentiellement manquants
+        /** @type {Map<API_DS.Instructeur['email'], API_DS.Instructeur['id']>} */
+        const instructeurEmailToId = new Map()
+        for(const groupeInstructeursAPI of groupesInstructeursAPI){
+            for(const {email, id} of groupeInstructeursAPI.instructeurs){
+                instructeurEmailToId.set(email, id)
+            }
+        }
+
+        const complétionInstructeurIds = compléterInstructeurIds(instructeurEmailToId, trx)
+
         return Promise.all([
             groupesInstructeursManquantsEnBDDCréés,
             groupesInstructeursEnTropEnBDDSupprimés,
-            miseÀJourEmailsDansGroupe
+            miseÀJourEmailsDansGroupe,
+            complétionInstructeurIds
         ])
 
     })
@@ -569,8 +651,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     const modifierDossierP = Promise.resolve(code_accès)
 
     return Promise.all([écritureAnnotationCapP, listerDossiersP, modifierDossierP])
-        .then(([écritureAnnotationCap, listerDossiers, modifierDossier]) => 
-            ({écritureAnnotationCap, listerDossiers, modifierDossier}))
+        .then(([{cap}, listerDossiers, modifierDossier]) => 
+            ({écritureAnnotationCap: cap, listerDossiers, modifierDossier}))
     
 
 }
