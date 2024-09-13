@@ -23,6 +23,7 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 /** @import {default as Personne} from '../types/database/public/Personne.js' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import fastify from 'fastify'
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
@@ -74,21 +75,23 @@ fastify.register(fastatic, {
 })
 
 
-fastify.get('/saisie-especes', (_request, reply) => {
+/**
+ * 
+ * @param {any} _request 
+ * @param {any} reply 
+ */
+function sendIndexHTMLFile(_request, reply){
   reply.sendFile('index.html')
-})
-fastify.get('/dossier/:dossierId', (_request, reply) => {
-  reply.sendFile('index.html')
-})
-fastify.get('/import-historique/nouvelle-aquitaine', (_request, reply) => {
-  reply.sendFile('index.html')
-})
-fastify.get('/preremplissage-derogation', (_request, reply) => {
-  reply.sendFile('index.html')
-})
-fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', (_request, reply) => {
-  reply.sendFile('index.html')
-})
+}
+
+fastify.get('/saisie-especes', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
+
+fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', sendIndexHTMLFile)
+fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
+fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
+
 
 
 fastify.post('/lien-preremplissage', async function (request) {
