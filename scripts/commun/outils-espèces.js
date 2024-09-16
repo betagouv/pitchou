@@ -14,7 +14,7 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    FloreAtteinteJSON,
  *    FauneNonOiseauAtteinteJSON,
  *    DescriptionMenacesEspèces,
- *    DescriptionMenacesEspècesJSON,
+ *    DescriptionMenaceEspèceJSON,
  *    ActivitéMenançante, 
  *    MéthodeMenançante, 
  *    TransportMenançant,
@@ -128,7 +128,7 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
 /**
  * 
  * @param { DescriptionMenacesEspèces } descriptionMenacesEspèces
- * @returns { DescriptionMenacesEspècesJSON }
+ * @returns { DescriptionMenaceEspèceJSON[] }
  */
 export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
     console.log(descriptionMenacesEspèces)
@@ -143,7 +143,7 @@ export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
 }
 
 /**
- * @param {DescriptionMenacesEspècesJSON} descriptionMenacesEspècesJSON
+ * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ActivitéMenançante[]} activites
  * @param {MéthodeMenançante[]} methodes

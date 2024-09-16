@@ -136,8 +136,6 @@ export interface DescriptionMenaceEspèceJSON {
     etresVivantsAtteints: (OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON)[],
 }
 
-export type DescriptionMenacesEspècesJSON = DescriptionMenaceEspèceJSON[]
-
 export type NomGroupeEspèces = string
 
 export interface EspèceSimplifiée {
