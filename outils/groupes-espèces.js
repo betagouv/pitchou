@@ -8,6 +8,13 @@ import {espèceProtégéeStringToEspèceProtégée} from '../scripts/commun/outi
 
 import '../scripts/types.js'
 
+/** @import {
+ *   EspèceProtégée,
+ *   EspèceProtégéeStrings,
+ *   EspèceSimplifiée, 
+ *   GroupesEspèces
+ * } from '../scripts/types/especes.d.ts' */
+
 /**
  * Cet outil prend le fichier data/ListeGroupesEspeces.ods et en fait un fichier json plus léger
  * qui contient les groupes d'espèces pour usage dans

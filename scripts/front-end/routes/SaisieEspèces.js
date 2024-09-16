@@ -12,18 +12,20 @@ import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
 
+/** @import {ComponentProps} from 'svelte' */
+
 /** @import {
- *    ActivitéMenançante, 
- *    ClassificationEtreVivant, 
- *    DescriptionMenaceEspèce, 
+ *    ClassificationEtreVivant,
  *    EspèceProtégée, 
- *    EspèceProtégéeStrings, 
- *    GroupesEspèces, 
+ *    EspèceProtégéeStrings,
+ *    ActivitéMenançante, 
  *    MéthodeMenançante, 
- *    NomGroupeEspèces, 
- *    TransportMenançant
- *  } from "../../types.js" 
+ *    TransportMenançant,
+ *    GroupesEspèces, 
+ *    NomGroupeEspèces
+ *  } from "../../types/especes.d.ts" 
  **/
+/** @import {PitchouState} from '../store.js' */
 
 export default async () => { 
     /** @type { [EspèceProtégéeStrings[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
@@ -128,7 +130,6 @@ export default async () => {
         return decodeURIComponent(escape(atob(s)))
     }
 
-
     function importDescriptionMenacesEspècesFromURL(){
         const urlData = new URLSearchParams(location.search).get('data')
         if(urlData){
@@ -162,37 +163,31 @@ export default async () => {
         )
     }
 
+    /**
+     * 
+     * @param {PitchouState} state 
+     * @returns {ComponentProps<SaisieEspèces>}
+     */
+    function mapStateToProps(state){
+        const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL()
 
-    function mapStateToProps(){
         return {
-            ...mapStateToSqueletteProps(store.state),
+            ...mapStateToSqueletteProps(state),
             espècesProtégéesParClassification,
             activitesParClassificationEtreVivant, 
             méthodesParClassificationEtreVivant, 
             transportsParClassificationEtreVivant,
             groupesEspèces,
-            /** @type {DescriptionMenaceEspèce[]} */
-            descriptionMenacesEspèces: importDescriptionMenacesEspècesFromURL() || [
-                {
-                    classification: "oiseau", // Type d'espèce menacée
-                    etresVivantsAtteints: [],
-                },
-                {
-                    classification: "faune non-oiseau",
-                    etresVivantsAtteints: [],
-                },
-                {
-                    classification: "flore",
-                    etresVivantsAtteints: [],
-                }
-            ]
+            oiseauxAtteints: etresVivantsAtteints && etresVivantsAtteints['oiseau'] || [],
+            faunesNonOiseauxAtteintes: etresVivantsAtteints && etresVivantsAtteints['faune non-oiseau'] || [],
+            floresAtteintes: etresVivantsAtteints && etresVivantsAtteints['flore']|| [],
         }
     }
 
 
     const saisieEspèces = new SaisieEspèces({
         target: svelteTarget,
-        props: mapStateToProps()
+        props: mapStateToProps(store.state)
     });
 
     replaceComponent(saisieEspèces, mapStateToProps)

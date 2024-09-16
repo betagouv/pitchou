@@ -4,12 +4,24 @@
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from "../NomEspèce.svelte"
     import CopyButton from '../CopyButton.svelte'
+    import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
+    import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
+    import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
+
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
-    import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces';
-    import { isOiseauAtteint } from '../../../types/typeguards.js';
-
-    /** @import {ClassificationEtreVivant, EspèceProtégée, NomGroupeEspèces, DescriptionMenaceEspèce, EtreVivantAtteint} from "../../../types.js" */
+    import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces'
+    
+    /** @import {
+     *    ClassificationEtreVivant,
+     *    EspèceProtégée,
+     *    EtreVivantAtteint, 
+     *    OiseauAtteint, 
+     *    FauneNonOiseauAtteinte, 
+     *    FloreAtteinte, 
+     *    NomGroupeEspèces
+     *  } from '../../../types/especes.d.ts' 
+     **/
 
 
     export let email
@@ -24,129 +36,34 @@
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     export let groupesEspèces
 
-    /** @type { DescriptionMenaceEspèce[] } */
-    export let descriptionMenacesEspèces;
+    /** @type {OiseauAtteint[]}*/
+    export let oiseauxAtteints
+
+    /** @type {FauneNonOiseauAtteinte[]} */
+    export let faunesNonOiseauxAtteintes
+
+    /** @type {FloreAtteinte[]}*/
+    export let floresAtteintes
 
     function rerender(){
-        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
+        oiseauxAtteints = oiseauxAtteints 
+        faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
+        floresAtteintes = floresAtteintes
     }    
 
     const mailto = "mailto:especes-protegees@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
-
-    /**
-     * Les fourchettes sont des chaînes de caractères toujours au format 'x-y' où x et y sont des integer
-     */
-    const fourchettesIndividus = [
-        '0-10',
-        '11-100',
-        '101-1000',
-        '1001-10000',
-        '10001+'
-    ]
 
     /*function isFourchette(str) {
         const regex = /^\d+-\d+$/;
         return regex.test(str);
     }*/
     
-
-
-    /** @type {Map<ClassificationEtreVivant, any>} */
-    const etreVivantClassificationToBloc = new Map([
-        ["oiseau", {
-            sectionClass: "saisie-oiseau",
-            sectionTitre: `Oiseaux`
-        }],
-        ["faune non-oiseau", {
-            sectionClass: "saisie-faune",
-            sectionTitre: `Faune (hors oiseaux)`
-        }],
-        ["flore", {
-            sectionClass: "saisie-flore",
-            sectionTitre: `Végétaux`
-        }]
-    ])
-
-    /** 
-     * 
-     * @param {EspèceProtégée} esp 
-     * */ 
-    const onChange = esp => { ajouterUneEspèce(esp) }
-    
-    /**
-     * 
-     * @param {EspèceProtégée} espèce
-     */
-    function ajouterEspèce(espèce){
-        const descriptionMenaceEspèces = descriptionMenacesEspèces.find(d => d.classification === espèce.classification)
-
-        if(!descriptionMenaceEspèces){
-            throw new TypeError(`descriptionMenaceEspèces non trouvée avec classification=${espèce.classification}`)
-        }
-
-        if(descriptionMenaceEspèces.classification === 'oiseau'){
-            descriptionMenaceEspèces.etresVivantsAtteints.push({
-                espèce,
-                nombreIndividus: "0",
-                nombreNids: 0,
-                nombreOeufs: 0,
-                surfaceHabitatDétruit: 0
-            })
-        }
-        else{
-            descriptionMenaceEspèces.etresVivantsAtteints.push({
-                espèce,
-                nombreIndividus: "0",
-                surfaceHabitatDétruit: 0
-            })
-        }
-        
-    }
-
-    /**
-     * 
-     * @param {EspèceProtégée} espèce
-     */
-    function ajouterUneEspèce(espèce){
-        ajouterEspèce(espèce)
-        rerender()
-    }
-
-
-    /**
-     * 
-     * @param {EtreVivantAtteint} _
-     * @param {EtreVivantAtteint} _
-     */
-    function etresVivantsAtteintsCompareEspèce({espèce: {nomsScientifiques: noms1}}, {espèce: {nomsScientifiques: noms2}}) {
-        const [nom1] = noms1
-        const [nom2] = noms2
-
-        if (nom1 < nom2) {
-            return -1;
-        }
-        if (nom1 > nom2) {
-            return 1;
-        }
-        return 0;
-    }
-
-    /**
-     * 
-     * @param {EtreVivantAtteint[]} etresVivantsAtteints
-     * @param {EspèceProtégée} _espèce 
-     */
-    function supprimerLigne(etresVivantsAtteints, _espèce){
-        const index = etresVivantsAtteints.findIndex(({espèce}) => espèce === _espèce);
-        if (index > -1) { 
-            etresVivantsAtteints.splice(index, 1);
-        }
-
-        descriptionMenacesEspèces = descriptionMenacesEspèces // re-render
-    }
-
     function créerLienPartage(){
-        const jsonable = descriptionMenacesEspècesToJSON(descriptionMenacesEspèces)
+        const jsonable = descriptionMenacesEspècesToJSON({
+            oiseau: oiseauxAtteints,
+            "faune non-oiseau": faunesNonOiseauxAtteintes,
+            flore: floresAtteintes,
+        })
         const lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
 
         return lienPartage
@@ -235,6 +152,21 @@
     $: espècesÀPréremplir = new Set([...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe])
 
     /**
+     * 
+     * @param {EspèceProtégée} espèce
+     */
+     function ajouterEspèce(espèce){
+        if(espèce.classification === 'oiseau'){
+            oiseauxAtteints.push({espèce})
+        }
+        else if (espèce.classification === 'faune non-oiseau') {
+            faunesNonOiseauxAtteintes.push({espèce})
+        } else {
+            floresAtteintes.push({espèce})
+        }
+    }
+
+    /**
      * @param {Set<EspèceProtégée>} _espècesÀPréremplir
      */
     function préremplirFormulaire(_espècesÀPréremplir){
@@ -249,72 +181,13 @@
     }
 
     /**
-     * Pré-calculs pour AutocompleteEspèces
-     */
-    /**
-	 * 
-	 * @param {EspèceProtégée} esp
-	 */
-    function espèceLabel(esp){
-		return `${[...esp.nomsVernaculaires][0]} (${[...esp.nomsScientifiques][0]})`
-	}
-
-	/**
-	 * 
-	 * @param {EspèceProtégée[]} espèces
-	 */
-	function makeEspèceToLabel(espèces){
-		return new Map(espèces.map(e => [e, espèceLabel(e)]))
-	}
-	
-	/**
-	 * 
-	 * @param {EspèceProtégée[]} espèces
-	 */
-	function makeEspèceToKeywords(espèces){
-		return new Map(espèces.map(e => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(' ')]))
-	}
-
-    /**
      * 
      * @param {ClassificationEtreVivant} classification
      * @returns {EspèceProtégée[]}
      */
     function getEspècesPourClassification(classification) {
-        return espècesProtégéesParClassification.get(classification) || []
+        return espècesProtégéesParClassification.get(classification)
     }
-
-    $: classifToLabelFunction = new Map(
-        [...espècesProtégéesParClassification]
-            .map(
-                /**
-                 * 
-                 * @param {[ClassificationEtreVivant, EspèceProtégée[]]} params
-                 * @returns {[ClassificationEtreVivant, Map<EspèceProtégée, string>]} 
-                 */
-                ([classif, espèces]) => [classif, makeEspèceToLabel(espèces)]
-            )
-            .map(([classif, espèceToLabel]) => [
-                classif,
-                (/** @param {EspèceProtégée} e */ e => (espèceToLabel).get(e)),
-            ])
-    )    
-    $: classifToKeywordsFunction = new Map(
-        [...espècesProtégéesParClassification]
-            .map(
-                /**
-                 * 
-                 * @param {[ClassificationEtreVivant, EspèceProtégée[]]} params
-                 * @returns {[ClassificationEtreVivant, Map<EspèceProtégée, string>]} 
-                 */
-                ([classif, espèces]) => [classif, makeEspèceToKeywords(espèces)]
-            )
-            .map(([classif, espèceToKeywords]) => [
-                classif, 
-                (/** @param {EspèceProtégée} e */ e => espèceToKeywords.get(e))]
-            )
-    )
-
 </script>
 
 
@@ -370,123 +243,26 @@
 
         <form class="fr-mb-4w">
             <h2>Liste des espèces</h2>
-            {#each descriptionMenacesEspèces as {classification, etresVivantsAtteints}}
-            <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
-                <div class="fr-col">
-                    <section class={etreVivantClassificationToBloc.get(classification).sectionClass}>
-                        <h3>{etreVivantClassificationToBloc.get(classification).sectionTitre}</h3>
-                        <div class="fr-table fr-table--bordered">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Espèce</th>
-                                        <th>Type d’impact</th>
-                                        {#if classification !== "flore"}
-                                        <th>Méthode</th>
-                                        <th>Moyen de poursuite</th>
-                                        {/if}
-                                        <th>Nombre d'individus</th>
-                                        {#if classification === "oiseau"}
-                                        <th>Nids</th>
-                                        <th>Œufs</th>
-                                        {/if}
-                                        <th>Surface habitat détruit (m²)</th>
-                                        <th>Supprimer la ligne</th>
-                                    </tr>
-                                </thead>
-                                
-                                <tbody>
-                                    {#each etresVivantsAtteints as etreVivantAtteint}
-                                        <tr>
-                                            <td>
-                                                <AutocompleteEspeces 
-                                                    bind:selectedItem={etreVivantAtteint.espèce} 
-                                                    espèces={getEspècesPourClassification(classification)} 
-                                                    htmlClass="fr-input"
-                                                    labelFunction={classifToLabelFunction.get(classification)}
-                                                    keywordsFunction={classifToKeywordsFunction.get(classification)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <select bind:value={etreVivantAtteint.activité} class="fr-select">
-                                                    <option>-</option>
-                                                    {#each activitesParClassificationEtreVivant.get(classification) || [] as act}
-                                                    <option value={act}>{act['étiquette affichée']}</option>
-                                                    {/each}
-                                                </select>
-                                            </td>
-                                            {#if classification !== "flore"}
-                                            <td>
-                                                <select bind:value={etreVivantAtteint.méthode} disabled={etreVivantAtteint.activité && etreVivantAtteint.activité['Méthode'] === 'n'} class="fr-select">
-                                                    <option>-</option>
-                                                    {#each méthodesParClassificationEtreVivant.get(classification) as met}
-                                                        <option value={met}>{met['étiquette affichée']}</option>
-                                                    {/each}
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <select bind:value={etreVivantAtteint.transport} disabled={etreVivantAtteint.activité && etreVivantAtteint.activité['transport'] === 'n'} class="fr-select">
-                                                    <option>-</option>
-                                                    {#each transportsParClassificationEtreVivant.get(classification) as trans}
-                                                        <option value={trans}>{trans['étiquette affichée']}</option>
-                                                    {/each}
-                                                </select>
-                                            </td>
-                                            {/if}
-                                            <td><select bind:value={etreVivantAtteint.nombreIndividus} class="fr-select">
-                                                {#each fourchettesIndividus as fourchette}
-                                                    <option value={fourchette}>{fourchette}</option>
-                                                {/each}
-                                            </select></td>
 
-                                            {#if classification === 'oiseau'}
-                                                <td><input type="number" bind:value={etreVivantAtteint.nombreNids} min="0" step="1" class="fr-input"></td>
-                                                <td><input type="number" bind:value={etreVivantAtteint.nombreOeufs} min="0" step="1" class="fr-input"></td>
-                                            {/if}
-
-                                            <td><input type="number" bind:value={etreVivantAtteint.surfaceHabitatDétruit} min="0" step="1" class="fr-input"></td>
-                                            <td><button type="button" on:click={() => supprimerLigne(etresVivantsAtteints, etreVivantAtteint.espèce)}>❌</button></td>
-                                        </tr>
-                                    {/each}
-                                    <tr>
-                                        <td>
-                                            <AutocompleteEspeces 
-                                            espèces={getEspècesPourClassification(classification)} 
-                                            onChange={onChange} 
-                                            htmlClass="fr-input search"
-                                            labelFunction={classifToLabelFunction.get(classification)}
-                                            keywordsFunction={classifToKeywordsFunction.get(classification)}
-                                        />
-                                        </td>
-                                        <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
-                                        {#if classification !== "flore"}
-                                        <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
-                                        <td> <select class="fr-select" disabled><option>- - - -</option></select> </td>
-                                        {/if}
-                                        <td> <select disabled class="fr-select"><option>- - - -</option></select> </td>
-                                        <td><input disabled type="number" class="fr-input"></td>
-                                        {#if classification === "oiseau"}
-                                        <td><input disabled type="number" class="fr-input"></td>
-                                        <td><input disabled type="number" class="fr-input"></td>
-                                        {/if}
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {#if etresVivantsAtteints.length >= 1}
-                        <section class="arrete-prefectoral fr-p-1w">
-                            <h4>Liste des espèces concernées par la demande de dérogation</h4>
-                            {#each etresVivantsAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index (espèce) }
-                                {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
-                            {/each} 
-                        </section>
-                        {/if}
-                    </section>
-                </div>
-            </div>
-            {/each}
+            <FieldsetOiseau
+                bind:oiseauxAtteints={oiseauxAtteints}
+                espècesProtégéesOiseau={getEspècesPourClassification("oiseau")}
+                activitésMenaçantes={activitesParClassificationEtreVivant.get("oiseau")}
+                méthodesMenaçantes={méthodesParClassificationEtreVivant.get("oiseau")}
+                transportMenaçants={transportsParClassificationEtreVivant.get("oiseau")}
+            />
+            <FieldsetNonOiseau
+                bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
+                espècesProtégéesFauneNonOiseau={getEspècesPourClassification("faune non-oiseau")}
+                activitésMenaçantes={activitesParClassificationEtreVivant.get("faune non-oiseau")}
+                méthodesMenaçantes={méthodesParClassificationEtreVivant.get("faune non-oiseau")}
+                transportMenaçants={transportsParClassificationEtreVivant.get("faune non-oiseau")}
+            />
+            <FieldsetFlore
+                bind:floresAtteintes={floresAtteintes}
+                espècesProtégéesFlore={getEspècesPourClassification("flore")}
+                activitésMenaçantes={activitesParClassificationEtreVivant.get("flore")}
+            />
         </form>
         <div class="fr-grid-row fr-mb-4w">
             <div class="fr-col-8">
@@ -532,58 +308,6 @@
         summary{
             h2, h3{
                 display: inline-block;
-            }
-        }
-
-        .saisie-oiseau, .saisie-flore, .saisie-faune {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-
-            select{
-                max-width: 10rem;
-            }
-
-            input[type="number"]{
-                border-radius: 0.5em;
-                padding: 0.4em;
-                width: 5em;
-            }
-
-            label{
-                select{
-                    max-width: 30em;
-                }
-            }
-
-            table{
-                // surcharge DSFR pour que l'autocomplete s'affiche correctement
-                overflow: initial;
-
-                tr {
-                    td, th{
-                        padding: 0.2rem;
-
-                        vertical-align: top;
-                    }
-
-                    td:last-of-type{
-                        text-align: center;
-                        vertical-align: middle;
-                    }
-
-                    button{
-                        all: unset;
-                        cursor: pointer;
-                    }
-                }
-            }
-
-            .arrete-prefectoral{
-                border-radius: 0.4em;
-                width: 100%;
-
-                background-color: rgba(255, 255, 255, 0.1);
             }
         }
     }	

@@ -1,6 +1,24 @@
 //@ts-check
 
-/** @import {ClassificationEtreVivant, EspèceProtégée, DescriptionMenaceEspèce, EtreVivantAtteint, TAXREF_ROW, EspèceProtégéeStrings, OiseauAtteintJSON, EtreVivantAtteintJSON, DescriptionMenaceEspècesJSON, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../types.js" */
+import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../types/typeguards.js'
+
+/** @import {
+ *    ClassificationEtreVivant, 
+ *    EspèceProtégée, 
+ *    EspèceProtégéeStrings,
+ *    TAXREF_ROW, 
+ *    OiseauAtteint,
+ *    FloreAtteinte,
+ *    FauneNonOiseauAtteinte,
+ *    OiseauAtteintJSON, 
+ *    FloreAtteinteJSON,
+ *    FauneNonOiseauAtteinteJSON,
+ *    DescriptionMenacesEspèces,
+ *    DescriptionMenaceEspèceJSON,
+ *    ActivitéMenançante, 
+ *    MéthodeMenançante, 
+ *    TransportMenançant,
+ * } from "../types/especes.d.ts" */
 
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
@@ -72,72 +90,75 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
 
 
 /**
- * @typedef {EtreVivantAtteint & {nombreNids?: number, nombreOeufs?: number }} EtreVivantOuOiseauAtteint
  * 
- * @param { EtreVivantOuOiseauAtteint } EtreVivantOuOiseauAtteint
- * @returns { OiseauAtteintJSON | EtreVivantAtteintJSON }
+ * @param { OiseauAtteint|FauneNonOiseauAtteinte|FloreAtteinte} etreVivantAtteint
+ * @returns { OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON }
  */
-function etreVivantAtteintToJSON(EtreVivantOuOiseauAtteint){
-    const {
-        espèce, 
-        activité, méthode, transport,
-        nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit
-    } = EtreVivantOuOiseauAtteint
+function etreVivantAtteintToJSON(etreVivantAtteint){
+    const etreVivantAtteintJSON = {
+        espèce: etreVivantAtteint.espèce['CD_REF'],
+        activité: etreVivantAtteint.activité && etreVivantAtteint.activité.Code, 
+        nombreIndividus: etreVivantAtteint.nombreIndividus,
+        surfaceHabitatDétruit: etreVivantAtteint.surfaceHabitatDétruit,
+    }
 
-    if(nombreNids || nombreOeufs){
-        return {
-            espèce: espèce['CD_REF'],
-            activité: activité && activité.Code, 
-            méthode: méthode && méthode.Code, 
-            transport: transport && transport.Code,
-            nombreIndividus, 
-            nombreNids, 
-            nombreOeufs, 
-            surfaceHabitatDétruit
-        }
+    if(isOiseauAtteint(etreVivantAtteint)){
+        return Object.assign(etreVivantAtteintJSON, {  
+            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
+            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
+            nombreIndividus: etreVivantAtteint.nombreIndividus,
+            nombreNids: etreVivantAtteint.nombreNids,
+            nombreOeufs: etreVivantAtteint.nombreOeufs,
+        })
     }
-    else{
-        return {
-            espèce: espèce['CD_REF'],
-            activité: activité && activité.Code, 
-            méthode: méthode && méthode.Code, 
-            transport: transport && transport.Code,
-            nombreIndividus,
-            surfaceHabitatDétruit
-        }
+    else if(isFauneNonOiseauAtteinte(etreVivantAtteint)) {
+        return Object.assign(etreVivantAtteintJSON, { 
+            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
+            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
+            nombreIndividus: etreVivantAtteint.nombreIndividus,
+        })
+    } 
+    else if(isFloreAtteinte(etreVivantAtteint)) {
+        return etreVivantAtteintJSON
     }
+    
+    throw new TypeError("etreVivantAtteint n'est ni un oiseau, ni une faune non-oiseau, ni une flore")
 }
 
 /**
  * 
- * @param { DescriptionMenaceEspèce[] } descriptionMenacesEspèces
- * @returns { DescriptionMenaceEspècesJSON }
+ * @param { DescriptionMenacesEspèces } descriptionMenacesEspèces
+ * @returns { DescriptionMenaceEspèceJSON[] }
  */
 export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-    return descriptionMenacesEspèces.map(({classification, etresVivantsAtteints}) => {
+    console.log(descriptionMenacesEspèces)
+    // @ts-ignore
+    return Object.keys(descriptionMenacesEspèces).map((/** @type {ClassificationEtreVivant} */ classification) => {
         return {
             classification, 
-            etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
+            etresVivantsAtteints: descriptionMenacesEspèces[classification].map(etreVivantAtteintToJSON), 
             
         }
     })
 }
 
 /**
- * @param {DescriptionMenaceEspècesJSON} descriptionMenacesEspècesJSON
+ * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ActivitéMenançante[]} activites
  * @param {MéthodeMenançante[]} methodes
  * @param {TransportMenançant[]} transports
- * @returns {DescriptionMenaceEspèce[]}
+ * @returns {DescriptionMenacesEspèces}
  */
 export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
-    //@ts-ignore
-    return descriptionMenacesEspècesJSON.map(({classification, etresVivantsAtteints}) => {
+    /** @type {DescriptionMenacesEspèces} */
+    const descriptionMenacesEspèces = Object.create(null)
 
-        return {
-            classification, 
-            etresVivantsAtteints: etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
+    descriptionMenacesEspècesJSON.forEach(({classification, etresVivantsAtteints}) => {
+        //@ts-ignore
+        descriptionMenacesEspèces[classification] = 
+            //@ts-ignore
+            etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
                 //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
                 // renseigné alors `espece` l'est forcément
                 const espèceParamDéprécié = espèceByCD_REF.get(espece)
@@ -149,7 +170,8 @@ export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSO
                     transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
                     ...rest
                 }
-            }), 
-        }
+            })
     })
+
+    return descriptionMenacesEspèces
 }
