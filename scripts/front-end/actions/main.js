@@ -7,18 +7,18 @@ import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
 import { isDossierArray } from '../../types/typeguards.js';
+import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 
-/** @typedef {import('../../types/database/public/Dossier.js').default} Dossier */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
 export function chargerDossiers(){
-    console.log('store.state.secret', store.state.secret)
-    if(store.state.secret){
-        return json(`/dossiers?secret=${store.state.secret}`)
+
+    if(store.state.capabilities?.listerDossiers){
+        return store.state.capabilities?.listerDossiers()
             .then(dossiers => {
                 if (!isDossierArray(dossiers)) {
-                    throw new Error("On attendait un tableau de dossiers ici !")
+                    throw new TypeError("On attendait un tableau de dossiers ici !")
                 }
 
                 const dossiersById = dossiers.reduce((objetFinal, dossier) => {
@@ -28,11 +28,11 @@ export function chargerDossiers(){
                 console.log('dossiersById', dossiersById)
                 store.mutations.setDossiers(dossiersById)
 
-                return dossiers
+                return dossiersById
             })
     }
     else{
-        return Promise.reject(new TypeError('Impossible de charger les dossiers, secret manquant'))
+        return Promise.reject(new TypeError('Impossible de charger les dossiers, capability manquante'))
     }
 }
 
@@ -44,18 +44,6 @@ export function chargerSchemaDS88444() {
     })
 }
 
-export function init(){
-    return remember(PITCHOU_SECRET_STORAGE_KEY)
-        .then(secret => {
-            if(secret){
-                // @ts-ignore
-                store.mutations.setSecret(secret)
-                return chargerDossiers()
-            }
-        })
-        .then(chargerSchemaDS88444)
-        .catch(() => logout())
-}
 
 export async function secretFromURL(){
     const secret =  new URLSearchParams(location.search).get("secret")
@@ -64,15 +52,50 @@ export async function secretFromURL(){
         const newURL = new URL(location.href)
         newURL.searchParams.delete("secret")
 
+        // nettoyer l'url pour que le secret n'y apparaisse plus
         history.replaceState(null, "", newURL)
-        store.mutations.setSecret(secret)
 
-        return remember(PITCHOU_SECRET_STORAGE_KEY, secret)
+        return Promise.all([
+            remember(PITCHOU_SECRET_STORAGE_KEY, secret),
+            initCapabilities(secret)
+        ])
     }
 }
 
 export async function logout(){
-    store.mutations.setSecret(undefined)
+    store.mutations.setCapabilities(undefined)
     store.mutations.setDossiers(undefined)
     return forget(PITCHOU_SECRET_STORAGE_KEY)
+}
+
+/**
+ * 
+ * @param {string} secret 
+ * @returns 
+ */
+function initCapabilities(secret){
+    return json(`/caps?secret=${secret}`)
+        .then(capsURLs => {
+            if(capsURLs && typeof capsURLs === 'object'){
+                store.mutations.setCapabilities(
+                    créerObjetCapDepuisURLs(capsURLs)
+                )
+            }
+            else{
+                throw new TypeError(`capsURLs non-reconnu (${typeof capsURLs} - ${capsURLs})`)
+            }
+        })
+}
+
+
+export function init(){
+
+    return Promise.all([
+        remember(PITCHOU_SECRET_STORAGE_KEY)
+            //@ts-ignore
+            .then(secret => secret ? initCapabilities(secret) : undefined)
+            .catch(logout),
+        chargerSchemaDS88444()
+    ])
+        
 }

@@ -17,7 +17,7 @@ type Dossier = any // PPP
 type DeletedDossier = any // PPP
 type PendingDeletedDossier = any // PPP
 
-interface Instructeur{
+export interface Instructeur{
     id: string
     email: string
 }

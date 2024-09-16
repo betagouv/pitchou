@@ -1,7 +1,5 @@
 //@ts-check
 
-import {json} from 'd3-fetch'
-
 import store from "../store"
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
@@ -15,22 +13,14 @@ import store from "../store"
  * @returns {Promise<Dossier>}
  */
 export function modifierDossier(id, dossierParams) {
-    if(store.state.secret){
-        return json(
-            `/dossier/${id}?cap=${store.state.secret}`, 
-            {
-                method: "PUT",
-                body: JSON.stringify({ dossierParams }),
-            }
-        )
+    if(!store.state.capabilities?.modifierDossier)
+        throw new TypeError(`Capability modifierDossier manquante`)
+
+    return store.state.capabilities?.modifierDossier(id, dossierParams)
         .then(databaseResponse  => {
             //@ts-ignore 
             const dossierAJour = databaseResponse[0]
             store.mutations.setDossier(dossierAJour)
             return dossierAJour
         })
-    }
-    else{
-        return Promise.reject(new TypeError('Impossible de modifier le dossier, secret manquant'))
-    }
 }

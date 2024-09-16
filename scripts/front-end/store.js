@@ -16,30 +16,27 @@ import Store from 'baredux'
 
 
 /** @import {DossierComplet} from '../types.js' */
-/** @import {default as Personne} from '../types/database/public/Personne.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
+/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.d.ts' */
 
 
 /**
  * @typedef {Object} PitchouState
- * @property {Personne['code_accès']} [secret]
+ * @property {PitchouInstructeurCapabilities} [capabilities]
  * @property {Map<DossierComplet['id'], DossierComplet>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  */
 
 /** @type {PitchouState} */
-const state = {
-  secret: undefined,
-  dossiers: undefined
-}
+const state = {}
 
 const mutations = {
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['secret']} secret
+   * @param {PitchouState['capabilities']} capabilities
    */
-  setSecret(state, secret) {
-    state.secret = secret
+  setCapabilities(state, capabilities) {
+    state.capabilities = capabilities
   },
   /**
    * @param {PitchouState} state

@@ -1,12 +1,13 @@
 //@ts-check
 
 import page from 'page'
+
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
-
 import Dossier from '../components/screens/Dossier.svelte';
+import { chargerDossiers } from '../actions/main.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
@@ -17,15 +18,18 @@ import Dossier from '../components/screens/Dossier.svelte';
  * @param {Object} ctx.params
  * @param {string} ctx.params.dossierId
  */
-export default ({params: {dossierId}}) => {
+export default async ({params: {dossierId}}) => {
+    /** @type {DossierId} */
+    // @ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    const { dossiers } = state 
+    let { dossiers } = state 
 
-    // TODO: expliquer que le dossier n'existe pas ?
-    if (!dossiers) return page("/")
+    if (!dossiers){
+        dossiers = await chargerDossiers()
+    }
 
-    const dossier = dossiers.get(/** @type {DossierId} */(id))
+    const dossier = dossiers.get(id)
         
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')

@@ -5,7 +5,9 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 
-import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, updateDossier, closeDatabaseConnection } from './database.js'
+import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
+  updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
+  getInstructeurCapBundleByPersonneCodeAccès} from './database.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -15,12 +17,16 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
+/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.js' */
+/** @import {StringValues} from '../types.js' */
+/** @import {default as Personne} from '../types/database/public/Personne.js' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
 const schema88444 = _schema88444
+
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -38,6 +44,7 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 }
 
 console.log('NODE_ENV', process.env.NODE_ENV)
+
 
 const fastify = Fastify({
   logger: {
@@ -111,13 +118,49 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
 
 })
 
+
+
+
 /**
  * Routes qui nécessite des privilèges 
  */
 
-fastify.get('/dossiers', async function (request, reply) {
+
+fastify.get('/caps', async function (request, reply) {
+  /** @type {Personne['code_accès']} */
   // @ts-ignore
   const code_accès = request.query.secret
+  if(!code_accès) {
+    return reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
+  }
+
+  const capBundle = await getInstructeurCapBundleByPersonneCodeAccès(code_accès)
+
+  /** @type {StringValues<PitchouInstructeurCapabilities>} */
+  const ret = Object.create(null)
+
+  if(capBundle.listerDossiers){
+    ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`
+  }
+  if(capBundle.modifierDossier){
+    ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`
+  }
+  if(capBundle.écritureAnnotationCap){
+    ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.écritureAnnotationCap}`
+  }
+
+  if(Object.keys(ret).length === 0){
+    return reply.code(403).send("Code d'accès non valide.")
+  }
+
+  return ret
+})
+
+
+
+fastify.get('/dossiers', async function (request, reply) {
+  // @ts-ignore
+  const code_accès = request.query.cap
   if (code_accès) {
     const personne = await getPersonneByCode(code_accès)
     if (personne) {
@@ -126,7 +169,7 @@ fastify.get('/dossiers', async function (request, reply) {
       reply.code(403).send("Code d'accès non valide.")
     }
   } else {
-    reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
   }
 })
 
@@ -148,8 +191,9 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   const { dossierId } = request.params
   // @ts-ignore
-  const dossierParams = JSON.parse(request.body).dossierParams
+  const dossierParams = request.body
 
+  // @ts-ignore
   return updateDossier(dossierId, dossierParams)
 })
 
@@ -162,8 +206,8 @@ fastify.post('/remplir-annotations', async (request, reply) => {
     return 
   }
   else{
-    const personne = await getPersonneByCode(cap)
-    if (!personne) {
+    const instructeurId = await getInstructeurIdByÉcritureAnnotationCap(cap)
+    if (!instructeurId) {
       reply.code(403).send(`Le paramètre 'cap' est invalide`)
       return
     } 
@@ -204,16 +248,10 @@ fastify.post('/remplir-annotations', async (request, reply) => {
 
       return remplirAnnotations(
         DEMARCHE_SIMPLIFIEE_API_TOKEN,
-        {
-          dossierId, 
-          // PPP : à dés-hardcoder https://github.com/betagouv/pitchou/issues/46
-          instructeurId: `SW5zdHJ1Y3RldXItOTY3Mjk=`,
-          annotations
-        }
+        { dossierId, instructeurId, annotations }
       )
     }
   }
-
 })
 
 

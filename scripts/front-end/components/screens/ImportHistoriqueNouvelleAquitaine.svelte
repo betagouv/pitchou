@@ -13,6 +13,7 @@
     /** @import {GeoAPICommune, GeoAPIDépartement} from "../../../types/GeoAPI.ts" */
     /** @import { DossierTableauSuiviNouvelleAquitaine2023 } from '../../../import-dossiers-historiques/nouvelle-aquitaine/types.js' */
     /** @import {DossierComplet} from '../../../types.js' */
+    //@ts-ignore
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
     
     export let email
@@ -30,8 +31,8 @@
     /** @type { Map<DossierTableauSuiviNouvelleAquitaine2023['Type de projet'], string> } */
     export let typeVersObjet
 
-    /** @type {string} */
-    export let remplirAnnotationsURL
+    /** @type { (_: {dossierId: string, annotations: any}) => Promise<void> } */
+    export let remplirAnnotations
 
     /** @type {FileList | undefined} */
     let fichiersImportRaw;
@@ -260,19 +261,10 @@
      function ajouterAnnotations(dossierPitchou, annotations) {
         dossierPitchouToRemplissageAnnotation.set(
             dossierPitchou,
-            text(
-                remplirAnnotationsURL, 
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dossierId: dossierPitchou.id_demarches_simplifiées,
-                        annotations
-                    })
-                }
-            )
+            remplirAnnotations({
+                dossierId: dossierPitchou.id_demarches_simplifiées,
+                annotations
+            })
         )
 
         dossierPitchouToRemplissageAnnotation = dossierPitchouToRemplissageAnnotation // re-render
