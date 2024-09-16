@@ -13,8 +13,14 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 
-/** @import {AnnotationsPrivéesDémarcheSimplifiée88444, DossierDémarcheSimplifiée88444} from '../types.js' */
+import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+
+/** @type {SchemaDémarcheSimplifiée} */
+// @ts-expect-error TS ne peut pas le savoir
+const schema88444 = _schema88444
 
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
@@ -70,11 +76,11 @@ fastify.get('/preremplissage-derogation', (_request, reply) => {
 })
 
 fastify.post('/lien-preremplissage', async function (request) {
-  /** @type {Partial<DossierDémarcheSimplifiée88444>} */
+  /** @type {Partial<DossierDemarcheSimplifiee88444>} */
   // @ts-ignore
   const donnéesPreRemplissage = request.body
 
-  return demanderLienPréremplissage(donnéesPreRemplissage)
+  return demanderLienPréremplissage(donnéesPreRemplissage, schema88444)
     // @ts-ignore
     .then(({dossier_url}) => dossier_url)
 })
@@ -162,7 +168,7 @@ fastify.post('/remplir-annotations', async (request, reply) => {
       return
     } 
     else{
-      /** @type { {dossierId: string, annotations: Partial<AnnotationsPrivéesDémarcheSimplifiée88444>} } */
+      /** @type { {dossierId: string, annotations: Partial<AnnotationsPriveesDemarcheSimplifiee88444>} } */
       // @ts-ignore
       const {dossierId, annotations} = request.body
 
@@ -176,7 +182,7 @@ fastify.post('/remplir-annotations', async (request, reply) => {
         return
       }
 
-      /** @type {(keyof AnnotationsPrivéesDémarcheSimplifiée88444)[]} */
+      /** @type {(keyof AnnotationsPriveesDemarcheSimplifiee88444)[]} */
       const dateKeys = [
         'Date de réception DDEP', 
         'Date saisine CSRPN', 

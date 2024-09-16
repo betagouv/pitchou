@@ -18,8 +18,6 @@ Base de données Postgres
 Le serveur récupère les données des dossiers via [l'API Démarches Simplifiées](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
 
 
-
-
 ## En dév
 
 En dev, on peut lancer `npm run dev` pour lancer le tout.\
@@ -36,16 +34,31 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 
 [documentation sur les migrations knex](https://knexjs.org/guide/migrations.html)
 
-#### Regénérer les types jsdoc des tables SQL
+### Types
 
-exécuter `npm run build-db-types`
+Pour régénérer tous les types :
+`npm run build-types`
+
+#### Regénérer les types des tables SQL
+
+exécuter `npm run build-types:db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 Dans le fichier .js du type supprimer l'export ligne 3 `export {};`
 
 
+#### Re-générer les types à partir du schema DS 88444
+
+`npm run build-types:ds-88444`
+
+Cette commande télécharge aussi la dernière version du schema avant de créer les types
+
+Pour éviter le téléchargement et créer les types à partir du fichier schema existant dans le repo, ajouter l'option `--skipDownload`:
+`node outils/genere-types-88444.js --skipDownload`
+
+
 ### Pour pgadmin
 
-Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser le `container_name` comme hostname 
+Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser `postgres_db` (le `container_name` de la base de donnée Postgres) comme hostname 
 
 URL pour pgadmin en dev : 
 `http://localhost:5050/`
