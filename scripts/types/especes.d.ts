@@ -1,6 +1,4 @@
-export type StringValues<T> = {
-    [K in keyof T]: string;
-}
+import {StringValues} from '../types.js'
 
 export type Règne = 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista'
 export type Classe = 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' 
