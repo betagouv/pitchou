@@ -134,8 +134,8 @@
             {#if floresAtteintes.length >= 1}
                 <section class="arrete-prefectoral fr-p-1w">
                     <h4>Liste des espèces concernées par la demande de dérogation</h4>
-                    {#each floresAtteintes.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index (espèce) }
-                        {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
+                    {#each floresAtteintes.toSorted(etresVivantsAtteintsCompareEspèce) as  floreAtteinte, index (floreAtteinte) }
+                        {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={floreAtteinte.espèce} />
                     {/each} 
                 </section>
             {/if}

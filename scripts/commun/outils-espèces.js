@@ -131,10 +131,12 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
  * @returns { DescriptionMenacesEspècesJSON }
  */
 export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-    return [...descriptionMenacesEspèces].map(([classification, etresVivantsAtteints]) => {
+    console.log(descriptionMenacesEspèces)
+    // @ts-ignore
+    return Object.keys(descriptionMenacesEspèces).map((/** @type {ClassificationEtreVivant} */ classification) => {
         return {
             classification, 
-            etresVivantsAtteints: etresVivantsAtteints.map(etreVivantAtteintToJSON), 
+            etresVivantsAtteints: descriptionMenacesEspèces[classification].map(etreVivantAtteintToJSON), 
             
         }
     })
@@ -150,11 +152,11 @@ export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
  */
 export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
     /** @type {DescriptionMenacesEspèces} */
-    const descriptionMenacesEspèces = new Map()
+    const descriptionMenacesEspèces = Object.create(null)
 
     descriptionMenacesEspècesJSON.forEach(({classification, etresVivantsAtteints}) => {
-        descriptionMenacesEspèces.set(
-            classification,
+        //@ts-ignore
+        descriptionMenacesEspèces[classification] = 
             //@ts-ignore
             etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
                 //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
@@ -169,7 +171,6 @@ export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSO
                     ...rest
                 }
             })
-        )
     })
 
     return descriptionMenacesEspèces

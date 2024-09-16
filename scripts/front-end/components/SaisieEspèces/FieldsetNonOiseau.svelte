@@ -2,6 +2,7 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel, etresVivantsAtteintsCompareEspèce, fourchettesIndividus} from "../../espèceFieldset.js";
+    import AutocompleteEspces from "../AutocompleteEspèces.svelte";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from "../NomEspèce.svelte"
     
@@ -164,8 +165,8 @@
             {#if faunesNonOiseauxAtteintes.length >= 1}
                 <section class="arrete-prefectoral fr-p-1w">
                     <h4>Liste des espèces concernées par la demande de dérogation</h4>
-                    {#each faunesNonOiseauxAtteintes.toSorted(etresVivantsAtteintsCompareEspèce) as  {espèce}, index (espèce) }
-                        {#if index !== 0 },&nbsp;{/if}<NomEspèce {espèce}/>
+                    {#each faunesNonOiseauxAtteintes.toSorted(etresVivantsAtteintsCompareEspèce) as  etreVivantAtteint, index (etreVivantAtteint) }
+                        {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={etreVivantAtteint.espèce}/>
                     {/each} 
                 </section>
             {/if}

@@ -178,9 +178,9 @@ export default async () => {
             méthodesParClassificationEtreVivant, 
             transportsParClassificationEtreVivant,
             groupesEspèces,
-            oiseauxAtteints: etresVivantsAtteints?.get('oiseau') || [],
-            faunesNonOiseauxAtteintes: etresVivantsAtteints?.get('faune non-oiseau') || [],
-            floresAtteintes: etresVivantsAtteints?.get('flore') || [],
+            oiseauxAtteints: etresVivantsAtteints && etresVivantsAtteints['oiseau'] || [],
+            faunesNonOiseauxAtteintes: etresVivantsAtteints && etresVivantsAtteints['faune non-oiseau'] || [],
+            floresAtteintes: etresVivantsAtteints && etresVivantsAtteints['flore']|| [],
         }
     }
 
