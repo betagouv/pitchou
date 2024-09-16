@@ -3,7 +3,7 @@ import { isValidDateString } from '../commun/typeFormat.js'
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
-/** @import {OiseauAtteint, FauneNonOiseauAtteinte} from '../types/especes.d.ts' */
+/** @import {OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../types/especes.d.ts' */
 
 /** 
  * 
@@ -77,12 +77,12 @@ export function isOiseauAtteint(e) {
   return (
     typeof e === "object" &&
     e !== null &&
-    typeof e.espèce === "string" &&
+    typeof e.espèce === "object" && e.espèce.classification === "oiseau" &&
     (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
     (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
-    (e.activité === undefined || typeof e.activité === "string") &&
-    (e.méthode === undefined || typeof e.méthode === "string") &&
-    (e.transport === undefined || typeof e.transport === "string") &&
+    (e.activité === undefined || typeof e.activité === "object") &&
+    (e.méthode === undefined || typeof e.méthode === "object") &&
+    (e.transport === undefined || typeof e.transport === "object") &&
     (e.nombreNids === undefined || typeof e.nombreNids === "number") &&
     (e.nombreOeufs === undefined || typeof e.nombreOeufs === "number")
   )
@@ -97,11 +97,27 @@ export function isFauneNonOiseauAtteinte(e) {
   return (
     typeof e === "object" &&
     e !== null &&
-    typeof e.espèce === "string" &&
+    typeof e.espèce === "object" && e.espèce.classification === "faune non-oiseau" &&
     (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
     (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
-    (e.activité === undefined || typeof e.activité === "string") &&
-    (e.méthode === undefined || typeof e.méthode === "string") &&
-    (e.transport === undefined || typeof e.transport === "string")
+    (e.activité === undefined || typeof e.activité === "object") &&
+    (e.méthode === undefined || typeof e.méthode === "object") &&
+    (e.transport === undefined || typeof e.transport === "object")
+  )
+}
+
+/**
+ * 
+ * @param {any} e 
+ * @returns {e is FloreAtteinte} 
+ */
+export function isFloreAtteinte(e) {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    typeof e.espèce === "object" && e.espèce.classification === "flore" &&
+    (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
+    (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
+    (e.activité === undefined || typeof e.activité === "object")
   )
 }

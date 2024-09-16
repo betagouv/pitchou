@@ -1,6 +1,6 @@
 //@ts-check
 
-import { isOiseauAtteint, isFauneNonOiseauAtteinte } from '../types/typeguards.js'
+import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../types/typeguards.js'
 
 /** @import {
  *    ClassificationEtreVivant, 
@@ -117,9 +117,12 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
             transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
             nombreIndividus: etreVivantAtteint.nombreIndividus,
         })
-    }   
+    } 
+    else if(isFloreAtteinte(etreVivantAtteint)) {
+        return etreVivantAtteintJSON
+    }
     
-    return etreVivantAtteintJSON
+    throw new TypeError("etreVivantAtteint n'est ni un oiseau, ni une faune non-oiseau, ni une flore")
 }
 
 /**
