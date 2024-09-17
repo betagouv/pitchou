@@ -62,7 +62,7 @@
     details {
         display: inline;
     }
-    
+
     .filtre-options {
         margin-top: 0.5rem;
         padding: 1rem;

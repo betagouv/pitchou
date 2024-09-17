@@ -127,8 +127,7 @@
                     on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
                 />
 
-                <div>
-                    
+                <div class="fr-mt-2w">
                     {#if communeFiltrée}
                         <span class="fr-badge fr-badge--sm">Commune : {communeFiltrée}</span>
                     {/if}

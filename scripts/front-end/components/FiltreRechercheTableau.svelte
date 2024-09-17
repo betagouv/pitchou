@@ -7,16 +7,19 @@
     export let titre
 
     $: currentValeur = ""
+    $: isOpened = false
+
     const dispatch = createEventDispatcher()
     
     function onMettreÀJourValeurSélectionnée(e) {
         e.preventDefault()
+        isOpened = false
         dispatch("selected-changed", currentValeur)
         currentValeur = ""
     }
 </script>
 
-<details>
+<details bind:open={isOpened}>
     <summary class="fr-btn fr-btn--secondary fr-btn--sm">
         {titre}
     </summary>
@@ -31,7 +34,7 @@
     details {
         display: inline;
     }
-    
+
     .filtre-form {
         margin-top: 0.5rem;
         padding: 1rem;
