@@ -65,6 +65,12 @@
         filtrerDossiers()
     }
 
+    function onSupprimerProchaineActionAttenduePar(e) {
+        e.preventDefault()
+
+        filtrerParProchainesActionsAttenduesPar({ detail: new Set(prochaineActionAttenduePar)})
+    }
+
     $: communeFiltrée = "" 
 
     function filtrerParCommune({detail: communeSélectionnée}){
@@ -79,6 +85,12 @@
         communeFiltrée = communeSélectionnée
 
         filtrerDossiers()
+    }
+
+    function onSupprimerFiltreCommune(e) {
+        e.preventDefault()
+     
+        filtrerParCommune({ detail: ""})
     }
 
     $: départementFiltré = ""
@@ -97,8 +109,11 @@
         filtrerDossiers()
     }
 
-
-
+    function onSupprimerFiltreDépartement(e) {
+        e.preventDefault()
+     
+        filtrerParDépartement({ detail: ""})
+    }
 </script>
 
 <Squelette {email}>
@@ -129,10 +144,16 @@
 
                 <div class="fr-mt-2w">
                     {#if communeFiltrée}
-                        <span class="fr-badge fr-badge--sm">Commune : {communeFiltrée}</span>
+                        <div class="fr-badge fr-badge--sm">
+                            Commune : {communeFiltrée}
+                            <button on:click={onSupprimerFiltreCommune}>✖</button>
+                        </div>
                     {/if}
                     {#if départementFiltré}
-                        <span class="fr-badge fr-badge--sm">Département : {départementFiltré}</span>
+                        <div class="fr-badge fr-badge--sm">
+                            Département : {départementFiltré}
+                            <button on:click={onSupprimerFiltreDépartement}>✖</button>
+                        </div>
                     {/if}
                     {#if phasesFiltrées.length > 0}
                         <span class="fr-badge fr-badge--sm">Phases : {phasesFiltrées.join(", ")}</span>
