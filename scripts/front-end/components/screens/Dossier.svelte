@@ -3,7 +3,7 @@
 
     import Squelette from '../Squelette.svelte'
     
-    import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
+    import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
     /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
@@ -44,33 +44,6 @@
         messageErreur = ""
         afficherMessageSucces = false
     }
-
-    const phases = [
-        "accompagnement amont",
-        "accompagnement amont terminé", 
-        "instruction",
-        "décision",
-        "refus tacite",
-    ]
-
-   const prochaineActionAttenduePar = [
-        "instructeur",
-        "CNPN/CSRPN",
-        "pétitionnaire",
-        "consultation du public",
-        "autre administration",
-        "sans objet",
-    ]
-
-    const prochaineActionAttendue = [
-        "traitement", 
-        "lancement consultation", 
-        "rédaction AP",
-        "Avis",
-        "DDEP",
-        "complément dossier",
-        "mémoire en réponse avis CNPN",
-    ]
 </script>
 
 <Squelette {email}>

@@ -99,3 +99,30 @@ export function formatDateRelative(date) {
   
     return formatDateAbsolue(date)
 }
+
+export const phases = [
+    "accompagnement amont",
+    "accompagnement amont terminé", 
+    "instruction",
+    "décision",
+    "refus tacite",
+]
+
+export const prochaineActionAttenduePar = [
+    "instructeur",
+    "CNPN/CSRPN",
+    "pétitionnaire",
+    "consultation du public",
+    "autre administration",
+    "sans objet",
+]
+
+export const prochaineActionAttendue = [
+    "traitement", 
+    "lancement consultation", 
+    "rédaction AP",
+    "Avis",
+    "DDEP",
+    "complément dossier",
+    "mémoire en réponse avis CNPN",
+]

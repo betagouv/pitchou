@@ -13,6 +13,7 @@ import { authorizedEmailDomains } from '../../commun/constantes.js';
 import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
 
 /** @import {PitchouState} from '../store.js' */
+/** @import {ComponentProps} from 'svelte' */
 
 function showLoginByEmail(){
     function mapStateToProps(){
@@ -50,7 +51,7 @@ export default async () => {
         /**
          * 
          * @param {PitchouState} state 
-         * @returns 
+         * @returns {ComponentProps<SuiviInstruction>}
          */
         function mapStateToProps(state){
             const dossiersById = state.dossiers || []
