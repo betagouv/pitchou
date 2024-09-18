@@ -632,7 +632,7 @@ export async function getInstructeurIdByÉcritureAnnotationCap(cap, databaseConn
  * 
  * @param {NonNullable<Personne['code_accès']>} code_accès 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, modifierDossier: string}>}
+ * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, modifierDossier: string}>>}
  */
 export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
     
@@ -651,8 +651,14 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     const modifierDossierP = Promise.resolve(code_accès)
 
     return Promise.all([écritureAnnotationCapP, listerDossiersP, modifierDossierP])
-        .then(([{cap}, listerDossiers, modifierDossier]) => 
-            ({écritureAnnotationCap: cap, listerDossiers, modifierDossier}))
+        .then(([écritureAnnotationCap, listerDossiers, modifierDossier]) => {
+            if(écritureAnnotationCap && écritureAnnotationCap.cap)
+                return {écritureAnnotationCap: écritureAnnotationCap.cap, listerDossiers, modifierDossier}
+            else{
+                return {listerDossiers, modifierDossier}
+            }
+        })
+            
     
 
 }
