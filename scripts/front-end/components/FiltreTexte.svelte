@@ -7,7 +7,11 @@
     export let titre
 
     $: valeur = ""
-    let isOpen = false
+    $: isOpen = false
+
+    let inputElement
+
+    $: if(isOpen) inputElement.focus()
 
     const dispatch = createEventDispatcher()
     
@@ -26,7 +30,7 @@
 
     <form on:submit={onMettreÀJourValeurSélectionnée} class="filtre-form"> 
         <label class="fr-label" for="text-input-text">{titre}</label>
-        <input type="text" bind:value={valeur} class="fr-input"/>
+        <input class="fr-input fr-mb-2v" type="text" bind:value={valeur} bind:this={inputElement}/>
         <button class="fr-btn fr-btn fr-btn--sm" type="submit">Chercher</button>
     </form>
 </details>
