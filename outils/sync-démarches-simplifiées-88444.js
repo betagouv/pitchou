@@ -5,6 +5,7 @@ import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale";
 
 import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {getDossierIdsFromDS_Ids, dumpDossierMessages} from '../scripts/server/database/dossier.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -77,7 +78,8 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 console.log('Nombre de dossiers', dossiersDS.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-//console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
+console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
+console.log(`messages d'un dossier`, JSON.stringify(dossiersDS[3].messages))
 
 
 // stocker les dossiers en BDD
@@ -475,4 +477,30 @@ await Promise.all([
     dossiersSynchronisés,
     dossiersSupprimés
 ])
+
+/** Synchronisation de la messagerie */
+
+/** @type {Map<string, any[]>} // Map<id_DS, MessageAPI_DS> */
+const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
+    ({id: id_DS, messages}) => [id_DS, messages])
+)
+
+const messagesÀMettreEnBDDAvecDossierId = await getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
+    .then(dossierIds => {
+        const idDSToId = new Map()
+        for(const {id, id_demarches_simplifiées} of dossierIds){
+            idDSToId.set(id_demarches_simplifiées, id)
+        }
+
+        const idToMessages = new Map()
+        for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
+            const dossierId = idDSToId.get(id_DS)
+
+            idToMessages.set(dossierId, messages)
+        }
+
+        return idToMessages
+    })
+
+dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
 .then(closeDatabaseConnection)

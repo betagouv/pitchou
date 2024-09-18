@@ -16,7 +16,7 @@ if(!DATABASE_URL){
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
 }
 
-const directDatabaseConnection = knex({
+export const directDatabaseConnection = knex({
     client: 'pg',
     connection: DATABASE_URL,
 });
@@ -113,16 +113,6 @@ export function listAllPersonnes(){
 }
 
 
-
-
-
-/**
- *
- * @returns {Promise<Dossier[]>}
- */
-export function listAllDossier() {
-    return directDatabaseConnection('dossier').select()
-}
 
 
 
