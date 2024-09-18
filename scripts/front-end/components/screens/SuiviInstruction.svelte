@@ -209,7 +209,7 @@
                                 <td>
                                     {rattaché_au_régime_ae ? "oui" : "non"}
                                 </td>
-                                <td>{phase || "non renseigné"}</td>
+                                <td>{phase || ""}</td>
                                 <td>
                                     {#if prochaine_action_attendue_par}
                                         <strong>{prochaine_action_attendue_par}</strong> :
