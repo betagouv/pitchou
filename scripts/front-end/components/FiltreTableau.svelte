@@ -66,7 +66,7 @@
     .filtre-options {
         margin-top: 0.5rem;
         padding: 1rem;
-        background-color: #fff;
+        background-color: var(--background-contrast-grey);
         border: 1px solid var(--border-default-grey);
         position: absolute;
         z-index: 2;
