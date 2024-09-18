@@ -3,7 +3,7 @@
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-/** @import {DossierComplet} from '../types.js'*/
+/** @import {DossierComplet, DossierPhase} from '../types.js'*/
 
 /**
  * @param {Partial<DossierComplet>} localisation
@@ -100,13 +100,14 @@ export function formatDateRelative(date) {
     return formatDateAbsolue(date)
 }
 
-export const phases = [
-    "accompagnement amont",
-    "accompagnement amont terminé", 
-    "instruction",
-    "décision",
-    "refus tacite",
-]
+/** @type {Set<DossierPhase>} */
+export const phases = new Set([
+    "Accompagnement amont",
+    "Accompagnement amont terminé", 
+    "Instruction",
+    "Décision",
+    "Refus tacite",
+])
 
 export const prochaineActionAttenduePar = [
     "instructeur",

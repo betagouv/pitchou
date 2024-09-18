@@ -87,7 +87,7 @@
                             </label>
                     
                             <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
-                                {#each phases as phase}
+                                {#each [...phases] as phase}
                                     <option value={phase}>{phase}</option>
                                 {/each}
                             </select>

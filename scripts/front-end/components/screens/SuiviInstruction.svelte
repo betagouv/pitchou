@@ -1,11 +1,11 @@
 <script>
     //@ts-check
     import Squelette from '../Squelette.svelte'
-    import FiltreTableau from '../FiltreTableau.svelte'
+    import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import FiltreRechercheTableau from '../FiltreRechercheTableau.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhase} from '../../../types.js' */
 
     /** @type {DossierComplet[]} */
     export let dossiers = []
@@ -16,32 +16,35 @@
     /** @type {DossierComplet[]} */
     $: dossiersSelectionnés = dossiers
 
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de', (d: DossierComplet) => boolean>}*/
     const filtreParColonne = new Map()
 
     function filtrerDossiers(){
 		let nouveauxDossiersSélectionnés = dossiers;
 
-		for(const [colonne, filtre] of filtreParColonne){
+		for(const filtre of filtreParColonne.values()){
 			nouveauxDossiersSélectionnés = nouveauxDossiersSélectionnés.filter(filtre)
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
 	}
 
-    $: phasesFiltrées = []
+    const PHASE_VIDE = '(vide)'
+    const phaseOptions = new Set([...phases, PHASE_VIDE])
+
+    /** @type {Set<DossierPhase | PHASE_VIDE>} */
+    $: phasesFiltrées = new Set()
 
 	function filtrerParPhase({detail: phasesSélectionnées}){
         filtreParColonne.set('phase', dossier => {
-            if (
-                (dossier.phase === "" || dossier.phase === undefined || dossier.phase === null) && phasesSélectionnées.has("non renseigné")
-            ) {
-                return true
+            if (phasesSélectionnées.has(PHASE_VIDE)) {
+                return !dossier.phase
             }
 
             return phasesSélectionnées.has(dossier.phase)
         })
 
-        phasesFiltrées = [...phasesSélectionnées]
+        phasesFiltrées = new Set(phasesSélectionnées)
 
 		filtrerDossiers()
 	}
@@ -78,7 +81,7 @@
             if (!dossier.communes) return false
 
             return dossier.communes.find(({name, postalCode, code}) => {
-                return name.includes(communeSélectionnée) || postalCode.includes(communeSélectionnée) || code.includes(communeSélectionnée)
+                return name.includes(communeSélectionnée) || postalCode.includes(communeSélectionnée)
             })
         })
 
@@ -90,7 +93,7 @@
     function onSupprimerFiltreCommune(e) {
         e.preventDefault()
      
-        filtrerParCommune({ detail: ""})
+        filtreParColonne.delete('commune')
     }
 
     $: départementFiltré = ""
@@ -112,7 +115,7 @@
     function onSupprimerFiltreDépartement(e) {
         e.preventDefault()
      
-        filtrerParDépartement({ detail: ""})
+        filtreParColonne.delete('département')
     }
 </script>
 
@@ -131,12 +134,12 @@
                     titre="Rechercher par département"
                     on:selected-changed={filtrerParDépartement}
                 />
-                <FiltreTableau 
+                <FiltreParmiOptions 
                     titre="Filtrer par phase"
-                    options={phases.concat(["non renseigné"])} 
+                    options={phaseOptions} 
                     on:selected-changed={filtrerParPhase} 
                 />
-                <FiltreTableau 
+                <FiltreParmiOptions 
                     titre="Filtrer par prochaine action attendue par"
                     options={prochaineActionAttenduePar} 
                     on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
@@ -155,8 +158,8 @@
                             <button on:click={onSupprimerFiltreDépartement}>✖</button>
                         </div>
                     {/if}
-                    {#if phasesFiltrées.length > 0}
-                        <span class="fr-badge fr-badge--sm">Phases : {phasesFiltrées.join(", ")}</span>
+                    {#if phasesFiltrées.size > 0}
+                        <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
                     {/if}
                     {#if prochainesActionsAttenduesParFiltrées.length > 0}
                         <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {prochainesActionsAttenduesParFiltrées.join(", ")}</span>

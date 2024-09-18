@@ -3,8 +3,6 @@
 
     import { createEventDispatcher } from "svelte";
 
-    /** @import {FormEventHandler} from "svelte/elements" */
-
     /** @type {Set<string>}*/
     export let options  
 
@@ -35,6 +33,20 @@
         rerender()
         dispatch("selected-changed", optionsSélectionnées)
     }
+
+    function selectionnerTout(){
+        optionsSélectionnées = new Set(options)
+        dispatch("selected-changed", optionsSélectionnées)
+    }
+
+
+    function selectionnerRien(){
+        optionsSélectionnées = new Set()
+        dispatch("selected-changed", optionsSélectionnées)
+
+    }
+
+
 </script>
 
 <details>
@@ -42,20 +54,26 @@
         {titre}
     </summary>
 
-    <ul class="filtre-options">
-        {#each optionsAffichées as optionAffichée}
-            <li>
-                <label>
-                    <input 
-                        type="checkbox" 
-                        bind:checked={optionAffichée.checked}
-                        on:input={() => mettreÀJourOption(optionAffichée.option)}
-                    />
-                    {optionAffichée.option}
-                </label>
-            </li>
-        {/each}
-    </ul>
+    <section class="filtre-options">
+        <button class="fr-btn fr-btn--secondary fr-btn--sm" on:click={selectionnerTout}>Sélectionner tout</button>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm" on:click={selectionnerRien}>Sélectionner rien</button>
+
+        <ul>
+
+            {#each optionsAffichées as optionAffichée}
+                <li>
+                    <label>
+                        <input 
+                            type="checkbox" 
+                            bind:checked={optionAffichée.checked}
+                            on:input={() => mettreÀJourOption(optionAffichée.option)}
+                        />
+                        {optionAffichée.option}
+                    </label>
+                </li>
+            {/each}
+        </ul>
+    </section>
 </details>
 
 <style lang="scss">
@@ -70,6 +88,9 @@
         border: 1px solid var(--border-default-grey);
         position: absolute;
         z-index: 2;
-        list-style: none;
+
+        ul{
+            list-style: none;
+        }
     }
 </style>

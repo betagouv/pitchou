@@ -43,7 +43,7 @@
  * 
  * On surcharge ici ces propriétés pour contraindre les valeurs de ces propriétés.
  * 
- * @typedef {"accompagnement amont" | "accompagnement amont terminé" | "instruction" | "décision" | "refus tacite" | null} DossierPhase
+ * @typedef {"Accompagnement amont" | "Accompagnement amont terminé" | "Instruction" | "Décision" | "Refus tacite" | null} DossierPhase
  
  * @typedef {"instructeur" | "CNPN/CSRPN" | "pétitionnaire" | "consultation du public" | "autre administration" | "sans objet" |  null} DossierProchaineActionAttenduePar
  *
