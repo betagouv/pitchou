@@ -2,7 +2,7 @@
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
-    import FiltreRechercheTableau from '../FiltreRechercheTableau.svelte'
+    import FiltreTexte from '../FiltreTexte.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
 
     /** @import {DossierComplet, DossierPhase} from '../../../types.js' */
@@ -36,6 +36,10 @@
     /** @type {Set<DossierPhase | PHASE_VIDE>} */
     $: phasesFiltrées = new Set()
 
+    /**
+     * 
+     * @param {{detail: Set<DossierPhase | PHASE_VIDE>}} _
+     */
 	function filtrerParPhase({detail: phasesSélectionnées}){
         filtreParColonne.set('phase', dossier => {
             if (phasesSélectionnées.has(PHASE_VIDE)) {
@@ -129,11 +133,11 @@
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
             <div class="filtres">
-                <FiltreRechercheTableau
+                <FiltreTexte
                     titre="Rechercher par commune"
                     on:selected-changed={filtrerParCommune}
                 />
-                <FiltreRechercheTableau
+                <FiltreTexte
                     titre="Rechercher par département"
                     on:selected-changed={filtrerParDépartement}
                 />
@@ -164,8 +168,8 @@
                     {#if phasesFiltrées.size > 0}
                         <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
                     {/if}
-                    {#if prochainesActionsAttenduesParFiltrées.length > 0}
-                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {prochainesActionsAttenduesParFiltrées.join(", ")}</span>
+                    {#if prochainesActionsAttenduesParFiltrées.size > 0}
+                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
                     {/if}
                 </div>
             </div>

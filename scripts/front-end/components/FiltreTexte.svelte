@@ -6,27 +6,28 @@
     /** @type {string} */
     export let titre
 
-    $: currentValeur = ""
-    $: isOpened = false
+    $: valeur = ""
+    let isOpen = false
 
     const dispatch = createEventDispatcher()
     
     function onMettreÀJourValeurSélectionnée(e) {
         e.preventDefault()
-        isOpened = false
-        dispatch("selected-changed", currentValeur)
-        currentValeur = ""
+        isOpen = false
+        dispatch("selected-changed", valeur)
+        valeur = ""
     }
 </script>
 
-<details bind:open={isOpened}>
+<details bind:open={isOpen}>
     <summary class="fr-btn fr-btn--secondary fr-btn--sm">
         {titre}
     </summary>
 
     <form on:submit={onMettreÀJourValeurSélectionnée} class="filtre-form"> 
         <label class="fr-label" for="text-input-text">{titre}</label>
-        <input type="text" bind:value={currentValeur} class="fr-input"/>
+        <input type="text" bind:value={valeur} class="fr-input"/>
+        <button class="fr-btn fr-btn fr-btn--sm" type="submit">Chercher</button>
     </form>
 </details>
 
