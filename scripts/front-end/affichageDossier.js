@@ -3,7 +3,7 @@
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-/** @import {DossierComplet, DossierPhase} from '../types.js'*/
+/** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../types.js'*/
 
 /**
  * @param {Partial<DossierComplet>} localisation
@@ -109,14 +109,16 @@ export const phases = new Set([
     "Refus tacite",
 ])
 
-export const prochaineActionAttenduePar = [
-    "instructeur",
+/** @type {Set<DossierProchaineActionAttenduePar>} */
+export const prochaineActionAttenduePar = new Set([
+    "Instructeur", 
     "CNPN/CSRPN",
-    "pétitionnaire",
-    "consultation du public",
-    "autre administration",
-    "sans objet",
-]
+    "Pétitionnaire",
+    "Consultation du public",
+    "Autre administration",
+    "Autre",
+    "Personne" 
+])
 
 export const prochaineActionAttendue = [
     "traitement", 

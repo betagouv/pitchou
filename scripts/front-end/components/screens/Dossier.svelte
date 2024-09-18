@@ -98,7 +98,7 @@
                             </label>
                     
                             <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
-                                {#each prochaineActionAttenduePar as acteur}
+                                {#each [...prochaineActionAttenduePar] as acteur}
                                     <option value={acteur}>{acteur}</option>
                                 {/each}
                             </select>

@@ -29,6 +29,7 @@
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
 	}
 
+
     const PHASE_VIDE = '(vide)'
     const phaseOptions = new Set([...phases, PHASE_VIDE])
 
@@ -49,21 +50,23 @@
 		filtrerDossiers()
 	}
 
-    $: prochainesActionsAttenduesParFiltrées = []
+
+    const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = '(vide)'
+    const prochainesActionsAttenduesParOptions = new Set([...prochaineActionAttenduePar, PROCHAINE_ACTION_ATTENDUE_PAR_VIDE])
+
+    /** @type {Set<DossierPhase | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
+    $: prochainesActionsAttenduesParFiltrées = new Set()
 
     function filtrerParProchainesActionsAttenduesPar({detail: prochainesActionsAttenduesParSélectionnées}) {
         filtreParColonne.set("prochaine action attendue de", dossier => {
-            if (
-                (dossier.prochaine_action_attendue_par === "" || dossier.prochaine_action_attendue_par === undefined || dossier.prochaine_action_attendue_par === null) &&
-                prochainesActionsAttenduesParSélectionnées.has("sans objet")
-            ) {
-                return true
+            if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
+                return !dossier.prochaine_action_attendue_par
             }
 
             return prochainesActionsAttenduesParSélectionnées.has(dossier.prochaine_action_attendue_par)
         })
 
-        prochainesActionsAttenduesParFiltrées = [...prochainesActionsAttenduesParSélectionnées]
+        prochainesActionsAttenduesParFiltrées = new Set(prochainesActionsAttenduesParSélectionnées)
 
         filtrerDossiers()
     }
@@ -141,7 +144,7 @@
                 />
                 <FiltreParmiOptions 
                     titre="Filtrer par prochaine action attendue par"
-                    options={prochaineActionAttenduePar} 
+                    options={prochainesActionsAttenduesParOptions} 
                     on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
                 />
 

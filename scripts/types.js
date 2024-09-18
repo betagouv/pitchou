@@ -45,7 +45,7 @@
  * 
  * @typedef {"Accompagnement amont" | "Accompagnement amont terminé" | "Instruction" | "Décision" | "Refus tacite" | null} DossierPhase
  
- * @typedef {"instructeur" | "CNPN/CSRPN" | "pétitionnaire" | "consultation du public" | "autre administration" | "sans objet" |  null} DossierProchaineActionAttenduePar
+ * @typedef {"Instructeur" | "CNPN/CSRPN" | "Pétitionnaire" | "Consultation du public" | "Autre administration" | "Autre" | "Personne" } DossierProchaineActionAttenduePar
  *
  * @typedef {"traitement" |"lancement consultation" | "rédaction AP" | "Avis" | "DDEP" | "complément dossier" | "mémoire en réponse avis CNPN" | "à préciser" | "Prise en compte des mesures E et R" | null} DossierProchaineActionAttendue
  * 
