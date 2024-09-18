@@ -16,7 +16,7 @@
     /** @type {DossierComplet[]} */
     $: dossiersSelectionnés = dossiers
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de', (d: DossierComplet) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte', (d: DossierComplet) => boolean>}*/
     const filtreParColonne = new Map()
 
     function filtrerDossiers(){
@@ -75,19 +75,13 @@
         filtrerDossiers()
     }
 
-    function onSupprimerProchaineActionAttenduePar(e) {
-        e.preventDefault()
-
-        filtrerParProchainesActionsAttenduesPar({ detail: new Set(prochaineActionAttenduePar)})
-    }
-
     $: communeFiltrée = "" 
 
     function filtrerParCommune({detail: communeSélectionnée}){
         filtreParColonne.set('commune', dossier => {
             if (!dossier.communes) return false
 
-            return dossier.communes.find(({name, postalCode, code}) => {
+            return !!dossier.communes.find(({name, postalCode}) => {
                 return name.includes(communeSélectionnée) || postalCode.includes(communeSélectionnée)
             })
         })
@@ -101,6 +95,8 @@
         e.preventDefault()
      
         filtreParColonne.delete('commune')
+        communeFiltrée = "" 
+        filtrerDossiers()
     }
 
     $: départementFiltré = ""
@@ -109,7 +105,7 @@
         filtreParColonne.set('département', dossier => {
             if (!dossier.départements) return false
 
-            return dossier.départements.find((département) => {
+            return !!dossier.départements.find((département) => {
                 return département.includes(départementSélectionné) 
             })
         })
@@ -123,6 +119,38 @@
         e.preventDefault()
      
         filtreParColonne.delete('département')
+        départementFiltré = "" 
+        filtrerDossiers()
+    }
+
+    $: texteÀChercher = ''
+
+    function filtrerParTexte({detail: _texteÀChercher}){
+        filtreParColonne.set('texte', dossier => {
+            return dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
+                dossier.commentaire_libre && dossier.commentaire_libre.includes(_texteÀChercher) ||
+                dossier.demandeur_personne_morale_raison_sociale && dossier.demandeur_personne_morale_raison_sociale.includes(_texteÀChercher) ||
+                dossier.demandeur_personne_physique_nom && dossier.demandeur_personne_physique_nom.includes(_texteÀChercher) ||
+                dossier.demandeur_personne_physique_prénoms && dossier.demandeur_personne_physique_prénoms.includes(_texteÀChercher) ||
+                dossier.number_demarches_simplifiées && dossier.number_demarches_simplifiées.includes(_texteÀChercher) ||
+                String(dossier.id || '').includes(_texteÀChercher) ||
+                dossier.nom && dossier.nom.includes(_texteÀChercher) ||
+                dossier.nom_dossier && dossier.nom_dossier.includes(_texteÀChercher)
+        })
+
+        texteÀChercher = _texteÀChercher;
+
+        filtrerDossiers()
+    }
+
+
+    function onSupprimerFiltreTexte(e) {
+        e.preventDefault()
+     
+        filtreParColonne.delete('texte')
+
+        texteÀChercher = ''
+        filtrerDossiers()
     }
 </script>
 
@@ -151,6 +179,10 @@
                     options={prochainesActionsAttenduesParOptions} 
                     on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
                 />
+                <FiltreTexte
+                    titre="Rechercher texte libre"
+                    on:selected-changed={filtrerParTexte}
+                />
 
                 <div class="fr-mt-2w">
                     {#if communeFiltrée}
@@ -170,6 +202,10 @@
                     {/if}
                     {#if prochainesActionsAttenduesParFiltrées.size > 0}
                         <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
+                    {/if}
+                    {#if texteÀChercher}
+                        <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
+                        <button on:click={onSupprimerFiltreTexte}>✖</button>
                     {/if}
                 </div>
             </div>
