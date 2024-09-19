@@ -29,8 +29,13 @@
     /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
+    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
     export let activitesParClassificationEtreVivant
+
+    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
     export let méthodesParClassificationEtreVivant
+    
+    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
     export let transportsParClassificationEtreVivant
 
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */

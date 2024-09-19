@@ -44,6 +44,14 @@ export function chargerSchemaDS88444() {
     })
 }
 
+export function chargerListeEspècesProtégées(){
+    
+}
+
+export function chargerActivitésMéthodesTransports(){
+    
+}
+
 
 export async function secretFromURL(){
     const secret =  new URLSearchParams(location.search).get("secret")
