@@ -258,10 +258,11 @@
      * @param {Dossier} dossierPitchou 
      * @param {Partial<AnnotationsPriveesDemarcheSimplifiee88444>} annotations 
      */
-     function ajouterAnnotations(dossierPitchou, annotations) {
+    function ajouterAnnotations(dossierPitchou, annotations) {
         dossierPitchouToRemplissageAnnotation.set(
             dossierPitchou,
             remplirAnnotations({
+                //@ts-ignore
                 dossierId: dossierPitchou.id_demarches_simplifiées,
                 annotations
             })

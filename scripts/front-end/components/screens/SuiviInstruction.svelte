@@ -5,7 +5,7 @@
     import FiltreTexte from '../FiltreTexte.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
 
     /** @type {DossierComplet[]} */
     export let dossiers = []
@@ -31,9 +31,11 @@
 
 
     const PHASE_VIDE = '(vide)'
+    /** @type {Set<NonNullable<DossierPhase> | PHASE_VIDE>}*/
     const phaseOptions = new Set([...phases, PHASE_VIDE])
 
     /** @type {Set<DossierPhase | PHASE_VIDE>} */
+    // @ts-ignore
     $: phasesFiltrées = new Set()
 
     /**
@@ -58,9 +60,14 @@
     const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = '(vide)'
     const prochainesActionsAttenduesParOptions = new Set([...prochaineActionAttenduePar, PROCHAINE_ACTION_ATTENDUE_PAR_VIDE])
 
-    /** @type {Set<DossierPhase | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
+    /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
+   // @ts-ignore
     $: prochainesActionsAttenduesParFiltrées = new Set()
 
+    /**
+     * 
+     * @param {{detail: Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>}} _
+     */
     function filtrerParProchainesActionsAttenduesPar({detail: prochainesActionsAttenduesParSélectionnées}) {
         filtreParColonne.set("prochaine action attendue de", dossier => {
             if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
@@ -70,6 +77,7 @@
             return prochainesActionsAttenduesParSélectionnées.has(dossier.prochaine_action_attendue_par)
         })
 
+        // @ts-ignore
         prochainesActionsAttenduesParFiltrées = new Set(prochainesActionsAttenduesParSélectionnées)
 
         filtrerDossiers()
@@ -77,6 +85,9 @@
 
     $: communeFiltrée = "" 
 
+    /**
+     * @param {{detail: string}} _
+     */
     function filtrerParCommune({detail: communeSélectionnée}){
         filtreParColonne.set('commune', dossier => {
             if (!dossier.communes) return false
@@ -91,6 +102,10 @@
         filtrerDossiers()
     }
 
+    /**
+     * 
+     * @param {Event} e
+     */
     function onSupprimerFiltreCommune(e) {
         e.preventDefault()
      
@@ -101,6 +116,9 @@
 
     $: départementFiltré = ""
 
+    /**
+     * @param {{detail: string}} _
+     */
     function filtrerParDépartement({detail: départementSélectionné}){
         filtreParColonne.set('département', dossier => {
             if (!dossier.départements) return false
@@ -115,6 +133,10 @@
         filtrerDossiers()
     }
 
+    /**
+     * 
+     * @param {Event} e
+     */
     function onSupprimerFiltreDépartement(e) {
         e.preventDefault()
      
@@ -125,9 +147,13 @@
 
     $: texteÀChercher = ''
 
+    /**
+     * @param {{detail: string}} _
+     */
     function filtrerParTexte({detail: _texteÀChercher}){
         filtreParColonne.set('texte', dossier => {
-            return dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
+            return Boolean(
+                dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
                 dossier.commentaire_libre && dossier.commentaire_libre.includes(_texteÀChercher) ||
                 dossier.demandeur_personne_morale_raison_sociale && dossier.demandeur_personne_morale_raison_sociale.includes(_texteÀChercher) ||
                 dossier.demandeur_personne_physique_nom && dossier.demandeur_personne_physique_nom.includes(_texteÀChercher) ||
@@ -136,6 +162,7 @@
                 String(dossier.id || '').includes(_texteÀChercher) ||
                 dossier.nom && dossier.nom.includes(_texteÀChercher) ||
                 dossier.nom_dossier && dossier.nom_dossier.includes(_texteÀChercher)
+            )
         })
 
         texteÀChercher = _texteÀChercher;
@@ -143,7 +170,10 @@
         filtrerDossiers()
     }
 
-
+    /**
+     * 
+     * @param {Event} e
+     */
     function onSupprimerFiltreTexte(e) {
         e.preventDefault()
      

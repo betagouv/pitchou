@@ -9,12 +9,17 @@
     $: valeur = ""
     $: isOpen = false
 
+    /** @type {HTMLInputElement} */
     let inputElement
 
     $: if(isOpen) inputElement.focus()
 
     const dispatch = createEventDispatcher()
     
+    /**
+     * 
+     * @param {SubmitEvent} e
+     */
     function onMettreÀJourValeurSélectionnée(e) {
         e.preventDefault()
         isOpen = false
