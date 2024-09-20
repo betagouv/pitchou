@@ -3,6 +3,7 @@
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
+//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../types.js'*/
 
 /**
@@ -100,7 +101,7 @@ export function formatDateRelative(date) {
     return formatDateAbsolue(date)
 }
 
-/** @type {Set<DossierPhase>} */
+/** @type {Set<NonNullable<DossierPhase>>} */
 export const phases = new Set([
     "Accompagnement amont",
     "Accompagnement amont terminé", 
@@ -109,7 +110,7 @@ export const phases = new Set([
     "Refus tacite",
 ])
 
-/** @type {Set<DossierProchaineActionAttenduePar>} */
+/** @type {Set<NonNullable<DossierProchaineActionAttenduePar>>} */
 export const prochaineActionAttenduePar = new Set([
     "Instructeur", 
     "CNPN/CSRPN",

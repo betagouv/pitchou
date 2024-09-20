@@ -2,7 +2,6 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel, etresVivantsAtteintsCompareEspèce, fourchettesIndividus} from "../../espèceFieldset.js";
-    import AutocompleteEspces from "../AutocompleteEspèces.svelte";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from "../NomEspèce.svelte"
     
