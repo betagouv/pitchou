@@ -7,7 +7,7 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 import RedactionArretePrefectoral from '../components/screens/RedactionArretePrefectoral.svelte';
-import { chargerDossiers } from '../actions/main.js';
+import { chargerActivitésMéthodesTransports, chargerDossiers, chargerListeEspècesProtégées } from '../actions/main.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */

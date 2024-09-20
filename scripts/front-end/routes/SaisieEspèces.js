@@ -9,7 +9,7 @@ import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
-import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
+import { espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromURL, isClassif } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
 
 /** @import {ComponentProps} from 'svelte' */
@@ -96,56 +96,9 @@ export default async () => {
         transportsParClassificationEtreVivant.set(classif, classifTrans)
     }
 
-    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
-    const espècesProtégéesParClassification = new Map()
-    /** @type {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} */
-    const espèceByCD_REF = new Map()
-
-    for(const espStr of dataEspèces){
-        const {classification} = espStr
-
-        if(!isClassif(classification)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`)
-        }
-
-        const espèces = espècesProtégéesParClassification.get(classification) || []
-
-        /** @type {EspèceProtégée} */
-        const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr))
-
-        espèces.push(espèce)
-        espèceByCD_REF.set(espèce['CD_REF'], espèce)
-
-        espècesProtégéesParClassification.set(classification, espèces)
-    }
-
     console.log('espècesProtégéesParClassification', espècesProtégéesParClassification)
 
-    /**
-     *
-     * @param {string} s // utf-8-encoded base64 string
-     * @returns {string} // cleartext string
-     */
-    function b64ToUTF8(s) {
-        return decodeURIComponent(escape(atob(s)))
-    }
-
-    function importDescriptionMenacesEspècesFromURL(){
-        const urlData = new URLSearchParams(location.search).get('data')
-        if(urlData){
-            try{
-                const data = JSON.parse(b64ToUTF8(urlData))
-                const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, transports)
-                console.log('desc', desc)
-                return desc
-            }
-            catch(e){
-                console.error('Parsing error', e, urlData)
-                return undefined
-            }
-        }
-    }
-
+    
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     const groupesEspèces = new Map()
     for(const [nomGroupe, espèces] of Object.entries(groupesEspècesBrutes)){
@@ -169,7 +122,7 @@ export default async () => {
      * @returns {ComponentProps<SaisieEspèces>}
      */
     function mapStateToProps(state){
-        const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL()
+        const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(new URL(location.href), espèceByCD_REF, activites, methodes, transports)
 
         return {
             ...mapStateToSqueletteProps(state),

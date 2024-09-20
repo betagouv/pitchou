@@ -81,6 +81,10 @@ fastify.get('/import-historique/nouvelle-aquitaine', (_request, reply) => {
 fastify.get('/preremplissage-derogation', (_request, reply) => {
   reply.sendFile('index.html')
 })
+fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', (_request, reply) => {
+  reply.sendFile('index.html')
+})
+
 
 fastify.post('/lien-preremplissage', async function (request) {
   /** @type {Partial<DossierDemarcheSimplifiee88444>} */

@@ -63,7 +63,7 @@
                         <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
                     </li>
                     <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`/dossier/${dossier.id}/redaction-arrete-prefectoral`}>Rédaction arrêté préféctoral</a>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/redaction-arrete-prefectoral`}>Rédaction arrêté préféctoral</a>
                     </li>
                 </ul>
             </nav>

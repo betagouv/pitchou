@@ -175,3 +175,37 @@ export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSO
 
     return descriptionMenacesEspèces
 }
+
+/**
+ *
+ * @param {string} s // utf-8-encoded base64 string
+ * @returns {string} // cleartext string
+ */
+function b64ToUTF8(s) {
+    return decodeURIComponent(escape(atob(s)))
+}
+
+/**
+ * 
+ * @param {URL} url 
+ * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
+ * @param {ActivitéMenançante[]} activites
+ * @param {MéthodeMenançante[]} methodes
+ * @param {TransportMenançant[]} transports
+ * @returns 
+ */
+export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
+    const urlData = url.searchParams.get('data')
+    if(urlData){
+        try{
+            const data = JSON.parse(b64ToUTF8(urlData))
+            const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, transports)
+            console.log('desc', desc)
+            return desc
+        }
+        catch(e){
+            console.error('Parsing error', e, urlData)
+            return undefined
+        }
+    }
+}

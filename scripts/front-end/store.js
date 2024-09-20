@@ -18,6 +18,7 @@ import Store from 'baredux'
 /** @import {DossierComplet} from '../types.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities} from '../types/capabilities.d.ts' */
+/** @import {ClassificationEtreVivant, EspèceProtégée} from '../types/especes.d.ts' */
 
 
 /**
@@ -25,7 +26,11 @@ import Store from 'baredux'
  * @property {PitchouInstructeurCapabilities} [capabilities]
  * @property {Map<DossierComplet['id'], DossierComplet>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
+ * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
+ * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
  */
+
+
 
 /** @type {PitchouState} */
 const state = {}
@@ -60,6 +65,20 @@ const mutations = {
    */
   setSchemaDS88444(state, schemaDS88444) {
     state.schemaDS88444 = schemaDS88444
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['espècesProtégéesParClassification']} espècesProtégéesParClassification
+   */
+  setEspècesProtégéesParClassification(state, espècesProtégéesParClassification) {
+    state.espècesProtégéesParClassification = espècesProtégéesParClassification
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['espèceByCD_REF']} espèceByCD_REF
+   */
+  setEspèceByCD_REF(state, espèceByCD_REF) {
+    state.espèceByCD_REF = espèceByCD_REF
   }
 }
 
