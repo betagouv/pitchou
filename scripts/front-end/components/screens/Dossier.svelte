@@ -131,6 +131,13 @@
                         <li>
                             <strong>Localisation</strong> : {formatLocalisation(dossier)}
                         </li>
+                        {#if dossier.espèces_protégées_concernées}
+                        <li class="liste-espèces">
+                            <strong>Liste des espèces protégées concernées</strong>
+                            <br>
+                            <a href={dossier.espèces_protégées_concernées}>{dossier.espèces_protégées_concernées}</a> :
+                        </li>
+                        {/if}
 
                         {#if dossier.enjeu_politique || dossier.enjeu_écologique}
                             <li>
@@ -166,6 +173,12 @@
 
     select {
         max-width: 90%;
+    }
+
+    .liste-espèces{
+        max-width: 40rem;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     nav.dossier-nav {

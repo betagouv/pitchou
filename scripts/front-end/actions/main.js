@@ -11,7 +11,7 @@ import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
 
 /** @import {PitchouState} from '../store.js' */
-/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, EspèceProtégéeStrings, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
+/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 

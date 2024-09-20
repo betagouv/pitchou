@@ -2,15 +2,17 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
+    import NomEspèce from '../NomEspèce.svelte'
     
-    import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, isClassif } from '../../../commun/outils-espèces.js';
+    import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromURL, isClassif } from '../../../commun/outils-espèces.js';
 
 
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
+    import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 
     /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
-    /** @import { ClassificationEtreVivant, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant,} from '../../../types/especes.d.ts' **/
+    /** @import { ClassificationEtreVivant, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces,} from '../../../types/especes.d.ts' **/
 
     /** @type {DossierComplet} */
     export let dossier
@@ -20,43 +22,62 @@
 
     const {espèces_protégées_concernées} = dossier
 
-    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
-    export let espècesProtégéesParClassification;
+    /** @type {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} */
+    export let espèceByCD_REF;
 
     /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
-    export let activitesParClassificationEtreVivant
+    export let activités
 
     /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
-    export let méthodesParClassificationEtreVivant
+    export let méthodes
 
     /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
-    export let transportsParClassificationEtreVivant
+    export let transports
 
     /**
      * 
-     * @param {string} url
+     * @param {string} 
+     * @returns {DescriptionMenacesEspèces | undefined}
      */
     function fromEspèceProtégéeURLString(url){
         if(!url)
             return undefined
 
-        importDescriptionMenacesEspècesFromURL(new URL(url), espèceByCD_REF, activites, methodes, transports)
+        return importDescriptionMenacesEspècesFromURL(
+            new URL(url), 
+            espèceByCD_REF, 
+            [...activités.values()].flat(), 
+            [...méthodes.values()].flat(), 
+            [...transports.values()].flat()
+        )
     }
 
-    /** */
     $: descriptionMenacesEspèces = fromEspèceProtégéeURLString(espèces_protégées_concernées)
 
+    $: console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
 
 </script>
 
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
-            <h1 class="fr-mb-8w">Rédaction arrêté préfectoral - Dossier {dossier.nom_dossier || "sans nom"}</h1>
+            <h1 class="fr-mb-8w">Aide à la Rédaction arrêté préfectoral</h1>
+            <h2>Dossier {dossier.nom_dossier || "sans nom"}</h2>
 
             <article class="fr-p-3w fr-mb-4w">
                 <section>
                     <h2>Liste des espèces protégées</h2>
+                    {#each Object.keys(descriptionMenacesEspèces) as classif}
+                        {#if descriptionMenacesEspèces[classif].length >= 1}
+                            <section class="liste-especes">
+                                <h3>Liste des {classif}</h3>
+                                {#each descriptionMenacesEspèces[classif].toSorted(etresVivantsAtteintsCompareEspèce) as  espèceAtteinte, index (espèceAtteinte) }
+                                    {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèceAtteinte.espèce}/>
+                                {/each}
+                            </section>
+                        {/if}
+
+                    {/each}
                 </section>
             </article>
         </div>
@@ -66,10 +87,14 @@
 <style lang="scss">
     article {
         background-color: var(--background-alt-grey);
+
+        & > section {
+            margin-bottom: 2rem;
+        }
     }
 
-    section {
-            margin-bottom: 3rem;
+    section.liste-especes {
+        margin-bottom: 2rem;
     }
 
     select {

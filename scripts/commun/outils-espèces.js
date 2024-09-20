@@ -192,7 +192,7 @@ function b64ToUTF8(s) {
  * @param {ActivitéMenançante[]} activites
  * @param {MéthodeMenançante[]} methodes
  * @param {TransportMenançant[]} transports
- * @returns 
+ * @returns {DescriptionMenacesEspèces | undefined}
  */
 export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
     const urlData = url.searchParams.get('data')

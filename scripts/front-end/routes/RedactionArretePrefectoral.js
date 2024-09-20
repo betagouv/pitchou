@@ -25,8 +25,8 @@ export default async ({params: {dossierId}}) => {
     const { state } = store
     let { dossiers } = state 
 
-    const listeEspècesProtégéesP = chargerListeEspècesProtégées()
-    const activitésMéthodesTransportsP = chargerActivitésMéthodesTransports()
+    const espècesProtégées = chargerListeEspècesProtégées()
+    const actMétTrans = chargerActivitésMéthodesTransports()
 
     if (!dossiers){
         dossiers = await chargerDossiers()
@@ -36,7 +36,10 @@ export default async ({params: {dossierId}}) => {
         
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
-        
+    
+    const {espèceByCD_REF} = await espècesProtégées
+    const { activités, méthodes, transports } = await actMétTrans
+
     /**
      * 
      * @param {PitchouState} state
@@ -45,7 +48,11 @@ export default async ({params: {dossierId}}) => {
     function mapStateToProps(state){
         return {
             ...mapStateToSqueletteProps(state),
-            dossier
+            dossier,
+            espèceByCD_REF,
+            activités,
+            méthodes,
+            transports
         }
     }   
     
