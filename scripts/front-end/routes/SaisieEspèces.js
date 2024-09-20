@@ -1,6 +1,6 @@
 //@ts-check
 
-import { dsv, json } from 'd3-fetch';
+import { json } from 'd3-fetch';
 
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
@@ -9,96 +9,29 @@ import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
-import { espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromURL, isClassif } from '../../commun/outils-espèces.js';
+import { importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
+import {chargerActivitésMéthodesTransports, chargerListeEspècesProtégées} from '../actions/main.js'
 
 /** @import {ComponentProps} from 'svelte' */
 
-/** @import {
- *    ClassificationEtreVivant,
- *    EspèceProtégée, 
- *    EspèceProtégéeStrings,
- *    ActivitéMenançante, 
- *    MéthodeMenançante, 
- *    TransportMenançant,
- *    GroupesEspèces, 
- *    NomGroupeEspèces
- *  } from "../../types/especes.d.ts" 
- **/
+/** @import { EspèceProtégée, GroupesEspèces, NomGroupeEspèces } from "../../types/especes.d.ts" */
 /** @import {PitchouState} from '../store.js' */
 
 export default async () => { 
-    /** @type { [EspèceProtégéeStrings[], ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], GroupesEspèces] } */
-    // @ts-ignore
-    const [dataEspèces, activites, methodes, transports, groupesEspècesBrutes] = await Promise.all([
-        dsv(";", getURL('link#especes-data')),
-        dsv(";", getURL('link#activites-data')),
-        dsv(";", getURL('link#methodes-data')),
-        dsv(";", getURL('link#transports-data')),
-        json(getURL('link#groupes-especes-data')),
-    ])
+    /** @type {Promise<GroupesEspèces | undefined>} */
+    const groupesEspècesBrutesP = json(getURL('link#groupes-especes-data'))
+    const espècesProtégées = chargerListeEspècesProtégées()
+    const actMétTrans = chargerActivitésMéthodesTransports()
 
+    const groupesEspècesBrutes = await groupesEspècesBrutesP
 
-    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
-    const activitesParClassificationEtreVivant = new Map()
-    for(const activite of activites){
-        const classif = activite['Espèces']
-
-        if(!classif.trim() && !activite['Code']){
-            // ignore empty lines (certainly comments)
-            break; 
-        }
-
-        if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
-        }
-        
-        const classifActivz = activitesParClassificationEtreVivant.get(classif) || []
-        classifActivz.push(activite)
-        activitesParClassificationEtreVivant.set(classif, classifActivz)
+    if(!groupesEspècesBrutes){
+        throw new TypeError(`groupesEspècesBrutes manquants`)
     }
 
-    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
-    const méthodesParClassificationEtreVivant = new Map()
-    for(const methode of methodes){
-        const classif = methode['Espèces']
+    const {espècesProtégéesParClassification, espèceByCD_REF} = await espècesProtégées
 
-        if(!classif.trim() && !methode['Code']){
-            // ignore empty lines (certainly comments)
-            break; 
-        }
-
-        if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
-        }
-        
-        const classifMeth = méthodesParClassificationEtreVivant.get(classif) || []
-        classifMeth.push(methode)
-        méthodesParClassificationEtreVivant.set(classif, classifMeth)
-    }
-
-    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
-    const transportsParClassificationEtreVivant = new Map()
-    for(const transport of transports){
-        const classif = transport['Espèces']
-
-        if(!classif.trim() && !transport['Code']){
-            // ignore empty lines (certainly comments)
-            break; 
-        }
-
-        if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
-        }
-        
-        const classifTrans = transportsParClassificationEtreVivant.get(classif) || []
-        classifTrans.push(transport)
-        transportsParClassificationEtreVivant.set(classif, classifTrans)
-    }
-
-    console.log('espècesProtégéesParClassification', espècesProtégéesParClassification)
-
-    
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     const groupesEspèces = new Map()
     for(const [nomGroupe, espèces] of Object.entries(groupesEspècesBrutes)){
@@ -116,13 +49,25 @@ export default async () => {
         )
     }
 
+    const {
+        activités: activitesParClassificationEtreVivant,
+        méthodes: méthodesParClassificationEtreVivant,
+        transports: transportsParClassificationEtreVivant
+    } = await actMétTrans
+
     /**
      * 
      * @param {PitchouState} state 
      * @returns {ComponentProps<SaisieEspèces>}
      */
     function mapStateToProps(state){
-        const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(new URL(location.href), espèceByCD_REF, activites, methodes, transports)
+        const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(
+            new URL(location.href), 
+            espèceByCD_REF, 
+            [...activitesParClassificationEtreVivant.values()].flat(), 
+            [...méthodesParClassificationEtreVivant.values()].flat(), 
+            [...transportsParClassificationEtreVivant.values()].flat()
+        )
 
         return {
             ...mapStateToSqueletteProps(state),

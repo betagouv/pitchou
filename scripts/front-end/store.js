@@ -18,7 +18,7 @@ import Store from 'baredux'
 /** @import {DossierComplet} from '../types.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities} from '../types/capabilities.d.ts' */
-/** @import {ClassificationEtreVivant, EspèceProtégée} from '../types/especes.d.ts' */
+/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
 
 
 /**
@@ -28,6 +28,7 @@ import Store from 'baredux'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
+ * @property { {activités: Map<ClassificationEtreVivant, ActivitéMenançante[]>, méthodes: Map<ClassificationEtreVivant, MéthodeMenançante[]>, transports: Map<ClassificationEtreVivant, TransportMenançant[]>} } [activitésMéthodesTransports]
  */
 
 
@@ -79,6 +80,13 @@ const mutations = {
    */
   setEspèceByCD_REF(state, espèceByCD_REF) {
     state.espèceByCD_REF = espèceByCD_REF
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['activitésMéthodesTransports']} activitésMéthodesTransports
+   */
+  setActivitésMéthodesTransports(state, activitésMéthodesTransports) {
+    state.activitésMéthodesTransports = activitésMéthodesTransports
   }
 }
 

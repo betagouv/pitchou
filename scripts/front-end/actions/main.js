@@ -11,7 +11,7 @@ import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
 
 /** @import {PitchouState} from '../store.js' */
-/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
+/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, EspèceProtégéeStrings, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
@@ -49,7 +49,7 @@ export function chargerSchemaDS88444() {
 
 /**
  * 
- * @returns {Promise<{espècesProtégéesParClassification: PitchouState['espècesProtégéesParClassification'], espèceByCD_REF: PitchouState['espèceByCD_REF']}>}
+ * @returns {Promise<{espècesProtégéesParClassification: NonNullable<PitchouState['espècesProtégéesParClassification']>, espèceByCD_REF: NonNullable<PitchouState['espèceByCD_REF']}>>}
  */
 export async function chargerListeEspècesProtégées(){
 
@@ -91,13 +91,96 @@ export async function chargerListeEspècesProtégées(){
     return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF })
 }
 
-export function chargerActivitésMéthodesTransports(){
-    
+/**
+ * 
+ * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
+ */
+export async function chargerActivitésMéthodesTransports(){
+
+    if(store.state.activitésMéthodesTransports){
+        return Promise.resolve(store.state.activitésMéthodesTransports)
+    }
+
+    /** @type { [ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[]] } */
+    // @ts-ignore
+    const [activitésBrutes, méthodesBrutes, transportsBruts, groupesEspècesBrutes] = await Promise.all([
+        dsv(";", getURL('link#activites-data')),
+        dsv(";", getURL('link#methodes-data')),
+        dsv(";", getURL('link#transports-data')),
+    ])
+
+
+    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
+    const activités = new Map()
+    for(const activite of activitésBrutes){
+        const classif = activite['Espèces']
+
+        if(!classif.trim() && !activite['Code']){
+            // ignore empty lines (certainly comments)
+            break; 
+        }
+
+        if(!isClassif(classif)){
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
+        }
+        
+        const classifActivz = activités.get(classif) || []
+        classifActivz.push(activite)
+        activités.set(classif, classifActivz)
+    }
+
+    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
+    const méthodes = new Map()
+    for(const methode of méthodesBrutes){
+        const classif = methode['Espèces']
+
+        if(!classif.trim() && !methode['Code']){
+            // ignore empty lines (certainly comments)
+            break; 
+        }
+
+        if(!isClassif(classif)){
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
+        }
+        
+        const classifMeth = méthodes.get(classif) || []
+        classifMeth.push(methode)
+        méthodes.set(classif, classifMeth)
+    }
+
+    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
+    const transports = new Map()
+    for(const transport of transportsBruts){
+        const classif = transport['Espèces']
+
+        if(!classif.trim() && !transport['Code']){
+            // ignore empty lines (certainly comments)
+            break; 
+        }
+
+        if(!isClassif(classif)){
+            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
+        }
+        
+        const classifTrans = transports.get(classif) || []
+        classifTrans.push(transport)
+        transports.set(classif, classifTrans)
+    }
+
+    const ret = {
+        activités,
+        méthodes,
+        transports
+    }
+
+    store.mutations.setActivitésMéthodesTransports(ret)
+
+    return ret
 }
 
 
 export async function secretFromURL(){
-    const secret =  new URLSearchParams(location.search).get("secret")
+    const secret = new URLSearchParams(location.search).get("secret")
     
     if(secret){
         const newURL = new URL(location.href)
