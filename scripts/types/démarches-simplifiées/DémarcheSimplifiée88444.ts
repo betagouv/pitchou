@@ -16,6 +16,17 @@ export interface DossierDemarcheSimplifiee88444 {
   "Numéro de SIRET": string;
   Qualification: string;
   Adresse: string;
+  /**
+   * Personne en charge du projet au sein de la personne morale
+   */
+  "Nom du représentant": string;
+  /**
+   * Personne en charge du projet au sein de la personne morale
+   */
+  "Prénom du représentant": string;
+  "Qualité du représentant": string;
+  "Numéro de téléphone de contact": string;
+  "Adresse mail de contact": string;
   "Activité principale":
     | "Aménagements fonciers (AFAF, remembrement)"
     | "Carrières de matériaux alluvionnaires"
@@ -60,17 +71,43 @@ export interface DossierDemarcheSimplifiee88444 {
     | "UTN (Unité Touristique Nouvelle)"
     | "ZAC"
     | "Autre";
+  "Éolien - Votre demande concerne :": "Suivi de mortalité pour un parc éolien" | "Autre";
+  "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
+  "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
+  "Nom du projet": string;
+  "Description synthétique du projet": string;
+  "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
+  "Le projet se situe au niveau…":
+    | "d'une ou plusieurs communes"
+    | "d'un ou plusieurs départements"
+    | "d'une ou plusieurs régions"
+    | "de toute la France";
+  "Commune(s) où se situe le projet": (GeoAPICommune | string)[];
+  "Département(s) où se situe le projet": GeoAPIDépartement[];
+  "Région(s) où se situe le projet": string[];
+  "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
+    | "Oui"
+    | "Non"
+    | "Ne sait pas encore";
+  "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
   /**
-   * Personne en charge du projet au sein de la personne morale
+   * Pour plus de précisions, consultez l'annexe 3 du guide :
+   * https://www.nouvelle-aquitaine.developpement-durable.gouv.fr/IMG/pdf/guide_nouvelle-aquitaine_pour_la_prise_en_compte_de_la_reglementation_especes_protegees.pdf
    */
-  "Nom du représentant": string;
+  "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
   /**
-   * Personne en charge du projet au sein de la personne morale
+   * L’aire d'influence s’appuie sur les éléments physiques qui peuvent délimiter naturellement le territoire (lisière, cours d’eau, urbanisation, route, barrage...) et permettre d’identifier les corridors écologiques ainsi que la fonctionnalité des habitats d’espèces.
    */
-  "Prénom du représentant": string;
-  "Qualité du représentant": string;
-  "Numéro de téléphone de contact": string;
-  "Adresse mail de contact": string;
+  "Des individus ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": boolean;
+  /**
+   * Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter l'avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,
+   * ainsi que les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563
+   */
+  "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il ?": boolean;
+  /**
+   * Lien vers la liste des espèces concernées à remplir sur https://pitchou.beta.gouv.fr/saisie-especes
+   */
+  "Lien vers la liste des espèces concernées": string;
   "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": string;
   "Motif de la dérogation":
     | "Pour des RIIPM (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)"
@@ -80,9 +117,6 @@ export interface DossierDemarcheSimplifiee88444 {
     | "A des fins de recherche et d’enseignement"
     | "A des fins de repeuplement et de réintroduction de ces espèces et pour des opérations de reproduction nécessaires à ces fins, y compris la propagation artificielle des plantes"
     | "Pour permettre la prise ou la détention d'un nombre limité et spécifié de certains spécimens, dans des conditions strictement contrôlées, d'une manière sélective et dans une mesure limitée";
-  "Éolien - Votre demande concerne :": "Suivi de mortalité pour un parc éolien" | "Autre";
-  "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
-  "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
   "Recherche scientifique - Votre demande concerne :":
     | "Une/des capture(s)/relâcher(s) immédiat(s) sur place sans marquage"
     | "Une/des capture(s)/relâcher(s) immédiat(s) sur place avec marquage"
@@ -98,17 +132,6 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Pour établissement public ayant une activité de recherche, pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre d'études scientifiques"
     | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'évaluation préalable et du suivi des impacts sur la biodiversité de projets de travaux, d'ouvrages et d'aménagements"
     | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'élaboration ou du suivi de plans, de schémas, de programmes ou d'autres documents de planification nécessitant l'acquisition de connaissances ou visant à la préservation du patrimoine naturel prévus par des dispositions du code de l'environnement.";
-  /**
-   * Lien vers la liste des espèces concernées à remplir sur https://pitchou.beta.gouv.fr/saisie-especes
-   */
-  "Lien vers la liste des espèces concernées": string;
-  "Nom du projet": string;
-  "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
-    | "Oui"
-    | "Non"
-    | "Ne sait pas encore";
-  "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
-  "Description synthétique du projet": string;
   "Cette demande concerne un programme de suivi déjà existant": boolean;
   "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?": boolean;
   "Précisez ces mesures :": string;
@@ -117,16 +140,6 @@ export interface DossierDemarcheSimplifiee88444 {
   "Hauteur totale bout de pale (m)": number;
   "Diamètre du rotor (m)": number;
   "Garde au sol (m)": number;
-  "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
-  "Le projet se situe au niveau…":
-    | "d'une ou plusieurs communes"
-    | "d'un ou plusieurs départements"
-    | "d'une ou plusieurs régions"
-    | "de toute la France";
-  "Commune(s) où se situe le projet": (GeoAPICommune | string)[];
-  "Département(s) où se situe le projet": GeoAPIDépartement[];
-  "Région(s) où se situe le projet": string[];
-  "Précisez le périmètre d'intervention (si besoin)": string;
   /**
    * Suivi écologique, chantier...
    */
@@ -139,6 +152,7 @@ export interface DossierDemarcheSimplifiee88444 {
    * (en années)
    */
   "Durée de la dérogation": number;
+  "Précisez le périmètre d'intervention": string;
   "Description du protocole de suivi": string;
   "Nombre d'éoliennes à suivre": number;
   "Période des inventaires terrain": string;
