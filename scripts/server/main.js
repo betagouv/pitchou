@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
+import fastifyCompress from '@fastify/compress'
 
 import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
   updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
@@ -65,10 +66,14 @@ const fastify = Fastify({
   }
 })
 
+await fastify.register(fastifyCompress)
+
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
 })
+
+
 fastify.get('/saisie-especes', (_request, reply) => {
   reply.sendFile('index.html')
 })
@@ -81,6 +86,10 @@ fastify.get('/import-historique/nouvelle-aquitaine', (_request, reply) => {
 fastify.get('/preremplissage-derogation', (_request, reply) => {
   reply.sendFile('index.html')
 })
+fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', (_request, reply) => {
+  reply.sendFile('index.html')
+})
+
 
 fastify.post('/lien-preremplissage', async function (request) {
   /** @type {Partial<DossierDemarcheSimplifiee88444>} */

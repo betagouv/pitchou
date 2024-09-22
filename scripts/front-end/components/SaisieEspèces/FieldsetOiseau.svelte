@@ -1,9 +1,8 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel, etresVivantsAtteintsCompareEspèce, fourchettesIndividus } from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
-    import NomEspèce from "../NomEspèce.svelte"
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -172,15 +171,6 @@
                     </tbody>
                 </table>
             </div>
-
-            {#if oiseauxAtteints.length >= 1}
-                <section class="arrete-prefectoral fr-p-1w">
-                    <h4>Liste des espèces concernées par la demande de dérogation</h4>
-                    {#each oiseauxAtteints.toSorted(etresVivantsAtteintsCompareEspèce) as  oiseauAtteint, index (oiseauAtteint) }
-                        {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={oiseauAtteint.espèce}/>
-                    {/each} 
-                </section>
-            {/if}
         </section>
     </div>
 </div>
@@ -241,13 +231,6 @@
                     cursor: pointer;
                 }
             }
-        }
-
-        .arrete-prefectoral{
-            border-radius: 0.4em;
-            width: 100%;
-
-            background-color: rgba(255, 255, 255, 0.1);
         }
     }
 </style>

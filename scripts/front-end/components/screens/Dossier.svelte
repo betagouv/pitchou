@@ -62,6 +62,9 @@
                     <li>
                         <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>Messagerie</a>
                     </li>
+                    <li>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/redaction-arrete-prefectoral`}>Rédaction arrêté préféctoral</a>
+                    </li>
                 </ul>
             </nav>
 
@@ -128,6 +131,13 @@
                         <li>
                             <strong>Localisation</strong> : {formatLocalisation(dossier)}
                         </li>
+                        {#if dossier.espèces_protégées_concernées}
+                        <li class="liste-espèces">
+                            <strong>Liste des espèces protégées concernées</strong>
+                            <br>
+                            <a href={dossier.espèces_protégées_concernées}>{dossier.espèces_protégées_concernées}</a> :
+                        </li>
+                        {/if}
 
                         {#if dossier.enjeu_politique || dossier.enjeu_écologique}
                             <li>
@@ -163,6 +173,12 @@
 
     select {
         max-width: 90%;
+    }
+
+    .liste-espèces{
+        max-width: 40rem;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     nav.dossier-nav {

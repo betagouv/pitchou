@@ -42,6 +42,7 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
+    "@fastify/compress": "^7.0.3",
     "@fastify/static": "^7.0.1",
     "@gouvfr/dsfr": "^1.11.2",
     "baredux": "github:DavidBruant/baredux#v1.0.8",
