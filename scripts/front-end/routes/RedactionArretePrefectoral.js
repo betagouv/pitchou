@@ -46,6 +46,9 @@ export default async ({params: {dossierId}}) => {
      * @returns {ComponentProps<RedactionArretePrefectoral>}
      */
     function mapStateToProps(state){
+        if (!dossier)
+            throw new TypeError('Dossier manquant')
+
         return {
             ...mapStateToSqueletteProps(state),
             dossier,

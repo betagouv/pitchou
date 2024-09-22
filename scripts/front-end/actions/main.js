@@ -49,7 +49,7 @@ export function chargerSchemaDS88444() {
 
 /**
  * 
- * @returns {Promise<{espècesProtégéesParClassification: NonNullable<PitchouState['espècesProtégéesParClassification']>, espèceByCD_REF: NonNullable<PitchouState['espèceByCD_REF']}>>}
+ * @returns {Promise<{espècesProtégéesParClassification: NonNullable<PitchouState['espècesProtégéesParClassification']>, espèceByCD_REF: NonNullable<PitchouState['espèceByCD_REF']>}>}
  */
 export async function chargerListeEspècesProtégées(){
 
@@ -63,7 +63,7 @@ export async function chargerListeEspècesProtégées(){
 
     /** @type {PitchouState['espècesProtégéesParClassification']} */
     const espècesProtégéesParClassification = new Map()
-    /** @type {PitchouState['espèceByCD_REF']>} */
+    /** @type {PitchouState['espèceByCD_REF']} */
     const espèceByCD_REF = new Map()
 
     for(const espStr of dataEspèces){

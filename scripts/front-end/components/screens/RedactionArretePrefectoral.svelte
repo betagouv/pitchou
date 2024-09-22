@@ -4,14 +4,11 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     
-    import { descriptionMenacesEspècesFromJSON, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromURL, isClassif } from '../../../commun/outils-espèces.js';
+    import { importDescriptionMenacesEspècesFromURL } from '../../../commun/outils-espèces.js';
 
-
-    import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
-    import { modifierDossier } from '../../actions/dossier.js';
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 
-    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
     /** @import { ClassificationEtreVivant, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces,} from '../../../types/especes.d.ts' **/
 
     /** @type {DossierComplet} */
@@ -36,7 +33,7 @@
 
     /**
      * 
-     * @param {string} 
+     * @param {DossierComplet['espèces_protégées_concernées']} url
      * @returns {DescriptionMenacesEspèces | undefined}
      */
     function fromEspèceProtégéeURLString(url){
@@ -52,6 +49,7 @@
         )
     }
 
+    /** @type {DescriptionMenacesEspèces | undefined} */
     $: descriptionMenacesEspèces = fromEspèceProtégéeURLString(espèces_protégées_concernées)
 
     $: console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
@@ -96,14 +94,5 @@
 
     section.liste-especes {
         margin-bottom: 2rem;
-    }
-
-    select {
-        max-width: 90%;
-    }
-
-    nav.dossier-nav {
-        display: flex;
-        justify-content: flex-end;
     }
 </style>
