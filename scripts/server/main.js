@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
+import fastifyCompress from '@fastify/compress'
 
 import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
   updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
@@ -65,10 +66,14 @@ const fastify = Fastify({
   }
 })
 
+await fastify.register(fastifyCompress)
+
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
 })
+
+
 fastify.get('/saisie-especes', (_request, reply) => {
   reply.sendFile('index.html')
 })
