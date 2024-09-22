@@ -67,6 +67,7 @@
             <article class="fr-p-3w fr-mb-4w">
                 <section>
                     <h2>Liste des espèces protégées</h2>
+                    {#if descriptionMenacesEspèces}
                     {#each Object.keys(descriptionMenacesEspèces) as classif}
                         {#if descriptionMenacesEspèces[classif].length >= 1}
                             <section class="liste-especes">
@@ -76,8 +77,8 @@
                                 {/each}
                             </section>
                         {/if}
-
                     {/each}
+                    {/if}
                 </section>
             </article>
         </div>
