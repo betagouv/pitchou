@@ -22,3 +22,4 @@ jobs:
           # https://github.com/reviewdog/reviewdog#reporters
           level: warning
           filter_mode: file
+          fail_on_error: true
