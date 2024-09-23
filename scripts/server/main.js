@@ -23,7 +23,6 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 /** @import {default as Personne} from '../types/database/public/Personne.js' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import fastify from 'fastify'
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
