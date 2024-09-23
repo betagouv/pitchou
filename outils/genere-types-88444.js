@@ -139,6 +139,7 @@ function champToArrayJSONSchema({description, champDescriptors}){
         const { __typename } = champDescriptors[0]
         const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
         if(!DSChampToJSONSchema){ throw new TypeError(`__typename non reconnu : ${__typename}`) }
+        // @ts-ignore
         items = DSChampToJSONSchema(champDescriptors[0])
     }
     else{
