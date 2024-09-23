@@ -6,7 +6,7 @@ import parseArgs from 'minimist'
 import { compile } from 'json-schema-to-typescript'
 import ky from 'ky'
 
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {JSONSchema} from 'json-schema-to-typescript' */
 
 const args = parseArgs(process.argv)
@@ -55,10 +55,6 @@ else{
         // ignore
     }
 }
-
-coucou
-
-
 
 /**
  * @param {ChampDescriptor} _ 
