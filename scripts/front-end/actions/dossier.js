@@ -30,6 +30,15 @@ export function modifierDossier(id, dossierParams) {
  * @param {DossierComplet['id']} id
  * @returns {Promise<Message[]>}
  */
-export function chargerMessagesDossier(id){
-    throw `PPP`
+export async function chargerMessagesDossier(id){
+    if(!store.state.capabilities?.listerMessages)
+        throw new TypeError(`Capability listerMessages manquante`)
+
+    const messagesP = store.state.capabilities?.listerMessages(id)
+        .then((/** @type {Message[]} */ messages)  => {
+            store.mutations.setMessages(id, messages)
+            return messages
+        })
+
+    return store.state.messagesParDossierId.get(id) || messagesP
 }

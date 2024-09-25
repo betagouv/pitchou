@@ -10,6 +10,7 @@ import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJou
   updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès} from './database.js'
 
+import { getDossierMessages } from './database/dossier.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
@@ -152,6 +153,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.listerDossiers){
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`
   }
+  if(capBundle.listerMessages){
+    ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`
+  }
   if(capBundle.modifierDossier){
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`
   }
@@ -205,6 +209,27 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
 
   // @ts-ignore
   return updateDossier(dossierId, dossierParams)
+})
+
+fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const personne = await getPersonneByCode(cap)
+  if (!personne) {
+    reply.code(403).send(`Le paramètre 'cap' est invalide`)
+    return
+  } 
+  
+  // @ts-ignore
+  const { dossierId } = request.params
+
+  return getDossierMessages(dossierId)
 })
 
 

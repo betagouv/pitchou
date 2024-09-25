@@ -16,6 +16,8 @@
 
     let messageErreur = "" 
 
+    $: console.log('messages', messages)
+
 </script>
 
 <Squelette {email}>

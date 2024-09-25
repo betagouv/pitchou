@@ -23,7 +23,7 @@ export default async({params: {dossierId}}) => {
     //@ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    let { dossiers: dossierById, messagesParDossierId } = state 
+    let { dossiers: dossierById } = state 
 
     let dossiersP;
     let messagesP;
@@ -35,10 +35,8 @@ export default async({params: {dossierId}}) => {
         dossiersP = dossierById
     }
 
-    if(!messagesParDossierId.has(id)){
-        messagesP = chargerMessagesDossier(id)
-    }
-
+    messagesP = chargerMessagesDossier(id)
+    
     const [dossiers] = await Promise.all([dossiersP, messagesP])
         
     // TODO: expliquer que le dossier n'existe pas ?

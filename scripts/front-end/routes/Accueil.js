@@ -34,7 +34,7 @@ function showLoginByEmail(){
 export default async () => {
     console.info('route', '/')
     await secretFromURL()
-    if(!store.state.dossiers){
+    if(store.state.dossiers.size === 0){
         await chargerDossiers()
             .catch(err => {
                 if(err.message.includes('403')){

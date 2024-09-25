@@ -8,6 +8,8 @@ import {json} from 'd3-fetch'
 /** @import {PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
 //@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+//@ts-expect-error TS ne comprend pas que c'est utilisé
+/** @import {default as Message} from '../../types/database/public/Message.ts' */
 
 /**
  * 
@@ -75,6 +77,31 @@ function wrapModifierDossier(url){
     return modifierDossier
 }
 
+
+/**
+ * 
+ * @param {string | undefined} url 
+ * @returns {((dossierId: Dossier['id']) => Promise<Message[]>) | undefined}
+ */
+function wrapListerMessages(url){
+    if(!url)
+        return undefined
+
+    if(!url.includes(dossierIdURLParam)){
+        throw new Error(`La capability modifierDossier ne contient pas '${dossierIdURLParam}'`)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} dossierId
+     * @returns {Promise<Message[]>}
+     */
+    return function listerMessages(dossierId){
+        // @ts-ignore
+        return json(url.replace(dossierIdURLParam, dossierId))
+    }
+}
+
 /**
  * 
  * @param {StringValues<PitchouInstructeurCapabilities>} capURLs 
@@ -84,6 +111,7 @@ export default function(capURLs){
 
     return {
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
+        listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
     }
