@@ -31,7 +31,7 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
     function rerender() {
-        faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
+        faunesNonOiseauxAtteintes = ""
     }
 
     /** @param {EspèceProtégée} fauneNonOiseau */
