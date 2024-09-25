@@ -40,3 +40,28 @@ export interface demarcheQueryResultDemarche{
 export interface demarcheQueryResult<DemarchePart>{
     demarche: DemarchePart
 }
+
+export interface MutationError {
+    message: string,
+    locations: [
+        {
+            line: number,
+            column: number,
+        }
+    ],
+    path: string,
+    extensions: {
+        code: string
+    }
+}
+
+export interface MutationResult {
+    clientMutationId: string,
+    errors: MutationError[]
+}
+
+type PossibleAnnotationsMutations = "dossierModifierAnnotationDate" | "dossierModifierAnnotationText" | "dossierModifierAnnotationCheckbox"
+
+export type AnnotationMutationResult = {
+    [K in PossibleAnnotationsMutations]: MutationResult
+}
