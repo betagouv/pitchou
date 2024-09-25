@@ -16,11 +16,15 @@ jobs:
   svelte-check: 
     name: Run svelte-check with reviewdog
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: reviewdog/action-setup@v1
       - name: Install svelte-check
         run: npm install
       - name: Run reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npx svelte-check | reviewdog -reporter=github-pr-review -efm="%E%f:%l:%c" -efm="%CError: %m" -efm="%C\ %#%m" -efm="%-A%.%#" -name svelte-check -filter-mode file
