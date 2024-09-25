@@ -8,6 +8,7 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
 }
 
+//@ts-ignore
 const annotationsVides = dossierSuiviNAVersAnnotationsDS88444({})
 
 //const annotations = annotationsVides
