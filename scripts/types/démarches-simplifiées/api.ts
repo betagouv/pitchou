@@ -13,6 +13,28 @@ interface GraphQLNodes<T>{
     nodes: T[]
 }
 
+export interface Demandeur {
+    prenom: string
+    nom: string
+    email: string
+}
+
+export interface Champ {
+    id: string
+    label: string
+    stringValue: string
+}
+
+export interface BaseDossierDS {
+    id: number
+    number: number
+    dateDepot: string 
+    state: string
+    demandeur: Demandeur
+    champs: Champ[]
+    annotations: Champ[]
+}
+
 type Dossier = any // PPP
 type DeletedDossier = any // PPP
 type PendingDeletedDossier = any // PPP
@@ -42,21 +64,21 @@ export interface demarcheQueryResult<DemarchePart>{
 }
 
 export interface MutationError {
-    message: string,
+    message: string
     locations: [
         {
-            line: number,
-            column: number,
+            line: number
+            column: number
         }
     ],
-    path: string,
+    path: string
     extensions: {
         code: string
     }
 }
 
 export interface MutationResult {
-    clientMutationId: string,
+    clientMutationId: string
     errors: MutationError[]
 }
 

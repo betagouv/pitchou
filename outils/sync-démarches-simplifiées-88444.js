@@ -14,8 +14,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types.js' */
-/** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseDossierDS} from '../scripts/types/démarches-simplifiées/api.ts' */
 
 // récups les données de DS
 
@@ -25,7 +25,7 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 }
 
 /** @type {number} */
-const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER)
+const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER || "")
 if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
 }
@@ -136,10 +136,12 @@ const pitchouKeyToAnnotationDS = {
 }
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
-const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
+// const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
-const dossiers = dossiersDS.map(({
+const dossiers = dossiersDS.map((
+/** @type {BaseDossierDS} */
+{
     id: id_demarches_simplifiées,
     number,
     dateDepot: date_dépôt, 
