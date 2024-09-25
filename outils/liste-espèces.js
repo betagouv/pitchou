@@ -11,8 +11,6 @@ import {TAXREF_ROWClassification, nomsVernaculaires} from '../scripts/commun/out
 import '../scripts/types.js'
 /** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée} from "../scripts/types/especes.js" */
 
-testtest
-
 process.title = `Génération liste espèces`
 
 /**
