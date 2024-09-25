@@ -276,7 +276,7 @@
                         <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
                         <p class="fr-callout__text">
                             Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
-                            <a target="_blank" href={mailto}>d’envoyer un mail à especes-protegees@beta.gouv.fr</a>en 
+                            <a target="_blank" href={mailto}>d’envoyer un mail à pitchou@beta.gouv.fr</a>en 
                             indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
                             Le <code>CD_NOM</code> est disponible sur 
                             <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 

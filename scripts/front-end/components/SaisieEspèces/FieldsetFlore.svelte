@@ -78,7 +78,7 @@
                                 </td>
                                 <td>
                                     <select bind:value={activité} class="fr-select">
-                                        <option>-</option>
+                                        <option value="{undefined}">-</option>
                                         {#each activitésMenaçantes || [] as act}
                                         <option value={act}>
                                             {act['étiquette affichée']}
@@ -89,7 +89,7 @@
 
                                 <td>
                                     <select bind:value={nombreIndividus} class="fr-select">
-                                        <option>-</option>
+                                        <option value="{undefined}">-</option>
                                         {#each fourchettesIndividus as fourchette}
                                             <option value={fourchette}>{fourchette}</option>
                                         {/each}
