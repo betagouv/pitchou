@@ -47,3 +47,33 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
         .insert(messages)
         .onConflict('id_démarches_simplifiées').merge()
 }
+
+
+/**
+ * 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<Map<Dossier['id'], Message[]>>}
+ */
+export async function getAllMessages(databaseConnection = directDatabaseConnection){
+    /** @type {Awaited<ReturnType<getAllMessages>>} */
+    const map = new Map()
+
+    const messages = await databaseConnection('message')
+        .select('*')
+
+    for(const message of messages){
+        const dossierId = message.dossier
+
+        const mess = map.get(dossierId) || []
+        mess.push(message)
+        map.set(dossierId, mess)
+    }
+
+    return map
+}
+
+throw `
+    - côté client, n'aller chercher la conversation que quand on en a besoin
+    - créer un endpoint correpondant pour l'id du dossier
+    - Afficher la conversation
+`
