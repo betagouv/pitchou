@@ -2,13 +2,12 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
-    
-    import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
+    /** @import {DossierComplet} from '../../../types.js' */
 
     /** @type {DossierComplet} */
     export let dossier
+    export let messages = []
 
     const {number_demarches_simplifiées: numdos} = dossier
 
@@ -17,10 +16,6 @@
 
     let messageErreur = "" 
 
-
-    const retirerAlert = () => { 
-        messageErreur = ""
-    }
 </script>
 
 <Squelette {email}>
@@ -60,11 +55,7 @@
     }
 
     section {
-            margin-bottom: 3rem;
-    }
-
-    select {
-        max-width: 90%;
+        margin-bottom: 3rem;
     }
 
     nav.dossier-nav {

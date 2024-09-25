@@ -2,10 +2,11 @@
 
 import store from "../store"
 
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {DossierComplet} from '../../types.js' */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+//@ts-ignore
+/** @import {default as Message} from '../../types/database/public/Message.ts' */
 
 /**
  * @param {DossierComplet['id']} id
@@ -23,4 +24,12 @@ export function modifierDossier(id, dossierParams) {
             store.mutations.setDossier(dossierAJour)
             return dossierAJour
         })
+}
+
+/**
+ * @param {DossierComplet['id']} id
+ * @returns {Promise<Message[]>}
+ */
+export function chargerMessagesDossier(id){
+    throw `PPP`
 }

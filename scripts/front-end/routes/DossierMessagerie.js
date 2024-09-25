@@ -8,6 +8,7 @@ import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 
 import DossierMessagerie from '../components/screens/DossierMessagerie.svelte';
 import { chargerDossiers } from '../actions/main.js';
+import { chargerMessagesDossier } from '../actions/dossier.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
@@ -15,32 +16,33 @@ import { chargerDossiers } from '../actions/main.js';
 // `https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`
 
 /**
- * @param {Object} ctx
- * @param {Object} ctx.params
- * @param {string} ctx.params.dossierId
+ * @param { {params: {dossierId: string}} } _
  */
 export default async({params: {dossierId}}) => {
+    /** @type {DossierId} */
+    //@ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    let { dossiers } = state 
+    let { dossiers: dossierById, messagesParDossierId } = state 
 
-    if (!dossiers){
-        dossiers = await chargerDossiers()
+    let dossiersP;
+    let messagesP;
+
+    if (dossierById.size === 0){
+        dossiersP = chargerDossiers()
+    }
+    else{
+        dossiersP = dossierById
     }
 
-    // temporaire, en attendant le merge de https://github.com/betagouv/pitchou/pull/82
-    if(Array.isArray(dossiers)){
-        const _dossiers = new Map()
-        for(const d of dossiers){
-            _dossiers.set(d.id, d)
-        }
-        dossiers = _dossiers
+    if(!messagesParDossierId.has(id)){
+        messagesP = chargerMessagesDossier(id)
     }
 
-    const dossier = dossiers.get(/** @type {DossierId} */(id))
+    const [dossiers] = await Promise.all([dossiersP, messagesP])
         
     // TODO: expliquer que le dossier n'existe pas ?
-    if (!dossier) return page('/')
+    if (!dossiers.has(id)) return page('/')
         
     /**
      * 
@@ -48,9 +50,13 @@ export default async({params: {dossierId}}) => {
      * @returns 
      */
     function mapStateToProps(state){
+        const dossier = state.dossiers.get(id)
+        const messages = state.messagesParDossierId.get(id)
+
         return {
             ...mapStateToSqueletteProps(state),
             dossier,
+            messages
         }
     }   
     
