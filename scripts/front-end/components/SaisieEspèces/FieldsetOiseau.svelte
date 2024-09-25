@@ -87,7 +87,7 @@
                                 </td>
                                 <td>
                                     <select bind:value={activité} class="fr-select">
-                                        <option>-</option>
+                                        <option value="{undefined}">-</option>
                                         {#each activitésMenaçantes || [] as act}
                                         <option value={act}>
                                             {act['étiquette affichée']}
@@ -98,7 +98,7 @@
 
                                 <td>
                                     <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'} class="fr-select">
-                                        <option>-</option>
+                                        <option value="{undefined}">-</option>
                                         {#each méthodesMenaçantes as met}
                                             <option value={met}>{met['étiquette affichée']}</option>
                                         {/each}
@@ -107,7 +107,7 @@
 
                                 <td>
                                     <select bind:value={transport} disabled={activité && activité['transport'] === 'n'} class="fr-select">
-                                        <option>-</option>
+                                        <option value="{undefined}">-</option>
                                         {#each transportMenaçants as trans}
                                             <option value={trans}>{trans['étiquette affichée']}</option>
                                         {/each}
@@ -116,7 +116,7 @@
 
                                 <td>
                                     <select bind:value={nombreIndividus} class="fr-select">
-                                        <option>-</option>
+                                        <option value="{undefined}">-</option>
                                         {#each fourchettesIndividus as fourchette}
                                             <option value={fourchette}>{fourchette}</option>
                                         {/each}
