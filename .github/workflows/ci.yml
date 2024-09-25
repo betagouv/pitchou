@@ -1,5 +1,8 @@
 name: reviewdog
 on: [pull_request]
+defaults: 
+  run:
+    working-directory: ./scripts
 jobs:
   tsc:
     name: Run tsc with reviewdog
