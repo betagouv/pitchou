@@ -4,9 +4,11 @@
     import Squelette from '../Squelette.svelte'
 
     /** @import {DossierComplet} from '../../../types.js' */
+    /** @import {default as Message} from '../../../types/database/public/Message.js' */
 
     /** @type {DossierComplet} */
     export let dossier
+    /** @type {Partial<Message>[]}*/
     export let messages = []
 
     const {number_demarches_simplifiées: numdos} = dossier
@@ -14,9 +16,9 @@
     /** @type {string | undefined} */
     export let email
 
-    let messageErreur = "" 
-
-    $: console.log('messages', messages)
+    $: messagesTriés = messages.toSorted(
+        ({date: date1}, {date: date2}) => ( (new Date(date2)).getTime() - (new Date(date1)).getTime())
+    )
 
 </script>
 
@@ -25,27 +27,22 @@
         <div class="fr-col">
             <h1 class="fr-mb-8w">Messagerie dossier {dossier.nom_dossier || "sans nom"}</h1>
 
-            <nav class="dossier-nav fr-mb-2w">
-                <ul class="fr-btns-group fr-btns-group--inline-lg">
-                    <li> 
-                        <a class="fr-btn fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/messagerie`}>Messagerie</a>
-                    </li>
-                </ul>
-            </nav>
-
-            <article class="fr-p-3w fr-mb-4w">
+            <article class="messages fr-p-3w fr-mb-4w">
+            {#each messagesTriés as {contenu, date, email_expéditeur} }
                 <section>
-                    
+                    <details open={email_expéditeur !== 'contact@demarches-simplifiees.fr'}>
+                        <summary>
+                            <header>
+                                <span>{email_expéditeur}</span>
+                                <span>{date}</span>
+                            </header>
+                        </summary>
+                        <main>
+                            {@html contenu}
+                        </main>
+                    </details>
                 </section>
-                <section>
-                    
-                </section>
+            {/each}
             </article>
         </div>
     </div>
@@ -60,8 +57,48 @@
         margin-bottom: 3rem;
     }
 
-    nav.dossier-nav {
-        display: flex;
-        justify-content: flex-end;
+    article.messages{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        details {
+            cursor: auto;
+
+            &> summary{
+                &> h2 {
+                    display: inline-block;
+                }
+
+                &::marker{
+                    content: '';
+                }
+
+                &::after{
+                    font-size: 0.9em;
+                    display: inline-block;
+                    vertical-align: middle;
+                    
+                    border-radius: 5px;
+
+                    padding: 2px 0.5rem;
+                    margin: 0 1em;
+
+                    border: 1px solid var(--text-action-high-blue-france);
+                    color: var(--text-action-high-blue-france);
+                }
+            }
+
+            &:not([open]) > summary::after{
+                content: 'Déplier ▼'
+            }
+            
+
+            &[open] > summary::after{
+                content: 'Replier ▲'
+            }
+
+        }
+
     }
 </style>
