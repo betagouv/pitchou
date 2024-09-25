@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: reviewdog/action-setup@v1
+      - name: test
+        run: ls -la && cd .. && ls -la
       - name: Install svelte-check
         run: cd ${{ github.workspace }} && npm install
       - name: Run reviewdog
