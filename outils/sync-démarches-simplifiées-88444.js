@@ -246,7 +246,7 @@ const dossiers = dossiersDS.map((
     let demandeur_personne_physique = undefined;
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
-
+ 
     const SIRETChamp = champById.get(pitchouKeyToChampDS["SIRET"])
     if(!SIRETChamp){
         demandeur_personne_physique = déposant;
