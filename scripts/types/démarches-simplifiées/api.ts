@@ -1,55 +1,13 @@
-export interface DémarchesSimpliféesCommune{
-    name: string
-    code: string
-    postalCode: string
-}
-
-export interface DémarchesSimpliféesDépartement{
-    name: string
-    code: string
-}
+import {
+    GroupeInstructeurs, 
+    Dossier, 
+    DeletedDossier, 
+    PendingDeletedDossier
+} from "./api-schema.ts"
 
 interface GraphQLNodes<T>{
     nodes: T[]
 }
-
-export interface Demandeur {
-    prenom: string
-    nom: string
-    email: string
-}
-
-export interface Champ {
-    id: string
-    label: string
-    stringValue: string
-}
-
-export interface BaseDossierDS {
-    id: number
-    number: number
-    dateDepot: string 
-    state: string
-    demandeur: Demandeur
-    champs: Champ[]
-    annotations: Champ[]
-}
-
-type Dossier = any // PPP
-type DeletedDossier = any // PPP
-type PendingDeletedDossier = any // PPP
-
-export interface Instructeur{
-    id: string
-    email: string
-}
-
-
-export interface GroupeInstructeurs{
-    label: string
-    instructeurs: Instructeur[]
-}
-
 
 export interface demarcheQueryResultDemarche{
     number: number
@@ -72,9 +30,7 @@ export interface MutationError {
         }
     ],
     path: string
-    extensions: {
-        code: string
-    }
+    extensions: object
 }
 
 export interface MutationResult {
