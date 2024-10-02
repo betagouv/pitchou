@@ -186,8 +186,8 @@ const dossiers = dossiersDS.map(({
         champById.set(champ.id, champ)
     }
 
-    const nom = champById.get(pitchouKeyToChampDS['Nom du projet']).stringValue
-    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS['espèces_protégées_concernées']).stringValue
+    const nom = champById.get(pitchouKeyToChampDS['Nom du projet'])?.stringValue
+    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS['espèces_protégées_concernées'])?.stringValue
 
 
     /* localisation */
