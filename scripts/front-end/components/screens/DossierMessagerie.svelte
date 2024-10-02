@@ -18,6 +18,7 @@
     export let email
 
     $: messagesTriés = messages.toSorted(
+        // @ts-ignore
         ({date: date1}, {date: date2}) => ( (new Date(date2)).getTime() - (new Date(date1)).getTime())
     )
 
@@ -26,7 +27,11 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
-            <h1 class="fr-mb-8w">Messagerie dossier {dossier.nom_dossier || "sans nom"}</h1>
+            <h1 class="fr-mb-6w">Messagerie dossier {dossier.nom_dossier || "sans nom"}</h1>
+
+            <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>
+                Répondre sur Démarches Simplifiées
+            </a>
 
             <article class="messages fr-p-3w fr-mb-4w">
             {#each messagesTriés as {contenu, date, email_expéditeur} }
