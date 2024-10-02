@@ -2,9 +2,10 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
+    import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types.js' */
-    /** @import {default as Message} from '../../../types/database/public/Message.js' */
+    /** @import {default as Message} from '../../../types/database/public/Message.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
@@ -29,18 +30,22 @@
 
             <article class="messages fr-p-3w fr-mb-4w">
             {#each messagesTriés as {contenu, date, email_expéditeur} }
-                <section>
-                    <details open={email_expéditeur !== 'contact@demarches-simplifiees.fr'}>
-                        <summary>
-                            <header>
-                                <span>{email_expéditeur}</span>
-                                <span>{date}</span>
-                            </header>
-                        </summary>
-                        <main>
-                            {@html contenu}
-                        </main>
-                    </details>
+                {@const accordionId = `accordion-content-${Math.random().toString(36).slice(2)}`}
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded={email_expéditeur !== 'contact@demarches-simplifiees.fr'} aria-controls={accordionId}>
+                            <span>{email_expéditeur}</span>
+                            <span title={formatDateAbsolue(date)}>{formatDateRelative(date)}</span>
+                        </button>
+                    </h3>
+                    <div class="fr-collapse" id={accordionId}>
+                        <!-- 
+                            Avertissement : Source de problèmes de sécurité potentiels
+                            Actuellement, les contenus viennent de Démarches Simplifiées et on 
+                            leur fait confiance pour assainir le HTML, mais 
+                        -->
+                        {@html contenu}
+                    </div>
                 </section>
             {/each}
             </article>
@@ -62,42 +67,13 @@
         margin: 0;
         padding: 0;
 
-        details {
-            cursor: auto;
+        button.fr-accordion__btn{
+            justify-content: space-between;
 
-            &> summary{
-                &> h2 {
-                    display: inline-block;
-                }
-
-                &::marker{
-                    content: '';
-                }
-
-                &::after{
-                    font-size: 0.9em;
-                    display: inline-block;
-                    vertical-align: middle;
-                    
-                    border-radius: 5px;
-
-                    padding: 2px 0.5rem;
-                    margin: 0 1em;
-
-                    border: 1px solid var(--text-action-high-blue-france);
-                    color: var(--text-action-high-blue-france);
-                }
+            span{
+                flex: 1;
+                display: block;
             }
-
-            &:not([open]) > summary::after{
-                content: 'Déplier ▼'
-            }
-            
-
-            &[open] > summary::after{
-                content: 'Replier ▲'
-            }
-
         }
 
     }
