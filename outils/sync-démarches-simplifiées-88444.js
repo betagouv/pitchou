@@ -78,8 +78,8 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 console.log('Nombre de dossiers', dossiersDS.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
-console.log(`messages d'un dossier`, JSON.stringify(dossiersDS[3].messages))
+//console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
+//console.log(`messages d'un dossier`, JSON.stringify(dossiersDS[3].messages))
 
 
 // stocker les dossiers en BDD
