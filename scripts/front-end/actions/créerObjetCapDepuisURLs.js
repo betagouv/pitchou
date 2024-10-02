@@ -88,7 +88,7 @@ function wrapListerMessages(url){
         return undefined
 
     if(!url.includes(dossierIdURLParam)){
-        throw new Error(`La capability modifierDossier ne contient pas '${dossierIdURLParam}'`)
+        throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`)
     }
 
     /**
