@@ -4,7 +4,7 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale";
 
-import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {listAllPersonnes, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -14,8 +14,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types.js' */
-/** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseDossierDS, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions} from '../scripts/types/démarches-simplifiées/api-schema.ts' */
 
 // récups les données de DS
 
@@ -25,7 +25,7 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 }
 
 /** @type {number} */
-const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER)
+const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER || "")
 if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
 }
@@ -116,11 +116,14 @@ const pitchouKeyToAnnotationDS = {
     "Commentaires sur les enjeux et la procédure": "Q2hhbXAtNDA5ODY5Ng==",
     "Date de réception DDEP": "Q2hhbXAtNDE0NzgzMg==",
     "Commentaires libre sur l'état de l'instruction": "Q2hhbXAtNDM4OTkxMg==",
-    "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    // "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
     "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzgzMw==",
-    "Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    //"Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
     "N° Demande ONAGRE": "Q2hhbXAtNDE0NzgzMQ==",
-    "Saisine de l'instructeur": "Q2hhbXAtNDI2NDUwMQ==",
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    //"Saisine de l'instructeur": "Q2hhbXAtNDI2NDUwMQ==",
     "Date saisine CSRPN": "Q2hhbXAtNDE0ODM2Nw==",
     "Date saisine CNPN": "Q2hhbXAtNDI2MDQ3Ng==",
     "Date avis CSRPN": "Q2hhbXAtNDE0ODM2OQ==",
@@ -132,14 +135,17 @@ const pitchouKeyToAnnotationDS = {
     "Référence de l'AP": "Q2hhbXAtNDE0MTk1Mw==",
     "Date de l'AM": "Q2hhbXAtNDE0MTk1NA==",
     "Référence de l'AM": "Q2hhbXAtNDE0MTk1NQ==",
-    "AP/AM": "Q2hhbXAtNDE0ODk0Nw=="
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    //"AP/AM": "Q2hhbXAtNDE0ODk0Nw=="
 }
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
-const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
+// const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 /** @type {Dossier[]} */
-const dossiers = dossiersDS.map(({
+const dossiers = dossiersDS.map((
+/** @type {BaseDossierDS<BaseChampDS>} */
+{
     id: id_demarches_simplifiées,
     number,
     dateDepot: date_dépôt, 
@@ -193,8 +199,11 @@ const dossiers = dossiersDS.map(({
     /* localisation */
     /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…']} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
+    /** @type {ChampDSCommunes} */
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
+    /** @type {ChampDSDépartements} */
     const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
+    /** @type {ChampDSRégions} */
     const champRégions = champById.get(pitchouKeyToChampDS["régions"])
 
     /** @type {DémarchesSimpliféesCommune[] | undefined} */
@@ -237,7 +246,7 @@ const dossiers = dossiersDS.map(({
     let demandeur_personne_physique = undefined;
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
-
+ 
     const SIRETChamp = champById.get(pitchouKeyToChampDS["SIRET"])
     if(!SIRETChamp){
         demandeur_personne_physique = déposant;

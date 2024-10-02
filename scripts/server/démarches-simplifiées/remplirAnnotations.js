@@ -7,6 +7,7 @@ import {annotationTextMutationQuery, annotationCheckboxMutationQuery, annotation
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {ChampDescriptor, ChampDescriptorTypename} from '../../types/démarches-simplifiées/schema.js' */
+/** @import {AnnotationMutationResult} from '../../types/démarches-simplifiées/api.js' */
 
 /** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor>} */
 //@ts-expect-error TS ne comprends pas que annotationDescriptor.label du schema donne forcément keyof AnnotationsPrivéesDémarcheSimplifiée88444
@@ -19,7 +20,7 @@ const labelToAnnotationDescriptor = new Map(
  * 
  * @param {string} token 
  * @param {{ dossierId: string, instructeurId:string, annotationId:string, value: string }} _ 
- * @returns {Promise<void>}
+ * @returns {Promise<AnnotationMutationResult>}
  */
 function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationTextMutationQuery, {
@@ -32,7 +33,7 @@ function remplirAnnotationText(token, { dossierId, instructeurId, annotationId, 
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: boolean }} _ 
- * @returns {Promise<void>}
+ * @returns {Promise<AnnotationMutationResult>}
  */
 function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationCheckboxMutationQuery, {
@@ -45,7 +46,7 @@ function remplirAnnotationCheckbox(token, { dossierId, instructeurId, annotation
  * 
  * @param {string} token 
  * @param {{ dossierId:string, instructeurId:string, annotationId:string, value: Date }} _ 
- * @returns {Promise<void>}
+ * @returns {Promise<AnnotationMutationResult>}
  */
 function remplirAnnotationDate(token, { dossierId, instructeurId, annotationId, value }) {
     return queryGraphQL(token, annotationDateMutationQuery, {
@@ -85,6 +86,7 @@ const annotationTypeToFonctionRemplissage = new Map([
 /**
  * @param {string} token
  * @param {{dossierId: string, instructeurId: string, annotations: Partial<AnnotationsPriveesDemarcheSimplifiee88444>}} _
+ * @returns {Promise<AnnotationMutationResult[] | undefined>}
  */
 export default function remplirAnnotations(token, { dossierId, instructeurId, annotations }) {
     return Promise.all(Object.entries(annotations).map(([key, value]) => {
