@@ -10,6 +10,7 @@ import DossierMessagerie from '../components/screens/DossierMessagerie.svelte';
 import { chargerDossiers } from '../actions/main.js';
 import { chargerMessagesDossier } from '../actions/dossier.js';
 
+/** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
 
@@ -45,7 +46,7 @@ export default async({params: {dossierId}}) => {
     /**
      * 
      * @param {PitchouState} state 
-     * @returns 
+     * @returns {ComponentProps<DossierMessagerie>}
      */
     function mapStateToProps(state){
         const dossier = state.dossiers.get(id)
