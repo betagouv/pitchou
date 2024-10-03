@@ -43,7 +43,7 @@
                             <span title={formatDateAbsolue(date)}>{formatDateRelative(date)}</span>
                         </button>
                     </h3>
-                    <div class="fr-collapse" id={accordionId}>
+                    <div class="contenu-message fr-collapse" id={accordionId}>
                         <!-- 
                             Avertissement : Source de problèmes de sécurité potentiels
                             Actuellement, les contenus viennent de Démarches Simplifiées et on 
@@ -79,6 +79,10 @@
                 flex: 1;
                 display: block;
             }
+        }
+
+        .contenu-message{
+            white-space: pre-line;
         }
 
     }
