@@ -1,8 +1,9 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import OiseauRow from "./OiseauRow.svelte"
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -44,7 +45,7 @@
     }
 
     /** @param {EspèceProtégée} _espèce */
-    function supprimerLigne(_espèce){
+    function onSupprimerLigne(_espèce){
         const index = oiseauxAtteints.findIndex(({espèce}) => espèce === _espèce);
         if (index > -1) { 
             oiseauxAtteints.splice(index, 1);
@@ -74,70 +75,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each oiseauxAtteints as {espèce, activité, méthode, transport,nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit}}
-                            <tr>
-                                <td>
-                                    <AutocompleteEspeces 
-                                        bind:selectedItem={espèce} 
-                                        espèces={espècesProtégéesOiseau} 
-                                        htmlClass="fr-input"
-                                        labelFunction={autocompleteLabelFunction}
-                                        keywordsFunction={autocompleteKeywordsFunction}
-                                    />
-                                </td>
-                                <td>
-                                    <select bind:value={activité} class="fr-select">
-                                        <option value="{undefined}">-</option>
-                                        {#each activitésMenaçantes || [] as act}
-                                        <option value={act}>
-                                            {act['étiquette affichée']}
-                                        </option>
-                                        {/each}
-                                    </select>
-                                </td>
 
-                                <td>
-                                    <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'} class="fr-select">
-                                        <option value="{undefined}">-</option>
-                                        {#each méthodesMenaçantes as met}
-                                            <option value={met}>{met['étiquette affichée']}</option>
-                                        {/each}
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <select bind:value={transport} disabled={activité && activité['transport'] === 'n'} class="fr-select">
-                                        <option value="{undefined}">-</option>
-                                        {#each transportMenaçants as trans}
-                                            <option value={trans}>{trans['étiquette affichée']}</option>
-                                        {/each}
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <select bind:value={nombreIndividus} class="fr-select">
-                                        <option value="{undefined}">-</option>
-                                        {#each fourchettesIndividus as fourchette}
-                                            <option value={fourchette}>{fourchette}</option>
-                                        {/each}
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input type="number" bind:value={nombreNids} min="0" step="1" class="fr-input">
-                                </td>
-
-                                <td>
-                                    <input type="number" bind:value={nombreOeufs} min="0" step="1" class="fr-input">
-                                </td>
-
-                                <td>
-                                    <input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input">
-                                </td>
-                                <td>
-                                    <button type="button" on:click={() => supprimerLigne(espèce)}>❌</button>
-                                </td>
-                            </tr>
+                        {#each oiseauxAtteints as {espèce, activité, méthode, transport, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit}}
+                            <OiseauRow
+                                bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:nombreNids bind:nombreOeufs bind:surfaceHabitatDétruit
+                                {oiseauxAtteints} {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
+                                {onSupprimerLigne}
+                            />
                         {/each}
                        
                         <tr>
@@ -218,19 +162,6 @@
         table{
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
-
-            tr {
-                th{
-                    padding: 0.2rem;
-
-                    vertical-align: top;
-                }
-
-                button{
-                    all: unset;
-                    cursor: pointer;
-                }
-            }
         }
     }
 </style>
