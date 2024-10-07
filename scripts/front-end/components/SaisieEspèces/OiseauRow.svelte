@@ -4,7 +4,7 @@
     import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     
-    /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
+    /** @import {EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
     /** @type {EspèceProtégée | undefined} */
     export let espèce = undefined
@@ -26,11 +26,8 @@
     /** @param {EspèceProtégée} _espèce */
     export let onSupprimerLigne
 
-    /** @type {OiseauAtteint[]} */
-    export let oiseauxAtteints
-
     /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesOiseau
+    export let espècesProtégéesOiseau = []
 
     /** @type {ActivitéMenançante[]} */
     export let activitésMenaçantes = []
@@ -50,19 +47,10 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-
-    /** @param {EspèceProtégée} oiseau */
-    function ajouterOiseau(oiseau) {
-        oiseauxAtteints.push({
-            espèce: oiseau,
-        })
-
-        rerender()
-    }
-
 </script>
 
 <tr>
+    {#if espècesProtégéesOiseau.length >= 1}
     <td>
         <AutocompleteEspeces 
             bind:selectedItem={espèce} 
@@ -72,6 +60,8 @@
             keywordsFunction={autocompleteKeywordsFunction}
         />
     </td>
+    {/if}
+
     <td>
         <select bind:value={activité} class="fr-select">
             <option value={undefined}>-</option>
@@ -121,9 +111,12 @@
     <td>
         <input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input">
     </td>
+
+    {#if onSupprimerLigne}
     <td>
         <button type="button" on:click={onSupprimerLigne}>❌</button>
     </td>
+    {/if}
 </tr>
 
 
@@ -149,6 +142,10 @@
             border-radius: 0.5em;
             padding: 0.4em;
             width: 5em;
+        }
+
+        select{
+            max-width: 6rem;
         }
     }
 </style>

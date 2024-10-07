@@ -79,7 +79,7 @@
                         {#each oiseauxAtteints as {espèce, activité, méthode, transport, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit}}
                             <OiseauRow
                                 bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:nombreNids bind:nombreOeufs bind:surfaceHabitatDétruit
-                                {oiseauxAtteints} {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
+                                {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                                 {onSupprimerLigne}
                             />
                         {/each}
@@ -130,11 +130,6 @@
         td:last-of-type{
             text-align: center;
             vertical-align: middle;
-        }
-
-        button{
-            all: unset;
-            cursor: pointer;
         }
         
         input[type="number"] {
