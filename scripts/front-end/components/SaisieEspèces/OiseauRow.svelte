@@ -145,7 +145,7 @@
         }
 
         select{
-            max-width: 6rem;
+            max-width: 10rem;
         }
     }
 </style>

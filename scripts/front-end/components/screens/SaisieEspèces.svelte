@@ -166,26 +166,32 @@
     let surfaceHabitatDétruitOiseauPrérempli
 
     /**
-     * 
-     * @param {EspèceProtégée} espèce
-     */
-     function ajouterEspèce(espèce){
-        if(espèce.classification === 'oiseau'){
-            oiseauxAtteints.push({espèce})
-        }
-        else if (espèce.classification === 'faune non-oiseau') {
-            faunesNonOiseauxAtteintes.push({espèce})
-        } else {
-            floresAtteintes.push({espèce})
-        }
-    }
-
-    /**
      * @param {Set<EspèceProtégée>} _espècesÀPréremplir
      */
     function préremplirFormulaire(_espècesÀPréremplir){
         for(const espèce of _espècesÀPréremplir){
-            ajouterEspèce(espèce)
+            switch(espèce.classification){
+                case 'oiseau':
+                    oiseauxAtteints.push({
+                        espèce,
+                        activité: activitéOiseauPréremplie,
+                        méthode: méthodeOiseauPréremplie,
+                        transport: transportOiseauPrérempli,
+                        nombreIndividus: nombreIndividusOiseauPrérempli,
+                        nombreNids: nombreNidsOiseauPrérempli,
+                        nombreOeufs: nombreOeufsOiseauPrérempli,
+                        surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
+                    })
+                break;
+                case 'faune non-oiseau': 
+                    faunesNonOiseauxAtteintes.push({espèce})
+                    break;
+                case 'flore': 
+                    floresAtteintes.push({espèce})
+                    break;
+                default:
+                    throw new TypeError(`espèce.classification inconnue: ${espèce.classification}`)
+            }
         }
         
         texteEspèces = ''
