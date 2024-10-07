@@ -28,7 +28,7 @@ export default async ({params: {dossierId}}) => {
     const espècesProtégées = chargerListeEspècesProtégées()
     const actMétTrans = chargerActivitésMéthodesTransports()
 
-    if (!dossiers){
+    if (dossiers.size === 0){
         dossiers = await chargerDossiers()
     }
 

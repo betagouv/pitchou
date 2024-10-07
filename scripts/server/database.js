@@ -16,7 +16,7 @@ if(!DATABASE_URL){
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
 }
 
-const directDatabaseConnection = knex({
+export const directDatabaseConnection = knex({
     client: 'pg',
     connection: DATABASE_URL,
 });
@@ -113,16 +113,6 @@ export function listAllPersonnes(){
 }
 
 
-
-
-
-/**
- *
- * @returns {Promise<Dossier[]>}
- */
-export function listAllDossier() {
-    return directDatabaseConnection('dossier').select()
-}
 
 
 
@@ -632,7 +622,7 @@ export async function getInstructeurIdByÉcritureAnnotationCap(cap, databaseConn
  * 
  * @param {NonNullable<Personne['code_accès']>} code_accès 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, modifierDossier: string}>>}
+ * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, listerMessages: string, modifierDossier: string}>>}
  */
 export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
     
@@ -648,14 +638,16 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     // hardcodé temporairement
     const listerDossiersP = Promise.resolve(code_accès)
     // hardcodé temporairement
+    const listerMessagesP = Promise.resolve(code_accès)
+    // hardcodé temporairement
     const modifierDossierP = Promise.resolve(code_accès)
 
-    return Promise.all([écritureAnnotationCapP, listerDossiersP, modifierDossierP])
-        .then(([écritureAnnotationCap, listerDossiers, modifierDossier]) => {
+    return Promise.all([écritureAnnotationCapP, listerDossiersP, listerMessagesP, modifierDossierP])
+        .then(([écritureAnnotationCap, listerDossiers, listerMessages, modifierDossier]) => {
             if(écritureAnnotationCap && écritureAnnotationCap.cap)
-                return {écritureAnnotationCap: écritureAnnotationCap.cap, listerDossiers, modifierDossier}
+                return {écritureAnnotationCap: écritureAnnotationCap.cap, listerDossiers, listerMessages, modifierDossier}
             else{
-                return {listerDossiers, modifierDossier}
+                return {listerDossiers, listerMessages, modifierDossier}
             }
         })
             
