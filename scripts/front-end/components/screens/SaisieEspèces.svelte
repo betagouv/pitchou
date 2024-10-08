@@ -4,12 +4,15 @@
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from '../NomEspèce.svelte'
     import CopyButton from '../CopyButton.svelte'
+    
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
     import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
+
     import OiseauRow from '../SaisieEspèces/OiseauRow.svelte'
     import FauneNonOiseauRow from '../SaisieEspèces/FauneNonOiseauRow.svelte'
-
+    import FloreRow from '../SaisieEspèces/FloreRow.svelte'
+    
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces'
@@ -176,6 +179,10 @@
     let nombreIndividusFauneNonOiseauPréremplie;
     let surfaceHabitatDétruitFauneNonOiseauPréremplie;
 
+    let activitéFlorePréremplie;
+    let nombreIndividusFlorePrérempli;
+    let surfaceHabitatDétruitFlorePrérempli;
+
     function préremplirFormulaire(){
         for(const espèce of oiseauxÀPréremplir){
             oiseauxAtteints.push({
@@ -204,13 +211,9 @@
         for(const espèce of floreÀPréremplir){
             floresAtteintes.push({
                 espèce,
-                activité: activitéOiseauPréremplie,
-                méthode: méthodeOiseauPréremplie,
-                transport: transportOiseauPrérempli,
-                nombreIndividus: nombreIndividusOiseauPrérempli,
-                nombreNids: nombreNidsOiseauPrérempli,
-                nombreOeufs: nombreOeufsOiseauPrérempli,
-                surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
+                activité: activitéFlorePréremplie,
+                nombreIndividus: nombreIndividusFlorePrérempli,
+                surfaceHabitatDétruit: surfaceHabitatDétruitFlorePrérempli
             })
         }
 
@@ -343,6 +346,39 @@
                     </section>
                     {/if}
 
+                    {#if floreÀPréremplir && floreÀPréremplir.size >= 1}
+                    <section class="préremplir-espèces fr-mb-4w">
+                        <h3>{floreÀPréremplir.size} flores</h3>
+                        <ul>
+                            {#each [...floreÀPréremplir] as espèce (espèce)}
+                                <li><NomEspèce {espèce}/></li>
+                            {/each}
+                        </ul>
+
+                        <div class="fr-table fr-table--bordered">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Type d’impact</th>
+                                        <th>Nombre d'individus</th>
+                                        <th>Surface habitat détruit (m²)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <FloreRow
+                                        bind:activité={activitéFlorePréremplie}
+                                        bind:nombreIndividus={nombreIndividusFlorePrérempli}
+                                        bind:surfaceHabitatDétruit={surfaceHabitatDétruitFlorePrérempli}
+                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("flore")}
+                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("flore")}
+                                        transportMenaçants={transportsParClassificationEtreVivant.get("flore")}
+                                    />
+                                </tbody>
+                            </table>
+                        </div>                        
+                    </section>
+                    {/if}
+                    
                     {#if oiseauxÀPréremplir.size >= 1 || fauneNonOiseauxÀPréremplir.size >= 1 || floreÀPréremplir.size >= 1}
                     <button on:click={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     {/if}
