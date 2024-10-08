@@ -2,12 +2,13 @@
     // @ts-nocheck
     import Squelette from '../Squelette.svelte'
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
-    import NomEspèce from "../NomEspèce.svelte"
+    import NomEspèce from '../NomEspèce.svelte'
     import CopyButton from '../CopyButton.svelte'
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
     import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
-    import OiseauRow from "../SaisieEspèces/OiseauRow.svelte"
+    import OiseauRow from '../SaisieEspèces/OiseauRow.svelte'
+    import FauneNonOiseauRow from '../SaisieEspèces/FauneNonOiseauRow.svelte'
 
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
@@ -154,8 +155,12 @@
     $: groupeChoisi = groupesEspèces.get(nomGroupChoisi)
     $: espècesÀPréremplirParGroupe = groupeChoisi || []
 
-    /** @type {Set<EspèceProtégée>} */
-    $: espècesÀPréremplir = new Set([...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe])
+    /** @type {EspèceProtégée[]} */
+    $: espècesÀPréremplir = [...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe]
+
+    $: oiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau'))
+    $: fauneNonOiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau'))
+    $: floreÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'flore'))
 
     let activitéOiseauPréremplie;
     let méthodeOiseauPréremplie;
@@ -165,34 +170,46 @@
     let nombreOeufsOiseauPrérempli
     let surfaceHabitatDétruitOiseauPrérempli
 
-    /**
-     * @param {Set<EspèceProtégée>} _espècesÀPréremplir
-     */
-    function préremplirFormulaire(_espècesÀPréremplir){
-        for(const espèce of _espècesÀPréremplir){
-            switch(espèce.classification){
-                case 'oiseau':
-                    oiseauxAtteints.push({
-                        espèce,
-                        activité: activitéOiseauPréremplie,
-                        méthode: méthodeOiseauPréremplie,
-                        transport: transportOiseauPrérempli,
-                        nombreIndividus: nombreIndividusOiseauPrérempli,
-                        nombreNids: nombreNidsOiseauPrérempli,
-                        nombreOeufs: nombreOeufsOiseauPrérempli,
-                        surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
-                    })
-                break;
-                case 'faune non-oiseau': 
-                    faunesNonOiseauxAtteintes.push({espèce})
-                    break;
-                case 'flore': 
-                    floresAtteintes.push({espèce})
-                    break;
-                default:
-                    throw new TypeError(`espèce.classification inconnue: ${espèce.classification}`)
-            }
+    function préremplirFormulaire(){
+        for(const espèce of oiseauxÀPréremplir){
+            oiseauxAtteints.push({
+                espèce,
+                activité: activitéOiseauPréremplie,
+                méthode: méthodeOiseauPréremplie,
+                transport: transportOiseauPrérempli,
+                nombreIndividus: nombreIndividusOiseauPrérempli,
+                nombreNids: nombreNidsOiseauPrérempli,
+                nombreOeufs: nombreOeufsOiseauPrérempli,
+                surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
+            })
         }
+
+        for(const espèce of fauneNonOiseauxÀPréremplir){
+            faunesNonOiseauxAtteintes.push({
+                espèce,
+                activité: activitéOiseauPréremplie,
+                méthode: méthodeOiseauPréremplie,
+                transport: transportOiseauPrérempli,
+                nombreIndividus: nombreIndividusOiseauPrérempli,
+                nombreNids: nombreNidsOiseauPrérempli,
+                nombreOeufs: nombreOeufsOiseauPrérempli,
+                surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
+            })
+        }
+
+        for(const espèce of floreÀPréremplir){
+            floresAtteintes.push({
+                espèce,
+                activité: activitéOiseauPréremplie,
+                méthode: méthodeOiseauPréremplie,
+                transport: transportOiseauPrérempli,
+                nombreIndividus: nombreIndividusOiseauPrérempli,
+                nombreNids: nombreNidsOiseauPrérempli,
+                nombreOeufs: nombreOeufsOiseauPrérempli,
+                surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
+            })
+        }
+
         
         texteEspèces = ''
         nomGroupChoisi = ''
@@ -245,11 +262,11 @@
                         </div>
                     </section>
 
-                    {#if espècesÀPréremplir && espècesÀPréremplir.size >= 1}
+                    {#if oiseauxÀPréremplir && oiseauxÀPréremplir.size >= 1}
                     <section class="préremplir-espèces fr-mb-4w">
-                        <h3>{espècesÀPréremplir.size} espèce.s</h3>
+                        <h3>{oiseauxÀPréremplir.size} oiseaux</h3>
                         <ul>
-                            {#each [...espècesÀPréremplir] as espèce (espèce)}
+                            {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                                 <li><NomEspèce {espèce}/></li>
                             {/each}
                         </ul>
@@ -282,10 +299,53 @@
                                     />
                                 </tbody>
                             </table>
-                        </div>
-
-                        <button on:click={() => préremplirFormulaire(espècesÀPréremplir)} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
+                        </div>                        
                     </section>
+                    {/if}
+
+                    {#if fauneNonOiseauxÀPréremplir && fauneNonOiseauxÀPréremplir.size >= 1}
+                    <section class="préremplir-espèces fr-mb-4w">
+                        <h3>{fauneNonOiseauxÀPréremplir.size} faunes non-oiseau</h3>
+                        <ul>
+                            {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
+                                <li><NomEspèce {espèce}/></li>
+                            {/each}
+                        </ul>
+
+                        <div class="fr-table fr-table--bordered">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Type d’impact</th>
+                                        <th>Méthode</th>
+                                        <th>Moyen de poursuite</th>
+                                        <th>Nombre d'individus</th>
+                                        <th>Surface habitat détruit (m²)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <OiseauRow
+                                        bind:activité={activitéOiseauPréremplie} 
+                                        bind:méthode={méthodeOiseauPréremplie} 
+                                        bind:transport={transportOiseauPrérempli}
+                                        bind:nombreIndividus={nombreIndividusOiseauPrérempli}
+                                        bind:nombreNids={nombreNidsOiseauPrérempli}
+                                        bind:nombreOeufs={nombreOeufsOiseauPrérempli}
+                                        bind:surfaceHabitatDétruit={surfaceHabitatDétruitOiseauPrérempli}
+                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("oiseau")}
+                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("oiseau")}
+                                        transportMenaçants={transportsParClassificationEtreVivant.get("oiseau")}
+                                    />
+                                </tbody>
+                            </table>
+                        </div>                        
+                    </section>
+                    {/if}
+
+                    ICI 
+
+                    {#if oiseauxÀPréremplir.size >= 1 || fauneNonOiseauxÀPréremplir.size >= 1 || floreÀPréremplir.size >= 1}
+                    <button on:click={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     {/if}
                 </details>
             </div>
