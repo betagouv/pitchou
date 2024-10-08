@@ -170,6 +170,12 @@
     let nombreOeufsOiseauPrérempli
     let surfaceHabitatDétruitOiseauPrérempli
 
+    let activitéFauneNonOiseauPréremplie;
+    let méthodeFauneNonOiseauPréremplie;
+    let transportFauneNonOiseauPréremplie;
+    let nombreIndividusFauneNonOiseauPréremplie;
+    let surfaceHabitatDétruitFauneNonOiseauPréremplie;
+
     function préremplirFormulaire(){
         for(const espèce of oiseauxÀPréremplir){
             oiseauxAtteints.push({
@@ -187,13 +193,11 @@
         for(const espèce of fauneNonOiseauxÀPréremplir){
             faunesNonOiseauxAtteintes.push({
                 espèce,
-                activité: activitéOiseauPréremplie,
-                méthode: méthodeOiseauPréremplie,
-                transport: transportOiseauPrérempli,
-                nombreIndividus: nombreIndividusOiseauPrérempli,
-                nombreNids: nombreNidsOiseauPrérempli,
-                nombreOeufs: nombreOeufsOiseauPrérempli,
-                surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
+                activité: activitéFauneNonOiseauPréremplie,
+                méthode: méthodeFauneNonOiseauPréremplie,
+                transport: transportFauneNonOiseauPréremplie,
+                nombreIndividus: nombreIndividusFauneNonOiseauPréremplie,
+                surfaceHabitatDétruit: surfaceHabitatDétruitFauneNonOiseauPréremplie
             })
         }
 
@@ -210,7 +214,6 @@
             })
         }
 
-        
         texteEspèces = ''
         nomGroupChoisi = ''
 
@@ -324,25 +327,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <OiseauRow
-                                        bind:activité={activitéOiseauPréremplie} 
-                                        bind:méthode={méthodeOiseauPréremplie} 
-                                        bind:transport={transportOiseauPrérempli}
-                                        bind:nombreIndividus={nombreIndividusOiseauPrérempli}
-                                        bind:nombreNids={nombreNidsOiseauPrérempli}
-                                        bind:nombreOeufs={nombreOeufsOiseauPrérempli}
-                                        bind:surfaceHabitatDétruit={surfaceHabitatDétruitOiseauPrérempli}
-                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("oiseau")}
-                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("oiseau")}
-                                        transportMenaçants={transportsParClassificationEtreVivant.get("oiseau")}
+                                    <FauneNonOiseauRow
+                                        bind:activité={activitéFauneNonOiseauPréremplie} 
+                                        bind:méthode={méthodeFauneNonOiseauPréremplie} 
+                                        bind:transport={transportFauneNonOiseauPréremplie}
+                                        bind:nombreIndividus={nombreIndividusFauneNonOiseauPréremplie}
+                                        bind:surfaceHabitatDétruit={surfaceHabitatDétruitFauneNonOiseauPréremplie}
+                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("faune non-oiseau")}
+                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("faune non-oiseau")}
+                                        transportMenaçants={transportsParClassificationEtreVivant.get("faune non-oiseau")}
                                     />
                                 </tbody>
                             </table>
                         </div>                        
                     </section>
                     {/if}
-
-                    ICI 
 
                     {#if oiseauxÀPréremplir.size >= 1 || fauneNonOiseauxÀPréremplir.size >= 1 || floreÀPréremplir.size >= 1}
                     <button on:click={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
@@ -424,14 +423,6 @@
         .préremplir-espèces{
             ul{
                 list-style: '- ';
-            }
-
-            table{
-                td {
-                    padding: 0.2rem;
-
-                    vertical-align: top;
-                }
             }
         }
     }	
