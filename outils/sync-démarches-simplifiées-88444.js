@@ -4,8 +4,8 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale";
 
-import {listAllPersonnes, listAllEntreprises, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
-import {getDossierIdsFromDS_Ids, dumpDossierMessages} from '../scripts/server/database/dossier.js'
+import {listAllPersonnes, listAllEntreprises, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier} from '../scripts/server/database/dossier.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -16,7 +16,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types.js' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
 
 // récups les données de DS
@@ -194,7 +194,7 @@ const dossiers = dossiersDS.map(({
 
 
     /* localisation */
-    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…']} */
+    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
     const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
@@ -221,9 +221,17 @@ const dossiers = dossiersDS.map(({
                 régions = [... new Set(champRégions.rows.map(c => c.champs[0].stringValue))]
             }
             else{
-                if(projetSitué){
-                    console.log('localisation manquante', projetSitué, champs)
-                    process.exit(1)
+                if(projetSitué === 'de toute la France'){
+                    // ignorer
+                }
+                else{
+                    if(projetSitué === ''){
+                        // ignorer
+                    }
+                    else{
+                        console.log('localisation manquante', projetSitué, champs)
+                        process.exit(1)
+                    }
                 }
             }
         }
@@ -486,9 +494,8 @@ const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
     ({id: id_DS, messages}) => [id_DS, messages])
 )
 
-/** @type {Map<number, Message[]>} */
-//@ts-ignore
-const messagesÀMettreEnBDDAvecDossierId = await getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
+
+const messagesÀMettreEnBDDAvecDossierIdP = getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
     .then(dossierIds => {
         /** @type {Map<string, Dossier['id']>} */
         const idDSToId = new Map()
@@ -509,8 +516,17 @@ const messagesÀMettreEnBDDAvecDossierId = await getDossierIdsFromDS_Ids([...mes
         return idToMessages
     });
 
-(messagesÀMettreEnBDDAvecDossierId.size >= 1 ? 
-    // @ts-ignore
-    dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId) : 
-    Promise.resolve())
+
+/** Synchronisation de l'information des dossiers suivis */
+const synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS);
+
+
+Promise.all([
+    messagesÀMettreEnBDDAvecDossierIdP.then(messagesÀMettreEnBDDAvecDossierId => {
+        if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
+            // @ts-ignore
+            dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+    }),
+    synchronisationSuiviDossier
+])
 .then(closeDatabaseConnection)
