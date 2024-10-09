@@ -115,8 +115,6 @@ export function listAllPersonnes(){
 
 
 
-
-
 /**
  *
  * @returns {Promise<DossierComplet[]>}
@@ -187,47 +185,6 @@ export function listAllDossiersComplets() {
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
-}
-
-
-
-/** @type {(keyof Dossier)[]} */
-const varcharKeys = [
-    'statut',
-    'nom',
-    'historique_nom_porteur',
-    'historique_localisation',
-    'ddep_nécessaire',
-    'en_attente_de',
-    'historique_décision',
-    'historique_référence_arrêté_préfectoral',
-    'historique_référence_arrêté_ministériel',
-]
-
-
-/**
- *
- * @param {Dossier[]} dossiers
- * @returns {Promise<any>}
- */
-export function dumpDossiers(dossiers){
-    for(const d of dossiers){
-        for(const k of varcharKeys){
-            if(typeof d[k] === 'string' && d[k].length >= 255){
-                console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
-                console.warn('Valeur:', d[k])
-                
-                console.warn(`La valeur est coupée pour qu'elle rentre en base de données`)
-                // @ts-ignore
-                d[k] = d[k].slice(0, 255)
-            }
-        }
-    }
-
-    return directDatabaseConnection('dossier')
-    .insert(dossiers)
-    .onConflict('number_demarches_simplifiées')
-    .merge()
 }
 
 
@@ -601,6 +558,9 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
 
 }
+
+
+
 
 /**
  * 

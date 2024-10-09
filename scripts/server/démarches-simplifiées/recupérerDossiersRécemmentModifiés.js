@@ -112,7 +112,6 @@ fragment DossierFragment on Dossier {
     }
   }
   instructeurs @include(if: $includeInstructeurs) {
-    id
     email
   }
   traitements @include(if: $includeTraitements) {
