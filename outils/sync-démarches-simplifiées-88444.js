@@ -15,7 +15,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseDossierDS, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions} from '../scripts/types/démarches-simplifiées/api-schema.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseDossierDS, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 // récups les données de DS
 
@@ -142,8 +143,8 @@ const pitchouKeyToAnnotationDS = {
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {Dossier[]} */
-const dossiers = dossiersDS.map((
+/** @type {DossierPourSynchronisation[]} */
+const dossiersPourSynchronisation = dossiersDS.map((
 /** @type {BaseDossierDS<BaseChampDS>} */
 {
     id: id_demarches_simplifiées,
@@ -388,7 +389,7 @@ for(const personne of allPersonnesCurrentlyInDatabase){
 }
 
 /** @type {Personne[]} */
-const personnesInDossiers = [...new Set(dossiers.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
+const personnesInDossiers = [...new Set(dossiersPourSynchronisation.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
 
 /**
  * 
@@ -432,22 +433,13 @@ if(personnesInDossiersWithoutId.length >= 1){
 //console.log('personnesInDossiersWithoutId après', personnesInDossiersWithoutId)
 
 /*
-    Après avoir créé les personnes, remplacer les objets Personne par leur id
-*/
-dossiers.forEach(d => {
-    d.déposant = getPersonneId(d.déposant)
-    d.demandeur_personne_physique = getPersonneId(d.demandeur_personne_physique)
-})
-
-
-/*
     Rajouter les entreprises demandeuses qui ne sont pas déjà en BDD
 */
 
 /** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
-for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers){
+for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiersPourSynchronisation){
     if(demandeur_personne_morale){
         const {siret} = demandeur_personne_morale
         if(demandeur_personne_morale && !siret){
@@ -458,15 +450,33 @@ for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers
     }
 }
 
-
-
 if(entreprisesInDossiersBySiret.size >= 1){
     await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
 }
 
-// Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
-dossiers.forEach(d => {
-    d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
+/*
+ * Après avoir créé les entreprises et les personnes, 
+ * remplacer les objets Entreprise par leur siret
+ * et les objets Personne par leur id
+*/
+
+/** @type {Dossier[]} */
+const dossiers = dossiersPourSynchronisation.map(dossier => {
+    const { 
+        déposant,
+        demandeur_personne_physique,
+        demandeur_personne_morale, 
+        ...autresPropriétés
+    } = dossier
+
+    return {
+        déposant: déposant.id,
+        demandeur_personne_physique: 
+            demandeur_personne_physique && demandeur_personne_physique.id,
+        demandeur_personne_morale: 
+            demandeur_personne_morale && demandeur_personne_morale.siret,
+        ...autresPropriétés,
+    }
 })
 
 let dossiersSynchronisés
