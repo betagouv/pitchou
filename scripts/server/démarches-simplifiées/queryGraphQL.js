@@ -4,7 +4,7 @@
 
 import ky from 'ky';
 
-import {GroupeInstructeursQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery, annotationTextMutationQuery, deletedDossiersQuery, pendingDeletedDossiersQuery} from './graphQLqueries.js'
+import {dossiersQuery, GroupeInstructeursQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery, annotationTextMutationQuery, deletedDossiersQuery, pendingDeletedDossiersQuery} from './graphQLqueries.js'
 
 /** @import {demarcheQueryResult, demarcheQueryResultDemarche, } from '../../types/démarches-simplifiées/api.js' */
 
@@ -32,6 +32,14 @@ const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
  * @param {pendingDeletedDossiersQuery} query
  * @param {{demarcheNumber: number, last: number}} variables
  * @returns {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'pendingDeletedDossiers'>>>}
+ */
+
+/**
+ * @overload
+ * @param {string} token
+ * @param {dossiersQuery} query
+ * @param {{demarcheNumber: number, last: number, updatedSince: string, before?: string}} variables
+ * @returns {Promise<demarcheQueryResult<Pick<demarcheQueryResultDemarche, 'dossiers'>>>}
  */
 
 // Mutations
@@ -70,20 +78,30 @@ export default async function(token, query, variables) {
     //console.log('graphQL query', query, variables)
 
     /** @type {{errors: any, data: unknown}} */
-    const response = await ky.post(ENDPOINT, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        json: {
-            query,
-            variables
+    let response 
+    try{
+        response = await ky.post(ENDPOINT, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            timeout: 20*1000,
+            json: {
+                query,
+                variables
+            }
+        }).json();
+        
+        if (response.errors) {
+            throw new Error(`Erreur graphQL ${JSON.stringify(response.errors, null, 2)}`)
         }
-    }).json();
-
-    if (response.errors) {
-        throw new Error(`Erreur graphQL ${JSON.stringify(response.errors, null, 2)}`)
+    
+        return response.data;
+    }
+    catch(err){
+        console.error('HTTP error', err)
+        throw err
     }
 
-    return response.data;
+    
 }
