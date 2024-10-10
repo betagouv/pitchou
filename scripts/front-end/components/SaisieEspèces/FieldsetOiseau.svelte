@@ -53,6 +53,19 @@
 
         rerender()
     }
+
+    /**
+     * @param {EspèceProtégée} espèce 
+     * @param {Partial<OiseauAtteint>} options 
+    */
+    function onDupliquerLigne(espèce, options) {
+        oiseauxAtteints.push({
+            espèce: espèce,
+            ...options,
+        })
+
+        rerender()
+    }
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -71,6 +84,7 @@
                             <th>Nids</th>
                             <th>Œufs</th>
                             <th>Surface habitat détruit (m²)</th>
+                            <th>Dupliquer la ligne</th>
                             <th>Supprimer la ligne</th>
                         </tr>
                     </thead>
@@ -81,6 +95,7 @@
                                 bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:nombreNids bind:nombreOeufs bind:surfaceHabitatDétruit
                                 {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                                 {onSupprimerLigne}
+                                {onDupliquerLigne}
                             />
                         {/each}
                        
@@ -110,6 +125,7 @@
                             <td><input disabled type="number" class="fr-input"></td>
                             <td><input disabled type="number" class="fr-input"></td>
                             <td><input disabled type="number" class="fr-input"></td>
+                            <td></td>
                             <td></td>
                         </tr>                        
                     </tbody>
