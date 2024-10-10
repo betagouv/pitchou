@@ -3,7 +3,7 @@
 import knex from 'knex';
 
 /** @import {DossierComplet} from '../types.js' */
-/** @import * as API_DS from "../types/démarches-simplifiées/api-schema.js" */
+/** @import * as API_DS from "../types/démarches-simplifiées/apiSchema.js" */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */

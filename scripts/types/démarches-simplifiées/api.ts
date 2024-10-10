@@ -3,7 +3,7 @@ import {
     Dossier, 
     DeletedDossier, 
     PendingDeletedDossier
-} from "./api-schema.ts"
+} from "./apiSchema.ts"
 
 interface GraphQLNodes<T>{
     nodes: T[]
