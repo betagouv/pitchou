@@ -47,6 +47,19 @@
 
         rerender()
     }
+    
+    /**
+     * @param {EspèceProtégée} espèce 
+     * @param {Partial<FloreAtteinte>} options 
+    */
+    function onDupliquerLigne(espèce, options) {
+        floresAtteintes.push({
+            espèce: espèce,
+            ...options,
+        })
+
+        rerender()
+    }
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -61,6 +74,7 @@
                             <th>Type d’impact</th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>
+                            <th>Dupliquer la ligne</th>
                             <th>Supprimer la ligne</th>
                         </tr>
                     </thead>
@@ -71,6 +85,7 @@
                                 bind:espèce bind:activité bind:nombreIndividus bind:surfaceHabitatDétruit
                                 {espècesProtégéesFlore} {activitésMenaçantes}
                                 {onSupprimerLigne}
+                                {onDupliquerLigne}
                             />
                         {/each}
 
@@ -93,6 +108,7 @@
                             <td>
                                 <input disabled type="number" class="fr-input">
                             </td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tbody>
