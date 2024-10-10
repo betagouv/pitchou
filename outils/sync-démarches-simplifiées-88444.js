@@ -15,6 +15,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
+/** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types.js' */
 /** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
 
@@ -485,22 +486,31 @@ const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
     ({id: id_DS, messages}) => [id_DS, messages])
 )
 
+/** @type {Map<number, Message[]>} */
+//@ts-ignore
 const messagesÀMettreEnBDDAvecDossierId = await getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
     .then(dossierIds => {
+        /** @type {Map<string, Dossier['id']>} */
         const idDSToId = new Map()
         for(const {id, id_demarches_simplifiées} of dossierIds){
+            //@ts-ignore
             idDSToId.set(id_demarches_simplifiées, id)
         }
 
+        /** @type {Map<number, Message[]>} */
         const idToMessages = new Map()
         for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
             const dossierId = idDSToId.get(id_DS)
 
+            //@ts-ignore
             idToMessages.set(dossierId, messages)
         }
 
         return idToMessages
-    })
+    });
 
-dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+(messagesÀMettreEnBDDAvecDossierId.size >= 1 ? 
+    // @ts-ignore
+    dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId) : 
+    Promise.resolve())
 .then(closeDatabaseConnection)
