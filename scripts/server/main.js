@@ -8,7 +8,8 @@ import fastifyCompress from '@fastify/compress'
 
 import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
   updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
-  getInstructeurCapBundleByPersonneCodeAccès} from './database.js'
+  getInstructeurCapBundleByPersonneCodeAccès,
+  getRelationSuivis} from './database.js'
 
 import { getDossierMessages } from './database/dossier.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -19,7 +20,7 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
-/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.js' */
+/** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
 /** @import {StringValues} from '../types.js' */
 /** @import {default as Personne} from '../types/database/public/Personne.js' */
 
@@ -147,11 +148,14 @@ fastify.get('/caps', async function (request, reply) {
 
   const capBundle = await getInstructeurCapBundleByPersonneCodeAccès(code_accès)
 
-  /** @type {StringValues<PitchouInstructeurCapabilities>} */
+  /** @type {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} */
   const ret = Object.create(null)
 
   if(capBundle.listerDossiers){
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`
+  }
+  if(capBundle.listerRelationSuivi){
+    ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
   }
   if(capBundle.listerMessages){
     ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`
@@ -162,6 +166,10 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.écritureAnnotationCap){
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.écritureAnnotationCap}`
   }
+  if(capBundle.identité){
+    ret.identité = capBundle.identité
+  }
+
 
   if(Object.keys(ret).length === 0){
     return reply.code(403).send("Code d'accès non valide.")
@@ -231,6 +239,25 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
 
   return getDossierMessages(dossierId)
 })
+
+fastify.get('/dossiers/relation-suivis', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const personne = await getPersonneByCode(cap)
+  if (!personne) {
+    reply.code(403).send(`Le paramètre 'cap' est invalide`)
+    return
+  } 
+
+  return getRelationSuivis(cap)
+})
+
 
 
 fastify.post('/remplir-annotations', async (request, reply) => {

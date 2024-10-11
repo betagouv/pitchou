@@ -17,9 +17,11 @@ import Store from 'baredux'
 
 /** @import {DossierComplet} from '../types.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
-/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.d.ts' */
+/** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
 /** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
 /** @import {default as Message} from '../types/database/public/Message.ts' */
+/** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
+/** @import {default as Personne} from '../types/database/public/Personne.ts' */
 
 
 /**
@@ -27,6 +29,8 @@ import Store from 'baredux'
  * @property {PitchouInstructeurCapabilities} [capabilities]
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiers
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
+ * @property {Map<Personne['email'], Set<Dossier['id']>>} [relationSuivis]
+ * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
@@ -62,6 +66,21 @@ const mutations = {
    */
   setDossier(state, nouveauDossier) {
     state.dossiers.set(nouveauDossier.id, nouveauDossier)
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['relationSuivis']} relationSuivis
+   */
+  setRelationSuivis(state, relationSuivis) {
+    console.log('setRelationSuivis', relationSuivis)
+    state.relationSuivis = relationSuivis
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['identité']} identité
+   */
+  setIdentité(state, identité) {
+    state.identité = identité
   },
   /**
    * @param {PitchouState} state
