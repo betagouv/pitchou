@@ -29,7 +29,7 @@ import Store from 'baredux'
  * @property {PitchouInstructeurCapabilities} [capabilities]
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiers
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
- * @property {Map<Personne['email'], Set<Dossier['id']>>} [relationSuivis]
+ * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
