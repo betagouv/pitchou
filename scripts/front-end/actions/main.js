@@ -17,6 +17,23 @@ const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
 export function chargerDossiers(){
 
+    if(store.state.capabilities?.listerRelationSuivi){
+        store.state.capabilities?.listerRelationSuivi()
+            .then(relationSuivisBDD => {
+                if (!relationSuivisBDD || !Array.isArray(relationSuivisBDD)) {
+                    throw new TypeError("On attendait un tableau de relation suivis ici !")
+                }
+
+                const relationSuivis = new Map()
+
+                for(const {personneEmail, dossiersSuivisIds} of relationSuivisBDD){
+                    relationSuivis.set(personneEmail, new Set(dossiersSuivisIds))
+                }
+
+                store.mutations.setRelationSuivis(relationSuivis)
+            })
+    }
+
     if(store.state.capabilities?.listerDossiers){
         return store.state.capabilities?.listerDossiers()
             .then(dossiers => {
@@ -28,7 +45,7 @@ export function chargerDossiers(){
                     objetFinal.set(dossier.id, dossier)
                     return objetFinal
                 }, new Map())
-                console.log('dossiersById', dossiersById)
+                //console.log('dossiersById', dossiersById)
                 store.mutations.setDossiers(dossiersById)
 
                 return dossiersById
@@ -198,7 +215,7 @@ export async function secretFromURL(){
 
 export async function logout(){
     store.mutations.setCapabilities(undefined)
-    store.mutations.setDossiers(undefined)
+    store.mutations.setDossiers(new Map())
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }
 
@@ -209,11 +226,18 @@ export async function logout(){
  */
 function initCapabilities(secret){
     return json(`/caps?secret=${secret}`)
-        .then(capsURLs => {
+        .then( capsURLs => {
             if(capsURLs && typeof capsURLs === 'object'){
                 store.mutations.setCapabilities(
+                    //@ts-ignore
                     créerObjetCapDepuisURLs(capsURLs)
                 )
+
+                // @ts-ignore
+                if(capsURLs.identité){
+                    // @ts-ignore
+                    store.mutations.setIdentité(capsURLs.identité)
+                }
             }
             else{
                 throw new TypeError(`capsURLs non-reconnu (${typeof capsURLs} - ${capsURLs})`)

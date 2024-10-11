@@ -42,6 +42,7 @@
                     <div class="fr-header__tools-links">
                         <ul class="fr-btns-group">
                             <li>
+                                <span>{email}</span>
                                 <button class="fr-btn fr-icon-lock-line" on:click={logoutAndRedirect}>
                                     Se déconnecter
                                 </button>

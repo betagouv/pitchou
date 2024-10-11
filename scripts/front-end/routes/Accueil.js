@@ -54,12 +54,12 @@ export default async () => {
          * @returns {ComponentProps<SuiviInstruction>}
          */
         function mapStateToProps(state){
-            const dossiersById = state.dossiers || []
+            const dossiersById = state.dossiers
 
             return {
                 ...mapStateToSqueletteProps(state),
                 dossiers: [...dossiersById.values()],
-                
+                relationSuivis: state.relationSuivis
             }
         }    
         

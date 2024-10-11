@@ -6,23 +6,29 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
+    /** @import {PitchouState} from '../../store.js' */
 
     /** @type {DossierComplet[]} */
     export let dossiers = []
 
+    /** @type {PitchouState['relationSuivis']} */
+    export let relationSuivis
+
     /** @type {string | undefined} */
     export let email
+
+    $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
     /** @type {DossierComplet[]} */
     $: dossiersSelectionnés = dossiers
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte', (d: DossierComplet) => boolean>}*/
-    const filtreParColonne = new Map()
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis', (d: DossierComplet) => boolean>}*/
+    const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
 		let nouveauxDossiersSélectionnés = dossiers;
 
-		for(const filtre of filtreParColonne.values()){
+		for(const filtre of tousLesFiltres.values()){
 			nouveauxDossiersSélectionnés = nouveauxDossiersSélectionnés.filter(filtre)
 		}
 
@@ -43,7 +49,7 @@
      * @param {{detail: Set<DossierPhase | PHASE_VIDE>}} _
      */
 	function filtrerParPhase({detail: phasesSélectionnées}){
-        filtreParColonne.set('phase', dossier => {
+        tousLesFiltres.set('phase', dossier => {
             if (phasesSélectionnées.has(PHASE_VIDE)) {
                 return !dossier.phase
             }
@@ -69,7 +75,7 @@
      * @param {{detail: Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>}} _
      */
     function filtrerParProchainesActionsAttenduesPar({detail: prochainesActionsAttenduesParSélectionnées}) {
-        filtreParColonne.set("prochaine action attendue de", dossier => {
+        tousLesFiltres.set("prochaine action attendue de", dossier => {
             if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
                 return !dossier.prochaine_action_attendue_par
             }
@@ -89,7 +95,7 @@
      * @param {{detail: string}} _
      */
     function filtrerParCommune({detail: communeSélectionnée}){
-        filtreParColonne.set('commune', dossier => {
+        tousLesFiltres.set('commune', dossier => {
             if (!dossier.communes) return false
 
             return !!dossier.communes.find(({name, postalCode}) => {
@@ -109,7 +115,7 @@
     function onSupprimerFiltreCommune(e) {
         e.preventDefault()
      
-        filtreParColonne.delete('commune')
+        tousLesFiltres.delete('commune')
         communeFiltrée = "" 
         filtrerDossiers()
     }
@@ -120,7 +126,7 @@
      * @param {{detail: string}} _
      */
     function filtrerParDépartement({detail: départementSélectionné}){
-        filtreParColonne.set('département', dossier => {
+        tousLesFiltres.set('département', dossier => {
             if (!dossier.départements) return false
 
             return !!dossier.départements.find((département) => {
@@ -140,7 +146,7 @@
     function onSupprimerFiltreDépartement(e) {
         e.preventDefault()
      
-        filtreParColonne.delete('département')
+        tousLesFiltres.delete('département')
         départementFiltré = "" 
         filtrerDossiers()
     }
@@ -151,7 +157,7 @@
      * @param {{detail: string}} _
      */
     function filtrerParTexte({detail: _texteÀChercher}){
-        filtreParColonne.set('texte', dossier => {
+        tousLesFiltres.set('texte', dossier => {
             return Boolean(
                 dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
                 dossier.commentaire_libre && dossier.commentaire_libre.includes(_texteÀChercher) ||
@@ -177,9 +183,23 @@
     function onSupprimerFiltreTexte(e) {
         e.preventDefault()
      
-        filtreParColonne.delete('texte')
+        tousLesFiltres.delete('texte')
 
         texteÀChercher = ''
+        filtrerDossiers()
+    }
+
+    let filtrerUniquementDossiersSuivi = false;
+
+    $: if(filtrerUniquementDossiersSuivi){
+        if(dossiersIdSuivisParInstructeurActuel){
+            tousLesFiltres.set('suivis', dossier => dossiersIdSuivisParInstructeurActuel.has(dossier.id))
+
+            filtrerDossiers()
+        }
+    }
+    else{
+        tousLesFiltres.delete('suivis')
         filtrerDossiers()
     }
 </script>
@@ -213,6 +233,12 @@
                     titre="Rechercher texte libre"
                     on:selected-changed={filtrerParTexte}
                 />
+                <div class="fr-checkbox-group">
+                    <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
+                    <label class="fr-label" for="checkbox-1">
+                        Afficher uniquement mes dossiers suivis
+                    </label>
+                </div>
 
                 <div class="fr-mt-2w">
                     {#if communeFiltrée}

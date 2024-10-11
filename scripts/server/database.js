@@ -9,7 +9,7 @@ import knex from 'knex';
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
 /** @import {default as GroupeInstructeurs} from '../types/database/public/GroupeInstructeurs.ts' */
 /** @import {default as CapÉcritureAnnotation} from '../types/database/public/CapÉcritureAnnotation.ts' */
-
+/** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
 
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
@@ -115,8 +115,6 @@ export function listAllPersonnes(){
 
 
 
-
-
 /**
  *
  * @returns {Promise<DossierComplet[]>}
@@ -187,47 +185,6 @@ export function listAllDossiersComplets() {
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
-}
-
-
-
-/** @type {(keyof Dossier)[]} */
-const varcharKeys = [
-    'statut',
-    'nom',
-    'historique_nom_porteur',
-    'historique_localisation',
-    'ddep_nécessaire',
-    'en_attente_de',
-    'historique_décision',
-    'historique_référence_arrêté_préfectoral',
-    'historique_référence_arrêté_ministériel',
-]
-
-
-/**
- *
- * @param {Dossier[]} dossiers
- * @returns {Promise<any>}
- */
-export function dumpDossiers(dossiers){
-    for(const d of dossiers){
-        for(const k of varcharKeys){
-            if(typeof d[k] === 'string' && d[k].length >= 255){
-                console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
-                console.warn('Valeur:', d[k])
-                
-                console.warn(`La valeur est coupée pour qu'elle rentre en base de données`)
-                // @ts-ignore
-                d[k] = d[k].slice(0, 255)
-            }
-        }
-    }
-
-    return directDatabaseConnection('dossier')
-    .insert(dossiers)
-    .onConflict('number_demarches_simplifiées')
-    .merge()
 }
 
 
@@ -602,6 +559,9 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
 }
 
+
+
+
 /**
  * 
  * @param {CapÉcritureAnnotation['cap']} cap 
@@ -622,7 +582,7 @@ export async function getInstructeurIdByÉcritureAnnotationCap(cap, databaseConn
  * 
  * @param {NonNullable<Personne['code_accès']>} code_accès 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, listerMessages: string, modifierDossier: string}>>}
+ * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, listerRelationSuivi: string, listerMessages: string, modifierDossier: string, identité: IdentitéInstructeurPitchou}>>}
  */
 export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
     
@@ -635,22 +595,66 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
         .where({personne_cap: code_accès})
         .first();
 
+    const identitéP = databaseConnection('personne')
+        .select('email')
+        .where({code_accès})
+        .first();
+
     // hardcodé temporairement
     const listerDossiersP = Promise.resolve(code_accès)
+    // hardcodé temporairement
+    const listerRelationSuiviP = Promise.resolve(code_accès)
     // hardcodé temporairement
     const listerMessagesP = Promise.resolve(code_accès)
     // hardcodé temporairement
     const modifierDossierP = Promise.resolve(code_accès)
 
-    return Promise.all([écritureAnnotationCapP, listerDossiersP, listerMessagesP, modifierDossierP])
-        .then(([écritureAnnotationCap, listerDossiers, listerMessages, modifierDossier]) => {
-            if(écritureAnnotationCap && écritureAnnotationCap.cap)
-                return {écritureAnnotationCap: écritureAnnotationCap.cap, listerDossiers, listerMessages, modifierDossier}
-            else{
-                return {listerDossiers, listerMessages, modifierDossier}
+    return Promise.all([écritureAnnotationCapP, listerDossiersP, listerRelationSuiviP, listerMessagesP, modifierDossierP, identitéP])
+        .then(([écritureAnnotationCap, listerDossiers, listerRelationSuivi, listerMessages, modifierDossier, identité]) => {
+            const ret = {
+                écritureAnnotationCap: undefined, 
+                listerDossiers, 
+                listerRelationSuivi,
+                listerMessages, 
+                modifierDossier, 
+                identité
             }
-        })
-            
-    
 
+            if(écritureAnnotationCap && écritureAnnotationCap.cap)
+                ret.écritureAnnotationCap = écritureAnnotationCap.cap
+
+            return ret
+        })
+
+}
+
+/**
+ * 
+ * @param {NonNullable<Personne['code_accès']>} cap 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ReturnType<PitchouInstructeurCapabilities['listerRelationSuivi']>>}
+ */
+export async function getRelationSuivis(cap, databaseConnection = directDatabaseConnection){
+    // Pour le moment, on ignore la cap
+    // Dans un futur proche, elle servira à trouver la liste des groupes d'instructeurs auquel l'instructeur actuel appartient
+    // (et donc la liste des dossiers pertinents qui sont ceux associés à ces groupes d'instructeurs)
+
+    // Pour le moment, on va dire qu'on retourne l'ensemble de toutes les relations de suivi et c'est ok
+    const relsBDD = await databaseConnection('arête_personne_suit_dossier')
+        .select(['email', 'dossier'])
+        .leftJoin('personne', {
+            'personne.id': 'arête_personne_suit_dossier.personne'
+        })
+
+    const retMap = new Map();
+
+    for(const {email, dossier} of relsBDD){
+        const dossiersSuivisIds = retMap.get(email) || new Set()
+        dossiersSuivisIds.add(dossier)
+        retMap.set(email, dossiersSuivisIds)
+    }
+
+    return [...retMap].map(([email, dossiersSuivisIds]) => 
+        ({personneEmail: email, dossiersSuivisIds: [...dossiersSuivisIds]})
+    )
 }
