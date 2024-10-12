@@ -8,8 +8,10 @@ import fastifyCompress from '@fastify/compress'
 
 import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
   updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
-  getInstructeurCapBundleByPersonneCodeAccès} from './database.js'
+  getInstructeurCapBundleByPersonneCodeAccès,
+  getRelationSuivis} from './database.js'
 
+import { getDossierMessages } from './database/dossier.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
@@ -18,7 +20,7 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
-/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.js' */
+/** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
 /** @import {StringValues} from '../types.js' */
 /** @import {default as Personne} from '../types/database/public/Personne.js' */
 
@@ -74,21 +76,22 @@ fastify.register(fastatic, {
 })
 
 
-fastify.get('/saisie-especes', (_request, reply) => {
+/**
+ * 
+ * @param {any} _request 
+ * @param {any} reply 
+ */
+function sendIndexHTMLFile(_request, reply){
   reply.sendFile('index.html')
-})
-fastify.get('/dossier/:dossierId', (_request, reply) => {
-  reply.sendFile('index.html')
-})
-fastify.get('/import-historique/nouvelle-aquitaine', (_request, reply) => {
-  reply.sendFile('index.html')
-})
-fastify.get('/preremplissage-derogation', (_request, reply) => {
-  reply.sendFile('index.html')
-})
-fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', (_request, reply) => {
-  reply.sendFile('index.html')
-})
+}
+
+fastify.get('/saisie-especes', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', sendIndexHTMLFile)
+fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
+fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
+
 
 
 fastify.post('/lien-preremplissage', async function (request) {
@@ -145,11 +148,17 @@ fastify.get('/caps', async function (request, reply) {
 
   const capBundle = await getInstructeurCapBundleByPersonneCodeAccès(code_accès)
 
-  /** @type {StringValues<PitchouInstructeurCapabilities>} */
+  /** @type {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} */
   const ret = Object.create(null)
 
   if(capBundle.listerDossiers){
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`
+  }
+  if(capBundle.listerRelationSuivi){
+    ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
+  }
+  if(capBundle.listerMessages){
+    ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`
   }
   if(capBundle.modifierDossier){
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`
@@ -157,6 +166,10 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.écritureAnnotationCap){
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.écritureAnnotationCap}`
   }
+  if(capBundle.identité){
+    ret.identité = capBundle.identité
+  }
+
 
   if(Object.keys(ret).length === 0){
     return reply.code(403).send("Code d'accès non valide.")
@@ -205,6 +218,46 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   return updateDossier(dossierId, dossierParams)
 })
+
+fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const personne = await getPersonneByCode(cap)
+  if (!personne) {
+    reply.code(403).send(`Le paramètre 'cap' est invalide`)
+    return
+  } 
+  
+  // @ts-ignore
+  const { dossierId } = request.params
+
+  return getDossierMessages(dossierId)
+})
+
+fastify.get('/dossiers/relation-suivis', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const personne = await getPersonneByCode(cap)
+  if (!personne) {
+    reply.code(403).send(`Le paramètre 'cap' est invalide`)
+    return
+  } 
+
+  return getRelationSuivis(cap)
+})
+
 
 
 fastify.post('/remplir-annotations', async (request, reply) => {

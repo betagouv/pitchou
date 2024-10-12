@@ -63,7 +63,6 @@ export interface BaseDossierDS<ChampDS> {
     annotations: ChampDS[]
 }
 
-export type Dossier = any // PPP
 export type DeletedDossier = any // PPP
 export type PendingDeletedDossier = any // PPP
 
@@ -75,4 +74,21 @@ export interface Instructeur{
 export interface GroupeInstructeurs{
     label: string
     instructeurs: Instructeur[]
+}
+
+export interface Message{
+    id: string
+    email: string
+    body: string
+    createdAt: string // représentant une date
+    attachments: any[]
+}
+
+
+export interface Dossier{
+    groupeInstructeur: GroupeInstructeurs
+    instructeurs: Instructeur[]
+    champs: any[]
+    annotations: any[]
+    messages: Message[]
 }

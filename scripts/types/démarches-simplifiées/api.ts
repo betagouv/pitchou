@@ -12,9 +12,9 @@ interface GraphQLNodes<T>{
 export interface demarcheQueryResultDemarche{
     number: number
     groupeInstructeurs: GroupeInstructeurs[]
-    dossiers: GraphQLNodes<Dossier[]>
-    deletedDossiers: GraphQLNodes<DeletedDossier[]>
-    pendingDeletedDossiers: GraphQLNodes<PendingDeletedDossier[]>
+    dossiers: GraphQLNodes<Dossier>
+    deletedDossiers: GraphQLNodes<DeletedDossier>
+    pendingDeletedDossiers: GraphQLNodes<PendingDeletedDossier>
 }
 
 export interface demarcheQueryResult<DemarchePart>{

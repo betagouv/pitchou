@@ -4,7 +4,8 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale";
 
-import {listAllPersonnes, dumpDossiers, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {listAllPersonnes, listAllEntreprises, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier} from '../scripts/server/database/dossier.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -14,8 +15,9 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
+/** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseDossierDS, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 // récups les données de DS
@@ -78,7 +80,8 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 console.log('Nombre de dossiers', dossiersDS.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
-//console.log('un dossier', JSON.stringify(démarche.dossiers.nodes[21], null, 2))
+//console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
+//console.log(`messages d'un dossier`, JSON.stringify(dossiersDS[3].messages))
 
 
 // stocker les dossiers en BDD
@@ -193,12 +196,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
         champById.set(champ.id, champ)
     }
 
-    const nom = champById.get(pitchouKeyToChampDS['Nom du projet']).stringValue
-    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS['espèces_protégées_concernées']).stringValue
+    const nom = champById.get(pitchouKeyToChampDS['Nom du projet'])?.stringValue
+    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS['espèces_protégées_concernées'])?.stringValue
 
 
     /* localisation */
-    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…']} */
+    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
     /** @type {ChampDSCommunes} */
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
@@ -228,9 +231,17 @@ const dossiersPourSynchronisation = dossiersDS.map((
                 régions = [... new Set(champRégions.rows.map(c => c.champs[0].stringValue))]
             }
             else{
-                if(projetSitué){
-                    console.log('localisation manquante', projetSitué, champs)
-                    process.exit(1)
+                if(projetSitué === 'de toute la France'){
+                    // ignorer
+                }
+                else{
+                    if(projetSitué === ''){
+                        // ignorer
+                    }
+                    else{
+                        console.log('localisation manquante', projetSitué, champs)
+                        process.exit(1)
+                    }
                 }
             }
         }
@@ -493,5 +504,48 @@ const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumb
 await Promise.all([
     dossiersSynchronisés,
     dossiersSupprimés
+])
+
+/** Synchronisation de la messagerie */
+
+/** @type {Map<string, any[]>} // Map<id_DS, MessageAPI_DS> */
+const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
+    ({id: id_DS, messages}) => [id_DS, messages])
+)
+
+
+const messagesÀMettreEnBDDAvecDossierIdP = getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
+    .then(dossierIds => {
+        /** @type {Map<string, Dossier['id']>} */
+        const idDSToId = new Map()
+        for(const {id, id_demarches_simplifiées} of dossierIds){
+            //@ts-ignore
+            idDSToId.set(id_demarches_simplifiées, id)
+        }
+
+        /** @type {Map<number, Message[]>} */
+        const idToMessages = new Map()
+        for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
+            const dossierId = idDSToId.get(id_DS)
+
+            //@ts-ignore
+            idToMessages.set(dossierId, messages)
+        }
+
+        return idToMessages
+    });
+
+
+/** Synchronisation de l'information des dossiers suivis */
+const synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS);
+
+
+Promise.all([
+    messagesÀMettreEnBDDAvecDossierIdP.then(messagesÀMettreEnBDDAvecDossierId => {
+        if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
+            // @ts-ignore
+            dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+    }),
+    synchronisationSuiviDossier
 ])
 .then(closeDatabaseConnection)
