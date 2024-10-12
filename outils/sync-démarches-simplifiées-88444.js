@@ -2,7 +2,7 @@
 
 import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
-import { fr } from "date-fns/locale";
+import { fr } from "date-fns/locale"
 
 import {listAllPersonnes, listAllEntreprises, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier} from '../scripts/server/database/dossier.js'
@@ -17,7 +17,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
++/** @import {DémarchesSimpliféesCommune, BaseDossierDS, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 // récups les données de DS
