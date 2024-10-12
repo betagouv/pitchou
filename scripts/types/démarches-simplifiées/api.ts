@@ -2,7 +2,8 @@ import {
     GroupeInstructeurs, 
     Dossier, 
     DeletedDossier, 
-    PendingDeletedDossier
+    PendingDeletedDossier,
+    BaseChampDS
 } from "./apiSchema.ts"
 
 interface GraphQLNodes<T>{
@@ -12,7 +13,7 @@ interface GraphQLNodes<T>{
 export interface demarcheQueryResultDemarche{
     number: number
     groupeInstructeurs: GroupeInstructeurs[]
-    dossiers: GraphQLNodes<Dossier>
+    dossiers: GraphQLNodes<Dossier<BaseChampDS>>
     deletedDossiers: GraphQLNodes<DeletedDossier>
     pendingDeletedDossiers: GraphQLNodes<PendingDeletedDossier>
 }
