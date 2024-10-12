@@ -174,7 +174,12 @@ export async function synchroniserSuiviDossier(dossierDS, databaseConnection = d
         }
     }
 
-    await databaseConnection('arête_personne_suit_dossier')
-        .insert(arêtesPersonneSuitDossier)
+    console.log(arêtesPersonneSuitDossier)
 
+    try {    
+        await databaseConnection('arête_personne_suit_dossier')
+            .insert(arêtesPersonneSuitDossier)
+    } catch (_e) {
+        return Promise.resolve()
+    }
 }
