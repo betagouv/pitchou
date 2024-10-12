@@ -4,7 +4,7 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
-import {listAllPersonnes, listAllEntreprises, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {listAllPersonnes, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier} from '../scripts/server/database/dossier.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
@@ -17,7 +17,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseDossierDS, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 // récups les données de DS
@@ -68,7 +68,7 @@ const groupesInstructeursAPI = await recupérerGroupesInstructeurs(DEMARCHE_SIMP
 await synchroniserGroupesInstructeurs(groupesInstructeursAPI)
 
 
-
+/** @type {DossierDS<BaseChampDS>[]} */
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
     DEMARCHE_SIMPLIFIEE_API_TOKEN, 
     DEMARCHE_NUMBER, 
@@ -148,7 +148,6 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 
 /** @type {DossierPourSynchronisation[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
-/** @type {BaseDossierDS<BaseChampDS>} */
 {
     id: id_demarches_simplifiées,
     number,
@@ -380,7 +379,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         historique_date_signature_arrêté_préfectoral,
         historique_référence_arrêté_préfectoral,
         historique_date_signature_arrêté_ministériel,
-        historique_référence_arrêté_ministériel
+        historique_référence_arrêté_ministériel,
     }
     
 })
@@ -400,6 +399,7 @@ for(const personne of allPersonnesCurrentlyInDatabase){
 }
 
 /** @type {Personne[]} */
+// @ts-expect-error TS ne comprend pas que le `filter` filtre les `null` et les `undefined` 
 const personnesInDossiers = [...new Set(dossiersPourSynchronisation.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
 
 /**
@@ -450,13 +450,14 @@ if(personnesInDossiersWithoutId.length >= 1){
 /** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
-for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiersPourSynchronisation){
-    if(demandeur_personne_morale){
+for(const {demandeur_personne_morale, id_demarches_simplifiées} of dossiersPourSynchronisation){
+    if (demandeur_personne_morale) {
         const {siret} = demandeur_personne_morale
         if(demandeur_personne_morale && !siret){
-            throw new TypeError(`Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id: ${id}, DS: ${id_demarches_simplifiées})`)
+            throw new TypeError(`Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id_DS: ${id_demarches_simplifiées})`)
         }
         
+        // @ts-expect-error TS ne comprend pas que demandeur_personne_morale est forcément une Entreprise
         entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale)
     }
 }
@@ -471,7 +472,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Dossier[]} */
+/** @type {Omit<Dossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
@@ -481,11 +482,11 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
     } = dossier
 
     return {
-        déposant: déposant.id,
+        déposant: (déposant && déposant.id) || null,
         demandeur_personne_physique: 
-            demandeur_personne_physique && demandeur_personne_physique.id,
+            (demandeur_personne_physique && demandeur_personne_physique.id) || null,
         demandeur_personne_morale: 
-            demandeur_personne_morale && demandeur_personne_morale.siret,
+            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
         ...autresPropriétés,
     }
 })

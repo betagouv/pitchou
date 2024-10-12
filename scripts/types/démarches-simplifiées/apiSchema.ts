@@ -53,16 +53,6 @@ export interface BaseChampDSRégion extends BaseChampDS {
 
 export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégions>
 
-export interface BaseDossierDS<ChampDS> {
-    id: number
-    number: number
-    dateDepot: string 
-    state: string
-    demandeur: DemandeurDS
-    champs: ChampDS[]
-    annotations: ChampDS[]
-}
-
 export type DeletedDossier = any // PPP
 export type PendingDeletedDossier = any // PPP
 
@@ -85,10 +75,15 @@ export interface Message{
 }
 
 
-export interface Dossier{
+export interface Dossier<ChampDS> {
+    id: string
+    number: string
+    dateDepot: Date 
+    state: string
+    demandeur: DemandeurDS
     groupeInstructeur: GroupeInstructeurs
     instructeurs: Instructeur[]
-    champs: any[]
-    annotations: any[]
     messages: Message[]
+    champs: ChampDS[]
+    annotations: ChampDS[]
 }

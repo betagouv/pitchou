@@ -79,7 +79,7 @@ const varcharKeys = [
 
 /**
  *
- * @param {Dossier[]} dossiers
+ * @param {Partial<Dossier>[]} dossiers
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
