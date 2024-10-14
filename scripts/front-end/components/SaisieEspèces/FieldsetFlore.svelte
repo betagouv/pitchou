@@ -1,8 +1,9 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus} from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import FloreRow from "./FloreRow.svelte"
     
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
 
@@ -38,7 +39,7 @@
     }
 
     /** @param {EspèceProtégée} _espèce */
-    function supprimerLigne(_espèce){
+    function onSupprimerLigne(_espèce){
         const index = floresAtteintes.findIndex(({espèce}) => espèce === _espèce);
         if (index > -1) { 
             floresAtteintes.splice(index, 1);
@@ -66,43 +67,11 @@
                     
                     <tbody>
                         {#each floresAtteintes as {espèce, activité, nombreIndividus, surfaceHabitatDétruit}}
-                            <tr>
-                                <td>
-                                    <AutocompleteEspeces 
-                                        bind:selectedItem={espèce} 
-                                        espèces={espècesProtégéesFlore} 
-                                        htmlClass="fr-input"
-                                        labelFunction={autocompleteLabelFunction}
-                                        keywordsFunction={autocompleteKeywordsFunction}
-                                    />
-                                </td>
-                                <td>
-                                    <select bind:value={activité} class="fr-select">
-                                        <option value="{undefined}">-</option>
-                                        {#each activitésMenaçantes || [] as act}
-                                        <option value={act}>
-                                            {act['étiquette affichée']}
-                                        </option>
-                                        {/each}
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <select bind:value={nombreIndividus} class="fr-select">
-                                        <option value="{undefined}">-</option>
-                                        {#each fourchettesIndividus as fourchette}
-                                            <option value={fourchette}>{fourchette}</option>
-                                        {/each}
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input">
-                                </td>
-                                <td>
-                                    <button type="button" on:click={() => supprimerLigne(espèce)}>❌</button>
-                                </td>
-                            </tr>
+                            <FloreRow
+                                bind:espèce bind:activité bind:nombreIndividus bind:surfaceHabitatDétruit
+                                {espècesProtégéesFlore} {activitésMenaçantes}
+                                {onSupprimerLigne}
+                            />
                         {/each}
 
                         <tr>
