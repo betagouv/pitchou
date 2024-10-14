@@ -6,7 +6,7 @@ import ky from 'ky';
 
 import {dossiersQuery, GroupeInstructeursQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery, annotationTextMutationQuery, deletedDossiersQuery, pendingDeletedDossiersQuery} from './graphQLqueries.js'
 
-/** @import {demarcheQueryResult, demarcheQueryResultDemarche, } from '../../types/démarches-simplifiées/api.js' */
+/** @import {demarcheQueryResult, demarcheQueryResultDemarche, AnnotationMutationResult} from '../../types/démarches-simplifiées/api.js' */
 
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
 
@@ -49,7 +49,7 @@ const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
  * @param {string} token
  * @param {annotationTextMutationQuery} query
  * @param {{dossierId: string, instructeurId: string, annotationId: string, clientMutationId: string, value: string}} variables
- * @returns {Promise<void>}
+ * @returns {Promise<AnnotationMutationResult>}
  */
 
 /**
@@ -57,7 +57,7 @@ const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
  * @param {string} token
  * @param {annotationCheckboxMutationQuery} query
  * @param {{dossierId: string, instructeurId: string, annotationId: string, value: boolean}} variables
- * @returns {Promise<void>}
+ * @returns {Promise<AnnotationMutationResult>}
  */
 
 /**
@@ -65,7 +65,7 @@ const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
  * @param {string} token
  * @param {annotationDateMutationQuery} query
  * @param {{dossierId: string, instructeurId: string, annotationId: string, value: string}} variables
- * @returns {Promise<void>}
+ * @returns {Promise<AnnotationMutationResult>}
  */
 
 /**

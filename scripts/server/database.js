@@ -3,7 +3,7 @@
 import knex from 'knex';
 
 /** @import {DossierComplet} from '../types.js' */
-/** @import * as API_DS from "../types/démarches-simplifiées/api.js" */
+/** @import * as API_DS from "../types/démarches-simplifiées/apiSchema.js" */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
@@ -630,11 +630,11 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
 
 /**
  * 
- * @param {NonNullable<Personne['code_accès']>} cap 
+ * @param {NonNullable<Personne['code_accès']>} _cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ReturnType<PitchouInstructeurCapabilities['listerRelationSuivi']>>}
  */
-export async function getRelationSuivis(cap, databaseConnection = directDatabaseConnection){
+export async function getRelationSuivis(_cap, databaseConnection = directDatabaseConnection){
     // Pour le moment, on ignore la cap
     // Dans un futur proche, elle servira à trouver la liste des groupes d'instructeurs auquel l'instructeur actuel appartient
     // (et donc la liste des dossiers pertinents qui sont ceux associés à ces groupes d'instructeurs)

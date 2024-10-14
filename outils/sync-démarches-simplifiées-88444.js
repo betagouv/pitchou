@@ -2,9 +2,9 @@
 
 import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
-import { fr } from "date-fns/locale";
+import { fr } from "date-fns/locale"
 
-import {listAllPersonnes, listAllEntreprises, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
+import {listAllPersonnes, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier} from '../scripts/server/database/dossier.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
@@ -17,7 +17,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune} from '../scripts/types/démarches-simplifiées/api.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 // récups les données de DS
 
@@ -27,7 +28,7 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 }
 
 /** @type {number} */
-const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER)
+const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER || "")
 if(!DEMARCHE_NUMBER){
   throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
 }
@@ -67,7 +68,7 @@ const groupesInstructeursAPI = await recupérerGroupesInstructeurs(DEMARCHE_SIMP
 await synchroniserGroupesInstructeurs(groupesInstructeursAPI)
 
 
-
+/** @type {DossierDS<BaseChampDS>[]} */
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
     DEMARCHE_SIMPLIFIEE_API_TOKEN, 
     DEMARCHE_NUMBER, 
@@ -119,11 +120,14 @@ const pitchouKeyToAnnotationDS = {
     "Commentaires sur les enjeux et la procédure": "Q2hhbXAtNDA5ODY5Ng==",
     "Date de réception DDEP": "Q2hhbXAtNDE0NzgzMg==",
     "Commentaires libre sur l'état de l'instruction": "Q2hhbXAtNDM4OTkxMg==",
-    "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    // "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
     "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzgzMw==",
-    "Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    //"Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
     "N° Demande ONAGRE": "Q2hhbXAtNDE0NzgzMQ==",
-    "Saisine de l'instructeur": "Q2hhbXAtNDI2NDUwMQ==",
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    //"Saisine de l'instructeur": "Q2hhbXAtNDI2NDUwMQ==",
     "Date saisine CSRPN": "Q2hhbXAtNDE0ODM2Nw==",
     "Date saisine CNPN": "Q2hhbXAtNDI2MDQ3Ng==",
     "Date avis CSRPN": "Q2hhbXAtNDE0ODM2OQ==",
@@ -135,14 +139,16 @@ const pitchouKeyToAnnotationDS = {
     "Référence de l'AP": "Q2hhbXAtNDE0MTk1Mw==",
     "Date de l'AM": "Q2hhbXAtNDE0MTk1NA==",
     "Référence de l'AM": "Q2hhbXAtNDE0MTk1NQ==",
-    "AP/AM": "Q2hhbXAtNDE0ODk0Nw=="
+    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
+    //"AP/AM": "Q2hhbXAtNDE0ODk0Nw=="
 }
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
-const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
+// const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {Dossier[]} */
-const dossiers = dossiersDS.map(({
+/** @type {DossierPourSynchronisation[]} */
+const dossiersPourSynchronisation = dossiersDS.map((
+{
     id: id_demarches_simplifiées,
     number,
     dateDepot: date_dépôt, 
@@ -196,8 +202,11 @@ const dossiers = dossiersDS.map(({
     /* localisation */
     /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */
     const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
+    /** @type {ChampDSCommunes} */
     const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
+    /** @type {ChampDSDépartements} */
     const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
+    /** @type {ChampDSRégions} */
     const champRégions = champById.get(pitchouKeyToChampDS["régions"])
 
     /** @type {DémarchesSimpliféesCommune[] | undefined} */
@@ -248,7 +257,7 @@ const dossiers = dossiersDS.map(({
     let demandeur_personne_physique = undefined;
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
-
+ 
     const SIRETChamp = champById.get(pitchouKeyToChampDS["SIRET"])
     if(!SIRETChamp){
         demandeur_personne_physique = déposant;
@@ -370,7 +379,7 @@ const dossiers = dossiersDS.map(({
         historique_date_signature_arrêté_préfectoral,
         historique_référence_arrêté_préfectoral,
         historique_date_signature_arrêté_ministériel,
-        historique_référence_arrêté_ministériel
+        historique_référence_arrêté_ministériel,
     }
     
 })
@@ -390,7 +399,8 @@ for(const personne of allPersonnesCurrentlyInDatabase){
 }
 
 /** @type {Personne[]} */
-const personnesInDossiers = [...new Set(dossiers.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
+// @ts-expect-error TS ne comprend pas que le `filter` filtre les `null` et les `undefined` 
+const personnesInDossiers = [...new Set(dossiersPourSynchronisation.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
 
 /**
  * 
@@ -434,41 +444,51 @@ if(personnesInDossiersWithoutId.length >= 1){
 //console.log('personnesInDossiersWithoutId après', personnesInDossiersWithoutId)
 
 /*
-    Après avoir créé les personnes, remplacer les objets Personne par leur id
-*/
-dossiers.forEach(d => {
-    d.déposant = getPersonneId(d.déposant)
-    d.demandeur_personne_physique = getPersonneId(d.demandeur_personne_physique)
-})
-
-
-/*
     Rajouter les entreprises demandeuses qui ne sont pas déjà en BDD
 */
 
 /** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
-for(const {demandeur_personne_morale, id, id_demarches_simplifiées} of dossiers){
-    if(demandeur_personne_morale){
+for(const {demandeur_personne_morale, id_demarches_simplifiées} of dossiersPourSynchronisation){
+    if (demandeur_personne_morale) {
         const {siret} = demandeur_personne_morale
         if(demandeur_personne_morale && !siret){
-            throw new TypeError(`Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id: ${id}, DS: ${id_demarches_simplifiées})`)
+            throw new TypeError(`Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id_DS: ${id_demarches_simplifiées})`)
         }
         
+        // @ts-expect-error TS ne comprend pas que demandeur_personne_morale est forcément une Entreprise
         entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale)
     }
 }
-
-
 
 if(entreprisesInDossiersBySiret.size >= 1){
     await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
 }
 
-// Après avoir créé les dossiers, remplacer les objets Entreprise par leur siret
-dossiers.forEach(d => {
-    d.demandeur_personne_morale = d.demandeur_personne_morale && d.demandeur_personne_morale.siret
+/*
+ * Après avoir créé les entreprises et les personnes, 
+ * remplacer les objets Entreprise par leur siret
+ * et les objets Personne par leur id
+*/
+
+/** @type {Omit<Dossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par">[]} */
+const dossiers = dossiersPourSynchronisation.map(dossier => {
+    const { 
+        déposant,
+        demandeur_personne_physique,
+        demandeur_personne_morale, 
+        ...autresPropriétés
+    } = dossier
+
+    return {
+        déposant: (déposant && déposant.id) || null,
+        demandeur_personne_physique: 
+            (demandeur_personne_physique && demandeur_personne_physique.id) || null,
+        demandeur_personne_morale: 
+            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
+        ...autresPropriétés,
+    }
 })
 
 let dossiersSynchronisés

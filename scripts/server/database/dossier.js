@@ -6,7 +6,7 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
-/** @import * as API_DS from '../../types/démarches-simplifiées/api.js' */
+/** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 
 
 /**
@@ -23,7 +23,7 @@ export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatab
 
 
 /**
- * @param {Map<Dossier['id'], API_DS.Message[]>} idToMessages
+ * @param {Map<Dossier['id'], API_DS_SCHEMA.Message[]>} idToMessages
  * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
@@ -79,7 +79,7 @@ const varcharKeys = [
 
 /**
  *
- * @param {Dossier[]} dossiers
+ * @param {Partial<Dossier>[]} dossiers
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
@@ -174,7 +174,12 @@ export async function synchroniserSuiviDossier(dossierDS, databaseConnection = d
         }
     }
 
-    await databaseConnection('arête_personne_suit_dossier')
-        .insert(arêtesPersonneSuitDossier)
+    console.log(arêtesPersonneSuitDossier)
 
+    try {    
+        await databaseConnection('arête_personne_suit_dossier')
+            .insert(arêtesPersonneSuitDossier)
+    } catch (_e) {
+        return Promise.resolve()
+    }
 }
