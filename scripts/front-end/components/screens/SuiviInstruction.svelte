@@ -266,6 +266,7 @@
                 </div>
             </div>
                 
+            <h2>{dossiersSelectionnés.length} dossiers affichés</h2>
 
             <div class="fr-table fr-table--bordered">
                 <table>
