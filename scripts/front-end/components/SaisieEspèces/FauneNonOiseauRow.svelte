@@ -101,7 +101,7 @@
 
     {#if onSupprimerLigne}
     <td>
-        <button type="button" on:click={onSupprimerLigne}>❌</button>
+        <button type="button" on:click={() => onSupprimerLigne(espèce)}>❌</button>
     </td>
     {/if}
 </tr>
