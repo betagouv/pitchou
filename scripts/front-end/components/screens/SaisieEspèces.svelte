@@ -9,9 +9,9 @@
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
     import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
 
-    import OiseauRow from '../SaisieEspèces/OiseauRow.svelte'
-    import FauneNonOiseauRow from '../SaisieEspèces/FauneNonOiseauRow.svelte'
-    import FloreRow from '../SaisieEspèces/FloreRow.svelte'
+    import OiseauAtteintEditRow from '../SaisieEspèces/OiseauAtteintEditRow.svelte'
+    import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'
+    import FloreAtteinteEditRow from '../SaisieEspèces/FloreAtteinteEditRow.svelte'
     
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
@@ -291,7 +291,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <OiseauRow
+                                    <OiseauAtteintEditRow
                                         bind:activité={activitéOiseauPréremplie} 
                                         bind:méthode={méthodeOiseauPréremplie} 
                                         bind:transport={transportOiseauPrérempli}
@@ -330,7 +330,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <FauneNonOiseauRow
+                                    <FauneNonOiseauAtteinteEditRow
                                         bind:activité={activitéFauneNonOiseauPréremplie} 
                                         bind:méthode={méthodeFauneNonOiseauPréremplie} 
                                         bind:transport={transportFauneNonOiseauPréremplie}
@@ -365,7 +365,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <FloreRow
+                                    <FloreAtteinteEditRow
                                         bind:activité={activitéFlorePréremplie}
                                         bind:nombreIndividus={nombreIndividusFlorePrérempli}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitFlorePrérempli}

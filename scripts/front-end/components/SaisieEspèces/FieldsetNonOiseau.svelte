@@ -3,7 +3,7 @@
 
     import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
-    import FauneNonOiseauRow from "./FauneNonOiseauRow.svelte"
+    import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
     
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -89,7 +89,7 @@
                     
                     <tbody>
                         {#each faunesNonOiseauxAtteintes as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit}}
-                        <FauneNonOiseauRow
+                        <FauneNonOiseauAtteinteEditRow
                             bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:surfaceHabitatDétruit
                             {espècesProtégéesFauneNonOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                             {onSupprimerLigne}
