@@ -49,14 +49,10 @@
     }
     
     /**
-     * @param {EspèceProtégée} espèce 
-     * @param {Partial<FloreAtteinte>} options 
+     * @param {FloreAtteinte} floreAtteinte
     */
-    function onDupliquerLigne(espèce, options) {
-        floresAtteintes.push({
-            espèce: espèce,
-            ...options,
-        })
+    function onDupliquerLigne(floreAtteinte) {
+        floresAtteintes.push(floreAtteinte)
 
         rerender()
     }

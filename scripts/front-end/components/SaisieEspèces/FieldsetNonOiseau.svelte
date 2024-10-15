@@ -55,14 +55,10 @@
     }
 
     /**
-     * @param {EspèceProtégée} espèce 
-     * @param {Partial<FauneNonOiseauAtteinte>} options 
+     * @param {FauneNonOiseauAtteinte} fauneNonOiseauAtteinte
     */
-    function onDupliquerLigne(espèce, options) {
-        faunesNonOiseauxAtteintes.push({
-            espèce: espèce,
-            ...options,
-        })
+    function onDupliquerLigne(fauneNonOiseauAtteinte) {
+        faunesNonOiseauxAtteintes.push(fauneNonOiseauAtteinte)
 
         rerender()
     }

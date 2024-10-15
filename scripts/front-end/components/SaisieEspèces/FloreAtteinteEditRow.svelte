@@ -5,7 +5,7 @@
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     
-    /** @import {EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
+    /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
 
     /** @type {EspèceProtégée | undefined} */
     export let espèce = undefined
@@ -16,7 +16,7 @@
     /** @type {number | undefined} */
     export let surfaceHabitatDétruit = undefined 
 
-    /** @param {EspèceProtégée} _espèce */
+    /** @param {FloreAtteinte} floreAtteinte */
     export let onDupliquerLigne
 
     /** @param {EspèceProtégée} _espèce */
@@ -38,8 +38,8 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     const dupliquerLigne = () => onDupliquerLigne(
-        espèce,
-        {   
+        { 
+            espèce,
             activité,
             nombreIndividus,
             surfaceHabitatDétruit
