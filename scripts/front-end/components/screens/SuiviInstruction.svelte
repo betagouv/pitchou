@@ -7,6 +7,7 @@
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
+    /** @import {default as Personne} from '../../../types/database/public/Personne.js' */
 
     /** @type {DossierComplet[]} */
     export let dossiers = []
@@ -19,10 +20,26 @@
 
     $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
+    $: dossiersIdSuivisParAucunInstructeur = relationSuivis && (() => {
+        // démarrer avec tous les ids
+        const dossierIdsSansSuivi = new Set(dossiers.map(d => d.id))
+
+        // retirer les ids suivis par au moins un.e instructeur.rice
+        for(const dossierIds of relationSuivis.values()){
+            for(const dossierId of dossierIds){
+                dossierIdsSansSuivi.delete(dossierId)
+            }
+        }
+
+        return dossierIdsSansSuivi
+    })()
+
+    $: console.log('dossiersIdSuivisParAucunInstructeur', dossiersIdSuivisParAucunInstructeur)
+
     /** @type {DossierComplet[]} */
     $: dossiersSelectionnés = dossiers
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis', (d: DossierComplet) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -189,6 +206,41 @@
         filtrerDossiers()
     }
 
+    const AUCUN_INSTRUCTEUR = '(aucun instructeur)'
+    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}*/
+    const instructeursOptions = new Set(relationSuivis && relationSuivis.keys())
+    instructeursOptions.add(AUCUN_INSTRUCTEUR)
+
+    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
+    $: instructeursSélectionnés = new Set()
+
+    /**
+     * 
+     * @param {{detail: Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}} _
+     */
+	function filtrerParInstructeurs({detail: _instructeursSélectionnées}){
+        tousLesFiltres.set('instructeurs', dossier => {
+            if(!relationSuivis)
+                return true;
+
+            if (_instructeursSélectionnées.has(AUCUN_INSTRUCTEUR) && dossiersIdSuivisParAucunInstructeur && dossiersIdSuivisParAucunInstructeur.has(dossier.id)) {
+                return true
+            }
+
+            for(const instructeurEmail of _instructeursSélectionnées){
+                const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail)
+                if(dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
+                    return true
+            }
+
+            return false
+        })
+
+        instructeursSélectionnés = new Set(_instructeursSélectionnées)
+
+		filtrerDossiers()
+	}
+
     let filtrerUniquementDossiersSuivi = false;
 
     $: if(filtrerUniquementDossiersSuivi){
@@ -202,6 +254,8 @@
         tousLesFiltres.delete('suivis')
         filtrerDossiers()
     }
+
+    
 </script>
 
 <Squelette {email}>
@@ -233,12 +287,21 @@
                     titre="Rechercher texte libre"
                     on:selected-changed={filtrerParTexte}
                 />
+                {#if instructeursOptions && instructeursOptions.size >= 2}
+                <FiltreParmiOptions 
+                    titre="Filtrer par instructeur suivant le dossier"
+                    options={instructeursOptions} 
+                    on:selected-changed={filtrerParInstructeurs} 
+                />
+                {/if}
+                {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
                 <div class="fr-checkbox-group">
                     <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
                     <label class="fr-label" for="checkbox-1">
                         Afficher uniquement mes dossiers suivis
                     </label>
                 </div>
+                {/if}
 
                 <div class="fr-mt-2w">
                     {#if communeFiltrée}
@@ -253,19 +316,23 @@
                             <button on:click={onSupprimerFiltreDépartement}>✖</button>
                         </div>
                     {/if}
-                    {#if phasesFiltrées.size > 0}
+                    {#if phasesFiltrées.size >= 1}
                         <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
                     {/if}
-                    {#if prochainesActionsAttenduesParFiltrées.size > 0}
+                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
                         <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
                     {/if}
                     {#if texteÀChercher}
                         <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
                         <button on:click={onSupprimerFiltreTexte}>✖</button>
                     {/if}
+                    {#if instructeursSélectionnés.size >= 1}
+                        <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
+                    {/if}
                 </div>
             </div>
                 
+            <h2>{dossiersSelectionnés.length} dossiers affichés</h2>
 
             <div class="fr-table fr-table--bordered">
                 <table>
@@ -337,7 +404,7 @@
         min-width: 6rem;
     }
 
-    .fr-badge {
+    .fr-badge:not(.instructeurs) {
         white-space: nowrap;
     }
 
