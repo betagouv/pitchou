@@ -174,8 +174,6 @@ export async function synchroniserSuiviDossier(dossierDS, databaseConnection = d
         }
     }
 
-    console.log(arêtesPersonneSuitDossier)
-
     try {    
         await databaseConnection('arête_personne_suit_dossier')
             .insert(arêtesPersonneSuitDossier)
