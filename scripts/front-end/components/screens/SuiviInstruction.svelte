@@ -4,7 +4,7 @@
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import FiltreTexte from '../FiltreTexte.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
-    import {contientTexteDansDossier, créerIndexDossier} from '../../rechercherDansDossier.js'
+    import {contientTexteDansDossier, créerIndexDossiers} from '../../rechercherDansDossier.js'
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
@@ -153,15 +153,18 @@
     }
 
     $: texteÀChercher = ''
+    const dossiersIndex = créerIndexDossiers(dossiers)
 
     /**
      * @param {{detail: string}} _
      */
     function filtrerParTexte({detail: _texteÀChercher}){
         tousLesFiltres.set('texte', dossier => {
-            const indexDossier = créerIndexDossier(dossier)
-            
-            return contientTexteDansDossier(_texteÀChercher, indexDossier)
+            return contientTexteDansDossier(
+                _texteÀChercher, 
+                dossier, 
+                dossiersIndex,
+            )
         })
 
         texteÀChercher = _texteÀChercher;
