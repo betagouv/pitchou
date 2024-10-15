@@ -5,6 +5,7 @@
     import FiltreTexte from '../FiltreTexte.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {contientTexteDansDossier, créerIndexDossiers} from '../../rechercherDansDossier.js'
+    import {retirerAccents} from '../../../commun/manipulationStrings.js'
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
@@ -185,7 +186,7 @@
             }
 
             return contientTexteDansDossier(
-                _texteÀChercher, 
+                retirerAccents(_texteÀChercher), 
                 dossier, 
                 dossiersIndex,
             )
