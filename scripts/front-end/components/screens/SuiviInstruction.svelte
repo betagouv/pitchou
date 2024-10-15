@@ -177,6 +177,13 @@
      */
     function filtrerParTexte({detail: _texteÀChercher}){
         tousLesFiltres.set('texte', dossier => {
+            // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
+            // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
+            // le numéro DS du dossier directement ici.
+            if (dossier.number_demarches_simplifiées?.includes(_texteÀChercher)) {
+                return true
+            }
+
             return contientTexteDansDossier(
                 _texteÀChercher, 
                 dossier, 
