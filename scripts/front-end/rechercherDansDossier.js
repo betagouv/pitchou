@@ -14,7 +14,7 @@ lunrfr(lunr)
  * @param {DossierComplet} dossier 
  * @returns 
  */
-const formatterContenuDossier = (dossier) => {
+const créerDossierIndexable = (dossier) => {
     const {
         id,
         nom_dossier,
@@ -28,8 +28,8 @@ const formatterContenuDossier = (dossier) => {
     } = dossier
 
     return {
-        id,
-        number_demarches_simplifiées,
+        id: id.toString(),
+        number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
         nom_dossier: retirerAccents(nom_dossier),
         nom: retirerAccents(nom || ""),
         demandeur_personne_physique_prénoms: 
@@ -64,7 +64,7 @@ export const créerIndexDossier = dossier => {
         this.field("demandeur_personne_morale_raison_sociale")
         this.field("commentaire_libre")
         this.field("commentaire_enjeu")
-        this.add(formatterContenuDossier(dossier));
+        this.add(créerDossierIndexable(dossier));
     })
 }
 
