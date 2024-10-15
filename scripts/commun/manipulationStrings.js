@@ -39,3 +39,15 @@ export function normalizeTexteEspèce(texte){
         .replaceAll("’", "'")
         .toLowerCase()
 }
+
+/**
+ *
+ * @param {string} texte
+ * @returns {string}
+ */
+export function retirerAccents(texte) {
+    return typeof texte === "string"
+      ? texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      : "";
+}
+  
