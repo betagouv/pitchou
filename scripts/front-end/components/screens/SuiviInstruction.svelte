@@ -4,6 +4,7 @@
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import FiltreTexte from '../FiltreTexte.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
+    import {contientTexteDansDossier, créerIndexDossier} from '../../rechercherDansDossier.js'
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
@@ -158,17 +159,9 @@
      */
     function filtrerParTexte({detail: _texteÀChercher}){
         tousLesFiltres.set('texte', dossier => {
-            return Boolean(
-                dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
-                dossier.commentaire_libre && dossier.commentaire_libre.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_morale_raison_sociale && dossier.demandeur_personne_morale_raison_sociale.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_physique_nom && dossier.demandeur_personne_physique_nom.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_physique_prénoms && dossier.demandeur_personne_physique_prénoms.includes(_texteÀChercher) ||
-                dossier.number_demarches_simplifiées && dossier.number_demarches_simplifiées.includes(_texteÀChercher) ||
-                String(dossier.id || '').includes(_texteÀChercher) ||
-                dossier.nom && dossier.nom.includes(_texteÀChercher) ||
-                dossier.nom_dossier && dossier.nom_dossier.includes(_texteÀChercher)
-            )
+            const indexDossier = créerIndexDossier(dossier)
+            
+            return contientTexteDansDossier(_texteÀChercher, indexDossier)
         })
 
         texteÀChercher = _texteÀChercher;
