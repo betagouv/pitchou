@@ -177,8 +177,8 @@
             vertical-align: middle;
 
             button {
-                height: 24px;
-                width: 24px;
+                height: 1.5rem;
+                width: 1.5rem;
             }
         }
     }
