@@ -5,9 +5,11 @@ import {json} from 'd3-fetch'
 //@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {StringValues} from '../../types.js' */
 //@ts-expect-error TS ne comprend pas que c'est utilisé
-/** @import {PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
+/** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
 //@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+//@ts-expect-error TS ne comprend pas que c'est utilisé
+/** @import {default as Message} from '../../types/database/public/Message.ts' */
 
 /**
  * 
@@ -75,17 +77,46 @@ function wrapModifierDossier(url){
     return modifierDossier
 }
 
+
 /**
  * 
- * @param {StringValues<PitchouInstructeurCapabilities>} capURLs 
- * @returns {PitchouInstructeurCapabilities}
+ * @param {string | undefined} url 
+ * @returns {((dossierId: Dossier['id']) => Promise<Message[]>) | undefined}
+ */
+function wrapListerMessages(url){
+    if(!url)
+        return undefined
+
+    if(!url.includes(dossierIdURLParam)){
+        throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} dossierId
+     * @returns {Promise<Message[]>}
+     */
+    return function listerMessages(dossierId){
+        // @ts-ignore
+        return json(url.replace(dossierIdURLParam, dossierId))
+    }
+}
+
+/**
+ * 
+ * @param {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} capURLs 
+ * @returns {PitchouInstructeurCapabilities & {identité: IdentitéInstructeurPitchou}}
  */
 export default function(capURLs){
 
     return {
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
+        //@ts-ignore
+        listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
+        listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
+        identité: capURLs.identité
     }
 
 }

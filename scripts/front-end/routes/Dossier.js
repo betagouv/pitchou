@@ -25,7 +25,7 @@ export default async ({params: {dossierId}}) => {
     const { state } = store
     let { dossiers } = state 
 
-    if (!dossiers){
+    if (dossiers.size === 0){
         dossiers = await chargerDossiers()
     }
 

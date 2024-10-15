@@ -17,14 +17,20 @@ import Store from 'baredux'
 
 /** @import {DossierComplet} from '../types.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
-/** @import {PitchouInstructeurCapabilities} from '../types/capabilities.d.ts' */
+/** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
 /** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
+/** @import {default as Message} from '../types/database/public/Message.ts' */
+/** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
+/** @import {default as Personne} from '../types/database/public/Personne.ts' */
 
 
 /**
  * @typedef {Object} PitchouState
  * @property {PitchouInstructeurCapabilities} [capabilities]
- * @property {Map<DossierComplet['id'], DossierComplet>} [dossiers] // pas vraiment des Dossier vu que venant d'un join
+ * @property {Map<DossierComplet['id'], DossierComplet>} dossiers
+ * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
+ * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
+ * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
@@ -34,7 +40,10 @@ import Store from 'baredux'
 
 
 /** @type {PitchouState} */
-const state = {}
+const state = {
+  dossiers: new Map(),
+  messagesParDossierId: new Map()
+}
 
 const mutations = {
   /**
@@ -56,9 +65,30 @@ const mutations = {
    * @param {DossierComplet} nouveauDossier
    */
   setDossier(state, nouveauDossier) {
-    if (!state.dossiers) { state.dossiers = new Map() }
-
     state.dossiers.set(nouveauDossier.id, nouveauDossier)
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['relationSuivis']} relationSuivis
+   */
+  setRelationSuivis(state, relationSuivis) {
+    console.log('setRelationSuivis', relationSuivis)
+    state.relationSuivis = relationSuivis
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['identité']} identité
+   */
+  setIdentité(state, identité) {
+    state.identité = identité
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {DossierComplet['id']} id
+   * @param {Message[]} messages
+   */
+  setMessages(state, id, messages) {
+    state.messagesParDossierId.set(id, messages)
   },
   /**
    * @param {PitchouState} state

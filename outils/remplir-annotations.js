@@ -3,17 +3,21 @@
 import remplirAnnotations from '../scripts/server/démarches-simplifiées/remplirAnnotations.js'
 import {dossierSuiviNAVersAnnotationsDS88444} from '../scripts/import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
 
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from "../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
+
 const DEMARCHE_SIMPLIFIEE_API_TOKEN = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN
 if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
 }
 
+//@ts-ignore
 const annotationsVides = dossierSuiviNAVersAnnotationsDS88444({})
 
 //const annotations = annotationsVides
 
 // Dossier 19155152
 
+/** @type {Partial<AnnotationsPriveesDemarcheSimplifiee88444>} */
 const annotations = {
     "Nom du porteur de projet": 'Steven Universe',
     "Localisation du projet": 'Beach city',
@@ -49,7 +53,8 @@ const result = await remplirAnnotations(
     }
 )
 
-const errors = result
+if (result) {
+    const errors = result
     .map(r => {
         if(!r)
             return undefined;
@@ -60,6 +65,7 @@ const errors = result
     .filter(x => !!x)
     .flat()
 
-if(errors.length >= 1){
-    console.log('errors', errors)
+    if(errors.length >= 1){
+        console.log('errors', errors)
+    }
 }

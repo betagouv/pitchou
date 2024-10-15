@@ -2,7 +2,8 @@
     "include": [
       "scripts/**/*.js", 
       "scripts/**/*.ts", 
-      "scripts/**/*.d.ts"
+      "scripts/**/*.d.ts",
+      "outils/**/*.js"
     ],
     "exclude": [
       "node_modules", 

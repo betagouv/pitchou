@@ -23,6 +23,7 @@ import '../scripts/types.js'
 const lignesGroupeEspècesP = readFile('data/ListeGroupesEspeces.ods')
     .then(({buffer: groupeEspècesODSArrayBuffer}) => getODSTableRawContent(groupeEspècesODSArrayBuffer))
     .then(tableRaw => {
+        /** @type {string[]} */
         const sheetRaw = tableRaw.get('ListeGroupesEspeces')
 
         // Trouver la première ligne avec plus de 5 éléments (qui est la "vraie" première ligne, avec les noms de colonne)
@@ -89,6 +90,7 @@ Promise.all([lignesGroupeEspècesP, espèceParNomScientifiqueP])
         console.log(
             set.size, 
             'espèces non reconnues sur', 
+            //@ts-ignore
             (new Set(lignesGroupeEspèces.map(e => e['Nom scientifique'])).size)
         )
     }
