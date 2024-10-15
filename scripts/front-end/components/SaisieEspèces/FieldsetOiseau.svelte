@@ -3,7 +3,7 @@
 
     import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
-    import OiseauRow from "./OiseauRow.svelte"
+    import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -53,6 +53,15 @@
 
         rerender()
     }
+
+    /**
+     * @param {OiseauAtteint} oiseauAtteint
+    */
+    function onDupliquerLigne(oiseauAtteint) {
+        oiseauxAtteints.push(oiseauAtteint)
+
+        rerender()
+    }
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -71,16 +80,18 @@
                             <th>Nids</th>
                             <th>Œufs</th>
                             <th>Surface habitat détruit (m²)</th>
+                            <th>Dupliquer la ligne</th>
                             <th>Supprimer la ligne</th>
                         </tr>
                     </thead>
                     <tbody>
 
                         {#each oiseauxAtteints as {espèce, activité, méthode, transport, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit}}
-                            <OiseauRow
+                            <OiseauAtteintEditRow
                                 bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:nombreNids bind:nombreOeufs bind:surfaceHabitatDétruit
                                 {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                                 {onSupprimerLigne}
+                                {onDupliquerLigne}
                             />
                         {/each}
                        
@@ -110,6 +121,7 @@
                             <td><input disabled type="number" class="fr-input"></td>
                             <td><input disabled type="number" class="fr-input"></td>
                             <td><input disabled type="number" class="fr-input"></td>
+                            <td></td>
                             <td></td>
                         </tr>                        
                     </tbody>
