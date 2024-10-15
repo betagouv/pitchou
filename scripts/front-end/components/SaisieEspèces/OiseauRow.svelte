@@ -130,7 +130,7 @@
 
     {#if onDupliquerLigne}
     <td class="icon-cell">
-        <button type="button" on:click={() => dupliquerLigne()}>
+        <button type="button" on:click={dupliquerLigne}>
             <CopyFileIcon />
         </button>
     </td>
