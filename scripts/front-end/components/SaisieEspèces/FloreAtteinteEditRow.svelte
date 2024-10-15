@@ -3,8 +3,9 @@
 
     import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     
-    /** @import {EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
+    /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
 
     /** @type {EspèceProtégée | undefined} */
     export let espèce = undefined
@@ -14,6 +15,9 @@
     export let nombreIndividus = undefined 
     /** @type {number | undefined} */
     export let surfaceHabitatDétruit = undefined 
+
+    /** @param {FloreAtteinte} floreAtteinte */
+    export let onDupliquerLigne
 
     /** @param {EspèceProtégée} _espèce */
     export let onSupprimerLigne
@@ -33,6 +37,14 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
+    const dupliquerLigne = () => onDupliquerLigne(
+        { 
+            espèce,
+            activité,
+            nombreIndividus,
+            surfaceHabitatDétruit
+        },
+    )
 </script>
 
 <tr>
@@ -71,9 +83,17 @@
         <input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input">
     </td>
 
+    {#if onDupliquerLigne}
+    <td class="icon-cell">
+        <button type="button" on:click={dupliquerLigne}>
+            <CopyFileIcon />
+        </button>
+    </td>
+    {/if}
+
     {#if onSupprimerLigne}
     <td>
-        <button type="button" on:click={() => onSupprimerLigne(espèce) }>❌</button>
+        <button type="button" on:click={onSupprimerLigne}>❌</button>
     </td>
     {/if}
 </tr>
@@ -104,6 +124,16 @@
 
         select{
             max-width: 10rem;
+        }
+        
+        .icon-cell {
+            text-align: center;
+            vertical-align: middle;
+
+            button {
+                height: 1.5rem;
+                width: 1.5rem;
+            }
         }
     }
 </style>
