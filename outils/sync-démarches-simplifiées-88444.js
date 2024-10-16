@@ -63,9 +63,8 @@ console.log(
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
 
-
-const groupesInstructeursAPI = await recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
-await synchroniserGroupesInstructeurs(groupesInstructeursAPI)
+const groupesInstructeursSynchronisés = recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
+    .then(synchroniserGroupesInstructeurs);
 
 
 /** @type {DossierDS<BaseChampDS>[]} */
@@ -542,6 +541,7 @@ const synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS);
 
 
 Promise.all([
+    groupesInstructeursSynchronisés,
     messagesÀMettreEnBDDAvecDossierIdP.then(messagesÀMettreEnBDDAvecDossierId => {
         if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
             // @ts-ignore

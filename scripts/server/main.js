@@ -6,12 +6,12 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 
-import { getPersonneByCode, listAllDossiersComplets, créerPersonneOuMettreÀJourCodeAccès, 
+import { getPersonneByCode, créerPersonneOuMettreÀJourCodeAccès, 
   updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès,
   getRelationSuivis} from './database.js'
 
-import { getDossierMessages } from './database/dossier.js'
+import { getDossierMessages, getDossiersByCap } from './database/dossier.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
@@ -182,11 +182,11 @@ fastify.get('/caps', async function (request, reply) {
 
 fastify.get('/dossiers', async function (request, reply) {
   // @ts-ignore
-  const code_accès = request.query.cap
-  if (code_accès) {
-    const personne = await getPersonneByCode(code_accès)
-    if (personne) {
-      return listAllDossiersComplets()
+  const cap = request.query.cap
+  if (cap) {
+    const dossiers = await getDossiersByCap(cap)
+    if (dossiers) {
+      return dossiers
     } else {
       reply.code(403).send("Code d'accès non valide.")
     }

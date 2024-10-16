@@ -2,6 +2,8 @@ import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
 
+//@ts-ignore
+/** @import {DossierComplet} from '../../types.js' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
@@ -180,4 +182,105 @@ export async function synchroniserSuiviDossier(dossierDS, databaseConnection = d
     } catch (_e) {
         return Promise.resolve()
     }
+}
+
+const colonnesDossierComplet = [
+    "dossier.id as id",
+    "id_demarches_simplifiées",
+    "number_demarches_simplifiées",
+    "statut",
+    "date_dépôt",
+    "dossier.nom as nom_dossier",
+    "espèces_protégées_concernées",
+    "rattaché_au_régime_ae",
+
+    // localisation
+    "départements",
+    "communes",
+    "régions",
+
+    // prochaine action attendue
+    "phase",
+    "prochaine_action_attendue_par",
+    "prochaine_action_attendue",
+
+    // annotations privées
+    "enjeu_écologique",
+
+    // déposant
+    "déposant.nom as déposant_nom",
+    "déposant.prénoms as déposant_prénoms",
+
+    // demandeur_personne_physique
+    "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
+    "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+
+    // demandeur_personne_morale
+    "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
+    "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
+
+    // annotations privées
+    "historique_nom_porteur",
+    "historique_localisation",
+    "ddep_nécessaire",
+    "en_attente_de",
+
+    "enjeu_écologique",
+    "enjeu_politique",
+    "commentaire_enjeu",
+
+    "historique_date_réception_ddep",
+    "commentaire_libre",
+    "historique_date_envoi_dernière_contribution",
+    "historique_identifiant_demande_onagre",
+    "historique_date_saisine_csrpn",
+    "historique_date_saisine_cnpn",
+    "date_avis_csrpn",
+    "date_avis_cnpn",
+    "avis_csrpn_cnpn",
+    "date_consultation_public",
+    "historique_décision",
+    "historique_date_signature_arrêté_préfectoral",
+    "historique_référence_arrêté_préfectoral",
+    "historique_date_signature_arrêté_ministériel",
+    "historique_référence_arrêté_ministériel"
+]
+
+
+/**
+ *
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<DossierComplet[]>}
+ */
+export function listAllDossiersComplets(databaseConnection = directDatabaseConnection) {
+    return databaseConnection('dossier')
+        .select(colonnesDossierComplet)
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+}
+
+/**
+ * @param {string} cap_dossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<DossierComplet[]>}
+ */
+export async function getDossiersByCap(cap_dossier, databaseConnection = directDatabaseConnection){
+    const dossiersP = databaseConnection('arête_cap_dossier__groupe_instructeurs')
+        .select(colonnesDossierComplet)
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+        .leftJoin(
+            'arête_groupe_instructeurs__dossier', 
+            {'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs'}
+        )
+        .leftJoin('dossier', {'dossier.id': 'arête_groupe_instructeurs__dossier.dossier'})
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+
+    const dossiers = await dossiersP
+
+    console.log('getDossiersByCap', dossiers)
+
+    return dossiers
 }
