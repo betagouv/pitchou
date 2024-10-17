@@ -46,7 +46,7 @@ export async function up(knex) {
      * le temps nous le dira
      */
     await knex.schema.createTable('arête_groupe_instructeurs__dossier', function (table) {
-        table.integer('dossier').notNullable().index()
+        table.integer('dossier').notNullable().unique()
         table.foreign('dossier')
             .references('id').inTable('dossier')
             .onDelete('CASCADE')

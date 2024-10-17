@@ -86,8 +86,12 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
         .where({code_accès})
         .first();
 
-    // hardcodé temporairement
-    const listerDossiersP = Promise.resolve(code_accès)
+    const listerDossiersP = databaseConnection('cap_dossier')
+        .select('cap')
+        .where({personne_cap: code_accès})
+        .first()
+        .then(({cap}) => cap)
+
     // hardcodé temporairement
     const listerRelationSuiviP = Promise.resolve(code_accès)
     // hardcodé temporairement
