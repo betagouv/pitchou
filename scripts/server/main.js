@@ -6,12 +6,11 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 
-import { getPersonneByCode, créerPersonneOuMettreÀJourCodeAccès, 
-  updateDossier, closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
-  getInstructeurCapBundleByPersonneCodeAccès,
-  getRelationSuivis} from './database.js'
+import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
+  getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { getDossierMessages, getDossiersByCap } from './database/dossier.js'
+import { getDossierMessages, getDossiersByCap, updateDossier } from './database/dossier.js'
+import { getPersonneByCode, créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'

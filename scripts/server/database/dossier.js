@@ -284,3 +284,28 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
 
     return dossiers
 }
+
+
+/**
+ *
+ * @param {number[]} numbers
+ * @returns
+ */
+export function deleteDossierByDSNumber(numbers){
+    return directDatabaseConnection('dossier')
+        .whereIn('number_demarches_simplifiées', numbers)
+        .delete()
+}
+
+/**
+ *
+ * @param {Dossier['id']} id
+ * @param {Partial<Dossier>} dossierParams
+ * @returns {Promise<Dossier>}
+ */
+export function updateDossier(id, dossierParams) {
+    return directDatabaseConnection('dossier')
+    .where({ id })
+    .returning('*')
+    .update(dossierParams)
+}
