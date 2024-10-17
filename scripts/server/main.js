@@ -248,13 +248,13 @@ fastify.get('/dossiers/relation-suivis', async function(request, reply) {
     return 
   }
 
-  const personne = await getPersonneByCode(cap)
-  if (!personne) {
+  const relationSuivis = await getRelationSuivis(cap)
+  if (!relationSuivis) {
     reply.code(403).send(`Le paramètre 'cap' est invalide`)
     return
   } 
 
-  return getRelationSuivis(cap)
+  return relationSuivis
 })
 
 

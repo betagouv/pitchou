@@ -92,8 +92,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
         .first()
         .then(({cap}) => cap)
 
-    // hardcodé temporairement
-    const listerRelationSuiviP = Promise.resolve(code_accès)
+    const listerRelationSuiviP = listerDossiersP
+
     // hardcodé temporairement
     const listerMessagesP = Promise.resolve(code_accès)
     // hardcodé temporairement
@@ -120,21 +120,29 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
 
 /**
  * 
- * @param {NonNullable<Personne['code_accès']>} _cap 
+ * @param {NonNullable<Personne['code_accès']>} listeDossiersCap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ReturnType<PitchouInstructeurCapabilities['listerRelationSuivi']>>}
  */
-export async function getRelationSuivis(_cap, databaseConnection = directDatabaseConnection){
-    // Pour le moment, on ignore la cap
-    // Dans un futur proche, elle servira à trouver la liste des groupes d'instructeurs auquel l'instructeur actuel appartient
-    // (et donc la liste des dossiers pertinents qui sont ceux associés à ces groupes d'instructeurs)
-
-    // Pour le moment, on va dire qu'on retourne l'ensemble de toutes les relations de suivi et c'est ok
-    const relsBDD = await databaseConnection('arête_personne_suit_dossier')
-        .select(['email', 'dossier'])
+export async function getRelationSuivis(listeDossiersCap, databaseConnection = directDatabaseConnection){
+    const relsBDD = await databaseConnection('dossier')
+        .select(['dossier.id as dossier', 'personne.email as email'])
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
+        .join(
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
+        )
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": listeDossiersCap})
+        .leftJoin(
+            'arête_personne_suit_dossier', 
+            {'arête_personne_suit_dossier.dossier': 'dossier.id'}
+        )
         .leftJoin('personne', {
             'personne.id': 'arête_personne_suit_dossier.personne'
         })
+        .whereNotNull('email')
+   
+    //console.log('relsBDD', relsBDD)
 
     const retMap = new Map();
 

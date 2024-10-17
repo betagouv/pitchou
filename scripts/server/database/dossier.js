@@ -313,7 +313,6 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
  */
 export async function getDossiersByCap(cap_dossier, databaseConnection = directDatabaseConnection){
     const dossiersP = databaseConnection('dossier')
-    //const dossiersP = databaseConnection('arête_cap_dossier__groupe_instructeurs')
         .select(colonnesDossierComplet)
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
         .join(
@@ -325,11 +324,7 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
 
-    const dossiers = await dossiersP
-
-    console.log('getDossiersByCap', dossiers)
-
-    return dossiers
+    return dossiersP
 }
 
 
