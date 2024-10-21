@@ -128,6 +128,7 @@ export function listAllDossiersComplets() {
             "statut",
             "date_dépôt",
             "dossier.nom as nom_dossier",
+            "activité_principale",
             "espèces_protégées_concernées",
             "rattaché_au_régime_ae",
 

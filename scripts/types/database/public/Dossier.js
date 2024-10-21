@@ -47,6 +47,7 @@ export {};
  * @property {string | null} phase
  * @property {string | null} prochaine_action_attendue_par
  * @property {string | null} prochaine_action_attendue
+ * @property {string | null} activité_principale
  */
 /**
  * Represents the initializer for the table public.dossier
@@ -90,6 +91,7 @@ export {};
  * @property {string | null} [phase]
  * @property {string | null} [prochaine_action_attendue_par]
  * @property {string | null} [prochaine_action_attendue]
+ * @property {string | null} [activité_principale]
  */
 /**
  * Represents the mutator for the table public.dossier
@@ -133,4 +135,5 @@ export {};
  * @property {string | null} [phase]
  * @property {string | null} [prochaine_action_attendue_par]
  * @property {string | null} [prochaine_action_attendue]
+ * @property {string | null} [activité_principale]
  */
