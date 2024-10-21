@@ -192,7 +192,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
     const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS.get('Lien vers la liste des espèces concernées'))?.stringValue
-    // const activités principale
+    const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
 
 
     /* localisation */
@@ -363,6 +363,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         //représentant,
 
         // champs
+        activité_principale,
         espèces_protégées_concernées,
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
