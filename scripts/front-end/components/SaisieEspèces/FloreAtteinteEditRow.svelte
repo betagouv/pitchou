@@ -21,6 +21,7 @@
 
     /** @param {EspèceProtégée} _espèce */
     export let onSupprimerLigne
+    $: onSupprimerClick = onSupprimerLigne && (() => onSupprimerLigne(espèce))
 
     /** @type {EspèceProtégée[]} */
     export let espècesProtégéesFlore = []
@@ -91,9 +92,9 @@
     </td>
     {/if}
 
-    {#if onSupprimerLigne}
+    {#if onSupprimerClick}
     <td>
-        <button type="button" on:click={onSupprimerLigne}>❌</button>
+        <button type="button" on:click={onSupprimerClick}>❌</button>
     </td>
     {/if}
 </tr>
