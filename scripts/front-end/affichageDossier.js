@@ -104,10 +104,10 @@ export function formatDateRelative(date) {
 /** @type {Set<NonNullable<DossierPhase>>} */
 export const phases = new Set([
     "Accompagnement amont",
-    "Accompagnement amont terminé", 
     "Instruction",
-    "Décision",
-    "Refus tacite",
+    "Contrôle",
+    "Classé sans suite",
+    "Obligations terminées"
 ])
 
 /** @type {Set<NonNullable<DossierProchaineActionAttenduePar>>} */
