@@ -138,8 +138,6 @@ const pitchouKeyToAnnotationDS = {
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-const possibleAEStringValue = new Set()
-
 /** @type {DossierPourSynchronisation[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
 {
