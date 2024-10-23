@@ -125,22 +125,28 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
     throw new TypeError("etreVivantAtteint n'est ni un oiseau, ni une faune non-oiseau, ni une flore")
 }
 
+
 /**
  * 
  * @param { DescriptionMenacesEspèces } descriptionMenacesEspèces
- * @returns { DescriptionMenaceEspèceJSON[] }
+ * @returns { Promise<ArrayBuffer> }
  */
-export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
+export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces){
     console.log(descriptionMenacesEspèces)
+
+    
+
+
+
     // @ts-ignore
     return Object.keys(descriptionMenacesEspèces).map((/** @type {ClassificationEtreVivant} */ classification) => {
         return {
             classification, 
             etresVivantsAtteints: descriptionMenacesEspèces[classification].map(etreVivantAtteintToJSON), 
-            
         }
     })
 }
+
 
 /**
  * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON

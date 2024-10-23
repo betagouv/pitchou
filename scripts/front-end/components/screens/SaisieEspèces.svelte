@@ -1,9 +1,8 @@
 <script>
-    // @ts-nocheck
+    // @ts-check
     import Squelette from '../Squelette.svelte'
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import NomEspèce from '../NomEspèce.svelte'
-    import CopyButton from '../CopyButton.svelte'
+    import DownloadButton from '../DownloadButton.svelte'
     
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
@@ -14,19 +13,10 @@
     import FloreAtteinteEditRow from '../SaisieEspèces/FloreAtteinteEditRow.svelte'
     
 
-    import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
-    import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces'
+    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
+    import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     
-    /** @import {
-     *    ClassificationEtreVivant,
-     *    EspèceProtégée,
-     *    EtreVivantAtteint, 
-     *    OiseauAtteint, 
-     *    FauneNonOiseauAtteinte, 
-     *    FloreAtteinte, 
-     *    NomGroupeEspèces
-     *  } from '../../../types/especes.d.ts' 
-     **/
+    /** @import { ClassificationEtreVivant, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../types/especes.d.ts' **/
 
 
     export let email
@@ -68,15 +58,20 @@
         return regex.test(str);
     }*/
     
-    function créerLienPartage(){
-        const jsonable = descriptionMenacesEspècesToJSON({
+    async function créerOdsBlob(){
+        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
             oiseau: oiseauxAtteints,
             "faune non-oiseau": faunesNonOiseauxAtteintes,
             flore: floresAtteintes,
         })
-        const lienPartage = `${location.origin}${location.pathname}?data=${UTF8ToB64(JSON.stringify(jsonable))}`
 
-        return lienPartage
+        
+
+        return new Blob([JSON.stringify({
+            oiseau: oiseauxAtteints,
+            "faune non-oiseau": faunesNonOiseauxAtteintes,
+            flore: floresAtteintes,
+        })], {type: 'application/json'})
     }
 
     /**
@@ -430,13 +425,14 @@
         </div>
         <div class="fr-grid-row fr-mb-10w">
             <div class="fr-col-8">
-                <h2>Lien pour votre dossier</h2>
-                <p>Une fois la liste des espèces saisie, créer un lien ci-dessous et le copier dans votre dossier Démarches Simplifiées.</p>
+                <h2>Fichier de liste d'espèces pour votre dossier</h2>
+                <p>Une fois la liste des espèces saisie, téléchargez le fichier via le bouton ci-dessous et mettez-le dans votre dossier Démarches Simplifiées.</p>
 
-                <CopyButton
-                    classname="fr-btn fr-btn--lg copy-link"
-                    textToCopy={créerLienPartage}
-                    initialLabel="Créer le lien et le copier dans le presse-papier"
+                <DownloadButton
+                    classname="fr-btn fr-btn--lg"
+                    label="Télécharger fichier des espèces menacées (.ods)"
+                    filename={`especes-menacees-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.json`}
+                    makeFileContentBlob={créerOdsBlob}
                 />
             </div>
         </div>
