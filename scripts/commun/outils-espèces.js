@@ -104,6 +104,7 @@ function toSheetRawCellContent(x){
     return {type: 'string', value: String(x)}
 }
 
+
 /**
  * 
  * @param {OiseauAtteint[]} oiseauxAtteints 
