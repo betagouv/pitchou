@@ -1,8 +1,6 @@
 //@ts-check
 import {createOdsFile} from 'ods-xlsx'
 
-import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../types/typeguards.js'
-
 /** @import {
  *    ClassificationEtreVivant, 
  *    EspèceProtégée, 
@@ -11,9 +9,6 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    OiseauAtteint,
  *    FloreAtteinte,
  *    FauneNonOiseauAtteinte,
- *    OiseauAtteintJSON, 
- *    FloreAtteinteJSON,
- *    FauneNonOiseauAtteinteJSON,
  *    DescriptionMenacesEspèces,
  *    DescriptionMenaceEspèceJSON,
  *    ActivitéMenançante, 
