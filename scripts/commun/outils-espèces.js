@@ -192,6 +192,69 @@ function floresAtteintesToTableContent(floresAtteintes){
     return sheetRawContent
 }
 
+/**
+ * @param {undefined | null | number | string | boolean} x 
+ * @returns {SheetRawCellContent}
+ */
+function toSheetRawCellContent(x){
+    if(x === undefined || x === null || Number.isNaN(x))
+        return {type: 'string', value: ''}
+
+    if(typeof x === 'number')
+        return {type: 'float', value: x}
+    
+    if(typeof x === 'string')
+        return {type: 'string', value: x}
+    
+    
+    return {type: 'string', value: String(x)}
+}
+
+/**
+ * 
+ * @param {OiseauAtteint[]} oiseauxAtteints 
+ * @returns {SheetRawContent}
+ */
+function oiseauxAtteintsToTableContent(oiseauxAtteints){
+    return []
+}
+
+
+/**
+ * 
+ * @param {FauneNonOiseauAtteinte[]} faunesNonOiseauAtteintes
+ * @returns {SheetRawContent}
+ */
+function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
+    return []
+}
+
+
+/**
+ * 
+ * @param {FloreAtteinte[]} floresAtteintes
+ * @returns {SheetRawContent}
+ */
+function floresAtteintesToTableContent(floresAtteintes){
+
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'code activité']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité} of floresAtteintes){
+        const codeActivité = activité && activité.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, codeActivité]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
+}
+
 
 /**
  * 
