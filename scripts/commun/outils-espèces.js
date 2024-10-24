@@ -92,42 +92,6 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
 
 
 /**
- * 
- * @param { OiseauAtteint|FauneNonOiseauAtteinte|FloreAtteinte} etreVivantAtteint
- * @returns { OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON }
- */
-function etreVivantAtteintToJSON(etreVivantAtteint){
-    const etreVivantAtteintJSON = {
-        espèce: etreVivantAtteint.espèce['CD_REF'],
-        activité: etreVivantAtteint.activité && etreVivantAtteint.activité.Code, 
-        nombreIndividus: etreVivantAtteint.nombreIndividus,
-        surfaceHabitatDétruit: etreVivantAtteint.surfaceHabitatDétruit,
-    }
-
-    if(isOiseauAtteint(etreVivantAtteint)){
-        return Object.assign(etreVivantAtteintJSON, {  
-            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
-            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
-            nombreIndividus: etreVivantAtteint.nombreIndividus,
-            nombreNids: etreVivantAtteint.nombreNids,
-            nombreOeufs: etreVivantAtteint.nombreOeufs,
-        })
-    }
-    else if(isFauneNonOiseauAtteinte(etreVivantAtteint)) {
-        return Object.assign(etreVivantAtteintJSON, { 
-            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
-            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
-            nombreIndividus: etreVivantAtteint.nombreIndividus,
-        })
-    } 
-    else if(isFloreAtteinte(etreVivantAtteint)) {
-        return etreVivantAtteintJSON
-    }
-    
-    throw new TypeError("etreVivantAtteint n'est ni un oiseau, ni une faune non-oiseau, ni une flore")
-}
-
-/**
  * @param {undefined | null | number | string | boolean} x 
  * @returns {SheetRawCellContent}
  */
@@ -151,7 +115,24 @@ function toSheetRawCellContent(x){
  * @returns {SheetRawContent}
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
-    return []
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'code activité', 'code méthode', 'code transport']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
+        const codeActivité = activité && activité.Code
+        const codeMéthode = méthode && méthode.Code
+        const codeTransport = transport && transport.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, codeActivité, codeMéthode, codeTransport]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
 }
 
 
@@ -161,7 +142,24 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
  * @returns {SheetRawContent}
  */
 function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
-    return []
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'code activité', 'code méthode', 'code transport']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
+        const codeActivité = activité && activité.Code
+        const codeMéthode = méthode && méthode.Code
+        const codeTransport = transport && transport.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, codeActivité, codeMéthode, codeTransport]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
 }
 
 
