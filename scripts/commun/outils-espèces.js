@@ -1,4 +1,5 @@
 //@ts-check
+import {createOdsFile} from 'ods-xlsx'
 
 import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../types/typeguards.js'
 
@@ -19,6 +20,7 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    MéthodeMenançante, 
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
+/** @import {SheetRawContent, SheetRawCellContent} from 'ods-xlsx' */
 
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
@@ -125,6 +127,69 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
     throw new TypeError("etreVivantAtteint n'est ni un oiseau, ni une faune non-oiseau, ni une flore")
 }
 
+/**
+ * @param {undefined | null | number | string | boolean} x 
+ * @returns {SheetRawCellContent}
+ */
+function toSheetRawCellContent(x){
+    if(x === undefined || x === null || Number.isNaN(x))
+        return {type: 'string', value: ''}
+
+    if(typeof x === 'number')
+        return {type: 'float', value: x}
+    
+    if(typeof x === 'string')
+        return {type: 'string', value: x}
+    
+    
+    return {type: 'string', value: String(x)}
+}
+
+/**
+ * 
+ * @param {OiseauAtteint[]} oiseauxAtteints 
+ * @returns {SheetRawContent}
+ */
+function oiseauxAtteintsToTableContent(oiseauxAtteints){
+    return []
+}
+
+
+/**
+ * 
+ * @param {FauneNonOiseauAtteinte[]} faunesNonOiseauAtteintes
+ * @returns {SheetRawContent}
+ */
+function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
+    return []
+}
+
+
+/**
+ * 
+ * @param {FloreAtteinte[]} floresAtteintes
+ * @returns {SheetRawContent}
+ */
+function floresAtteintesToTableContent(floresAtteintes){
+
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'code activité']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité} of floresAtteintes){
+        const codeActivité = activité && activité.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, codeActivité]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
+}
+
 
 /**
  * 
@@ -134,17 +199,25 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
 export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces){
     console.log(descriptionMenacesEspèces)
 
-    
+    const odsContent = new Map()
 
+    if(descriptionMenacesEspèces['oiseau'].length >= 1){
+        odsContent.set('oiseau', oiseauxAtteintsToTableContent(descriptionMenacesEspèces['oiseau']))
+    }
 
+    if(descriptionMenacesEspèces['faune non-oiseau'].length >= 1){
+        odsContent.set('faune non-oiseau', faunesNonOiseauAtteintesToTableContent(descriptionMenacesEspèces['faune non-oiseau']))
+    }
 
-    // @ts-ignore
-    return Object.keys(descriptionMenacesEspèces).map((/** @type {ClassificationEtreVivant} */ classification) => {
-        return {
-            classification, 
-            etresVivantsAtteints: descriptionMenacesEspèces[classification].map(etreVivantAtteintToJSON), 
-        }
-    })
+    if(descriptionMenacesEspèces['flore'].length >= 1){
+        odsContent.set('flore', floresAtteintesToTableContent(descriptionMenacesEspèces['flore']))
+    }
+
+    /*odsContent.set('metadata', [
+        'version fichier', 'version Taxref'
+    ])*/
+
+    return createOdsFile(odsContent)
 }
 
 

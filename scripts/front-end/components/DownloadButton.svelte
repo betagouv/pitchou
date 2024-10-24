@@ -2,9 +2,8 @@
     /** @type {string} */
     export let label = "Télécharger"
 
-    /** @type {string} */
-    export let filename
-    $: download = filename;
+    /** @type {() => string} */
+    export let makeFilename
 
     /** @type {string} */
     export let classname = "fr-btn fr-btn--lg"
@@ -14,7 +13,7 @@
 
     async function onClick(){
         const link = document.createElement("a");
-        link.download = download;
+        link.download = makeFilename();
         link.href = URL.createObjectURL(await makeFileContentBlob());
         document.body.appendChild(link);
         link.click();

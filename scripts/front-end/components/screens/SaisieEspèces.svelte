@@ -65,13 +65,7 @@
             flore: floresAtteintes,
         })
 
-        
-
-        return new Blob([JSON.stringify({
-            oiseau: oiseauxAtteints,
-            "faune non-oiseau": faunesNonOiseauxAtteintes,
-            flore: floresAtteintes,
-        })], {type: 'application/json'})
+        return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
     }
 
     /**
@@ -431,7 +425,7 @@
                 <DownloadButton
                     classname="fr-btn fr-btn--lg"
                     label="Télécharger fichier des espèces menacées (.ods)"
-                    filename={`especes-menacees-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.json`}
+                    makeFilename={() => `especes-menacees-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
                     makeFileContentBlob={créerOdsBlob}
                 />
             </div>

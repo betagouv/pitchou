@@ -55,7 +55,7 @@
     "knex": "^3.1.0",
     "ky": "^1.7.2",
     "minimist": "^1.2.8",
-    "ods-xlsx": "github:DavidBruant/ods-xlsx#v0.8.0",
+    "ods-xlsx": "github:DavidBruant/ods-xlsx#v0.10.0",
     "page": "^1.11.6",
     "pg": "^8.11.5",
     "pino-pretty": "^11.2.2",
