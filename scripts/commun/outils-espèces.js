@@ -216,7 +216,24 @@ function toSheetRawCellContent(x){
  * @returns {SheetRawContent}
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
-    return []
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'code activité', 'code méthode', 'code transport']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
+        const codeActivité = activité && activité.Code
+        const codeMéthode = méthode && méthode.Code
+        const codeTransport = transport && transport.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, codeActivité, codeMéthode, codeTransport]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
 }
 
 
@@ -226,7 +243,24 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
  * @returns {SheetRawContent}
  */
 function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
-    return []
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'code activité', 'code méthode', 'code transport']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
+        const codeActivité = activité && activité.Code
+        const codeMéthode = méthode && méthode.Code
+        const codeTransport = transport && transport.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, codeActivité, codeMéthode, codeTransport]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
 }
 
 
