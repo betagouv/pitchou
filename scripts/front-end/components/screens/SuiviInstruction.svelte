@@ -340,6 +340,7 @@
                         <tr>
                             <th>Voir le dossier</th>
                             <th>Localisation</th>
+                            <th>Activité principale</th>
                             <th>Porteur de projet</th>
                             <th>Nom du projet</th>
                             <th>Enjeux</th>
@@ -351,11 +352,13 @@
                     <tbody>
                         {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
                           déposant_prénoms, communes, départements, régions,
+                          activité_principale, rattaché_au_régime_ae,
                           enjeu_politique, enjeu_écologique,
-                          rattaché_au_régime_ae, phase, prochaine_action_attendue, prochaine_action_attendue_par }}
+                          phase, prochaine_action_attendue_par }}
                             <tr>
                                 <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                 <td>{formatLocalisation({communes, départements, régions})}</td>
+                                <td>{activité_principale || ''}</td>
                                 <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
                                 <td>{nom_dossier || ''}</td>
                                 <td>
@@ -375,15 +378,8 @@
                                 <td>
                                     {rattaché_au_régime_ae ? "oui" : "non"}
                                 </td>
-                                <td>{phase || ""}</td>
-                                <td>
-                                    {#if prochaine_action_attendue_par}
-                                        <strong>{prochaine_action_attendue_par}</strong> :
-                                    {/if}
-                                    {#if prochaine_action_attendue}
-                                        <br />{prochaine_action_attendue}
-                                    {/if}
-                                </td>
+                                <td>{phase || ''}</td>
+                                <td>{prochaine_action_attendue_par || ''}</td>
                             </tr>
                         {/each}
                     </tbody>

@@ -14,12 +14,17 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
+import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+
+
+
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 // récups les données de DS
@@ -60,7 +65,9 @@ console.log(
     `(${formatDistanceToNow(lastModified, {locale: fr})})`
 )
 
-
+/** @type {SchemaDémarcheSimplifiée} */
+// @ts-expect-error TS ne peut pas le savoir
+const schema88444 = _schema88444
 
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
@@ -87,28 +94,13 @@ console.log('Nombre de dossiers', dossiersDS.length)
 
 // stocker les dossiers en BDD
 
-const pitchouKeyToChampDS = {
-    "SIRET": "Q2hhbXAtMzg5NzM5NA==",
-    "Nom du projet": "Q2hhbXAtNDE0OTExNQ==",
-    "espèces_protégées_concernées": 'Q2hhbXAtMzg5NzQwNQ==',
-    "communes": 'Q2hhbXAtNDA0MTQ0MQ==',
-    "départements" : 'Q2hhbXAtNDA0MTQ0NQ==',
-    "régions" : 'Q2hhbXAtNDA0MTQ0OA==',
-    "Le projet se situe au niveau…": 'Q2hhbXAtMzg5NzQwOA==',
-    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" : "Q2hhbXAtNDA4MzAxMQ==",
-}
+/** @type {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} */
+//@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheSimplifiee88444 sont les schema88444.revision.champDescriptors.map(label)
+const pitchouKeyToChampDS = new Map(schema88444.revision.champDescriptors.map(
+    ({label, id}) => [label, id])
+)
 
-/*
 
-Avec l'aide de 
- await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema')
-    .then(r => r.json())
-    .then(schema => JSON.stringify(Object.fromEntries(schema.revision.annotationDescriptors
-        .filter(c => c.__typename !== 'HeaderSectionChampDescriptor')
-        .map(({id, label}) => [label, id])), null, 4
-    )) 
-
- */
 
 /** @type {Record<keyof AnnotationsPriveesDemarcheSimplifiee88444, string>}  */
 const pitchouKeyToAnnotationDS = {
@@ -190,25 +182,27 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /** 
      * Champs 
      */
-    /** @type {Map<string, any>} */
+    /** @type {Map<string | undefined, any>} */
     const champById = new Map()
     for(const champ of champs){
         champById.set(champ.id, champ)
     }
 
-    const nom = champById.get(pitchouKeyToChampDS['Nom du projet'])?.stringValue
-    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS['espèces_protégées_concernées'])?.stringValue
+    const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
+    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS.get('Lien vers la liste des espèces concernées'))?.stringValue
+    const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
 
 
     /* localisation */
-    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */
-    const projetSitué = champById.get(pitchouKeyToChampDS["Le projet se situe au niveau…"]).stringValue
+    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */    
+    const projetSitué = champById.get(pitchouKeyToChampDS.get('Le projet se situe au niveau…')).stringValue
     /** @type {ChampDSCommunes} */
-    const champCommunes = champById.get(pitchouKeyToChampDS["communes"])
+    const champCommunes = champById.get(pitchouKeyToChampDS.get('Commune(s) où se situe le projet'))
     /** @type {ChampDSDépartements} */
-    const champDépartements = champById.get(pitchouKeyToChampDS["départements"])
+    const champDépartements = champById.get(pitchouKeyToChampDS.get('Département(s) où se situe le projet'))
     /** @type {ChampDSRégions} */
-    const champRégions = champById.get(pitchouKeyToChampDS["régions"])
+    const champRégions = champById.get(pitchouKeyToChampDS.get('Région(s) où se situe le projet'))
+
 
     /** @type {DémarchesSimpliféesCommune[] | undefined} */
     let communes;
@@ -259,7 +253,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
  
-    const SIRETChamp = champById.get(pitchouKeyToChampDS["SIRET"])
+    const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
     if(!SIRETChamp){
         demandeur_personne_physique = déposant;
     }
@@ -280,7 +274,25 @@ const dossiersPourSynchronisation = dossiersDS.map((
     }
 
     /** Régime AE */
-    const rattaché_au_régime_ae = champById.get(pitchouKeyToChampDS["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"]).checked
+    // le champ AE a changé d'une checkbox à un Oui/Non à un Oui/Non/Ne sait pas encore
+    // et donc, on gère les différentes valeurs pour les différentes version du formulaire
+
+    const rattaché_régime_ae_champ = champById.get(
+        pitchouKeyToChampDS.get("Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?")
+    )
+
+    const rattaché_au_régime_ae_stringValue = rattaché_régime_ae_champ.stringValue
+
+    // null signifie "ne sait pas encore" et c'est la valeur par défaut
+    let rattaché_au_régime_ae = null;
+
+    if(rattaché_au_régime_ae_stringValue === 'Oui' || rattaché_au_régime_ae_stringValue === 'true'){
+        rattaché_au_régime_ae = true;
+    }
+    if(rattaché_au_régime_ae_stringValue === 'Non' || rattaché_au_régime_ae_stringValue === 'false'){
+        rattaché_au_régime_ae = false
+    }
+
 
     /**
      * Annotations privées
@@ -349,6 +361,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         //représentant,
 
         // champs
+        activité_principale,
         espèces_protégées_concernées,
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
