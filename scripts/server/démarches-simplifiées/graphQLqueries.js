@@ -209,16 +209,6 @@ query getDemarche(
   }
 }
 
-fragment GroupeInstructeurFragment on GroupeInstructeur {
-  id
-  number
-  label
-  instructeurs @include(if: $includeInstructeurs) {
-    id
-    email
-  }
-}
-
 fragment DossierFragment on Dossier {
   __typename
   id
@@ -288,6 +278,12 @@ fragment DossierFragment on Dossier {
   messages @include(if: $includeMessages) {
     ...MessageFragment
   }
+}
+
+
+fragment GroupeInstructeurFragment on GroupeInstructeur {
+  id
+  label
 }
 
 fragment AvisFragment on Avis {

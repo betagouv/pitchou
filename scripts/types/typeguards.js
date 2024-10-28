@@ -24,7 +24,7 @@ function isDossier(x) {
     typeof x === "object" &&
     x !== null &&
     typeof x.id === "number" &&
-    (typeof x.id_demarches_simplifiées === "string" || x.id_demarches_simplifiées === null) &&
+    //(typeof x.id_demarches_simplifiées === "string" || x.id_demarches_simplifiées === null) &&
     (typeof x.statut === "string" || x.statut === null) &&
     (isValidDateString(x.date_dépôt) || x.date_dépôt === null) &&
     (typeof x.espèces_protégées_concernées === "string" || x.espèces_protégées_concernées === null) &&
@@ -39,13 +39,15 @@ function isDossier(x) {
     (typeof x.demandeur_personne_morale_siret === "string" || x.demandeur_personne_morale_siret === null) &&
     (x.régions === null || x.régions === undefined || Array.isArray(x.régions)) &&
     (typeof x.number_demarches_simplifiées === "string" || x.number_demarches_simplifiées === null) &&
-    (typeof x.historique_nom_porteur === "string" || x.historique_nom_porteur === null) &&
-    (typeof x.historique_localisation === "string" || x.historique_localisation === null) &&
+    //(typeof x.historique_nom_porteur === "string" || x.historique_nom_porteur === null) &&
+    //(typeof x.historique_localisation === "string" || x.historique_localisation === null) &&
     (typeof x.ddep_nécessaire === "string" || x.ddep_nécessaire === null) &&
     (typeof x.en_attente_de === "string" || x.en_attente_de === null) &&
     (typeof x.enjeu_politique === "boolean" || x.enjeu_politique === null) &&
+    (typeof x.enjeu_écologique === "boolean" || x.enjeu_écologique === null) &&
     (typeof x.commentaire_enjeu === "string" || x.commentaire_enjeu === null) &&
-    (isValidDateString(x.historique_date_réception_ddep) || x.historique_date_réception_ddep === null) &&
+    (typeof x.commentaire_libre === "string" || x.commentaire_libre === null) &&
+    /*(isValidDateString(x.historique_date_réception_ddep) || x.historique_date_réception_ddep === null) &&
     (isValidDateString(x.historique_date_envoi_dernière_contribution) || x.historique_date_envoi_dernière_contribution === null) &&
     (typeof x.historique_identifiant_demande_onagre === "string" || x.historique_identifiant_demande_onagre === null) &&
     (isValidDateString(x.historique_date_saisine_csrpn) || x.historique_date_saisine_csrpn === null) &&
@@ -59,8 +61,7 @@ function isDossier(x) {
     (typeof x.historique_référence_arrêté_préfectoral === "string" || x.historique_référence_arrêté_préfectoral === null) &&
     (isValidDateString(x.historique_date_signature_arrêté_ministériel) || x.historique_date_signature_arrêté_ministériel === null) &&
     (typeof x.historique_référence_arrêté_ministériel === "string" || x.historique_référence_arrêté_ministériel === null) &&
-    (typeof x.enjeu_écologique === "boolean" || x.enjeu_écologique === null) &&
-    (typeof x.commentaire_libre === "string" || x.commentaire_libre === null) &&
+    */
     (typeof x.rattaché_au_régime_ae === "boolean" || x.rattaché_au_régime_ae === null) &&
     (typeof x.phase === "string" || x.phase === null) &&
     (typeof x.prochaine_action_attendue_par === "string" || x.prochaine_action_attendue_par === null) &&

@@ -4,8 +4,10 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
-import {listAllPersonnes, dumpEntreprises, créerPersonnes, synchroniserGroupesInstructeurs, deleteDossierByDSNumber, closeDatabaseConnection} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier} from '../scripts/server/database/dossier.js'
+import {dumpEntreprises, closeDatabaseConnection} from '../scripts/server/database.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
+import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
+import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -63,9 +65,8 @@ console.log(
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
 
-
-const groupesInstructeursAPI = await recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
-await synchroniserGroupesInstructeurs(groupesInstructeursAPI)
+const groupesInstructeursSynchronisés = recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
+    .then(synchroniserGroupesInstructeurs);
 
 
 /** @type {DossierDS<BaseChampDS>[]} */
@@ -482,9 +483,10 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
     } = dossier
 
     return {
-        déposant: (déposant && déposant.id) || null,
-        demandeur_personne_physique: 
-            (demandeur_personne_physique && demandeur_personne_physique.id) || null,
+        //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
+        déposant: getPersonneId(déposant) || null,
+        //@ts-expect-error pareil
+        demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
         demandeur_personne_morale: 
             (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
         ...autresPropriétés,
@@ -516,37 +518,47 @@ const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
 
 
 const messagesÀMettreEnBDDAvecDossierIdP = getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
-    .then(dossierIds => {
-        /** @type {Map<string, Dossier['id']>} */
-        const idDSToId = new Map()
-        for(const {id, id_demarches_simplifiées} of dossierIds){
-            //@ts-ignore
-            idDSToId.set(id_demarches_simplifiées, id)
-        }
+.then(dossierIds => {
+    /** @type {Map<string, Dossier['id']>} */
+    const idDSToId = new Map()
+    for(const {id, id_demarches_simplifiées} of dossierIds){
+        //@ts-ignore
+        idDSToId.set(id_demarches_simplifiées, id)
+    }
 
-        /** @type {Map<number, Message[]>} */
-        const idToMessages = new Map()
-        for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
-            const dossierId = idDSToId.get(id_DS)
+    /** @type {Map<number, Message[]>} */
+    const idToMessages = new Map()
+    for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
+        const dossierId = idDSToId.get(id_DS)
 
-            //@ts-ignore
-            idToMessages.set(dossierId, messages)
-        }
+        //@ts-ignore
+        idToMessages.set(dossierId, messages)
+    }
 
-        return idToMessages
-    });
+    return idToMessages
+});
 
 
-/** Synchronisation de l'information des dossiers suivis */
-const synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS);
+let synchronisationSuiviDossier;
+let synchronisationDossierDansGroupeInstructeur;
+
+if(dossiersDS.length >= 1){
+    /** Synchronisation de l'information des dossiers suivis */
+    synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS);
+
+    /** Synchronisation de l'information de quel dossier appartient à quel groupe_instructeurs */
+    synchronisationDossierDansGroupeInstructeur = synchroniserDossierDansGroupeInstructeur(dossiersDS);
+}
 
 
 Promise.all([
+    groupesInstructeursSynchronisés,
     messagesÀMettreEnBDDAvecDossierIdP.then(messagesÀMettreEnBDDAvecDossierId => {
         if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
             // @ts-ignore
             dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
     }),
-    synchronisationSuiviDossier
+    synchronisationSuiviDossier,
+    synchronisationDossierDansGroupeInstructeur
 ])
 .then(closeDatabaseConnection)
