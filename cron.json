@@ -5,7 +5,7 @@
         "size": "S"
       },
       {
-        "command": "35 10 11 10 * node outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-29",
+        "command": "50 14 28 10 * node outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-29",
         "size": "S"
       }
     ]
