@@ -206,9 +206,12 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
         odsContent.set('flore', floresAtteintesToTableContent(descriptionMenacesEspèces['flore']))
     }
 
-    /*odsContent.set('metadata', [
-        'version fichier', 'version Taxref'
-    ])*/
+    odsContent.set('metadata', [
+        ['version fichier', 'version TaxRef', 'schema rapportage européen']
+        .map(toSheetRawCellContent),
+        ['1.0.0', '17.0', 'http://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd']
+        .map(toSheetRawCellContent),
+    ])
 
     return createOdsFile(odsContent)
 }
