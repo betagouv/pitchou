@@ -4,13 +4,14 @@ import lunrfr from "lunr-languages/lunr.fr"
 
 import { retirerAccents } from "../commun/manipulationStrings.js"
 
-/** @import {DossierComplet} from "../types.js" */
+/** @import {DossierComplet, StringValues} from "../types.js" */
 
 stemmerSupport(lunr)
 lunrfr(lunr)
 
 /**
  * @param {DossierComplet} dossier
+ * @returns {StringValues<Partial<DossierComplet>>}
  */
 const créerDossierIndexable = dossier => {
     const {
