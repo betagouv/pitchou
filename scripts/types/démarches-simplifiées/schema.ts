@@ -20,6 +20,7 @@ export type ChampDescriptorTypename =
     | 'HeaderSectionChampDescriptor'
     | 'PieceJustificativeChampDescriptor'
     | 'ExplicationChampDescriptor'
+    | 'CarteChampDescriptor'
 
 export interface ChampDescriptor {
     __typename: ChampDescriptorTypename;

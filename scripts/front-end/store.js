@@ -72,7 +72,6 @@ const mutations = {
    * @param {PitchouState['relationSuivis']} relationSuivis
    */
   setRelationSuivis(state, relationSuivis) {
-    console.log('setRelationSuivis', relationSuivis)
     state.relationSuivis = relationSuivis
   },
   /**
