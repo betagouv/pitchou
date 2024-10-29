@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-09-20T15:25:15+02:00",
+    "dateDerniereModification": "2024-10-25T13:30:40+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,14 +15,14 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTYwNDM2",
-        "datePublication": "2024-09-20T12:24:49+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTY0NDM4",
+        "datePublication": "2024-10-25T13:30:40+02:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
                 "id": "Q2hhbXAtNDQ4MzE3Ng==",
                 "label": "Réglementation espèces protégées",
-                "description": "<p>Ce formulaire vous permet de prendre contact avec les services de l'état,<strong> dès la conception amont de votre projet</strong>, pour toutes questions relatives aux espèces protégées. Dans cet objectif, tous les champs ne sont pas obligatoires à ce stade.\r\n</p>\r\n<p>\r\nIl permet également de <strong>déposer votre demande de dérogation espèces protégées</strong> auprès des services instructeurs et remplace les cerfas concernés.\r\n</p>\r\n",
+                "description": "<p>Ce formulaire vous permet de prendre contact avec les services de l'état,<strong> dès la conception amont de votre projet</strong>, pour toutes questions relatives aux espèces protégées. </p>\r\n<p>\r\nIl permet également de prendre connaissances des éléments indispensables permettant de statuer sur la nécessité de déposer un dossier de demande de dérogation à la réglementation espèces protégées, et, le cas échéant, de <strong>déposer votre dossier</strong> auprès des services instructeurs.\r\n</p>\r\nCe formulaire remplace les cerfas concernés.\r\n\r\n",
                 "required": false,
                 "collapsibleExplanationEnabled": false,
                 "collapsibleExplanationText": null
@@ -31,7 +31,7 @@
                 "__typename": "ExplicationChampDescriptor",
                 "id": "Q2hhbXAtNDUwMzUxOQ==",
                 "label": "Références réglementaires",
-                "description": "Titre I du livre IV du code de l’environnement\r\nArrêté du 19 février 2007 fixant les conditions de demande et d’instruction des dérogations\r\ndéfinies au 4° de l’article L. 411-2 du code l’environnement portant sur des espèces de faune et de flore sauvages protégées",
+                "description": "Titre I du livre IV du code de l’environnement\r\nArrêté du 19 février 2007 fixant les conditions de demande et d’instruction des dérogations définies au 4° de l’article L. 411-2 du code l’environnement portant sur des espèces de faune et de flore sauvages protégées",
                 "required": false,
                 "collapsibleExplanationEnabled": false,
                 "collapsibleExplanationText": null
@@ -116,7 +116,7 @@
                 "id": "Q2hhbXAtMzg5NzQwMA==",
                 "label": "Activité principale",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "Aménagements fonciers (AFAF, remembrement)",
                     "Carrières de matériaux alluvionnaires",
@@ -169,7 +169,7 @@
                 "id": "Q2hhbXAtNDM2ODY3NA==",
                 "label": "Éolien - Votre demande concerne :",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "Suivi de mortalité pour un parc éolien",
                     "Autre"
@@ -181,7 +181,7 @@
                 "id": "Q2hhbXAtNDM3NTk0Ng==",
                 "label": "Urbanisation - Votre demande concerne :",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "Destruction de nids d'Hirondelles",
                     "Autre"
@@ -193,7 +193,7 @@
                 "id": "Q2hhbXAtNDM3NTk0Nw==",
                 "label": "Transport ferroviaire ou électrique - Votre demande concerne :",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "Destruction de nids de Cigognes",
                     "Autre"
@@ -211,8 +211,8 @@
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtNDE0OTExNQ==",
                 "label": "Nom du projet",
-                "description": "",
-                "required": false
+                "description": "Indiquer le nom <strong> précis </strong> de votre projet",
+                "required": true
             },
             {
                 "__typename": "TextareaChampDescriptor",
@@ -291,11 +291,18 @@
                 ]
             },
             {
+                "__typename": "CarteChampDescriptor",
+                "id": "Q2hhbXAtNDU3NjM4Mg==",
+                "label": "Cartographie du projet",
+                "description": "",
+                "required": false
+            },
+            {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtNDA4MzAxMQ==",
                 "label": "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "Oui",
                     "Non",
@@ -308,7 +315,7 @@
                 "id": "Q2hhbXAtNDA4Mjk1OA==",
                 "label": "À quelle procédure le projet est-il soumis ?",
                 "description": "",
-                "required": false,
+                "required": true,
                 "options": [
                     "Autorisation ICPE",
                     "Autorisation loi sur l'eau"
@@ -356,8 +363,8 @@
             {
                 "__typename": "YesNoChampDescriptor",
                 "id": "Q2hhbXAtNDUxNjk2NA==",
-                "label": "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il ?",
-                "description": "Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter l'avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,\r\nainsi que les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563",
+                "label": "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il'",
+                "description": "Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter les avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,\r\nainsi que celui du 17 février 2023 : https://www.conseil-etat.fr/fr/arianeweb/CE/decision/2023-02-17/460798 et les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563",
                 "required": false
             },
             {
@@ -576,21 +583,21 @@
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQ3NA==",
                 "label": "Date de début d’intervention",
-                "description": "Suivi écologique, chantier...",
+                "description": "La dates de début d'intervention correspond à la date de début des travaux (y compris travaux préparatoires), de début du suivi dans le cas des suivis scientifiques...",
                 "required": false
             },
             {
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtMzkyMzYyNg==",
                 "label": "Date de fin d’intervention",
-                "description": "Suivi écologique, chantier...",
+                "description": "La date de fin d'intervention correspond à la date de fin des inventaires, des travaux avant mise en service...",
                 "required": false
             },
             {
                 "__typename": "IntegerNumberChampDescriptor",
                 "id": "Q2hhbXAtNDM3NDY3MA==",
                 "label": "Durée de la dérogation",
-                "description": "(en années)",
+                "description": "Ce champ est notamment à remplir pour les dérogations pluriannuelles ou pour indiquer la durée d'exploitation de l'aménagement réalisé (en années).",
                 "required": false
             },
             {
@@ -988,7 +995,7 @@
             {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4NQ==",
-                "label": "Saisine CNPN/CSRPN",
+                "label": "Saisine CNPN/CSRPN/Avis conforme",
                 "description": "",
                 "required": false
             },
@@ -1022,7 +1029,7 @@
                 "required": false
             },
             {
-                "__typename": "HeaderSectionChampDescriptor",
+                "__typename": "EmailChampDescriptor",
                 "id": "Q2hhbXAtNDI2ODExOA==",
                 "label": "Avis CSRPN/CNPN",
                 "description": "",
@@ -1064,6 +1071,21 @@
                 "fileTemplate": null
             },
             {
+                "__typename": "DateChampDescriptor",
+                "id": "Q2hhbXAtNDU1MTkxMQ==",
+                "label": "Date avis conforme Ministre",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDU1MTkxNQ==",
+                "label": "Avis conforme Ministre",
+                "description": "",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4Nw==",
                 "label": "Consultation du public",
@@ -1074,6 +1096,13 @@
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtNDE0MTM0Mg==",
                 "label": "Date de début de la consultation du public ou enquête publique",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DateChampDescriptor",
+                "id": "Q2hhbXAtNDYxMDIxNQ==",
+                "label": "Date de fin de la consultation du public ou enquête publique",
                 "description": "",
                 "required": false
             },
