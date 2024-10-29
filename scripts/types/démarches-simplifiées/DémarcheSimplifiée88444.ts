@@ -74,6 +74,9 @@ export interface DossierDemarcheSimplifiee88444 {
   "Éolien - Votre demande concerne :": "Suivi de mortalité pour un parc éolien" | "Autre";
   "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
   "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
+  /**
+   * Indiquer le nom <strong> précis </strong> de votre projet
+   */
   "Nom du projet": string;
   "Description synthétique du projet": string;
   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
@@ -100,10 +103,10 @@ export interface DossierDemarcheSimplifiee88444 {
    */
   "Des individus ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": boolean;
   /**
-   * Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter l'avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,
-   * ainsi que les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563
+   * Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter les avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,
+   * ainsi que celui du 17 février 2023 : https://www.conseil-etat.fr/fr/arianeweb/CE/decision/2023-02-17/460798 et les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563
    */
-  "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il ?": boolean;
+  "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il'": boolean;
   /**
    * Lien vers la liste des espèces concernées à remplir sur https://pitchou.beta.gouv.fr/saisie-especes
    */
@@ -141,15 +144,15 @@ export interface DossierDemarcheSimplifiee88444 {
   "Diamètre du rotor (m)": number;
   "Garde au sol (m)": number;
   /**
-   * Suivi écologique, chantier...
+   * La dates de début d'intervention correspond à la date de début des travaux (y compris travaux préparatoires), de début du suivi dans le cas des suivis scientifiques...
    */
   "Date de début d’intervention": Date;
   /**
-   * Suivi écologique, chantier...
+   * La date de fin d'intervention correspond à la date de fin des inventaires, des travaux avant mise en service...
    */
   "Date de fin d’intervention": Date;
   /**
-   * (en années)
+   * Ce champ est notamment à remplir pour les dérogations pluriannuelles ou pour indiquer la durée d'exploitation de l'aménagement réalisé (en années).
    */
   "Durée de la dérogation": number;
   "Précisez le périmètre d'intervention": string;
@@ -231,10 +234,12 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Date saisine CNPN": Date;
+  "Avis CSRPN/CNPN": "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable";
   "Date avis CSRPN": Date;
   "Date avis CNPN": Date;
-  "Avis CSRPN/CNPN": "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable";
+  "Date avis conforme Ministre": Date;
   "Date de début de la consultation du public ou enquête publique": Date;
+  "Date de fin de la consultation du public ou enquête publique": Date;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */

@@ -112,6 +112,8 @@ function champToCommuneJSONSchema({ description }){
     return { type: 'object', tsType: '(GeoAPICommune | string)', description }
 }
 
+
+
 /**
  * @param {ChampDescriptor} champ
  * @returns {JSONSchema | undefined}
@@ -122,7 +124,10 @@ function champToArrayJSONSchema({description, champDescriptors}){
     }
 
     champDescriptors = champDescriptors.filter(({__typename}) => {
-        return __typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor' && __typename !== 'ExplicationChampDescriptor'
+        return __typename !== 'HeaderSectionChampDescriptor' && 
+            __typename !== 'PieceJustificativeChampDescriptor' && 
+            __typename !== 'ExplicationChampDescriptor' && 
+            __typename !== 'CarteChampDescriptor'
     })
 
     /** @type {JSONSchema} */
@@ -186,7 +191,10 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors){
     for (const champDescriptor of champDescriptors) {
         const { __typename, label } = champDescriptor
     
-        if(__typename !== 'HeaderSectionChampDescriptor' && __typename !== 'PieceJustificativeChampDescriptor' && __typename !== 'ExplicationChampDescriptor') {
+        if(__typename !== 'HeaderSectionChampDescriptor' &&
+            __typename !== 'PieceJustificativeChampDescriptor' &&
+            __typename !== 'ExplicationChampDescriptor' && 
+            __typename !== 'CarteChampDescriptor') {
             const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
     
             if(!DSChampToJSONSchema){
