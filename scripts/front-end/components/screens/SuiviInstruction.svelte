@@ -40,7 +40,7 @@
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'nombresEnTexte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -176,20 +176,35 @@
      * @param {{detail: string}} _
      */
     function filtrerParTexte({detail: _texteÀChercher}){
-        tousLesFiltres.set('texte', dossier => {
-            // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
-            // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
-            // le numéro DS du dossier directement ici.
-            if (dossier.number_demarches_simplifiées?.includes(_texteÀChercher)) {
-                return true
-            }
-
-            return contientTexteDansDossier(
-                retirerAccents(_texteÀChercher), 
-                dossier, 
-                dossiersIndex,
-            )
-        })
+        // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
+        // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
+        // les nombres avec une fonction séparée.
+        if (_texteÀChercher.match(/\d+/)) {
+            tousLesFiltres.set('nombresEnTexte', dossier => {
+                const {départements, communes, number_demarches_simplifiées} = dossier
+                const communesCodes = communes?.map(({code, postalCode}) =>
+                    [code, postalCode]
+                ).flat().filter(c => c) || []
+            
+                return départements?.includes(_texteÀChercher) || 
+                    communesCodes?.includes(_texteÀChercher) ||
+                    number_demarches_simplifiées?.includes(_texteÀChercher)
+            })
+        } else {
+            tousLesFiltres.set('texte', dossier => {
+                const texteSansAccents = retirerAccents(_texteÀChercher)
+                // Pour chercher les communes qui contiennent des tirets avec lunr,
+                // on a besoin de passer la chaîne de caractères entre "".
+                const aRechercher = texteSansAccents.match(/(\w+-)+/) ? 
+                    `"${texteSansAccents}"` :
+                    texteSansAccents
+                return contientTexteDansDossier(
+                    aRechercher, 
+                    dossier, 
+                    dossiersIndex,
+                )
+            })
+        }
 
         texteÀChercher = _texteÀChercher;
 
@@ -204,6 +219,7 @@
         e.preventDefault()
      
         tousLesFiltres.delete('texte')
+        tousLesFiltres.delete('nombresEnTexte')
 
         texteÀChercher = ''
         filtrerDossiers()

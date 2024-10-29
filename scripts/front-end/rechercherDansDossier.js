@@ -18,6 +18,7 @@ const créerDossierIndexable = dossier => {
         id,
         nom_dossier,
         number_demarches_simplifiées,
+        communes,
         nom,
         déposant_nom,
         déposant_prénoms,
@@ -32,15 +33,16 @@ const créerDossierIndexable = dossier => {
         id: id.toString(),
         number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
         nom_dossier: retirerAccents(nom_dossier),
+        communes: communes?.map(({name}) => retirerAccents(name || "")).join(" ") || "",
         nom: retirerAccents(nom || ""),
-        déposant_nom: retirerAccents(déposant_nom),
-        déposant_prénoms: retirerAccents(déposant_prénoms),
+        déposant_nom: retirerAccents(déposant_nom || ""),
+        déposant_prénoms: retirerAccents(déposant_prénoms || ""),
         demandeur_personne_physique_prénoms: 
-            retirerAccents(demandeur_personne_physique_prénoms),
+            retirerAccents(demandeur_personne_physique_prénoms || ""),
         demandeur_personne_physique_nom: 
-            retirerAccents(demandeur_personne_physique_nom),
+            retirerAccents(demandeur_personne_physique_nom || ""),
         demandeur_personne_morale_raison_sociale: 
-            retirerAccents(demandeur_personne_morale_raison_sociale),
+            retirerAccents(demandeur_personne_morale_raison_sociale || ""),
         commentaire_libre:
             retirerAccents(commentaire_libre || ""),
         commentaire_enjeu: 
@@ -61,6 +63,7 @@ export const créerIndexDossiers = dossiers => {
         this.ref("id")
         this.field("nom_dossier", { boost: 10 })
         this.field("number_demarches_simplifiées", { boost: 5})
+        this.field("communes")
         this.field("nom")
         this.field("déposant_nom")
         this.field("déposant_prénoms")
@@ -89,7 +92,7 @@ const rechercherDossiersAvecTexte = (texteÀChercher, index) => {
 }
 
 
-/**
+/** 
  * @param {string} texteÀChercher
  * @param {DossierComplet} dossier
  * @param {lunr.Index} index

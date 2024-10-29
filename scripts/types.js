@@ -62,8 +62,8 @@
  * 
  * @typedef {Object} DossierDémarcheSimplifiée88444Communes
  * @property {string} name
- * @property {string} code
- * @property {string} postalCode
+ * @property {string} code // Code INSEE (identifiant de commune pour l'administration publique)
+ * @property {string} postalCode // Code postal (zone de desserte postale)
  * 
  * @typedef {Object} DossierLocalisation
  * @property {DossierDémarcheSimplifiée88444Communes[]} communes
