@@ -46,8 +46,6 @@ export function normalizeTexteEspèce(texte){
  * @returns {string}
  */
 export function retirerAccents(texte) {
-    return typeof texte === "string"
-      ? texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      : "";
+    return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 }
   
