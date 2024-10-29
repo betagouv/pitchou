@@ -34,10 +34,9 @@
         return dossierIdsSansSuivi
     })()
 
-    $: console.log('dossiersIdSuivisParAucunInstructeur', dossiersIdSuivisParAucunInstructeur)
-
     /** @type {DossierComplet[]} */
     $: dossiersSelectionnés = dossiers
+    //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
     const tousLesFiltres = new Map()
