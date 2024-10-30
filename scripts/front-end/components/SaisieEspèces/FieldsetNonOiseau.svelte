@@ -1,9 +1,16 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js"
+    import { 
+        trierParEspèceAsc, 
+        trierParEspèceDesc, 
+        grouperParActivité,
+        grouperParMéthode,
+     } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
+    import DropdownTri from "./DropdownTri.svelte"
     
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -62,6 +69,36 @@
 
         rerender()
     }
+
+    function trierParFauneNonOiseauxAsc() {  
+        faunesNonOiseauxAtteintes= trierParEspèceAsc(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+
+    function trierParFauneNonOiseauxDesc() {  
+        faunesNonOiseauxAtteintes = trierParEspèceDesc(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+
+    const trisEspèces = new Map()
+    trisEspèces.set("Trier de A à Z", trierParFauneNonOiseauxAsc)
+    trisEspèces.set("Trier de Z à A", trierParFauneNonOiseauxDesc)
+    
+    function trierParImpacts() {
+        faunesNonOiseauxAtteintes = grouperParActivité(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+
+    const trisImpacts = new Map()
+    trisImpacts.set("Grouper par impact", trierParImpacts)
+
+    function trierParMéthode() {
+        faunesNonOiseauxAtteintes = grouperParMéthode(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+    
+    const trisMéthodes = new Map()
+    trisMéthodes.set("Grouper par méthode", trierParMéthode)
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -72,9 +109,15 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Espèce</th>
-                            <th>Type d’impact</th>
-                            <th>Méthode</th>
+                            <th>
+                                <DropdownTri label="Espèce" tris={trisEspèces}/>
+                            </th>
+                            <th>
+                                <DropdownTri label="Type d'impact" tris={trisImpacts} />
+                            </th>
+                            <th>
+                                <DropdownTri label="Méthode" tris={trisMéthodes} />
+                            </th>
                             <th>Moyen de poursuite</th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>
@@ -164,14 +207,6 @@
         table{
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
-
-            tr {
-                th{
-                    padding: 0.2rem;
-
-                    vertical-align: top;
-                }
-            }
         }
     }
 </style>

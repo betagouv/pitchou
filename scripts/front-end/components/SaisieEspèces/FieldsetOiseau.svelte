@@ -11,8 +11,6 @@
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
     import DropdownTri from "./DropdownTri.svelte"
-
-    
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
