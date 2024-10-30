@@ -1,9 +1,18 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js"
+    import { 
+        trierParEspèceAsc, 
+        trierParEspèceDesc, 
+        grouperParActivité,
+        grouperParMéthode,
+     } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
+    import DropdownTri from "./DropdownTri.svelte"
+
+    
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -62,6 +71,36 @@
 
         rerender()
     }
+
+    function trierParOiseauxAsc() {  
+        oiseauxAtteints = trierParEspèceAsc(oiseauxAtteints)
+        rerender()
+    }
+
+    function trierParOiseauxDesc() {  
+        oiseauxAtteints = trierParEspèceDesc(oiseauxAtteints)
+        rerender()
+    }
+
+    const trisEspèces = new Map()
+    trisEspèces.set("Trier de A à Z", trierParOiseauxAsc)
+    trisEspèces.set("Trier de Z à A", trierParOiseauxDesc)
+
+    function trierParImpacts() {
+        oiseauxAtteints = grouperParActivité(oiseauxAtteints)
+        rerender()
+    }
+
+    const trisImpacts = new Map()
+    trisImpacts.set("Grouper par impact", trierParImpacts)
+
+    function trierParMéthode() {
+        oiseauxAtteints = grouperParMéthode(oiseauxAtteints)
+        rerender()
+    }
+    
+    const trisMéthodes = new Map()
+    trisMéthodes.set("Grouper par méthode", trierParMéthode)
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -72,9 +111,15 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Espèce</th>
-                            <th>Type d’impact</th>
-                            <th>Méthode</th>
+                            <th class="flex">
+                                <DropdownTri label="Espèce" tris={trisEspèces}/>
+                            </th>
+                            <th>
+                                <DropdownTri label="Type d'impact" tris={trisImpacts} />
+                            </th>
+                            <th>
+                                <DropdownTri label="Méthode" tris={trisMéthodes} />
+                            </th>
                             <th>Moyen de poursuite</th>
                             <th>Nombre d'individus</th>
                             <th>Nids</th>
