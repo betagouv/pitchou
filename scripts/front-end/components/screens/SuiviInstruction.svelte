@@ -179,17 +179,27 @@
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
         // les nombres avec une fonction séparée.
-        if (_texteÀChercher.match(/\d+/)) {
+        if (_texteÀChercher.match(/(\d+[A-Za-z\-]*)+/)) {
             tousLesFiltres.set('texte', dossier => {
-                const {id, départements, communes, number_demarches_simplifiées} = dossier
-                const communesCodes = communes?.map(({postalCode}) =>
-                    postalCode
-                ).filter(c => c) || []
+                const {
+                    id, 
+                    départements, 
+                    communes, 
+                    number_demarches_simplifiées,
+                    historique_identifiant_demande_onagre,
+                } = dossier
+                const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
+
+                if (dossier.id === 21321) {
+                    console.log(dossier)
+                }
             
                 return String(id)?.includes(_texteÀChercher) ||
                     départements?.includes(_texteÀChercher) || 
                     communesCodes?.includes(_texteÀChercher) ||
-                    number_demarches_simplifiées?.includes(_texteÀChercher)
+                    number_demarches_simplifiées?.includes(_texteÀChercher) || 
+                    historique_identifiant_demande_onagre?.includes(_texteÀChercher) || 
+                    false
             })
         } else {
             tousLesFiltres.set('texte', dossier => {
