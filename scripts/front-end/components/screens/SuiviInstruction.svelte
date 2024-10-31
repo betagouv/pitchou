@@ -40,7 +40,7 @@
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'nombresEnTexte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -180,7 +180,7 @@
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
         // les nombres avec une fonction séparée.
         if (_texteÀChercher.match(/\d+/)) {
-            tousLesFiltres.set('nombresEnTexte', dossier => {
+            tousLesFiltres.set('texte', dossier => {
                 const {départements, communes, number_demarches_simplifiées} = dossier
                 const communesCodes = communes?.map(({code, postalCode}) =>
                     [code, postalCode]
@@ -219,7 +219,6 @@
         e.preventDefault()
      
         tousLesFiltres.delete('texte')
-        tousLesFiltres.delete('nombresEnTexte')
 
         texteÀChercher = ''
         filtrerDossiers()
