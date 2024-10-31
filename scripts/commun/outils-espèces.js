@@ -20,7 +20,6 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    MéthodeMenançante, 
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
- /** @import {PitchouState} from '../front-end/store.js' */
 
 /**
  * @type {Map<ClassificationEtreVivant, ClassificationEtreVivantSaisieEspèce>}
