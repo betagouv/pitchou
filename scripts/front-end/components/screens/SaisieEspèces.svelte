@@ -15,7 +15,7 @@
     
 
     import {UTF8ToB64, normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
-    import { descriptionMenacesEspècesToJSON } from '../../../commun/outils-espèces'
+    import { descriptionMenacesEspècesToJSON, classificationAPToclassificationSaisieEspèce } from '../../../commun/outils-espèces'
     
     /** @import {
      *    ClassificationEtreVivant,
@@ -31,16 +31,16 @@
 
     export let email
 
-    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
-    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, ActivitéMenançante[]>} */
     export let activitesParClassificationEtreVivant
 
-    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, MéthodeMenançante[]>} */
     export let méthodesParClassificationEtreVivant
     
-    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, TransportMenançant[]>} */
     export let transportsParClassificationEtreVivant
 
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
@@ -86,7 +86,7 @@
 
     /**
      * 
-     * @param {Map<ClassificationEtreVivant, EspèceProtégée[]>} espècesProtégéesParClassification
+     * @param {Map<ClassificationEtreVivantSaisieEspèce, EspèceProtégée[]>} espècesProtégéesParClassification
      * @returns {Map<string, EspèceProtégée>}
      */
     function créerNomVersEspèceClassif(espècesProtégéesParClassification){
@@ -161,9 +161,15 @@
     /** @type {EspèceProtégée[]} */
     $: espècesÀPréremplir = [...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe]
 
-    $: oiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau'))
-    $: fauneNonOiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau'))
-    $: floreÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'flore'))
+    $: oiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => 
+        classificationAPToclassificationSaisieEspèce.get(e.classification) === 'oiseau')
+    )
+    $: fauneNonOiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => 
+        classificationAPToclassificationSaisieEspèce.get(e.classification) === 'faune non-oiseau')
+    )
+    $: floreÀPréremplir = new Set(espècesÀPréremplir.filter(e => 
+        classificationAPToclassificationSaisieEspèce.get(e.classification) === 'flore')
+    )
 
     let activitéOiseauPréremplie;
     let méthodeOiseauPréremplie;
@@ -225,7 +231,7 @@
 
     /**
      * 
-     * @param {ClassificationEtreVivant} classification
+     * @param {ClassificationEtreVivantSaisieEspèce} classification
      * @returns {EspèceProtégée[]}
      */
     function getEspècesPourClassification(classification) {
