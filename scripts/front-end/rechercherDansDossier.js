@@ -25,8 +25,8 @@ const créerDossierIndexable = dossier => {
         demandeur_personne_physique_prénoms,
         demandeur_personne_physique_nom,
         demandeur_personne_morale_raison_sociale,
-        commentaire_libre,
-        commentaire_enjeu,
+        historique_identifiant_demande_onagre,
+        activité_principale,
     } = dossier
 
     return {
@@ -43,10 +43,10 @@ const créerDossierIndexable = dossier => {
             retirerAccents(demandeur_personne_physique_nom || ""),
         demandeur_personne_morale_raison_sociale: 
             retirerAccents(demandeur_personne_morale_raison_sociale || ""),
-        commentaire_libre:
-            retirerAccents(commentaire_libre || ""),
-        commentaire_enjeu: 
-            retirerAccents(commentaire_enjeu || ""),
+        historique_identifiant_demande_onagre:
+            retirerAccents(historique_identifiant_demande_onagre || ""),
+        activité_principale: 
+            retirerAccents(activité_principale || ""),
     }
 }
 
@@ -70,8 +70,8 @@ export const créerIndexDossiers = dossiers => {
         this.field("demandeur_personne_physique_prénoms")
         this.field("demandeur_personne_physique_nom")
         this.field("demandeur_personne_morale_raison_sociale")
-        this.field("commentaire_libre")
-        this.field("commentaire_enjeu")
+        this.field("historique_identifiant_demande_onagre")
+        this.field("activité_principale")
 
         for (const dossier of dossiers) {
             this.add(créerDossierIndexable(dossier))
