@@ -2,8 +2,8 @@ import {StringValues} from '../types.js'
 
 export type Règne = 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista'
 export type Classe = 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' 
-export type ClassificationEtreVivant = "oiseau" | "faune non-oiseau" | "flore"
-
+export type ClassificationEtreVivantSaisieEspèce = "oiseau" | "faune non-oiseau" | "flore"
+export type ClassificationEtreVivant = "mammifère non-chiroptère" | "chiroptère" | "amphibien" | "reptile" | "entomofaune" | "oiseau" | "poisson" | "espèce végétale" | "autre"
 /**
  * Lignes du fichier TAXREF.txt (INPN)
  * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
@@ -15,6 +15,8 @@ export interface TAXREF_ROW {
     NOM_VERN: string,
     CLASSE: Classe,
     REGNE: Règne,
+    ORDRE: string,
+    GROUP2_INPN: string, // sert pour chercher les reptiles
     // incomplet
 }
 

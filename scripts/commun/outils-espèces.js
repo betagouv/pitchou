@@ -4,6 +4,7 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
 
 /** @import {
  *    ClassificationEtreVivant, 
+ *    ClassificationEtreVivantSaisieEspèce,
  *    EspèceProtégée, 
  *    EspèceProtégéeStrings,
  *    TAXREF_ROW, 
@@ -19,18 +20,44 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    MéthodeMenançante, 
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
+ /** @import {PitchouState} from '../front-end/store.js' */
 
+/**
+ * @type {Map<ClassificationEtreVivant, ClassificationEtreVivantSaisieEspèce>}
+ */
+export const classificationAPToclassificationSaisieEspèce = new Map([
+    ["espèce végétale", "flore"],
+    ["oiseau", "oiseau"],
+    ["mammifère non-chiroptère", "faune non-oiseau"],
+    ["chiroptère", "faune non-oiseau"],
+    ["amphibien", "faune non-oiseau"],
+    ["entomofaune", "faune non-oiseau"],
+    ["poisson", "faune non-oiseau"],
+    ["reptile", "faune non-oiseau"],
+])
 
-/** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
-const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
+/** @type {Set<ClassificationEtreVivant>} */
+export const classificationEtreVivants = new Set([...classificationAPToclassificationSaisieEspèce.keys()].concat(["autre"]))
+
+/** @type {Set<ClassificationEtreVivantSaisieEspèce>} */
+export const classificationEtreVivantsSaisieEspèce = new Set([...classificationAPToclassificationSaisieEspèce.values()])
 
 /**
  * @param {string} x 
  * @returns {x is ClassificationEtreVivant}
  */
-export function isClassif(x){
+export function isClassificationAP(x){
     // @ts-ignore
     return classificationEtreVivants.has(x)
+}
+
+/**
+ * @param {string} x 
+ * @returns {x is ClassificationEtreVivantSaisieEspèce}
+ */
+export function isClassificationSaisieEspèce(x){
+    // @ts-ignore
+    return classificationEtreVivantsSaisieEspèce.has(x)
 }
 
 
@@ -39,21 +66,32 @@ export function isClassif(x){
  * @param {TAXREF_ROW} _ 
  * @returns {ClassificationEtreVivant}
  */
-export function TAXREF_ROWClassification({REGNE, CLASSE}){
-    if(REGNE === 'Plantae' || REGNE ===  'Fungi' || REGNE === 'Chromista'){
-        return 'flore'
+export function TAXREF_ROWClassification({REGNE, CLASSE, ORDRE, GROUP2_INPN}) {
+    if (REGNE === 'Plantae' || REGNE ===  'Fungi' || REGNE === 'Chromista'){
+        return 'espèce végétale'
     }
 
-    if(REGNE === 'Animalia'){
-        if(CLASSE === 'Aves'){
-            return 'oiseau'
+    if(REGNE === 'Animalia') {
+        if (CLASSE === 'Mammalia' && ORDRE !== 'Chiroptera') {
+            return 'mammifère non-chiroptère'
         }
-        else{
-            return 'faune non-oiseau'
+
+        if (CLASSE === 'Mammalia' && ORDRE === 'Chiroptera') {
+            return 'chiroptère'
         }
+
+        if (CLASSE === 'Amphibia') return 'amphibien'
+        if (CLASSE === 'Insecta' || CLASSE === 'Arachnida') return 'entomofaune'
+        if (CLASSE === 'Aves') return 'oiseau'
+        if (CLASSE === 'Actinopterygii') return 'poisson'
+
+        // Dans la BDC statuts des espèces, la classe `Reptilia` n'est jamais 
+        // remplie pour les reptiles, on va donc se baser sur le groupe
+        // taxonomique `GROUP2_INPN`.
+        if (GROUP2_INPN === 'Reptiles') return 'reptile'
     }
 
-    throw new TypeError(`Classification non reconnue pour REGNE ${REGNE} et CLASSE ${CLASSE}`)
+    return 'autre'
 }
 
 /**
@@ -73,7 +111,7 @@ export function nomsVernaculaires(NOM_VERN){
  * @returns {EspèceProtégée}
  */
 export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STATUTS, classification, nomsScientifiques, nomsVernaculaires}){
-    if(!isClassif(classification)){
+    if(!isClassificationAP(classification)){
         throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${[...classificationEtreVivants].join(', ')}`)
     }
 
@@ -131,13 +169,11 @@ function etreVivantAtteintToJSON(etreVivantAtteint){
  * @returns { DescriptionMenaceEspèceJSON[] }
  */
 export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-    console.log(descriptionMenacesEspèces)
     // @ts-ignore
     return Object.keys(descriptionMenacesEspèces).map((/** @type {ClassificationEtreVivant} */ classification) => {
         return {
             classification, 
             etresVivantsAtteints: descriptionMenacesEspèces[classification].map(etreVivantAtteintToJSON), 
-            
         }
     })
 }
@@ -209,3 +245,41 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
         }
     }
 }
+
+ /**
+  * 
+  * @param {Map<ClassificationEtreVivant, EspèceProtégée[]>} espècesProtégéesParClassificationEtreVivant 
+  * @returns {Map<ClassificationEtreVivantSaisieEspèce, EspèceProtégée[]>} 
+  */
+export function grouperEspècesParClassificationPourSaisieEspèce(espècesProtégéesParClassificationEtreVivant) {
+    /**
+     * @param {Map<ClassificationEtreVivant, EspèceProtégée[]>} espèces 
+     * @param {ClassificationEtreVivantSaisieEspèce} classificationSaisieEspèce
+     * @returns {EspèceProtégée[]}
+     */
+   const récupérerEspècesPourClassification = (espèces, classificationSaisieEspèce) => {
+        return [...espèces]
+            .map(([c, a]) => {
+                if (classificationAPToclassificationSaisieEspèce.get(c) === classificationSaisieEspèce) return a
+
+                return
+            })
+            .filter(a => !!a)
+            .flat()
+    }
+
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, EspèceProtégée[]} */
+    const espèces = new Map()
+
+    classificationEtreVivantsSaisieEspèce.forEach((classificationSaisieEspèce) => {
+        espèces.set(
+            classificationSaisieEspèce, 
+            récupérerEspècesPourClassification(
+                espècesProtégéesParClassificationEtreVivant, 
+                classificationSaisieEspèce,
+            )
+        )
+    })
+
+    return espèces
+} 

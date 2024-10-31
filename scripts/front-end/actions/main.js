@@ -8,10 +8,22 @@ import { getURL } from '../getLinkURL.js';
 
 import { isDossierArray } from '../../types/typeguards.js';
 import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
-import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
+import { 
+    espèceProtégéeStringToEspèceProtégée, 
+    isClassificationAP,
+    isClassificationSaisieEspèce
+} from '../../commun/outils-espèces.js';
 
 /** @import {PitchouState} from '../store.js' */
-/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
+/** @import {
+ *    ActivitéMenançante, 
+ *    ClassificationEtreVivant, 
+ *    EspèceProtégée, 
+ *    GroupesEspèces, 
+ *    NomGroupeEspèces,
+ *    MéthodeMenançante, 
+ *    TransportMenançant,
+ * } from '../../types/especes.d.ts' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
@@ -85,8 +97,8 @@ export async function chargerListeEspècesProtégées(){
 
     for(const espStr of dataEspèces){
         const {classification} = espStr
-
-        if(!isClassif(classification)){
+        
+        if(!isClassificationAP(classification)){
             throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`)
         }
 
@@ -106,6 +118,39 @@ export async function chargerListeEspècesProtégées(){
     store.mutations.setEspèceByCD_REF(espèceByCD_REF)
 
     return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF })
+}
+
+/**
+ * 
+ * @param {NonNullable<PitchouState["espèceByCD_REF"]>} espèceByCD_REF
+ * @returns {Promise<Map<NomGroupeEspèces, EspèceProtégée[]>>}
+ */
+export async function chargerGroupesEspèces(espèceByCD_REF) {
+    /** @type {GroupesEspèces | undefined} */
+    const groupesEspècesBrutes = await json(getURL('link#groupes-especes-data'))
+
+    if(!groupesEspècesBrutes){
+        throw new TypeError(`groupesEspècesBrutes manquants`)
+    }
+
+    /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
+    const groupesEspèces = new Map()
+    for(const [nomGroupe, espèces] of Object.entries(groupesEspècesBrutes)){
+        groupesEspèces.set(
+            nomGroupe,
+            //@ts-ignore TS doesn't understand what happens with .filter
+            espèces.map(e => {
+                if(typeof e === 'string'){
+                    return undefined
+                }
+    
+                return espèceByCD_REF.get(e['CD_REF']) // may be undefined and that's ok
+            })
+            .filter(x => !!x)
+        )
+    }
+
+    return Promise.resolve(groupesEspèces)
 }
 
 /**
@@ -137,7 +182,7 @@ export async function chargerActivitésMéthodesTransports(){
             break; 
         }
 
-        if(!isClassif(classif)){
+        if(!isClassificationSaisieEspèce(classif)){
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
         }
         
@@ -156,7 +201,7 @@ export async function chargerActivitésMéthodesTransports(){
             break; 
         }
 
-        if(!isClassif(classif)){
+        if(!isClassificationSaisieEspèce(classif)){
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
         }
         
@@ -175,7 +220,7 @@ export async function chargerActivitésMéthodesTransports(){
             break; 
         }
 
-        if(!isClassif(classif)){
+        if(!isClassificationSaisieEspèce(classif)){
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
         }
         
