@@ -61,8 +61,8 @@ export const créerIndexDossiers = dossiers => {
         this.use(lunr.fr)
 
         this.ref("id")
-        this.field("nom_dossier", { boost: 10 })
-        this.field("number_demarches_simplifiées", { boost: 5})
+        this.field("nom_dossier")
+        this.field("number_demarches_simplifiées")
         this.field("communes")
         this.field("nom")
         this.field("déposant_nom")
