@@ -1,5 +1,5 @@
 //@ts-check
-import {createOdsFile} from 'ods-xlsx'
+import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'ods-xlsx'
 
 /** @import {
  *    ClassificationEtreVivant, 
@@ -225,7 +225,7 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
  * @param {TransportMenançant[]} transports
  * @returns {DescriptionMenacesEspèces}
  */
-export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
+function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
     /** @type {DescriptionMenacesEspèces} */
     const descriptionMenacesEspèces = Object.create(null)
 
@@ -284,3 +284,78 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
         }
     }
 }
+
+/**
+ * @param {ArrayBuffer} odsFile
+ * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
+ * @param {ActivitéMenançante[]} activites
+ * @param {MéthodeMenançante[]} methodes
+ * @param {TransportMenançant[]} transports
+ * @returns {Promise<DescriptionMenacesEspèces>}
+ */
+async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
+    /** @type {DescriptionMenacesEspèces} */
+    const descriptionMenacesEspèces = Object.create(null)
+
+    const odsRawContent = await getODSTableRawContent(odsFile)
+    const odsContent = tableRawContentToObjects(odsRawContent)
+
+    const lignesOiseauOds = odsContent.get('oiseau')
+
+    if(lignesOiseauOds && lignesOiseauOds.length >= 1){
+        // recups les infos depuis les colonnes
+        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseau => {
+            const {
+                CD_REF,
+                "nombre individus": nombreIndividus,
+                'nids'
+                'œufs'
+                'surface habitat détruit'
+                'code activité'
+                'code méthode'
+                'code transport'
+            } = ligneOiseau
+            
+            const espèce = espèceByCD_REF.get(CD_REF)
+
+            return {
+                espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
+                activité: activites.find((a) => a.Code === activité),
+                méthode: methodes.find((m) => m.Code === méthode),	
+                transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                ...rest
+            }
+        })
+    }
+
+
+    for(const [sheetName, lignesMenaceEspèce] of odsContent){
+
+    }
+
+
+    descriptionMenacesEspècesJSON.forEach(({classification, etresVivantsAtteints}) => {
+        //@ts-ignore
+        descriptionMenacesEspèces[classification] = 
+            //@ts-ignore
+            etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
+                //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
+                // renseigné alors `espece` l'est forcément
+                const espèceParamDéprécié = espèceByCD_REF.get(espece)
+
+                return {
+                    espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
+                    activité: activites.find((a) => a.Code === activité),
+                    méthode: methodes.find((m) => m.Code === méthode),	
+                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                    ...rest
+                }
+            })
+    })
+
+    return descriptionMenacesEspèces
+}
+
+
+
+export const importDescriptionMenacesEspècesFromOdsArrayBuffer = importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1
