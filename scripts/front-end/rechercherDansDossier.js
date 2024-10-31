@@ -91,6 +91,8 @@ const rechercherDossiersAvecTexte = (texteÀChercher, index) => {
     return index.search(texteÀChercher)
 }
 
+/** @type {Map<string, Set<DossierComplet['id']>>} */
+let résultatsDossierIdsParRecherche = new Map()
 
 /** 
  * @param {string} texteÀChercher
@@ -99,9 +101,26 @@ const rechercherDossiersAvecTexte = (texteÀChercher, index) => {
  * @return {Boolean}
  */
 export const contientTexteDansDossier = (texteÀChercher, dossier, index) => {
+    /** @type {Set<DossierComplet['id']> | undefined} */
+    const résultatsDossierIdsEnCache = résultatsDossierIdsParRecherche.get(texteÀChercher)
+
+    if (résultatsDossierIdsEnCache) {
+        // @ts-ignore
+        if (résultatsDossierIdsEnCache.has(String(dossier.id))) return true 
+
+        return false
+    } 
+    
     const lunrRésultats = rechercherDossiersAvecTexte(texteÀChercher, index)
 
-    if (lunrRésultats.length === 0) return false 
+    // @ts-expect-error TS ne sait pas que la `ref` correspond à l'`id` du dossier
+    résultatsDossierIdsParRecherche.set(texteÀChercher, new Set(lunrRésultats.map(({ref}) => ref)))
 
-    return lunrRésultats.filter(({ref}) => String(dossier.id) === ref).length > 0
+    /** @type {Set<DossierComplet['id']> | undefined} */
+    const nouveauxRésultatsDossierId = résultatsDossierIdsParRecherche.get(texteÀChercher)
+
+    if (!nouveauxRésultatsDossierId || nouveauxRésultatsDossierId.size === 0) return false
+    
+    // @ts-ignore
+    return nouveauxRésultatsDossierId.has(String(dossier.id))
 }

@@ -189,10 +189,6 @@
                     historique_identifiant_demande_onagre,
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
-
-                if (dossier.id === 21321) {
-                    console.log(dossier)
-                }
             
                 return String(id)?.includes(_texteÀChercher) ||
                     départements?.includes(_texteÀChercher) || 
