@@ -186,7 +186,8 @@
                     postalCode
                 ).filter(c => c) || []
             
-                return départements?.includes(_texteÀChercher) || 
+                return String(id)?.includes(_texteÀChercher) ||
+                    départements?.includes(_texteÀChercher) || 
                     communesCodes?.includes(_texteÀChercher) ||
                     number_demarches_simplifiées?.includes(_texteÀChercher)
             })
