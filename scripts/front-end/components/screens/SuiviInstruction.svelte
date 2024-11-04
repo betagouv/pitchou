@@ -2,7 +2,7 @@
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
-    import FiltreTexte from '../FiltreTexte.svelte'
+    import BarreRecherche from '../BarreRecherche.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -287,13 +287,9 @@
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
             <div class="filtres">
-                <FiltreTexte
-                    titre="Rechercher par commune"
-                    on:selected-changed={filtrerParCommune}
-                />
-                <FiltreTexte
-                    titre="Rechercher par département"
-                    on:selected-changed={filtrerParDépartement}
+                <BarreRecherche
+                    titre="Rechercher par texte libre"
+                    on:selected-changed={filtrerParTexte}
                 />
                 <FiltreParmiOptions 
                     titre="Filtrer par phase"
@@ -305,10 +301,6 @@
                     options={prochainesActionsAttenduesParOptions} 
                     on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
                 />
-                <FiltreTexte
-                    titre="Rechercher texte libre"
-                    on:selected-changed={filtrerParTexte}
-                />
                 {#if instructeursOptions && instructeursOptions.size >= 2}
                 <FiltreParmiOptions 
                     titre="Filtrer par instructeur suivant le dossier"
@@ -317,7 +309,7 @@
                 />
                 {/if}
                 {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
-                <div class="fr-checkbox-group">
+                <div class="fr-checkbox-group flex">
                     <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
                     <label class="fr-label" for="checkbox-1">
                         Afficher uniquement mes dossiers suivis
@@ -425,5 +417,4 @@
     .fr-badge:not(.instructeurs) {
         white-space: nowrap;
     }
-
 </style>
