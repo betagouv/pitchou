@@ -286,11 +286,13 @@
 
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
+            
+            <BarreRecherche
+                titre="Rechercher par texte libre"
+                on:selected-changed={filtrerParTexte}
+            />
+
             <div class="filtres">
-                <BarreRecherche
-                    titre="Rechercher par texte libre"
-                    on:selected-changed={filtrerParTexte}
-                />
                 <FiltreParmiOptions 
                     titre="Filtrer par phase"
                     options={phaseOptions} 
@@ -316,37 +318,37 @@
                     </label>
                 </div>
                 {/if}
-
-                <div class="fr-mt-2w">
-                    {#if communeFiltrée}
-                        <div class="fr-badge fr-badge--sm">
-                            Commune : {communeFiltrée}
-                            <button on:click={onSupprimerFiltreCommune}>✖</button>
-                        </div>
-                    {/if}
-                    {#if départementFiltré}
-                        <div class="fr-badge fr-badge--sm">
-                            Département : {départementFiltré}
-                            <button on:click={onSupprimerFiltreDépartement}>✖</button>
-                        </div>
-                    {/if}
-                    {#if phasesFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
-                    {/if}
-                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
-                    {/if}
-                    {#if texteÀChercher}
-                        <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
-                        <button on:click={onSupprimerFiltreTexte}>✖</button>
-                    {/if}
-                    {#if instructeursSélectionnés.size >= 1}
-                        <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
-                    {/if}
-                </div>
             </div>
+
+        <div class="filtres-actifs">
+            {#if communeFiltrée}
+                <div class="fr-badge fr-badge--sm">
+                    Commune : {communeFiltrée}
+                    <button on:click={onSupprimerFiltreCommune}>✖</button>
+                </div>
+            {/if}
+            {#if départementFiltré}
+                <div class="fr-badge fr-badge--sm">
+                    Département : {départementFiltré}
+                    <button on:click={onSupprimerFiltreDépartement}>✖</button>
+                </div>
+            {/if}
+            {#if phasesFiltrées.size >= 1}
+                <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
+            {/if}
+            {#if prochainesActionsAttenduesParFiltrées.size >= 1}
+                <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
+            {/if}
+            {#if texteÀChercher}
+                <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
+                <button on:click={onSupprimerFiltreTexte}>✖</button>
+            {/if}
+            {#if instructeursSélectionnés.size >= 1}
+                <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
+            {/if}
+        </div>
                 
-            <h2>{dossiersSelectionnés.length} dossiers affichés</h2>
+            <h2 class="fr-mt-2w">{dossiersSelectionnés.length} dossiers affichés</h2>
 
             <div class="fr-table fr-table--bordered">
                 <table>
@@ -416,5 +418,15 @@
 
     .fr-badge:not(.instructeurs) {
         white-space: nowrap;
+    }
+
+    .filtres {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .filtres-actifs {
+        margin-bottom: 0.5rem;
     }
 </style>

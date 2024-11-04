@@ -79,6 +79,7 @@
 <style lang="scss">
     details {
         display: inline;
+        margin-right: 0.5rem;
     }
 
     .filtre-options {
