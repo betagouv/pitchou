@@ -344,11 +344,10 @@ export function deleteDossierByDSNumber(numbers){
  *
  * @param {Dossier['id']} id
  * @param {Partial<Dossier>} dossierParams
- * @returns {Promise<Dossier>}
+ * @returns {Promise<void>}
  */
 export function updateDossier(id, dossierParams) {
     return directDatabaseConnection('dossier')
     .where({ id })
-    .returning('*')
     .update(dossierParams)
 }

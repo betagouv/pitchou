@@ -11,18 +11,24 @@ import store from "../store"
 /**
  * @param {DossierComplet['id']} id
  * @param {Partial<DossierComplet>} dossierParams
- * @returns {Promise<Dossier>}
+ * @returns {Promise<void>}
  */
 export function modifierDossier(id, dossierParams) {
     if(!store.state.capabilities?.modifierDossier)
         throw new TypeError(`Capability modifierDossier manquante`)
 
+    const dossierAvantModification = store.state.dossiers.get(id)
+    const copieDossierAvantModification = Object.assign({}, dossierAvantModification)
+
+    // modifier le dossier dans le store de manière optimiste
+    const dossierModifié = Object.assign({}, dossierAvantModification, dossierParams)
+    store.mutations.setDossier(dossierModifié)
+
     return store.state.capabilities?.modifierDossier(id, dossierParams)
-        .then(databaseResponse  => {
-            //@ts-ignore 
-            const dossierAJour = databaseResponse[0]
-            store.mutations.setDossier(dossierAJour)
-            return dossierAJour
+        .catch(err  => {
+            // en cas d'erreur, remettre le dossier dans le store comme avant la copie
+            store.mutations.setDossier(copieDossierAvantModification)
+            throw err
         })
 }
 
