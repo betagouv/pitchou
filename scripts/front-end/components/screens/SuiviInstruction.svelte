@@ -190,11 +190,11 @@
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
             
-                return String(id)?.includes(_texteÀChercher) ||
+                return String(id) === _texteÀChercher ||
                     départements?.includes(_texteÀChercher) || 
                     communesCodes?.includes(_texteÀChercher) ||
-                    number_demarches_simplifiées?.includes(_texteÀChercher) || 
-                    historique_identifiant_demande_onagre?.includes(_texteÀChercher) || 
+                    number_demarches_simplifiées === _texteÀChercher || 
+                    historique_identifiant_demande_onagre === _texteÀChercher || 
                     false
             })
         } else {
