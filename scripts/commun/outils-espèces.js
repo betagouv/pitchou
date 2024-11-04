@@ -298,10 +298,10 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     const descriptionMenacesEspèces = Object.create(null)
 
     const odsRawContent = await getODSTableRawContent(odsFile)
+    /** @type {Map<ClassificationEtreVivant, any} */
     const odsContent = tableRawContentToObjects(odsRawContent)
 
     const lignesOiseauOds = odsContent.get('oiseau')
-
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseauOds => {
@@ -332,30 +332,56 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
         })
     }
 
+    const lignesFauneNonOiseauOds = odsContent.get('faune non-oiseau')
+    if(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1){
+        // recups les infos depuis les colonnes
+        descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds.map(ligneFauneNonOiseauOds => {
+            const {
+                CD_REF,
+                "nombre individus": nombreIndividus,
+                "surface habitat détruit": surfaceHabitatDétruit,
+                "code activité": codeActivité,
+                "code méthode": codeMéthode,
+                "code transport": codeTransport
+            } = ligneFauneNonOiseauOds
+            
+            const espèce = espèceByCD_REF.get(CD_REF)
 
-    /*for(const [sheetName, lignesMenaceEspèce] of odsContent){
+            return {
+                espèce,
+                nombreIndividus,
+                surfaceHabitatDétruit,
+                activité: activites.find((a) => a.Code === codeActivité),
+                méthode: methodes.find((m) => m.Code === codeMéthode),	
+                transport: transports.find((t) => t.Espèces === 'faune non-oiseau' && t.Code === codeTransport),
+            }
+        })
+    }
 
+    const lignesFloreOds = odsContent.get('flore')
+    if(lignesFloreOds && lignesFloreOds.length >= 1){
+        // recups les infos depuis les colonnes
+        descriptionMenacesEspèces['flore'] = lignesFloreOds.map(ligneFloreOds => {
+            const {
+                CD_REF,
+                "nombre individus": nombreIndividus,
+                "surface habitat détruit": surfaceHabitatDétruit,
+                "code activité": codeActivité,
+            } = ligneFloreOds
+            
+            const espèce = espèceByCD_REF.get(CD_REF)
+
+            return {
+                espèce,
+                nombreIndividus,
+                surfaceHabitatDétruit,
+                activité: activites.find((a) => a.Code === codeActivité)
+            }
+        })
     }
 
 
-    descriptionMenacesEspècesJSON.forEach(({classification, etresVivantsAtteints}) => {
-        //@ts-ignore
-        descriptionMenacesEspèces[classification] = 
-            //@ts-ignore
-            etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
-                //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
-                // renseigné alors `espece` l'est forcément
-                const espèceParamDéprécié = espèceByCD_REF.get(espece)
 
-                return {
-                    espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
-                    activité: activites.find((a) => a.Code === activité),
-                    méthode: methodes.find((m) => m.Code === méthode),	
-                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
-                    ...rest
-                }
-            })
-    })*/
 
     return descriptionMenacesEspèces
 }

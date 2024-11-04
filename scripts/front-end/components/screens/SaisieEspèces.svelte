@@ -80,10 +80,17 @@
 
     /** @type {File} */
 	$: file = files && files[0]
-    $: descriptionMenacesEspèces = file && file.arrayBuffer()
+    $: descriptionMenacesEspècesP = file && file.arrayBuffer()
         .then(importDescriptionMenacesEspècesFromOds)
 
-    $: descriptionMenacesEspèces && descriptionMenacesEspèces.then(x => console.log('descriptionMenacesEspèces ods', x))
+    $: descriptionMenacesEspècesP && descriptionMenacesEspècesP.then(descriptionMenacesEspèces => {
+        //console.log('descriptionMenacesEspèces ods', descriptionMenacesEspèces)
+        oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
+        faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
+        floresAtteintes = descriptionMenacesEspèces['flore'] || []
+    })
+
+
 
     /**
      * Recheche "à l'arrache"
