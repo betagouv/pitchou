@@ -304,32 +304,36 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
-        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseau => {
+        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseauOds => {
             const {
                 CD_REF,
                 "nombre individus": nombreIndividus,
-                'nids'
-                'œufs'
-                'surface habitat détruit'
-                'code activité'
-                'code méthode'
-                'code transport'
-            } = ligneOiseau
+                nids: nombreNids,
+                œufs: nombreOeufs,
+                "surface habitat détruit": surfaceHabitatDétruit,
+                "code activité": codeActivité,
+                "code méthode": codeMéthode,
+                "code transport": codeTransport
+            } = ligneOiseauOds
             
             const espèce = espèceByCD_REF.get(CD_REF)
 
             return {
-                espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
-                activité: activites.find((a) => a.Code === activité),
-                méthode: methodes.find((m) => m.Code === méthode),	
-                transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
-                ...rest
+                espèce,
+                nombreIndividus,
+                nombreNids,
+                nombreOeufs,
+                surfaceHabitatDétruit,
+                activité: activites.find((a) => a.Code === codeActivité),
+                méthode: methodes.find((m) => m.Code === codeMéthode),	
+                transport: transports.find((t) => t.Espèces === 'oiseau' && t.Code === codeTransport),
+                
             }
         })
     }
 
 
-    for(const [sheetName, lignesMenaceEspèce] of odsContent){
+    /*for(const [sheetName, lignesMenaceEspèce] of odsContent){
 
     }
 
@@ -351,7 +355,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                     ...rest
                 }
             })
-    })
+    })*/
 
     return descriptionMenacesEspèces
 }

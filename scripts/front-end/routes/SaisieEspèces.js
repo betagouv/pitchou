@@ -9,7 +9,7 @@ import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
 
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
-import { importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
+import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
 import {chargerActivitésMéthodesTransports, chargerListeEspècesProtégées} from '../actions/main.js'
 
@@ -69,12 +69,30 @@ export default async () => {
             [...transportsParClassificationEtreVivant.values()].flat()
         )
 
+        /**
+         * 
+         * @param {ArrayBuffer} odsArrayBuffer 
+         * @returns 
+         */
+        function importDescriptionMenacesEspècesFromOds(odsArrayBuffer){
+            return importDescriptionMenacesEspècesFromOdsArrayBuffer(
+                odsArrayBuffer, 
+                espèceByCD_REF, 
+                [...activitesParClassificationEtreVivant.values()].flat(), 
+                [...méthodesParClassificationEtreVivant.values()].flat(), 
+                [...transportsParClassificationEtreVivant.values()].flat()
+            )
+        }
+        
+
+
         return {
             ...mapStateToSqueletteProps(state),
             espècesProtégéesParClassification,
             activitesParClassificationEtreVivant, 
             méthodesParClassificationEtreVivant, 
             transportsParClassificationEtreVivant,
+            importDescriptionMenacesEspècesFromOds,
             groupesEspèces,
             oiseauxAtteints: etresVivantsAtteints && etresVivantsAtteints['oiseau'] || [],
             faunesNonOiseauxAtteintes: etresVivantsAtteints && etresVivantsAtteints['faune non-oiseau'] || [],

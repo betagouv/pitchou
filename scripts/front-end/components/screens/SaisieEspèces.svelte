@@ -14,9 +14,9 @@
     
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
-    import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
+    import { descriptionMenacesEspècesToOdsArrayBuffer, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     
-    /** @import { ClassificationEtreVivant, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../types/especes.d.ts' **/
+    /** @import { ClassificationEtreVivant, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
 
     export let email
@@ -32,6 +32,9 @@
     
     /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
     export let transportsParClassificationEtreVivant
+
+    /** @type {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} */
+    export let importDescriptionMenacesEspècesFromOds
 
     /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
     export let groupesEspèces
@@ -67,6 +70,20 @@
 
         return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
     }
+
+    /**
+     * Import données via fichier
+     */
+
+    /** @type {FileList} */
+    let files
+
+    /** @type {File} */
+	$: file = files && files[0]
+    $: descriptionMenacesEspèces = file && file.arrayBuffer()
+        .then(importDescriptionMenacesEspècesFromOds)
+
+    $: descriptionMenacesEspèces && descriptionMenacesEspèces.then(x => console.log('descriptionMenacesEspèces ods', x))
 
     /**
      * Recheche "à l'arrache"
@@ -229,6 +246,16 @@
 
         <div class="fr-grid-row fr-mt-6w fr-mb-4w">
             <div class="fr-col">
+                <section class="fr-mb-4w">
+                    <h2>Import d'un fichier d'espèces</h2>
+                    <div class="fr-upload-group">
+                        <label class="fr-label" for="file-upload">Importer un fichier d'espèces
+                            <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
+                        </label>
+                        <input bind:files class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                    </div>
+                </section>
+
                 <details open>
                     <summary><h2>Pré-remplissage automatique</h2></summary>
 
