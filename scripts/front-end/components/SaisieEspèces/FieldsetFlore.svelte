@@ -10,7 +10,7 @@
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
-    import DropdownTri from "./DropdownTri.svelte"
+    import EnteteAvecTri from "./EnteteAvecTri.svelte"
     
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
 
@@ -96,10 +96,10 @@
                     <thead>
                         <tr>
                             <th>
-                                <DropdownTri label="Espèce" tris={trisEspèces}/>
+                                <EnteteAvecTri label="Espèce" tris={trisEspèces}/>
                             </th>
                             <th>
-                                <DropdownTri label="Type d'impact" tris={trisImpacts} />
+                                <EnteteAvecTri label="Type d'impact" tris={trisImpacts} />
                             </th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>
