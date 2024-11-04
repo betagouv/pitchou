@@ -4,7 +4,7 @@
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import FiltreTexte from '../FiltreTexte.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
-    import {contientTexteDansDossier, créerIndexDossiers} from '../../rechercherDansDossier.js'
+    import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
@@ -170,7 +170,6 @@
     }
 
     $: texteÀChercher = ''
-    const dossiersIndex = créerIndexDossiers(dossiers)
 
     /**
      * @param {{detail: string}} _
@@ -198,18 +197,16 @@
                     false
             })
         } else {
+            const texteSansAccents = retirerAccents(_texteÀChercher)
+            // Pour chercher les communes qui contiennent des tirets avec lunr,
+            // on a besoin de passer la chaîne de caractères entre "".
+            const aRechercher = texteSansAccents.match(/(\w+-)+/) ? 
+                `"${texteSansAccents}"` :
+                texteSansAccents
+            const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(aRechercher, dossiers)
+
             tousLesFiltres.set('texte', dossier => {
-                const texteSansAccents = retirerAccents(_texteÀChercher)
-                // Pour chercher les communes qui contiennent des tirets avec lunr,
-                // on a besoin de passer la chaîne de caractères entre "".
-                const aRechercher = texteSansAccents.match(/(\w+-)+/) ? 
-                    `"${texteSansAccents}"` :
-                    texteSansAccents
-                return contientTexteDansDossier(
-                    aRechercher, 
-                    dossier, 
-                    dossiersIndex,
-                )
+                return dossiersIdCorrespondantsÀTexte.has(dossier.id)
             })
         }
 
