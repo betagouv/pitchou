@@ -10,7 +10,7 @@
  * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes 
  * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]}
  */
-export const trierParEspèceAsc = (espècesAtteintes) => {
+export const trierParOrdreAlphabétiqueEspèce = (espècesAtteintes) => {
     return [...espècesAtteintes]
         .sort((espèceAtteinteA, espèceAtteinteB) => {
             const nomsVernaculairesA = [...espèceAtteinteA.espèce.nomsVernaculaires]
@@ -21,57 +21,7 @@ export const trierParEspèceAsc = (espècesAtteintes) => {
                 nomsVernaculairesA[0] !== "" && 
                 nomsVernaculairesB.length >= 1
             ) {
-                return nomsVernaculairesA[0].localeCompare(nomsVernaculairesB[0])
-            }
-
-            return 0
-        })
-        .sort((espèceAtteinteA, espèceAtteinteB) => {
-            if (
-                espèceAtteinteA.espèce.nomsVernaculaires.has("") &&
-                espèceAtteinteB.espèce.nomsVernaculaires.has("") 
-            ) {
-                const nomsScientifiquesA = [...espèceAtteinteA.espèce.nomsScientifiques]
-                const nomsScientifiquesB = [...espèceAtteinteB.espèce.nomsScientifiques]
-
-                return nomsScientifiquesA[0].localeCompare(nomsScientifiquesB[0])
-            }
-
-            return 0
-        })
-}
-
-
-/**
- * 
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes 
- * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]}
- */
-export const trierParEspèceDesc = (espècesAtteintes) => {
-    return [...espècesAtteintes]
-        .sort((espèceAtteinteA, espèceAtteinteB) => {
-            const nomsVernaculairesA = [...espèceAtteinteA.espèce.nomsVernaculaires]
-            const nomsVernaculairesB = [...espèceAtteinteB.espèce.nomsVernaculaires]
-
-            if (
-                nomsVernaculairesA.length >= 1 && 
-                nomsVernaculairesA[0] !== "" && 
-                nomsVernaculairesB.length >= 1
-            ) {
-                return nomsVernaculairesA[0].localeCompare(nomsVernaculairesB[0]) * -1
-            }
-
-            return 0
-        })
-        .sort((espèceAtteinteA, espèceAtteinteB) => {
-            if (
-                espèceAtteinteA.espèce.nomsVernaculaires.has("") &&
-                espèceAtteinteB.espèce.nomsVernaculaires.has("") 
-            ) {
-                const nomsScientifiquesA = [...espèceAtteinteA.espèce.nomsScientifiques]
-                const nomsScientifiquesB = [...espèceAtteinteB.espèce.nomsScientifiques]
-
-                return nomsScientifiquesA[0].localeCompare(nomsScientifiquesB[0]) * -1
+                return nomsVernaculairesA[0].localeCompare(nomsVernaculairesB[0], 'fr')
             }
 
             return 0

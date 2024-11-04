@@ -74,7 +74,6 @@
         --hover: var(--background-overlap-grey-hover);
         --active: var(--background-overlap-grey-active);
         box-shadow: inset 0 1px 0 0 var(--border-open-blue-france);
-        white-space: nowrap;
 
         &.sélectionné { 
             color: var(--text-active-grey);

@@ -3,8 +3,7 @@
 
     import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js"
     import { 
-        trierParEspèceAsc, 
-        trierParEspèceDesc, 
+        trierParOrdreAlphabétiqueEspèce, 
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
@@ -70,19 +69,19 @@
         rerender()
     }
 
-    function trierParOiseauxAsc() {  
-        oiseauxAtteints = trierParEspèceAsc(oiseauxAtteints)
+    function trierParOiseauxDeAaZ() {  
+        oiseauxAtteints = trierParOrdreAlphabétiqueEspèce(oiseauxAtteints)
         rerender()
     }
 
-    function trierParOiseauxDesc() {  
-        oiseauxAtteints = trierParEspèceDesc(oiseauxAtteints)
+    function trierParOiseauxDeZaA() {  
+        oiseauxAtteints = trierParOrdreAlphabétiqueEspèce(oiseauxAtteints).reverse()
         rerender()
     }
 
     const trisEspèces = new Map()
-    trisEspèces.set("Trier de A à Z", trierParOiseauxAsc)
-    trisEspèces.set("Trier de Z à A", trierParOiseauxDesc)
+    trisEspèces.set("Trier de A à Z", trierParOiseauxDeAaZ)
+    trisEspèces.set("Trier de Z à A", trierParOiseauxDeZaA)
 
     function trierParImpacts() {
         oiseauxAtteints = grouperParActivité(oiseauxAtteints)

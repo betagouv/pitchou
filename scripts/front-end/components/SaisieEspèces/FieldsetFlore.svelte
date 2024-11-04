@@ -3,10 +3,8 @@
 
     import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
     import { 
-        trierParEspèceAsc, 
-        trierParEspèceDesc, 
+        trierParOrdreAlphabétiqueEspèce, 
         grouperParActivité,
-        grouperParMéthode,
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
@@ -64,19 +62,19 @@
         rerender()
     }
 
-    function trierParFloreAsc() {  
-        floresAtteintes = trierParEspèceAsc(floresAtteintes)
+    function trierParFloreDeAaZ() {  
+        floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes)
         rerender()
     }
 
-    function trierParFloreDesc() {  
-        floresAtteintes = trierParEspèceDesc(floresAtteintes)
+    function trierParFloreDeZaA() {  
+        floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes).reverse()
         rerender()
     }
 
     const trisEspèces = new Map()
-    trisEspèces.set("Trier de A à Z", trierParFloreAsc)
-    trisEspèces.set("Trier de Z à A", trierParFloreDesc)
+    trisEspèces.set("Trier de A à Z", trierParFloreDeAaZ)
+    trisEspèces.set("Trier de Z à A", trierParFloreDeZaA)
 
     function trierParImpacts() {
         floresAtteintes = grouperParActivité(floresAtteintes)
