@@ -107,68 +107,6 @@
         filtrerDossiers()
     }
 
-    $: communeFiltrée = "" 
-
-    /**
-     * @param {{detail: string}} _
-     */
-    function filtrerParCommune({detail: communeSélectionnée}){
-        tousLesFiltres.set('commune', dossier => {
-            if (!dossier.communes) return false
-
-            return !!dossier.communes.find(({name, postalCode}) => {
-                return name.includes(communeSélectionnée) || postalCode.includes(communeSélectionnée)
-            })
-        })
-
-        communeFiltrée = communeSélectionnée
-
-        filtrerDossiers()
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function onSupprimerFiltreCommune(e) {
-        e.preventDefault()
-     
-        tousLesFiltres.delete('commune')
-        communeFiltrée = "" 
-        filtrerDossiers()
-    }
-
-    $: départementFiltré = ""
-
-    /**
-     * @param {{detail: string}} _
-     */
-    function filtrerParDépartement({detail: départementSélectionné}){
-        tousLesFiltres.set('département', dossier => {
-            if (!dossier.départements) return false
-
-            return !!dossier.départements.find((département) => {
-                return département.includes(départementSélectionné) 
-            })
-        })
-
-        départementFiltré = départementSélectionné
-
-        filtrerDossiers()
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function onSupprimerFiltreDépartement(e) {
-        e.preventDefault()
-     
-        tousLesFiltres.delete('département')
-        départementFiltré = "" 
-        filtrerDossiers()
-    }
-
     $: texteÀChercher = ''
 
     /**
@@ -321,18 +259,6 @@
             </div>
 
         <div class="filtres-actifs">
-            {#if communeFiltrée}
-                <div class="fr-badge fr-badge--sm">
-                    Commune : {communeFiltrée}
-                    <button on:click={onSupprimerFiltreCommune}>✖</button>
-                </div>
-            {/if}
-            {#if départementFiltré}
-                <div class="fr-badge fr-badge--sm">
-                    Département : {départementFiltré}
-                    <button on:click={onSupprimerFiltreDépartement}>✖</button>
-                </div>
-            {/if}
             {#if phasesFiltrées.size >= 1}
                 <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
             {/if}
