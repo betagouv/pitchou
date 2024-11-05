@@ -17,7 +17,7 @@ import {
     chargerActivitésMéthodesTransports, 
     chargerListeEspècesProtégées,
     chargerGroupesEspèces,
-} from '../actions/main.js'
+} from '../actions/espèces.js'
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
