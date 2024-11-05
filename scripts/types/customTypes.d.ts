@@ -1,3 +1,5 @@
 declare module 'simple-svelte-autocomplete'
 declare module 'ods-xlsx'
 declare module 'minimist'
+declare module 'lunr-languages/lunr.stemmer.support'
+declare module 'lunr-languages/lunr.fr'

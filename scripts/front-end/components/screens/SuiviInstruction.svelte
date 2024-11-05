@@ -2,8 +2,10 @@
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
-    import FiltreTexte from '../FiltreTexte.svelte'
+    import BarreRecherche from '../BarreRecherche.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
+    import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
+    import {retirerAccents} from '../../../commun/manipulationStrings.js'
 
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
@@ -105,87 +107,45 @@
         filtrerDossiers()
     }
 
-    $: communeFiltrée = "" 
-
-    /**
-     * @param {{detail: string}} _
-     */
-    function filtrerParCommune({detail: communeSélectionnée}){
-        tousLesFiltres.set('commune', dossier => {
-            if (!dossier.communes) return false
-
-            return !!dossier.communes.find(({name, postalCode}) => {
-                return name.includes(communeSélectionnée) || postalCode.includes(communeSélectionnée)
-            })
-        })
-
-        communeFiltrée = communeSélectionnée
-
-        filtrerDossiers()
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function onSupprimerFiltreCommune(e) {
-        e.preventDefault()
-     
-        tousLesFiltres.delete('commune')
-        communeFiltrée = "" 
-        filtrerDossiers()
-    }
-
-    $: départementFiltré = ""
-
-    /**
-     * @param {{detail: string}} _
-     */
-    function filtrerParDépartement({detail: départementSélectionné}){
-        tousLesFiltres.set('département', dossier => {
-            if (!dossier.départements) return false
-
-            return !!dossier.départements.find((département) => {
-                return département.includes(départementSélectionné) 
-            })
-        })
-
-        départementFiltré = départementSélectionné
-
-        filtrerDossiers()
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function onSupprimerFiltreDépartement(e) {
-        e.preventDefault()
-     
-        tousLesFiltres.delete('département')
-        départementFiltré = "" 
-        filtrerDossiers()
-    }
-
     $: texteÀChercher = ''
 
     /**
      * @param {{detail: string}} _
      */
     function filtrerParTexte({detail: _texteÀChercher}){
-        tousLesFiltres.set('texte', dossier => {
-            return Boolean(
-                dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
-                dossier.commentaire_libre && dossier.commentaire_libre.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_morale_raison_sociale && dossier.demandeur_personne_morale_raison_sociale.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_physique_nom && dossier.demandeur_personne_physique_nom.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_physique_prénoms && dossier.demandeur_personne_physique_prénoms.includes(_texteÀChercher) ||
-                dossier.number_demarches_simplifiées && dossier.number_demarches_simplifiées.includes(_texteÀChercher) ||
-                String(dossier.id || '').includes(_texteÀChercher) ||
-                dossier.nom && dossier.nom.includes(_texteÀChercher) ||
-                dossier.nom_dossier && dossier.nom_dossier.includes(_texteÀChercher)
-            )
-        })
+        // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
+        // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
+        // les nombres avec une fonction séparée.
+        if (_texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
+            tousLesFiltres.set('texte', dossier => {
+                const {
+                    id, 
+                    départements, 
+                    communes, 
+                    number_demarches_simplifiées,
+                    historique_identifiant_demande_onagre,
+                } = dossier
+                const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
+            
+                return String(id) === _texteÀChercher ||
+                    départements?.includes(_texteÀChercher) || 
+                    communesCodes?.includes(_texteÀChercher) ||
+                    number_demarches_simplifiées === _texteÀChercher || 
+                    historique_identifiant_demande_onagre === _texteÀChercher
+            })
+        } else {
+            const texteSansAccents = retirerAccents(_texteÀChercher)
+            // Pour chercher les communes qui contiennent des tirets avec lunr,
+            // on a besoin de passer la chaîne de caractères entre "".
+            const aRechercher = texteSansAccents.match(/(\w-)+/) ? 
+                `"${texteSansAccents}"` :
+                texteSansAccents
+            const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(aRechercher, dossiers)
+
+            tousLesFiltres.set('texte', dossier => {
+                return dossiersIdCorrespondantsÀTexte.has(dossier.id)
+            })
+        }
 
         texteÀChercher = _texteÀChercher;
 
@@ -263,15 +223,13 @@
 
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
+            
+            <BarreRecherche
+                titre="Rechercher par texte libre"
+                on:selected-changed={filtrerParTexte}
+            />
+
             <div class="filtres">
-                <FiltreTexte
-                    titre="Rechercher par commune"
-                    on:selected-changed={filtrerParCommune}
-                />
-                <FiltreTexte
-                    titre="Rechercher par département"
-                    on:selected-changed={filtrerParDépartement}
-                />
                 <FiltreParmiOptions 
                     titre="Filtrer par phase"
                     options={phaseOptions} 
@@ -282,10 +240,6 @@
                     options={prochainesActionsAttenduesParOptions} 
                     on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
                 />
-                <FiltreTexte
-                    titre="Rechercher texte libre"
-                    on:selected-changed={filtrerParTexte}
-                />
                 {#if instructeursOptions && instructeursOptions.size >= 2}
                 <FiltreParmiOptions 
                     titre="Filtrer par instructeur suivant le dossier"
@@ -294,44 +248,32 @@
                 />
                 {/if}
                 {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
-                <div class="fr-checkbox-group">
+                <div class="fr-checkbox-group flex">
                     <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
                     <label class="fr-label" for="checkbox-1">
                         Afficher uniquement mes dossiers suivis
                     </label>
                 </div>
                 {/if}
-
-                <div class="fr-mt-2w">
-                    {#if communeFiltrée}
-                        <div class="fr-badge fr-badge--sm">
-                            Commune : {communeFiltrée}
-                            <button on:click={onSupprimerFiltreCommune}>✖</button>
-                        </div>
-                    {/if}
-                    {#if départementFiltré}
-                        <div class="fr-badge fr-badge--sm">
-                            Département : {départementFiltré}
-                            <button on:click={onSupprimerFiltreDépartement}>✖</button>
-                        </div>
-                    {/if}
-                    {#if phasesFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
-                    {/if}
-                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
-                    {/if}
-                    {#if texteÀChercher}
-                        <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
-                        <button on:click={onSupprimerFiltreTexte}>✖</button>
-                    {/if}
-                    {#if instructeursSélectionnés.size >= 1}
-                        <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
-                    {/if}
-                </div>
             </div>
+
+        <div class="filtres-actifs">
+            {#if phasesFiltrées.size >= 1}
+                <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
+            {/if}
+            {#if prochainesActionsAttenduesParFiltrées.size >= 1}
+                <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
+            {/if}
+            {#if texteÀChercher}
+                <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
+                <button on:click={onSupprimerFiltreTexte}>✖</button>
+            {/if}
+            {#if instructeursSélectionnés.size >= 1}
+                <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
+            {/if}
+        </div>
                 
-            <h2>{dossiersSelectionnés.length} dossiers affichés</h2>
+            <h2 class="fr-mt-2w">{dossiersSelectionnés.length} dossiers affichés</h2>
 
             <div class="fr-table fr-table--bordered">
                 <table>
@@ -403,4 +345,13 @@
         white-space: nowrap;
     }
 
+    .filtres {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .filtres-actifs {
+        margin-bottom: 0.5rem;
+    }
 </style>
