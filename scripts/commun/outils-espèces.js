@@ -16,6 +16,7 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    FauneNonOiseauAtteinteJSON,
  *    DescriptionMenacesEspèces,
  *    DescriptionMenaceEspèceJSON,
+ *    DescriptionMenacesEspècesPourAP,
  *    ActivitéMenançante, 
  *    MéthodeMenançante, 
  *    TransportMenançant,
@@ -203,6 +204,71 @@ export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSO
                     activité: activites.find((a) => a.Code === activité),
                     méthode: methodes.find((m) => m.Code === méthode),	
                     transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                    ...rest
+                }
+            })
+    })
+
+    return descriptionMenacesEspèces
+}
+
+/**
+ * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
+ * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
+ * @param {ActivitéMenançante[]} activites
+ * @param {MéthodeMenançante[]} methodes
+ * @param {TransportMenançant[]} transports
+ * @returns {DescriptionMenacesEspècesPourAP}
+ */
+export function descriptionMenacesEspècesPourAPFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports) {
+    /** @type {DescriptionMenacesEspècesPourAP} */
+    const descriptionMenacesEspèces = Object.create(null)
+
+    /** @type {(OiseauAtteintJSON | FauneNonOiseauAtteinteJSON | FloreAtteinteJSON)[]} */
+    const etresVivantsAtteintsJSON = descriptionMenacesEspècesJSON.map(({etresVivantsAtteints}) => etresVivantsAtteints).flat()
+
+    /** @type {EspèceProtégée[]} */
+    const espècesProtégéesAtteintes = etresVivantsAtteintsJSON.map((etreVivantAtteintJSON) => espèceByCD_REF.get(etreVivantAtteintJSON.espèce)).filter(e => !!e)
+
+    /** 
+     * 
+     * @param {ClassificationEtreVivant} classificationEtreVivant 
+     * @return {EspèceProtégée[]}
+     */
+    function espècesProtégéesAtteintesPourClassification(classificationEtreVivant) {
+        return espècesProtégéesAtteintes.filter((espèceProtégée) => {
+            return espèceProtégée.classification === classificationEtreVivant
+        })
+    }
+    
+    /**
+     * 
+     * @param {EspèceProtégée} espèceProtégée 
+     * @returns {OiseauAtteintJSON | FauneNonOiseauAtteinteJSON | FloreAtteinteJSON | undefined}
+     */
+    function getEtreVivantAtteintJSONParEspèceProtégée(espèceProtégée) {
+        return etresVivantsAtteintsJSON.find(etreVivantAtteintJSON => etreVivantAtteintJSON.espèce === espèceProtégée['CD_REF'])
+    }
+
+    classificationEtreVivants.forEach((classificationEtreVivant) => {
+        const espècesPourClassification = espècesProtégéesAtteintesPourClassification(classificationEtreVivant)
+        
+        // @ts-ignore
+        descriptionMenacesEspèces[classificationEtreVivant] = espècesPourClassification
+            .map(espèceProtégée => {
+                return getEtreVivantAtteintJSONParEspèceProtégée(espèceProtégée)
+            })
+            .filter(e => !!e)
+            .map(({espèce, espece, activité, méthode, transport, ...rest}) => {
+                //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas 
+                // renseigné alors `espece` l'est forcément
+                const espèceParamDéprécié = espèceByCD_REF.get(espece)
+
+                return {
+                    espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
+                    activité: activites.find((a) => a.Code === activité),
+                    méthode: methodes.find((m) => m.Code === méthode),	
+                    transport: transports.find((t) => t.Espèces === classificationEtreVivant && t.Code === transport),
                     ...rest
                 }
             })

@@ -131,6 +131,18 @@ export interface DescriptionMenacesEspèces {
     flore: FloreAtteinte[],
 }
 
+export interface DescriptionMenacesEspècesPourAP {
+    "espèce végétale": FloreAtteinte[],
+    oiseau: OiseauAtteint[],
+    "mammifère non-chiroptère": FauneNonOiseauAtteinte[],
+    chiroptère: FauneNonOiseauAtteinte[],
+    amphibien: FauneNonOiseauAtteinte[],
+    entomofaune: FauneNonOiseauAtteinte[],
+    poisson: FauneNonOiseauAtteinte[],
+    reptile: FauneNonOiseauAtteinte[],
+    autre: FauneNonOiseauAtteinte[],
+}
+
 export interface DescriptionMenaceEspèceJSON {
     classification: ClassificationEtreVivantSaisieEspèce,
     etresVivantsAtteints: (OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON)[],
