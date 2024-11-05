@@ -6,7 +6,7 @@
     /** @type {string} */
     export let titre
 
-    $: valeur = ""
+    let valeur = ""
 
     const dispatch = createEventDispatcher()
     
