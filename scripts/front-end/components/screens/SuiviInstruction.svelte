@@ -137,7 +137,7 @@
             const texteSansAccents = retirerAccents(_texteÀChercher)
             // Pour chercher les communes qui contiennent des tirets avec lunr,
             // on a besoin de passer la chaîne de caractères entre "".
-            const aRechercher = texteSansAccents.match(/(\w+-)+/) ? 
+            const aRechercher = texteSansAccents.match(/(\w-)+/) ? 
                 `"${texteSansAccents}"` :
                 texteSansAccents
             const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(aRechercher, dossiers)
