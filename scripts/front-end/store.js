@@ -18,7 +18,7 @@ import Store from 'baredux'
 /** @import {DossierComplet} from '../types.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
-/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
+/** @import {ActivitéMenançante, ClassificationEtreVivant, ClassificationEtreVivantSaisieEspèce, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
@@ -34,7 +34,7 @@ import Store from 'baredux'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: Map<ClassificationEtreVivant, ActivitéMenançante[]>, méthodes: Map<ClassificationEtreVivant, MéthodeMenançante[]>, transports: Map<ClassificationEtreVivant, TransportMenançant[]>} } [activitésMéthodesTransports]
+ * @property { {activités: Map<ClassificationEtreVivantSaisieEspèce, ActivitéMenançante[]>, méthodes: Map<ClassificationEtreVivantSaisieEspèce, MéthodeMenançante[]>, transports: Map<ClassificationEtreVivantSaisieEspèce, TransportMenançant[]>} } [activitésMéthodesTransports]
  */
 
 

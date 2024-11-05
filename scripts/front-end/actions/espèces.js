@@ -13,6 +13,7 @@ import {
 /** @import {
  *    ActivitéMenançante, 
  *    ClassificationEtreVivant, 
+ *    ClassificationEtreVivantSaisieEspèce,
  *    EspèceProtégée, 
  *    GroupesEspèces, 
  *    NomGroupeEspèces,
@@ -116,7 +117,7 @@ export async function chargerActivitésMéthodesTransports(){
     ])
 
 
-    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, ActivitéMenançante[]>} */
     const activités = new Map()
     for(const activite of activitésBrutes){
         const classif = activite['Espèces']
@@ -135,7 +136,7 @@ export async function chargerActivitésMéthodesTransports(){
         activités.set(classif, classifActivz)
     }
 
-    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, MéthodeMenançante[]>} */
     const méthodes = new Map()
     for(const methode of méthodesBrutes){
         const classif = methode['Espèces']
@@ -154,7 +155,7 @@ export async function chargerActivitésMéthodesTransports(){
         méthodes.set(classif, classifMeth)
     }
 
-    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
+    /** @type {Map<ClassificationEtreVivantSaisieEspèce, TransportMenançant[]>} */
     const transports = new Map()
     for(const transport of transportsBruts){
         const classif = transport['Espèces']
