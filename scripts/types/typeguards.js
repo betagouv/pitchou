@@ -1,4 +1,5 @@
 import { isValidDateString } from '../commun/typeFormat.js'
+import { classificationAPToclassificationSaisieEspèce } from '../commun/outils-espèces.js'
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
@@ -78,7 +79,7 @@ export function isOiseauAtteint(e) {
   return (
     typeof e === "object" &&
     e !== null &&
-    typeof e.espèce === "object" && e.espèce.classification === "oiseau" &&
+    typeof e.espèce === "object" && classificationAPToclassificationSaisieEspèce.get(e.espèce.classification) === "oiseau" &&
     (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
     (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
     (e.activité === undefined || typeof e.activité === "object") &&
@@ -98,7 +99,7 @@ export function isFauneNonOiseauAtteinte(e) {
   return (
     typeof e === "object" &&
     e !== null &&
-    typeof e.espèce === "object" && e.espèce.classification === "faune non-oiseau" &&
+    typeof e.espèce === "object" && classificationAPToclassificationSaisieEspèce.get(e.espèce.classification) === "faune non-oiseau" &&
     (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
     (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
     (e.activité === undefined || typeof e.activité === "object") &&
@@ -116,7 +117,7 @@ export function isFloreAtteinte(e) {
   return (
     typeof e === "object" &&
     e !== null &&
-    typeof e.espèce === "object" && e.espèce.classification === "flore" &&
+    typeof e.espèce === "object" && classificationAPToclassificationSaisieEspèce.get(e.espèce.classification) === "flore" &&
     (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
     (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
     (e.activité === undefined || typeof e.activité === "object")
