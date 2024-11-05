@@ -1,14 +1,13 @@
 <script>
     //@ts-check
 
-    import { createEventDispatcher } from "svelte";
-
     /** @type {string} */
     export let titre
 
-    let valeur = ""
+    /** @type {function}*/
+    export let mettreÀJourTexteRecherche
 
-    const dispatch = createEventDispatcher()
+    let valeur = ""
     
     /**
      * 
@@ -16,7 +15,7 @@
      */
     function onMettreÀJourValeurSélectionnée(e) {
         e.preventDefault()
-        dispatch("selected-changed", valeur)
+        mettreÀJourTexteRecherche(valeur)
         valeur = ""
     }
 </script>

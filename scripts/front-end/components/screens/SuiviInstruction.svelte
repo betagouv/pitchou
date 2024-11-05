@@ -113,9 +113,9 @@
     $: texteÀChercher = ''
 
     /**
-     * @param {{detail: string}} _
+     * @param {string} _texteÀChercher
      */
-    function filtrerParTexte({detail: _texteÀChercher}){
+    function filtrerParTexte(_texteÀChercher) {
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
         // les nombres avec une fonction séparée.
@@ -229,7 +229,7 @@
             {#if dossiers.length >= 1}
                 <BarreRecherche
                     titre="Rechercher par texte libre"
-                    on:selected-changed={filtrerParTexte}
+                    mettreÀJourTexteRecherche={filtrerParTexte}
                 />
 
                 <div class="filtres">
