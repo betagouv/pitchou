@@ -16,7 +16,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'od
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from 'ods-xlsx' */
-
+/** @import {FichierEspècesMenacéesOds_V1} from '../types/espècesFichierOds.d.ts' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
@@ -298,7 +298,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     const descriptionMenacesEspèces = Object.create(null)
 
     const odsRawContent = await getODSTableRawContent(odsFile)
-    /** @type {Map<ClassificationEtreVivant, any} */
+    /** @type {FichierEspècesMenacéesOds_V1} */
     const odsContent = tableRawContentToObjects(odsRawContent)
 
     const lignesOiseauOds = odsContent.get('oiseau')
@@ -317,6 +317,10 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             } = ligneOiseauOds
             
             const espèce = espèceByCD_REF.get(CD_REF)
+
+            if(!espèce){
+                throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
 
             return {
                 espèce,
@@ -347,6 +351,10 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             
             const espèce = espèceByCD_REF.get(CD_REF)
 
+            if(!espèce){
+                throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
+
             return {
                 espèce,
                 nombreIndividus,
@@ -370,6 +378,10 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             } = ligneFloreOds
             
             const espèce = espèceByCD_REF.get(CD_REF)
+
+            if(!espèce){
+                throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
 
             return {
                 espèce,
