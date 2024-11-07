@@ -48,6 +48,8 @@ async function getGroupesInstructeurs(databaseConnection = directDatabaseConnect
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParEmail, databaseConnection = directDatabaseConnection){
+    //console.log('créerGroupesInstructeurs', instructeurParEmail)
+    
     const nomsGroupes = groupesInstructeursAPI.map(g => ({nom: g.label}))
 
     // Créer les groupes d'instructeurs en BDD
@@ -55,16 +57,23 @@ async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParE
         .insert(nomsGroupes)
         .returning(['id', 'nom'])
 
-    //console.log('instructeurParEmail', [...instructeurParEmail.values()])
+    //console.log('instructeurParEmail insert', [...instructeurParEmail.values()].map(({code_accès}) => ({personne_cap: code_accès})))
 
     // Créer les cap_dossier pour les instructeurs qui n'en ont pas
-    const capDossierByCodeAccèsP = databaseConnection('cap_dossier')
+    await databaseConnection('cap_dossier')
         .insert([...instructeurParEmail.values()].map(({code_accès}) => ({personne_cap: code_accès})))
         .onConflict('personne_cap')
         .ignore()
-        .returning(['cap', 'personne_cap'])
+
+    // recup les instructeurices avec cap dossier
+    const capDossierByCodeAccèsP = databaseConnection('cap_dossier')
+        .select(['cap', 'personne_cap'])
+        //@ts-ignore
+        .whereIn('personne_cap', [...instructeurParEmail.values()].map(({code_accès}) => code_accès) )
         .then(capDossiers => {
             const ret = new Map()
+
+            //console.log('capDossiers', capDossiers)
 
             for(const {cap, personne_cap} of capDossiers){
                 ret.set(personne_cap, cap)
@@ -161,6 +170,8 @@ async function createAndReturnInstructeurPersonne(emailsInstructeur, databaseCon
  * @return {Promise<void>}
  */
 async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
+    //console.log('ajouterPersonnesDansGroupeParEmails', groupe_instructeurs, emails)
+
     // Trouver les instructeurs pour lesquels il manque une cap_dossier
     const instructeursSansDossierCap = await databaseConnection('personne')
         .select('code_accès')
@@ -171,10 +182,12 @@ async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, 
     //console.log('instructeursSansDossierCap', instructeursSansDossierCap)
 
     // rajouter les cap_dossier manquants
-    await databaseConnection('cap_dossier')
-        .insert(instructeursSansDossierCap.map(({code_accès}) => ({personne_cap: code_accès})))
-        .onConflict('personne_cap')
-        .ignore();
+    if(instructeursSansDossierCap.length >= 1){
+        await databaseConnection('cap_dossier')
+            .insert(instructeursSansDossierCap.map(({code_accès}) => ({personne_cap: code_accès})))
+            .onConflict('personne_cap')
+            .ignore();
+    }
     
     const capDossierPourCesEmails = await databaseConnection('personne')
         .select('cap')
@@ -199,6 +212,8 @@ async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, 
  * @returns {Promise<void>}
  */
 async function supprimerPersonnesDansGroupeParEmail(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
+    //console.log('supprimerPersonnesDansGroupeParEmail', groupe_instructeurs, emails)
+    
     const capDossierPourCesEmails = await databaseConnection('personne')
         .select('cap')
         .whereIn('email', [...emails])
@@ -333,7 +348,7 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
 
         const instructeurParEmail = new Map(instructeursEnBDD.map(i => [i.email, i]))
 
-        //console.log('instructeursEnBDD', instructeurParEmail)
+        //console.log('instructeurParEmail', instructeurParEmail)
 
         const groupesInstructeursBDD = await getGroupesInstructeurs(trx)
 
@@ -421,6 +436,12 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
         }
 
         const complétionInstructeurIds = créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailToId, trx)
+
+        //groupesInstructeursManquantsEnBDDCréés.catch(err => console.error("groupesInstructeursManquantsEnBDDCréés", err))
+        //groupesInstructeursEnTropEnBDDSupprimés.catch(err => console.error("groupesInstructeursEnTropEnBDDSupprimés", err))
+        //miseÀJourEmailsDansGroupe.catch(err => console.error("miseÀJourEmailsDansGroupe", err))
+        //complétionInstructeurIds.catch(err => console.error("complétionInstructeurIds", err))
+
 
         return Promise.all([
             groupesInstructeursManquantsEnBDDCréés,
