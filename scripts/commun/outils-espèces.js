@@ -111,17 +111,21 @@ function toSheetRawCellContent(x){
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'code activité', 'code méthode', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
+        
+        const labelActivité = activité && activité['étiquette affichée']
         const codeActivité = activité && activité.Code
+        const labelMéthode = méthode && méthode['étiquette affichée']
         const codeMéthode = méthode && méthode.Code
+        const labelTransport = transport && transport['étiquette affichée']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, codeActivité, codeMéthode, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
             .map(toSheetRawCellContent)
         )
     }
@@ -138,17 +142,20 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
  */
 function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'code activité', 'code méthode', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
+        const labelActivité = activité && activité['étiquette affichée']
         const codeActivité = activité && activité.Code
+        const labelMéthode = méthode && méthode['étiquette affichée']
         const codeMéthode = méthode && méthode.Code
+        const labelTransport = transport && transport['étiquette affichée']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, codeActivité, codeMéthode, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
             .map(toSheetRawCellContent)
         )
     }
@@ -166,15 +173,16 @@ function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
 function floresAtteintesToTableContent(floresAtteintes){
 
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'code activité']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité} of floresAtteintes){
+        const labelActivité = activité && activité['étiquette affichée']
         const codeActivité = activité && activité.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, codeActivité]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité]
             .map(toSheetRawCellContent)
         )
     }

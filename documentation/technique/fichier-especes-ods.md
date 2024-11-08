@@ -65,8 +65,11 @@ L'ordre des feuilles n'a aucune importance
 | `nids`                    | nombre                                                |                                                       |
 | `œufs`                    | nombre                                                |                                                       |
 | `surface habitat détruit` | nombre                                                | surface en m²                                         |
+| `activité`           | chaînes de caractère                                  | description activité selon la nomenclature européenne        |
 | `code activité`           | chaînes de caractère                                  | code activité selon la nomenclature européenne        |
+| `méthode`            | chaînes de caractère                                  | description méthode selon la nomenclature européenne         |
 | `code méthode`            | chaînes de caractère                                  | code méthode selon la nomenclature européenne         |
+| `transport`          | chaînes de caractère                                  | description transport selon la nomenclature européenne       |
 | `code transport`          | chaînes de caractère                                  | code transport selon la nomenclature européenne       |
 
 
@@ -79,8 +82,11 @@ L'ordre des feuilles n'a aucune importance
 | `CD_REF`                  | chaînes de caractère                                  | identifiant TaxRef                                    |
 | `nombre individus`        | chaînes de caractère                                  | fourchette sous la forme `x-y`. Par exemple, `11-100` |
 | `surface habitat détruit` | nombre                                                | surface en m²                                         |
+| `activité`           | chaînes de caractère                                  | description activité selon la nomenclature européenne        |
 | `code activité`           | chaînes de caractère                                  | code activité selon la nomenclature européenne        |
+| `méthode`            | chaînes de caractère                                  | description méthode selon la nomenclature européenne         |
 | `code méthode`            | chaînes de caractère                                  | code méthode selon la nomenclature européenne         |
+| `transport`          | chaînes de caractère                                  | description transport selon la nomenclature européenne       |
 | `code transport`          | chaînes de caractère                                  | code transport selon la nomenclature européenne       |
 
 
@@ -93,4 +99,5 @@ L'ordre des feuilles n'a aucune importance
 | `CD_REF`                  | chaînes de caractère                                  | identifiant TaxRef                                    |
 | `nombre individus`        | chaînes de caractère                                  | fourchette sous la forme `x-y`. Par exemple, `11-100` |
 | `surface habitat détruit` | nombre                                                | surface en m²                                         |
+| `activité`           | chaînes de caractère                                  | description activité selon la nomenclature européenne        |
 | `code activité`           | chaînes de caractère                                  | code activité selon la nomenclature européenne        |
