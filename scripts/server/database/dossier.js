@@ -8,6 +8,8 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
+/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+//@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 
 
@@ -50,6 +52,30 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
         .onConflict('id_démarches_simplifiées').merge()
 }
 
+/**
+ * @param {Map<Dossier['id'], API_DS_SCHEMA.Traitement[]>} idToTraitements
+ * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
+    /** @type {ÉvènementPhaseDossier[]} */
+    const évènementsPhaseDossier = [];
+    
+    for(const [dossierId, apiTraitements] of idToTraitements){
+        for(const {dateTraitement, state} of apiTraitements){
+            évènementsPhaseDossier.push({
+                phase: state,
+                horodatage: new Date(dateTraitement),
+                dossier: dossierId
+            })
+        }
+    };
+    
+    return databaseConnection('évènement_phase_dossier')
+        .insert(évènementsPhaseDossier)
+        .onConflict(['dossier', 'phase', 'horodatage'])
+        .ignore()
+}
 
 /**
  * 

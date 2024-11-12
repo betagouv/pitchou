@@ -5,7 +5,7 @@ import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
@@ -18,12 +18,11 @@ import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' 
 
 
 
-/** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
+/** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {default as Message} from '../scripts/types/database/public/Message.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS, Traitement, Message } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
@@ -486,7 +485,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<Dossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
@@ -524,15 +523,17 @@ await Promise.all([
 
 /** Synchronisation de la messagerie */
 
-/** @type {Map<string, any[]>} // Map<id_DS, MessageAPI_DS> */
+const dossiersIdsP = getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id))
+
+/** @type {Map<NonNullable<DatabaseDossier['id_demarches_simplifiées']>, Message[]>} */
 const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
     ({id: id_DS, messages}) => [id_DS, messages])
 )
 
 
-const messagesÀMettreEnBDDAvecDossierIdP = getDossierIdsFromDS_Ids([...messagesÀMettreEnBDDAvecDossierId_DS.keys()])
+const messagesSynchronisés = dossiersIdsP
 .then(dossierIds => {
-    /** @type {Map<string, Dossier['id']>} */
+    /** @type {Map<string, DatabaseDossier['id']>} */
     const idDSToId = new Map()
     for(const {id, id_demarches_simplifiées} of dossierIds){
         //@ts-ignore
@@ -540,17 +541,21 @@ const messagesÀMettreEnBDDAvecDossierIdP = getDossierIdsFromDS_Ids([...messages
     }
 
     /** @type {Map<number, Message[]>} */
-    const idToMessages = new Map()
+    const messagesÀMettreEnBDDAvecDossierId = new Map()
     for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
         const dossierId = idDSToId.get(id_DS)
 
         //@ts-ignore
-        idToMessages.set(dossierId, messages)
+        messagesÀMettreEnBDDAvecDossierId.set(dossierId, messages)
     }
 
-    return idToMessages
-});
+    if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
+        // @ts-ignore
+        dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+})
 
+
+/** Synchronisation suivi dossier et dossier dans groupeInstructeur */
 
 let synchronisationSuiviDossier;
 let synchronisationDossierDansGroupeInstructeur;
@@ -564,14 +569,48 @@ if(dossiersDS.length >= 1){
 }
 
 
+
+/** Synchronisation des évènements de changement de phase */
+
+/** @type {Map<NonNullable<DatabaseDossier['id_demarches_simplifiées']>, Traitement[]>} */
+const évènementsPhaseDossierById_DS = new Map(dossiersDS.map(
+    ({id: id_DS, traitements}) => [id_DS, traitements])
+)
+
+console.log('évènementsPhaseDossier', évènementsPhaseDossierById_DS)
+
+const traitementsSynchronisés = dossiersIdsP
+.then(dossierIds => {
+    /** @type {Map<DatabaseDossier['id_demarches_simplifiées'], DatabaseDossier['id']>} */
+    const idDSToId = new Map()
+    for(const {id, id_demarches_simplifiées} of dossierIds){
+        //@ts-ignore
+        idDSToId.set(id_demarches_simplifiées, id)
+    }
+
+    /** @type {Map<DatabaseDossier['id'], Traitement[]>} */
+    const idToTraitements = new Map()
+    for(const [id_DS, traitements] of évènementsPhaseDossierById_DS){
+        const dossierId = idDSToId.get(id_DS)
+
+        //@ts-ignore
+        idToTraitements.set(dossierId, traitements)
+    }
+
+    if(idToTraitements.size >= 1)
+        dumpDossierTraitements(idToTraitements)
+})
+
+
+
+
+
 Promise.all([
     groupesInstructeursSynchronisés,
-    messagesÀMettreEnBDDAvecDossierIdP.then(messagesÀMettreEnBDDAvecDossierId => {
-        if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
-            // @ts-ignore
-            dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
-    }),
+    messagesSynchronisés,
+    traitementsSynchronisés,
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur
 ])
 .then(closeDatabaseConnection)
+

@@ -74,6 +74,13 @@ export interface Message{
     attachments: any[]
 }
 
+export interface Traitement{
+    state: 'en_construction' | 'en_instruction' // PPP à compléter
+    emailAgentTraitant: string | null
+    dateTraitement: string // représentant une date
+    motivation: string | null
+}
+
 
 export interface Dossier<ChampDS> {
     id: string
@@ -84,6 +91,7 @@ export interface Dossier<ChampDS> {
     groupeInstructeur: GroupeInstructeurs
     instructeurs: Instructeur[]
     messages: Message[]
+    traitements: Traitement[]
     champs: ChampDS[]
     annotations: ChampDS[]
 }
