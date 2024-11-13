@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import {phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhase} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
 
     /** @type {DossierComplet[]} */
@@ -14,8 +14,60 @@
 
     /** @type {any[]} */
     export let évènementsPhaseDossier
-
     $: console.log('évènementsPhaseDossier', évènementsPhaseDossier)
+
+
+    /**
+     * 
+     * @param {string} traitementPhase
+     * @returns {DossierPhase}
+     */
+    function traitementPhaseToDossierPhase(traitementPhase){
+        if(traitementPhase === 'en_construction')
+            return "Accompagnement amont"
+        if(traitementPhase === 'en_instruction')
+            return "Instruction"
+        if(traitementPhase === 'accepte')
+            return "Contrôle"
+        if(traitementPhase === 'sans_suite')
+            return "Classé sans suite"
+        if(traitementPhase === 'refuse')
+            return "Obligations terminées"
+
+        throw `Traitement phase non reconnue: ${traitementPhase}`
+    }
+
+    /**
+     * 
+     * @return {Map<DossierComplet['id'], DossierPhase>} 
+     */
+    function créerPhaseParDossierId(évènementsPhaseDossier){
+        /** @type {Map<DossierComplet['id'], any>} */
+        const evParDossierId = new Map()
+
+        for(const évènement of évènementsPhaseDossier){
+            const {dossier, horodatage} = évènement
+            
+            const horoDate = new Date(horodatage)
+
+            const evPourCeDossier = evParDossierId.get(dossier)
+
+            if(evPourCeDossier === undefined || new Date(evPourCeDossier.horodatage).getTime() < horoDate.getTime() ){
+                evParDossierId.set(dossier, évènement)
+            }
+        }
+
+        return new Map(
+            [...evParDossierId.entries()].map(([dossierId, ev]) => [
+                dossierId,
+                traitementPhaseToDossierPhase(ev.phase)
+            ])
+        )
+
+    }
+
+    $: phaseParDossierId = créerPhaseParDossierId(évènementsPhaseDossier)
+
 
     /** @type {string | undefined} */
     export let email
@@ -27,20 +79,30 @@
     $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossiers)
 
     function trouverDossiersEnAccompagnement(dossiers){
-        return {length: -1}
+        return dossiers.filter(dossier => {
+            const id = dossier.id
+            const phase = phaseParDossierId.get(id)
+            return phase === 'Accompagnement amont'
+        })
     }
 
     $: dossiersEnAccompagnement = trouverDossiersEnAccompagnement(dossiers)
     
     function trouverDossiersDeMoinsDe3Ans(dossiers){
-        return {length: -1}
+        return dossiers.filter(d => {
+            const dateDépôt = new Date(d.historique_date_réception_ddep || d.date_dépôt)
+
+            return dateDépôt.getFullYear() >= 2022
+        })
     }
 
     $: dossiersEnAccompagnementDeMoinsDe3Ans = trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement)
 
     
     function trouverDossiersNonScientifiques(dossiers){
-        return {length: -1}
+        return dossiers.filter(d => {
+            return d.activité_principale !== 'Demande à caractère scientifique'
+        })
     }
 
     $: dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans = trouverDossiersNonScientifiques(dossiersEnAccompagnementDeMoinsDe3Ans)

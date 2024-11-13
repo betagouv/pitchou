@@ -302,8 +302,9 @@ const colonnesDossierComplet = [
     "commentaire_enjeu",
     "commentaire_libre",
     "historique_identifiant_demande_onagre",
-/*
+
     "historique_date_réception_ddep",
+/*    
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
     "historique_date_saisine_cnpn",
