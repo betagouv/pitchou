@@ -132,7 +132,10 @@ const pitchouKeyToAnnotationDS = {
     "Date de l'AM": "Q2hhbXAtNDE0MTk1NA==",
     "Référence de l'AM": "Q2hhbXAtNDE0MTk1NQ==",
     // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
-    //"AP/AM": "Q2hhbXAtNDE0ODk0Nw=="
+    //"AP/AM": "Q2hhbXAtNDE0ODk0Nw==",
+    "Date avis conforme Ministre": "Q2hhbXAtNDU1MTkxMQ==",
+    "Date de fin de la consultation du public ou enquête publique": "Q2hhbXAtNDYxMDIxNQ=="
+
 }
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();

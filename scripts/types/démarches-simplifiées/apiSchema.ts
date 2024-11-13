@@ -75,7 +75,7 @@ export interface Message{
 }
 
 export interface Traitement{
-    state: 'en_construction' | 'en_instruction' // PPP à compléter
+    state: 'en_construction' | 'en_instruction' | 'accepte' | 'sans_suite' | 'refuse'
     emailAgentTraitant: string | null
     dateTraitement: string // représentant une date
     motivation: string | null
