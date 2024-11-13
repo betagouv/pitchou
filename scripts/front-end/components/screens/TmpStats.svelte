@@ -72,11 +72,29 @@
     /** @type {string | undefined} */
     export let email
 
-    function trouverDossiersAvecAPPrisEn2024(dossiers){
-        return {length: -1}
+    function trouverDossiersEnContrôle(dossiers){
+        return dossiers.filter(dossier => {
+            const id = dossier.id
+            const phase = phaseParDossierId.get(id)
+            return phase === 'Contrôle'
+        })
     }
 
-    $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossiers)
+    $: dossierEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
+
+
+    function trouverDossiersAvecAPPrisEn2024(dossiers){
+        return dossiers.filter(d => {
+            const historique_date_signature_arrêté_préfectoral = d.historique_date_signature_arrêté_préfectoral
+
+            if(!historique_date_signature_arrêté_préfectoral)
+                return true // vrai uniquement parce qu'on est en 2024 à l'écrture du code
+
+            return new Date(historique_date_signature_arrêté_préfectoral).getFullYear() === 2024
+        })
+    }
+
+    $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossierEnPhaseContrôle)
 
     function trouverDossiersEnAccompagnement(dossiers){
         return dossiers.filter(dossier => {
@@ -121,7 +139,17 @@
             </section>
 
             <section>
-                <strong>Nombre d'AP pris en 2024</strong>&nbsp;: {dossiersAvecAPPrisEn2024.length}
+                <h2>Dossiers avec AP</h2>
+                <ul>
+                    <li><strong>
+                        Nombre de dossiers avec AP (<code>DS: 'accepté'</code>)
+                        </strong>&nbsp;: {dossierEnPhaseContrôle.length}
+                    </li>
+                    <li><strong>
+                        Nombre de dossiers avec AP (<code>DS: 'accepté'</code>) pris en 2024
+                        </strong>&nbsp;: {dossiersAvecAPPrisEn2024.length}
+                    </li>
+                </ul>
             </section>
 
             <section>

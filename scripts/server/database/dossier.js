@@ -312,12 +312,13 @@ const colonnesDossierComplet = [
     "date_avis_cnpn",
     "avis_csrpn_cnpn",
     "date_consultation_public",
+*/
     "historique_décision",
     "historique_date_signature_arrêté_préfectoral",
     "historique_référence_arrêté_préfectoral",
     "historique_date_signature_arrêté_ministériel",
     "historique_référence_arrêté_ministériel"
-*/
+
 ]
 
 
