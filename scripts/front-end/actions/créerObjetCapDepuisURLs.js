@@ -113,6 +113,8 @@ export default function(capURLs){
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
         //@ts-ignore
         listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
+        // @ts-ignore
+        listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),
         listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),

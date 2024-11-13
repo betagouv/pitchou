@@ -68,7 +68,7 @@ export async function getInstructeurIdByÉcritureAnnotationCap(cap, databaseConn
  * 
  * @param {NonNullable<Personne['code_accès']>} code_accès 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, listerRelationSuivi: string, listerMessages: string, modifierDossier: string, identité: IdentitéInstructeurPitchou}>>}
+ * @returns {Promise<Partial<{écritureAnnotationCap: CapÉcritureAnnotation['cap'], listerDossiers: string, listerRelationSuivi: string, listerÉvènementsPhaseDossier:string, listerMessages: string, modifierDossier: string, identité: IdentitéInstructeurPitchou}>>}
  */
 export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
     
@@ -97,14 +97,17 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     // hardcodé temporairement
     const listerMessagesP = Promise.resolve(code_accès)
     // hardcodé temporairement
+    const listerÉvènementsPhaseDossierP = listerDossiersP
+    // hardcodé temporairement
     const modifierDossierP = Promise.resolve(code_accès)
 
-    return Promise.all([écritureAnnotationCapP, listerDossiersP, listerRelationSuiviP, listerMessagesP, modifierDossierP, identitéP])
-        .then(([écritureAnnotationCap, listerDossiers, listerRelationSuivi, listerMessages, modifierDossier, identité]) => {
+    return Promise.all([écritureAnnotationCapP, listerDossiersP, listerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, identitéP])
+        .then(([écritureAnnotationCap, listerDossiers, listerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, identité]) => {
             const ret = {
                 écritureAnnotationCap: undefined, 
                 listerDossiers, 
                 listerRelationSuivi,
+                listerÉvènementsPhaseDossier,
                 listerMessages, 
                 modifierDossier, 
                 identité

@@ -9,7 +9,7 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { getDossierMessages, getDossiersByCap, updateDossier } from './database/dossier.js'
+import { getDossierMessages, getDossiersByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { getPersonneByCode, créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -90,6 +90,7 @@ fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', sendIndexHTMLFile)
 fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
+fastify.get('/tmp/stats', sendIndexHTMLFile)
 
 
 
@@ -155,6 +156,9 @@ fastify.get('/caps', async function (request, reply) {
   }
   if(capBundle.listerRelationSuivi){
     ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
+  }
+  if(capBundle.listerÉvènementsPhaseDossier){
+    ret.listerÉvènementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerÉvènementsPhaseDossier}`
   }
   if(capBundle.listerMessages){
     ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`
@@ -237,6 +241,24 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   const { dossierId } = request.params
 
   return getDossierMessages(dossierId)
+})
+
+fastify.get('/dossiers/evenements-phases', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const évènementsPhase = await getÉvènementsPhaseDossiers(cap)
+  if (!évènementsPhase) {
+    reply.code(403).send(`Le paramètre 'cap' est invalide`)
+    return
+  } 
+
+  return évènementsPhase
 })
 
 fastify.get('/dossiers/relation-suivis', async function(request, reply) {

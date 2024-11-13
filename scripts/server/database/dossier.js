@@ -8,6 +8,8 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
+/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+//@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 
 
@@ -50,6 +52,30 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
         .onConflict('id_démarches_simplifiées').merge()
 }
 
+/**
+ * @param {Map<Dossier['id'], API_DS_SCHEMA.Traitement[]>} idToTraitements
+ * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
+    /** @type {ÉvènementPhaseDossier[]} */
+    const évènementsPhaseDossier = [];
+    
+    for(const [dossierId, apiTraitements] of idToTraitements){
+        for(const {dateTraitement, state} of apiTraitements){
+            évènementsPhaseDossier.push({
+                phase: state,
+                horodatage: new Date(dateTraitement),
+                dossier: dossierId
+            })
+        }
+    };
+    
+    return databaseConnection('évènement_phase_dossier')
+        .insert(évènementsPhaseDossier)
+        .onConflict(['dossier', 'phase', 'horodatage'])
+        .ignore()
+}
 
 /**
  * 
@@ -276,8 +302,9 @@ const colonnesDossierComplet = [
     "commentaire_enjeu",
     "commentaire_libre",
     "historique_identifiant_demande_onagre",
-/*
+
     "historique_date_réception_ddep",
+/*    
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
     "historique_date_saisine_cnpn",
@@ -285,12 +312,13 @@ const colonnesDossierComplet = [
     "date_avis_cnpn",
     "avis_csrpn_cnpn",
     "date_consultation_public",
+*/
     "historique_décision",
     "historique_date_signature_arrêté_préfectoral",
     "historique_référence_arrêté_préfectoral",
     "historique_date_signature_arrêté_ministériel",
     "historique_référence_arrêté_ministériel"
-*/
+
 ]
 
 
@@ -327,6 +355,23 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
 
     return dossiersP
 }
+
+/**
+ * @param {string} cap_dossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ÉvènementPhaseDossier[]>}
+ */
+export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_phase_dossier')
+        .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
+        .join(
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
+        )
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+}
+
 
 
 /**
