@@ -6,6 +6,7 @@ import Message from "./database/public/Message"
 export interface PitchouInstructeurCapabilities{
     listerDossiers?: () => Promise<DossierComplet[]>
     listerRelationSuivi: () => Promise<{personneEmail: Personne['email'], dossiersSuivisIds: Dossier['id'][]}[]>
+    listerÉvènementsPhaseDossier: () => Promise<any[]>
     listerMessages?: (dossierId: DossierComplet['id']) => Promise<Message[]>
     modifierDossier?: (dossierId: DossierComplet['id'], dossier: any) => Promise<void> 
     remplirAnnotations?: (annotations: any) => Promise<void>

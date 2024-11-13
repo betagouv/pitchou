@@ -354,6 +354,23 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
     return dossiersP
 }
 
+/**
+ * @param {string} cap_dossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ÉvènementPhaseDossier[]>}
+ */
+export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_phase_dossier')
+        .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
+        .join(
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
+        )
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+}
+
+
 
 /**
  *

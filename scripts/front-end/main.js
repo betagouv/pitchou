@@ -9,6 +9,7 @@ import DossierMessagerie from './routes/DossierMessagerie.js'
 import SaisieEspèces from './routes/SaisieEspèces.js';
 import ImportHistoriqueNouvelleAquitaine from './routes/import-historique/NouvelleAquitaine.js'
 import PreremplissageDerogation from './routes/PreremplissageDerogation.js';
+import TmpStats from './routes/TmpStats.js';
 
 import { init } from './actions/main.js';
 
@@ -19,6 +20,7 @@ page('/dossier/:dossierId/messagerie', DossierMessagerie)
 page('/saisie-especes', SaisieEspèces)
 page('/import-historique/nouvelle-aquitaine', ImportHistoriqueNouvelleAquitaine)
 page('/preremplissage-derogation', PreremplissageDerogation)
+page('/tmp/stats', TmpStats)
 
 init()
     .then(() => page.start())
