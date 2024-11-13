@@ -580,7 +580,6 @@ const évènementsPhaseDossierById_DS = new Map(dossiersDS.map(
     ({id: id_DS, traitements}) => [id_DS, traitements])
 )
 
-console.log('évènementsPhaseDossier', évènementsPhaseDossierById_DS)
 
 const traitementsSynchronisés = dossiersIdsP
 .then(dossierIds => {
