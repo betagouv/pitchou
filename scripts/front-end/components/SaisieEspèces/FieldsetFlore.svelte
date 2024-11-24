@@ -2,8 +2,13 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
+    import { 
+        trierParOrdreAlphabétiqueEspèce, 
+        grouperParActivité,
+     } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
+    import EnteteAvecTri from "./EnteteAvecTri.svelte"
     
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
 
@@ -56,6 +61,28 @@
 
         rerender()
     }
+
+    function trierParFloreDeAaZ() {  
+        floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes)
+        rerender()
+    }
+
+    function trierParFloreDeZaA() {  
+        floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes).reverse()
+        rerender()
+    }
+
+    const trisEspèces = new Map()
+    trisEspèces.set("Trier de A à Z", trierParFloreDeAaZ)
+    trisEspèces.set("Trier de Z à A", trierParFloreDeZaA)
+
+    function trierParImpacts() {
+        floresAtteintes = grouperParActivité(floresAtteintes)
+        rerender()
+    }
+
+    const trisImpacts = new Map()
+    trisImpacts.set("Grouper par impact", trierParImpacts)
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -66,8 +93,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Espèce</th>
-                            <th>Type d’impact</th>
+                            <th>
+                                <EnteteAvecTri label="Espèce" tris={trisEspèces}/>
+                            </th>
+                            <th>
+                                <EnteteAvecTri label="Type d'impact" tris={trisImpacts} />
+                            </th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>
                             <th>Dupliquer la ligne</th>
@@ -159,12 +190,6 @@
             overflow: initial;
 
             tr {
-                th{
-                    padding: 0.2rem;
-
-                    vertical-align: top;
-                }
-
                 button{
                     all: unset;
                     cursor: pointer;
