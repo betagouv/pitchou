@@ -3,7 +3,7 @@
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
-import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
+import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import LoginViaEmail from '../components/screens/LoginViaEmail.svelte';
 import SuiviInstruction from '../components/screens/SuiviInstruction.svelte';
@@ -16,8 +16,14 @@ import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
 /** @import {ComponentProps} from 'svelte' */
 
 function showLoginByEmail(){
-    function mapStateToProps(){
+    /**
+     * 
+     * @param {PitchouState} state 
+     * @returns 
+     */
+    function mapStateToProps(state){
         return {
+            erreurs: state.erreurs,
             authorizedEmailDomains,
             envoiEmailConnexion: envoiEmailConnexion
         }
@@ -25,7 +31,7 @@ function showLoginByEmail(){
 
     const loginViaEmail = new LoginViaEmail({
         target: svelteTarget,
-        props: mapStateToProps()
+        props: mapStateToProps(store.state)
     });
 
     replaceComponent(loginViaEmail, mapStateToProps)

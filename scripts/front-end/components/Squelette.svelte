@@ -2,6 +2,9 @@
     import page from 'page'
     import {logout} from '../actions/main.js'
 
+    /** @import {PitchouState} from '../store.js' */
+
+
     function logoutAndRedirect(){
         logout()
         .then( () => page('/'))
@@ -14,11 +17,8 @@
     /** @type {string | undefined} */
     export let email = undefined;
 
-    /** @type {Set<{message: string}>} */
-    export let erreurs = new Set([
-        {message: 'Erreur 1 - attention !!'},
-        {message: `Erreur 2 - c'est très grave !!`},
-    ])
+    /** @type {PitchouState['erreurs']} */
+    export let erreurs
 </script>
 
 <header class="fr-header">

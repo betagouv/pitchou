@@ -5,7 +5,7 @@ import page from 'page'
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
-import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
+import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import RedactionArretePrefectoral from '../components/screens/RedactionArretePrefectoral.svelte';
 import { chargerActivitésMéthodesTransports, chargerDossiers, chargerListeEspècesProtégées } from '../actions/main.js';
 

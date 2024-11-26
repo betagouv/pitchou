@@ -35,6 +35,7 @@ import Store from 'baredux'
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
  * @property { {activités: Map<ClassificationEtreVivant, ActivitéMenançante[]>, méthodes: Map<ClassificationEtreVivant, MéthodeMenançante[]>, transports: Map<ClassificationEtreVivant, TransportMenançant[]>} } [activitésMéthodesTransports]
+ * @property { Set<{message: string}> } erreurs
  */
 
 
@@ -42,7 +43,11 @@ import Store from 'baredux'
 /** @type {PitchouState} */
 const state = {
   dossiers: new Map(),
-  messagesParDossierId: new Map()
+  messagesParDossierId: new Map(),
+  erreurs: new Set([
+    {message: 'Erreur 1 - attention !!'},
+    {message: `Erreur 2 - c'est très grave !!`},
+  ])
 }
 
 const mutations = {
@@ -116,6 +121,20 @@ const mutations = {
    */
   setActivitésMéthodesTransports(state, activitésMéthodesTransports) {
     state.activitésMéthodesTransports = activitésMéthodesTransports
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['erreurs']} erreurs
+   */
+  ajouterErreurs(state, erreurs) {
+    state.erreurs = new Set([...state.erreurs, ...erreurs])
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {{message: string}} erreur
+   */
+  enleverErreur(state, erreur){
+    state.erreurs.delete(erreur)
   }
 }
 

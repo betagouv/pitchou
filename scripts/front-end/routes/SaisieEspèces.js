@@ -5,7 +5,7 @@ import { json } from 'd3-fetch';
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
-import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
+import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 

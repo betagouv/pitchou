@@ -7,6 +7,7 @@
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
 
+    /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.js' */
@@ -17,8 +18,10 @@
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
 
-    /** @type {string | undefined} */
-    export let email
+    /** @type {ComponentProps<Squelette>['email']} */
+    let email;
+    /** @type {ComponentProps<Squelette>['erreurs']} */
+    let erreurs;
 
     $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
@@ -217,7 +220,7 @@
     
 </script>
 
-<Squelette {email}>
+<Squelette {email} {erreurs}>
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col">
 
