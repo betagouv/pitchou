@@ -1,6 +1,7 @@
 <script>
     import page from 'page'
     import {logout} from '../actions/main.js'
+    import store from '../store.js'
 
     /** @import {PitchouState} from '../store.js' */
 
@@ -19,6 +20,8 @@
 
     /** @type {PitchouState['erreurs']} */
     export let erreurs
+
+    let enleverErreur = store.mutations.enleverErreur
 </script>
 
 <header class="fr-header">
@@ -134,7 +137,7 @@
             <div class="fr-alert-background fr-mb-1w">
                 <div class="fr-alert fr-alert--error fr-alert--sm">
                     <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
-                    <button class="fr-link--close fr-link">Masquer le message</button>
+                    <button on:click={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
                 </div>
             </div>
         {/each}    
