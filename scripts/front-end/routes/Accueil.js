@@ -7,6 +7,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import LoginViaEmail from '../components/screens/LoginViaEmail.svelte';
 import SuiviInstruction from '../components/screens/SuiviInstruction.svelte';
+import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 
 import {envoiEmailConnexion} from '../serveur.js'
 import { authorizedEmailDomains } from '../../commun/constantes.js';
@@ -39,6 +40,9 @@ function showLoginByEmail(){
 
 export default async () => {
     console.info('route', '/')
+
+    replaceComponent(new SqueletteContenuVide({target: svelteTarget}), () => {})
+
     await secretFromURL()
     if(store.state.dossiers.size === 0){
         await chargerDossiers()

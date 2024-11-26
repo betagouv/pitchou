@@ -19,7 +19,7 @@
     export let email = undefined;
 
     /** @type {PitchouState['erreurs']} */
-    export let erreurs
+    export let erreurs = new Set()
 
     let enleverErreur = store.mutations.enleverErreur
 </script>
