@@ -4,5 +4,7 @@
 </script>
 
 <Squelette nav={false}>
-    <Loader></Loader>
+    <div class="fr-p-2w fr-pb-10w">
+        <Loader></Loader>
+    </div>
 </Squelette>
