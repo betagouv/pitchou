@@ -39,32 +39,39 @@ export default async () => {
     .catch(err => {
         if(err.message.includes('403')){
             logoutEtAfficherLoginParEmail({
-                message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
+                message: `Erreur de connexion - Votre lien de connexion n'est plus valide. Vous pouvez en recevoir un nouveau par email ci-dessous`
             })
         }
         else{
             logoutEtAfficherLoginParEmail({
-                message: `Erreur de connexion - Il s'agit sûrement d'une erreur technique. Vous pouvez en informer l'équipe Pitchou`
+                message: `Erreur de connexion - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`
             })
         }
     })
 
-    if(store.state.dossiers.size === 0){
-        await chargerDossiers()
-            .catch(err => {
-                if(err.message.includes('403')){
-                    store.mutations.ajouterErreur({
-                        message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
-                    })
-                    logout().then(showLoginByEmail)
-                }
-                else{
-                    console.error('Erreur de chargement des dossiers', err)
-                }
-            })
-    }
+    // Ici, on est après init() et après secretFromURL()
+    // Donc, soit on a des capabilities valides, soit on en n'a pas
+    // Si on n'en a pas, afficher la page de connexion
+    // Si on en a, charger des dossiers (s'il n'y a pas de dossiers dans le store)
 
-    if(store.state.dossiers && store.state.dossiers.size > 0){
+    if(store.state.capabilities && store.state.capabilities.listerDossiers){
+        if(store.state.dossiers.size === 0){
+            await chargerDossiers()
+                .catch(err => {
+                    console.error('Problème de chargement des dossiers', err)
+                    if(err.message.includes('403')){
+                        logoutEtAfficherLoginParEmail({
+                            message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
+                        })
+                    }
+                    else{
+                        logoutEtAfficherLoginParEmail({
+                            message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`
+                        })
+                    }
+                })
+        }
+
         /**
          * 
          * @param {PitchouState} state 
@@ -89,7 +96,12 @@ export default async () => {
 
     }
     else{
-        throw `PPP des fois, l'utilisateur n'a pas encore de dossier, il faudrait lui afficher un tableau vide`
+        if(store.state.capabilities && !store.state.capabilities.listerDossiers){
+            store.mutations.ajouterErreur({
+                message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Simplifiée de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
+            })
+        }
+
         showLoginByEmail()
     }
 }
