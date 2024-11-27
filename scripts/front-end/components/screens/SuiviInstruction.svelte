@@ -19,9 +19,9 @@
     export let relationSuivis
 
     /** @type {ComponentProps<Squelette>['email']} */
-    let email;
+    export let email;
     /** @type {ComponentProps<Squelette>['erreurs']} */
-    let erreurs;
+    export let erreurs;
 
     $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
@@ -226,110 +226,113 @@
 
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
-            
-            <BarreRecherche
-                titre="Rechercher par texte libre"
-                on:selected-changed={filtrerParTexte}
-            />
+            {#if dossiers.length >= 1}
+                <BarreRecherche
+                    titre="Rechercher par texte libre"
+                    on:selected-changed={filtrerParTexte}
+                />
 
-            <div class="filtres">
-                <FiltreParmiOptions 
-                    titre="Filtrer par phase"
-                    options={phaseOptions} 
-                    on:selected-changed={filtrerParPhase} 
-                />
-                <FiltreParmiOptions 
-                    titre="Filtrer par prochaine action attendue par"
-                    options={prochainesActionsAttenduesParOptions} 
-                    on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
-                />
-                {#if instructeursOptions && instructeursOptions.size >= 2}
-                <FiltreParmiOptions 
-                    titre="Filtrer par instructeur suivant le dossier"
-                    options={instructeursOptions} 
-                    on:selected-changed={filtrerParInstructeurs} 
-                />
-                {/if}
-                {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
-                <div class="fr-checkbox-group flex">
-                    <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
-                    <label class="fr-label" for="checkbox-1">
-                        Afficher uniquement mes dossiers suivis
-                    </label>
+                <div class="filtres">
+                    <FiltreParmiOptions 
+                        titre="Filtrer par phase"
+                        options={phaseOptions} 
+                        on:selected-changed={filtrerParPhase} 
+                    />
+                    <FiltreParmiOptions 
+                        titre="Filtrer par prochaine action attendue par"
+                        options={prochainesActionsAttenduesParOptions} 
+                        on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
+                    />
+                    {#if instructeursOptions && instructeursOptions.size >= 2}
+                    <FiltreParmiOptions 
+                        titre="Filtrer par instructeur suivant le dossier"
+                        options={instructeursOptions} 
+                        on:selected-changed={filtrerParInstructeurs} 
+                    />
+                    {/if}
+                    {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
+                    <div class="fr-checkbox-group flex">
+                        <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
+                        <label class="fr-label" for="checkbox-1">
+                            Afficher uniquement mes dossiers suivis
+                        </label>
+                    </div>
+                    {/if}
                 </div>
-                {/if}
-            </div>
 
-        <div class="filtres-actifs">
-            {#if phasesFiltrées.size >= 1}
-                <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
-            {/if}
-            {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
-            {/if}
-            {#if texteÀChercher}
-                <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
-                <button on:click={onSupprimerFiltreTexte}>✖</button>
-            {/if}
-            {#if instructeursSélectionnés.size >= 1}
-                <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
-            {/if}
-        </div>
-                
-            <h2 class="fr-mt-2w">{dossiersSelectionnés.length} dossiers affichés</h2>
+                <div class="filtres-actifs">
+                    {#if phasesFiltrées.size >= 1}
+                        <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
+                    {/if}
+                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
+                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
+                    {/if}
+                    {#if texteÀChercher}
+                        <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
+                        <button on:click={onSupprimerFiltreTexte}>✖</button>
+                    {/if}
+                    {#if instructeursSélectionnés.size >= 1}
+                        <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
+                    {/if}
+                </div>
+                    
+                <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
 
-            <div class="fr-table fr-table--bordered">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Voir le dossier</th>
-                            <th>Localisation</th>
-                            <th>Activité principale</th>
-                            <th>Porteur de projet</th>
-                            <th>Nom du projet</th>
-                            <th>Enjeux</th>
-                            <th>Rattaché au régime AE</th>
-                            <th>Phase</th>
-                            <th>Prochaine action attendue</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
-                          déposant_prénoms, communes, départements, régions,
-                          activité_principale, rattaché_au_régime_ae,
-                          enjeu_politique, enjeu_écologique,
-                          phase, prochaine_action_attendue_par }}
+                <div class="fr-table fr-table--bordered">
+                    <table>
+                        <thead>
                             <tr>
-                                <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
-                                <td>{formatLocalisation({communes, départements, régions})}</td>
-                                <td>{activité_principale || ''}</td>
-                                <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
-                                <td>{nom_dossier || ''}</td>
-                                <td>
-                                    {#if enjeu_politique}
-                                        <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-                                            Enjeu politique
-                                        </p>
-                                    {/if}
-
-                                    {#if enjeu_écologique}
-                                    <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
-                                        Enjeu écologique
-                                    </p>
-                                    {/if}
-
-                                </td>
-                                <td>
-                                    {rattaché_au_régime_ae ? "oui" : "non"}
-                                </td>
-                                <td>{phase || ''}</td>
-                                <td>{prochaine_action_attendue_par || ''}</td>
+                                <th>Voir le dossier</th>
+                                <th>Localisation</th>
+                                <th>Activité principale</th>
+                                <th>Porteur de projet</th>
+                                <th>Nom du projet</th>
+                                <th>Enjeux</th>
+                                <th>Rattaché au régime AE</th>
+                                <th>Phase</th>
+                                <th>Prochaine action attendue</th>
                             </tr>
-                        {/each}
-                    </tbody>
+                        </thead>
+                        <tbody>
+                            {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
+                            déposant_prénoms, communes, départements, régions,
+                            activité_principale, rattaché_au_régime_ae,
+                            enjeu_politique, enjeu_écologique,
+                            phase, prochaine_action_attendue_par }}
+                                <tr>
+                                    <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
+                                    <td>{formatLocalisation({communes, départements, régions})}</td>
+                                    <td>{activité_principale || ''}</td>
+                                    <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
+                                    <td>{nom_dossier || ''}</td>
+                                    <td>
+                                        {#if enjeu_politique}
+                                            <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
+                                                Enjeu politique
+                                            </p>
+                                        {/if}
 
-                </table>
-            </div>
+                                        {#if enjeu_écologique}
+                                        <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
+                                            Enjeu écologique
+                                        </p>
+                                        {/if}
+
+                                    </td>
+                                    <td>
+                                        {rattaché_au_régime_ae ? "oui" : "non"}
+                                    </td>
+                                    <td>{phase || ''}</td>
+                                    <td>{prochaine_action_attendue_par || ''}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+
+                    </table>
+                </div>
+            {:else}
+                <div class="fr-mb-5w">Vous n'avez pas encore de dossiers dans votre groupe instructeurs</div>
+            {/if}
         </div>
     </div>
 
@@ -342,6 +345,11 @@
 
     th {
         min-width: 6rem;
+    }
+
+    h2 small{
+        font-size: 0.7em;
+        color: var(--text-mention-grey)
     }
 
     .fr-badge:not(.instructeurs) {
