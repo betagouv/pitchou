@@ -197,7 +197,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     /* localisation */
     /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */    
-    const projetSitué = champById.get(pitchouKeyToChampDS.get('Le projet se situe au niveau…')).stringValue
+    const projetSitué = champById.get(pitchouKeyToChampDS.get('Le projet se situe au niveau…'))?.stringValue
     /** @type {ChampDSCommunes} */
     const champCommunes = champById.get(pitchouKeyToChampDS.get('Commune(s) où se situe le projet'))
     /** @type {ChampDSDépartements} */
@@ -231,7 +231,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
                     // ignorer
                 }
                 else{
-                    if(projetSitué === ''){
+                    if(!projetSitué){
                         // ignorer
                     }
                     else{
@@ -283,7 +283,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         pitchouKeyToChampDS.get("Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?")
     )
 
-    const rattaché_au_régime_ae_stringValue = rattaché_régime_ae_champ.stringValue
+    const rattaché_au_régime_ae_stringValue = rattaché_régime_ae_champ?.stringValue
 
     // null signifie "ne sait pas encore" et c'est la valeur par défaut
     let rattaché_au_régime_ae = null;
