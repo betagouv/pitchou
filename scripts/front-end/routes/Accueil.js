@@ -5,50 +5,57 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
-import LoginViaEmail from '../components/screens/LoginViaEmail.svelte';
 import SuiviInstruction from '../components/screens/SuiviInstruction.svelte';
 import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 
-import {envoiEmailConnexion} from '../serveur.js'
-import { authorizedEmailDomains } from '../../commun/constantes.js';
 import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
+import showLoginByEmail from './montrerPageDAccueil.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
 
-function showLoginByEmail(){
-    /**
-     * 
-     * @param {PitchouState} state 
-     * @returns 
-     */
-    function mapStateToProps(state){
-        return {
-            erreurs: state.erreurs,
-            authorizedEmailDomains,
-            envoiEmailConnexion: envoiEmailConnexion
-        }
-    }
 
-    const loginViaEmail = new LoginViaEmail({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
-
-    replaceComponent(loginViaEmail, mapStateToProps)
-}
 
 export default async () => {
     console.info('route', '/')
 
     replaceComponent(new SqueletteContenuVide({target: svelteTarget}), () => {})
 
+    /**
+     * 
+     * @param {{message: string}} [erreur]
+     * @returns 
+     */
+    function logoutEtAfficherLoginParEmail(erreur){
+        if(erreur){
+            store.mutations.ajouterErreur(erreur)
+        }
+
+        return logout().then(showLoginByEmail)
+    }
+
+
     await secretFromURL()
+    .catch(err => {
+        if(err.message.includes('403')){
+            logoutEtAfficherLoginParEmail({
+                message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
+            })
+        }
+        else{
+            logoutEtAfficherLoginParEmail({
+                message: `Erreur de connexion - Il s'agit sûrement d'une erreur technique. Vous pouvez en informer l'équipe Pitchou`
+            })
+        }
+    })
+
     if(store.state.dossiers.size === 0){
         await chargerDossiers()
             .catch(err => {
                 if(err.message.includes('403')){
-                    console.info('Invalid token. Logout.')
+                    store.mutations.ajouterErreur({
+                        message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
+                    })
                     logout().then(showLoginByEmail)
                 }
                 else{
@@ -82,6 +89,7 @@ export default async () => {
 
     }
     else{
+        throw `PPP des fois, l'utilisateur n'a pas encore de dossier, il faudrait lui afficher un tableau vide`
         showLoginByEmail()
     }
 }

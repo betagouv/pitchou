@@ -44,10 +44,7 @@ import Store from 'baredux'
 const state = {
   dossiers: new Map(),
   messagesParDossierId: new Map(),
-  erreurs: new Set([
-    {message: 'Erreur 1 - attention !!'},
-    {message: `Erreur 2 - c'est très grave !!`},
-  ])
+  erreurs: new Set()
 }
 
 const mutations = {
@@ -124,10 +121,10 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['erreurs']} erreurs
+   * @param {{message: string}} erreur
    */
-  ajouterErreurs(state, erreurs) {
-    state.erreurs = new Set([...state.erreurs, ...erreurs])
+  ajouterErreur(state, erreur) {
+    state.erreurs = new Set([erreur, ...state.erreurs])
   },
   /**
    * @param {PitchouState} state

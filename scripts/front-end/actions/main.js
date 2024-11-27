@@ -2,6 +2,7 @@
 
 import {dsv, json} from 'd3-fetch'
 import remember, {forget} from 'remember'
+import page from 'page'
 
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
@@ -219,6 +220,20 @@ export async function logout(){
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }
 
+
+/**
+ * 
+ * @param {{message: string}} [erreur]
+ * @returns 
+ */
+export async function logoutEtRedirigerVersAccueil(erreur){
+    if(erreur){
+        store.mutations.ajouterErreur(erreur)
+    }
+
+    return logout().then(() => page('/'))
+}
+
 /**
  * 
  * @param {string} secret 
@@ -252,7 +267,10 @@ export function init(){
         remember(PITCHOU_SECRET_STORAGE_KEY)
             //@ts-ignore
             .then(secret => secret ? initCapabilities(secret) : undefined)
-            .catch(logout),
+            .catch(() => logoutEtRedirigerVersAccueil({
+                message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
+            })),
+
         chargerSchemaDS88444()
     ])
         
