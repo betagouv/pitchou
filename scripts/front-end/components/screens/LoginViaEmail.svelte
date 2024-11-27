@@ -2,11 +2,18 @@
     import Squelette from '../Squelette.svelte'
     import Loader from '../Loader.svelte'
 
+    /** @import {ComponentProps} from 'svelte' */
+
     /** @type {Set<string>} */
     export let authorizedEmailDomains
 
     /** @type {(email: string) => Promise<unknown>}  */
     export let envoiEmailConnexion
+
+    /** @type {ComponentProps<Squelette>['erreurs']} */
+    export let erreurs;
+
+
     /** @type {string} */
     let email;
 
@@ -23,7 +30,7 @@
 
 </script>
 
-<Squelette nav={false}>
+<Squelette nav={false} {erreurs}>
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col-8">
             <h1>Connexion par email</h1>

@@ -42,9 +42,21 @@ export function getPersonneByCode(code_accès) {
  */
 export function getPersonneByEmail(email) {
     return directDatabaseConnection('personne')
-    .where({ email })
     .select()
+    .where({ email })
     .first()
+}
+
+/**
+ *
+ * @param {Personne['email'][]} emails
+ * @returns {Promise<Personne[]>}
+ */
+export function getPersonnesByEmail(emails) {
+    return directDatabaseConnection('personne')
+        .select()
+        .whereIn('email', emails)
+    
 }
 
 /**

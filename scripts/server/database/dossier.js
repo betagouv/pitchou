@@ -10,6 +10,8 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 //@ts-ignore
+/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
+//@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 
 
@@ -78,16 +80,17 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
 }
 
 /**
+ * Cette fonction est sensible
+ * Appeler dossiersAccessibleViaCap avant
  * 
- * @param {Dossier['id']} id
+ * @param {Dossier['id']} dossierId
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Partial<Message>[] | null>}
  */
-export async function getDossierMessages(id, databaseConnection = directDatabaseConnection){
-    /** @type {Awaited<ReturnType<getDossierMessages>>} */
-    return await databaseConnection('message')
+export async function getDossierMessages(dossierId, databaseConnection = directDatabaseConnection){
+    return databaseConnection('message')
         .select(['contenu', 'date', 'email_expéditeur'])
-        .where({dossier: id})
+        .where({"dossier": dossierId})
 }
 
 
@@ -336,7 +339,7 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
 }
 
 /**
- * @param {string} cap_dossier 
+ * @param {CapDossier['cap']} cap_dossier 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<DossierComplet[]>}
  */
@@ -357,7 +360,40 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
 }
 
 /**
- * @param {string} cap_dossier 
+ * retourne le sous-ensemble d'id accessibles via la cap
+ * 
+ * @param {Dossier['id'] | Dossier['id'][]} dossierIds
+ * @param {CapDossier['cap']} cap
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<Dossier['id'][]>}
+ */
+export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnection = directDatabaseConnection){
+    if(!Array.isArray(dossierIds))
+        dossierIds = [dossierIds]
+
+    const ret = databaseConnection('arête_cap_dossier__groupe_instructeurs')
+        .select(['dossier.id as id'])
+        .leftJoin(
+            'arête_groupe_instructeurs__dossier', 
+            {'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs'}
+        )
+        .leftJoin(
+            'dossier', 
+            {'dossier.id': 'arête_groupe_instructeurs__dossier.dossier'}
+        )
+        .whereIn('dossier.id', dossierIds)
+        .andWhere({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
+        .then(dossiers => dossiers.map(d => d.id))
+
+    console.log('ret', await ret)
+
+    // @ts-ignore
+    return ret;
+}
+
+
+/**
+ * @param {CapDossier['cap']} cap_dossier 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
@@ -393,6 +429,6 @@ export function deleteDossierByDSNumber(numbers){
  */
 export function updateDossier(id, dossierParams) {
     return directDatabaseConnection('dossier')
-    .where({ id })
-    .update(dossierParams)
+        .where({ id })
+        .update(dossierParams)
 }

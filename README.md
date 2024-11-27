@@ -89,6 +89,7 @@ Après avoir téléchargé un backup de la prod, le mettre dans le dossier `back
 ```sh
 cd backups
 tar -xf <nom_fichier>.tar.gz
+# ignorer le message qui dit "tar: Suppression de « / » au début des noms des membres"
 cd -
 ```
 
@@ -149,3 +150,10 @@ Pour modifier le cron : https://crontab.guru/
 ### Remplir des annotations privées
 
 `node --env-file=.env outils/remplir-annotations.js`
+
+
+### Lister les liens de connexion en local
+
+Utile pour tester rapidement en local après un restore en tant qu'une personne en particulier
+
+`docker exec node_server node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`

@@ -90,16 +90,13 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
         .select('cap')
         .where({personne_cap: code_accès})
         .first()
-        .then(({cap}) => cap)
+        .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
 
+    // Pour le moment, les droits associés à lister les dossiers utilisent la même partie secrète de la capability
     const listerRelationSuiviP = listerDossiersP
-
-    // hardcodé temporairement
-    const listerMessagesP = Promise.resolve(code_accès)
-    // hardcodé temporairement
     const listerÉvènementsPhaseDossierP = listerDossiersP
-    // hardcodé temporairement
-    const modifierDossierP = Promise.resolve(code_accès)
+    const listerMessagesP = listerDossiersP
+    const modifierDossierP = listerDossiersP
 
     return Promise.all([écritureAnnotationCapP, listerDossiersP, listerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, identitéP])
         .then(([écritureAnnotationCap, listerDossiers, listerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, identité]) => {

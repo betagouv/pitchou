@@ -9,8 +9,8 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { getDossierMessages, getDossiersByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
-import { getPersonneByCode, créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
+import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
@@ -206,15 +206,24 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
     return 
   }
-
-  const personne = await getPersonneByCode(cap)
-  if (!personne) {
-    reply.code(403).send(`Le paramètre 'cap' est invalide`)
-    return
-  } 
   
+  //@ts-ignore
+  if(!request.params.dossierId){
+    reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
+    return 
+  }
+
+  //@ts-ignore
+  const dossierId = Number(request.params.dossierId)
+
   // @ts-ignore
-  const { dossierId } = request.params
+  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+
+  if(accessibleDossierId !== dossierId){
+    reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
+    return 
+  }
+
   // @ts-ignore
   const dossierParams = request.body
 
@@ -230,16 +239,25 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
     return 
   }
-
-  const personne = await getPersonneByCode(cap)
-  if (!personne) {
-    reply.code(403).send(`Le paramètre 'cap' est invalide`)
-    return
-  } 
   
-  // @ts-ignore
-  const { dossierId } = request.params
+  //@ts-ignore
+  if(!request.params.dossierId){
+    reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
+    return 
+  }
 
+  //@ts-ignore
+  const dossierId = Number(request.params.dossierId)
+
+  //@ts-ignore
+  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+
+  if(accessibleDossierId !== dossierId){
+    reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
+    return 
+  }
+
+  // @ts-ignore
   return getDossierMessages(dossierId)
 })
 
