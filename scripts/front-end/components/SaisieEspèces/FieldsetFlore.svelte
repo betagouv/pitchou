@@ -126,11 +126,6 @@
             text-align: center;
             vertical-align: middle;
         }
-
-        button{
-            all: unset;
-            cursor: pointer;
-        }
         
         input[type="number"] {
             border-radius: 0.5em;
@@ -163,11 +158,6 @@
                     padding: 0.2rem;
 
                     vertical-align: top;
-                }
-
-                button{
-                    all: unset;
-                    cursor: pointer;
                 }
             }
         }

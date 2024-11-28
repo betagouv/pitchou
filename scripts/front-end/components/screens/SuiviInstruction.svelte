@@ -67,9 +67,9 @@
 
     /**
      * 
-     * @param {{detail: Set<DossierPhase | PHASE_VIDE>}} _
+     * @param {Set<DossierPhase | PHASE_VIDE>} phasesSélectionnées
      */
-	function filtrerParPhase({detail: phasesSélectionnées}){
+	function filtrerParPhase(phasesSélectionnées){
         tousLesFiltres.set('phase', dossier => {
             if (phasesSélectionnées.has(PHASE_VIDE)) {
                 return !dossier.phase
@@ -93,9 +93,9 @@
 
     /**
      * 
-     * @param {{detail: Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>}} _
+     * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} prochainesActionsAttenduesParSélectionnées
      */
-    function filtrerParProchainesActionsAttenduesPar({detail: prochainesActionsAttenduesParSélectionnées}) {
+    function filtrerParProchainesActionsAttenduesPar(prochainesActionsAttenduesParSélectionnées) {
         tousLesFiltres.set("prochaine action attendue de", dossier => {
             if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
                 return !dossier.prochaine_action_attendue_par
@@ -113,9 +113,9 @@
     $: texteÀChercher = ''
 
     /**
-     * @param {{detail: string}} _
+     * @param {string} _texteÀChercher
      */
-    function filtrerParTexte({detail: _texteÀChercher}){
+    function filtrerParTexte(_texteÀChercher) {
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
         // les nombres avec une fonction séparée.
@@ -178,9 +178,9 @@
 
     /**
      * 
-     * @param {{detail: Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}} _
+     * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
-	function filtrerParInstructeurs({detail: _instructeursSélectionnées}){
+	function filtrerParInstructeurs(_instructeursSélectionnées){
         tousLesFiltres.set('instructeurs', dossier => {
             if(!relationSuivis)
                 return true;
@@ -229,25 +229,25 @@
             {#if dossiers.length >= 1}
                 <BarreRecherche
                     titre="Rechercher par texte libre"
-                    on:selected-changed={filtrerParTexte}
+                    mettreÀJourTexteRecherche={filtrerParTexte}
                 />
 
                 <div class="filtres">
                     <FiltreParmiOptions 
                         titre="Filtrer par phase"
                         options={phaseOptions} 
-                        on:selected-changed={filtrerParPhase} 
+                        mettreÀJourOptionsSélectionnées={filtrerParPhase} 
                     />
                     <FiltreParmiOptions 
                         titre="Filtrer par prochaine action attendue par"
                         options={prochainesActionsAttenduesParOptions} 
-                        on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
+                        mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar} 
                     />
                     {#if instructeursOptions && instructeursOptions.size >= 2}
                     <FiltreParmiOptions 
                         titre="Filtrer par instructeur suivant le dossier"
                         options={instructeursOptions} 
-                        on:selected-changed={filtrerParInstructeurs} 
+                        mettreÀJourOptionsSélectionnées={filtrerParInstructeurs} 
                     />
                     {/if}
                     {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
