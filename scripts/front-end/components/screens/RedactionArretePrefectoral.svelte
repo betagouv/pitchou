@@ -22,13 +22,13 @@
     /** @type {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} */
     export let espèceByCD_REF;
 
-    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     export let activités
 
-    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
     export let méthodes
 
-    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} */
     export let transports
 
     /**
@@ -43,9 +43,9 @@
         return importDescriptionMenacesEspècesFromURL(
             new URL(url), 
             espèceByCD_REF, 
-            [...activités.values()].flat(), 
-            [...méthodes.values()].flat(), 
-            [...transports.values()].flat()
+            activités, 
+            méthodes, 
+            transports
         )
     }
 

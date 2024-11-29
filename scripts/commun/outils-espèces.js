@@ -304,8 +304,6 @@ function floresAtteintesToTableContent(floresAtteintes){
  * @returns { Promise<ArrayBuffer> }
  */
 export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces){
-    console.log(descriptionMenacesEspèces)
-
     const odsContent = new Map()
 
     if(descriptionMenacesEspèces['oiseau'].length >= 1){
@@ -334,9 +332,9 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
 /**
  * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ActivitéMenançante[]} activites
- * @param {MéthodeMenançante[]} methodes
- * @param {TransportMenançant[]} transports
+ * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces}
  */
 function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
@@ -354,9 +352,10 @@ function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, esp�
 
                 return {
                     espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
-                    activité: activites.find((a) => a.Code === activité),
-                    méthode: methodes.find((m) => m.Code === méthode),	
-                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                    // @ts-ignore
+                    activité: activites.get(classification)?.get(activité),
+                    méthode: methodes.get(classification)?.get(méthode),	
+                    transport: transports.get(classification)?.get(transport),
                     ...rest
                 }
             })
@@ -378,9 +377,9 @@ function b64ToUTF8(s) {
  * 
  * @param {URL} url 
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ActivitéMenançante[]} activites
- * @param {MéthodeMenançante[]} methodes
- * @param {TransportMenançant[]} transports
+ * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces | undefined}
  */
 export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
@@ -389,7 +388,6 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
         try{
             const data = JSON.parse(b64ToUTF8(urlData))
             const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, transports)
-            console.log('desc', desc)
             return desc
         }
         catch(e){
@@ -402,9 +400,9 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
 /**
  * @param {ArrayBuffer} odsFile
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ActivitéMenançante[]} activites
- * @param {MéthodeMenançante[]} methodes
- * @param {TransportMenançant[]} transports
+ * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {Promise<DescriptionMenacesEspèces>}
  */
 async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
@@ -442,10 +440,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 nombreNids,
                 nombreOeufs,
                 surfaceHabitatDétruit,
-                activité: activites.find((a) => a.Code === codeActivité),
-                méthode: methodes.find((m) => m.Code === codeMéthode),	
-                transport: transports.find((t) => t.Espèces === 'oiseau' && t.Code === codeTransport),
-                
+                activité: activites.get('oiseau')?.get(codeActivité),
+                méthode: methodes.get('oiseau')?.get(codeMéthode),	
+                transport: transports.get('oiseau')?.get(codeTransport),
             }
         })
     }
@@ -473,9 +470,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                activité: activites.find((a) => a.Code === codeActivité),
-                méthode: methodes.find((m) => m.Code === codeMéthode),	
-                transport: transports.find((t) => t.Espèces === 'faune non-oiseau' && t.Code === codeTransport),
+                activité: activites.get('faune non-oiseau')?.get(codeActivité),
+                méthode: methodes.get('faune non-oiseau')?.get(codeMéthode),	
+                transport: transports.get('faune non-oiseau')?.get(codeTransport),
             }
         })
     }
@@ -501,7 +498,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                activité: activites.find((a) => a.Code === codeActivité)
+                activité: activites.get('flore')?.get(codeActivité)
             }
         })
     }
