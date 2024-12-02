@@ -34,7 +34,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: container-pgadmin
+    container_name: pgadmin
     depends_on:
       - db
     ports:
@@ -42,5 +42,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DISABLE_POSTFIX: "1"
+      PGADMIN_CONFIG_SERVER_HEARTBEAT_TIMEOUT: 3600 # secondes = une heure
     restart: unless-stopped
     stop_grace_period: 2s
