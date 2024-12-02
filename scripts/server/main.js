@@ -183,11 +183,11 @@ fastify.get('/caps', async function (request, reply) {
 })
 
 
-
 fastify.get('/dossiers', async function (request, reply) {
   // @ts-ignore
   const cap = request.query.cap
   if (cap) {
+    /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
     const dossiers = await getDossiersByCap(cap)
     if (dossiers) {
       return dossiers

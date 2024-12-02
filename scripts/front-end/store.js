@@ -60,6 +60,7 @@ const mutations = {
    * @param {PitchouState['dossiers']} dossiers 
    */
   setDossiers(state, dossiers) {
+    console.log('dossiers avec url')
     state.dossiers = dossiers
   },
   /**

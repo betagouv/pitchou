@@ -5,6 +5,12 @@ import Dossier from './database/public/Dossier.ts'
  * 
  */
 
+
+export interface DossierRésumé extends Dossier{
+
+}
+
+
 interface DossierComplémentPersonnesImpliquées {
     nom_dossier: string;
     déposant_nom: string;
@@ -55,16 +61,17 @@ interface DossierLocalisation {
     régions: string[] | null | undefined;
 }
 
-
-export interface DossierRésumé extends Dossier{
-
+interface DossierFicherEspècesProtégées{
+    url_fichier_espèces_menacées: [string]
 }
+
 
 
 export interface DossierComplet extends 
     Dossier, 
     DossierPhaseEtProchaineAction, 
     DossierLocalisation, 
-    DossierComplémentPersonnesImpliquées {
-
+    DossierComplémentPersonnesImpliquées,
+    DossierFicherEspècesProtégées {
+        // rien d'autre
 }
