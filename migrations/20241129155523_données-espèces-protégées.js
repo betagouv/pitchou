@@ -51,7 +51,7 @@ export async function up(knex) {
 
     console.log('idEtLien', idEtLien.length)
 
-    const espècesProtégéesConcernées = []
+    const espècesImpactées = []
 
     for(const {id, espèces_protégées_concernées} of idEtLien){
         try{
@@ -60,7 +60,7 @@ export async function up(knex) {
                 const descriptionMenacesEspèces = importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activités, méthodes, transports)
                 if(descriptionMenacesEspèces){
                     const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces)
-                    espècesProtégéesConcernées.push({
+                    espècesImpactées.push({
                         dossier: id,
                         nom: 'espèces-protégées.ods',
                         "media_type": 'application/vnd.oasis.opendocument.spreadsheet',
@@ -74,9 +74,9 @@ export async function up(knex) {
         }
     }
 
-    console.log('espècesProtégéesConcernées', espècesProtégéesConcernées.length)
+    console.log('espèces_impactées', espècesImpactées.length)
 
-    await databaseConnection('espèces_protégées_concernées').insert(espècesProtégéesConcernées)
+    await databaseConnection('espèces_impactées').insert(espècesImpactées)
 
 };
 
@@ -90,6 +90,6 @@ export async function down(knex) {
         connection: process.env.DATABASE_URL,
     });
     
-    await databaseConnection('espèces_protégées_concernées').delete()
+    await databaseConnection('espèces_impactées').delete()
 };
 

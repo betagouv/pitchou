@@ -34,7 +34,7 @@ import Store from 'baredux'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: Map<ClassificationEtreVivant, ActivitéMenançante[]>, méthodes: Map<ClassificationEtreVivant, MéthodeMenançante[]>, transports: Map<ClassificationEtreVivant, TransportMenançant[]>} } [activitésMéthodesTransports]
+ * @property { {activités: Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  */
 

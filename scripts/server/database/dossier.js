@@ -3,7 +3,7 @@ import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
 
 //@ts-ignore
-/** @import {DossierComplet} from '../../types.js' */
+/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
@@ -266,6 +266,7 @@ const colonnesDossierComplet = [
     "date_dépôt",
     "dossier.nom as nom_dossier",
     "espèces_protégées_concernées",
+    "espèces_impactées.id as url_fichier_espèces_impactées",
     "rattaché_au_régime_ae",
     "activité_principale",
 
@@ -336,6 +337,19 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
+        .then(dossiers => {
+            for(const dossier of dossiers){
+                const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
+                if(id_fichier_espèces_impactées){
+                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
+                    // s'il y a un fichier, ignorer le champ contenant un lien
+                    delete dossier.espèces_protégées_concernées
+                }
+
+            }
+            return dossiers
+        })
 }
 
 /**
@@ -354,7 +368,20 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+        .then(dossiers => {
+            for(const dossier of dossiers){
+                const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
+                if(id_fichier_espèces_impactées){
+                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
+                    // s'il y a un fichier, ignorer le champ contenant un lien
+                    delete dossier.espèces_protégées_concernées
+                }
+
+            }
+            return dossiers
+        })
 
     return dossiersP
 }
@@ -384,8 +411,6 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
         .whereIn('dossier.id', dossierIds)
         .andWhere({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
         .then(dossiers => dossiers.map(d => d.id))
-
-    console.log('ret', await ret)
 
     // @ts-ignore
     return ret;

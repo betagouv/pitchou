@@ -4,7 +4,7 @@
  */
 export async function up(knex) {
 
-    await knex.schema.createTable('espèces_protégées_concernées', function (table) {
+    await knex.schema.createTable('espèces_impactées', function (table) {
         table.uuid('id').primary().defaultTo(knex.fn.uuid())
         table.integer('dossier').notNullable().unique()
         table.foreign('dossier')
@@ -22,6 +22,6 @@ export async function up(knex) {
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-    await knex.schema.dropTable('espèces_protégées_concernées')
+    await knex.schema.dropTable('espèces_impactées')
 };
 

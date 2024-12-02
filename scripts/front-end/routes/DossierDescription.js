@@ -4,7 +4,7 @@ import page from 'page'
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
-import { mapStateToSqueletteProps } from '../mapStateToComponentProps.js';
+import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import DossierDescription from '../components/screens/DossierDescription.svelte';
 import { chargerDossiers } from '../actions/main.js';
