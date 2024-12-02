@@ -62,7 +62,7 @@ interface DossierLocalisation {
 }
 
 interface DossierFicherEspècesProtégées{
-    url_fichier_espèces_menacées: [string]
+    url_fichier_espèces_impactées: [string]
 }
 
 

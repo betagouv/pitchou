@@ -27,7 +27,6 @@ function isDossier(x) {
     //(typeof x.id_demarches_simplifiées === "string" || x.id_demarches_simplifiées === null) &&
     (typeof x.statut === "string" || x.statut === null) &&
     (isValidDateString(x.date_dépôt) || x.date_dépôt === null) &&
-    (typeof x.espèces_protégées_concernées === "string" || x.espèces_protégées_concernées === null) &&
     (x.departements === null || x.departements === undefined || Array.isArray(x.departements)) &&
     (x.communes === null || x.communes === undefined || Array.isArray(x.communes)) &&
     (typeof x.nom_dossier === "string" || x.nom_dossier === null) &&

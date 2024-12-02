@@ -24,8 +24,8 @@
 
             <article class="fr-p-3w fr-mb-4w">
                 <h2>Espèces protégées menacées</h2>
-                {#if dossier.url_fichier_espèces_menacées}
-                    {dossier.url_fichier_espèces_menacées}
+                {#if dossier.url_fichier_espèces_impactées}
+                    {dossier.url_fichier_espèces_impactées}
                 {:else if dossier.espèces_protégées_concernées}
                     <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
                     <div>"Lien" ou description libre fournie par le pétitionnaire
@@ -45,10 +45,11 @@
 <style lang="scss">
     article {
         background-color: var(--background-alt-grey);
+
+        pre{
+            white-space: pre-wrap;
+        }
     }
 
-    section {
-        margin-bottom: 3rem;
-    }
 
 </style>
