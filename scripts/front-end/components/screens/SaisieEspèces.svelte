@@ -24,13 +24,13 @@
     /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
-    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     export let activitesParClassificationEtreVivant
 
-    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
     export let méthodesParClassificationEtreVivant
     
-    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} */
     export let transportsParClassificationEtreVivant
 
     /** @type {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} */
@@ -41,6 +41,7 @@
 
     /** @type {OiseauAtteint[]}*/
     export let oiseauxAtteints
+    $: console.log('SaisieEspèces oiseauxAtteints', oiseauxAtteints)
 
     /** @type {FauneNonOiseauAtteinte[]} */
     export let faunesNonOiseauxAtteintes
@@ -77,14 +78,19 @@
 
     /** @type {FileList} */
     let files
+    $: console.log('files', files)
+
+    throw `PPP cliquer sur dupliquer déclenche une modification de "files"`
 
     /** @type {File} */
 	$: file = files && files[0]
+
     $: descriptionMenacesEspècesP = file && file.arrayBuffer()
         .then(importDescriptionMenacesEspècesFromOds)
 
     $: descriptionMenacesEspècesP && descriptionMenacesEspècesP.then(descriptionMenacesEspèces => {
-        //console.log('descriptionMenacesEspèces ods', descriptionMenacesEspèces)
+        console.log('descriptionMenacesEspèces ods', descriptionMenacesEspèces)
+
         oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
         faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
         floresAtteintes = descriptionMenacesEspèces['flore'] || []
@@ -322,9 +328,9 @@
                                         bind:nombreNids={nombreNidsOiseauPrérempli}
                                         bind:nombreOeufs={nombreOeufsOiseauPrérempli}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitOiseauPrérempli}
-                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("oiseau")}
-                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("oiseau")}
-                                        transportMenaçants={transportsParClassificationEtreVivant.get("oiseau")}
+                                        activitésMenaçantes={[...activitesParClassificationEtreVivant.get("oiseau").values()]}
+                                        méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("oiseau").values()]}
+                                        transportMenaçants={[...transportsParClassificationEtreVivant.get("oiseau").values()]}
                                     />
                                 </tbody>
                             </table>
@@ -359,9 +365,9 @@
                                         bind:transport={transportFauneNonOiseauPréremplie}
                                         bind:nombreIndividus={nombreIndividusFauneNonOiseauPréremplie}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitFauneNonOiseauPréremplie}
-                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("faune non-oiseau")}
-                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("faune non-oiseau")}
-                                        transportMenaçants={transportsParClassificationEtreVivant.get("faune non-oiseau")}
+                                        activitésMenaçantes={[...activitesParClassificationEtreVivant.get("faune non-oiseau").values()]}
+                                        méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("faune non-oiseau").values()]}
+                                        transportMenaçants={[...transportsParClassificationEtreVivant.get("faune non-oiseau").values()]}
                                     />
                                 </tbody>
                             </table>
@@ -392,9 +398,7 @@
                                         bind:activité={activitéFlorePréremplie}
                                         bind:nombreIndividus={nombreIndividusFlorePrérempli}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitFlorePrérempli}
-                                        activitésMenaçantes={activitesParClassificationEtreVivant.get("flore")}
-                                        méthodesMenaçantes={méthodesParClassificationEtreVivant.get("flore")}
-                                        transportMenaçants={transportsParClassificationEtreVivant.get("flore")}
+                                        activitésMenaçantes={[...activitesParClassificationEtreVivant.get("flore").values()]}
                                     />
                                 </tbody>
                             </table>
@@ -415,21 +419,21 @@
             <FieldsetOiseau
                 bind:oiseauxAtteints={oiseauxAtteints}
                 espècesProtégéesOiseau={getEspècesPourClassification("oiseau")}
-                activitésMenaçantes={activitesParClassificationEtreVivant.get("oiseau")}
-                méthodesMenaçantes={méthodesParClassificationEtreVivant.get("oiseau")}
-                transportMenaçants={transportsParClassificationEtreVivant.get("oiseau")}
+                activitésMenaçantes={[...activitesParClassificationEtreVivant.get("oiseau").values()]}
+                méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("oiseau").values()]}
+                transportMenaçants={[...transportsParClassificationEtreVivant.get("oiseau").values()]}
             />
             <FieldsetNonOiseau
                 bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
                 espècesProtégéesFauneNonOiseau={getEspècesPourClassification("faune non-oiseau")}
-                activitésMenaçantes={activitesParClassificationEtreVivant.get("faune non-oiseau")}
-                méthodesMenaçantes={méthodesParClassificationEtreVivant.get("faune non-oiseau")}
-                transportMenaçants={transportsParClassificationEtreVivant.get("faune non-oiseau")}
+                activitésMenaçantes={[...activitesParClassificationEtreVivant.get("faune non-oiseau").values()]}
+                méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("faune non-oiseau").values()]}
+                transportMenaçants={[...transportsParClassificationEtreVivant.get("faune non-oiseau").values()]}
             />
             <FieldsetFlore
                 bind:floresAtteintes={floresAtteintes}
                 espècesProtégéesFlore={getEspècesPourClassification("flore")}
-                activitésMenaçantes={activitesParClassificationEtreVivant.get("flore")}
+                activitésMenaçantes={[...activitesParClassificationEtreVivant.get("flore").values()]}
             />
         </form>
         <div class="fr-grid-row fr-mb-4w">

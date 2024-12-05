@@ -10,6 +10,8 @@
     /** @type {OiseauAtteint[]} */
     export let oiseauxAtteints
 
+    $: console.log('FieldsetOiseau oiseauxAtteints', oiseauxAtteints.length, oiseauxAtteints)
+
     /** @type {EspèceProtégée[]} */
     export let espècesProtégéesOiseau
 
@@ -58,6 +60,7 @@
      * @param {OiseauAtteint} oiseauAtteint
     */
     function onDupliquerLigne(oiseauAtteint) {
+        console.log('dup oiseau')
         oiseauxAtteints.push(oiseauAtteint)
 
         rerender()
