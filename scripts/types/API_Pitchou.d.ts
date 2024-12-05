@@ -53,7 +53,7 @@ interface DossierDémarcheSimplifiée88444Communes {
     name: string;
     code: string;
     postalCode: string;
-  }
+}
   
 interface DossierLocalisation {
     communes: DossierDémarcheSimplifiée88444Communes[];
@@ -68,7 +68,7 @@ interface DossierFicherEspècesProtégées{
 
 
 export interface DossierComplet extends 
-    Dossier, 
+    Omit<Dossier, 'communes' | 'départements' | 'régions'>, 
     DossierPhaseEtProchaineAction, 
     DossierLocalisation, 
     DossierComplémentPersonnesImpliquées,

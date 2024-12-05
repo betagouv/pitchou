@@ -4,7 +4,8 @@ import lunrfr from "lunr-languages/lunr.fr"
 
 import { retirerAccents } from "../commun/manipulationStrings.js"
 
-/** @import {DossierComplet, StringValues} from "../types.js" */
+/** @import {StringValues} from "../types.js" */
+/** @import {DossierComplet} from "../types/API_Pitchou.d.ts" */
 
 stemmerSupport(lunr)
 lunrfr(lunr)

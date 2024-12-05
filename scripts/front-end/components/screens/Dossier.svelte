@@ -6,20 +6,23 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types/API_Pitchou.d.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
 
     /** @type {string | undefined} */
-    export let email
+    export let email = undefined
 
     const {number_demarches_simplifiées: numdos} = dossier
 
     /** @type {DossierPhaseEtProchaineAction} */
      let dossierParams = {
+        // @ts-ignore
         phase: dossier.phase,
+        // @ts-ignore
         prochaine_action_attendue: dossier.prochaine_action_attendue,
+        // @ts-ignore
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
     }
     let messageErreur = "" 

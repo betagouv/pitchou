@@ -15,7 +15,7 @@ import Store from 'baredux'
 // DO NOT import x from './actions/*.js' // you're making an action, so add an action instead
 
 
-/** @import {DossierComplet} from '../types.js' */
+/** @import {DossierComplet} from '../types/API_Pitchou.d.ts' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
 /** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
