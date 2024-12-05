@@ -31,7 +31,7 @@ const créerDossierIndexable = dossier => {
     return {
         id: id.toString(),
         number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
-        nom_dossier: retirerAccents(nom_dossier),
+        nom_dossier: retirerAccents(nom_dossier || ''),
         communes: communes?.map(({name}) => retirerAccents(name || "")).join(" ") || "",
         nom: retirerAccents(nom || ""),
         déposant_nom: retirerAccents(déposant_nom || ""),
