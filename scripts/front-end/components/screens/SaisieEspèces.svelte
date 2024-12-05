@@ -458,7 +458,7 @@
 
                 <DownloadButton
                     classname="fr-btn fr-btn--lg"
-                    label="Télécharger fichier des espèces menacées (.ods)"
+                    label="Télécharger fichier des espèces impactées (.ods)"
                     makeFilename={() => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
                     makeFileContentBlob={créerOdsBlob}
                 />

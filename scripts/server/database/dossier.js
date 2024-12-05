@@ -12,6 +12,8 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 //@ts-ignore
+/** @import {default as EspècesImpactées} from '../../types/database/public/EspècesImpactées.ts' */
+//@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 
 
@@ -456,4 +458,15 @@ export function updateDossier(id, dossierParams) {
     return directDatabaseConnection('dossier')
         .where({ id })
         .update(dossierParams)
+}
+
+/**
+ * @param {EspècesImpactées['id']} fichierId 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ */
+export function getFichierEspècesImpactées(fichierId, databaseConnection = directDatabaseConnection){
+    return databaseConnection('espèces_impactées')
+        .select('*')
+        .where('id', fichierId)
+        .first()
 }

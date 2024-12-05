@@ -2,14 +2,11 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
-    import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../types.js' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
-
-    const {number_demarches_simplifiées: numdos} = dossier
 
     /** @type {string | undefined} */
     export let email
@@ -23,9 +20,11 @@
             <h1 class="fr-mb-6w">Description dossier {dossier.nom_dossier || "sans nom"}</h1>
 
             <article class="fr-p-3w fr-mb-4w">
-                <h2>Espèces protégées menacées</h2>
+                <h2>Espèces impactées</h2>
                 {#if dossier.url_fichier_espèces_impactées}
-                    {dossier.url_fichier_espèces_impactées}
+                    <a class="fr-btn fr-btn--lg" href={dossier.url_fichier_espèces_impactées}>
+                    Télécharger le fichier des espèces impactées
+                    </a>
                 {:else if dossier.espèces_protégées_concernées}
                     <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
                     <div>"Lien" ou description libre fournie par le pétitionnaire

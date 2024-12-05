@@ -9,7 +9,7 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -231,6 +231,32 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   return updateDossier(dossierId, dossierParams)
 })
+
+fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
+  
+  //@ts-ignore
+  if(!request.params.fichierId){
+    reply.code(400).send(`Paramètre 'fichierId' manquant dans l'URL`)
+    return 
+  }
+
+  //@ts-ignore
+  const fichierId = request.params.fichierId
+
+  const fichier = await getFichierEspècesImpactées(fichierId)
+
+  if(!fichier){
+    reply.code(404).send('Fichier non trouvé')
+    return
+  }
+  else{
+    reply
+      .header('content-disposition', `attachment; filename="${fichier.nom}"`)
+      .header('content-type', fichier.media_type)
+      .send(fichier.contenu)
+  }
+})
+
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   // @ts-ignore
