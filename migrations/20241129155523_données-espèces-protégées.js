@@ -62,7 +62,7 @@ export async function up(knex) {
                     const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces)
                     espècesImpactées.push({
                         dossier: id,
-                        nom: 'espèces-protégées.ods',
+                        nom: 'espèces-impactées.ods',
                         "media_type": 'application/vnd.oasis.opendocument.spreadsheet',
                         contenu: Buffer.from(odsArrayBuffer) // knex n'accepte que les Buffer node, pas les ArrayBuffer
                     })
