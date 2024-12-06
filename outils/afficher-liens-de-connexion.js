@@ -9,6 +9,14 @@ if(!args.emails){
     process.exit(1)
 }
 
+let origin = 'http://localhost:2648';
+
+if(args.prod)
+    origin = 'https://pitchou.beta.gouv.fr'
+
+if(args.origin)
+    origin = args.origin
+
 const emailsEnArgument = args.emails.split(',')
 
 const personnesAvecCesEmails = await getPersonnesByEmail(emailsEnArgument)
@@ -20,7 +28,9 @@ for(const email of emailsEnArgument){
     }
     else{
         if(personne.code_accès){
-            console.log(`${email}\tLien de connexion: http://localhost:2648/?secret=${personne.code_accès}`)
+            const lienDeConnexion = `${origin}/?secret=${personne.code_accès}`
+
+            console.log(`${email}\tLien de connexion: ${lienDeConnexion}`)
         }
         else{
             console.log(`${email}\tn'a pas de lien de connexion`)
@@ -30,6 +40,5 @@ for(const email of emailsEnArgument){
 
 
 }
-
 
 await closeDatabaseConnection()

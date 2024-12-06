@@ -154,6 +154,15 @@ Pour modifier le cron : https://crontab.guru/
 
 ### Lister les liens de connexion en local
 
-Utile pour tester rapidement en local après un restore en tant qu'une personne en particulier
+Utile pour tester rapidement en local après un restore de backup en tant qu'une personne en particulier
 
 `docker exec node_server node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
+
+Pour les lien de connexion en production : 
+
+`docker exec node_server node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
+
+Pour donner l'origine de manière libre :
+
+`docker exec node_server node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://test.lol'`
+
