@@ -53,8 +53,6 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     const dupliquerLigne = onDupliquerLigne && (() => {
-        console.log('OiseauAtteintEditRow dupliquerLigne')
-
         if(espèce){
             onDupliquerLigne({
                 espèce,  

@@ -41,7 +41,6 @@
 
     /** @type {OiseauAtteint[]}*/
     export let oiseauxAtteints
-    $: console.log('SaisieEspèces oiseauxAtteints', oiseauxAtteints)
 
     /** @type {FauneNonOiseauAtteinte[]} */
     export let faunesNonOiseauxAtteintes
