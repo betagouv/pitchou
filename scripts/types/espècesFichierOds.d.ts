@@ -6,7 +6,7 @@
 
 import { FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from "./especes";
 
-export type FichierEspècesMenacéesOds_V1 = Map<'oiseau', OiseauAtteintOds_V1[]> & Map<'faune non-oiseau', FauneNonOiseauAtteinteOds_V1[]> & Map<'flore', FloreAtteinteOds_V1[]> & Map<'metadata', MetadataOds_V1>
+export type FichierEspècesImpactéesOds_V1 = Map<'oiseau', OiseauAtteintOds_V1[]> & Map<'faune non-oiseau', FauneNonOiseauAtteinteOds_V1[]> & Map<'flore', FloreAtteinteOds_V1[]> & Map<'metadata', MetadataOds_V1>
 
 interface EtreVivantAtteintOds_V1{
     CD_REF: string,

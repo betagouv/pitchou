@@ -16,7 +16,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'od
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from 'ods-xlsx' */
-/** @import {FichierEspècesMenacéesOds_V1} from '../types/espècesFichierOds.d.ts' */
+/** @import {FichierEspècesImpactéesOds_V1} from '../types/espècesFichierOds.d.ts' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
@@ -304,7 +304,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     const descriptionMenacesEspèces = Object.create(null)
 
     const odsRawContent = await getODSTableRawContent(odsFile)
-    /** @type {FichierEspècesMenacéesOds_V1} */
+    /** @type {FichierEspècesImpactéesOds_V1} */
     const odsContent = tableRawContentToObjects(odsRawContent)
 
     const lignesOiseauOds = odsContent.get('oiseau')
