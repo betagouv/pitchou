@@ -8,10 +8,12 @@ import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import RedactionArretePrefectoral from '../components/screens/RedactionArretePrefectoral.svelte';
 import { chargerActivitésMéthodesTransports, chargerDossiers, chargerListeEspècesProtégées } from '../actions/main.js';
+import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
+/** @import {DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
 
 /**
  * @param {Object} ctx
@@ -36,9 +38,25 @@ export default async ({params: {dossierId}}) => {
         
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
-    
+
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans
+
+    /** @type {DescriptionMenacesEspèces | undefined} */
+    let espècesImpactées
+
+    if(dossier.url_fichier_espèces_impactées){
+        espècesImpactées = await fetch(dossier.url_fichier_espèces_impactées)
+            .then(r => r.arrayBuffer())
+            .then(espècesAB => importDescriptionMenacesEspècesFromOdsArrayBuffer(
+                    espècesAB,
+                    espèceByCD_REF,
+                    activités,
+                    méthodes,
+                    transports
+                )
+            )
+    }
 
     /**
      * 
@@ -52,10 +70,7 @@ export default async ({params: {dossierId}}) => {
         return {
             ...mapStateToSqueletteProps(state),
             dossier,
-            espèceByCD_REF,
-            activités,
-            méthodes,
-            transports
+            espècesImpactées
         }
     }   
     

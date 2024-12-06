@@ -4,7 +4,8 @@ import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../types.js'*/
+/** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types.js'*/
+/** @import {DossierComplet} from '../types/API_Pitchou.d.ts'*/
 
 /**
  * @param {Partial<DossierComplet>} localisation

@@ -64,9 +64,9 @@ export default async () => {
         const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(
             new URL(location.href), 
             espèceByCD_REF, 
-            [...activitesParClassificationEtreVivant.values()].flat(), 
-            [...méthodesParClassificationEtreVivant.values()].flat(), 
-            [...transportsParClassificationEtreVivant.values()].flat()
+            activitesParClassificationEtreVivant, 
+            méthodesParClassificationEtreVivant, 
+            transportsParClassificationEtreVivant
         )
 
         /**
@@ -78,9 +78,9 @@ export default async () => {
             return importDescriptionMenacesEspècesFromOdsArrayBuffer(
                 odsArrayBuffer, 
                 espèceByCD_REF, 
-                [...activitesParClassificationEtreVivant.values()].flat(), 
-                [...méthodesParClassificationEtreVivant.values()].flat(), 
-                [...transportsParClassificationEtreVivant.values()].flat()
+                activitesParClassificationEtreVivant, 
+                méthodesParClassificationEtreVivant, 
+                transportsParClassificationEtreVivant
             )
         }
         

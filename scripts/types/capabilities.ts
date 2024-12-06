@@ -1,14 +1,13 @@
-import { DossierComplet } from "../types"
-import Personne from "./database/public/Personne"
-import Dossier from "./database/public/Dossier"
-import Message from "./database/public/Message"
+import { DossierComplet, DossierRésumé } from "../types/API_Pitchou.ts"
+import Personne from "./database/public/Personne.ts"
+import Message from "./database/public/Message.ts"
 
 export interface PitchouInstructeurCapabilities{
     listerDossiers?: () => Promise<DossierComplet[]>
-    listerRelationSuivi: () => Promise<{personneEmail: Personne['email'], dossiersSuivisIds: Dossier['id'][]}[]>
+    listerRelationSuivi: () => Promise<{personneEmail: Personne['email'], dossiersSuivisIds: DossierRésumé['id'][]}[]>
+    listerMessages?: (dossierId: DossierRésumé['id']) => Promise<Message[]>
     listerÉvènementsPhaseDossier: () => Promise<any[]>
-    listerMessages?: (dossierId: DossierComplet['id']) => Promise<Message[]>
-    modifierDossier?: (dossierId: DossierComplet['id'], dossier: any) => Promise<void> 
+    modifierDossier?: (dossierId: DossierRésumé['id'], dossier: Partial<DossierComplet>) => Promise<void> 
     remplirAnnotations?: (annotations: any) => Promise<void>
 }
 
