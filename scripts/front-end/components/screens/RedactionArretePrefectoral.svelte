@@ -4,55 +4,20 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     
-    import { importDescriptionMenacesEspècesFromURL } from '../../../commun/outils-espèces.js';
-
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 
-    /** @import {DossierComplet} from '../../../types.js' */
-    /** @import { ClassificationEtreVivant, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces,} from '../../../types/especes.d.ts' **/
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */
+    /** @import { DescriptionMenacesEspèces,} from '../../../types/especes.d.ts' **/
 
     /** @type {DossierComplet} */
     export let dossier
 
     /** @type {string | undefined} */
-    export let email
-
-    const {espèces_protégées_concernées} = dossier
-
-    /** @type {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} */
-    export let espèceByCD_REF;
-
-    /** @type {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-    export let activités
-
-    /** @type {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
-    export let méthodes
-
-    /** @type {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} */
-    export let transports
-
-    /**
-     * 
-     * @param {DossierComplet['espèces_protégées_concernées']} url
-     * @returns {DescriptionMenacesEspèces | undefined}
-     */
-    function fromEspèceProtégéeURLString(url){
-        if(!url)
-            return undefined
-
-        return importDescriptionMenacesEspècesFromURL(
-            new URL(url), 
-            espèceByCD_REF, 
-            activités, 
-            méthodes, 
-            transports
-        )
-    }
+    export let email = undefined
 
     /** @type {DescriptionMenacesEspèces | undefined} */
-    $: descriptionMenacesEspèces = fromEspèceProtégéeURLString(espèces_protégées_concernées)
+    export let espècesImpactées = undefined
 
-    $: console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
 
 </script>
 
@@ -65,12 +30,12 @@
             <article class="fr-p-3w fr-mb-4w">
                 <section>
                     <h2>Liste des espèces protégées</h2>
-                    {#if descriptionMenacesEspèces}
-                    {#each Object.keys(descriptionMenacesEspèces) as classif}
-                        {#if descriptionMenacesEspèces[classif].length >= 1}
+                    {#if espècesImpactées}
+                    {#each Object.keys(espècesImpactées) as classif}
+                        {#if espècesImpactées[classif].length >= 1}
                             <section class="liste-especes">
                                 <h3>Liste des {classif}</h3>
-                                {#each descriptionMenacesEspèces[classif].toSorted(etresVivantsAtteintsCompareEspèce) as  espèceAtteinte, index (espèceAtteinte) }
+                                {#each espècesImpactées[classif].toSorted(etresVivantsAtteintsCompareEspèce) as  espèceAtteinte, index (espèceAtteinte) }
                                     {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèceAtteinte.espèce}/>
                                 {/each}
                             </section>
