@@ -76,25 +76,30 @@
      * Import données via fichier
      */
 
-    /** @type {FileList} */
-    let files
-    $: console.log('files', files)
+    /**
+     * Dans une version précédente, il y avait un bind:files sur le input@type=file
+     * Mais, vraissemblablement, il y avait un bug de svelte qui considérait que files changeait quand
+     * d'autres choses non-liés changeaient dans la page
+     * Alors, on gère plutôt ça avec un évènement 'input' désormais plutôt que la réactivité de svelte
+     * 
+     * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
+     */
+    async function onFileInput(e){
+        /** @type {FileList | null} */
+        const files = e.currentTarget.files
+        const file = files && files[0]
 
-    throw `PPP cliquer sur dupliquer déclenche une modification de "files"`
+        if(file){
+            const descriptionMenacesEspèces = await file.arrayBuffer()
+                .then(importDescriptionMenacesEspècesFromOds)
 
-    /** @type {File} */
-	$: file = files && files[0]
-
-    $: descriptionMenacesEspècesP = file && file.arrayBuffer()
-        .then(importDescriptionMenacesEspècesFromOds)
-
-    $: descriptionMenacesEspècesP && descriptionMenacesEspècesP.then(descriptionMenacesEspèces => {
-        console.log('descriptionMenacesEspèces ods', descriptionMenacesEspèces)
-
-        oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
-        faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
-        floresAtteintes = descriptionMenacesEspèces['flore'] || []
-    })
+            if(descriptionMenacesEspèces){
+                oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
+                faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
+                floresAtteintes = descriptionMenacesEspèces['flore'] || []
+            }
+        }
+    }
 
 
 
@@ -265,7 +270,7 @@
                         <label class="fr-label" for="file-upload">Importer un fichier d'espèces
                             <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
                         </label>
-                        <input bind:files class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                        <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
                     </div>
                 </section>
 
