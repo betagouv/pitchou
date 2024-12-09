@@ -2,7 +2,7 @@
 
 import store from "../store"
 
-/** @import {DossierComplet} from '../../types.js' */
+/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore

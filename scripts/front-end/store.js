@@ -15,7 +15,7 @@ import Store from 'baredux'
 // DO NOT import x from './actions/*.js' // you're making an action, so add an action instead
 
 
-/** @import {DossierComplet} from '../types.js' */
+/** @import {DossierComplet} from '../types/API_Pitchou.d.ts' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
 /** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
@@ -34,7 +34,7 @@ import Store from 'baredux'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: Map<ClassificationEtreVivant, ActivitéMenançante[]>, méthodes: Map<ClassificationEtreVivant, MéthodeMenançante[]>, transports: Map<ClassificationEtreVivant, TransportMenançant[]>} } [activitésMéthodesTransports]
+ * @property { {activités: Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  */
 

@@ -24,12 +24,12 @@
     /** @type {number | undefined} */
     export let surfaceHabitatDétruit = undefined 
 
-    /** @param {OiseauAtteint} oiseauAtteint */
-    export let onDupliquerLigne
+    /** @type {undefined | ((f: OiseauAtteint) => void)} */
+    export let onDupliquerLigne = undefined
 
-    /** @param {EspèceProtégée} _espèce */
-    export let onSupprimerLigne
-    $: onSupprimerClick = onSupprimerLigne && (() => onSupprimerLigne(espèce))
+    /** @type {undefined | ((e: EspèceProtégée) => void)} */
+    export let onSupprimerLigne = undefined
+    $: onSupprimerClick = onSupprimerLigne && espèce && (() => onSupprimerLigne(espèce))
 
     /** @type {EspèceProtégée[]} */
     export let espècesProtégéesOiseau = []
@@ -52,18 +52,20 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    const dupliquerLigne = () => onDupliquerLigne(
-        {
-            espèce,  
-            activité,
-            méthode,
-            transport,
-            nombreIndividus,
-            nombreNids,
-            nombreOeufs,
-            surfaceHabitatDétruit
-        },
-    )
+    const dupliquerLigne = onDupliquerLigne && (() => {
+        if(espèce){
+            onDupliquerLigne({
+                espèce,  
+                activité,
+                méthode,
+                transport,
+                nombreIndividus,
+                nombreNids,
+                nombreOeufs,
+                surfaceHabitatDétruit
+            })
+        }
+    })
 </script>
 
 <tr>
