@@ -17,6 +17,20 @@ services:
     user: "${UID}:${GID}"
     stop_grace_period: 2s
 
+  tooling:
+    image: node:20
+    container_name: tooling
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: sleep 365d
+    environment:
+      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/principale"
+    user: "${UID}:${GID}"
+    stop_grace_period: 1s
+
   db:
     image: postgres:15.7
     container_name: postgres_db
