@@ -9,7 +9,7 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -87,6 +87,7 @@ function sendIndexHTMLFile(_request, reply){
 fastify.get('/saisie-especes', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/description', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', sendIndexHTMLFile)
 fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
@@ -182,11 +183,11 @@ fastify.get('/caps', async function (request, reply) {
 })
 
 
-
 fastify.get('/dossiers', async function (request, reply) {
   // @ts-ignore
   const cap = request.query.cap
   if (cap) {
+    /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
     const dossiers = await getDossiersByCap(cap)
     if (dossiers) {
       return dossiers
@@ -230,6 +231,32 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   return updateDossier(dossierId, dossierParams)
 })
+
+fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
+  
+  //@ts-ignore
+  if(!request.params.fichierId){
+    reply.code(400).send(`Paramètre 'fichierId' manquant dans l'URL`)
+    return 
+  }
+
+  //@ts-ignore
+  const fichierId = request.params.fichierId
+
+  const fichier = await getFichierEspècesImpactées(fichierId)
+
+  if(!fichier){
+    reply.code(404).send('Fichier non trouvé')
+    return
+  }
+  else{
+    reply
+      .header('content-disposition', `attachment; filename="${fichier.nom}"`)
+      .header('content-type', fichier.media_type)
+      .send(fichier.contenu)
+  }
+})
+
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   // @ts-ignore

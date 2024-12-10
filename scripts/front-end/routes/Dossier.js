@@ -11,7 +11,6 @@ import { chargerDossiers } from '../actions/main.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
-/** @import {DossierComplet}  from '../../types.js' */
 
 /**
  * @param {Object} ctx
@@ -36,20 +35,20 @@ export default async ({params: {dossierId}}) => {
         
     /**
      * 
-     * @param {DossierComplet} dossier
+     * @param {PitchouState} state
      * @returns 
      */
-    function getMapStateToProps(dossier){
-        return (/** @type {PitchouState} */state) => ({
+    function mapStateToProps(state){
+        return {
             ...mapStateToSqueletteProps(state),
-            dossier,
-        })
-    }   
+            dossier
+        }
+    }
     
     const pageDossier = new Dossier({
         target: svelteTarget,
-        props: getMapStateToProps(dossier)(state),
+        props: mapStateToProps(state),
     });
 
-    replaceComponent(pageDossier, getMapStateToProps(dossier))
+    replaceComponent(pageDossier, mapStateToProps)
 }

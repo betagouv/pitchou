@@ -109,26 +109,17 @@ export async function chargerListeEspècesProtégées(){
     return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF })
 }
 
+
+
 /**
+ * @param {ActivitéMenançante[]} activitésBrutes 
+ * @param {MéthodeMenançante[]} méthodesBrutes 
+ * @param {TransportMenançant[]} transportsBruts 
  * 
- * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
+ * @returns {NonNullable<PitchouState['activitésMéthodesTransports']>}
  */
-export async function chargerActivitésMéthodesTransports(){
-
-    if(store.state.activitésMéthodesTransports){
-        return Promise.resolve(store.state.activitésMéthodesTransports)
-    }
-
-    /** @type { [ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[]] } */
-    // @ts-ignore
-    const [activitésBrutes, méthodesBrutes, transportsBruts, groupesEspècesBrutes] = await Promise.all([
-        dsv(";", getURL('link#activites-data')),
-        dsv(";", getURL('link#methodes-data')),
-        dsv(";", getURL('link#transports-data')),
-    ])
-
-
-    /** @type {Map<ClassificationEtreVivant, ActivitéMenançante[]>} */
+export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
+    /** @type {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     const activités = new Map()
     for(const activite of activitésBrutes){
         const classif = activite['Espèces']
@@ -142,12 +133,12 @@ export async function chargerActivitésMéthodesTransports(){
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
         }
         
-        const classifActivz = activités.get(classif) || []
-        classifActivz.push(activite)
+        const classifActivz = activités.get(classif) || new Map()
+        classifActivz.set(activite.Code, activite)
         activités.set(classif, classifActivz)
     }
 
-    /** @type {Map<ClassificationEtreVivant, MéthodeMenançante[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
     const méthodes = new Map()
     for(const methode of méthodesBrutes){
         const classif = methode['Espèces']
@@ -161,12 +152,12 @@ export async function chargerActivitésMéthodesTransports(){
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
         }
         
-        const classifMeth = méthodes.get(classif) || []
-        classifMeth.push(methode)
+        const classifMeth = méthodes.get(classif) || new Map()
+        classifMeth.set(methode.Code, methode)
         méthodes.set(classif, classifMeth)
     }
 
-    /** @type {Map<ClassificationEtreVivant, TransportMenançant[]>} */
+    /** @type {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} */
     const transports = new Map()
     for(const transport of transportsBruts){
         const classif = transport['Espèces']
@@ -180,17 +171,39 @@ export async function chargerActivitésMéthodesTransports(){
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
         }
         
-        const classifTrans = transports.get(classif) || []
-        classifTrans.push(transport)
+        const classifTrans = transports.get(classif) || new Map()
+        classifTrans.set(transport.Code, transport)
         transports.set(classif, classifTrans)
     }
 
-    const ret = {
+    return {
         activités,
         méthodes,
         transports
     }
+}
 
+
+/**
+ * 
+ * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
+ */
+export async function chargerActivitésMéthodesTransports(){
+
+    if(store.state.activitésMéthodesTransports){
+        return Promise.resolve(store.state.activitésMéthodesTransports)
+    }
+
+    /** @type { [ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[]] } */
+    // @ts-ignore
+    const [activitésBrutes, méthodesBrutes, transportsBruts] = await Promise.all([
+        dsv(";", getURL('link#activites-data')),
+        dsv(";", getURL('link#methodes-data')),
+        dsv(";", getURL('link#transports-data'))
+    ])
+
+    const ret = actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
+    
     store.mutations.setActivitésMéthodesTransports(ret)
 
     return ret
