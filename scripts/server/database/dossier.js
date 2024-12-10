@@ -70,7 +70,8 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
             évènementsPhaseDossier.push({
                 phase: state,
                 horodatage: new Date(dateTraitement),
-                dossier: dossierId
+                dossier: dossierId,
+                cause_personne: null // signifie que c'est l'outil de sync DS qui est la cause
             })
         }
     };
