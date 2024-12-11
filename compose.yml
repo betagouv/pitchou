@@ -17,6 +17,20 @@ services:
     user: "${UID}:${GID}"
     stop_grace_period: 2s
 
+  tooling:
+    image: node:20
+    container_name: tooling
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: sleep 365d
+    environment:
+      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/principale"
+    user: "${UID}:${GID}"
+    stop_grace_period: 1s
+
   db:
     image: postgres:15.7
     container_name: postgres_db
@@ -34,7 +48,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: container-pgadmin
+    container_name: pgadmin
     depends_on:
       - db
     ports:
@@ -42,5 +56,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DISABLE_POSTFIX: "1"
+      PGADMIN_CONFIG_SERVER_HEARTBEAT_TIMEOUT: 3600 # secondes = une heure
     restart: unless-stopped
     stop_grace_period: 2s

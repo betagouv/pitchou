@@ -89,6 +89,7 @@ Après avoir téléchargé un backup de la prod, le mettre dans le dossier `back
 ```sh
 cd backups
 tar -xf <nom_fichier>.tar.gz
+# ignorer le message qui dit "tar: Suppression de « / » au début des noms des membres"
 cd -
 ```
 
@@ -114,7 +115,9 @@ Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.s
 
 `knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
 
-Pour revenir en arrière sur une migration : `knex migrate:down --env docker_dev`
+Pour aller en arrière et en avant d'un cran dans la liste des migrations : 
+`npm run migrate:down`
+`npm run migrate:up`
 
 ### Fabriquer la liste des espèces protégées
 
@@ -131,12 +134,12 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 En dev, depuis le container du serveur
 
-`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées-88444.js` (dernières heures par défaut)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js` (dernières heures par défaut)
 
-`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-07-25` (synchroniser les dossiers modifiés depuis le 25 juillet 2024)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-07-25` (synchroniser les dossiers modifiés depuis le 25 juillet 2024)
 
 
-`docker exec node_server node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 ### Cron
 
@@ -149,3 +152,19 @@ Pour modifier le cron : https://crontab.guru/
 ### Remplir des annotations privées
 
 `node --env-file=.env outils/remplir-annotations.js`
+
+
+### Lister les liens de connexion en local
+
+Utile pour tester rapidement en local après un restore de backup en tant qu'une personne en particulier
+
+`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
+
+Pour les lien de connexion en production : 
+
+`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
+
+Pour donner l'origine de manière libre :
+
+`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://test.lol'`
+

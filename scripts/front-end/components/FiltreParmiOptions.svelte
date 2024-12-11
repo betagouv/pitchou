@@ -1,16 +1,16 @@
 <script>
     //@ts-check
 
-    import { createEventDispatcher } from "svelte";
-
     /** @type {Set<string>}*/
     export let options  
 
     /** @type {string} */
     export let titre
 
+    /** @type {function} */
+    export let mettreÀJourOptionsSélectionnées
+
     let optionsSélectionnées = new Set(options)
-    const dispatch = createEventDispatcher()
 
     $: optionsAffichées = [...options].map(option => ({option, checked: optionsSélectionnées.has(option)}))
 
@@ -31,19 +31,18 @@
         }
 
         rerender()
-        dispatch("selected-changed", optionsSélectionnées)
+        mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
     function selectionnerTout(){
         optionsSélectionnées = new Set(options)
-        dispatch("selected-changed", optionsSélectionnées)
+        mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
 
     function selectionnerRien(){
         optionsSélectionnées = new Set()
-        dispatch("selected-changed", optionsSélectionnées)
-
+        mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
 
@@ -79,6 +78,7 @@
 <style lang="scss">
     details {
         display: inline;
+        margin-right: 0.5rem;
     }
 
     .filtre-options {

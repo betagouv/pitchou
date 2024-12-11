@@ -48,7 +48,9 @@ export async function recupérerDossiersRécemmentModifiés(token, demarcheNumbe
 
         dossiers = pageDossiers.concat(dossiers)
 
-        console.log('dossiers récupérés jusque-là', dossiers.length)
+        if(dossiers.length >= 100){
+            console.log('dossiers récupérés jusque-là', dossiers.length)
+        }
 
         const pageInfo = page.demarche.dossiers.pageInfo;
 

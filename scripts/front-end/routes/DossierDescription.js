@@ -6,9 +6,8 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
-import DossierMessagerie from '../components/screens/DossierMessagerie.svelte';
+import DossierDescription from '../components/screens/DossierDescription.svelte';
 import { chargerDossiers } from '../actions/main.js';
-import { chargerMessagesDossier } from '../actions/dossier.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
@@ -27,7 +26,6 @@ export default async({params: {dossierId}}) => {
     let { dossiers: dossierById } = state 
 
     let dossiersP;
-    let messagesP;
 
     if (dossierById.size === 0){
         dossiersP = chargerDossiers()
@@ -35,31 +33,27 @@ export default async({params: {dossierId}}) => {
     else{
         dossiersP = dossierById
     }
-
-    messagesP = chargerMessagesDossier(id)
     
-    const [dossiers] = await Promise.all([dossiersP, messagesP])
+    const dossiers = await dossiersP
         
-    // TODO: expliquer que le dossier n'existe pas ?
+    // PPP: expliquer que le dossier n'existe pas
     if (!dossiers.has(id)) return page('/')
         
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<DossierMessagerie>}
+     * @returns {ComponentProps<DossierDescription>}
      */
     function mapStateToProps(state){
         const dossier = state.dossiers.get(id)
-        const messages = state.messagesParDossierId.get(id)
 
         return {
             ...mapStateToSqueletteProps(state),
             dossier,
-            messages
         }
     }   
     
-    const pageDossier = new DossierMessagerie({
+    const pageDossier = new DossierDescription({
         target: svelteTarget,
         props: mapStateToProps(state),
     });

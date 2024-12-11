@@ -2,9 +2,12 @@
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
-    import FiltreTexte from '../FiltreTexte.svelte'
+    import BarreRecherche from '../BarreRecherche.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
+    import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
+    import {retirerAccents} from '../../../commun/manipulationStrings.js'
 
+    /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.js' */
@@ -15,8 +18,10 @@
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
 
-    /** @type {string | undefined} */
-    export let email
+    /** @type {ComponentProps<Squelette>['email']} */
+    export let email;
+    /** @type {ComponentProps<Squelette>['erreurs']} */
+    export let erreurs;
 
     $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
@@ -62,9 +67,9 @@
 
     /**
      * 
-     * @param {{detail: Set<DossierPhase | PHASE_VIDE>}} _
+     * @param {Set<DossierPhase | PHASE_VIDE>} phasesSélectionnées
      */
-	function filtrerParPhase({detail: phasesSélectionnées}){
+	function filtrerParPhase(phasesSélectionnées){
         tousLesFiltres.set('phase', dossier => {
             if (phasesSélectionnées.has(PHASE_VIDE)) {
                 return !dossier.phase
@@ -88,9 +93,9 @@
 
     /**
      * 
-     * @param {{detail: Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>}} _
+     * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} prochainesActionsAttenduesParSélectionnées
      */
-    function filtrerParProchainesActionsAttenduesPar({detail: prochainesActionsAttenduesParSélectionnées}) {
+    function filtrerParProchainesActionsAttenduesPar(prochainesActionsAttenduesParSélectionnées) {
         tousLesFiltres.set("prochaine action attendue de", dossier => {
             if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
                 return !dossier.prochaine_action_attendue_par
@@ -105,87 +110,45 @@
         filtrerDossiers()
     }
 
-    $: communeFiltrée = "" 
-
-    /**
-     * @param {{detail: string}} _
-     */
-    function filtrerParCommune({detail: communeSélectionnée}){
-        tousLesFiltres.set('commune', dossier => {
-            if (!dossier.communes) return false
-
-            return !!dossier.communes.find(({name, postalCode}) => {
-                return name.includes(communeSélectionnée) || postalCode.includes(communeSélectionnée)
-            })
-        })
-
-        communeFiltrée = communeSélectionnée
-
-        filtrerDossiers()
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function onSupprimerFiltreCommune(e) {
-        e.preventDefault()
-     
-        tousLesFiltres.delete('commune')
-        communeFiltrée = "" 
-        filtrerDossiers()
-    }
-
-    $: départementFiltré = ""
-
-    /**
-     * @param {{detail: string}} _
-     */
-    function filtrerParDépartement({detail: départementSélectionné}){
-        tousLesFiltres.set('département', dossier => {
-            if (!dossier.départements) return false
-
-            return !!dossier.départements.find((département) => {
-                return département.includes(départementSélectionné) 
-            })
-        })
-
-        départementFiltré = départementSélectionné
-
-        filtrerDossiers()
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function onSupprimerFiltreDépartement(e) {
-        e.preventDefault()
-     
-        tousLesFiltres.delete('département')
-        départementFiltré = "" 
-        filtrerDossiers()
-    }
-
     $: texteÀChercher = ''
 
     /**
-     * @param {{detail: string}} _
+     * @param {string} _texteÀChercher
      */
-    function filtrerParTexte({detail: _texteÀChercher}){
-        tousLesFiltres.set('texte', dossier => {
-            return Boolean(
-                dossier.commentaire_enjeu && dossier.commentaire_enjeu.includes(_texteÀChercher) ||
-                dossier.commentaire_libre && dossier.commentaire_libre.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_morale_raison_sociale && dossier.demandeur_personne_morale_raison_sociale.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_physique_nom && dossier.demandeur_personne_physique_nom.includes(_texteÀChercher) ||
-                dossier.demandeur_personne_physique_prénoms && dossier.demandeur_personne_physique_prénoms.includes(_texteÀChercher) ||
-                dossier.number_demarches_simplifiées && dossier.number_demarches_simplifiées.includes(_texteÀChercher) ||
-                String(dossier.id || '').includes(_texteÀChercher) ||
-                dossier.nom && dossier.nom.includes(_texteÀChercher) ||
-                dossier.nom_dossier && dossier.nom_dossier.includes(_texteÀChercher)
-            )
-        })
+    function filtrerParTexte(_texteÀChercher) {
+        // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
+        // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
+        // les nombres avec une fonction séparée.
+        if (_texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
+            tousLesFiltres.set('texte', dossier => {
+                const {
+                    id, 
+                    départements, 
+                    communes, 
+                    number_demarches_simplifiées,
+                    historique_identifiant_demande_onagre,
+                } = dossier
+                const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
+            
+                return String(id) === _texteÀChercher ||
+                    départements?.includes(_texteÀChercher) || 
+                    communesCodes?.includes(_texteÀChercher) ||
+                    number_demarches_simplifiées === _texteÀChercher || 
+                    historique_identifiant_demande_onagre === _texteÀChercher
+            })
+        } else {
+            const texteSansAccents = retirerAccents(_texteÀChercher)
+            // Pour chercher les communes qui contiennent des tirets avec lunr,
+            // on a besoin de passer la chaîne de caractères entre "".
+            const aRechercher = texteSansAccents.match(/(\w-)+/) ? 
+                `"${texteSansAccents}"` :
+                texteSansAccents
+            const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(aRechercher, dossiers)
+
+            tousLesFiltres.set('texte', dossier => {
+                return dossiersIdCorrespondantsÀTexte.has(dossier.id)
+            })
+        }
 
         texteÀChercher = _texteÀChercher;
 
@@ -215,9 +178,9 @@
 
     /**
      * 
-     * @param {{detail: Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}} _
+     * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
-	function filtrerParInstructeurs({detail: _instructeursSélectionnées}){
+	function filtrerParInstructeurs(_instructeursSélectionnées){
         tousLesFiltres.set('instructeurs', dossier => {
             if(!relationSuivis)
                 return true;
@@ -257,64 +220,47 @@
     
 </script>
 
-<Squelette {email}>
+<Squelette {email} {erreurs}>
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col">
 
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
-            <div class="filtres">
-                <FiltreTexte
-                    titre="Rechercher par commune"
-                    on:selected-changed={filtrerParCommune}
+            {#if dossiers.length >= 1}
+                <BarreRecherche
+                    titre="Rechercher par texte libre"
+                    mettreÀJourTexteRecherche={filtrerParTexte}
                 />
-                <FiltreTexte
-                    titre="Rechercher par département"
-                    on:selected-changed={filtrerParDépartement}
-                />
-                <FiltreParmiOptions 
-                    titre="Filtrer par phase"
-                    options={phaseOptions} 
-                    on:selected-changed={filtrerParPhase} 
-                />
-                <FiltreParmiOptions 
-                    titre="Filtrer par prochaine action attendue par"
-                    options={prochainesActionsAttenduesParOptions} 
-                    on:selected-changed={filtrerParProchainesActionsAttenduesPar} 
-                />
-                <FiltreTexte
-                    titre="Rechercher texte libre"
-                    on:selected-changed={filtrerParTexte}
-                />
-                {#if instructeursOptions && instructeursOptions.size >= 2}
-                <FiltreParmiOptions 
-                    titre="Filtrer par instructeur suivant le dossier"
-                    options={instructeursOptions} 
-                    on:selected-changed={filtrerParInstructeurs} 
-                />
-                {/if}
-                {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
-                <div class="fr-checkbox-group">
-                    <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
-                    <label class="fr-label" for="checkbox-1">
-                        Afficher uniquement mes dossiers suivis
-                    </label>
-                </div>
-                {/if}
 
-                <div class="fr-mt-2w">
-                    {#if communeFiltrée}
-                        <div class="fr-badge fr-badge--sm">
-                            Commune : {communeFiltrée}
-                            <button on:click={onSupprimerFiltreCommune}>✖</button>
-                        </div>
+                <div class="filtres">
+                    <FiltreParmiOptions 
+                        titre="Filtrer par phase"
+                        options={phaseOptions} 
+                        mettreÀJourOptionsSélectionnées={filtrerParPhase} 
+                    />
+                    <FiltreParmiOptions 
+                        titre="Filtrer par prochaine action attendue par"
+                        options={prochainesActionsAttenduesParOptions} 
+                        mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar} 
+                    />
+                    {#if instructeursOptions && instructeursOptions.size >= 2}
+                    <FiltreParmiOptions 
+                        titre="Filtrer par instructeur suivant le dossier"
+                        options={instructeursOptions} 
+                        mettreÀJourOptionsSélectionnées={filtrerParInstructeurs} 
+                    />
                     {/if}
-                    {#if départementFiltré}
-                        <div class="fr-badge fr-badge--sm">
-                            Département : {départementFiltré}
-                            <button on:click={onSupprimerFiltreDépartement}>✖</button>
-                        </div>
+                    {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
+                    <div class="fr-checkbox-group flex">
+                        <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
+                        <label class="fr-label" for="checkbox-1">
+                            Afficher uniquement mes dossiers suivis
+                        </label>
+                    </div>
                     {/if}
+                </div>
+
+                <div class="filtres-actifs">
                     {#if phasesFiltrées.size >= 1}
                         <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
                     {/if}
@@ -329,62 +275,64 @@
                         <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
                     {/if}
                 </div>
-            </div>
-                
-            <h2>{dossiersSelectionnés.length} dossiers affichés</h2>
+                    
+                <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
 
-            <div class="fr-table fr-table--bordered">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Voir le dossier</th>
-                            <th>Localisation</th>
-                            <th>Activité principale</th>
-                            <th>Porteur de projet</th>
-                            <th>Nom du projet</th>
-                            <th>Enjeux</th>
-                            <th>Rattaché au régime AE</th>
-                            <th>Phase</th>
-                            <th>Prochaine action attendue</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
-                          déposant_prénoms, communes, départements, régions,
-                          activité_principale, rattaché_au_régime_ae,
-                          enjeu_politique, enjeu_écologique,
-                          phase, prochaine_action_attendue_par }}
+                <div class="fr-table fr-table--bordered">
+                    <table>
+                        <thead>
                             <tr>
-                                <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
-                                <td>{formatLocalisation({communes, départements, régions})}</td>
-                                <td>{activité_principale || ''}</td>
-                                <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
-                                <td>{nom_dossier || ''}</td>
-                                <td>
-                                    {#if enjeu_politique}
-                                        <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-                                            Enjeu politique
-                                        </p>
-                                    {/if}
-
-                                    {#if enjeu_écologique}
-                                    <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
-                                        Enjeu écologique
-                                    </p>
-                                    {/if}
-
-                                </td>
-                                <td>
-                                    {rattaché_au_régime_ae ? "oui" : "non"}
-                                </td>
-                                <td>{phase || ''}</td>
-                                <td>{prochaine_action_attendue_par || ''}</td>
+                                <th>Voir le dossier</th>
+                                <th>Localisation</th>
+                                <th>Activité principale</th>
+                                <th>Porteur de projet</th>
+                                <th>Nom du projet</th>
+                                <th>Enjeux</th>
+                                <th>Rattaché au régime AE</th>
+                                <th>Phase</th>
+                                <th>Prochaine action attendue</th>
                             </tr>
-                        {/each}
-                    </tbody>
+                        </thead>
+                        <tbody>
+                            {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
+                            déposant_prénoms, communes, départements, régions,
+                            activité_principale, rattaché_au_régime_ae,
+                            enjeu_politique, enjeu_écologique,
+                            phase, prochaine_action_attendue_par }}
+                                <tr>
+                                    <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
+                                    <td>{formatLocalisation({communes, départements, régions})}</td>
+                                    <td>{activité_principale || ''}</td>
+                                    <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
+                                    <td>{nom_dossier || ''}</td>
+                                    <td>
+                                        {#if enjeu_politique}
+                                            <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
+                                                Enjeu politique
+                                            </p>
+                                        {/if}
 
-                </table>
-            </div>
+                                        {#if enjeu_écologique}
+                                        <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
+                                            Enjeu écologique
+                                        </p>
+                                        {/if}
+
+                                    </td>
+                                    <td>
+                                        {rattaché_au_régime_ae ? "oui" : "non"}
+                                    </td>
+                                    <td>{phase || ''}</td>
+                                    <td>{prochaine_action_attendue_par || ''}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+
+                    </table>
+                </div>
+            {:else}
+                <div class="fr-mb-5w">Vous n'avez pas encore de dossiers dans votre groupe instructeurs</div>
+            {/if}
         </div>
     </div>
 
@@ -399,8 +347,22 @@
         min-width: 6rem;
     }
 
+    h2 small{
+        font-size: 0.7em;
+        color: var(--text-mention-grey)
+    }
+
     .fr-badge:not(.instructeurs) {
         white-space: nowrap;
     }
 
+    .filtres {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .filtres-actifs {
+        margin-bottom: 0.5rem;
+    }
 </style>

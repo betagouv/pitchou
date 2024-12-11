@@ -1,6 +1,5 @@
 //@ts-check
-
-import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../types/typeguards.js'
+import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'ods-xlsx'
 
 /** @import {
  *    ClassificationEtreVivant, 
@@ -10,16 +9,14 @@ import { isOiseauAtteint, isFauneNonOiseauAtteinte, isFloreAtteinte } from '../t
  *    OiseauAtteint,
  *    FloreAtteinte,
  *    FauneNonOiseauAtteinte,
- *    OiseauAtteintJSON, 
- *    FloreAtteinteJSON,
- *    FauneNonOiseauAtteinteJSON,
  *    DescriptionMenacesEspèces,
  *    DescriptionMenaceEspèceJSON,
  *    ActivitéMenançante, 
  *    MéthodeMenançante, 
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
-
+/** @import {SheetRawContent, SheetRawCellContent} from 'ods-xlsx' */
+/** @import {FichierEspècesImpactéesOds_V1} from '../types/espècesFichierOds.d.ts' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
@@ -90,67 +87,151 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
 
 
 /**
- * 
- * @param { OiseauAtteint|FauneNonOiseauAtteinte|FloreAtteinte} etreVivantAtteint
- * @returns { OiseauAtteintJSON|FauneNonOiseauAtteinteJSON|FloreAtteinteJSON }
+ * @param {undefined | null | number | string | boolean} x 
+ * @returns {SheetRawCellContent}
  */
-function etreVivantAtteintToJSON(etreVivantAtteint){
-    const etreVivantAtteintJSON = {
-        espèce: etreVivantAtteint.espèce['CD_REF'],
-        activité: etreVivantAtteint.activité && etreVivantAtteint.activité.Code, 
-        nombreIndividus: etreVivantAtteint.nombreIndividus,
-        surfaceHabitatDétruit: etreVivantAtteint.surfaceHabitatDétruit,
+function toSheetRawCellContent(x){
+    if(x === undefined || x === null || Number.isNaN(x))
+        return {type: 'string', value: ''}
+
+    if(typeof x === 'number')
+        return {type: 'float', value: x}
+    
+    if(typeof x === 'string')
+        return {type: 'string', value: x}
+    
+    
+    return {type: 'string', value: String(x)}
+}
+
+/**
+ * 
+ * @param {OiseauAtteint[]} oiseauxAtteints 
+ * @returns {SheetRawContent}
+ */
+function oiseauxAtteintsToTableContent(oiseauxAtteints){
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
+        
+        const labelActivité = activité && activité['étiquette affichée']
+        const codeActivité = activité && activité.Code
+        const labelMéthode = méthode && méthode['étiquette affichée']
+        const codeMéthode = méthode && méthode.Code
+        const labelTransport = transport && transport['étiquette affichée']
+        const codeTransport = transport && transport.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            .map(toSheetRawCellContent)
+        )
     }
 
-    if(isOiseauAtteint(etreVivantAtteint)){
-        return Object.assign(etreVivantAtteintJSON, {  
-            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
-            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
-            nombreIndividus: etreVivantAtteint.nombreIndividus,
-            nombreNids: etreVivantAtteint.nombreNids,
-            nombreOeufs: etreVivantAtteint.nombreOeufs,
-        })
-    }
-    else if(isFauneNonOiseauAtteinte(etreVivantAtteint)) {
-        return Object.assign(etreVivantAtteintJSON, { 
-            méthode: etreVivantAtteint.méthode && etreVivantAtteint.méthode.Code, 
-            transport: etreVivantAtteint.transport && etreVivantAtteint.transport.Code,
-            nombreIndividus: etreVivantAtteint.nombreIndividus,
-        })
-    } 
-    else if(isFloreAtteinte(etreVivantAtteint)) {
-        return etreVivantAtteintJSON
-    }
-    
-    throw new TypeError("etreVivantAtteint n'est ni un oiseau, ni une faune non-oiseau, ni une flore")
+
+    return sheetRawContent
 }
+
+
+/**
+ * 
+ * @param {FauneNonOiseauAtteinte[]} faunesNonOiseauAtteintes
+ * @returns {SheetRawContent}
+ */
+function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
+        const labelActivité = activité && activité['étiquette affichée']
+        const codeActivité = activité && activité.Code
+        const labelMéthode = méthode && méthode['étiquette affichée']
+        const codeMéthode = méthode && méthode.Code
+        const labelTransport = transport && transport['étiquette affichée']
+        const codeTransport = transport && transport.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
+}
+
+
+/**
+ * 
+ * @param {FloreAtteinte[]} floresAtteintes
+ * @returns {SheetRawContent}
+ */
+function floresAtteintesToTableContent(floresAtteintes){
+
+    const sheetRawContent = [
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité']
+        .map(toSheetRawCellContent)
+    ]
+
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité} of floresAtteintes){
+        const labelActivité = activité && activité['étiquette affichée']
+        const codeActivité = activité && activité.Code
+
+        sheetRawContent.push(
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité]
+            .map(toSheetRawCellContent)
+        )
+    }
+
+
+    return sheetRawContent
+}
+
 
 /**
  * 
  * @param { DescriptionMenacesEspèces } descriptionMenacesEspèces
- * @returns { DescriptionMenaceEspèceJSON[] }
+ * @returns { Promise<ArrayBuffer> }
  */
-export function descriptionMenacesEspècesToJSON(descriptionMenacesEspèces){
-    console.log(descriptionMenacesEspèces)
-    // @ts-ignore
-    return Object.keys(descriptionMenacesEspèces).map((/** @type {ClassificationEtreVivant} */ classification) => {
-        return {
-            classification, 
-            etresVivantsAtteints: descriptionMenacesEspèces[classification].map(etreVivantAtteintToJSON), 
-            
-        }
-    })
+export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces){
+    const odsContent = new Map()
+
+    if(descriptionMenacesEspèces['oiseau'].length >= 1){
+        odsContent.set('oiseau', oiseauxAtteintsToTableContent(descriptionMenacesEspèces['oiseau']))
+    }
+
+    if(descriptionMenacesEspèces['faune non-oiseau'].length >= 1){
+        odsContent.set('faune non-oiseau', faunesNonOiseauAtteintesToTableContent(descriptionMenacesEspèces['faune non-oiseau']))
+    }
+
+    if(descriptionMenacesEspèces['flore'].length >= 1){
+        odsContent.set('flore', floresAtteintesToTableContent(descriptionMenacesEspèces['flore']))
+    }
+
+    odsContent.set('metadata', [
+        ['version fichier', 'version TaxRef', 'schema rapportage européen']
+        .map(toSheetRawCellContent),
+        ['1.0.0', '17.0', 'http://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd']
+        .map(toSheetRawCellContent),
+    ])
+
+    return createOdsFile(odsContent)
 }
+
 
 /**
  * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ActivitéMenançante[]} activites
- * @param {MéthodeMenançante[]} methodes
- * @param {TransportMenançant[]} transports
+ * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces}
  */
-export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
+function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
     /** @type {DescriptionMenacesEspèces} */
     const descriptionMenacesEspèces = Object.create(null)
 
@@ -165,9 +246,10 @@ export function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSO
 
                 return {
                     espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
-                    activité: activites.find((a) => a.Code === activité),
-                    méthode: methodes.find((m) => m.Code === méthode),	
-                    transport: transports.find((t) => t.Espèces === classification && t.Code === transport),
+                    // @ts-ignore
+                    activité: activites.get(classification)?.get(activité),
+                    méthode: methodes.get(classification)?.get(méthode),	
+                    transport: transports.get(classification)?.get(transport),
                     ...rest
                 }
             })
@@ -189,9 +271,9 @@ function b64ToUTF8(s) {
  * 
  * @param {URL} url 
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ActivitéMenançante[]} activites
- * @param {MéthodeMenançante[]} methodes
- * @param {TransportMenançant[]} transports
+ * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces | undefined}
  */
 export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
@@ -200,7 +282,6 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
         try{
             const data = JSON.parse(b64ToUTF8(urlData))
             const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, transports)
-            console.log('desc', desc)
             return desc
         }
         catch(e){
@@ -209,3 +290,118 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
         }
     }
 }
+
+/**
+ * @param {ArrayBuffer} odsFile
+ * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
+ * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @returns {Promise<DescriptionMenacesEspèces>}
+ */
+async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
+    /** @type {DescriptionMenacesEspèces} */
+    const descriptionMenacesEspèces = Object.create(null)
+
+    const odsRawContent = await getODSTableRawContent(odsFile)
+    /** @type {FichierEspècesImpactéesOds_V1} */
+    const odsContent = tableRawContentToObjects(odsRawContent)
+
+    const lignesOiseauOds = odsContent.get('oiseau')
+    if(lignesOiseauOds && lignesOiseauOds.length >= 1){
+        // recups les infos depuis les colonnes
+        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseauOds => {
+            const {
+                CD_REF,
+                "nombre individus": nombreIndividus,
+                nids: nombreNids,
+                œufs: nombreOeufs,
+                "surface habitat détruit": surfaceHabitatDétruit,
+                "code activité": codeActivité,
+                "code méthode": codeMéthode,
+                "code transport": codeTransport
+            } = ligneOiseauOds
+            
+            const espèce = espèceByCD_REF.get(CD_REF)
+
+            if(!espèce){
+                throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
+
+            return {
+                espèce,
+                nombreIndividus,
+                nombreNids,
+                nombreOeufs,
+                surfaceHabitatDétruit,
+                activité: activites.get('oiseau')?.get(codeActivité),
+                méthode: methodes.get('oiseau')?.get(codeMéthode),	
+                transport: transports.get('oiseau')?.get(codeTransport),
+            }
+        })
+    }
+
+    const lignesFauneNonOiseauOds = odsContent.get('faune non-oiseau')
+    if(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1){
+        // recups les infos depuis les colonnes
+        descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds.map(ligneFauneNonOiseauOds => {
+            const {
+                CD_REF,
+                "nombre individus": nombreIndividus,
+                "surface habitat détruit": surfaceHabitatDétruit,
+                "code activité": codeActivité,
+                "code méthode": codeMéthode,
+                "code transport": codeTransport
+            } = ligneFauneNonOiseauOds
+            
+            const espèce = espèceByCD_REF.get(CD_REF)
+
+            if(!espèce){
+                throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
+
+            return {
+                espèce,
+                nombreIndividus,
+                surfaceHabitatDétruit,
+                activité: activites.get('faune non-oiseau')?.get(codeActivité),
+                méthode: methodes.get('faune non-oiseau')?.get(codeMéthode),	
+                transport: transports.get('faune non-oiseau')?.get(codeTransport),
+            }
+        })
+    }
+
+    const lignesFloreOds = odsContent.get('flore')
+    if(lignesFloreOds && lignesFloreOds.length >= 1){
+        // recups les infos depuis les colonnes
+        descriptionMenacesEspèces['flore'] = lignesFloreOds.map(ligneFloreOds => {
+            const {
+                CD_REF,
+                "nombre individus": nombreIndividus,
+                "surface habitat détruit": surfaceHabitatDétruit,
+                "code activité": codeActivité,
+            } = ligneFloreOds
+            
+            const espèce = espèceByCD_REF.get(CD_REF)
+
+            if(!espèce){
+                throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
+
+            return {
+                espèce,
+                nombreIndividus,
+                surfaceHabitatDétruit,
+                activité: activites.get('flore')?.get(codeActivité)
+            }
+        })
+    }
+
+
+
+    return descriptionMenacesEspèces
+}
+
+
+
+export const importDescriptionMenacesEspècesFromOdsArrayBuffer = importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1

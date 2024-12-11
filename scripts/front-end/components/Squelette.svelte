@@ -1,6 +1,10 @@
 <script>
     import page from 'page'
     import {logout} from '../actions/main.js'
+    import store from '../store.js'
+
+    /** @import {PitchouState} from '../store.js' */
+
 
     function logoutAndRedirect(){
         logout()
@@ -11,7 +15,13 @@
     /** @type {boolean} */
     export let nav = true;
 
+    /** @type {string | undefined} */
     export let email = undefined;
+
+    /** @type {PitchouState['erreurs']} */
+    export let erreurs = new Set()
+
+    let enleverErreur = store.mutations.enleverErreur
 </script>
 
 <header class="fr-header">
@@ -120,6 +130,22 @@
     </nav>
 {/if}
 
+{#if erreurs.size >= 1}
+    <section class="erreurs fr-grid-row fr-grid-row--center">
+        <div class="fr-col">
+        {#each [...erreurs] as erreur}
+            <div class="fr-alert-background fr-mb-1w">
+                <div class="fr-alert fr-alert--error fr-alert--sm">
+                    <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
+                    <button on:click={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
+                </div>
+            </div>
+        {/each}    
+        </div>
+    </section>
+{/if}
+
+
 <slot />
 
 <footer class="fr-footer" id="footer">
@@ -218,10 +244,25 @@
 </footer>
 
 <style lang="scss">
+    section.erreurs{
+        position: relative;
+        height: 0;
+
+        .fr-col{
+            width: 100%;
+
+            .fr-alert-background{
+                background: var(--background-default-grey);
+            }
+        }
+    }
+
     .fr-nav__item{
         // pour une raison pas claire, cette règle est annulée par une media query @media (min-width: 62em) 
         // et ça casse le menu.
         // Cette ligne le répare
         position: relative;
     }
+
+
 </style>

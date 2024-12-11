@@ -9,8 +9,8 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { getDossierMessages, getDossiersByCap, updateDossier } from './database/dossier.js'
-import { getPersonneByCode, créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
+import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
@@ -87,9 +87,11 @@ function sendIndexHTMLFile(_request, reply){
 fastify.get('/saisie-especes', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/description', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', sendIndexHTMLFile)
 fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
+fastify.get('/tmp/stats', sendIndexHTMLFile)
 
 
 
@@ -156,6 +158,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.listerRelationSuivi){
     ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
   }
+  if(capBundle.listerÉvènementsPhaseDossier){
+    ret.listerÉvènementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerÉvènementsPhaseDossier}`
+  }
   if(capBundle.listerMessages){
     ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`
   }
@@ -178,11 +183,11 @@ fastify.get('/caps', async function (request, reply) {
 })
 
 
-
 fastify.get('/dossiers', async function (request, reply) {
   // @ts-ignore
   const cap = request.query.cap
   if (cap) {
+    /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
     const dossiers = await getDossiersByCap(cap)
     if (dossiers) {
       return dossiers
@@ -202,21 +207,56 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
     return 
   }
-
-  const personne = await getPersonneByCode(cap)
-  if (!personne) {
-    reply.code(403).send(`Le paramètre 'cap' est invalide`)
-    return
-  } 
   
+  //@ts-ignore
+  if(!request.params.dossierId){
+    reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
+    return 
+  }
+
+  //@ts-ignore
+  const dossierId = Number(request.params.dossierId)
+
   // @ts-ignore
-  const { dossierId } = request.params
+  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+
+  if(accessibleDossierId !== dossierId){
+    reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
+    return 
+  }
+
   // @ts-ignore
   const dossierParams = request.body
 
   // @ts-ignore
   return updateDossier(dossierId, dossierParams)
 })
+
+fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
+  
+  //@ts-ignore
+  if(!request.params.fichierId){
+    reply.code(400).send(`Paramètre 'fichierId' manquant dans l'URL`)
+    return 
+  }
+
+  //@ts-ignore
+  const fichierId = request.params.fichierId
+
+  const fichier = await getFichierEspècesImpactées(fichierId)
+
+  if(!fichier){
+    reply.code(404).send('Fichier non trouvé')
+    return
+  }
+  else{
+    reply
+      .header('content-disposition', `attachment; filename="${fichier.nom}"`)
+      .header('content-type', fichier.media_type)
+      .send(fichier.contenu)
+  }
+})
+
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   // @ts-ignore
@@ -226,17 +266,44 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
     return 
   }
+  
+  //@ts-ignore
+  if(!request.params.dossierId){
+    reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
+    return 
+  }
 
-  const personne = await getPersonneByCode(cap)
-  if (!personne) {
+  //@ts-ignore
+  const dossierId = Number(request.params.dossierId)
+
+  //@ts-ignore
+  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+
+  if(accessibleDossierId !== dossierId){
+    reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
+    return 
+  }
+
+  // @ts-ignore
+  return getDossierMessages(dossierId)
+})
+
+fastify.get('/dossiers/evenements-phases', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  const évènementsPhase = await getÉvènementsPhaseDossiers(cap)
+  if (!évènementsPhase) {
     reply.code(403).send(`Le paramètre 'cap' est invalide`)
     return
   } 
-  
-  // @ts-ignore
-  const { dossierId } = request.params
 
-  return getDossierMessages(dossierId)
+  return évènementsPhase
 })
 
 fastify.get('/dossiers/relation-suivis', async function(request, reply) {

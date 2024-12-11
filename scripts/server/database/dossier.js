@@ -3,10 +3,16 @@ import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
 
 //@ts-ignore
-/** @import {DossierComplet} from '../../types.js' */
+/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
+//@ts-ignore
+/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+//@ts-ignore
+/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
+//@ts-ignore
+/** @import {default as EspècesImpactées} from '../../types/database/public/EspècesImpactées.ts' */
 //@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 
@@ -50,18 +56,43 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
         .onConflict('id_démarches_simplifiées').merge()
 }
 
+/**
+ * @param {Map<Dossier['id'], API_DS_SCHEMA.Traitement[]>} idToTraitements
+ * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
+    /** @type {ÉvènementPhaseDossier[]} */
+    const évènementsPhaseDossier = [];
+    
+    for(const [dossierId, apiTraitements] of idToTraitements){
+        for(const {dateTraitement, state} of apiTraitements){
+            évènementsPhaseDossier.push({
+                phase: state,
+                horodatage: new Date(dateTraitement),
+                dossier: dossierId
+            })
+        }
+    };
+    
+    return databaseConnection('évènement_phase_dossier')
+        .insert(évènementsPhaseDossier)
+        .onConflict(['dossier', 'phase', 'horodatage'])
+        .ignore()
+}
 
 /**
+ * Cette fonction est sensible
+ * Appeler dossiersAccessibleViaCap avant
  * 
- * @param {Dossier['id']} id
+ * @param {Dossier['id']} dossierId
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Partial<Message>[] | null>}
  */
-export async function getDossierMessages(id, databaseConnection = directDatabaseConnection){
-    /** @type {Awaited<ReturnType<getDossierMessages>>} */
-    return await databaseConnection('message')
+export async function getDossierMessages(dossierId, databaseConnection = directDatabaseConnection){
+    return databaseConnection('message')
         .select(['contenu', 'date', 'email_expéditeur'])
-        .where({dossier: id})
+        .where({"dossier": dossierId})
 }
 
 
@@ -237,6 +268,7 @@ const colonnesDossierComplet = [
     "date_dépôt",
     "dossier.nom as nom_dossier",
     "espèces_protégées_concernées",
+    "espèces_impactées.id as url_fichier_espèces_impactées",
     "rattaché_au_régime_ae",
     "activité_principale",
 
@@ -275,22 +307,24 @@ const colonnesDossierComplet = [
     "enjeu_politique",
     "commentaire_enjeu",
     "commentaire_libre",
-/*
-    "historique_date_réception_ddep",
-    "historique_date_envoi_dernière_contribution",
     "historique_identifiant_demande_onagre",
+
+    "historique_date_réception_ddep",
+/*    
+    "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
     "historique_date_saisine_cnpn",
     "date_avis_csrpn",
     "date_avis_cnpn",
     "avis_csrpn_cnpn",
     "date_consultation_public",
+*/
     "historique_décision",
     "historique_date_signature_arrêté_préfectoral",
     "historique_référence_arrêté_préfectoral",
     "historique_date_signature_arrêté_ministériel",
     "historique_référence_arrêté_ministériel"
-*/
+
 ]
 
 
@@ -305,10 +339,23 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
+        .then(dossiers => {
+            for(const dossier of dossiers){
+                const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
+                if(id_fichier_espèces_impactées){
+                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
+                    // s'il y a un fichier, ignorer le champ contenant un lien
+                    delete dossier.espèces_protégées_concernées
+                }
+
+            }
+            return dossiers
+        })
 }
 
 /**
- * @param {string} cap_dossier 
+ * @param {CapDossier['cap']} cap_dossier 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<DossierComplet[]>}
  */
@@ -323,10 +370,71 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+        .then(dossiers => {
+            for(const dossier of dossiers){
+                const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
+                if(id_fichier_espèces_impactées){
+                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
+                    // s'il y a un fichier, ignorer le champ contenant un lien
+                    delete dossier.espèces_protégées_concernées
+                }
+
+            }
+            return dossiers
+        })
 
     return dossiersP
 }
+
+/**
+ * retourne le sous-ensemble d'id accessibles via la cap
+ * 
+ * @param {Dossier['id'] | Dossier['id'][]} dossierIds
+ * @param {CapDossier['cap']} cap
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<Dossier['id'][]>}
+ */
+export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnection = directDatabaseConnection){
+    if(!Array.isArray(dossierIds))
+        dossierIds = [dossierIds]
+
+    const ret = databaseConnection('arête_cap_dossier__groupe_instructeurs')
+        .select(['dossier.id as id'])
+        .leftJoin(
+            'arête_groupe_instructeurs__dossier', 
+            {'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs'}
+        )
+        .leftJoin(
+            'dossier', 
+            {'dossier.id': 'arête_groupe_instructeurs__dossier.dossier'}
+        )
+        .whereIn('dossier.id', dossierIds)
+        .andWhere({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
+        .then(dossiers => dossiers.map(d => d.id))
+
+    // @ts-ignore
+    return ret;
+}
+
+
+/**
+ * @param {CapDossier['cap']} cap_dossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ÉvènementPhaseDossier[]>}
+ */
+export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_phase_dossier')
+        .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
+        .join(
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
+        )
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+}
+
 
 
 /**
@@ -344,11 +452,21 @@ export function deleteDossierByDSNumber(numbers){
  *
  * @param {Dossier['id']} id
  * @param {Partial<Dossier>} dossierParams
- * @returns {Promise<Dossier>}
+ * @returns {Promise<void>}
  */
 export function updateDossier(id, dossierParams) {
     return directDatabaseConnection('dossier')
-    .where({ id })
-    .returning('*')
-    .update(dossierParams)
+        .where({ id })
+        .update(dossierParams)
+}
+
+/**
+ * @param {EspècesImpactées['id']} fichierId 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ */
+export function getFichierEspècesImpactées(fichierId, databaseConnection = directDatabaseConnection){
+    return databaseConnection('espèces_impactées')
+        .select('*')
+        .where('id', fichierId)
+        .first()
 }
