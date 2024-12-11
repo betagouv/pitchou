@@ -1,13 +1,13 @@
 <script>
     // @ts-check
 
-    /* @type {string} */
+    /** @type {string} */
     export let label
 
-    /* @type {Map<string, function>} */
+    /** @type {Map<string, function>} */
     export let tris
 
-    /* @type {string} */
+    /** @type {string} */
     let triSélectionné = ""
 
     /** @type {(tri: [string, function]) => void} */
