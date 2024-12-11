@@ -7,9 +7,6 @@
     /* @type {Map<string, function>} */
     export let tris
 
-    /* @type {[string, function][]} */
-    const trisAffichés = [...tris]
-
     /* @type {[string, function]} */
     $: triSélectionné = null
 
@@ -29,7 +26,7 @@
        
 
     <ul>
-        {#each trisAffichés as tri}
+        {#each [...tris] as tri}
             <li>
                 <button on:click={onClick(tri)}  class={ triSélectionné === tri ? "sélectionné" : "" }>
                     {tri[0]}
