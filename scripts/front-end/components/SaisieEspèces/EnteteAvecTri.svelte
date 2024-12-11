@@ -7,31 +7,26 @@
     /* @type {Map<string, function>} */
     export let tris
 
-    /* @type {[string, function]} */
-    $: triSélectionné = null
+    /* @type {string} */
+    let triSélectionné = ""
 
-    /** @param {[string, function]} tri */
-    const onClick = (tri) => {
-        /** @param {Event} e */
-        return (e) => {
-            triSélectionné = tri
-            e.preventDefault()
-            tri[1]()
-        }
+    /** @type {(tri: [string, function]) => void} */
+    const sélectionnerTri = (tri) => { 
+        triSélectionné = tri[0]
+        tri[1]()
     }
 </script>
 
 <div class="entete-avec-tri">
     <p>{label}</p>
-       
 
     <ul>
-        {#each [...tris] as tri}
+        {#each /** @type {[string, function]} */[...tris] as tri}
             <li>
-                <button on:click={onClick(tri)}  class={ triSélectionné === tri ? "sélectionné" : "" }>
+                <button type="button" on:click={() => { sélectionnerTri(tri) }}  class={ triSélectionné === tri[0] ? "sélectionné" : "" }>
                     {tri[0]}
 
-                    {#if tri === triSélectionné}
+                    {#if tri[0] === triSélectionné}
                         <span class="fr-icon-check-line" aria-hidden="true"></span>
                     {/if}
                 </button>
