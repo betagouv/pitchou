@@ -222,25 +222,31 @@
         filtrerDossiers()
     }
 
-    /** @type {(nom_colonne: string, order_by_asc?: boolean) => void}*/
+    /** @type {(nom_colonne: keyof DossierComplet | "localisation" | "déposant", order_by_asc?: boolean) => void}*/
     const trierDossiersParColonne = (nomColonne, order_by_asc = true) => {
         const nouveauxDossiersTriés = dossiersSelectionnés
 
         nouveauxDossiersTriés.sort((a, b) => {
-            let colonneA = a[nomColonne]
-            let colonneB = b[nomColonne]
+            let colonneA 
+            let colonneB
 
             if (nomColonne === "localisation") {
                 colonneA = formatLocalisation(a)
                 colonneB = formatLocalisation(b)
-            }
-
-            if (nomColonne === "déposant") {
+            } else if (nomColonne === "déposant") {
                 colonneA = formatDéposant(a)
                 colonneB = formatDéposant(b)
+            } else {
+                colonneA = a[nomColonne]
+                colonneB = b[nomColonne]
             }
 
-            if(colonneA && colonneB) {
+            if (
+                colonneA && 
+                typeof colonneA === "string" &&
+                colonneB &&
+                typeof colonneB === "string"
+            ) {
                 return colonneA.localeCompare(colonneB, 'fr')
             }
 
