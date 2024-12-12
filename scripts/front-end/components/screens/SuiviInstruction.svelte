@@ -3,12 +3,13 @@
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
+    import EnteteAvecTri from '../EnteteAvecTri.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
 
     /** @import {ComponentProps} from 'svelte' */
-    /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types.js' */
+    /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.js' */
 
@@ -42,6 +43,9 @@
     /** @type {DossierComplet[]} */
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
+    
+    /** @type {string} */
+    let triSélectionné = ""
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
     const tousLesFiltres = new Map()
@@ -54,6 +58,7 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
+        triSélectionné = ""
 	}
 
 
@@ -217,7 +222,57 @@
         filtrerDossiers()
     }
 
+    /** @type {(nom_colonne: string, order_by_asc?: boolean) => void}*/
+    const trierDossiersParColonne = (nomColonne, order_by_asc = true) => {
+        const nouveauxDossiersTriés = dossiersSelectionnés
+
+        nouveauxDossiersTriés.sort((a, b) => {
+            let colonneA = a[nomColonne]
+            let colonneB = b[nomColonne]
+
+            if (nomColonne === "localisation") {
+                colonneA = formatLocalisation(a)
+                colonneB = formatLocalisation(b)
+            }
+
+            if (nomColonne === "déposant") {
+                colonneA = formatDéposant(a)
+                colonneB = formatDéposant(b)
+            }
+
+            if(colonneA && colonneB) {
+                return colonneA.localeCompare(colonneB, 'fr')
+            }
+
+            if (!colonneA && colonneB) return 1
+            if (colonneA && !colonneB) return -1
+
+            return 0
+        })
+
+        if (order_by_asc) {
+            dossiersSelectionnés = nouveauxDossiersTriés
+            return
+        }
+
+        dossiersSelectionnés = nouveauxDossiersTriés.reverse()
+    }
+
+    const trisActivitéPrincipale = new Map()
+    trisActivitéPrincipale.set("Trier de A à Z", () => trierDossiersParColonne("activité_principale"))
+    trisActivitéPrincipale.set("Trier de Z à A", () => trierDossiersParColonne("activité_principale", false))
     
+    const trisNomProjet = new Map()
+    trisNomProjet.set("Trier de A à Z", () => trierDossiersParColonne("nom_dossier"))
+    trisNomProjet.set("Trier de Z à A", () => trierDossiersParColonne("nom_dossier", false))
+
+    const trisLocalisation = new Map()
+    trisLocalisation.set("Trier de A à Z", () => trierDossiersParColonne("localisation"))
+    trisLocalisation.set("Trier de Z à A", () => trierDossiersParColonne("localisation", false))
+    
+    const trisDéposant = new Map()
+    trisDéposant.set("Trier de A à Z", () => trierDossiersParColonne("déposant"))
+    trisDéposant.set("Trier de Z à A", () => trierDossiersParColonne("déposant", false))
 </script>
 
 <Squelette {email} {erreurs}>
@@ -283,10 +338,34 @@
                         <thead>
                             <tr>
                                 <th>Voir le dossier</th>
-                                <th>Localisation</th>
-                                <th>Activité principale</th>
-                                <th>Porteur de projet</th>
-                                <th>Nom du projet</th>
+                                <th>
+                                    <EnteteAvecTri 
+                                        label="Localisation" 
+                                        tris={trisLocalisation}
+                                        bind:triSélectionné    
+                                    />
+                                </th>
+                                <th>
+                                    <EnteteAvecTri 
+                                        label="Activité principale" 
+                                        tris={trisActivitéPrincipale}
+                                        bind:triSélectionné    
+                                    />
+                                </th>
+                                <th>
+                                    <EnteteAvecTri 
+                                        label="Porteur de projet" 
+                                        tris={trisDéposant}
+                                        bind:triSélectionné    
+                                    />
+                                </th>
+                                <th>
+                                    <EnteteAvecTri 
+                                        label="Nom du projet" 
+                                        tris={trisNomProjet}
+                                        bind:triSélectionné    
+                                    />
+                                </th>
                                 <th>Enjeux</th>
                                 <th>Rattaché au régime AE</th>
                                 <th>Phase</th>
