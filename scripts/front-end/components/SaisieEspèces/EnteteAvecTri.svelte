@@ -8,7 +8,7 @@
     export let tris
 
     /** @type {string} */
-    let triSélectionné = ""
+    export let triSélectionné = ""
 
     /** @type {(tri: [string, function]) => void} */
     const sélectionnerTri = (tri) => { 

@@ -83,6 +83,9 @@
 
     const trisImpacts = new Map()
     trisImpacts.set("Grouper par impact", trierParImpacts)
+
+    /** @type {string}*/
+    let triSélectionné = ""
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -94,10 +97,18 @@
                     <thead>
                         <tr>
                             <th>
-                                <EnteteAvecTri label="Espèce" tris={trisEspèces}/>
+                                <EnteteAvecTri 
+                                    label="Espèce" 
+                                    tris={trisEspèces}
+                                    bind:triSélectionné    
+                                />
                             </th>
                             <th>
-                                <EnteteAvecTri label="Type d'impact" tris={trisImpacts} />
+                                <EnteteAvecTri 
+                                    label="Type d'impact" 
+                                    tris={trisImpacts} 
+                                    bind:triSélectionné
+                                />
                             </th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>

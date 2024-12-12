@@ -98,6 +98,9 @@
     
     const trisMéthodes = new Map()
     trisMéthodes.set("Grouper par méthode", trierParMéthode)
+
+    /** @type {string}*/
+    let triSélectionné = ""
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -109,13 +112,25 @@
                     <thead>
                         <tr>
                             <th class="flex">
-                                <EnteteAvecTri label="Espèce" tris={trisEspèces}/>
+                                <EnteteAvecTri 
+                                    label="Espèce" 
+                                    tris={trisEspèces}
+                                    bind:triSélectionné
+                                />
                             </th>
                             <th>
-                                <EnteteAvecTri label="Type d'impact" tris={trisImpacts} />
+                                <EnteteAvecTri 
+                                    label="Type d'impact" 
+                                    tris={trisImpacts} 
+                                    bind:triSélectionné
+                                />
                             </th>
                             <th>
-                                <EnteteAvecTri label="Méthode" tris={trisMéthodes} />
+                                <EnteteAvecTri 
+                                    label="Méthode" 
+                                    tris={trisMéthodes}
+                                    bind:triSélectionné
+                                />
                             </th>
                             <th>Moyen de poursuite</th>
                             <th>Nombre d'individus</th>
