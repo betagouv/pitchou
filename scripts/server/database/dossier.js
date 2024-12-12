@@ -488,6 +488,7 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
     
     if(dossierParams.phase){
         const phase = dossierParams.phase
+        //@ts-ignore
         delete dossierParams.phase
 
         phaseAjoutée = databaseConnection('évènement_phase_dossier')

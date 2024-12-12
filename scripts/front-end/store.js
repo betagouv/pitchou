@@ -65,7 +65,7 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {DossierComplet} nouveauDossier
+   * @param {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} nouveauDossier
    */
   setDossier(state, nouveauDossier) {
     state.dossiers.set(nouveauDossier.id, nouveauDossier)

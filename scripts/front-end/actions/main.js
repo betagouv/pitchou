@@ -13,7 +13,7 @@ import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../com
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
-/** @import {DossierComplet} from '../../types.js' */
+/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'

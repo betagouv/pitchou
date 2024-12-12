@@ -21,8 +21,9 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
-/** @import {DossierComplet, StringValues} from '../types.js' */
-/** @import {default as Personne} from '../types/database/public/Personne.js' */
+/** @import {StringValues} from '../types.js' */
+/** @import {default as Personne} from '../types/database/public/Personne.ts' */
+/** @import {DossierComplet} from '../types/API_Pitchou.ts' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 
