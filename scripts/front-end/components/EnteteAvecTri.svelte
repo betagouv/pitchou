@@ -12,9 +12,12 @@
 
     /** @type {(tri: [string, function]) => void} */
     const sélectionnerTri = (tri) => { 
-        triSélectionné = tri[0]
+        triSélectionné = `${label}/${tri[0]}`
         tri[1]()
     }
+
+    /** @type {(tri: [string, function]) => boolean}*/
+    $: isTriSélectionné = (tri) => triSélectionné === `${label}/${tri[0]}`
 </script>
 
 <div class="entete-avec-tri">
@@ -23,10 +26,10 @@
     <ul>
         {#each /** @type {[string, function]} */[...tris] as tri}
             <li>
-                <button type="button" on:click={() => { sélectionnerTri(tri) }}  class={ triSélectionné === tri[0] ? "sélectionné" : "" }>
+                <button type="button" on:click={() => { sélectionnerTri(tri) }}  class={ isTriSélectionné(tri) ? "sélectionné" : "" }>
                     {tri[0]}
 
-                    {#if tri[0] === triSélectionné}
+                    {#if isTriSélectionné(tri)}
                         <span class="fr-icon-check-line" aria-hidden="true"></span>
                     {/if}
                 </button>
