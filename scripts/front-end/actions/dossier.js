@@ -10,7 +10,7 @@ import store from "../store"
 
 /**
  * @param {DossierComplet['id']} id
- * @param {Partial<DossierComplet>} dossierParams
+ * @param {Partial<DossierComplet> & {phase: string}} dossierParams
  * @returns {Promise<void>}
  */
 export function modifierDossier(id, dossierParams) {

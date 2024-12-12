@@ -17,25 +17,7 @@
     $: console.log('évènementsPhaseDossier', évènementsPhaseDossier)
 
 
-    /**
-     * 
-     * @param {string} traitementPhase
-     * @returns {DossierPhase}
-     */
-    function traitementPhaseToDossierPhase(traitementPhase){
-        if(traitementPhase === 'en_construction')
-            return "Accompagnement amont"
-        if(traitementPhase === 'en_instruction')
-            return "Instruction"
-        if(traitementPhase === 'accepte')
-            return "Contrôle"
-        if(traitementPhase === 'sans_suite')
-            return "Classé sans suite"
-        if(traitementPhase === 'refuse')
-            return "Obligations terminées"
 
-        throw `Traitement phase non reconnue: ${traitementPhase}`
-    }
 
     /**
      * 

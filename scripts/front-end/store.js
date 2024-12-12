@@ -22,12 +22,13 @@ import Store from 'baredux'
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
+/** @import {default as ÉvènementPhaseDossier} from '../types/database/public/ÉvènementPhaseDossier.ts' */
 
 
 /**
  * @typedef {Object} PitchouState
  * @property {PitchouInstructeurCapabilities} [capabilities]
- * @property {Map<DossierComplet['id'], DossierComplet>} dossiers
+ * @property {Map<DossierComplet['id'], DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}>} dossiers
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
  * @property {IdentitéInstructeurPitchou} [identité]

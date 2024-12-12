@@ -13,6 +13,8 @@ import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../com
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
+/** @import {DossierComplet} from '../../types.js' */
+/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
@@ -37,16 +39,44 @@ export function chargerDossiers(){
 
     if(store.state.capabilities?.listerDossiers){
         return store.state.capabilities?.listerDossiers()
-            .then(dossiers => {
+            .then(({dossiers, évènementsPhaseDossier}) => {
                 if (!isDossierArray(dossiers)) {
                     throw new TypeError("On attendait un tableau de dossiers ici !")
                 }
 
-                const dossiersById = dossiers.reduce((objetFinal, dossier) => {
-                    objetFinal.set(dossier.id, dossier)
-                    return objetFinal
-                }, new Map())
-                //console.log('dossiersById', dossiersById)
+                /** @type {PitchouState['dossiers']} */
+                const dossiersById = new Map()
+
+                for(const dossier of dossiers){
+                    /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
+                    //@ts-ignore
+                    const dossierAvecEvènementsPhase = dossier
+                    dossierAvecEvènementsPhase.évènementsPhase = []
+
+                    dossiersById.set(dossierAvecEvènementsPhase.id, dossierAvecEvènementsPhase)
+                }
+                
+                for(const évènementPhaseDossier of évènementsPhaseDossier){
+                    const dossierId = évènementPhaseDossier.dossier
+                    const dossier = dossiersById.get(dossierId)
+
+                    if(!dossier){
+                        throw new Error(`Dossier avec id ${dossierId} manquant`)
+                    }
+
+                    évènementPhaseDossier.horodatage = new Date(évènementPhaseDossier.horodatage)
+
+                    dossier.évènementsPhase.push(évènementPhaseDossier)
+                }
+
+                for(const dossier of dossiersById.values()){
+                    if(dossier.évènementsPhase.length >= 2){
+                        // Trier les évènements pour mettre les plus récents en premier (le plus récent étant dans [0])
+                        dossier.évènementsPhase.sort((ev1, ev2) => ev2.horodatage.getTime() - ev1.horodatage.getTime())
+                        console.log('dossier avec plusieurs évènements', dossier.id, dossier.évènementsPhase)
+                    }                    
+                }
+
                 store.mutations.setDossiers(dossiersById)
 
                 return dossiersById

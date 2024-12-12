@@ -10,7 +10,8 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
 import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
-import { créerPersonneOuMettreÀJourCodeAccès } from './database/personne.js'
+import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
+
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
@@ -20,7 +21,7 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
-/** @import {StringValues} from '../types.js' */
+/** @import {DossierComplet, StringValues} from '../types.js' */
 /** @import {default as Personne} from '../types/database/public/Personne.js' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
@@ -188,9 +189,9 @@ fastify.get('/dossiers', async function (request, reply) {
   const cap = request.query.cap
   if (cap) {
     /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
-    const dossiers = await getDossiersByCap(cap)
-    if (dossiers) {
-      return dossiers
+    const donnéesDossiers = await getDossiersByCap(cap)
+    if (donnéesDossiers && donnéesDossiers.dossiers && donnéesDossiers.dossiers.length >= 1) {
+      return donnéesDossiers
     } else {
       reply.code(403).send("Code d'accès non valide.")
     }
@@ -199,7 +200,7 @@ fastify.get('/dossiers', async function (request, reply) {
   }
 })
 
-fastify.put('/dossier/:dossierId', async function(request, reply) {
+fastify.post('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
   const { cap } = request.query
 
@@ -225,11 +226,14 @@ fastify.put('/dossier/:dossierId', async function(request, reply) {
     return 
   }
 
+  const capPersonne = await getPersonneByDossierCap(cap)
+
+  /** @type {Partial<DossierComplet> & {phase: string}} */
   // @ts-ignore
   const dossierParams = request.body
 
   // @ts-ignore
-  return updateDossier(dossierId, dossierParams)
+  return updateDossier(dossierId, dossierParams, capPersonne.id)
 })
 
 fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
