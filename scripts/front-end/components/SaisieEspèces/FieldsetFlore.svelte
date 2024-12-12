@@ -29,6 +29,9 @@
 
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
+
+    /** @type {string}*/
+    let triSélectionné = ""
     
     function rerender() {
         floresAtteintes = floresAtteintes
@@ -39,6 +42,7 @@
         floresAtteintes.push({
             espèce: flore,
         })
+        triSélectionné = ""
 
         rerender()
     }
@@ -58,6 +62,7 @@
     */
     function onDupliquerLigne(floreAtteinte) {
         floresAtteintes.push(floreAtteinte)
+        triSélectionné = ""
 
         rerender()
     }
@@ -83,9 +88,6 @@
 
     const trisImpacts = new Map()
     trisImpacts.set("Grouper par impact", trierParImpacts)
-
-    /** @type {string}*/
-    let triSélectionné = ""
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">

@@ -37,6 +37,9 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
+    /** @type {string}*/
+    let triSélectionné = ""
+    
     function rerender() {
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
     }
@@ -46,6 +49,7 @@
         faunesNonOiseauxAtteintes.push({
             espèce: fauneNonOiseau,
         })
+        triSélectionné = ""
 
         rerender()
     }
@@ -65,6 +69,7 @@
     */
     function onDupliquerLigne(fauneNonOiseauAtteinte) {
         faunesNonOiseauxAtteintes.push(fauneNonOiseauAtteinte)
+        triSélectionné = ""
 
         rerender()
     }
@@ -98,9 +103,6 @@
     
     const trisMéthodes = new Map()
     trisMéthodes.set("Grouper par méthode", trierParMéthode)
-    
-    /** @type {string}*/
-    let triSélectionné = ""
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
