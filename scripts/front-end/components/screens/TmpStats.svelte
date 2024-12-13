@@ -14,7 +14,7 @@
 
     /** @type {any[]} */
     export let évènementsPhaseDossier
-    $: console.log('évènementsPhaseDossier', évènementsPhaseDossier)
+    // $: console.log('évènementsPhaseDossier', évènementsPhaseDossier)
 
 
 

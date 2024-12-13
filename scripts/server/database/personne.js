@@ -70,7 +70,7 @@ export function getPersonneByDossierCap(cap){
 
     return directDatabaseConnection('personne')
         .select(['personne.id', 'personne.email'])
-        .leftJoin('cap_dossier', {'cap_dossier.cap_personne': 'personne.code_accès'})
+        .leftJoin('cap_dossier', {'cap_dossier.personne_cap': 'personne.code_accès'})
         .where('cap_dossier.cap', cap)
         .first()
 }

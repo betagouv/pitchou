@@ -19,9 +19,19 @@ export function modifierDossier(id, dossierParams) {
 
     const dossierAvantModification = store.state.dossiers.get(id)
     const copieDossierAvantModification = Object.assign({}, dossierAvantModification)
+    copieDossierAvantModification.évènementsPhase = [...copieDossierAvantModification.évènementsPhase]
 
     // modifier le dossier dans le store de manière optimiste
     const dossierModifié = Object.assign({}, dossierAvantModification, dossierParams)
+    if(dossierParams.phase){
+        dossierModifié.évènementsPhase.push({
+            dossier: id,
+            horodatage: new Date(),
+            phase: dossierParams.phase,
+            cause_personne: null // PPP : ça serait mieux avec la personne actuelle 🤷
+        })
+    }
+
     store.mutations.setDossier(dossierModifié)
 
     return store.state.capabilities?.modifierDossier(id, dossierParams)

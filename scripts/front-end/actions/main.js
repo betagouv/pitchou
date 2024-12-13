@@ -73,7 +73,6 @@ export function chargerDossiers(){
                     if(dossier.évènementsPhase.length >= 2){
                         // Trier les évènements pour mettre les plus récents en premier (le plus récent étant dans [0])
                         dossier.évènementsPhase.sort((ev1, ev2) => ev2.horodatage.getTime() - ev1.horodatage.getTime())
-                        console.log('dossier avec plusieurs évènements', dossier.id, dossier.évènementsPhase)
                     }                    
                 }
 
