@@ -321,7 +321,13 @@
                                     <td>
                                         {rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
-                                    <td>{phase}</td>
+                                    <td>
+                                        {#if phase === "Accompagnement amont"}
+                                            <p class="fr-tag fr-tag--sm phase-accompagnement-amont">{phase}</p>
+                                        {:else}
+                                            {phase}
+                                        {/if}   
+                                    </td>
                                     <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
                             {/each}
@@ -352,6 +358,12 @@
     }
 
     .fr-badge:not(.instructeurs) {
+        white-space: nowrap;
+    }
+
+    .phase-accompagnement-amont{
+        background-color: var(--background-flat-yellow-moutarde);
+        color: var(--text-inverted-yellow-moutarde);
         white-space: nowrap;
     }
 
