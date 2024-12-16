@@ -70,6 +70,13 @@
 
 
 <style lang="scss">
+    $couleur-phase-accompagnement-amont: var(--artwork-minor-yellow-tournesol);
+    $couleur-phase-vérification-dossier: var(--background-action-high-orange-terre-battue);
+    $couleur-phase-instruction: var(--background-flat-blue-cumulus);
+    $couleur-phase-contrôle: var(--background-flat-pink-tuile);
+    $couleur-phase-classé-sans-suite: var(--background-flat-green-menthe);
+    $couleur-phase-obligations-terminées: var(--background-flat-purple-glycine);
+
     p{
         white-space: nowrap;
     }
@@ -82,79 +89,79 @@
         }
 
         &.phase--accompagnement-amont{
-            background-color: var(--background-flat-yellow-moutarde);
-            color: var(--text-inverted-yellow-moutarde);
+            background-color: $couleur-phase-accompagnement-amont;
+            color: var(--text-inverted-yellow-tournesol);
 
             &::after{
-                color: var(--background-flat-yellow-moutarde);
+                color: $couleur-phase-accompagnement-amont;
             }
         }
         &.phase--vérification-dossier{
-            background-color: var(--background-flat-orange-terre-battue);
+            background-color: $couleur-phase-vérification-dossier;
             color: var(--text-inverted-orange-terre-battue);
             
             &::after{
-                color: var(--background-flat-orange-terre-battue);
+                color: $couleur-phase-vérification-dossier;
             }
         }
         &.phase--instruction{
-            background-color: var(--background-flat-blue-cumulus);
+            background-color: $couleur-phase-instruction;
             color: var(--text-inverted-blue-cumulus);
             
             &::after{
-                color: var(--background-flat-blue-cumulus);
+                color: $couleur-phase-instruction;
             }
         }
         &.phase--contrôle{
-            background-color: var(--background-flat-pink-tuile);
+            background-color: $couleur-phase-contrôle;
             color: var(--text-inverted-pink-tuile);
             
             &::after{
-                color: var(--background-flat-pink-tuile);
+                color: $couleur-phase-contrôle;
             }
         }
         &.phase--classé-sans-suite{
-            background-color: var(--background-flat-green-menthe);
+            background-color: $couleur-phase-classé-sans-suite;
             color: var(--text-inverted-green-menthe);
             
             &::after{
-                color: var(--background-flat-green-menthe);
+                color: $couleur-phase-classé-sans-suite;
             }
         }
         &.phase--obligations-terminées{
-            background-color: var(--background-flat-purple-glycine);
+            background-color: $couleur-phase-obligations-terminées;
             color: var(--text-inverted-purple-glycine);
             
             &::after{
-                color: var(--background-flat-purple-glycine);
+                color: $couleur-phase-obligations-terminées;
             }
         }
     }
 
     button.fr-tag[aria-pressed="false"]{
         &.phase--accompagnement-amont{
-            color: var(--background-flat-yellow-moutarde);
-            border: 1px solid var(--background-flat-yellow-moutarde);
+            color: $couleur-phase-accompagnement-amont;
+            border: 1px solid $couleur-phase-accompagnement-amont;
         }
         &.phase--vérification-dossier{
-            color: var(--background-flat-orange-terre-battue);
-            border: 1px solid var(--background-flat-orange-terre-battue);
+            color: $couleur-phase-vérification-dossier;
+            border: 1px solid $couleur-phase-vérification-dossier;
         }
         &.phase--instruction{
-            color: var(--background-flat-blue-cumulus);
-            border: 1px solid var(--background-flat-blue-cumulus);
+            color: $couleur-phase-instruction;
+            border: 1px solid $couleur-phase-instruction;
         }
         &.phase--contrôle{
-            color: var(--background-flat-pink-tuile);
-            border: 1px solid var(--background-flat-pink-tuile);
+            color: $couleur-phase-contrôle;
+            border: 1px solid $couleur-phase-contrôle;
         }
         &.phase--classé-sans-suite{
-            color: var(--background-flat-green-menthe);
-            border: 1px solid var(--background-flat-green-menthe);
+            color: $couleur-phase-classé-sans-suite;
+            border: 1px solid $couleur-phase-classé-sans-suite;
         }
         &.phase--obligations-terminées{
-            color: var(--background-flat-purple-glycine);
-            border: 1px solid var(--background-flat-purple-glycine);
+            color: $couleur-phase-obligations-terminées;
+            border: 1px solid $couleur-phase-obligations-terminées;
         }
     }
 </style>

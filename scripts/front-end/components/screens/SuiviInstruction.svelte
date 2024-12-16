@@ -69,8 +69,6 @@
         'Instruction'
     ])
 
-    $: console.log('phasesSélectionnées', phasesSélectionnées)
-
     /**
      * 
      * @param {DossierPhase} phase
