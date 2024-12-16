@@ -3,6 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
+    import TagPhase from '../TagPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -322,11 +323,7 @@
                                         {rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
                                     <td>
-                                        {#if phase === "Accompagnement amont"}
-                                            <p class="fr-tag fr-tag--sm phase-accompagnement-amont">{phase}</p>
-                                        {:else}
-                                            {phase}
-                                        {/if}   
+                                        <TagPhase {phase} taille='SM'></TagPhase>
                                     </td>
                                     <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
@@ -358,12 +355,6 @@
     }
 
     .fr-badge:not(.instructeurs) {
-        white-space: nowrap;
-    }
-
-    .phase-accompagnement-amont{
-        background-color: var(--background-flat-yellow-moutarde);
-        color: var(--text-inverted-yellow-moutarde);
         white-space: nowrap;
     }
 
