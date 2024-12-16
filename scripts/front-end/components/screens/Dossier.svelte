@@ -2,11 +2,12 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
+    import TagPhase from '../TagPhase.svelte'
     
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhase, DossierPhaseEtProchaineAction} from '../../../types/API_Pitchou.d.ts' */
+    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.d.ts' */
     //@ts-ignore
     /** @import ÉvènementPhaseDossier from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
@@ -17,9 +18,10 @@
     export let email = undefined
 
     const {number_demarches_simplifiées: numdos} = dossier
-
+    
+    $: phase = dossier.évènementsPhase[0].phase;
+    
     /** @type {Partial<DossierComplet> & {phase: DossierPhase}} */
-        
     let dossierParams = {
         phase: dossier.évènementsPhase[0].phase,
         prochaine_action_attendue: dossier.prochaine_action_attendue,
@@ -53,7 +55,10 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
-            <h1 class="fr-mb-4w">Dossier {dossier.nom_dossier || "sans nom"}</h1>
+            <h1 class="fr-mb-4w">
+                Dossier {dossier.nom_dossier || "sans nom"}
+                <TagPhase {phase}></TagPhase>
+            </h1>
 
             <nav class="dossier-nav fr-mb-4w">
                 <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm fr-mb-2w">
