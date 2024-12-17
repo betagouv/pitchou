@@ -141,7 +141,7 @@ const pitchouKeyToAnnotationDS = {
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {DossierPourSynchronisation[]} */
+/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique">[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
 {
     id: id_demarches_simplifiées,
@@ -415,7 +415,7 @@ for(const personne of allPersonnesCurrentlyInDatabase){
 const personnesInDossiersAvecEmail = new Map()
 const personnesInDossiersSansEmail = new Map()
 
-for (const {déposant, demandeur_personne_physique} of dossiersPourSynchronisation) {
+for (const {déposant, /** demandeur_personne_physique */} of dossiersPourSynchronisation) {
     if (déposant) {
         if(déposant.email) {
             personnesInDossiersAvecEmail.set(déposant.email, déposant)
@@ -424,13 +424,13 @@ for (const {déposant, demandeur_personne_physique} of dossiersPourSynchronisati
         }
     }
 
-    if (demandeur_personne_physique) {
+    /** if (demandeur_personne_physique) {
         if(demandeur_personne_physique.email) {
             personnesInDossiersAvecEmail.set(demandeur_personne_physique.email, demandeur_personne_physique)
         } else {
             personnesInDossiersSansEmail.set(`${demandeur_personne_physique.prénoms}|${demandeur_personne_physique.nom}`, demandeur_personne_physique)
         }
-    }
+    } */
 
 }
 
@@ -462,7 +462,7 @@ function getPersonneId(descriptionPersonne){
 
 const personnesInDossiersWithoutId = [...personnesInDossiersAvecEmail.values(), ...personnesInDossiersSansEmail.values()].filter(p => !getPersonneId(p))
 
-//console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
+// console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if(personnesInDossiersWithoutId.length >= 1){
     await créerPersonnes(personnesInDossiersWithoutId)
@@ -508,7 +508,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
-        demandeur_personne_physique,
+        /** demandeur_personne_physique, */
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
