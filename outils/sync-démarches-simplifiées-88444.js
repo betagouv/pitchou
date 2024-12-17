@@ -256,10 +256,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     let demandeur_personne_morale = undefined
  
     const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
-    if(!SIRETChamp){
-        demandeur_personne_physique = déposant;
-    }
-    else{
+    if(SIRETChamp){
         const etablissement = SIRETChamp.etablissement
         if(etablissement){
             const { siret, address = {}, entreprise = {}} = etablissement
@@ -357,7 +354,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         date_dépôt,
 
         // demandeur/déposant
-        demandeur_personne_physique,
+        // demandeur_personne_physique,
         demandeur_personne_morale,
         déposant,
         //représentant,
