@@ -251,7 +251,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     */
 
     /** @type {PersonneInitializer | undefined} */
-    let demandeur_personne_physique = undefined;
+    /** let demandeur_personne_physique = undefined; */
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
  
