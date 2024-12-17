@@ -411,9 +411,28 @@ for(const personne of allPersonnesCurrentlyInDatabase){
     }
 }
 
-/** @type {Personne[]} */
-// @ts-expect-error TS ne comprend pas que le `filter` filtre les `null` et les `undefined` 
-const personnesInDossiers = [...new Set(dossiersPourSynchronisation.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
+/** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
+const personnesInDossiersAvecEmail = new Map()
+const personnesInDossiersSansEmail = new Map()
+
+for (const {déposant, demandeur_personne_physique} of dossiersPourSynchronisation) {
+    if (déposant) {
+        if(déposant.email) {
+            personnesInDossiersAvecEmail.set(déposant.email, déposant)
+        } else {
+            personnesInDossiersSansEmail.set(`${déposant.prénoms}|${déposant.nom}`, déposant)
+        }
+    }
+
+    if (demandeur_personne_physique) {
+        if(demandeur_personne_physique.email) {
+            personnesInDossiersAvecEmail.set(demandeur_personne_physique.email, demandeur_personne_physique)
+        } else {
+            personnesInDossiersSansEmail.set(`${demandeur_personne_physique.prénoms}|${demandeur_personne_physique.nom}`, demandeur_personne_physique)
+        }
+    }
+
+}
 
 /**
  * 
@@ -441,7 +460,7 @@ function getPersonneId(descriptionPersonne){
     return personneParNomPrénom && personneParNomPrénom.id
 }
 
-const personnesInDossiersWithoutId = personnesInDossiers.filter(p => !getPersonneId(p))
+const personnesInDossiersWithoutId = [...personnesInDossiersAvecEmail.values(), ...personnesInDossiersSansEmail.values()].filter(p => !getPersonneId(p))
 
 //console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
