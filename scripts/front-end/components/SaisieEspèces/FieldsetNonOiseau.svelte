@@ -37,8 +37,8 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
-    /** @type {string}*/
-    let triSélectionné = ""
+    /** @type {{nom: string, tri: function}|undefined}*/
+    let triSélectionné = undefined
     
     function rerender() {
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
@@ -49,7 +49,7 @@
         faunesNonOiseauxAtteintes.push({
             espèce: fauneNonOiseau,
         })
-        triSélectionné = ""
+        triSélectionné = undefined
 
         rerender()
     }
@@ -69,7 +69,7 @@
     */
     function onDupliquerLigne(fauneNonOiseauAtteinte) {
         faunesNonOiseauxAtteintes.push(fauneNonOiseauAtteinte)
-        triSélectionné = ""
+        triSélectionné = undefined
 
         rerender()
     }
@@ -84,25 +84,28 @@
         rerender()
     }
 
-    const trisEspèces = new Map()
-    trisEspèces.set("Trier de A à Z", trierParFauneNonOiseauxDeAaZ)
-    trisEspèces.set("Trier de Z à A", trierParFauneNonOiseauxDeZaA)
+    const trisEspèces = new Set([
+        { nom: "Trier de A à Z", tri: trierParFauneNonOiseauxDeAaZ },
+        { nom: "Trier de Z à A", tri: trierParFauneNonOiseauxDeZaA },
+    ])
     
     function trierParImpacts() {
         faunesNonOiseauxAtteintes = grouperParActivité(faunesNonOiseauxAtteintes)
         rerender()
     }
 
-    const trisImpacts = new Map()
-    trisImpacts.set("Grouper par impact", trierParImpacts)
+    const trisImpacts = new Set([
+        { nom: "Grouper par impact", tri: trierParImpacts },
+    ])
 
     function trierParMéthode() {
         faunesNonOiseauxAtteintes = grouperParMéthode(faunesNonOiseauxAtteintes)
         rerender()
     }
     
-    const trisMéthodes = new Map()
-    trisMéthodes.set("Grouper par méthode", trierParMéthode)
+    const trisMéthodes = new Set([
+        { nom: "Grouper par méthode", tri: trierParMéthode },
+    ])
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
