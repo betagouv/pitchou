@@ -83,7 +83,8 @@ export default async function(token, query, variables) {
         response = await ky.post(ENDPOINT, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'User-Agent': 'https://github.com/betagouv/pitchou'
             },
             timeout: 20*1000,
             json: {

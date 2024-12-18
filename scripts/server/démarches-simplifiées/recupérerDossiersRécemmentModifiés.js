@@ -41,7 +41,7 @@ export async function recupérerDossiersRécemmentModifiés(token, demarcheNumbe
     let startCursor = undefined
 
     while (hasPreviousPage) {
-        //console.log('nouvelle page !', startCursor)
+        
         const page = await récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, startCursor)
 
         const pageDossiers = page.demarche.dossiers.nodes
