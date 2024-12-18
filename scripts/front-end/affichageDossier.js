@@ -105,6 +105,7 @@ export function formatDateRelative(date) {
 /** @type {Set<NonNullable<DossierPhase>>} */
 export const phases = new Set([
     "Accompagnement amont",
+    "Vérification du dossier",
     "Instruction",
     "Contrôle",
     "Classé sans suite",
