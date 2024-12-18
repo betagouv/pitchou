@@ -30,7 +30,7 @@ interface DossierComplémentPersonnesImpliquées {
  * On surcharge ici ces propriétés pour contraindre les valeurs de ces propriétés.
  */
 
-type DossierPhase = "Accompagnement amont" | "Vérification du caractère complet et régulier de la DDEP" | "Instruction" | "Contrôle" | "Classé sans suite" | "Obligations terminées"
+type DossierPhase = "Accompagnement amont" | "Vérification du dossier" | "Instruction" | "Contrôle" | "Classé sans suite" | "Obligations terminées"
 
 type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "Pétitionnaire" | "Consultation du public" | "Autre administration" | "Autre" | "Personne";
 

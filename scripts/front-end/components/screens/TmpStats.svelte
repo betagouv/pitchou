@@ -1,6 +1,7 @@
 <script>
     //@ts-check
     import Squelette from '../Squelette.svelte'
+    import TagPhase from '../TagPhase.svelte'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */    
     /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
@@ -88,7 +89,7 @@
         <article class="fr-col">
             <header class="fr-mb-2w">
                 <h1>Des stats pour les chefs DREAL N-A</h1>
-                <p>Page très temporaire</p>
+                <p>⚠️ Page très temporaire ⚠️</p>
             </header>
 
             <section>
@@ -100,12 +101,12 @@
                 <ul>
                     <li><strong>
                         Nombre de dossiers 
-                        en phase contrôle (avec AP)
+                        en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> (avec AP)
                         </strong>&nbsp;: {dossierEnPhaseContrôle.length}
                     </li>
                     <li><strong>
                         Nombre de dossiers 
-                        en phase contrôle 
+                        en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> 
                         avec AP pris en 2024
                         </strong>&nbsp;: {dossiersAvecAPPrisEn2024.length}
                     </li>
@@ -117,19 +118,19 @@
                 <ul>
                     <li><strong>
                         Nombre de dossiers 
-                        actuellement en accompagnement amont
+                        actuellement en phase <TagPhase phase="Accompagnement amont" taille="SM"></TagPhase>
                         </strong>&nbsp;: {dossiersEnAccompagnement.length}
                     </li>
                     <li><strong>
                         Nombre de dossiers 
-                        actuellement en accompagnement amont 
+                        actuellement en phase <TagPhase phase="Accompagnement amont" taille="SM"></TagPhase> 
                         qui ont moins de 3 ans
                         </strong>&nbsp;: {dossiersEnAccompagnementDeMoinsDe3Ans.length}
                     </li>
                     <li><strong>
                         Nombre de dossiers 
                         non-scientifiques 
-                        actuellement en accompagnement amont
+                        actuellement en phase <TagPhase phase="Accompagnement amont" taille="SM"></TagPhase>
                         qui ont moins de 3 ans
                         </strong>&nbsp;: {dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans.length}
                     </li>

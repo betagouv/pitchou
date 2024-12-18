@@ -41,15 +41,17 @@ export async function recupérerDossiersRécemmentModifiés(token, demarcheNumbe
     let startCursor = undefined
 
     while (hasPreviousPage) {
-        //console.log('nouvelle page !', startCursor)
+        const débutRequêtePage = Date.now()
         const page = await récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, startCursor)
+        const finRequêtePage = Date.now()
 
         const pageDossiers = page.demarche.dossiers.nodes
 
         dossiers = pageDossiers.concat(dossiers)
 
         if(dossiers.length >= 100){
-            console.log('dossiers récupérés jusque-là', dossiers.length)
+            const délai = (finRequêtePage - débutRequêtePage)/1000
+            console.log('dossiers récupérés jusque-là', dossiers.length, `(${délai.toFixed(1)}secs)`)
         }
 
         const pageInfo = page.demarche.dossiers.pageInfo;
