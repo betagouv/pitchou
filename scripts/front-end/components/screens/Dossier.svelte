@@ -74,6 +74,9 @@
                         <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/description`}>Description du dossier</a>
                     </li>
                     <li>
+                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/procedure`}>Procédure</a>
+                    </li>
+                    <li>
                         <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/messagerie`}>Messagerie</a>
                     </li>
                     <li>
