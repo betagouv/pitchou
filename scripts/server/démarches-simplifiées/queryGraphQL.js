@@ -10,6 +10,8 @@ import {dossiersQuery, GroupeInstructeursQuery, annotationCheckboxMutationQuery,
 
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
 
+const TIMEOUT_DELAY = 20*1000 // milliseconds
+
 /**
  * @overload
  * @param {string} token
@@ -86,7 +88,7 @@ export default async function(token, query, variables) {
                 'Authorization': `Bearer ${token}`,
                 'User-Agent': 'https://github.com/betagouv/pitchou'
             },
-            timeout: 20*1000,
+            timeout: TIMEOUT_DELAY,
             json: {
                 query,
                 variables
@@ -100,7 +102,16 @@ export default async function(token, query, variables) {
         return response.data;
     }
     catch(err){
-        console.error('HTTP error', err)
+        if(err.name === 'TimeoutError'){
+            const message = `\nTimeout d'une requête HTTP vers ${ENDPOINT} après ${TIMEOUT_DELAY/1000} secondes\n\n`
+            const erreurSimple = new Error(message)
+            console.error(message)
+            throw erreurSimple
+        }
+        else{
+            console.error('HTTP error', err)
+        }
+
         throw err
     }
 
