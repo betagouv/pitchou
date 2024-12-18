@@ -3,6 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
+    import TagPhase from '../TagPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -58,34 +59,46 @@
 	}
 
 
-    /** @type {Set<NonNullable<DossierPhase>>}*/
+    /** @type {Set<DossierPhase>}*/
     const phaseOptions = new Set([...phases])
 
     /** @type {Set<DossierPhase>} */
-    // @ts-ignore
-    $: phasesFiltrées = new Set()
+    let phasesSélectionnées = new Set([
+        'Accompagnement amont',
+        'Vérification du dossier',
+        'Instruction'
+    ])
 
     /**
      * 
-     * @param {Set<DossierPhase>} phasesSélectionnées
+     * @param {DossierPhase} phase
      */
-	function filtrerParPhase(phasesSélectionnées){
-        tousLesFiltres.set('phase', dossier => {
-            //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...
-            return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
-        })
+    function makeTagPhaseOnClick(phase){
+        return () => {
+            if(phasesSélectionnées.has(phase)){
+                phasesSélectionnées.delete(phase)
+            }
+            else{
+                phasesSélectionnées.add(phase)
+            }
+            
+            phasesSélectionnées = phasesSélectionnées; // re-render
 
-        phasesFiltrées = new Set(phasesSélectionnées)
+            filtrerDossiers()
+        }
+    }
 
-		filtrerDossiers()
-	}
+    tousLesFiltres.set('phase', dossier => {
+        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...
+        return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
+    })
 
 
     const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = '(vide)'
     const prochainesActionsAttenduesParOptions = new Set([...prochaineActionAttenduePar, PROCHAINE_ACTION_ATTENDUE_PAR_VIDE])
 
     /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
-   // @ts-ignore
+    // @ts-ignore
     $: prochainesActionsAttenduesParFiltrées = new Set()
 
     /**
@@ -230,12 +243,14 @@
                     mettreÀJourTexteRecherche={filtrerParTexte}
                 />
 
+                <div class="fr-mb-2w">
+                    <strong>Filtrer par phase</strong>
+                    {#each phaseOptions as phase}
+                        <TagPhase {phase} classes={['fr-mr-1w']} onClick={makeTagPhaseOnClick(phase)} ariaPressed={phasesSélectionnées.has(phase)}></TagPhase>
+                    {/each}
+                </div>
+
                 <div class="filtres">
-                    <FiltreParmiOptions 
-                        titre="Filtrer par phase"
-                        options={phaseOptions} 
-                        mettreÀJourOptionsSélectionnées={filtrerParPhase} 
-                    />
                     <FiltreParmiOptions 
                         titre="Filtrer par prochaine action attendue par"
                         options={prochainesActionsAttenduesParOptions} 
@@ -259,9 +274,6 @@
                 </div>
 
                 <div class="filtres-actifs">
-                    {#if phasesFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Phases : {[...phasesFiltrées].join(", ")}</span>
-                    {/if}
                     {#if prochainesActionsAttenduesParFiltrées.size >= 1}
                         <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
                     {/if}
@@ -321,7 +333,9 @@
                                     <td>
                                         {rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
-                                    <td>{phase}</td>
+                                    <td>
+                                        <TagPhase {phase} taille='SM'></TagPhase>
+                                    </td>
                                     <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
                             {/each}
