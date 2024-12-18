@@ -6,9 +6,11 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhaseEtProchaineAction} from '../../../types/API_Pitchou.d.ts' */
+    /** @import {DossierComplet, DossierPhase, DossierPhaseEtProchaineAction} from '../../../types/API_Pitchou.d.ts' */
+    //@ts-ignore
+    /** @import ÉvènementPhaseDossier from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
-    /** @type {DossierComplet} */
+    /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
     export let dossier
 
     /** @type {string | undefined} */
@@ -16,11 +18,10 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    /** @type {DossierPhaseEtProchaineAction} */
-     let dossierParams = {
-        // @ts-ignore
-        phase: dossier.phase,
-        // @ts-ignore
+    /** @type {Partial<DossierComplet> & {phase: DossierPhase}} */
+        
+    let dossierParams = {
+        phase: dossier.évènementsPhase[0].phase,
         prochaine_action_attendue: dossier.prochaine_action_attendue,
         // @ts-ignore
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,

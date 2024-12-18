@@ -67,7 +67,7 @@ function wrapModifierDossier(url){
             // @ts-ignore
             url.replace(dossierIdURLParam, dossierId), 
             {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(args)
             }
