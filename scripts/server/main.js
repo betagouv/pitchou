@@ -18,6 +18,8 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
+import synchronisationComplèteSiNécessaire from './synchro-complète-si nécessaire.js'
+
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
@@ -388,16 +390,17 @@ fastify.post('/remplir-annotations', async (request, reply) => {
 })
 
 
-
-
-// Run the server!
+// Lancer le serveur HTTP
 try {
   await fastify.listen({ port: PORT, host: '0.0.0.0' })
-  console.log('Server started! Listening to port', PORT)
+  console.log(`Serveur démarré. En écoute sur le port`, PORT)
 } catch (err) {
   console.error(err)
   process.exit(1)
 }
+
+// la synchronisation complète a lieu après le lancement du serveur
+synchronisationComplèteSiNécessaire()
 
 
 

@@ -3,10 +3,6 @@
       {
         "command": "*/10 * * * * node outils/sync-démarches-simplifiées-88444.js",
         "size": "S"
-      },
-      {
-        "command": "37 7 13 11 * node outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-29",
-        "size": "S"
       }
     ]
 }
