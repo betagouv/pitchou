@@ -99,44 +99,11 @@ const pitchouKeyToChampDS = new Map(schema88444.revision.champDescriptors.map(
     ({label, id}) => [label, id])
 )
 
-
-
-/** @type {Record<keyof AnnotationsPriveesDemarcheSimplifiee88444, string>}  */
-const pitchouKeyToAnnotationDS = {
-    "Nom du porteur de projet": "Q2hhbXAtNDM3OTk5Mg==",
-    "Localisation du projet": "Q2hhbXAtNDM3OTk5NA==",
-    "DDEP nécessaire ?": "Q2hhbXAtNDM2MTc3Ng==",
-    "Dossier en attente de": "Q2hhbXAtNDM3NDc2Nw==",
-    "Enjeu écologique": "Q2hhbXAtNDAwMTQ3MQ==",
-    "Enjeu politique": "Q2hhbXAtNDA5ODY5NQ==",
-    "Commentaires sur les enjeux et la procédure": "Q2hhbXAtNDA5ODY5Ng==",
-    "Date de réception DDEP": "Q2hhbXAtNDE0NzgzMg==",
-    "Commentaires libre sur l'état de l'instruction": "Q2hhbXAtNDM4OTkxMg==",
-    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
-    // "Dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzkzMg==",
-    "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": "Q2hhbXAtNDE0NzgzMw==",
-    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
-    //"Autres documents relatifs au dossier": "Q2hhbXAtNDI0ODE4Nw==",
-    "N° Demande ONAGRE": "Q2hhbXAtNDE0NzgzMQ==",
-    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
-    //"Saisine de l'instructeur": "Q2hhbXAtNDI2NDUwMQ==",
-    "Date saisine CSRPN": "Q2hhbXAtNDE0ODM2Nw==",
-    "Date saisine CNPN": "Q2hhbXAtNDI2MDQ3Ng==",
-    "Date avis CSRPN": "Q2hhbXAtNDE0ODM2OQ==",
-    "Date avis CNPN": "Q2hhbXAtNDI2MDQ3Nw==",
-    "Avis CSRPN/CNPN": "Q2hhbXAtNDE0ODk0NQ==",
-    "Date de début de la consultation du public ou enquête publique": "Q2hhbXAtNDE0MTM0Mg==",
-    "Décision": "Q2hhbXAtNDE0MTk1Ng==",
-    "Date de signature de l'AP": "Q2hhbXAtNDE0MTk1Mg==",
-    "Référence de l'AP": "Q2hhbXAtNDE0MTk1Mw==",
-    "Date de l'AM": "Q2hhbXAtNDE0MTk1NA==",
-    "Référence de l'AM": "Q2hhbXAtNDE0MTk1NQ==",
-    // Pour l'instant, on ne gère pas le champ `PieceJustificativeChampDescriptor`
-    //"AP/AM": "Q2hhbXAtNDE0ODk0Nw==",
-    "Date avis conforme Ministre": "Q2hhbXAtNDU1MTkxMQ==",
-    "Date de fin de la consultation du public ou enquête publique": "Q2hhbXAtNDYxMDIxNQ=="
-
-}
+/** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
+//@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
+const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescriptors.map(
+    ({label, id}) => [label, id])
+)
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
@@ -191,7 +158,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     }
 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
-    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS.get('Lien vers la liste des espèces concernées'))?.stringValue
+    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS.get('NE PAS REMPLIR - Lien vers la liste des espèces concernées'))?.stringValue
     const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
 
 
@@ -215,7 +182,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         communes = champCommunes.rows.map(c => c.champs[0].commune).filter(x => !!x)
         
         if(Array.isArray(communes) && communes.length >= 1){
-            départements = [... new Set(champCommunes.rows.map(c => c.champs[0].departement.code))]
+            départements = [...new Set(champCommunes.rows.map(c => c.champs[0].departement?.code).filter(x => !!x))]
         }
     }
     else{
@@ -296,54 +263,54 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /**
      * Annotations privées
      */
-    /** @type {Map<string, any>} */
+    /** @type {Map<string | undefined, any>} */
     const annotationById = new Map()
     for(const annotation of annotations){
         annotationById.set(annotation.id, annotation)
     }
 
-    const historique_nom_porteur = annotationById.get(pitchouKeyToAnnotationDS["Nom du porteur de projet"])?.stringValue
-    const historique_localisation = annotationById.get(pitchouKeyToAnnotationDS["Localisation du projet"])?.stringValue
-    const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS["DDEP nécessaire ?"])?.stringValue
-    const en_attente_de = annotationById.get(pitchouKeyToAnnotationDS["Dossier en attente de"])?.stringValue
+    const historique_nom_porteur = annotationById.get(pitchouKeyToAnnotationDS.get("Nom du porteur de projet"))?.stringValue
+    const historique_localisation = annotationById.get(pitchouKeyToAnnotationDS.get("Localisation du projet"))?.stringValue
+    const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue
+    const en_attente_de = annotationById.get(pitchouKeyToAnnotationDS.get("Dossier en attente de"))?.stringValue
 
-    const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu écologique"]).checked
-    const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS["Enjeu politique"]).checked
-    const commentaire_enjeu = annotationById.get(pitchouKeyToAnnotationDS["Commentaires sur les enjeux et la procédure"]).stringValue
+    const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
+    const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
+    const commentaire_enjeu = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires sur les enjeux et la procédure")).stringValue
 
-    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS["Date de réception DDEP"]).date
+    const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS.get("Date de réception DDEP")).date
     
-    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS["Commentaires libre sur l'état de l'instruction"]) ?
-        annotationById.get(pitchouKeyToAnnotationDS["Commentaires libre sur l'état de l'instruction"]).stringValue :
+    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires libre sur l'état de l'instruction")) ?
+        annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires libre sur l'état de l'instruction")).stringValue :
         undefined;
         
-    const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS["Date d'envoi de la dernière contribution en lien avec l'instruction DDEP"]).date
-    const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS["N° Demande ONAGRE"]).stringValue
+    const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
+    const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
 
-    const historique_date_saisine_csrpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CSRPN"]).date
+    const historique_date_saisine_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN")).date
 
-    const historique_date_saisine_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date saisine CNPN"]) ?
-        annotationById.get(pitchouKeyToAnnotationDS["Date saisine CNPN"]).date : 
+    const historique_date_saisine_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN")) ?
+        annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN")).date : 
         undefined
     
     
-    const date_avis_csrpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CSRPN"]).date
+    const date_avis_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN")).date
     
-    const date_avis_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Date avis CNPN"]) ?
-        annotationById.get(pitchouKeyToAnnotationDS["Date avis CNPN"]).date : 
+    const date_avis_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")) ?
+        annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")).date : 
         undefined
 
 
 
-    const avis_csrpn_cnpn = annotationById.get(pitchouKeyToAnnotationDS["Avis CSRPN/CNPN"]).stringValue
+    const avis_csrpn_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Avis CSRPN/CNPN")).stringValue
 
-    const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS["Date de début de la consultation du public ou enquête publique"]).date
+    const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
 
-    const historique_décision = annotationById.get(pitchouKeyToAnnotationDS["Décision"]).stringValue
-    const historique_date_signature_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS["Date de signature de l'AP"]).date
-    const historique_référence_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS["Référence de l'AP"]).stringValue
-    const historique_date_signature_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS["Date de l'AM"]).date
-    const historique_référence_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS["Référence de l'AM"]).stringValue
+    const historique_décision = annotationById.get(pitchouKeyToAnnotationDS.get("Décision")).stringValue
+    const historique_date_signature_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Date de signature de l'AP")).date
+    const historique_référence_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AP")).stringValue
+    const historique_date_signature_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Date de l'AM")).date
+    const historique_référence_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AM")).stringValue
 
     return {
         // méta-données

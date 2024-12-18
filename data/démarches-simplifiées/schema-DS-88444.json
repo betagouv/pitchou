@@ -1,13 +1,13 @@
 {
     "id": "UHJvY2VkdXJlLTg4NDQ0",
     "number": 88444,
-    "title": "Dérogation Espèces Protégées",
-    "description": "Accompagner et déposer les dossiers de demande de dérogation à la réglementation de protection des espèces",
+    "title": "Réglementation relative aux Espèces Protégées",
+    "description": "Accompagner les porteurs de projet en amont et déposer les dossiers de demande de dérogation à la réglementation de protection des espèces",
     "state": "publiee",
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-10-25T13:30:40+02:00",
+    "dateDerniereModification": "2024-12-18T16:45:29+01:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,14 +15,14 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTY0NDM4",
-        "datePublication": "2024-10-25T13:30:40+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTcyNDYw",
+        "datePublication": "2024-12-18T14:29:14+01:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
                 "id": "Q2hhbXAtNDQ4MzE3Ng==",
-                "label": "Réglementation espèces protégées",
-                "description": "<p>Ce formulaire vous permet de prendre contact avec les services de l'état,<strong> dès la conception amont de votre projet</strong>, pour toutes questions relatives aux espèces protégées. </p>\r\n<p>\r\nIl permet également de prendre connaissances des éléments indispensables permettant de statuer sur la nécessité de déposer un dossier de demande de dérogation à la réglementation espèces protégées, et, le cas échéant, de <strong>déposer votre dossier</strong> auprès des services instructeurs.\r\n</p>\r\nCe formulaire remplace les cerfas concernés.\r\n\r\n",
+                "label": "La réglementation relative aux espèces protégées",
+                "description": "<p>Ce formulaire vous permet de prendre contact avec les services de l'état,<strong> dès la conception amont de votre projet</strong>, pour toutes questions relatives aux espèces protégées. </p>\r\n<p>\r\n<br>\r\nIl permet également : <br>\r\n- de prendre connaissance des éléments indispensables permettant de statuer sur la nécessité de déposer un dossier de demande de dérogation à la réglementation espèces protégées, <br>\r\n- d'obtenir une position officielle de l'administration <br>\r\n- et, le cas échéant, de <strong>déposer votre dossier</strong> auprès des services instructeurs.<br>\r\n<br>\r\n</p>\r\nCe formulaire remplace les cerfas concernés.\r\n\r\n",
                 "required": false,
                 "collapsibleExplanationEnabled": false,
                 "collapsibleExplanationText": null
@@ -38,88 +38,33 @@
             },
             {
                 "__typename": "HeaderSectionChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzM1Ng==",
-                "label": "Porteur de projet",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "DropDownListChampDescriptor",
-                "id": "Q2hhbXAtMzg5ODg5NQ==",
-                "label": "Le demandeur est…",
-                "description": "",
-                "required": true,
-                "options": [
-                    "une personne physique",
-                    "une personne morale"
-                ],
-                "otherOption": false
-            },
-            {
-                "__typename": "SiretChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzM5NA==",
-                "label": "Numéro de SIRET",
+                "id": "Q2hhbXAtNDYzNTA4OQ==",
+                "label": "Adaptons ce formulaire à votre projet",
                 "description": "",
                 "required": false
             },
             {
                 "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzM1NQ==",
-                "label": "Qualification",
+                "id": "Q2hhbXAtNDE0OTExNQ==",
+                "label": "Nom du projet",
+                "description": "Indiquer le nom <strong> précis </strong> de votre projet",
+                "required": true
+            },
+            {
+                "__typename": "DepartementChampDescriptor",
+                "id": "Q2hhbXAtNDI3NTM5OA==",
+                "label": "Dans quel département se localise majoritairement votre projet ?",
                 "description": "",
-                "required": false
-            },
-            {
-                "__typename": "AddressChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzM2Mg==",
-                "label": "Adresse",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzM5Nw==",
-                "label": "Nom du représentant",
-                "description": "Personne en charge du projet au sein de la personne morale",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDIzMDU1OA==",
-                "label": "Prénom du représentant",
-                "description": "Personne en charge du projet au sein de la personne morale",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzM5OA==",
-                "label": "Qualité du représentant",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "PhoneChampDescriptor",
-                "id": "Q2hhbXAtMzkzMzczNg==",
-                "label": "Numéro de téléphone de contact",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "EmailChampDescriptor",
-                "id": "Q2hhbXAtMzkzMzc0MA==",
-                "label": "Adresse mail de contact",
-                "description": "",
-                "required": false
+                "required": true
             },
             {
                 "__typename": "DropDownListChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwMA==",
                 "label": "Activité principale",
-                "description": "",
+                "description": "Indiquez l'activité principale relative à votre projet.",
                 "required": true,
                 "options": [
                     "Aménagements fonciers (AFAF, remembrement)",
-                    "Carrières de matériaux alluvionnaires",
                     "Carrières",
                     "Conservation des espèces",
                     "Demande à caractère scientifique",
@@ -137,7 +82,6 @@
                     "Installations agricoles",
                     "Installations de gestion des déchets",
                     "Installations de loisir et de tourisme",
-                    "Inventaire lié à la connaissance",
                     "Pédagogique enseignement",
                     "Péril animalier",
                     "Plate-formes logistiques, centres commerciaux",
@@ -201,6 +145,138 @@
                 "otherOption": false
             },
             {
+                "__typename": "YesNoChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjkwMQ==",
+                "label": "Avez-vous réalisé un état des lieux écologique complet ?",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "ExplicationChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjkwNg==",
+                "label": "Les informations fournies ne permettent pas de déterminer si une demande de dérogation à la réglementation espèces protégées est nécessaire, veuillez consulter le site internet du service instructeur.",
+                "description": "",
+                "required": false,
+                "collapsibleExplanationEnabled": false,
+                "collapsibleExplanationText": null
+            },
+            {
+                "__typename": "YesNoChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjk1NQ==",
+                "label": "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?",
+                "description": "L’aire d'influence s’appuie sur les éléments physiques qui peuvent délimiter naturellement le territoire (lisière, cours d’eau, urbanisation, route, barrage...) et permettre d’identifier les corridors écologiques ainsi que la fonctionnalité des habitats d’espèces.",
+                "required": false
+            },
+            {
+                "__typename": "ExplicationChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjk1Ng==",
+                "label": "Veuillez poursuivre le remplissage du formulaire, afin d'obtenir une position officielle du service instructeur sur la nécessité ou non de déposer une demande de dérogation à la réglementation espèces protégées.",
+                "description": "Pour rappel, les détériorations directes ou indirectes qui affectent gravement le maintien ou le rétablissement dans un état de conservation favorable des sites de reproduction et des aires de repos des espèces protégées constituent des dommages causés à l’environnement (article L. 161-1 du code de l’environnement) et exposent le responsable à une procédure administrative sur le fondement des dispositions combinées des articles L. 411-1 et L. 171-7 du code de l’environnement pouvant aller jusqu’à la suspension des travaux jusqu’à ce qu’une demande de dérogation « espèces protégées » soit déposée et instruite, ainsi qu’à des poursuites pénales pouvant donner lieu à 3 ans d'emprisonnement et à 150 000 € d'amende (article L. 415-3 du code de l’environnement).\r\n",
+                "required": false,
+                "collapsibleExplanationEnabled": false,
+                "collapsibleExplanationText": null
+            },
+            {
+                "__typename": "YesNoChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjk2NA==",
+                "label": "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il ?",
+                "description": "Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter les avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,\r\nainsi que celui du 17 février 2023 : https://www.conseil-etat.fr/fr/arianeweb/CE/decision/2023-02-17/460798 et les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563",
+                "required": false
+            },
+            {
+                "__typename": "ExplicationChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjk2Nw==",
+                "label": "Veuillez poursuivre le remplissage du formulaire, afin d'obtenir une position officielle du service instructeur sur la nécessité ou non de déposer une demande de dérogation à la réglementation espèces protégées. Dans ce but, vous devez notamment déposer l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.",
+                "description": "Cet argumentaire doit contenir un état des lieux écologique, la description des enjeux présents et des mesures d'évitement et de réduction prévues, ainsi que la qualification et la quantification des impacts bruts et résiduels du projet.",
+                "required": false,
+                "collapsibleExplanationEnabled": false,
+                "collapsibleExplanationText": null
+            },
+            {
+                "__typename": "ExplicationChampDescriptor",
+                "id": "Q2hhbXAtNDUxNjk3Ng==",
+                "label": "Une demande de dérogation à la réglementation espèce protégées est nécessaire pour la réalisation de votre projet. Merci de bien vouloir poursuivre le remplissage du formulaire.",
+                "description": "",
+                "required": false,
+                "collapsibleExplanationEnabled": false,
+                "collapsibleExplanationText": null
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzM1Ng==",
+                "label": "Porteur de projet",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtMzg5ODg5NQ==",
+                "label": "Le demandeur est…",
+                "description": "",
+                "required": true,
+                "options": [
+                    "une personne physique",
+                    "une personne morale"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "SiretChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzM5NA==",
+                "label": "Numéro de SIRET",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzM1NQ==",
+                "label": "Qualification",
+                "description": "Si le demandeur est une personne physique",
+                "required": false
+            },
+            {
+                "__typename": "AddressChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzM2Mg==",
+                "label": "Adresse",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzM5Nw==",
+                "label": "Nom du représentant",
+                "description": "Personne en charge du projet au sein de la personne morale",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtNDIzMDU1OA==",
+                "label": "Prénom du représentant",
+                "description": "Personne en charge du projet au sein de la personne morale",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtMzg5NzM5OA==",
+                "label": "Qualité du représentant",
+                "description": "Si le demandeur est une personne morale",
+                "required": false
+            },
+            {
+                "__typename": "PhoneChampDescriptor",
+                "id": "Q2hhbXAtMzkzMzczNg==",
+                "label": "Numéro de téléphone de contact",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "EmailChampDescriptor",
+                "id": "Q2hhbXAtMzkzMzc0MA==",
+                "label": "Adresse mail de contact",
+                "description": "",
+                "required": false
+            },
+            {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwNw==",
                 "label": "Description du projet",
@@ -208,25 +284,11 @@
                 "required": false
             },
             {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDE0OTExNQ==",
-                "label": "Nom du projet",
-                "description": "Indiquer le nom <strong> précis </strong> de votre projet",
-                "required": true
-            },
-            {
                 "__typename": "TextareaChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwNA==",
                 "label": "Description synthétique du projet",
                 "description": "",
                 "required": false
-            },
-            {
-                "__typename": "DepartementChampDescriptor",
-                "id": "Q2hhbXAtNDI3NTM5OA==",
-                "label": "Dans quel département se localise majoritairement votre projet ?",
-                "description": "",
-                "required": true
             },
             {
                 "__typename": "DropDownListChampDescriptor",
@@ -323,80 +385,24 @@
             },
             {
                 "__typename": "HeaderSectionChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjg5NQ==",
-                "label": "Une demande de dérogation à la réglementation espèces protégées est-elle nécessaire ?",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "YesNoChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjkwMQ==",
-                "label": "Avez-vous réalisé un état des lieux écologique complet ?",
-                "description": "Pour plus de précisions, consultez l'annexe 3 du guide : \r\nhttps://www.nouvelle-aquitaine.developpement-durable.gouv.fr/IMG/pdf/guide_nouvelle-aquitaine_pour_la_prise_en_compte_de_la_reglementation_especes_protegees.pdf",
-                "required": false
-            },
-            {
-                "__typename": "ExplicationChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjkwNg==",
-                "label": "Les informations fournies ne permettent pas de déterminer si une DDEP est nécessaire, veuillez consulter le site de la DREAL Nouvelle-Aquitaine.",
-                "description": "https://www.nouvelle-aquitaine.developpement-durable.gouv.fr/demandes-de-derogations-exceptionnelles-r1195.html",
-                "required": false,
-                "collapsibleExplanationEnabled": false,
-                "collapsibleExplanationText": null
-            },
-            {
-                "__typename": "YesNoChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjk1NQ==",
-                "label": "Des individus ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?",
-                "description": "L’aire d'influence s’appuie sur les éléments physiques qui peuvent délimiter naturellement le territoire (lisière, cours d’eau, urbanisation, route, barrage...) et permettre d’identifier les corridors écologiques ainsi que la fonctionnalité des habitats d’espèces.",
-                "required": false
-            },
-            {
-                "__typename": "ExplicationChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjk1Ng==",
-                "label": "Compte tenu des éléments fournis, la DDEP n'apparaît pas nécessaire. Toutefois, tout impact sur des individus ou des habitats d'espèces protégées demeure interdit.",
-                "description": "Pour rappel, les détériorations directes ou indirectes qui affectent gravement le maintien ou le rétablissement dans un état de conservation favorable des sites de reproduction et des aires de repos des espèces protégées constituent des dommages causés à l’environnement (article L. 161-1 du code de l’environnement) et exposent le responsable à une procédure administrative sur le fondement des dispositions combinées des articles L. 411-1 et L. 171-7 du code de l’environnement pouvant aller jusqu’à la suspension des travaux jusqu’à ce qu’une demande de dérogation « espèces protégées » soit déposée et instruite, ainsi qu’à des poursuites pénales pouvant donner lieu à 3 ans d'emprisonnement et à 150 000 € d'amende (article L. 415-3 du code de l’environnement).",
-                "required": false,
-                "collapsibleExplanationEnabled": false,
-                "collapsibleExplanationText": null
-            },
-            {
-                "__typename": "YesNoChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjk2NA==",
-                "label": "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il'",
-                "description": "Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter les avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,\r\nainsi que celui du 17 février 2023 : https://www.conseil-etat.fr/fr/arianeweb/CE/decision/2023-02-17/460798 et les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563",
-                "required": false
-            },
-            {
-                "__typename": "ExplicationChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjk2Nw==",
-                "label": "Il convient de fournir l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.",
-                "description": "Cet argumentaire doit contenir un état des lieux écologique, la description des enjeux présents et des mesures d'évitement et de réduction prévues, ainsi que la qualification et la quantification des impacts résiduels du projet.",
-                "required": false,
-                "collapsibleExplanationEnabled": false,
-                "collapsibleExplanationText": null
-            },
-            {
-                "__typename": "ExplicationChampDescriptor",
-                "id": "Q2hhbXAtNDUxNjk3Ng==",
-                "label": "Une DDEP est nécessaire pour la réalisation de votre projet. Merci de bien vouloir poursuivre le remplissage du formulaire.",
-                "description": "",
-                "required": false,
-                "collapsibleExplanationEnabled": false,
-                "collapsibleExplanationText": null
-            },
-            {
-                "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2NzA5OQ==",
                 "label": "Espèces concernées par la dérogation",
                 "description": "",
                 "required": false
             },
             {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDcxMDgzOA==",
+                "label": "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
+                "description": "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
                 "__typename": "TextChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzQwNQ==",
-                "label": "Lien vers la liste des espèces concernées",
-                "description": "Lien vers la liste des espèces concernées à remplir sur https://pitchou.beta.gouv.fr/saisie-especes",
+                "label": "NE PAS REMPLIR - Lien vers la liste des espèces concernées",
+                "description": "Ce champ va bientôt être supprimé.\r\n",
                 "required": false
             },
             {
@@ -420,7 +426,7 @@
                 "description": "",
                 "required": false,
                 "options": [
-                    "Pour des RIIPM (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)",
+                    "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)",
                     "Dans l’intérêt de la sécurité aérienne",
                     "Pour prévenir des dommages importants notamment aux cultures, à l'élevage, aux forêts, aux pêcheries, aux eaux et à d'autres formes de propriété",
                     "Pour la protection de la flore et de la faune et la conservation des habitats naturels",
@@ -429,6 +435,13 @@
                     "Pour permettre la prise ou la détention d'un nombre limité et spécifié de certains spécimens, dans des conditions strictement contrôlées, d'une manière sélective et dans une mesure limitée"
                 ],
                 "otherOption": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDY3NDM4OQ==",
+                "label": "Synthèse des éléments justifiant le motif de la dérogation",
+                "description": "",
+                "required": false
             },
             {
                 "__typename": "MultipleDropDownListChampDescriptor",
@@ -594,7 +607,14 @@
                 "required": false
             },
             {
-                "__typename": "IntegerNumberChampDescriptor",
+                "__typename": "DateChampDescriptor",
+                "id": "Q2hhbXAtNDcxNzQ2NQ==",
+                "label": "Date de mise en service",
+                "description": "Date de début d'exploitation",
+                "required": false
+            },
+            {
+                "__typename": "DecimalNumberChampDescriptor",
                 "id": "Q2hhbXAtNDM3NDY3MA==",
                 "label": "Durée de la dérogation",
                 "description": "Ce champ est notamment à remplir pour les dérogations pluriannuelles ou pour indiquer la durée d'exploitation de l'aménagement réalisé (en années).",
@@ -816,7 +836,7 @@
                 "__typename": "YesNoChampDescriptor",
                 "id": "Q2hhbXAtMzg5NzUwOQ==",
                 "label": "Des mesures ERC sont-elles prévues ?",
-                "description": "en particulier mesures de bridage dans le cas de suivi mortalité éolien",
+                "description": "En particulier mesures de bridage dans le cas de suivi mortalité éolien, mais également adaptation du calendrier des travaux aux périodes les moins sensibles, balisage/mise en exclos des secteurs à enjeux, lutte contre les espèces exotique envahissantes...",
                 "required": false
             },
             {
@@ -838,6 +858,22 @@
                 "id": "Q2hhbXAtMzkyMzY2OQ==",
                 "label": "Dépot du dossier complet de demande de dérogation",
                 "description": "Si votre dossier fait plus de 200 Mo, utilisez https://francetransfert.numerique.gouv.fr/upload pour générer un lien que vous indiquerez dans le champ \"Description succincte du projet\"",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDcwNzM4OA==",
+                "label": "Diagnostic écologique",
+                "description": "Fournir ici l'état des lieux écologique, ainsi que les protocoles d'inventaires utilisés, ayant permis de conclure à l'absence d'individus ou d'habitats d'espèces protégées dans l'emprise du projet.",
+                "required": false,
+                "fileTemplate": null
+            },
+            {
+                "__typename": "PieceJustificativeChampDescriptor",
+                "id": "Q2hhbXAtNDcwNzQxMQ==",
+                "label": "Déposez ici l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.",
+                "description": "<strong>Cet argumentaire diot notamment détailler les points suivants.</strong>\r\n\r\nMesures d’évitement et de réduction (E-R) : \r\n- protocole de mise en œuvre (calendrier, méthodes, matériel, , etc.), \r\n- localisation : une ou des cartes sont annexées, et intègrent la représentation graphique des emprises du projet (sous toutes ses composantes : bâtiments, annexes, base de vie chantier, stockage intermédiaire…) \r\n- complétude (objectifs de performance, indicateurs de suivis, etc.) et garanties d’effectivité des mesures E et R :  la pertinence, la faisabilité technique et l’efficacité des mesures proposées pour atteindre les objectifs inscrits dans la demande de dérogation.  \r\n\r\nAprès application des mesures d’évitement et de réduction, caractérisation du risque (résiduel) d’atteinte à l’état de conservation des espèces protégées (habitats, individus, population et fonctionnalité des milieux pour chaque espèce)  :\r\n- niveau de risque d’atteinte (compte tenu de la nature des impacts, de son intensité et/ou sa persistance)\r\n- niveau de caractérisation de ce risque (fortement prévisible, potentiel…) en fonction des données du dossier, des connaissances scientifiques , des retours d’expériences…), argumentation à l’appui.\r\n",
                 "required": false,
                 "fileTemplate": null
             },
@@ -946,6 +982,13 @@
                 "id": "Q2hhbXAtNDA5ODY5Ng==",
                 "label": "Commentaires sur les enjeux et la procédure",
                 "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDY3MjQ4Nw==",
+                "label": "Champ libre",
+                "description": "Ce champ permet aux instructeurs d'ajouter toute information utile.",
                 "required": false
             },
             {
@@ -1161,6 +1204,47 @@
                 "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false,
                 "fileTemplate": null
+            },
+            {
+                "__typename": "HeaderSectionChampDescriptor",
+                "id": "Q2hhbXAtNDY5ODI3NA==",
+                "label": "GeoMCE",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "DropDownListChampDescriptor",
+                "id": "Q2hhbXAtNDY5ODI3OQ==",
+                "label": "Dépôt GeoMCE effectué ?",
+                "description": "",
+                "required": false,
+                "options": [
+                    "Oui",
+                    "Non",
+                    "Partiel"
+                ],
+                "otherOption": false
+            },
+            {
+                "__typename": "DateChampDescriptor",
+                "id": "Q2hhbXAtNDY5ODI4Mw==",
+                "label": "Date dépôt GeoMCE",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextChampDescriptor",
+                "id": "Q2hhbXAtNDY5ODI4Ng==",
+                "label": "Id projet GeoMCE",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "TextareaChampDescriptor",
+                "id": "Q2hhbXAtNDY5ODI4OA==",
+                "label": "GeoMCE - commentaire libre",
+                "description": "",
+                "required": false
             }
         ]
     }
