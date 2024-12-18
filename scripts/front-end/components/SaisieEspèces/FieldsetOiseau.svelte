@@ -9,7 +9,7 @@
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
-    import EnteteAvecTri from "./../EnteteAvecTri.svelte"
+    import EnteteAvecTri from "../EnteteAvecTri.svelte"
 
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 

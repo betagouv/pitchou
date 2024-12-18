@@ -8,7 +8,7 @@
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
-    import EnteteAvecTri from "./../EnteteAvecTri.svelte"
+    import EnteteAvecTri from "../EnteteAvecTri.svelte"
 
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
 
