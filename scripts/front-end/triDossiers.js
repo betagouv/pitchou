@@ -10,9 +10,7 @@ import {formatLocalisation, formatDéposant} from './affichageDossier.js'
  * @returns {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]}
  */
 export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) => {
-    const nouveauxDossiersTriés = dossiers
-
-    nouveauxDossiersTriés.sort((a, b) => {
+    return dossiers.toSorted((a, b) => {
         let colonneA
         let colonneB
 
@@ -41,6 +39,4 @@ export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) 
 
         return 0
     })
-
-    return nouveauxDossiersTriés
 }
