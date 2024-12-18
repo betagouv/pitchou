@@ -12,24 +12,16 @@
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 
 export interface DossierDemarcheSimplifiee88444 {
-  "Le demandeur est…": "une personne physique" | "une personne morale";
-  "Numéro de SIRET": string;
-  Qualification: string;
-  Adresse: string;
   /**
-   * Personne en charge du projet au sein de la personne morale
+   * Indiquer le nom <strong> précis </strong> de votre projet
    */
-  "Nom du représentant": string;
+  "Nom du projet": string;
+  "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
   /**
-   * Personne en charge du projet au sein de la personne morale
+   * Indiquez l'activité principale relative à votre projet.
    */
-  "Prénom du représentant": string;
-  "Qualité du représentant": string;
-  "Numéro de téléphone de contact": string;
-  "Adresse mail de contact": string;
   "Activité principale":
     | "Aménagements fonciers (AFAF, remembrement)"
-    | "Carrières de matériaux alluvionnaires"
     | "Carrières"
     | "Conservation des espèces"
     | "Demande à caractère scientifique"
@@ -47,7 +39,6 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Installations agricoles"
     | "Installations de gestion des déchets"
     | "Installations de loisir et de tourisme"
-    | "Inventaire lié à la connaissance"
     | "Pédagogique enseignement"
     | "Péril animalier"
     | "Plate-formes logistiques, centres commerciaux"
@@ -74,12 +65,38 @@ export interface DossierDemarcheSimplifiee88444 {
   "Éolien - Votre demande concerne :": "Suivi de mortalité pour un parc éolien" | "Autre";
   "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
   "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
+  "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
   /**
-   * Indiquer le nom <strong> précis </strong> de votre projet
+   * L’aire d'influence s’appuie sur les éléments physiques qui peuvent délimiter naturellement le territoire (lisière, cours d’eau, urbanisation, route, barrage...) et permettre d’identifier les corridors écologiques ainsi que la fonctionnalité des habitats d’espèces.
    */
-  "Nom du projet": string;
+  "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": boolean;
+  /**
+   * Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter les avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,
+   * ainsi que celui du 17 février 2023 : https://www.conseil-etat.fr/fr/arianeweb/CE/decision/2023-02-17/460798 et les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563
+   */
+  "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il ?": boolean;
+  "Le demandeur est…": "une personne physique" | "une personne morale";
+  "Numéro de SIRET": string;
+  /**
+   * Si le demandeur est une personne physique
+   */
+  Qualification: string;
+  Adresse: string;
+  /**
+   * Personne en charge du projet au sein de la personne morale
+   */
+  "Nom du représentant": string;
+  /**
+   * Personne en charge du projet au sein de la personne morale
+   */
+  "Prénom du représentant": string;
+  /**
+   * Si le demandeur est une personne morale
+   */
+  "Qualité du représentant": string;
+  "Numéro de téléphone de contact": string;
+  "Adresse mail de contact": string;
   "Description synthétique du projet": string;
-  "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
   "Le projet se situe au niveau…":
     | "d'une ou plusieurs communes"
     | "d'un ou plusieurs départements"
@@ -94,32 +111,20 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Ne sait pas encore";
   "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
   /**
-   * Pour plus de précisions, consultez l'annexe 3 du guide :
-   * https://www.nouvelle-aquitaine.developpement-durable.gouv.fr/IMG/pdf/guide_nouvelle-aquitaine_pour_la_prise_en_compte_de_la_reglementation_especes_protegees.pdf
+   * Ce champ va bientôt être supprimé.
+   *
    */
-  "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
-  /**
-   * L’aire d'influence s’appuie sur les éléments physiques qui peuvent délimiter naturellement le territoire (lisière, cours d’eau, urbanisation, route, barrage...) et permettre d’identifier les corridors écologiques ainsi que la fonctionnalité des habitats d’espèces.
-   */
-  "Des individus ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": boolean;
-  /**
-   * Pour plus de précisions sur la notion de risque suffisamment caractérisé, consulter les avis du Conseil d'état du 09/12/2022 : https://www.legifrance.gouv.fr/ceta/id/CETATEXT000046732849?init=true&page=1&query=463563&searchField=ALL&tab_selection=all,
-   * ainsi que celui du 17 février 2023 : https://www.conseil-etat.fr/fr/arianeweb/CE/decision/2023-02-17/460798 et les conclusions du rapporteur public relatives à cet avis : http://www.conseil-etat.fr/fr/arianeweb/CRP/conclusion/2022-12-09/463563
-   */
-  "Après mises en oeuvre d'éventuelles mesures d'évitement et de réduction présentant des garanties d’effectivité, sous le contrôle de l'administration, un risque suffisamment caractérisé pour les espèces protégées existe-t-il'": boolean;
-  /**
-   * Lien vers la liste des espèces concernées à remplir sur https://pitchou.beta.gouv.fr/saisie-especes
-   */
-  "Lien vers la liste des espèces concernées": string;
+  "NE PAS REMPLIR - Lien vers la liste des espèces concernées": string;
   "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": string;
   "Motif de la dérogation":
-    | "Pour des RIIPM (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)"
+    | "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)"
     | "Dans l’intérêt de la sécurité aérienne"
     | "Pour prévenir des dommages importants notamment aux cultures, à l'élevage, aux forêts, aux pêcheries, aux eaux et à d'autres formes de propriété"
     | "Pour la protection de la flore et de la faune et la conservation des habitats naturels"
     | "A des fins de recherche et d’enseignement"
     | "A des fins de repeuplement et de réintroduction de ces espèces et pour des opérations de reproduction nécessaires à ces fins, y compris la propagation artificielle des plantes"
     | "Pour permettre la prise ou la détention d'un nombre limité et spécifié de certains spécimens, dans des conditions strictement contrôlées, d'une manière sélective et dans une mesure limitée";
+  "Synthèse des éléments justifiant le motif de la dérogation": string;
   "Recherche scientifique - Votre demande concerne :":
     | "Une/des capture(s)/relâcher(s) immédiat(s) sur place sans marquage"
     | "Une/des capture(s)/relâcher(s) immédiat(s) sur place avec marquage"
@@ -151,6 +156,10 @@ export interface DossierDemarcheSimplifiee88444 {
    * La date de fin d'intervention correspond à la date de fin des inventaires, des travaux avant mise en service...
    */
   "Date de fin d’intervention": Date;
+  /**
+   * Date de début d'exploitation
+   */
+  "Date de mise en service": Date;
   /**
    * Ce champ est notamment à remplir pour les dérogations pluriannuelles ou pour indiquer la durée d'exploitation de l'aménagement réalisé (en années).
    */
@@ -184,7 +193,7 @@ export interface DossierDemarcheSimplifiee88444 {
   }[];
   "Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)": string;
   /**
-   * en particulier mesures de bridage dans le cas de suivi mortalité éolien
+   * En particulier mesures de bridage dans le cas de suivi mortalité éolien, mais également adaptation du calendrier des travaux aux périodes les moins sensibles, balisage/mise en exclos des secteurs à enjeux, lutte contre les espèces exotique envahissantes...
    */
   "Des mesures ERC sont-elles prévues ?": boolean;
   "Indiquer le nombre de nids artificiels posés en compensation": number;
@@ -210,6 +219,10 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
   "Enjeu écologique": boolean;
   "Enjeu politique": boolean;
   "Commentaires sur les enjeux et la procédure": string;
+  /**
+   * Ce champ permet aux instructeurs d'ajouter toute information utile.
+   */
+  "Champ libre": string;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */
@@ -254,4 +267,8 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Référence de l'AM": string;
+  "Dépôt GeoMCE effectué ?": "Oui" | "Non" | "Partiel";
+  "Date dépôt GeoMCE": Date;
+  "Id projet GeoMCE": string;
+  "GeoMCE - commentaire libre": string;
 }
