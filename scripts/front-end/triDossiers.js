@@ -3,7 +3,12 @@
 
 import {formatLocalisation, formatDéposant} from './affichageDossier.js'
 
-/** @type {(dossiers: (DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[], nom_colonne: keyof DossierComplet | "localisation" | "déposant") => (DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]}*/
+/**
+ * 
+ * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+ * @param {keyof DossierComplet | "localisation" | "déposant"} nomColonne 
+ * @returns {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]}
+ */
 export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) => {
     const nouveauxDossiersTriés = dossiers
 
