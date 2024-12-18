@@ -7,6 +7,7 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
+    import {trierDossiersParOrdreAlphabétiqueColonne} from '../../triDossiers.js'
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
@@ -45,8 +46,8 @@
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
     
-    /** @type {string} */
-    let triSélectionné = ""
+    /** @type {{nom: string, tri: function}|undefined} */
+    let triSélectionné = undefined
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
     const tousLesFiltres = new Map()
@@ -59,7 +60,7 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
-        triSélectionné = ""
+        triSélectionné = undefined
 	}
 
 
@@ -219,63 +220,25 @@
         filtrerDossiers()
     }
 
-    /** @type {(nom_colonne: keyof DossierComplet | "localisation" | "déposant", order_by_asc?: boolean) => void}*/
-    const trierDossiersParColonne = (nomColonne, order_by_asc = true) => {
-        const nouveauxDossiersTriés = dossiersSelectionnés
-
-        nouveauxDossiersTriés.sort((a, b) => {
-            let colonneA 
-            let colonneB
-
-            if (nomColonne === "localisation") {
-                colonneA = formatLocalisation(a)
-                colonneB = formatLocalisation(b)
-            } else if (nomColonne === "déposant") {
-                colonneA = formatDéposant(a)
-                colonneB = formatDéposant(b)
-            } else {
-                colonneA = a[nomColonne]
-                colonneB = b[nomColonne]
-            }
-
-            if (
-                colonneA && 
-                typeof colonneA === "string" &&
-                colonneB &&
-                typeof colonneB === "string"
-            ) {
-                return colonneA.localeCompare(colonneB, 'fr')
-            }
-
-            if (!colonneA && colonneB) return 1
-            if (colonneA && !colonneB) return -1
-
-            return 0
-        })
-
-        if (order_by_asc) {
-            dossiersSelectionnés = nouveauxDossiersTriés
-            return
-        }
-
-        dossiersSelectionnés = nouveauxDossiersTriés.reverse()
-    }
-
-    const trisActivitéPrincipale = new Map()
-    trisActivitéPrincipale.set("Trier de A à Z", () => trierDossiersParColonne("activité_principale"))
-    trisActivitéPrincipale.set("Trier de Z à A", () => trierDossiersParColonne("activité_principale", false))
+    const trisActivitéPrincipale = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse() },
+    ])
     
-    const trisNomProjet = new Map()
-    trisNomProjet.set("Trier de A à Z", () => trierDossiersParColonne("nom_dossier"))
-    trisNomProjet.set("Trier de Z à A", () => trierDossiersParColonne("nom_dossier", false))
+    const trisNomProjet = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier").reverse() },
+    ])
 
-    const trisLocalisation = new Map()
-    trisLocalisation.set("Trier de A à Z", () => trierDossiersParColonne("localisation"))
-    trisLocalisation.set("Trier de Z à A", () => trierDossiersParColonne("localisation", false))
+    const trisLocalisation = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() },
+    ])
     
-    const trisDéposant = new Map()
-    trisDéposant.set("Trier de A à Z", () => trierDossiersParColonne("déposant"))
-    trisDéposant.set("Trier de Z à A", () => trierDossiersParColonne("déposant", false))
+    const trisDéposant = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
+    ])
 </script>
 
 <Squelette {email} {erreurs}>
