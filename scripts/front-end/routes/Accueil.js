@@ -1,5 +1,7 @@
 //@ts-check
 
+import { json } from 'd3-fetch';
+
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
@@ -10,6 +12,7 @@ import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 
 import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
 import showLoginByEmail from './montrerPageDAccueil.js';
+import { getURL } from '../getLinkURL.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -72,6 +75,10 @@ export default async () => {
                 })
         }
 
+        
+        const activitésPrincipalesP = json(getURL('link#activités-principales-DS8844'))
+        const activitésPrincipales = await activitésPrincipalesP
+
         /**
          * 
          * @param {PitchouState} state 
@@ -83,7 +90,8 @@ export default async () => {
             return {
                 ...mapStateToSqueletteProps(state),
                 dossiers: [...dossiersById.values()],
-                relationSuivis: state.relationSuivis
+                relationSuivis: state.relationSuivis,
+                activitésPrincipales
             }
         }    
         

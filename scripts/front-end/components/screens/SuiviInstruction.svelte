@@ -9,6 +9,7 @@
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
+    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
@@ -18,6 +19,9 @@
 
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
+
+    /** @type {string[]} */
+    export let activitésPrincipales
 
     /** @type {ComponentProps<Squelette>['email']} */
     export let email;
@@ -44,7 +48,7 @@
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -216,6 +220,22 @@
     }
 
     
+    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
+    $: activitésPrincipalesSélectionnées = new Set()
+
+    /**
+     * 
+     * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
+     */
+    function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
+        tousLesFiltres.set('activité principale', dossier => {
+            return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+        })
+
+        activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
+
+		filtrerDossiers()
+    }
 </script>
 
 <Squelette {email} {erreurs}>
@@ -231,6 +251,11 @@
                 />
 
                 <div class="filtres">
+                    <FiltreParmiOptions 
+                        titre="Filtrer par activité principale"
+                        options={new Set(activitésPrincipales)} 
+                        mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale} 
+                    />
                     <FiltreParmiOptions 
                         titre="Filtrer par phase"
                         options={phaseOptions} 
@@ -272,6 +297,10 @@
                     {#if instructeursSélectionnés.size >= 1}
                         <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
                     {/if}
+                    {#if activitésPrincipalesSélectionnées.size >= 1}
+                        <span class="fr-badge fr-badge--sm">Activités principales : {[...activitésPrincipalesSélectionnées].join(", ")}</span>
+                    {/if}
+                    
                 </div>
                     
                 <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
