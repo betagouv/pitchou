@@ -117,10 +117,12 @@
      * @param {string} _texteÀChercher
      */
     function filtrerParTexte(_texteÀChercher) {
+        const texteÀChercherSansEspace = _texteÀChercher.trim()
+
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
         // les nombres avec une fonction séparée.
-        if (_texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
+        if (texteÀChercherSansEspace.match(/\d[\dA-Za-z\-]*/)) {
             tousLesFiltres.set('texte', dossier => {
                 const {
                     id, 
@@ -131,14 +133,14 @@
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
             
-                return String(id) === _texteÀChercher ||
-                    départements?.includes(_texteÀChercher) || 
-                    communesCodes?.includes(_texteÀChercher) ||
-                    number_demarches_simplifiées === _texteÀChercher || 
-                    historique_identifiant_demande_onagre === _texteÀChercher
+                return String(id) === texteÀChercherSansEspace ||
+                    départements?.includes(texteÀChercherSansEspace) || 
+                    communesCodes?.includes(texteÀChercherSansEspace) ||
+                    number_demarches_simplifiées === texteÀChercherSansEspace || 
+                    historique_identifiant_demande_onagre === texteÀChercherSansEspace
             })
         } else {
-            const texteSansAccents = retirerAccents(_texteÀChercher)
+            const texteSansAccents = retirerAccents(texteÀChercherSansEspace)
             // Pour chercher les communes qui contiennent des tirets avec lunr,
             // on a besoin de passer la chaîne de caractères entre "".
             const aRechercher = texteSansAccents.match(/(\w-)+/) ? 
@@ -151,7 +153,7 @@
             })
         }
 
-        texteÀChercher = _texteÀChercher;
+        texteÀChercher = texteÀChercherSansEspace;
 
         filtrerDossiers()
     }
