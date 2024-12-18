@@ -504,7 +504,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
@@ -516,8 +516,7 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
     return {
         //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
         déposant: getPersonneId(déposant) || null,
-        //@ts-expect-error pareil
-        demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
+        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
         demandeur_personne_morale: 
             (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
         ...autresPropriétés,
