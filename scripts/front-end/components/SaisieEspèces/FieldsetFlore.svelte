@@ -30,8 +30,8 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    /** @type {string}*/
-    let triSélectionné = ""
+    /** @type {{nom: string, tri: function}|undefined}*/
+    let triSélectionné = undefined
     
     function rerender() {
         floresAtteintes = floresAtteintes
@@ -42,7 +42,7 @@
         floresAtteintes.push({
             espèce: flore,
         })
-        triSélectionné = ""
+        triSélectionné = undefined
 
         rerender()
     }
@@ -62,7 +62,7 @@
     */
     function onDupliquerLigne(floreAtteinte) {
         floresAtteintes.push(floreAtteinte)
-        triSélectionné = ""
+        triSélectionné = undefined
 
         rerender()
     }
@@ -77,17 +77,19 @@
         rerender()
     }
 
-    const trisEspèces = new Map()
-    trisEspèces.set("Trier de A à Z", trierParFloreDeAaZ)
-    trisEspèces.set("Trier de Z à A", trierParFloreDeZaA)
+    const trisEspèces = new Set([
+        { nom: "Trier de A à Z", tri: trierParFloreDeAaZ },
+        { nom: "Trier de Z à A", tri: trierParFloreDeZaA },
+    ])
 
     function trierParImpacts() {
         floresAtteintes = grouperParActivité(floresAtteintes)
         rerender()
     }
 
-    const trisImpacts = new Map()
-    trisImpacts.set("Grouper par impact", trierParImpacts)
+    const trisImpacts = new Set([
+        { nom: "Grouper par impact", tri: trierParImpacts },
+    ])
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">

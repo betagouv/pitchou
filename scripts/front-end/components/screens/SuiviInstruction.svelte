@@ -11,9 +11,10 @@
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
     /** @import {PitchouState} from '../../store.js' */
-    /** @import {default as Personne} from '../../../types/database/public/Personne.js' */
+    /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
+    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
-    /** @type {DossierComplet[]} */
+    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
     export let dossiers = []
 
     /** @type {PitchouState['relationSuivis']} */
@@ -40,14 +41,14 @@
         return dossierIdsSansSuivi
     })()
 
-    /** @type {DossierComplet[]} */
+    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
     
     /** @type {string} */
     let triSélectionné = ""
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -62,25 +63,21 @@
 	}
 
 
-    const PHASE_VIDE = '(vide)'
-    /** @type {Set<NonNullable<DossierPhase> | PHASE_VIDE>}*/
-    const phaseOptions = new Set([...phases, PHASE_VIDE])
+    /** @type {Set<NonNullable<DossierPhase>>}*/
+    const phaseOptions = new Set([...phases])
 
-    /** @type {Set<DossierPhase | PHASE_VIDE>} */
+    /** @type {Set<DossierPhase>} */
     // @ts-ignore
     $: phasesFiltrées = new Set()
 
     /**
      * 
-     * @param {Set<DossierPhase | PHASE_VIDE>} phasesSélectionnées
+     * @param {Set<DossierPhase>} phasesSélectionnées
      */
 	function filtrerParPhase(phasesSélectionnées){
         tousLesFiltres.set('phase', dossier => {
-            if (phasesSélectionnées.has(PHASE_VIDE)) {
-                return !dossier.phase
-            }
-
-            return phasesSélectionnées.has(dossier.phase)
+            //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...
+            return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
         })
 
         phasesFiltrées = new Set(phasesSélectionnées)
@@ -383,7 +380,8 @@
                             déposant_prénoms, communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
-                            phase, prochaine_action_attendue_par }}
+                            évènementsPhase, prochaine_action_attendue_par }}
+                                {@const phase = évènementsPhase[0].phase}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
@@ -407,7 +405,7 @@
                                     <td>
                                         {rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
-                                    <td>{phase || ''}</td>
+                                    <td>{phase}</td>
                                     <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
                             {/each}

@@ -34,7 +34,6 @@ export default async () => {
         return {
             ...mapStateToSqueletteProps(state),
             dossiers: [...dossiersById.values()],
-            relationSuivis: state.relationSuivis,
             évènementsPhaseDossier
         }
     }    

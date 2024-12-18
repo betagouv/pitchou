@@ -1,88 +1,35 @@
 <script>
     //@ts-check
     import Squelette from '../Squelette.svelte'
-    import {phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types.js' */
-    /** @import {PitchouState} from '../../store.js' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */    
+    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
-    /** @type {DossierComplet[]} */
+
+    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
     export let dossiers = []
-
-    /** @type {PitchouState['relationSuivis']} */
-    export let relationSuivis
-
-    /** @type {any[]} */
-    export let évènementsPhaseDossier
-    $: console.log('évènementsPhaseDossier', évènementsPhaseDossier)
-
-
-    /**
-     * 
-     * @param {string} traitementPhase
-     * @returns {DossierPhase}
-     */
-    function traitementPhaseToDossierPhase(traitementPhase){
-        if(traitementPhase === 'en_construction')
-            return "Accompagnement amont"
-        if(traitementPhase === 'en_instruction')
-            return "Instruction"
-        if(traitementPhase === 'accepte')
-            return "Contrôle"
-        if(traitementPhase === 'sans_suite')
-            return "Classé sans suite"
-        if(traitementPhase === 'refuse')
-            return "Obligations terminées"
-
-        throw `Traitement phase non reconnue: ${traitementPhase}`
-    }
-
-    /**
-     * 
-     * @return {Map<DossierComplet['id'], DossierPhase>} 
-     */
-    function créerPhaseParDossierId(évènementsPhaseDossier){
-        /** @type {Map<DossierComplet['id'], any>} */
-        const evParDossierId = new Map()
-
-        for(const évènement of évènementsPhaseDossier){
-            const {dossier, horodatage} = évènement
-            
-            const horoDate = new Date(horodatage)
-
-            const evPourCeDossier = evParDossierId.get(dossier)
-
-            if(evPourCeDossier === undefined || new Date(evPourCeDossier.horodatage).getTime() < horoDate.getTime() ){
-                evParDossierId.set(dossier, évènement)
-            }
-        }
-
-        return new Map(
-            [...evParDossierId.entries()].map(([dossierId, ev]) => [
-                dossierId,
-                traitementPhaseToDossierPhase(ev.phase)
-            ])
-        )
-
-    }
-
-    $: phaseParDossierId = créerPhaseParDossierId(évènementsPhaseDossier)
 
 
     /** @type {string | undefined} */
     export let email
 
+    /**
+     * 
+     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     */
     function trouverDossiersEnContrôle(dossiers){
         return dossiers.filter(dossier => {
-            const id = dossier.id
-            const phase = phaseParDossierId.get(id)
+            const phase = dossier.évènementsPhase[0].phase
             return phase === 'Contrôle'
         })
     }
 
     $: dossierEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
 
-
+    /**
+     * 
+     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     */
     function trouverDossiersAvecAPPrisEn2024(dossiers){
         return dossiers.filter(d => {
             const historique_date_signature_arrêté_préfectoral = d.historique_date_signature_arrêté_préfectoral
@@ -96,16 +43,23 @@
 
     $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossierEnPhaseContrôle)
 
+    /**
+     * 
+     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     */
     function trouverDossiersEnAccompagnement(dossiers){
         return dossiers.filter(dossier => {
-            const id = dossier.id
-            const phase = phaseParDossierId.get(id)
+            const phase = dossier.évènementsPhase[0].phase
             return phase === 'Accompagnement amont'
         })
     }
 
     $: dossiersEnAccompagnement = trouverDossiersEnAccompagnement(dossiers)
     
+    /**
+     * 
+     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     */
     function trouverDossiersDeMoinsDe3Ans(dossiers){
         return dossiers.filter(d => {
             const dateDépôt = new Date(d.historique_date_réception_ddep || d.date_dépôt)
@@ -116,7 +70,10 @@
 
     $: dossiersEnAccompagnementDeMoinsDe3Ans = trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement)
 
-    
+    /**
+     * 
+     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     */
     function trouverDossiersNonScientifiques(dossiers){
         return dossiers.filter(d => {
             return d.activité_principale !== 'Demande à caractère scientifique'
@@ -142,11 +99,14 @@
                 <h2>Dossiers avec AP</h2>
                 <ul>
                     <li><strong>
-                        Nombre de dossiers avec AP (<code>DS: 'accepté'</code>)
+                        Nombre de dossiers 
+                        en phase contrôle (avec AP)
                         </strong>&nbsp;: {dossierEnPhaseContrôle.length}
                     </li>
                     <li><strong>
-                        Nombre de dossiers avec AP (<code>DS: 'accepté'</code>) pris en 2024
+                        Nombre de dossiers 
+                        en phase contrôle 
+                        avec AP pris en 2024
                         </strong>&nbsp;: {dossiersAvecAPPrisEn2024.length}
                     </li>
                 </ul>
@@ -156,18 +116,21 @@
                 <h2>Accompagnement</h2>
                 <ul>
                     <li><strong>
-                        Nombre de dossiers actuellement en accompagnement 
-                        (<code>DS: 'en construction'</code>)
+                        Nombre de dossiers 
+                        actuellement en accompagnement amont
                         </strong>&nbsp;: {dossiersEnAccompagnement.length}
                     </li>
                     <li><strong>
-                        Nombre de dossiers actuellement en accompagnement 
-                        (<code>DS: 'en construction'</code>) qui ont moins de 3 ans
+                        Nombre de dossiers 
+                        actuellement en accompagnement amont 
+                        qui ont moins de 3 ans
                         </strong>&nbsp;: {dossiersEnAccompagnementDeMoinsDe3Ans.length}
                     </li>
                     <li><strong>
-                        Nombre de dossiers non-scientifiques actuellement en accompagnement 
-                        (<code>DS: 'en construction'</code>) qui ont moins de 3 ans
+                        Nombre de dossiers 
+                        non-scientifiques 
+                        actuellement en accompagnement amont
+                        qui ont moins de 3 ans
                         </strong>&nbsp;: {dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans.length}
                     </li>
                 </ul>
@@ -177,11 +140,5 @@
 </Squelette>
 
 <style lang="scss">
-    td, th{
-        vertical-align: top;
-    }
-
-    th {
-        min-width: 6rem;
-    }
+    
 </style>

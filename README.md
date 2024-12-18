@@ -98,7 +98,7 @@ Cela va dévoiler un fichier `.pgsql` du même nom
 Ensuite :
 
 ```sh
-docker exec postgres_db pg_restore --username=dev -d principale --clean --no-owner --jobs=6 /var/lib/pitchou/backups/<nom_fichier>.pgsql
+docker exec postgres_db pg_restore -C --username=dev -d principale --clean --no-owner --jobs=6 /var/lib/pitchou/backups/<nom_fichier>.pgsql
 ```
 
 ##### Restorer un backup en prod

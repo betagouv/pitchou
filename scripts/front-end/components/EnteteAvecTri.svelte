@@ -4,16 +4,16 @@
     /** @type {string} */
     export let label
 
-    /** @type {Map<string, function>} */
+    /** @type {Set<{nom: string, tri: function}>} */
     export let tris
 
-    /** @type {string} */
-    export let triSélectionné = ""
+    /** @type {{nom: string, tri: function}|undefined} */
+    export let triSélectionné = undefined
 
-    /** @type {(tri: [string, function]) => void} */
+    /** @type {(tri: {nom: string, tri: function}) => void} */
     const sélectionnerTri = (tri) => { 
-        triSélectionné = `${label}/${tri[0]}`
-        tri[1]()
+        triSélectionné = tri
+        tri["tri"]()
     }
 
     /** @type {(tri: [string, function]) => boolean}*/
@@ -24,12 +24,12 @@
     <p>{label}</p>
 
     <ul>
-        {#each /** @type {[string, function]} */[...tris] as tri}
+        {#each [...tris] as tri}
             <li>
-                <button type="button" on:click={() => { sélectionnerTri(tri) }}  class={ isTriSélectionné(tri) ? "sélectionné" : "" }>
-                    {tri[0]}
+                <button type="button" on:click={() => { sélectionnerTri(tri) }}  class={ triSélectionné === tri ? "sélectionné" : "" }>
+                    {tri["nom"]}
 
-                    {#if isTriSélectionné(tri)}
+                    {#if tri === triSélectionné}
                         <span class="fr-icon-check-line" aria-hidden="true"></span>
                     {/if}
                 </button>

@@ -3,8 +3,10 @@ import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
 
 //@ts-ignore
-/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierPhase} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+//@ts-ignore
+/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
@@ -57,6 +59,28 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
 }
 
 /**
+ * Converti les "state" des "traitements" DS vers les phases Pitchou
+ * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
+ * 
+ * @param {API_DS_SCHEMA.Traitement['state']} DSTraitementState
+ * @returns {DossierPhase}
+ */
+function traitementPhaseToDossierPhase(DSTraitementState){
+    if(DSTraitementState === 'en_construction')
+        return "Accompagnement amont"
+    if(DSTraitementState === 'en_instruction')
+        return "Instruction"
+    if(DSTraitementState === 'accepte')
+        return "Contrôle"
+    if(DSTraitementState === 'sans_suite')
+        return "Classé sans suite"
+    if(DSTraitementState === 'refuse')
+        return "Obligations terminées"
+
+    throw `Traitement phase non reconnue: ${DSTraitementState}`
+}
+
+/**
  * @param {Map<Dossier['id'], API_DS_SCHEMA.Traitement[]>} idToTraitements
  * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
  * @returns {Promise<any>}
@@ -68,9 +92,10 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
     for(const [dossierId, apiTraitements] of idToTraitements){
         for(const {dateTraitement, state} of apiTraitements){
             évènementsPhaseDossier.push({
-                phase: state,
+                phase: traitementPhaseToDossierPhase(state),
                 horodatage: new Date(dateTraitement),
-                dossier: dossierId
+                dossier: dossierId,
+                cause_personne: null // signifie que c'est l'outil de sync DS qui est la cause
             })
         }
     };
@@ -278,7 +303,6 @@ const colonnesDossierComplet = [
     "régions",
 
     // prochaine action attendue
-    "phase",
     "prochaine_action_attendue_par",
     "prochaine_action_attendue",
 
@@ -355,11 +379,11 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
 }
 
 /**
- * @param {CapDossier['cap']} cap_dossier 
+ * @param {CapDossier['cap']} cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<DossierComplet[]>}
+ * @returns {Promise<{dossiers: DossierComplet[], évènementsPhaseDossier: ÉvènementPhaseDossier[]}>}
  */
-export async function getDossiersByCap(cap_dossier, databaseConnection = directDatabaseConnection){
+export async function getDossiersByCap(cap, databaseConnection = directDatabaseConnection){
     const dossiersP = databaseConnection('dossier')
         .select(colonnesDossierComplet)
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
@@ -371,7 +395,7 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
         .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
-        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
         .then(dossiers => {
             for(const dossier of dossiers){
                 const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
@@ -385,7 +409,10 @@ export async function getDossiersByCap(cap_dossier, databaseConnection = directD
             return dossiers
         })
 
-    return dossiersP
+    const évènementsPhaseDossierP = getÉvènementsPhaseDossiers(cap, databaseConnection)
+
+    return Promise.all([dossiersP, évènementsPhaseDossierP])
+        .then(([dossiers, évènementsPhaseDossier]) => ({dossiers, évènementsPhaseDossier}))
 }
 
 /**
@@ -451,13 +478,37 @@ export function deleteDossierByDSNumber(numbers){
 /**
  *
  * @param {Dossier['id']} id
- * @param {Partial<Dossier>} dossierParams
- * @returns {Promise<void>}
+ * @param {Partial<DossierComplet> & {phase: string}} dossierParams
+ * @param {Personne['id']} causePersonne
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<any>}
  */
-export function updateDossier(id, dossierParams) {
-    return directDatabaseConnection('dossier')
-        .where({ id })
-        .update(dossierParams)
+export function updateDossier(id, dossierParams, causePersonne, databaseConnection = directDatabaseConnection) {
+    let phaseAjoutée = Promise.resolve()
+    
+    if(dossierParams.phase){
+        const phase = dossierParams.phase
+        //@ts-ignore
+        delete dossierParams.phase
+
+        phaseAjoutée = databaseConnection('évènement_phase_dossier')
+            .insert({
+                phase,
+                horodatage: new Date(),
+                dossier: id,
+                cause_personne: causePersonne
+            })
+    }
+
+    let dossierÀJour = Promise.resolve()
+
+    if(Object.keys(dossierParams).length >= 1){
+        dossierÀJour = databaseConnection('dossier')
+            .where({ id })
+            .update(dossierParams)
+    }
+
+    return Promise.all([phaseAjoutée, dossierÀJour])
 }
 
 /**

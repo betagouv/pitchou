@@ -81,8 +81,6 @@ export default interface Dossier {
 
   rattaché_au_régime_ae: boolean | null;
 
-  phase: string | null;
-
   prochaine_action_attendue_par: string | null;
 
   prochaine_action_attendue: string | null;
@@ -165,8 +163,6 @@ export interface DossierInitializer {
 
   rattaché_au_régime_ae?: boolean | null;
 
-  phase?: string | null;
-
   prochaine_action_attendue_par?: string | null;
 
   prochaine_action_attendue?: string | null;
@@ -247,8 +243,6 @@ export interface DossierMutator {
   commentaire_libre?: string | null;
 
   rattaché_au_régime_ae?: boolean | null;
-
-  phase?: string | null;
 
   prochaine_action_attendue_par?: string | null;
 
