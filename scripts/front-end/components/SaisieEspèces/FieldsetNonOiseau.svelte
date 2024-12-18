@@ -1,9 +1,15 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js"
+    import { 
+        trierParOrdreAlphabétiqueEspèce, 
+        grouperParActivité,
+        grouperParMéthode,
+     } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
+    import EnteteAvecTri from "./EnteteAvecTri.svelte"
     
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -31,6 +37,9 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
     
+    /** @type {{nom: string, tri: function}|undefined}*/
+    let triSélectionné = undefined
+    
     function rerender() {
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
     }
@@ -40,6 +49,7 @@
         faunesNonOiseauxAtteintes.push({
             espèce: fauneNonOiseau,
         })
+        triSélectionné = undefined
 
         rerender()
     }
@@ -59,9 +69,43 @@
     */
     function onDupliquerLigne(fauneNonOiseauAtteinte) {
         faunesNonOiseauxAtteintes.push(fauneNonOiseauAtteinte)
+        triSélectionné = undefined
 
         rerender()
     }
+
+    function trierParFauneNonOiseauxDeAaZ() {  
+        faunesNonOiseauxAtteintes= trierParOrdreAlphabétiqueEspèce(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+
+    function trierParFauneNonOiseauxDeZaA() {  
+        faunesNonOiseauxAtteintes = trierParOrdreAlphabétiqueEspèce(faunesNonOiseauxAtteintes).reverse()
+        rerender()
+    }
+
+    const trisEspèces = new Set([
+        { nom: "Trier de A à Z", tri: trierParFauneNonOiseauxDeAaZ },
+        { nom: "Trier de Z à A", tri: trierParFauneNonOiseauxDeZaA },
+    ])
+    
+    function trierParImpacts() {
+        faunesNonOiseauxAtteintes = grouperParActivité(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+
+    const trisImpacts = new Set([
+        { nom: "Grouper par impact", tri: trierParImpacts },
+    ])
+
+    function trierParMéthode() {
+        faunesNonOiseauxAtteintes = grouperParMéthode(faunesNonOiseauxAtteintes)
+        rerender()
+    }
+    
+    const trisMéthodes = new Set([
+        { nom: "Grouper par méthode", tri: trierParMéthode },
+    ])
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -72,9 +116,27 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Espèce</th>
-                            <th>Type d’impact</th>
-                            <th>Méthode</th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Espèce"
+                                    tris={trisEspèces}
+                                    bind:triSélectionné
+                                />
+                            </th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Type d'impact" 
+                                    tris={trisImpacts}
+                                    bind:triSélectionné
+                                />
+                            </th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Méthode" 
+                                    tris={trisMéthodes} 
+                                    bind:triSélectionné
+                                />
+                            </th>
                             <th>Moyen de poursuite</th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>
@@ -164,14 +226,6 @@
         table{
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
-
-            tr {
-                th{
-                    padding: 0.2rem;
-
-                    vertical-align: top;
-                }
-            }
         }
     }
 </style>

@@ -1,9 +1,15 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js";
+    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js"
+    import { 
+        trierParOrdreAlphabétiqueEspèce, 
+        grouperParActivité,
+        grouperParMéthode,
+     } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
+    import EnteteAvecTri from "./EnteteAvecTri.svelte"
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -31,6 +37,9 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
+    /** @type {{nom: string, tri: function}|undefined}*/
+    let triSélectionné = undefined
+
     function rerender() {
         oiseauxAtteints = oiseauxAtteints
     }
@@ -40,6 +49,7 @@
         oiseauxAtteints.push({
             espèce: oiseau,
         })
+        triSélectionné = undefined
 
         rerender()
     }
@@ -59,9 +69,43 @@
     */
     function onDupliquerLigne(oiseauAtteint) {
         oiseauxAtteints.push(oiseauAtteint)
+        triSélectionné = undefined
 
         rerender()
     }
+
+    function trierParOiseauxDeAaZ() {  
+        oiseauxAtteints = trierParOrdreAlphabétiqueEspèce(oiseauxAtteints)
+        rerender()
+    }
+
+    function trierParOiseauxDeZaA() {  
+        oiseauxAtteints = trierParOrdreAlphabétiqueEspèce(oiseauxAtteints).reverse()
+        rerender()
+    }
+
+    const trisEspèces = new Set([
+        { nom: "Trier de A à Z", tri: trierParOiseauxDeAaZ },
+        { nom: "Trier de Z à A", tri: trierParOiseauxDeZaA },
+    ])
+
+    function trierParImpacts() {
+        oiseauxAtteints = grouperParActivité(oiseauxAtteints)
+        rerender()
+    }
+
+    const trisImpacts = new Set([
+        { nom: "Grouper par impact", tri: trierParImpacts }
+    ])
+
+    function trierParMéthode() {
+        oiseauxAtteints = grouperParMéthode(oiseauxAtteints)
+        rerender()
+    }
+    
+    const trisMéthodes = new Set([
+        { nom: "Grouper par méthode", tri: trierParMéthode}
+    ])
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -72,9 +116,27 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Espèce</th>
-                            <th>Type d’impact</th>
-                            <th>Méthode</th>
+                            <th class="flex">
+                                <EnteteAvecTri 
+                                    label="Espèce" 
+                                    tris={trisEspèces}
+                                    bind:triSélectionné
+                                />
+                            </th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Type d'impact" 
+                                    tris={trisImpacts} 
+                                    bind:triSélectionné
+                                />
+                            </th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Méthode" 
+                                    tris={trisMéthodes}
+                                    bind:triSélectionné
+                                />
+                            </th>
                             <th>Moyen de poursuite</th>
                             <th>Nombre d'individus</th>
                             <th>Nids</th>

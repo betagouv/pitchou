@@ -2,8 +2,13 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
+    import { 
+        trierParOrdreAlphabétiqueEspèce, 
+        grouperParActivité,
+     } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
+    import EnteteAvecTri from "./EnteteAvecTri.svelte"
     
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
 
@@ -24,6 +29,9 @@
 
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
+
+    /** @type {{nom: string, tri: function}|undefined}*/
+    let triSélectionné = undefined
     
     function rerender() {
         floresAtteintes = floresAtteintes
@@ -34,6 +42,7 @@
         floresAtteintes.push({
             espèce: flore,
         })
+        triSélectionné = undefined
 
         rerender()
     }
@@ -53,9 +62,34 @@
     */
     function onDupliquerLigne(floreAtteinte) {
         floresAtteintes.push(floreAtteinte)
+        triSélectionné = undefined
 
         rerender()
     }
+
+    function trierParFloreDeAaZ() {  
+        floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes)
+        rerender()
+    }
+
+    function trierParFloreDeZaA() {  
+        floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes).reverse()
+        rerender()
+    }
+
+    const trisEspèces = new Set([
+        { nom: "Trier de A à Z", tri: trierParFloreDeAaZ },
+        { nom: "Trier de Z à A", tri: trierParFloreDeZaA },
+    ])
+
+    function trierParImpacts() {
+        floresAtteintes = grouperParActivité(floresAtteintes)
+        rerender()
+    }
+
+    const trisImpacts = new Set([
+        { nom: "Grouper par impact", tri: trierParImpacts },
+    ])
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">
@@ -66,8 +100,20 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Espèce</th>
-                            <th>Type d’impact</th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Espèce" 
+                                    tris={trisEspèces}
+                                    bind:triSélectionné    
+                                />
+                            </th>
+                            <th>
+                                <EnteteAvecTri 
+                                    label="Type d'impact" 
+                                    tris={trisImpacts} 
+                                    bind:triSélectionné
+                                />
+                            </th>
                             <th>Nombre d'individus</th>
                             <th>Surface habitat détruit (m²)</th>
                             <th>Dupliquer la ligne</th>
