@@ -20,7 +20,7 @@
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
 
-    /** @type {string[]} */
+    /** @type {DossierDemarcheSimplifiee88444["Activité principale"][]} */
     export let activitésPrincipales
 
     /** @type {ComponentProps<Squelette>['email']} */
