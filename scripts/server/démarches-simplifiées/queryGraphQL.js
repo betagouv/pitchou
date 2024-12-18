@@ -102,6 +102,7 @@ export default async function(token, query, variables) {
         return response.data;
     }
     catch(err){
+        // @ts-ignore
         if(err.name === 'TimeoutError'){
             const message = `\nTimeout d'une requête HTTP vers ${ENDPOINT} après ${TIMEOUT_DELAY/1000} secondes\n\n`
             const erreurSimple = new Error(message)
