@@ -3,10 +3,12 @@
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
+    import EnteteAvecTri from '../EnteteAvecTri.svelte'
     import TagPhase from '../TagPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
+    import {trierDossiersParOrdreAlphabétiqueColonne} from '../../triDossiers.js'
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
@@ -45,6 +47,9 @@
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
+    /** @type {{nom: string, tri: function}|undefined} */
+    let triSélectionné = undefined
+
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
     const tousLesFiltres = new Map()
 
@@ -56,6 +61,7 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
+        triSélectionné = undefined
 	}
 
 
@@ -70,7 +76,7 @@
     ])
 
     /**
-     * 
+     *
      * @param {DossierPhase} phase
      */
     function makeTagPhaseOnClick(phase){
@@ -81,7 +87,7 @@
             else{
                 phasesSélectionnées.add(phase)
             }
-            
+
             phasesSélectionnées = phasesSélectionnées; // re-render
 
             filtrerDossiers()
@@ -102,7 +108,7 @@
     $: prochainesActionsAttenduesParFiltrées = new Set()
 
     /**
-     * 
+     *
      * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} prochainesActionsAttenduesParSélectionnées
      */
     function filtrerParProchainesActionsAttenduesPar(prochainesActionsAttenduesParSélectionnées) {
@@ -127,30 +133,30 @@
      */
     function filtrerParTexte(_texteÀChercher) {
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
-        // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur 
+        // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur
         // les nombres avec une fonction séparée.
         if (_texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
             tousLesFiltres.set('texte', dossier => {
                 const {
-                    id, 
-                    départements, 
-                    communes, 
+                    id,
+                    départements,
+                    communes,
                     number_demarches_simplifiées,
                     historique_identifiant_demande_onagre,
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
-            
+
                 return String(id) === _texteÀChercher ||
-                    départements?.includes(_texteÀChercher) || 
+                    départements?.includes(_texteÀChercher) ||
                     communesCodes?.includes(_texteÀChercher) ||
-                    number_demarches_simplifiées === _texteÀChercher || 
+                    number_demarches_simplifiées === _texteÀChercher ||
                     historique_identifiant_demande_onagre === _texteÀChercher
             })
         } else {
             const texteSansAccents = retirerAccents(_texteÀChercher)
             // Pour chercher les communes qui contiennent des tirets avec lunr,
             // on a besoin de passer la chaîne de caractères entre "".
-            const aRechercher = texteSansAccents.match(/(\w-)+/) ? 
+            const aRechercher = texteSansAccents.match(/(\w-)+/) ?
                 `"${texteSansAccents}"` :
                 texteSansAccents
             const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(aRechercher, dossiers)
@@ -166,12 +172,12 @@
     }
 
     /**
-     * 
+     *
      * @param {Event} e
      */
     function onSupprimerFiltreTexte(e) {
         e.preventDefault()
-     
+
         tousLesFiltres.delete('texte')
 
         texteÀChercher = ''
@@ -180,7 +186,7 @@
 
     const AUCUN_INSTRUCTEUR = '(aucun instructeur)'
     const instructeurEmailOptions = (relationSuivis && Array.from(relationSuivis.keys()).sort()) || []
-    
+
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}*/
     const instructeursOptions = new Set([AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
@@ -188,7 +194,7 @@
     $: instructeursSélectionnés = new Set()
 
     /**
-     * 
+     *
      * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
 	function filtrerParInstructeurs(_instructeursSélectionnées){
@@ -228,7 +234,25 @@
         filtrerDossiers()
     }
 
-    
+    const trisActivitéPrincipale = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse() },
+    ])
+
+    const trisNomProjet = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier").reverse() },
+    ])
+
+    const trisLocalisation = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() },
+    ])
+
+    const trisDéposant = new Set([
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
+    ])
 </script>
 
 <Squelette {email} {erreurs}>
@@ -251,16 +275,16 @@
                 </div>
 
                 <div class="filtres">
-                    <FiltreParmiOptions 
+                    <FiltreParmiOptions
                         titre="Filtrer par prochaine action attendue par"
-                        options={prochainesActionsAttenduesParOptions} 
-                        mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar} 
+                        options={prochainesActionsAttenduesParOptions}
+                        mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
                     />
                     {#if instructeursOptions && instructeursOptions.size >= 2}
-                    <FiltreParmiOptions 
+                    <FiltreParmiOptions
                         titre="Filtrer par instructeur suivant le dossier"
-                        options={instructeursOptions} 
-                        mettreÀJourOptionsSélectionnées={filtrerParInstructeurs} 
+                        options={instructeursOptions}
+                        mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
                     />
                     {/if}
                     {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
@@ -285,7 +309,7 @@
                         <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
                     {/if}
                 </div>
-                    
+
                 <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
 
                 <div class="fr-table fr-table--bordered">
@@ -293,10 +317,34 @@
                         <thead>
                             <tr>
                                 <th>Voir le dossier</th>
-                                <th>Localisation</th>
-                                <th>Activité principale</th>
-                                <th>Porteur de projet</th>
-                                <th>Nom du projet</th>
+                                <th>
+                                    <EnteteAvecTri
+                                        label="Localisation"
+                                        tris={trisLocalisation}
+                                        bind:triSélectionné
+                                    />
+                                </th>
+                                <th>
+                                    <EnteteAvecTri
+                                        label="Activité principale"
+                                        tris={trisActivitéPrincipale}
+                                        bind:triSélectionné
+                                    />
+                                </th>
+                                <th>
+                                    <EnteteAvecTri
+                                        label="Porteur de projet"
+                                        tris={trisDéposant}
+                                        bind:triSélectionné
+                                    />
+                                </th>
+                                <th>
+                                    <EnteteAvecTri
+                                        label="Nom du projet"
+                                        tris={trisNomProjet}
+                                        bind:triSélectionné
+                                    />
+                                </th>
                                 <th>Enjeux</th>
                                 <th>Rattaché au régime AE</th>
                                 <th>Phase</th>
