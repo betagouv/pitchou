@@ -172,9 +172,10 @@
     }
 
     const AUCUN_INSTRUCTEUR = '(aucun instructeur)'
+    const instructeurEmailOptions = (relationSuivis && Array.from(relationSuivis.keys()).sort()) || []
+    
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}*/
-    const instructeursOptions = new Set(relationSuivis && relationSuivis.keys())
-    instructeursOptions.add(AUCUN_INSTRUCTEUR)
+    const instructeursOptions = new Set([AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
     $: instructeursSélectionnés = new Set()

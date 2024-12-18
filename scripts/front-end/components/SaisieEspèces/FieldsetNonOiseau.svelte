@@ -2,15 +2,15 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js"
-    import { 
-        trierParOrdreAlphabétiqueEspèce, 
+    import {
+        trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
     import EnteteAvecTri from "./../EnteteAvecTri.svelte"
-    
+
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
     /** @type {FauneNonOiseauAtteinte[]} */
@@ -27,7 +27,7 @@
 
     /** @type {TransportMenançant[]} */
     export let transportMenaçants
-    
+
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
 
@@ -36,10 +36,10 @@
 
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
-    
+
     /** @type {{nom: string, tri: function}|undefined}*/
     let triSélectionné = undefined
-    
+
     function rerender() {
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
     }
@@ -57,7 +57,7 @@
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
         const index = faunesNonOiseauxAtteintes.findIndex(({espèce}) => espèce === _espèce);
-        if (index > -1) { 
+        if (index > -1) {
             faunesNonOiseauxAtteintes.splice(index, 1);
         }
 
@@ -74,12 +74,12 @@
         rerender()
     }
 
-    function trierParFauneNonOiseauxDeAaZ() {  
+    function trierParFauneNonOiseauxDeAaZ() {
         faunesNonOiseauxAtteintes= trierParOrdreAlphabétiqueEspèce(faunesNonOiseauxAtteintes)
         rerender()
     }
 
-    function trierParFauneNonOiseauxDeZaA() {  
+    function trierParFauneNonOiseauxDeZaA() {
         faunesNonOiseauxAtteintes = trierParOrdreAlphabétiqueEspèce(faunesNonOiseauxAtteintes).reverse()
         rerender()
     }
@@ -88,7 +88,7 @@
         { nom: "Trier de A à Z", tri: trierParFauneNonOiseauxDeAaZ },
         { nom: "Trier de Z à A", tri: trierParFauneNonOiseauxDeZaA },
     ])
-    
+
     function trierParImpacts() {
         faunesNonOiseauxAtteintes = grouperParActivité(faunesNonOiseauxAtteintes)
         rerender()
@@ -102,7 +102,7 @@
         faunesNonOiseauxAtteintes = grouperParMéthode(faunesNonOiseauxAtteintes)
         rerender()
     }
-    
+
     const trisMéthodes = new Set([
         { nom: "Grouper par méthode", tri: trierParMéthode },
     ])
@@ -117,23 +117,23 @@
                     <thead>
                         <tr>
                             <th>
-                                <EnteteAvecTri 
+                                <EnteteAvecTri
                                     label="Espèce"
                                     tris={trisEspèces}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri 
-                                    label="Type d'impact" 
+                                <EnteteAvecTri
+                                    label="Type d'impact"
                                     tris={trisImpacts}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri 
-                                    label="Méthode" 
-                                    tris={trisMéthodes} 
+                                <EnteteAvecTri
+                                    label="Méthode"
+                                    tris={trisMéthodes}
                                     bind:triSélectionné
                                 />
                             </th>
@@ -144,7 +144,7 @@
                             <th>Supprimer la ligne</th>
                         </tr>
                     </thead>
-                    
+
                     <tbody>
                         {#each faunesNonOiseauxAtteintes as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit}}
                         <FauneNonOiseauAtteinteEditRow
@@ -157,25 +157,25 @@
 
                         <tr>
                             <td>
-                                <AutocompleteEspeces 
-                                    espèces={espècesProtégéesFauneNonOiseau} 
-                                    onChange={ajouterFauneNonOiseau} 
+                                <AutocompleteEspeces
+                                    espèces={espècesProtégéesFauneNonOiseau}
+                                    onChange={ajouterFauneNonOiseau}
                                     htmlClass="fr-input search"
                                     labelFunction={autocompleteLabelFunction}
                                     keywordsFunction={autocompleteKeywordsFunction}
                                 />
                             </td>
                             <td>
-                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                                <select class="fr-select" disabled><option>- - - -</option></select>
                             </td>
                             <td>
-                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                                <select class="fr-select" disabled><option>- - - -</option></select>
                             </td>
                             <td>
-                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                                <select class="fr-select" disabled><option>- - - -</option></select>
                             </td>
                             <td>
-                                <select disabled class="fr-select"><option>- - - -</option></select> 
+                                <select disabled class="fr-select"><option>- - - -</option></select>
                             </td>
                             <td><input disabled type="number" class="fr-input"></td>
                             <td></td>
@@ -200,7 +200,7 @@
             text-align: center;
             vertical-align: middle;
         }
-        
+
         input[type="number"] {
             border-radius: 0.5em;
             padding: 0.4em;

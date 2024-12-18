@@ -2,15 +2,15 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js"
-    import { 
-        trierParOrdreAlphabétiqueEspèce, 
+    import {
+        trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
     import EnteteAvecTri from "./../EnteteAvecTri.svelte"
-    
+
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
     /** @type {OiseauAtteint[]} */
@@ -57,7 +57,7 @@
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
         const index = oiseauxAtteints.findIndex(({espèce}) => espèce === _espèce);
-        if (index > -1) { 
+        if (index > -1) {
             oiseauxAtteints.splice(index, 1);
         }
 
@@ -74,12 +74,12 @@
         rerender()
     }
 
-    function trierParOiseauxDeAaZ() {  
+    function trierParOiseauxDeAaZ() {
         oiseauxAtteints = trierParOrdreAlphabétiqueEspèce(oiseauxAtteints)
         rerender()
     }
 
-    function trierParOiseauxDeZaA() {  
+    function trierParOiseauxDeZaA() {
         oiseauxAtteints = trierParOrdreAlphabétiqueEspèce(oiseauxAtteints).reverse()
         rerender()
     }
@@ -102,7 +102,7 @@
         oiseauxAtteints = grouperParMéthode(oiseauxAtteints)
         rerender()
     }
-    
+
     const trisMéthodes = new Set([
         { nom: "Grouper par méthode", tri: trierParMéthode}
     ])
@@ -117,22 +117,22 @@
                     <thead>
                         <tr>
                             <th class="flex">
-                                <EnteteAvecTri 
-                                    label="Espèce" 
+                                <EnteteAvecTri
+                                    label="Espèce"
                                     tris={trisEspèces}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri 
-                                    label="Type d'impact" 
-                                    tris={trisImpacts} 
+                                <EnteteAvecTri
+                                    label="Type d'impact"
+                                    tris={trisImpacts}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri 
-                                    label="Méthode" 
+                                <EnteteAvecTri
+                                    label="Méthode"
                                     tris={trisMéthodes}
                                     bind:triSélectionné
                                 />
@@ -156,36 +156,36 @@
                                 {onDupliquerLigne}
                             />
                         {/each}
-                       
+
                         <tr>
                             <td>
-                                <AutocompleteEspeces 
-                                    espèces={espècesProtégéesOiseau} 
-                                    onChange={ajouterOiseau} 
+                                <AutocompleteEspeces
+                                    espèces={espècesProtégéesOiseau}
+                                    onChange={ajouterOiseau}
                                     htmlClass="fr-input search"
                                     labelFunction={autocompleteLabelFunction}
                                     keywordsFunction={autocompleteKeywordsFunction}
                                 />
                             </td>
                             <td>
-                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                                <select class="fr-select" disabled><option>- - - -</option></select>
                             </td>
-                        
+
                             <td>
-                                <select class="fr-select" disabled><option>- - - -</option></select> 
-                            </td>
-                            <td>
-                                <select class="fr-select" disabled><option>- - - -</option></select> 
+                                <select class="fr-select" disabled><option>- - - -</option></select>
                             </td>
                             <td>
-                                <select disabled class="fr-select"><option>- - - -</option></select> 
+                                <select class="fr-select" disabled><option>- - - -</option></select>
+                            </td>
+                            <td>
+                                <select disabled class="fr-select"><option>- - - -</option></select>
                             </td>
                             <td><input disabled type="number" class="fr-input"></td>
                             <td><input disabled type="number" class="fr-input"></td>
                             <td><input disabled type="number" class="fr-input"></td>
                             <td></td>
                             <td></td>
-                        </tr>                        
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -205,7 +205,7 @@
             text-align: center;
             vertical-align: middle;
         }
-        
+
         input[type="number"] {
             border-radius: 0.5em;
             padding: 0.4em;

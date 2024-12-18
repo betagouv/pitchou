@@ -2,14 +2,14 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
-    import { 
-        trierParOrdreAlphabétiqueEspèce, 
+    import {
+        trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
     import EnteteAvecTri from "./../EnteteAvecTri.svelte"
-    
+
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
 
     /** @type {FloreAtteinte[]} */
@@ -32,7 +32,7 @@
 
     /** @type {{nom: string, tri: function}|undefined}*/
     let triSélectionné = undefined
-    
+
     function rerender() {
         floresAtteintes = floresAtteintes
     }
@@ -50,13 +50,13 @@
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
         const index = floresAtteintes.findIndex(({espèce}) => espèce === _espèce);
-        if (index > -1) { 
+        if (index > -1) {
             floresAtteintes.splice(index, 1);
         }
 
         rerender()
     }
-    
+
     /**
      * @param {FloreAtteinte} floreAtteinte
     */
@@ -67,12 +67,12 @@
         rerender()
     }
 
-    function trierParFloreDeAaZ() {  
+    function trierParFloreDeAaZ() {
         floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes)
         rerender()
     }
 
-    function trierParFloreDeZaA() {  
+    function trierParFloreDeZaA() {
         floresAtteintes = trierParOrdreAlphabétiqueEspèce(floresAtteintes).reverse()
         rerender()
     }
@@ -101,16 +101,16 @@
                     <thead>
                         <tr>
                             <th>
-                                <EnteteAvecTri 
-                                    label="Espèce" 
+                                <EnteteAvecTri
+                                    label="Espèce"
                                     tris={trisEspèces}
-                                    bind:triSélectionné    
+                                    bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri 
-                                    label="Type d'impact" 
-                                    tris={trisImpacts} 
+                                <EnteteAvecTri
+                                    label="Type d'impact"
+                                    tris={trisImpacts}
                                     bind:triSélectionné
                                 />
                             </th>
@@ -120,7 +120,7 @@
                             <th>Supprimer la ligne</th>
                         </tr>
                     </thead>
-                    
+
                     <tbody>
                         {#each floresAtteintes as {espèce, activité, nombreIndividus, surfaceHabitatDétruit}}
                             <FloreAtteinteEditRow
@@ -133,9 +133,9 @@
 
                         <tr>
                             <td>
-                                <AutocompleteEspeces 
-                                    espèces={espècesProtégéesFlore} 
-                                    onChange={ajouterFlore} 
+                                <AutocompleteEspeces
+                                    espèces={espècesProtégéesFlore}
+                                    onChange={ajouterFlore}
                                     htmlClass="fr-input search"
                                     labelFunction={autocompleteLabelFunction}
                                     keywordsFunction={autocompleteKeywordsFunction}
@@ -172,7 +172,7 @@
             text-align: center;
             vertical-align: middle;
         }
-        
+
         input[type="number"] {
             border-radius: 0.5em;
             padding: 0.4em;
