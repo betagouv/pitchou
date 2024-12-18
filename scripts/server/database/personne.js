@@ -4,6 +4,8 @@ import {directDatabaseConnection} from '../database.js'
 
 //@ts-ignore
 /** @import {default as Personne, PersonneInitializer} from '../../types/database/public/Personne.ts' */
+//@ts-ignore
+/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 
 /**
  * @param {PersonneInitializer} personne
@@ -57,6 +59,20 @@ export function getPersonnesByEmail(emails) {
         .select()
         .whereIn('email', emails)
     
+}
+
+/**
+ *
+ * @param {CapDossier['cap']} cap
+ * @returns {Promise<Personne> | Promise<undefined>}
+ */
+export function getPersonneByDossierCap(cap){
+
+    return directDatabaseConnection('personne')
+        .select(['personne.id', 'personne.email'])
+        .leftJoin('cap_dossier', {'cap_dossier.personne_cap': 'personne.code_accès'})
+        .where('cap_dossier.cap', cap)
+        .first()
 }
 
 /**

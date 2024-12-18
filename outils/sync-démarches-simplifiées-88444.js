@@ -141,7 +141,7 @@ const pitchouKeyToAnnotationDS = {
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {DossierPourSynchronisation[]} */
+/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique">[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
 {
     id: id_demarches_simplifiées,
@@ -251,15 +251,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
     */
 
     /** @type {PersonneInitializer | undefined} */
-    let demandeur_personne_physique = undefined;
+    /** let demandeur_personne_physique = undefined; */
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
  
     const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
-    if(!SIRETChamp){
-        demandeur_personne_physique = déposant;
-    }
-    else{
+    if(SIRETChamp){
         const etablissement = SIRETChamp.etablissement
         if(etablissement){
             const { siret, address = {}, entreprise = {}} = etablissement
@@ -357,7 +354,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         date_dépôt,
 
         // demandeur/déposant
-        demandeur_personne_physique,
+        // demandeur_personne_physique,
         demandeur_personne_morale,
         déposant,
         //représentant,
@@ -414,9 +411,28 @@ for(const personne of allPersonnesCurrentlyInDatabase){
     }
 }
 
-/** @type {Personne[]} */
-// @ts-expect-error TS ne comprend pas que le `filter` filtre les `null` et les `undefined` 
-const personnesInDossiers = [...new Set(dossiersPourSynchronisation.map(({déposant, demandeur_personne_physique}) => [déposant, demandeur_personne_physique].filter(p => !!p)).flat())]
+/** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
+const personnesInDossiersAvecEmail = new Map()
+const personnesInDossiersSansEmail = new Map()
+
+for (const {déposant, /** demandeur_personne_physique */} of dossiersPourSynchronisation) {
+    if (déposant) {
+        if(déposant.email) {
+            personnesInDossiersAvecEmail.set(déposant.email, déposant)
+        } else {
+            personnesInDossiersSansEmail.set(`${déposant.prénoms}|${déposant.nom}`, déposant)
+        }
+    }
+
+    /** if (demandeur_personne_physique) {
+        if(demandeur_personne_physique.email) {
+            personnesInDossiersAvecEmail.set(demandeur_personne_physique.email, demandeur_personne_physique)
+        } else {
+            personnesInDossiersSansEmail.set(`${demandeur_personne_physique.prénoms}|${demandeur_personne_physique.nom}`, demandeur_personne_physique)
+        }
+    } */
+
+}
 
 /**
  * 
@@ -444,9 +460,9 @@ function getPersonneId(descriptionPersonne){
     return personneParNomPrénom && personneParNomPrénom.id
 }
 
-const personnesInDossiersWithoutId = personnesInDossiers.filter(p => !getPersonneId(p))
+const personnesInDossiersWithoutId = [...personnesInDossiersAvecEmail.values(), ...personnesInDossiersSansEmail.values()].filter(p => !getPersonneId(p))
 
-//console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
+// console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if(personnesInDossiersWithoutId.length >= 1){
     await créerPersonnes(personnesInDossiersWithoutId)
@@ -488,11 +504,11 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
-        demandeur_personne_physique,
+        /** demandeur_personne_physique, */
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
@@ -500,8 +516,7 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
     return {
         //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
         déposant: getPersonneId(déposant) || null,
-        //@ts-expect-error pareil
-        demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
+        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
         demandeur_personne_morale: 
             (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
         ...autresPropriétés,
