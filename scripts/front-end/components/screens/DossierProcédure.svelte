@@ -3,18 +3,16 @@
 
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
+    import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */    
     /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
-
 
     /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
     export let dossier
 
     /** @type {string | undefined} */
     export let email
-
-
 </script>
 
 <Squelette {email}>
@@ -28,9 +26,10 @@
                     <li>
                         <TagPhase phase={phase}></TagPhase>
                         - 
-                        {horodatage}
+                        <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
                     </li>    
                 {/each}
+                    <li><strong>Dépôt dossier</strong> - <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
                 </ol>
             </article>
         </div>
@@ -41,8 +40,22 @@
     article {
         background-color: var(--background-alt-grey);
 
-        pre{
-            white-space: pre-wrap;
+        ol{
+            list-style: none;
+            
+            li{
+
+                &:first-child{
+                    font-size: 1.5em;
+                    font-weight: bold;
+                    padding: 0.7em 0;
+                }
+
+                &::marker{
+                    content: none;
+                }
+            }
+
         }
     }
 
