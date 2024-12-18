@@ -24,7 +24,7 @@ export function modifierDossier(id, dossierParams) {
     // modifier le dossier dans le store de manière optimiste
     const dossierModifié = Object.assign({}, dossierAvantModification, dossierParams)
     if(dossierParams.phase){
-        dossierModifié.évènementsPhase.push({
+        dossierModifié.évènementsPhase.unshift({
             dossier: id,
             horodatage: new Date(),
             phase: dossierParams.phase,

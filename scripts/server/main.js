@@ -90,8 +90,9 @@ function sendIndexHTMLFile(_request, reply){
 
 fastify.get('/saisie-especes', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
-fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/description', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/procedure', sendIndexHTMLFile)
+fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/redaction-arrete-prefectoral', sendIndexHTMLFile)
 fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
