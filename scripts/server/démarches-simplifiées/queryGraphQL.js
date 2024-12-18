@@ -10,7 +10,7 @@ import {dossiersQuery, GroupeInstructeursQuery, annotationCheckboxMutationQuery,
 
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
 
-const TIMEOUT_DELAY = 20*1000 // milliseconds
+const TIMEOUT_DELAY = 40*1000 // milliseconds
 
 /**
  * @overload
