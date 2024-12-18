@@ -15,9 +15,6 @@
         triSélectionné = tri
         tri["tri"]()
     }
-
-    /** @type {(tri: [string, function]) => boolean}*/
-    $: isTriSélectionné = (tri) => triSélectionné === `${label}/${tri[0]}`
 </script>
 
 <div class="entete-avec-tri">
