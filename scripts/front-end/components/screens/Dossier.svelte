@@ -4,7 +4,7 @@
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
     
-    import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
+    import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
     /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.d.ts' */
@@ -24,7 +24,6 @@
     /** @type {Partial<DossierComplet> & {phase: DossierPhase}} */
     let dossierParams = {
         phase: dossier.évènementsPhase[0].phase,
-        prochaine_action_attendue: dossier.prochaine_action_attendue,
         // @ts-ignore
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
     }
@@ -98,7 +97,7 @@
                         {/if}
                         {#if afficherMessageSucces}
                         <div class="fr-alert fr-alert--success fr-mb-3w">
-                            <p>La phase et la prochaine action attendue ont été mises à jour !</p>
+                            <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
                         </div>
                         {/if}
                         <div class="fr-input-group">
@@ -123,19 +122,8 @@
                                 {/each}
                             </select>
                         </div>
-                        <div class="fr-input-group">
-                            <label class="fr-label" for="prochaine_action_attendue">
-                                Action
-                            </label>
-                    
-                            <select bind:value={dossierParams["prochaine_action_attendue"]} class="fr-select" id="prochaine_action_attendue">
-                                {#each prochaineActionAttendue as action}
-                                    <option value={action}>{action}</option>
-                                {/each}
-                            </select>
-                        </div>
                         <button class="fr-btn" type="submit">
-                            Mettre à jour la phase ou la prochaine action
+                            Mettre à jour la phase ou de qui est attendu la prochaine action
                         </button>
                     </form>
                 </section>

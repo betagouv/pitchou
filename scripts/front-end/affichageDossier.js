@@ -122,13 +122,3 @@ export const prochaineActionAttenduePar = new Set([
     "Autre",
     "Personne" 
 ])
-
-export const prochaineActionAttendue = [
-    "traitement", 
-    "lancement consultation", 
-    "rédaction AP",
-    "Avis",
-    "DDEP",
-    "complément dossier",
-    "mémoire en réponse avis CNPN",
-]
