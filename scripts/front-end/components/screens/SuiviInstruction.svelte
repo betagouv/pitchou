@@ -347,8 +347,11 @@
                                 </th>
                                 <th>Enjeux</th>
                                 <th>Rattaché au régime AE</th>
-                                <th>Phase</th>
-                                <th>Prochaine action attendue</th>
+                                <th>
+                                    Phase<br>
+                                    <br>
+                                    Prochaine action attendue de
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -383,8 +386,10 @@
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
+                                        {#if prochaine_action_attendue_par}
+                                            <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
+                                        {/if}
                                     </td>
-                                    <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
                             {/each}
                         </tbody>
