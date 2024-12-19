@@ -45,7 +45,6 @@ export {};
  * @property {string | null} commentaire_libre
  * @property {boolean | null} rattaché_au_régime_ae
  * @property {string | null} prochaine_action_attendue_par
- * @property {string | null} prochaine_action_attendue
  * @property {string | null} activité_principale
  */
 /**
@@ -88,7 +87,6 @@ export {};
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
  * @property {string | null} [prochaine_action_attendue_par]
- * @property {string | null} [prochaine_action_attendue]
  * @property {string | null} [activité_principale]
  */
 /**
@@ -131,6 +129,5 @@ export {};
  * @property {string | null} [commentaire_libre]
  * @property {boolean | null} [rattaché_au_régime_ae]
  * @property {string | null} [prochaine_action_attendue_par]
- * @property {string | null} [prochaine_action_attendue]
  * @property {string | null} [activité_principale]
  */

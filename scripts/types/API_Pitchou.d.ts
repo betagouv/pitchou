@@ -24,7 +24,7 @@ interface DossierComplémentPersonnesImpliquées {
 /**
  * On génère automatiquement les types des propriétés d'un Dossier via Kanel
  * On a choisi d'utiliser un type `string` pour les propriétés
- * 'phase', 'prochaine_action_attendue_par' et 'prochaine_action_attendue' 
+ * 'phase' et 'prochaine_action_attendue_par'
  * pour plus de flexibilité (au lieu d'un enum).
  * 
  * On surcharge ici ces propriétés pour contraindre les valeurs de ces propriétés.
@@ -34,12 +34,9 @@ type DossierPhase = "Accompagnement amont" | "Vérification du dossier" | "Instr
 
 type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "Pétitionnaire" | "Consultation du public" | "Autre administration" | "Autre" | "Personne";
 
-type DossierProchaineActionAttendue = "traitement" | "lancement consultation" | "rédaction AP" | "Avis" | "DDEP" | "complément dossier" | "mémoire en réponse avis CNPN" | "à préciser" | "Prise en compte des mesures E et R" | null;
-
 interface DossierPhaseEtProchaineAction {
     phase: DossierPhase;
     prochaine_action_attendue_par: DossierProchaineActionAttenduePar;
-    prochaine_action_attendue: DossierProchaineActionAttendue;
 }
 
 /**

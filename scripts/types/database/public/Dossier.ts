@@ -83,8 +83,6 @@ export default interface Dossier {
 
   prochaine_action_attendue_par: string | null;
 
-  prochaine_action_attendue: string | null;
-
   activité_principale: string | null;
 }
 
@@ -165,8 +163,6 @@ export interface DossierInitializer {
 
   prochaine_action_attendue_par?: string | null;
 
-  prochaine_action_attendue?: string | null;
-
   activité_principale?: string | null;
 }
 
@@ -245,8 +241,6 @@ export interface DossierMutator {
   rattaché_au_régime_ae?: boolean | null;
 
   prochaine_action_attendue_par?: string | null;
-
-  prochaine_action_attendue?: string | null;
 
   activité_principale?: string | null;
 }

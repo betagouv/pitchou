@@ -161,7 +161,7 @@ export function dumpDossiers(dossiers, databaseConnection = directDatabaseConnec
         colonnesÀfusionner = new Set([...colonnesÀfusionner, ...Object.keys(d)])
     }
 
-    const colonnesÀNePasFusionner = ['id', 'phase', 'prochaine_action_attendue_par', 'prochaine_action_attendue']
+    const colonnesÀNePasFusionner = ['id', 'phase', 'prochaine_action_attendue_par']
     for(const colonne of colonnesÀNePasFusionner){
         colonnesÀfusionner.delete(colonne)
     }
@@ -304,7 +304,6 @@ const colonnesDossierComplet = [
 
     // prochaine action attendue
     "prochaine_action_attendue_par",
-    "prochaine_action_attendue",
 
     // déposant
     "déposant.nom as déposant_nom",

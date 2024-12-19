@@ -62,8 +62,7 @@ function isDossier(x) {
     (typeof x.historique_référence_arrêté_ministériel === "string" || x.historique_référence_arrêté_ministériel === null) &&
     */
     (typeof x.rattaché_au_régime_ae === "boolean" || x.rattaché_au_régime_ae === null) &&
-    (typeof x.prochaine_action_attendue_par === "string" || x.prochaine_action_attendue_par === null) &&
-    (typeof x.prochaine_action_attendue === "string" || x.prochaine_action_attendue === null)
+    (typeof x.prochaine_action_attendue_par === "string" || x.prochaine_action_attendue_par === null)
   )
 }
 
