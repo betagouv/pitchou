@@ -3,6 +3,7 @@
 
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
+    import TagEnjeu from '../TagEnjeu.svelte'
     
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttendue, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
@@ -160,15 +161,11 @@
                             <li>
                                 <strong>Enjeux</strong> : 
                                 {#if dossier.enjeu_politique}
-                                    <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-                                        Enjeu politique
-                                    </span>
+                                    <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                 {/if}
 
                                 {#if dossier.enjeu_écologique}
-                                <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">
-                                    Enjeu écologique
-                                </span>
+                                    <TagEnjeu enjeu="écologique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                 {/if}
                             </li>
                         {/if}
