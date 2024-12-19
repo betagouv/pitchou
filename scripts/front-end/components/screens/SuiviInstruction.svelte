@@ -5,6 +5,7 @@
     import BarreRecherche from '../BarreRecherche.svelte'
     import EnteteAvecTri from '../EnteteAvecTri.svelte'
     import TagPhase from '../TagPhase.svelte'
+    import TagEnjeu from '../TagEnjeu.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -369,17 +370,12 @@
                                     <td>{nom_dossier || ''}</td>
                                     <td>
                                         {#if enjeu_politique}
-                                            <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-                                                Enjeu politique
-                                            </p>
+                                            <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                         {/if}
 
                                         {#if enjeu_écologique}
-                                        <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
-                                            Enjeu écologique
-                                        </p>
+                                            <TagEnjeu enjeu="écologique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                         {/if}
-
                                     </td>
                                     <td>
                                         {rattaché_au_régime_ae ? "oui" : "non"}
