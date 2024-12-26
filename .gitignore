@@ -12,3 +12,9 @@ data/sources_especes/*
 pgdata/
 
 .env
+
+/.svelte-kit
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
