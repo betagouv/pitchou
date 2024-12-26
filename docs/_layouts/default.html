@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr" data-fr-scheme="system">
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" href="data:,">
+    
+    <title>
+      {% if site.title %} {{ page.title }} - {{ site.title }}
+        {% else %} {{ page.title }}
+      {% endif %}
+    </title>
+    
+    <meta name="description" content=" ">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link crossorigin="anonymous" rel="stylesheet" href="/style/dsfr/dsfr.css">
+    <link crossorigin="anonymous" rel="stylesheet" href="/style/dsfr/utility/utility.css">
+
+</head>
+<body>
+    
+    {%- include header.html -%}
+  
+    <main id="main" tabindex="-1">
+      <div class="container">
+        {{ content }}
+      </div>
+    </main>
+  
+    {%- include footer.html -%}
+    
+    <!-- https://www.systeme-de-design.gouv.fr/utilisation-et-organisation/developpeurs/api-javascript -->
+    <script type="module" src="/style/dsfr/dsfr.module.js"></script>
+</body>
+</html>
