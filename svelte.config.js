@@ -11,9 +11,11 @@ export default {
 	extensions: ['.svelte', '.md'],
 	preprocess: [vitePreprocess(), mdsvex(mdsvexOptions)],
 	kit: {
+		paths:{
+			assets: 'http://localhost:2648',
+			lib: 'scripts'
+		},
 		adapter: adapter({
-			// default options are shown. On some platforms
-			// these options are set automatically — see below
 			pages: 'build',
 			assets: 'build',
 			fallback: undefined,

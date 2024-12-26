@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Squelette from '$lib/front-end/components/Squelette.svelte'
+
 	let { data } = $$props
 </script>
 
@@ -6,11 +8,13 @@
 	<meta property="og:type" content="article" />
 </svelte:head>
 
-<article>
-	<div class="prose">
-		<data.content />
-	</div>
-</article>
+<Squelette>
+	<article>
+		<div class="prose">
+			<data.content />
+		</div>
+	</article>
+</Squelette>
 
 <style>
 	article {

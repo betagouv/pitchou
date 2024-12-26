@@ -1,11 +1,24 @@
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		%sveltekit.head%
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+<html lang="fr" data-fr-scheme="system">
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" href="data:,">
+
+    <title>Pitchou</title>
+    
+    <meta name="description" content=" ">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link crossorigin="anonymous" rel="stylesheet" href="%sveltekit.assets%/src/static/dsfr/dsfr.css">
+    <link crossorigin="anonymous" rel="stylesheet" href="%sveltekit.assets%/src/static/dsfr/utility/utility.css">
+    
+    %sveltekit.head%
+</head>
+<body>
+    <div style="display: contents">%sveltekit.body%</div>
+
+    <!-- https://www.systeme-de-design.gouv.fr/utilisation-et-organisation/developpeurs/api-javascript -->
+    <script type="module" src="%sveltekit.assets%/src/static/dsfr/dsfr.module.js"></script>
+</body>
 </html>
