@@ -14,8 +14,8 @@
     <meta name="description" content=" ">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link crossorigin="anonymous" rel="stylesheet" href="./style/dsfr/dsfr.css">
-    <link crossorigin="anonymous" rel="stylesheet" href="./style/dsfr/utility/utility.css">
+    <link crossorigin="anonymous" rel="stylesheet" href="{{ '/style/dsfr/dsfr.css' | relative_url }}">
+    <link crossorigin="anonymous" rel="stylesheet" href="{{ '/style/dsfr/utility/utility.css' | relative_url }}">
 
 </head>
 <body>
@@ -31,6 +31,6 @@
     {%- include footer.html -%}
     
     <!-- https://www.systeme-de-design.gouv.fr/utilisation-et-organisation/developpeurs/api-javascript -->
-    <script type="module" src="./style/dsfr/dsfr.module.js"></script>
+    <script type="module" src="{{ '/style/dsfr/dsfr.module.js' | relative_url }}"></script>
 </body>
 </html>
