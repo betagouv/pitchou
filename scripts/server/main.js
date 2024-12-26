@@ -73,9 +73,24 @@ const fastify = Fastify({
 
 await fastify.register(fastifyCompress)
 
+// Sortie de vite/svelte-kit
+fastify.register(fastatic, {
+  root: path.resolve(import.meta.dirname, '..', '..', 'build', 'documentation'),
+  prefix: '/documentation/',
+  extensions: ['html']
+})
+
+// Sortie de vite/svelte-kit
+fastify.register(fastatic, {
+  root: path.resolve(import.meta.dirname, '..', '..', 'build', '_app'),
+  prefix: '/_app/',
+  decorateReply: false // the reply decorator has been added by the first plugin registration
+})
+
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
-  extensions: ['html']
+  extensions: ['html'],
+  decorateReply: false // the reply decorator has been added by the first plugin registration
 })
 
 
