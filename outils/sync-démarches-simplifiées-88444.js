@@ -4,7 +4,7 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
-import {dumpEntreprises, closeDatabaseConnection} from '../scripts/server/database.js'
+import {dumpEntreprises, closeDatabaseConnection, créerTransaction} from '../scripts/server/database.js'
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
@@ -68,11 +68,13 @@ console.log(
 // @ts-expect-error TS ne peut pas le savoir
 const schema88444 = _schema88444
 
+const laTransactionDeSynchronisationDS = await créerTransaction()
+
+
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
-
 const groupesInstructeursSynchronisés = recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
-    .then(synchroniserGroupesInstructeurs);
+    .then(groupesInstructeurs => synchroniserGroupesInstructeurs(groupesInstructeurs, laTransactionDeSynchronisationDS));
 
 
 /** @type {DossierDS<BaseChampDS>[]} */
@@ -158,8 +160,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
     }
 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
-    const espèces_protégées_concernées = champById.get(pitchouKeyToChampDS.get('NE PAS REMPLIR - Lien vers la liste des espèces concernées'))?.stringValue
     const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
+
+    const fichier_espèces_impactées = champById.get(pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes'))?.files[0]
+
+    console.log('fichier_espèces_impactées', number_demarches_simplifiées, fichier_espèces_impactées)
+
 
 
     /* localisation */
@@ -338,7 +344,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
         // champs
         activité_principale,
-        espèces_protégées_concernées,
+        //fichier_espèces_impactées,
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
@@ -500,6 +506,9 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
     }
 })
 
+//const 
+
+
 let dossiersSynchronisés
 if(dossiers.length >= 1){
     dossiersSynchronisés = dumpDossiers(dossiers)
@@ -515,6 +524,10 @@ await Promise.all([
     dossiersSynchronisés,
     dossiersSupprimés
 ])
+
+/**
+ * Synchronisation de toutes les choses qui ont besoin d'un Dossier['id']
+ */
 
 /** Synchronisation de la messagerie */
 
@@ -596,7 +609,7 @@ const traitementsSynchronisés = dossiersIdsP
 })
 
 
-
+/** Synchronisation des fichiers téléchargés */
 
 
 Promise.all([
@@ -606,5 +619,7 @@ Promise.all([
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur
 ])
+.then(laTransactionDeSynchronisationDS.commit)
+.catch(laTransactionDeSynchronisationDS.rollback)
 .then(closeDatabaseConnection)
 

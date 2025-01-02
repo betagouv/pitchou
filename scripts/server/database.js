@@ -25,6 +25,14 @@ export function closeDatabaseConnection(){
     return directDatabaseConnection.destroy()
 }
 
+/**
+ * @param {knex.Knex.TransactionConfig} [config] 
+ * @returns {Promise<knex.Knex.Transaction>}
+ */
+export function créerTransaction(config){
+    return directDatabaseConnection.transaction(config)
+}
+
 
 /**
  *
