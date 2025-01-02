@@ -5,6 +5,7 @@
     import BarreRecherche from '../BarreRecherche.svelte'
     import EnteteAvecTri from '../EnteteAvecTri.svelte'
     import TagPhase from '../TagPhase.svelte'
+    import TagEnjeu from '../TagEnjeu.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -347,8 +348,11 @@
                                 </th>
                                 <th>Enjeux</th>
                                 <th>Rattaché au régime AE</th>
-                                <th>Phase</th>
-                                <th>Prochaine action attendue</th>
+                                <th>
+                                    Phase<br>
+                                    <br>
+                                    Prochaine action attendue de
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -366,25 +370,22 @@
                                     <td>{nom_dossier || ''}</td>
                                     <td>
                                         {#if enjeu_politique}
-                                            <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-                                                Enjeu politique
-                                            </p>
+                                            <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                         {/if}
 
                                         {#if enjeu_écologique}
-                                        <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
-                                            Enjeu écologique
-                                        </p>
+                                            <TagEnjeu enjeu="écologique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                         {/if}
-
                                     </td>
                                     <td>
                                         {rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
+                                        {#if prochaine_action_attendue_par}
+                                            <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
+                                        {/if}
                                     </td>
-                                    <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
                             {/each}
                         </tbody>
