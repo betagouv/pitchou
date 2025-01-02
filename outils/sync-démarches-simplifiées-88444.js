@@ -15,6 +15,7 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargerNouveauxFichiersEspècesImpactées.js'
 
 
 
@@ -22,7 +23,7 @@ import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' 
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
@@ -161,11 +162,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
     const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
-
-    const fichier_espèces_impactées = champById.get(pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes'))?.files[0]
-
-    console.log('fichier_espèces_impactées', number_demarches_simplifiées, fichier_espèces_impactées)
-
 
 
     /* localisation */
@@ -344,7 +340,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
         // champs
         activité_principale,
-        //fichier_espèces_impactées,
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
@@ -506,7 +501,29 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
     }
 })
 
-//const 
+
+/** Télécharger les fichiers espèces impactées */
+
+// @ts-ignore
+const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) => {
+    const fichierEspècesImpactéesChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
+
+    /** @type {ChampDSPieceJustificative | undefined} */
+    // @ts-ignore
+    const champFichierEspècesImpactées = champs.find(c => c.id === fichierEspècesImpactéesChampId)
+
+    const descriptionFichierEspècesImpactées = champFichierEspècesImpactées?.files[0]
+
+    return [
+        number,
+        descriptionFichierEspècesImpactées
+    ]
+}).filter(([_, des]) => des !== undefined))
+
+console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
+
+const fichiersTéléchargés = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+
 
 
 let dossiersSynchronisés
