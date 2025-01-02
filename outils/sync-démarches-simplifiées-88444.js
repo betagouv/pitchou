@@ -481,7 +481,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
