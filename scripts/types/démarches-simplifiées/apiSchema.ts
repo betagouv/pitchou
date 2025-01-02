@@ -4,7 +4,7 @@ export interface BaseChampDS {
     __typename: string
     label: string
     stringValue: string
-    updatedAt: string
+    updatedAt: string // ISO8601DateTime
     prefilled: boolean
 }
 
@@ -54,6 +54,21 @@ export interface BaseChampDSRégion extends BaseChampDS {
 }
 
 export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégions>
+
+interface DSPieceJustificative{
+    filename: string,
+    url: string, 
+    contentType: string,
+    createdAt: string, // ISO8601DateTime
+    byteSizeBigInt: string, // parseable as number
+    checksum: string,
+}
+
+export interface ChampDSPieceJustificative extends BaseChampDS {
+    files: DSPieceJustificative[]
+}
+
+
 
 export type DeletedDossier = any // PPP
 export type PendingDeletedDossier = any // PPP
