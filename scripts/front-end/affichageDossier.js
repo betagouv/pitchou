@@ -4,7 +4,7 @@ import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types.js'*/
+/** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.d.ts'*/
 /** @import {DossierComplet} from '../types/API_Pitchou.d.ts'*/
 
 /**
@@ -102,17 +102,17 @@ export function formatDateRelative(date) {
     return formatDateAbsolue(date)
 }
 
-/** @type {Set<NonNullable<DossierPhase>>} */
+/** @type {Set<DossierPhase>} */
 export const phases = new Set([
     "Accompagnement amont",
-    "Vérification du dossier",
+    "Étude recevabilité DDEP",
     "Instruction",
     "Contrôle",
     "Classé sans suite",
     "Obligations terminées"
 ])
 
-/** @type {Set<NonNullable<DossierProchaineActionAttenduePar>>} */
+/** @type {Set<DossierProchaineActionAttenduePar>} */
 export const prochaineActionAttenduePar = new Set([
     "Instructeur", 
     "CNPN/CSRPN",
@@ -122,13 +122,3 @@ export const prochaineActionAttenduePar = new Set([
     "Autre",
     "Personne" 
 ])
-
-export const prochaineActionAttendue = [
-    "traitement", 
-    "lancement consultation", 
-    "rédaction AP",
-    "Avis",
-    "DDEP",
-    "complément dossier",
-    "mémoire en réponse avis CNPN",
-]

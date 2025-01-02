@@ -5,6 +5,7 @@
     import BarreRecherche from '../BarreRecherche.svelte'
     import EnteteAvecTri from '../EnteteAvecTri.svelte'
     import TagPhase from '../TagPhase.svelte'
+    import TagEnjeu from '../TagEnjeu.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -75,7 +76,7 @@
     /** @type {Set<DossierPhase>} */
     let phasesSélectionnées = new Set([
         'Accompagnement amont',
-        'Vérification du dossier',
+        'Étude recevabilité DDEP',
         'Instruction'
     ])
 
@@ -121,6 +122,7 @@
                 return !dossier.prochaine_action_attendue_par
             }
 
+            // @ts-ignore
             return prochainesActionsAttenduesParSélectionnées.has(dossier.prochaine_action_attendue_par)
         })
 
@@ -380,8 +382,11 @@
                                 </th>
                                 <th>Enjeux</th>
                                 <th>Rattaché au régime AE</th>
-                                <th>Phase</th>
-                                <th>Prochaine action attendue</th>
+                                <th>
+                                    Phase<br>
+                                    <br>
+                                    Prochaine action attendue de
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -390,7 +395,7 @@
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
                             évènementsPhase, prochaine_action_attendue_par }}
-                                {@const phase = évènementsPhase[0].phase}
+                                {@const phase = /** @type {DossierPhase} */ (évènementsPhase[0].phase)}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
@@ -399,25 +404,22 @@
                                     <td>{nom_dossier || ''}</td>
                                     <td>
                                         {#if enjeu_politique}
-                                            <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-                                                Enjeu politique
-                                            </p>
+                                            <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                         {/if}
 
                                         {#if enjeu_écologique}
-                                        <p class="fr-badge fr-badge--sm fr-badge--green-emeraude">
-                                            Enjeu écologique
-                                        </p>
+                                            <TagEnjeu enjeu="écologique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
                                         {/if}
-
                                     </td>
                                     <td>
                                         {rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
+                                        {#if prochaine_action_attendue_par}
+                                            <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
+                                        {/if}
                                     </td>
-                                    <td>{prochaine_action_attendue_par || ''}</td>
                                 </tr>
                             {/each}
                         </tbody>

@@ -18,6 +18,20 @@
     /** @type {DescriptionMenacesEspèces | undefined} */
     export let espècesImpactées = undefined
 
+    $: espècesImpactéesUniquesTriées = espècesImpactées && Object.fromEntries(
+        Object.entries(espècesImpactées)
+        .map(([classif, espècesImpactées]) => {
+            return [
+                classif, 
+                [...new Set(
+                    espècesImpactées
+                        .toSorted(etresVivantsAtteintsCompareEspèce)
+                        .map(({espèce}) => espèce)
+                )]
+            ]
+        })
+    )
+
 
 </script>
 
@@ -30,13 +44,13 @@
             <article class="fr-p-3w fr-mb-4w">
                 <section>
                     <h2>Liste des espèces protégées</h2>
-                    {#if espècesImpactées}
-                    {#each Object.keys(espècesImpactées) as classif}
-                        {#if espècesImpactées[classif].length >= 1}
+                    {#if espècesImpactéesUniquesTriées}
+                    {#each Object.keys(espècesImpactéesUniquesTriées) as classif}
+                        {#if espècesImpactéesUniquesTriées[classif].length >= 1}
                             <section class="liste-especes">
                                 <h3>Liste des {classif}</h3>
-                                {#each espècesImpactées[classif].toSorted(etresVivantsAtteintsCompareEspèce) as  espèceAtteinte, index (espèceAtteinte) }
-                                    {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèceAtteinte.espèce}/>
+                                {#each espècesImpactéesUniquesTriées[classif] as espèce, index (espèce) }
+                                    {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèce}/>
                                 {/each}
                             </section>
                         {/if}
