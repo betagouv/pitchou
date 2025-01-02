@@ -22,7 +22,7 @@ import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' 
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS, Traitement, Message } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement } from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
@@ -169,12 +169,16 @@ const dossiersPourSynchronisation = dossiersDS.map((
     const champCommunes = champById.get(pitchouKeyToChampDS.get('Commune(s) où se situe le projet'))
     /** @type {ChampDSDépartements} */
     const champDépartements = champById.get(pitchouKeyToChampDS.get('Département(s) où se situe le projet'))
+    /** @type {ChampDSDépartement} */
+    const champDépartementPrincipal = champById.get(pitchouKeyToChampDS.get('Dans quel département se localise majoritairement votre projet ?'))
     /** @type {ChampDSRégions} */
     const champRégions = champById.get(pitchouKeyToChampDS.get('Région(s) où se situe le projet'))
 
 
     /** @type {DémarchesSimpliféesCommune[] | undefined} */
     let communes;
+
+    /** @type {DémarchesSimpliféesDépartement['code'][] | undefined} */
     let départements;
     let régions;
 
@@ -208,6 +212,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
                 }
             }
         }
+    }
+
+    // Si la localisation avec les champs dédiés (surtout communes et départements) a échoué,
+    // se rabattre sur le champ du département principal s'il est présent
+    if(champDépartementPrincipal && (!départements || départements.length === 0)){
+        départements = [champDépartementPrincipal.departement.code]
     }
 
 
@@ -471,7 +481,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
