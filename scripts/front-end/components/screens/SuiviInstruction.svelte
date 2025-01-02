@@ -71,7 +71,7 @@
     /** @type {Set<DossierPhase>} */
     let phasesSélectionnées = new Set([
         'Accompagnement amont',
-        'Vérification du dossier',
+        'Étude recevabilité DDEP',
         'Instruction'
     ])
 
