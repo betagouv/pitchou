@@ -118,6 +118,7 @@
                 return !dossier.prochaine_action_attendue_par
             }
 
+            // @ts-ignore
             return prochainesActionsAttenduesParSélectionnées.has(dossier.prochaine_action_attendue_par)
         })
 
@@ -361,7 +362,7 @@
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
                             évènementsPhase, prochaine_action_attendue_par }}
-                                {@const phase = évènementsPhase[0].phase}
+                                {@const phase = /** @type {DossierPhase} */ (évènementsPhase[0].phase)}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
