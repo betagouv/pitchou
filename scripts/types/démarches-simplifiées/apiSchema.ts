@@ -60,6 +60,7 @@ interface DSPieceJustificative{
     url: string, 
     contentType: string,
     createdAt: string, // ISO8601DateTime
+    byteSize: string, // parseable as number, censé être déprécié
     byteSizeBigInt: string, // parseable as number
     checksum: string,
 }
