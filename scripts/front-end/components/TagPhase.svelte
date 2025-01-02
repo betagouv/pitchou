@@ -25,7 +25,7 @@
     /** @type {Map<DossierPhase, string>} */
     const phaseToClass = new Map([
         ['Accompagnement amont', 'phase--accompagnement-amont'],
-        ['Vérification du dossier', 'phase--vérification-dossier'],
+        ['Étude recevabilité DDEP', 'phase--étude-recevabilité'],
         ['Instruction', 'phase--instruction'],
         ['Contrôle', 'phase--contrôle'],
         ['Classé sans suite', 'phase--classé-sans-suite'],
@@ -71,7 +71,7 @@
 
 <style lang="scss">
     $couleur-phase-accompagnement-amont: var(--artwork-minor-yellow-tournesol);
-    $couleur-phase-vérification-dossier: var(--background-action-high-orange-terre-battue);
+    $couleur-phase-étude-recevabilité: var(--background-action-high-orange-terre-battue);
     $couleur-phase-instruction: var(--background-flat-blue-cumulus);
     $couleur-phase-contrôle: var(--background-flat-pink-tuile);
     $couleur-phase-classé-sans-suite: var(--background-flat-green-menthe);
@@ -96,12 +96,12 @@
                 color: $couleur-phase-accompagnement-amont;
             }
         }
-        &.phase--vérification-dossier{
-            background-color: $couleur-phase-vérification-dossier;
+        &.phase--étude-recevabilité{
+            background-color: $couleur-phase-étude-recevabilité;
             color: var(--text-inverted-orange-terre-battue);
             
             &::after{
-                color: $couleur-phase-vérification-dossier;
+                color: $couleur-phase-étude-recevabilité;
             }
         }
         &.phase--instruction{
@@ -143,9 +143,9 @@
             color: $couleur-phase-accompagnement-amont;
             border: 1px solid $couleur-phase-accompagnement-amont;
         }
-        &.phase--vérification-dossier{
-            color: $couleur-phase-vérification-dossier;
-            border: 1px solid $couleur-phase-vérification-dossier;
+        &.phase--étude-recevabilité{
+            color: $couleur-phase-étude-recevabilité;
+            border: 1px solid $couleur-phase-étude-recevabilité;
         }
         &.phase--instruction{
             color: $couleur-phase-instruction;
