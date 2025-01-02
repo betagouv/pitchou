@@ -13,6 +13,7 @@
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
+    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
@@ -22,6 +23,9 @@
 
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
+
+    /** @type {DossierDemarcheSimplifiee88444["Activité principale"][]} */
+    export let activitésPrincipales
 
     /** @type {ComponentProps<Squelette>['email']} */
     export let email;
@@ -51,7 +55,7 @@
     /** @type {{nom: string, tri: function}|undefined} */
     let triSélectionné = undefined
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -134,10 +138,12 @@
      * @param {string} _texteÀChercher
      */
     function filtrerParTexte(_texteÀChercher) {
+        const texteÀChercherSansEspace = _texteÀChercher.trim()
+
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur
         // les nombres avec une fonction séparée.
-        if (_texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
+        if (texteÀChercherSansEspace.match(/\d[\dA-Za-z\-]*/)) {
             tousLesFiltres.set('texte', dossier => {
                 const {
                     id,
@@ -147,15 +153,15 @@
                     historique_identifiant_demande_onagre,
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
-
-                return String(id) === _texteÀChercher ||
-                    départements?.includes(_texteÀChercher) ||
-                    communesCodes?.includes(_texteÀChercher) ||
-                    number_demarches_simplifiées === _texteÀChercher ||
-                    historique_identifiant_demande_onagre === _texteÀChercher
+            
+                return String(id) === texteÀChercherSansEspace ||
+                    départements?.includes(texteÀChercherSansEspace) || 
+                    communesCodes?.includes(texteÀChercherSansEspace) ||
+                    number_demarches_simplifiées === texteÀChercherSansEspace || 
+                    historique_identifiant_demande_onagre === texteÀChercherSansEspace
             })
         } else {
-            const texteSansAccents = retirerAccents(_texteÀChercher)
+            const texteSansAccents = retirerAccents(texteÀChercherSansEspace)
             // Pour chercher les communes qui contiennent des tirets avec lunr,
             // on a besoin de passer la chaîne de caractères entre "".
             const aRechercher = texteSansAccents.match(/(\w-)+/) ?
@@ -168,7 +174,7 @@
             })
         }
 
-        texteÀChercher = _texteÀChercher;
+        texteÀChercher = texteÀChercherSansEspace;
 
         filtrerDossiers()
     }
@@ -236,6 +242,24 @@
         filtrerDossiers()
     }
 
+    
+    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
+    $: activitésPrincipalesSélectionnées = new Set()
+
+    /**
+     * 
+     * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
+     */
+    function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
+        tousLesFiltres.set('activité principale', dossier => {
+            return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+        })
+
+        activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
+
+		filtrerDossiers()
+    }
+    
     const trisActivitéPrincipale = new Set([
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
         { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse() },
@@ -277,7 +301,12 @@
                 </div>
 
                 <div class="filtres">
-                    <FiltreParmiOptions
+                    <FiltreParmiOptions 
+                        titre="Filtrer par activité principale"
+                        options={new Set(activitésPrincipales)} 
+                        mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale} 
+                    />
+                    <FiltreParmiOptions 
                         titre="Filtrer par prochaine action attendue par"
                         options={prochainesActionsAttenduesParOptions}
                         mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
@@ -310,6 +339,10 @@
                     {#if instructeursSélectionnés.size >= 1}
                         <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
                     {/if}
+                    {#if activitésPrincipalesSélectionnées.size >= 1}
+                        <span class="fr-badge fr-badge--sm">Activités principales : {[...activitésPrincipalesSélectionnées].join(", ")}</span>
+                    {/if}
+                    
                 </div>
 
                 <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
