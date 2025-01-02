@@ -26,6 +26,12 @@ export interface DémarchesSimpliféesCommune{
     postalCode: string
 }
 
+export interface DémarchesSimpliféesDépartement {
+    name: string
+    code: string
+}
+
+
 interface BaseChampDSCommune extends BaseChampDS {
     commune: DémarchesSimpliféesCommune
     departement: DémarchesSimpliféesDépartement
@@ -33,16 +39,12 @@ interface BaseChampDSCommune extends BaseChampDS {
 
 export type ChampDSCommunes = BaseRepetitionChampsDS<BaseChampDSCommune>
 
-export interface DémarchesSimpliféesDépartement {
-    name: string
-    code: string
-}
 
-interface BaseChampDSDépartement extends BaseChampDS {
+export interface ChampDSDépartement extends BaseChampDS {
     departement: DémarchesSimpliféesDépartement
 }
 
-export type ChampDSDépartements = BaseRepetitionChampsDS<BaseChampDSDépartement>
+export type ChampDSDépartements = BaseRepetitionChampsDS<ChampDSDépartement>
 
 export interface BaseChampDSRégion extends BaseChampDS {
     region: {
