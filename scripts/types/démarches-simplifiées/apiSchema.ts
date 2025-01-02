@@ -31,13 +31,12 @@ export interface DémarchesSimpliféesDépartement {
     code: string
 }
 
-
-interface BaseChampDSCommune extends BaseChampDS {
+interface ChampDSCommune extends BaseChampDS {
     commune: DémarchesSimpliféesCommune
     departement: DémarchesSimpliféesDépartement
 }
 
-export type ChampDSCommunes = BaseRepetitionChampsDS<BaseChampDSCommune>
+export type ChampDSCommunes = BaseRepetitionChampsDS<ChampDSCommune>
 
 
 export interface ChampDSDépartement extends BaseChampDS {
@@ -55,7 +54,7 @@ export interface BaseChampDSRégion extends BaseChampDS {
 
 export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégions>
 
-interface DSPieceJustificative{
+export interface DSPieceJustificative{
     filename: string,
     url: string, 
     contentType: string,
@@ -99,8 +98,11 @@ export interface Traitement{
     motivation: string | null
 }
 
+type Champs88444 = BaseChampDS | ChampDSCommune | ChampDSDépartement | ChampDSRégions | ChampDSPieceJustificative;
+type Annotations88444 = Champs88444
 
-export interface Dossier<ChampDS> {
+
+export interface DossierDS<Champs, Annotations> {
     id: string
     number: string
     dateDepot: Date 
@@ -110,6 +112,8 @@ export interface Dossier<ChampDS> {
     instructeurs: Instructeur[]
     messages: Message[]
     traitements: Traitement[]
-    champs: ChampDS[]
-    annotations: ChampDS[]
+    champs: Champs[]
+    annotations: Annotations[]
 }
+
+export type DossierDS88444 = DossierDS<Champs88444, Annotations88444>
