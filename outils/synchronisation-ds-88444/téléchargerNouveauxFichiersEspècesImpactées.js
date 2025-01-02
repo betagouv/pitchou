@@ -65,6 +65,8 @@ export default function téléchargerNouveauxFichiersEspècesImpactées(candidat
 
     console.log('candidatsFichiersImpactéesFormatBDD', candidatsFichiersImpactéesFormatBDD)
 
+    throw `ici`
+
     // Chercher dans la base de données les fichiers que nous avons déjà et qui ressemblent aux candidats
 
     // Filtrer la liste des candidats
