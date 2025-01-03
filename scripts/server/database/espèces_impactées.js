@@ -1,6 +1,5 @@
 import {directDatabaseConnection} from '../database.js'
 
-/** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {default as EspècesImpactées} from '../../../scripts/types/database/public/EspècesImpactées.ts' */
 /** @import {Knex} from 'knex' */
 

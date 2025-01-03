@@ -116,7 +116,7 @@ const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescript
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique">[]} */
+/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique" | "espèces_protégées_concernées">[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
 {
     id: id_demarches_simplifiées,
@@ -130,7 +130,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /**
      * Meta données
      */
-    const number_demarches_simplifiées = number
+    const number_demarches_simplifiées = String(number)
 
     /*
         Déposant 
@@ -487,7 +487,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique"| "espèces_protégées_concernées">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
