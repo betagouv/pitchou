@@ -84,8 +84,6 @@ export default interface Dossier {
   prochaine_action_attendue_par: string | null;
 
   activité_principale: string | null;
-
-  prochaine_action_attendue: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -166,8 +164,6 @@ export interface DossierInitializer {
   prochaine_action_attendue_par?: string | null;
 
   activité_principale?: string | null;
-
-  prochaine_action_attendue?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -247,6 +243,4 @@ export interface DossierMutator {
   prochaine_action_attendue_par?: string | null;
 
   activité_principale?: string | null;
-
-  prochaine_action_attendue?: string | null;
 }
