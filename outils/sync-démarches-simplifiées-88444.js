@@ -566,9 +566,21 @@ await Promise.all([
  * Synchronisation de toutes les choses qui ont besoin d'un Dossier['id']
  */
 
-/** Synchronisation de la messagerie */
+const dossierIds = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id))
+/** @type {Map<NonNullable<DossierDS88444['id']>, DatabaseDossier['id']>} */
+const dossierIdByDS_id = new Map()
+/** @type {Map<DossierDS88444['number'], DatabaseDossier['id']>} */
+const dossierIdByDS_number = new Map()
 
-const dossiersIdsP = getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id))
+for(const {id, id_demarches_simplifiées, number_demarches_simplifiées} of dossierIds){
+    // @ts-ignore
+    dossierIdByDS_id.set(id_demarches_simplifiées, id)
+    dossierIdByDS_number.set(Number(number_demarches_simplifiées), id)
+}
+
+
+
+/** Synchronisation de la messagerie */
 
 /** @type {Map<NonNullable<DatabaseDossier['id_demarches_simplifiées']>, Message[]>} */
 const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
@@ -576,28 +588,19 @@ const messagesÀMettreEnBDDAvecDossierId_DS = new Map(dossiersDS.map(
 )
 
 
-const messagesSynchronisés = dossiersIdsP
-.then(dossierIds => {
-    /** @type {Map<string, DatabaseDossier['id']>} */
-    const idDSToId = new Map()
-    for(const {id, id_demarches_simplifiées} of dossierIds){
-        //@ts-ignore
-        idDSToId.set(id_demarches_simplifiées, id)
-    }
+let messagesSynchronisés;
 
-    /** @type {Map<number, Message[]>} */
-    const messagesÀMettreEnBDDAvecDossierId = new Map()
-    for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
-        const dossierId = idDSToId.get(id_DS)
+/** @type {Map<DatabaseDossier['id'], Message[]>} */
+const messagesÀMettreEnBDDAvecDossierId = new Map()
+for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
+    const dossierId = dossierIdByDS_id.get(id_DS)
 
-        //@ts-ignore
-        messagesÀMettreEnBDDAvecDossierId.set(dossierId, messages)
-    }
+    messagesÀMettreEnBDDAvecDossierId.set(dossierId, messages)
+}
 
-    if(messagesÀMettreEnBDDAvecDossierId.size >= 1)
-        // @ts-ignore
-        dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
-})
+if(messagesÀMettreEnBDDAvecDossierId.size >= 1){
+    messagesSynchronisés = dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+}
 
 
 /** Synchronisation suivi dossier et dossier dans groupeInstructeur */
@@ -623,27 +626,20 @@ const évènementsPhaseDossierById_DS = new Map(dossiersDS.map(
 )
 
 
-const traitementsSynchronisés = dossiersIdsP
-.then(dossierIds => {
-    /** @type {Map<DatabaseDossier['id_demarches_simplifiées'], DatabaseDossier['id']>} */
-    const idDSToId = new Map()
-    for(const {id, id_demarches_simplifiées} of dossierIds){
-        //@ts-ignore
-        idDSToId.set(id_demarches_simplifiées, id)
-    }
+let traitementsSynchronisés;
 
-    /** @type {Map<DatabaseDossier['id'], Traitement[]>} */
-    const idToTraitements = new Map()
-    for(const [id_DS, traitements] of évènementsPhaseDossierById_DS){
-        const dossierId = idDSToId.get(id_DS)
+/** @type {Map<DatabaseDossier['id'], Traitement[]>} */
+const idToTraitements = new Map()
+for(const [id_DS, traitements] of évènementsPhaseDossierById_DS){
+    const dossierId = idDSToId.get(id_DS)
 
-        //@ts-ignore
-        idToTraitements.set(dossierId, traitements)
-    }
+    //@ts-ignore
+    idToTraitements.set(dossierId, traitements)
+}
 
-    if(idToTraitements.size >= 1)
-        dumpDossierTraitements(idToTraitements)
-})
+if(idToTraitements.size >= 1){
+    traitementsSynchronisés = dumpDossierTraitements(idToTraitements)
+}
 
 
 /** Synchronisation des fichiers téléchargés */
