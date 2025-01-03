@@ -1,6 +1,7 @@
 //@ts-check
 
 import parseArgs from 'minimist'
+import os from 'node:os'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
@@ -23,7 +24,7 @@ import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-d
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, BaseChampDS, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Dossier as DossierDS, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
@@ -78,7 +79,7 @@ const groupesInstructeursSynchronisés = recupérerGroupesInstructeurs(DEMARCHE_
     .then(groupesInstructeurs => synchroniserGroupesInstructeurs(groupesInstructeurs, laTransactionDeSynchronisationDS));
 
 
-/** @type {DossierDS<BaseChampDS>[]} */
+/** @type {DossierDS88444[]} */
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
     DEMARCHE_SIMPLIFIEE_API_TOKEN, 
     DEMARCHE_NUMBER, 
@@ -520,11 +521,33 @@ const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) =>
     ]
 }).filter(([_, des]) => des !== undefined))
 
-console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
+//console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
 
-const fichiersTéléchargés = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+function checkMemory(){
+    const usage = process.memoryUsage();
+    const freeMemory = os.freemem();
+    const totalMemory = os.totalmem();
 
+    function toMB(bytesize){
+        return (bytesize / 1024 / 1024).toFixed(0)
+    }
 
+    console.log('Total memory\t\t', toMB(totalMemory), 'MB');
+    console.log('Memory used by this process right now\t', toMB(usage.rss), 'MB');
+    console.log('Free memory\t\t', toMB(freeMemory), 'MB');
+}
+
+checkMemory()
+
+console.log('')
+
+let fichiersTéléchargés = await téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+
+console.log('fichiersTéléchargés', fichiersTéléchargés)
+
+checkMemory()
+
+process.exit(1)
 
 let dossiersSynchronisés
 if(dossiers.length >= 1){
