@@ -331,125 +331,122 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
 /**
  * Synchroniser le groupes instructeurs dans la base de données avec ceux qui viennent de l'API
  *
- * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI
+ * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI){
+export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, databaseConnection = directDatabaseConnection){
 
-    return directDatabaseConnection.transaction(async trx => {
+    const instructeursEnBDD = await createAndReturnInstructeurPersonne(
+        [...new Set(
+            /** @type {string[]} */
+            (groupesInstructeursAPI
+                .map(({instructeurs}) => instructeurs.map(({email}) => email))
+                .flat(Infinity))
+        )]
+    )
 
-        const instructeursEnBDD = await createAndReturnInstructeurPersonne(
-            [...new Set(
-                /** @type {string[]} */
-                (groupesInstructeursAPI
-                    .map(({instructeurs}) => instructeurs.map(({email}) => email))
-                    .flat(Infinity))
-            )]
-        )
+    const instructeurParEmail = new Map(instructeursEnBDD.map(i => [i.email, i]))
 
-        const instructeurParEmail = new Map(instructeursEnBDD.map(i => [i.email, i]))
+    //console.log('instructeurParEmail', instructeurParEmail)
 
-        //console.log('instructeurParEmail', instructeurParEmail)
+    const groupesInstructeursBDD = await getGroupesInstructeurs(databaseConnection)
 
-        const groupesInstructeursBDD = await getGroupesInstructeurs(trx)
+    //console.log('groupesInstructeursAPI', groupesInstructeursAPI)
+    //console.log('synchroniserGroupesInstructeurs', groupesInstructeursBDD)
 
-        //console.log('groupesInstructeursAPI', groupesInstructeursAPI)
-        //console.log('synchroniserGroupesInstructeurs', groupesInstructeursBDD)
+    // Créer en BDD les groupes qui n'y sont pas encore
+    const groupesInstructeursDansDSAbsentEnBDD = groupesInstructeursAPI.filter(({label}) => !groupesInstructeursBDD.has(label))
 
-        // Créer en BDD les groupes qui n'y sont pas encore
-        const groupesInstructeursDansDSAbsentEnBDD = groupesInstructeursAPI.filter(({label}) => !groupesInstructeursBDD.has(label))
+    //console.log('groupesInstructeursDansDSAbsentEnBDD', groupesInstructeursDansDSAbsentEnBDD)
 
-        //console.log('groupesInstructeursDansDSAbsentEnBDD', groupesInstructeursDansDSAbsentEnBDD)
-
-        const groupesInstructeursManquantsEnBDDCréés = groupesInstructeursDansDSAbsentEnBDD.length >= 1 ?
-            créerGroupesInstructeurs(groupesInstructeursDansDSAbsentEnBDD, instructeurParEmail, trx) :
-            Promise.resolve()
+    const groupesInstructeursManquantsEnBDDCréés = groupesInstructeursDansDSAbsentEnBDD.length >= 1 ?
+        créerGroupesInstructeurs(groupesInstructeursDansDSAbsentEnBDD, instructeurParEmail, databaseConnection) :
+        Promise.resolve()
 
 
-        // Supprimer en BDD les groupes qui sont absents de DS
-        const groupesInstructeursEnBDDAbsentsDansDS = new Map([...groupesInstructeursBDD]
-            .filter(([nom_groupe]) => !groupesInstructeursAPI.find(({label}) => label === nom_groupe))
-        )
+    // Supprimer en BDD les groupes qui sont absents de DS
+    const groupesInstructeursEnBDDAbsentsDansDS = new Map([...groupesInstructeursBDD]
+        .filter(([nom_groupe]) => !groupesInstructeursAPI.find(({label}) => label === nom_groupe))
+    )
 
 
-        //console.log('groupesInstructeurs En BDD Absents Dans DS (donc à supprimer)', groupesInstructeursEnBDDAbsentsDansDS)
+    //console.log('groupesInstructeurs En BDD Absents Dans DS (donc à supprimer)', groupesInstructeursEnBDDAbsentsDansDS)
 
-        const groupesInstructeursEnTropEnBDDSupprimés = groupesInstructeursEnBDDAbsentsDansDS.size >= 1 ?
-            supprimerGroupesInstructeurs([...groupesInstructeursEnBDDAbsentsDansDS.values()].map(({id}) => id), trx) :
-            Promise.resolve()
+    const groupesInstructeursEnTropEnBDDSupprimés = groupesInstructeursEnBDDAbsentsDansDS.size >= 1 ?
+        supprimerGroupesInstructeurs([...groupesInstructeursEnBDDAbsentsDansDS.values()].map(({id}) => id), databaseConnection) :
+        Promise.resolve()
 
-        // Pour les groupes qui sont présents dans les deux, trouver les groupes qui ont besoin
-        // d'une mise à jour de la liste des personnes
-        const miseÀJourEmailsDansGroupe = Promise.all(groupesInstructeursAPI.map(({label, instructeurs: groupeAPIEmails}) => {
-            const groupeBDD = groupesInstructeursBDD.get(label)
+    // Pour les groupes qui sont présents dans les deux, trouver les groupes qui ont besoin
+    // d'une mise à jour de la liste des personnes
+    const miseÀJourEmailsDansGroupe = Promise.all(groupesInstructeursAPI.map(({label, instructeurs: groupeAPIEmails}) => {
+        const groupeBDD = groupesInstructeursBDD.get(label)
 
-            if(groupeBDD){
-                const {id: idGroupeInstructeurs, instructeurs} = groupeBDD
-                /** @type {Set<string>} */
-                const groupeBDDEmailsÀEnlever = new Set(instructeurs)
-                /** @type {Set<string>} */
-                const groupeBDDEmailÀAJouter = new Set()
+        if(groupeBDD){
+            const {id: idGroupeInstructeurs, instructeurs} = groupeBDD
+            /** @type {Set<string>} */
+            const groupeBDDEmailsÀEnlever = new Set(instructeurs)
+            /** @type {Set<string>} */
+            const groupeBDDEmailÀAJouter = new Set()
 
-                for(const {email} of groupeAPIEmails){
-                    if(groupeBDDEmailsÀEnlever.has(email)){
-                        // l'email est dans les deux, c'est cool
-                        groupeBDDEmailsÀEnlever.delete(email)
-                    }
-                    else{
-                        // l'email est dans le groupe dans l'API, mais pas encore en BDD
-                        groupeBDDEmailÀAJouter.add(email)
-                    }
+            for(const {email} of groupeAPIEmails){
+                if(groupeBDDEmailsÀEnlever.has(email)){
+                    // l'email est dans les deux, c'est cool
+                    groupeBDDEmailsÀEnlever.delete(email)
                 }
-                // à la fin de cette opération, dans groupeBDDEmailsÀEnlever,
-                // il reste les emails à enlever (parce qu'ils sont absents de la réponse de l'API)
-
-                //console.log('groupeBDD', label)
-                //console.log('groupeBDDEmailÀAJouter', groupeBDDEmailÀAJouter)
-                //console.log('groupeBDDEmailsÀEnlever', groupeBDDEmailsÀEnlever)
-
-                let ajoutEmailsDansGroupe = Promise.resolve()
-                let suppressionEmailsDansGroupe = Promise.resolve()
-
-                if(groupeBDDEmailÀAJouter.size >= 1){
-                    ajoutEmailsDansGroupe = ajouterPersonnesDansGroupeParEmails(idGroupeInstructeurs, groupeBDDEmailÀAJouter, trx)
+                else{
+                    // l'email est dans le groupe dans l'API, mais pas encore en BDD
+                    groupeBDDEmailÀAJouter.add(email)
                 }
-
-                if(groupeBDDEmailsÀEnlever.size >= 1){
-                    suppressionEmailsDansGroupe = supprimerPersonnesDansGroupeParEmail(idGroupeInstructeurs, groupeBDDEmailsÀEnlever, trx)
-                }
-
-                return Promise.all([ajoutEmailsDansGroupe, suppressionEmailsDansGroupe])
             }
-            else{
-                // les groupes d'instructeurs dans l'API et absents de la BDD ont été créé dans créerGroupesInstructeurs
-                // donc rien à faire
-                return Promise.resolve()
-            }
-        }))
+            // à la fin de cette opération, dans groupeBDDEmailsÀEnlever,
+            // il reste les emails à enlever (parce qu'ils sont absents de la réponse de l'API)
 
-        // Rajouter les instructeurId potentiellement manquants
-        /** @type {Map<API_DS.Instructeur['email'], API_DS.Instructeur['id']>} */
-        const instructeurEmailToId = new Map()
-        for(const groupeInstructeursAPI of groupesInstructeursAPI){
-            for(const {email, id} of groupeInstructeursAPI.instructeurs){
-                instructeurEmailToId.set(email, id)
+            //console.log('groupeBDD', label)
+            //console.log('groupeBDDEmailÀAJouter', groupeBDDEmailÀAJouter)
+            //console.log('groupeBDDEmailsÀEnlever', groupeBDDEmailsÀEnlever)
+
+            let ajoutEmailsDansGroupe = Promise.resolve()
+            let suppressionEmailsDansGroupe = Promise.resolve()
+
+            if(groupeBDDEmailÀAJouter.size >= 1){
+                ajoutEmailsDansGroupe = ajouterPersonnesDansGroupeParEmails(idGroupeInstructeurs, groupeBDDEmailÀAJouter, databaseConnection)
             }
+
+            if(groupeBDDEmailsÀEnlever.size >= 1){
+                suppressionEmailsDansGroupe = supprimerPersonnesDansGroupeParEmail(idGroupeInstructeurs, groupeBDDEmailsÀEnlever, databaseConnection)
+            }
+
+            return Promise.all([ajoutEmailsDansGroupe, suppressionEmailsDansGroupe])
         }
+        else{
+            // les groupes d'instructeurs dans l'API et absents de la BDD ont été créé dans créerGroupesInstructeurs
+            // donc rien à faire
+            return Promise.resolve()
+        }
+    }))
 
-        const complétionInstructeurIds = créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailToId, trx)
+    // Rajouter les instructeurId potentiellement manquants
+    /** @type {Map<API_DS.Instructeur['email'], API_DS.Instructeur['id']>} */
+    const instructeurEmailToId = new Map()
+    for(const groupeInstructeursAPI of groupesInstructeursAPI){
+        for(const {email, id} of groupeInstructeursAPI.instructeurs){
+            instructeurEmailToId.set(email, id)
+        }
+    }
 
-        //groupesInstructeursManquantsEnBDDCréés.catch(err => console.error("groupesInstructeursManquantsEnBDDCréés", err))
-        //groupesInstructeursEnTropEnBDDSupprimés.catch(err => console.error("groupesInstructeursEnTropEnBDDSupprimés", err))
-        //miseÀJourEmailsDansGroupe.catch(err => console.error("miseÀJourEmailsDansGroupe", err))
-        //complétionInstructeurIds.catch(err => console.error("complétionInstructeurIds", err))
+    const complétionInstructeurIds = créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailToId, databaseConnection)
+
+    //groupesInstructeursManquantsEnBDDCréés.catch(err => console.error("groupesInstructeursManquantsEnBDDCréés", err))
+    //groupesInstructeursEnTropEnBDDSupprimés.catch(err => console.error("groupesInstructeursEnTropEnBDDSupprimés", err))
+    //miseÀJourEmailsDansGroupe.catch(err => console.error("miseÀJourEmailsDansGroupe", err))
+    //complétionInstructeurIds.catch(err => console.error("complétionInstructeurIds", err))
 
 
-        return Promise.all([
-            groupesInstructeursManquantsEnBDDCréés,
-            groupesInstructeursEnTropEnBDDSupprimés,
-            miseÀJourEmailsDansGroupe,
-            complétionInstructeurIds
-        ])
-
-    })
+    return Promise.all([
+        groupesInstructeursManquantsEnBDDCréés,
+        groupesInstructeursEnTropEnBDDSupprimés,
+        miseÀJourEmailsDansGroupe,
+        complétionInstructeurIds
+    ])
 
 }

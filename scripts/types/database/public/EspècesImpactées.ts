@@ -16,7 +16,11 @@ export default interface EspCesImpactEs {
 
   media_type: string | null;
 
-  contenu: unknown | null;
+  contenu: ArrayBuffer | null;
+
+  DS_checksum: string | null;
+
+  DS_createdAt: Date | null;
 }
 
 /** Represents the initializer for the table public.espèces_impactées */
@@ -30,7 +34,11 @@ export interface EspCesImpactEsInitializer {
 
   media_type?: string | null;
 
-  contenu?: unknown | null;
+  contenu?: ArrayBuffer | null;
+
+  DS_checksum?: string | null;
+
+  DS_createdAt?: Date | null;
 }
 
 /** Represents the mutator for the table public.espèces_impactées */
@@ -43,5 +51,9 @@ export interface EspCesImpactEsMutator {
 
   media_type?: string | null;
 
-  contenu?: unknown | null;
+  contenu?: ArrayBuffer | null;
+
+  DS_checksum?: string | null;
+
+  DS_createdAt?: Date | null;
 }

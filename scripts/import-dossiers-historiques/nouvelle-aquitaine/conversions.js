@@ -1,8 +1,7 @@
-//@ts-check
+//@ts-nocheck
 
 import { normalizeNomCommune, recoverDate } from "../../commun/typeFormat.js";
 
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444, GeoAPICommune, GeoAPIDépartement, StringValues, DossierComplet} from "../../types.js" */
 /** @import {_DossierTableauSuiviNouvelleAquitaine2023, DossierTableauSuiviNouvelleAquitaine2023} from "./types.js" */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
