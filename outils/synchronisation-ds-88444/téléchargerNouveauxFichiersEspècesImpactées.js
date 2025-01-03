@@ -60,10 +60,9 @@ function makeEspèceImpactéeHash(espèceImpactée){
 /**
  * Cette fonction lance tous les téléchargements d'un coup et retourne tous les résultats en un seul bloc
  * 
- * 
- * 
  * @param {Map<DossierDS88444['number'], DSPieceJustificative>} candidatsFichiersImpactées 
  * @param {Knex.Transaction | Knex} [transaction]
+ * @returns {Promise<Map<DossierDS88444['number'], Partial<EspècesImpactées>>>}
  */
 export default async function téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, transaction){
     /** @type {Map<DossierDS88444['number'], EspCesImpactEsMutator & {url?: string}>} */
@@ -120,7 +119,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
                 DS_createdAt,
                 media_type,
                 nom,
-                contenu
+                contenu: Buffer.from(contenu) // knex n'accepte que les Buffer node, pas les ArrayBuffer
             }]
 
             return ret;

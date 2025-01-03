@@ -8,6 +8,8 @@ import {dumpEntreprises, closeDatabaseConnection, créerTransaction} from '../sc
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
+import { ajouterFichiersEspèces } from '../scripts/server/database/espèces_impactées.js'
+
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
@@ -20,10 +22,11 @@ import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' 
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargerNouveauxFichiersEspècesImpactées.js'
 
 
-
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
+/** @import {default as EspècesImpactées} from '../scripts/types/database/public/EspècesImpactées.ts' */
+
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
@@ -531,15 +534,17 @@ const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) =>
 
 //console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
 
-
-
 checkMemory()
 
-let fichiersTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+/** @type {Promise<Map<DossierDS88444['number'], Partial<EspècesImpactées>>> | Promise<void> } */
+let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
+if(candidatsFichiersImpactées.size >= 1){
+    fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+}
 
 //let fichiersTéléchargés = await téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
 
-fichiersTéléchargésP.then(fichiersTéléchargés => {
+fichiersEspècesImpactéesTéléchargésP.then(fichiersTéléchargés => {
     console.log('fichiersTéléchargés', fichiersTéléchargés)
     checkMemory()
     //process.exit(1)
@@ -573,7 +578,6 @@ const dossierIdByDS_id = new Map()
 const dossierIdByDS_number = new Map()
 
 for(const {id, id_demarches_simplifiées, number_demarches_simplifiées} of dossierIds){
-    // @ts-ignore
     dossierIdByDS_id.set(id_demarches_simplifiées, id)
     dossierIdByDS_number.set(Number(number_demarches_simplifiées), id)
 }
@@ -595,6 +599,7 @@ const messagesÀMettreEnBDDAvecDossierId = new Map()
 for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
     const dossierId = dossierIdByDS_id.get(id_DS)
 
+    // @ts-ignore
     messagesÀMettreEnBDDAvecDossierId.set(dossierId, messages)
 }
 
@@ -631,7 +636,7 @@ let traitementsSynchronisés;
 /** @type {Map<DatabaseDossier['id'], Traitement[]>} */
 const idToTraitements = new Map()
 for(const [id_DS, traitements] of évènementsPhaseDossierById_DS){
-    const dossierId = idDSToId.get(id_DS)
+    const dossierId = dossierIdByDS_id.get(id_DS)
 
     //@ts-ignore
     idToTraitements.set(dossierId, traitements)
@@ -644,13 +649,32 @@ if(idToTraitements.size >= 1){
 
 /** Synchronisation des fichiers téléchargés */
 
+const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
+    if(fichiersEspècesImpactéesTéléchargés){
+        for(const [number, fichierEspècesImpactées] of fichiersEspècesImpactéesTéléchargés){
+            const dossierId = dossierIdByDS_number.get(number)
+    
+            fichierEspècesImpactées.dossier = dossierId
+        }
+    
+        return ajouterFichiersEspèces(
+            [...fichiersEspècesImpactéesTéléchargés.values()],
+            laTransactionDeSynchronisationDS
+        )
+    }
+})
+
+
+
+/** Fin de l'outil de synchronisation - fermeture */
 
 Promise.all([
     groupesInstructeursSynchronisés,
     messagesSynchronisés,
     traitementsSynchronisés,
     synchronisationSuiviDossier,
-    synchronisationDossierDansGroupeInstructeur
+    synchronisationDossierDansGroupeInstructeur,
+    fichiersEspècesImpactéesSynchronisés
 ])
 .then(laTransactionDeSynchronisationDS.commit)
 .catch(laTransactionDeSynchronisationDS.rollback)
