@@ -1,7 +1,6 @@
 //@ts-check
 
 import parseArgs from 'minimist'
-import os from 'node:os'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
@@ -14,6 +13,8 @@ import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simpli
 import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
+
+import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargerNouveauxFichiersEspècesImpactées.js'
@@ -72,6 +73,13 @@ const schema88444 = _schema88444
 
 const laTransactionDeSynchronisationDS = await créerTransaction()
 
+process.on('exit', () => {
+    // au cas où la transaction n'a pas été terminée
+    if(!laTransactionDeSynchronisationDS.isCompleted()){
+        laTransactionDeSynchronisationDS.rollback()
+            .then(closeDatabaseConnection)
+    }
+})
 
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
@@ -523,31 +531,20 @@ const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) =>
 
 //console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
 
-function checkMemory(){
-    const usage = process.memoryUsage();
-    const freeMemory = os.freemem();
-    const totalMemory = os.totalmem();
 
-    function toMB(bytesize){
-        return (bytesize / 1024 / 1024).toFixed(0)
-    }
-
-    console.log('Total memory\t\t', toMB(totalMemory), 'MB');
-    console.log('Memory used by this process right now\t', toMB(usage.rss), 'MB');
-    console.log('Free memory\t\t', toMB(freeMemory), 'MB');
-}
 
 checkMemory()
 
-console.log('')
+let fichiersTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
 
-let fichiersTéléchargés = await téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+//let fichiersTéléchargés = await téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
 
-console.log('fichiersTéléchargés', fichiersTéléchargés)
+fichiersTéléchargésP.then(fichiersTéléchargés => {
+    console.log('fichiersTéléchargés', fichiersTéléchargés)
+    checkMemory()
+    //process.exit(1)
+})
 
-checkMemory()
-
-process.exit(1)
 
 let dossiersSynchronisés
 if(dossiers.length >= 1){
