@@ -76,13 +76,6 @@ const schema88444 = _schema88444
 
 const laTransactionDeSynchronisationDS = await créerTransaction()
 
-process.on('exit', () => {
-    // au cas où la transaction n'a pas été terminée
-    if(!laTransactionDeSynchronisationDS.isCompleted()){
-        laTransactionDeSynchronisationDS.rollback()
-            .then(closeDatabaseConnection)
-    }
-})
 
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
