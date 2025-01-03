@@ -1,5 +1,3 @@
-import knex from 'knex';
-
 import {directDatabaseConnection} from '../database.js'
 
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -13,7 +11,7 @@ import {directDatabaseConnection} from '../database.js'
  * @returns {Promise<Partial<EspècesImpactées>[]>}
  */
 export function trouverFichiersEspècesImpactéesExistants(descriptionsEspècesImpactées, databaseConnection = directDatabaseConnection){
-    // @ts-ignore
+
     return databaseConnection('espèces_impactées')
         .select(['DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
         .whereIn(

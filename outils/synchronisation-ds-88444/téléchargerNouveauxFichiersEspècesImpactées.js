@@ -1,8 +1,6 @@
 import {extname} from 'node:path';
 import { trouverFichiersEspècesImpactéesExistants } from '../../scripts/server/database/espèces_impactées.js';
 import téléchargerFichierDS from './téléchargerFichierDS.js';
-import { type } from 'node:os';
-
 
 /** @import {DossierDS88444, DSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {EspCesImpactEsMutator, default as EspècesImpactées} from '../../scripts/types/database/public/EspècesImpactées.ts' */
