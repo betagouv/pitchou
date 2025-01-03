@@ -104,7 +104,7 @@ type Annotations88444 = Champs88444
 
 export interface DossierDS<Champs, Annotations> {
     id: string
-    number: string
+    number: number
     dateDepot: Date 
     state: string
     demandeur: DemandeurDS

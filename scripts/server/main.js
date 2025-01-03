@@ -23,7 +23,7 @@ import synchronisationComplèteSiNécessaire from './synchro-complète-si néces
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
-/** @import {StringValues} from '../types.js' */
+/** @import {StringValues} from '../types/tools.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {DossierComplet} from '../types/API_Pitchou.ts' */
 
