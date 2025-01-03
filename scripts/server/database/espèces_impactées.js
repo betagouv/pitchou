@@ -24,3 +24,18 @@ export function trouverFichiersEspècesImpactéesExistants(descriptionsEspècesI
         )
 
 }
+
+
+/**
+ * 
+ * @param {Partial<EspècesImpactées>[]} espècesImpactées
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export function ajouterFichiersEspèces(espècesImpactées, databaseConnection = directDatabaseConnection){
+    return databaseConnection('espèces_impactées')
+        .insert(espècesImpactées)
+        .onConflict('dossier')
+        .merge()        
+
+}
