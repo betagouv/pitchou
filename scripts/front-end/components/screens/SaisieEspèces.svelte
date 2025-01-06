@@ -188,22 +188,37 @@
     $: fauneNonOiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau'))
     $: floreÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'flore'))
 
+    /** @type {ActivitéMenançante | undefined} */
     let activitéOiseauPréremplie;
+    /** @type {MéthodeMenançante | undefined} */
     let méthodeOiseauPréremplie;
+    /** @type {TransportMenançant | undefined} */
     let transportOiseauPrérempli;
+    /** @type {string | undefined} */
     let nombreIndividusOiseauPrérempli;
+    /** @type {number | undefined} */
     let nombreNidsOiseauPrérempli;
+    /** @type {number | undefined} */
     let nombreOeufsOiseauPrérempli
+    /** @type {number | undefined} */
     let surfaceHabitatDétruitOiseauPrérempli
 
+    /** @type {ActivitéMenançante | undefined} */
     let activitéFauneNonOiseauPréremplie;
+    /** @type {MéthodeMenançante | undefined} */
     let méthodeFauneNonOiseauPréremplie;
+    /** @type {TransportMenançant | undefined} */
     let transportFauneNonOiseauPréremplie;
+    /** @type {string | undefined} */
     let nombreIndividusFauneNonOiseauPréremplie;
+    /** @type {number | undefined} */
     let surfaceHabitatDétruitFauneNonOiseauPréremplie;
 
+    /** @type {ActivitéMenançante | undefined} */
     let activitéFlorePréremplie;
+    /** @type {string | undefined} */
     let nombreIndividusFlorePrérempli;
+    /** @type {number | undefined} */
     let surfaceHabitatDétruitFlorePrérempli;
 
     function préremplirFormulaire(){
