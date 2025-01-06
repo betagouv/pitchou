@@ -4,6 +4,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'od
 /** @import {
  *    ClassificationEtreVivant, 
  *    EspèceProtégée, 
+ *    ParClassification,
  *    EspèceProtégéeStrings,
  *    TAXREF_ROW, 
  *    OiseauAtteint,
@@ -226,9 +227,9 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
 /**
  * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
- * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces}
  */
 function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
@@ -247,9 +248,9 @@ function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, esp�
                 return {
                     espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
                     // @ts-ignore
-                    activité: activites.get(classification)?.get(activité),
-                    méthode: methodes.get(classification)?.get(méthode),	
-                    transport: transports.get(classification)?.get(transport),
+                    activité: activites[classification].get(activité),
+                    méthode: methodes[classification].get(méthode),	
+                    transport: transports[classification].get(transport),
                     ...rest
                 }
             })
@@ -271,9 +272,9 @@ function b64ToUTF8(s) {
  * 
  * @param {URL} url 
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
- * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces | undefined}
  */
 export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
@@ -294,9 +295,9 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
 /**
  * @param {ArrayBuffer} odsFile
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
- * @param {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
+ * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {Promise<DescriptionMenacesEspèces>}
  */
 async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
@@ -334,9 +335,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 nombreNids,
                 nombreOeufs,
                 surfaceHabitatDétruit,
-                activité: activites.get('oiseau')?.get(codeActivité),
-                méthode: methodes.get('oiseau')?.get(codeMéthode),	
-                transport: transports.get('oiseau')?.get(codeTransport),
+                activité: activites['oiseau'].get(codeActivité),
+                méthode: methodes['oiseau'].get(codeMéthode),	
+                transport: transports['oiseau'].get(codeTransport),
             }
         })
     }
@@ -364,9 +365,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                activité: activites.get('faune non-oiseau')?.get(codeActivité),
-                méthode: methodes.get('faune non-oiseau')?.get(codeMéthode),	
-                transport: transports.get('faune non-oiseau')?.get(codeTransport),
+                activité: activites['faune non-oiseau'].get(codeActivité),
+                méthode: methodes['faune non-oiseau'].get(codeMéthode),	
+                transport: transports['faune non-oiseau'].get(codeTransport),
             }
         })
     }
@@ -392,7 +393,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                activité: activites.get('flore')?.get(codeActivité)
+                activité: activites['flore'].get(codeActivité)
             }
         })
     }

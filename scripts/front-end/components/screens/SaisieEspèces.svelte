@@ -16,21 +16,22 @@
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     
-    /** @import { ClassificationEtreVivant, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
+    /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
+    /** @import { NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
+    /** @type {string | undefined} */
+    export let email = undefined
 
-    export let email
-
-    /** @type {Map<ClassificationEtreVivant, EspèceProtégée[]>} */
+    /** @type {ParClassification<EspèceProtégée[]>} */
     export let espècesProtégéesParClassification;
 
-    /** @type {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
+    /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     export let activitesParClassificationEtreVivant
 
-    /** @type {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
+    /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
     export let méthodesParClassificationEtreVivant
     
-    /** @type {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} */
+    /** @type {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} */
     export let transportsParClassificationEtreVivant
 
     /** @type {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} */
@@ -109,14 +110,14 @@
 
     /**
      * 
-     * @param {Map<ClassificationEtreVivant, EspèceProtégée[]>} espècesProtégéesParClassification
+     * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @returns {Map<string, EspèceProtégée>}
      */
     function créerNomVersEspèceClassif(espècesProtégéesParClassification){
         /** @type {Map<string, EspèceProtégée>}>} */
         const nomVersEspèceClassif = new Map()
 
-        for(const espèces of espècesProtégéesParClassification.values()){
+        for(const espèces of Object.values(espècesProtégéesParClassification)){
             for(const espèce of espèces){
                 const {nomsScientifiques, nomsVernaculaires} = espèce;
                 if(nomsScientifiques.size >= 1){
@@ -261,14 +262,6 @@
         rerender()
     }
 
-    /**
-     * 
-     * @param {ClassificationEtreVivant} classification
-     * @returns {EspèceProtégée[]}
-     */
-    function getEspècesPourClassification(classification) {
-        return espècesProtégéesParClassification.get(classification)
-    }
 </script>
 
 
@@ -347,9 +340,9 @@
                                         bind:nombreNids={nombreNidsOiseauPrérempli}
                                         bind:nombreOeufs={nombreOeufsOiseauPrérempli}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitOiseauPrérempli}
-                                        activitésMenaçantes={[...activitesParClassificationEtreVivant.get("oiseau").values()]}
-                                        méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("oiseau").values()]}
-                                        transportMenaçants={[...transportsParClassificationEtreVivant.get("oiseau").values()]}
+                                        activitésMenaçantes={[...activitesParClassificationEtreVivant["oiseau"].values()]}
+                                        méthodesMenaçantes={[...méthodesParClassificationEtreVivant["oiseau"].values()]}
+                                        transportMenaçants={[...transportsParClassificationEtreVivant["oiseau"].values()]}
                                     />
                                 </tbody>
                             </table>
@@ -384,9 +377,9 @@
                                         bind:transport={transportFauneNonOiseauPréremplie}
                                         bind:nombreIndividus={nombreIndividusFauneNonOiseauPréremplie}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitFauneNonOiseauPréremplie}
-                                        activitésMenaçantes={[...activitesParClassificationEtreVivant.get("faune non-oiseau").values()]}
-                                        méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("faune non-oiseau").values()]}
-                                        transportMenaçants={[...transportsParClassificationEtreVivant.get("faune non-oiseau").values()]}
+                                        activitésMenaçantes={[...activitesParClassificationEtreVivant["faune non-oiseau"].values()]}
+                                        méthodesMenaçantes={[...méthodesParClassificationEtreVivant["faune non-oiseau"].values()]}
+                                        transportMenaçants={[...transportsParClassificationEtreVivant["faune non-oiseau"].values()]}
                                     />
                                 </tbody>
                             </table>
@@ -417,7 +410,7 @@
                                         bind:activité={activitéFlorePréremplie}
                                         bind:nombreIndividus={nombreIndividusFlorePrérempli}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitFlorePrérempli}
-                                        activitésMenaçantes={[...activitesParClassificationEtreVivant.get("flore").values()]}
+                                        activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
                                     />
                                 </tbody>
                             </table>
@@ -437,22 +430,22 @@
 
             <FieldsetOiseau
                 bind:oiseauxAtteints={oiseauxAtteints}
-                espècesProtégéesOiseau={getEspècesPourClassification("oiseau")}
-                activitésMenaçantes={[...activitesParClassificationEtreVivant.get("oiseau").values()]}
-                méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("oiseau").values()]}
-                transportMenaçants={[...transportsParClassificationEtreVivant.get("oiseau").values()]}
+                espècesProtégéesOiseau={espècesProtégéesParClassification["oiseau"]}
+                activitésMenaçantes={[...activitesParClassificationEtreVivant["oiseau"].values()]}
+                méthodesMenaçantes={[...méthodesParClassificationEtreVivant["oiseau"].values()]}
+                transportMenaçants={[...transportsParClassificationEtreVivant["oiseau"].values()]}
             />
             <FieldsetNonOiseau
                 bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
-                espècesProtégéesFauneNonOiseau={getEspècesPourClassification("faune non-oiseau")}
-                activitésMenaçantes={[...activitesParClassificationEtreVivant.get("faune non-oiseau").values()]}
-                méthodesMenaçantes={[...méthodesParClassificationEtreVivant.get("faune non-oiseau").values()]}
-                transportMenaçants={[...transportsParClassificationEtreVivant.get("faune non-oiseau").values()]}
+                espècesProtégéesFauneNonOiseau={espècesProtégéesParClassification["faune non-oiseau"]}
+                activitésMenaçantes={[...activitesParClassificationEtreVivant["faune non-oiseau"].values()]}
+                méthodesMenaçantes={[...méthodesParClassificationEtreVivant["faune non-oiseau"].values()]}
+                transportMenaçants={[...transportsParClassificationEtreVivant["faune non-oiseau"].values()]}
             />
             <FieldsetFlore
                 bind:floresAtteintes={floresAtteintes}
-                espècesProtégéesFlore={getEspècesPourClassification("flore")}
-                activitésMenaçantes={[...activitesParClassificationEtreVivant.get("flore").values()]}
+                espècesProtégéesFlore={espècesProtégéesParClassification["flore"]}
+                activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
             />
         </form>
         <div class="fr-grid-row fr-mb-4w">
