@@ -13,7 +13,7 @@ services:
     command: npm run start:server
     environment:
       PORT: 2648
-      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/principale"
+      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
     user: "${UID}:${GID}"
     stop_grace_period: 2s
 
@@ -27,7 +27,7 @@ services:
     working_dir: /app
     command: sleep 365d
     environment:
-      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/principale"
+      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
     user: "${UID}:${GID}"
     stop_grace_period: 1s
 
@@ -38,7 +38,7 @@ services:
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_password
-      POSTGRES_DB: principale
+      POSTGRES_DB: especes_pro_3731
     hostname: localhost
     ports:
       - "5432:5432"
