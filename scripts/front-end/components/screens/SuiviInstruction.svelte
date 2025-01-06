@@ -23,7 +23,7 @@
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
 
-    /** @type {ComponentProps<Squelette>['email']} */
+    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
     export let email;
     /** @type {ComponentProps<Squelette>['erreurs']} */
     export let erreurs;
@@ -96,7 +96,7 @@
     }
 
     tousLesFiltres.set('phase', dossier => {
-        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...
+        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...)
         return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
     })
 
@@ -189,34 +189,34 @@
     const AUCUN_INSTRUCTEUR = '(aucun instructeur)'
     const instructeurEmailOptions = (relationSuivis && Array.from(relationSuivis.keys()).sort()) || []
 
-    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}*/
-    const instructeursOptions = new Set([AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
+    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
+    const instructeursOptions = new Set([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    $: instructeursSélectionnés = new Set()
+    let instructeursSélectionnés = new Set([email])
+    
+    tousLesFiltres.set('instructeurs', dossier => {
+        if(!relationSuivis)
+            return true;
+
+        if (instructeursSélectionnés.has(AUCUN_INSTRUCTEUR) && dossiersIdSuivisParAucunInstructeur && dossiersIdSuivisParAucunInstructeur.has(dossier.id)) {
+            return true
+        }
+
+        for(const instructeurEmail of instructeursSélectionnés){
+            const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail)
+            if(dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
+                return true
+        }
+
+        return false
+    })
 
     /**
      *
      * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
 	function filtrerParInstructeurs(_instructeursSélectionnées){
-        tousLesFiltres.set('instructeurs', dossier => {
-            if(!relationSuivis)
-                return true;
-
-            if (_instructeursSélectionnées.has(AUCUN_INSTRUCTEUR) && dossiersIdSuivisParAucunInstructeur && dossiersIdSuivisParAucunInstructeur.has(dossier.id)) {
-                return true
-            }
-
-            for(const instructeurEmail of _instructeursSélectionnées){
-                const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail)
-                if(dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
-                    return true
-            }
-
-            return false
-        })
-
         instructeursSélectionnés = new Set(_instructeursSélectionnées)
 
 		filtrerDossiers()
@@ -255,6 +255,9 @@
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
         { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
     ])
+
+    // filtrage initial avec les filtres par défaut
+    filtrerDossiers()
 </script>
 
 <Squelette {email} {erreurs}>
@@ -286,6 +289,7 @@
                     <FiltreParmiOptions
                         titre="Filtrer par instructeur suivant le dossier"
                         options={instructeursOptions}
+                        optionsSélectionnées={instructeursSélectionnés}
                         mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
                     />
                     {/if}
