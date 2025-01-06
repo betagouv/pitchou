@@ -1,9 +1,11 @@
 name: Qualité de code
 
-on: 
-  pull_request:
-      branches:
-        - svelte-check-tower
+on: [pull_request]
+
+#on: 
+#  push:
+#      branches:
+#        - svelte-check-tower
 
 jobs:
   tsc:
