@@ -10,10 +10,14 @@ import RedactionArretePrefectoral from '../components/screens/RedactionArretePre
 import { chargerActivitésMéthodesTransports, chargerDossiers, chargerListeEspècesProtégées } from '../actions/main.js';
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 
+import {HTTPError, MediaTypeError} from '../../commun/errors.js'
+
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
 /** @import {DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
+
+const ODS_MEDIA_TYPE = 'application/vnd.oasis.opendocument.spreadsheet'
 
 /**
  * @param {Object} ctx
@@ -42,12 +46,24 @@ export default async ({params: {dossierId}}) => {
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans
 
-    /** @type {DescriptionMenacesEspèces | undefined} */
-    let espècesImpactées
+    /** @type {Promise<DescriptionMenacesEspèces | undefined>} */
+    let espècesImpactées = Promise.resolve(undefined)
 
     if(dossier.url_fichier_espèces_impactées){
-        espècesImpactées = await fetch(dossier.url_fichier_espèces_impactées)
-            .then(r => r.arrayBuffer())
+        espècesImpactées = fetch(dossier.url_fichier_espèces_impactées)
+            .then(response => {
+                if (!response.ok) {
+                    throw new HTTPError(response.status);
+                }
+
+                const mediaType = response.headers.get('Content-Type')
+
+                if(mediaType !== ODS_MEDIA_TYPE){
+                    throw new MediaTypeError({attendu: ODS_MEDIA_TYPE, obtenu: mediaType})
+                }
+                
+                return response.arrayBuffer()
+            })
             .then(espècesAB => importDescriptionMenacesEspècesFromOdsArrayBuffer(
                     espècesAB,
                     espèceByCD_REF,
