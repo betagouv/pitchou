@@ -25,7 +25,7 @@
 
     /** @type {undefined | ((e: EspèceProtégée) => void)} */
     export let onSupprimerLigne = undefined
-    $: onSupprimerClick = onSupprimerLigne && (() => onSupprimerLigne(espèce))
+    $: onSupprimerClick = onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce))
 
     /** @type {EspèceProtégée[]} */
     export let espècesProtégéesFauneNonOiseau = []
@@ -48,7 +48,7 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    const dupliquerLigne = () => onDupliquerLigne && onDupliquerLigne(
+    const dupliquerLigne = () => onDupliquerLigne && espèce && onDupliquerLigne(
         {   
             espèce,  
             activité,
