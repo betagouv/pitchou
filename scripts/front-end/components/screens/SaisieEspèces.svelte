@@ -14,7 +14,7 @@
     
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
-    import { descriptionMenacesEspècesToOdsArrayBuffer, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../../commun/outils-espèces.js'
+    import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     
     /** @import { ClassificationEtreVivant, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
