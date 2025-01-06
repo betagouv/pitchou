@@ -1,4 +1,5 @@
 <script>
+    import { tick, onMount } from 'svelte';
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
@@ -27,8 +28,6 @@
     export let email;
     /** @type {ComponentProps<Squelette>['erreurs']} */
     export let erreurs;
-
-    $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
     $: dossiersIdSuivisParAucunInstructeur = relationSuivis && (() => {
         // démarrer avec tous les ids
@@ -222,19 +221,6 @@
 		filtrerDossiers()
 	}
 
-    let filtrerUniquementDossiersSuivi = false;
-
-    $: if(filtrerUniquementDossiersSuivi){
-        if(dossiersIdSuivisParInstructeurActuel){
-            tousLesFiltres.set('suivis', dossier => dossiersIdSuivisParInstructeurActuel.has(dossier.id))
-
-            filtrerDossiers()
-        }
-    }
-    else{
-        tousLesFiltres.delete('suivis')
-        filtrerDossiers()
-    }
 
     const trisActivitéPrincipale = new Set([
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
@@ -256,8 +242,11 @@
         { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
     ])
 
-    // filtrage initial avec les filtres par défaut
-    filtrerDossiers()
+
+    // filtrage avec les filtres initiaux
+    onMount(async () => {
+        filtrerDossiers()
+	});
 </script>
 
 <Squelette {email} {erreurs}>
