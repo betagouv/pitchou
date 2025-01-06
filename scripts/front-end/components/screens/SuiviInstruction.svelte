@@ -293,14 +293,6 @@
                         mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
                     />
                     {/if}
-                    {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
-                    <div class="fr-checkbox-group flex">
-                        <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
-                        <label class="fr-label" for="checkbox-1">
-                            Afficher uniquement mes dossiers suivis
-                        </label>
-                    </div>
-                    {/if}
                 </div>
 
                 <div class="filtres-actifs">
