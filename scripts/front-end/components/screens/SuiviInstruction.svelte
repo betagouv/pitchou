@@ -312,7 +312,14 @@
                         <button on:click={onSupprimerFiltreTexte}>✖</button>
                     {/if}
                     {#if instructeursSélectionnés.size >= 1}
-                        <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
+                        <p>
+                            <span>Dossiers suivis par&nbsp;:</span>
+                            {#each [...instructeursSélectionnés] as instructeur}
+                                <span class="fr-tag fr-tag--sm instructeurs fr-mr-1w fr-mb-1v">
+                                    {instructeur}
+                                </span>
+                            {/each}
+                        </p>
                     {/if}
                 </div>
 
