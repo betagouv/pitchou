@@ -89,7 +89,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
 
     const fichierHashDéjàEnBDD = new Set( fichiersDéjaEnBDD.map(makeEspèceImpactéeHash) )
 
-    console.log('fichierHashDéjàEnBDD', fichierHashDéjàEnBDD)
+    //console.log('fichierHashDéjàEnBDD', fichierHashDéjàEnBDD)
 
 
     // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données
@@ -100,7 +100,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
         })
     )
 
-    console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
+    //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
 
     /** @typedef { [DossierDS88444['number'], Partial<EspècesImpactées>] } ReturnMapEntryData */
 

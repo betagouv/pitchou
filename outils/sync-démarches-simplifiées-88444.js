@@ -16,7 +16,7 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import checkMemory from '../scripts/server/checkMemory.js'
+//import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargerNouveauxFichiersEspècesImpactées.js'
@@ -527,21 +527,13 @@ const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) =>
 
 //console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
 
-checkMemory()
+//checkMemory()
 
 /** @type {Promise<Map<DossierDS88444['number'], Partial<EspècesImpactées>>> | Promise<void> } */
 let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
 if(candidatsFichiersImpactées.size >= 1){
     fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
 }
-
-//let fichiersTéléchargés = await téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
-
-fichiersEspècesImpactéesTéléchargésP.then(fichiersTéléchargés => {
-    console.log('fichiersTéléchargés', fichiersTéléchargés)
-    checkMemory()
-    //process.exit(1)
-})
 
 
 let dossiersSynchronisés
@@ -644,6 +636,8 @@ if(idToTraitements.size >= 1){
 
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés){
+        //checkMemory()
+
         for(const [number, fichierEspècesImpactées] of fichiersEspècesImpactéesTéléchargés){
             const dossierId = dossierIdByDS_number.get(number)
     
