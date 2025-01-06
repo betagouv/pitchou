@@ -44,7 +44,7 @@
     })()
 
     /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
-    $: dossiersSelectionnés = dossiers
+    $: dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     /** @type {{nom: string, tri: function}|undefined} */
