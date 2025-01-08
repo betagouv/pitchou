@@ -201,8 +201,6 @@
 
             tr {
                 th{
-                    padding: 0.2rem;
-
                     vertical-align: top;
                 }
             }
