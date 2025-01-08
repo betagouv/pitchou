@@ -199,10 +199,8 @@
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
 
-            tr {
-                th{
-                    vertical-align: top;
-                }
+            tr th {
+                vertical-align: top;
             }
         }
     }
