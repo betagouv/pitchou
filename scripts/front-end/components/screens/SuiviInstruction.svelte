@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
-    import EnteteAvecTri from '../EnteteAvecTri.svelte'
+    import TrisDeTh from '../TrisDeTh.svelte'
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
@@ -320,29 +320,29 @@
                             <tr>
                                 <th>Voir le dossier</th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Localisation"
+                                    Localisation
+                                    <TrisDeTh
                                         tris={trisLocalisation}
                                         bind:triSélectionné
                                     />
                                 </th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Activité principale"
+                                    Activité principale
+                                    <TrisDeTh
                                         tris={trisActivitéPrincipale}
                                         bind:triSélectionné
                                     />
                                 </th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Porteur de projet"
+                                    Porteur de projet
+                                    <TrisDeTh
                                         tris={trisDéposant}
                                         bind:triSélectionné
                                     />
                                 </th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Nom du projet"
+                                    Nom du projet
+                                    <TrisDeTh
                                         tris={trisNomProjet}
                                         bind:triSélectionné
                                     />
@@ -353,6 +353,10 @@
                                     Phase<br>
                                     <br>
                                     Prochaine action attendue de
+                                    <TrisDeTh
+                                        tris={trisNomProjet}
+                                        bind:triSélectionné
+                                    />
                                 </th>
                             </tr>
                         </thead>

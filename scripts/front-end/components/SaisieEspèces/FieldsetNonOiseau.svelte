@@ -9,7 +9,7 @@
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
-    import EnteteAvecTri from "../EnteteAvecTri.svelte"
+    import TrisDeTh from "../TrisDeTh.svelte"
 
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -117,22 +117,22 @@
                     <thead>
                         <tr>
                             <th>
-                                <EnteteAvecTri
-                                    label="Espèce"
+                                Espèce
+                                <TrisDeTh
                                     tris={trisEspèces}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri
-                                    label="Type d'impact"
+                                Type d'impact
+                                <TrisDeTh
                                     tris={trisImpacts}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri
-                                    label="Méthode"
+                                Méthode
+                                <TrisDeTh
                                     tris={trisMéthodes}
                                     bind:triSélectionné
                                 />
