@@ -1,5 +1,6 @@
 <script>
     // @ts-check
+    import clsx from 'clsx';
 
     /** @type {Set<{nom: string, tri: function}>} */
     export let tris
@@ -14,10 +15,14 @@
     }
 </script>
 
-<ul>
+<ul class="fr-mt-1w">
     {#each [...tris] as tri}
-        <li>
-            <button type="button" on:click={() => { sélectionnerTri(tri) }}  class={ triSélectionné === tri ? "sélectionné" : "" }>
+        <li class="fr-mb-1v">
+            <button 
+                class={clsx(['fr-pt-1v', 'fr-pb-1v', {"sélectionné": triSélectionné === tri}])} 
+                type="button" 
+                on:click={() => { sélectionnerTri(tri) }}
+            >
                 {tri["nom"]}
 
                 {#if tri === triSélectionné}
@@ -34,7 +39,6 @@
         list-style: none;
         pointer-events: auto;
         padding: 0;
-        margin-top: 0.25rem;
 
         li {
             padding: 0;
@@ -45,9 +49,7 @@
 
     button {
         color: var(--text-mention-grey);
-        padding: 0.5rem;
         text-align: left;
-        margin-bottom: 0.25rem;
         background-color: var(--background-overlap-grey);
 
         &:hover{
