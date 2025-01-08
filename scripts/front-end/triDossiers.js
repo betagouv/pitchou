@@ -105,7 +105,8 @@ export function trierDossiersParPhaseProchaineAction(dossiers){
             return phaseComparison
         }
         else{
-            // les phases sont similaires, comparer sur de qui la prochaine action est attendue
+            // les phases sont similaires, 
+            // comparer sur de qui la prochaine action est attendue
             const prochaineActionAttenduePar1 = dossier1.prochaine_action_attendue_par
             const prochaineActionAttenduePar2 = dossier2.prochaine_action_attendue_par
 
@@ -116,7 +117,8 @@ export function trierDossiersParPhaseProchaineAction(dossiers){
                 return prochaineActionAttendueParComparison
             }
             else{
-                // les prochaineActionAttenduePar sont aussi similaires, comparer sur
+                // les prochaineActionAttenduePar sont aussi similaires
+                // comparer sur l'ancienneté (dossier le plus ancien le plus pertinent)
                 return 0
             }
         }
