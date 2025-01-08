@@ -9,7 +9,7 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
-    import {trierDossiersParOrdreAlphabétiqueColonne} from '../../triDossiers.js'
+    import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
@@ -255,6 +255,10 @@
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
         { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
     ])
+
+    const triPriorisationPhaseProchaineAction = new Set([
+        { nom: "Prioriser", tri: () => dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) },
+    ])
 </script>
 
 <Squelette {email} {erreurs}>
@@ -354,7 +358,7 @@
                                     <br>
                                     Prochaine action attendue de
                                     <TrisDeTh
-                                        tris={trisNomProjet}
+                                        tris={triPriorisationPhaseProchaineAction}
                                         bind:triSélectionné
                                     />
                                 </th>
