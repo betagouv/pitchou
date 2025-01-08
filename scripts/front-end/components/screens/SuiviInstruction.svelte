@@ -6,6 +6,7 @@
     import TrisDeTh from '../TrisDeTh.svelte'
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
+    import IndicateurDélai from '../IndicateurDélai.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -391,6 +392,7 @@
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
+                                        <IndicateurDélai></IndicateurDélai>
                                         {#if prochaine_action_attendue_par}
                                             <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
                                         {/if}
