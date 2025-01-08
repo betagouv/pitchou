@@ -88,7 +88,7 @@
     }
 
     const trisImpacts = new Set([
-        { nom: "Grouper par impact", tri: trierParImpacts },
+        { nom: "Grouper", tri: trierParImpacts },
     ])
 </script>
 

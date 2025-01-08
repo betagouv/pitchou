@@ -95,7 +95,7 @@
     }
 
     const trisImpacts = new Set([
-        { nom: "Grouper par impact", tri: trierParImpacts },
+        { nom: "Grouper", tri: trierParImpacts },
     ])
 
     function trierParMéthode() {
@@ -104,7 +104,7 @@
     }
 
     const trisMéthodes = new Set([
-        { nom: "Grouper par méthode", tri: trierParMéthode },
+        { nom: "Grouper", tri: trierParMéthode },
     ])
 </script>
 
@@ -226,7 +226,7 @@
         table{
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
-            
+
             tr th {
                 vertical-align: top;
             }
