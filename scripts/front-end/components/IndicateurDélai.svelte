@@ -7,6 +7,9 @@
     /** @type { number } */
     export let quantité = 2.5
 
+    /** @type { string } */
+    export let alt;
+
     $: quantitéAjustée = quantité
     $: {
         if(quantitéAjustée < 0){
@@ -41,10 +44,7 @@
 
 </script>
 
-<div class="délai">
-    <!--
-    <span class="fr-icon-time-line fr-icon--sm" aria-hidden="true"></span>
-    -->
+<div class="délai" title={alt}>
     {#each traitsClasses as classes}
         <span class={clsx(classes)}></span>
     {/each}
