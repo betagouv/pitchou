@@ -6,7 +6,7 @@
     import EnteteAvecTri from '../EnteteAvecTri.svelte'
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
-    import IndicateurDélai from '../IndicateurDélai.svelte'
+    import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
@@ -362,7 +362,7 @@
                             déposant_prénoms, communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
-                            évènementsPhase, prochaine_action_attendue_par }}
+                            évènementsPhase, prochaine_action_attendue_par }, i}
                                 {@const phase = /** @type {DossierPhase} */ (évènementsPhase[0].phase)}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
@@ -384,7 +384,7 @@
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
-                                        <IndicateurDélai></IndicateurDélai>
+                                        <IndicateurDélaiPhase dossier={dossiersSelectionnés[i]}></IndicateurDélaiPhase>
                                         {#if prochaine_action_attendue_par}
                                             <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
                                         {/if}

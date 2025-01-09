@@ -2,10 +2,10 @@
     import clsx from 'clsx'
 
     /** @type { 'info' | 'succès' | 'avertissement' | 'erreur' } */
-    export const style = 'info';
+    export let style = 'info';
 
     /** @type { number } */
-    export let quantité = 2.5
+    export let quantité
 
     /** @type { string } */
     export let alt;
