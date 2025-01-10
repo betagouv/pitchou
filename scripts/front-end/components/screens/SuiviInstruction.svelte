@@ -1,5 +1,7 @@
 <script>
     //@ts-check
+    import {onMount} from 'svelte'
+
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
@@ -260,6 +262,17 @@
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
         { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
     ])
+
+    const triPriorisationPhaseProchaineAction = new Set([
+        { nom: "Prioriser", tri: () => dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) },
+    ])
+
+    
+
+    onMount(() => {
+        triSélectionné = [...triPriorisationPhaseProchaineAction][0]
+        triSélectionné.tri()
+    })
 </script>
 
 <Squelette {email} {erreurs}>
