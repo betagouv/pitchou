@@ -42,28 +42,22 @@
     $: weekDiff = differenceInWeeks(new Date(), addMonths(débutPhaseActuelle.dateDébut, monthDiff)) + 1
     // $: console.log('weekDiff', weekDiff)
 
+    $: quantité = monthDiff + (weekDiff/4)
     $: alt = `depuis ${format(débutPhaseActuelle.dateDébut, 'yyyy-MM-dd')} - ~${monthDiff} mois`
+
 
 </script>
 
-
 {#if débutPhaseActuelle.phase === 'Instruction'}
     <IndicateurDélai 
-        quantité={monthDiff + (weekDiff/4)}
-        style={monthDiff >= 3 ? 'erreur' : (monthDiff >= 2 ? 'avertissement' : 'info') }
+        {quantité}
+        style={quantité >= 3 ? 'erreur' : (quantité >= 2 ? 'avertissement' : 'info') }
         {alt}>
     </IndicateurDélai>
 {:else}
     <IndicateurDélai 
-        quantité={monthDiff + (weekDiff/4)}
+        {quantité}
         style='info' 
         {alt}>
     </IndicateurDélai>
 {/if}
-
-
-
-
-
-<style lang="scss">
-</style>
