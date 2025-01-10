@@ -15,6 +15,7 @@ export function getDébutPhaseActuelle(dossier){
     /** @type {DossierPhase}*/
     const phaseActuelle = dossier.évènementsPhase[0].phase
 
+    /** @type {Date} */
     let dateDébut;
 
     if(phaseActuelle === 'Accompagnement amont'){
