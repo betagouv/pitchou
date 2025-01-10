@@ -13,6 +13,7 @@ export function getDébutPhaseActuelle(dossier){
     // C'est trop simpliste
     // PPP à revoir à l'occasion de https://trello.com/c/GmhEx16G/420-un-dossier-qui-passe-en-instruction-dans-ds-reste-en-instruction-dans-pitchou
     /** @type {DossierPhase}*/
+    // @ts-ignore
     const phaseActuelle = dossier.évènementsPhase[0].phase
 
     /** @type {Date} */
