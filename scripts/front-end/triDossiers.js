@@ -3,6 +3,8 @@
 
 import {formatLocalisation, formatDéposant} from './affichageDossier.js'
 
+import {getDébutPhaseActuelle} from './getDébutPhaseActuelle.js'
+
 /**
  * 
  * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
@@ -80,8 +82,8 @@ const prochaineActionAttendueParToImportance = {
  * @param {DossierProchaineActionAttenduePar} prochaineActionAttenduePar2 
  */
 function compareProchaineActionAttenduePar(prochaineActionAttenduePar1, prochaineActionAttenduePar2){
-    const importance1 = prochaineActionAttenduePar1 ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar1] : 0;
-    const importance2 = prochaineActionAttenduePar2 ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar2] : 0;
+    const importance1 = prochaineActionAttenduePar1 ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar1] : 11;
+    const importance2 = prochaineActionAttenduePar2 ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar2] : 11;
 
     return importance2 - importance1
 }
@@ -117,9 +119,12 @@ export function trierDossiersParPhaseProchaineAction(dossiers){
                 return prochaineActionAttendueParComparison
             }
             else{
+                const {dateDébut: dateDébut1} = getDébutPhaseActuelle(dossier1)
+                const {dateDébut: dateDébut2} = getDébutPhaseActuelle(dossier2)
                 // les prochaineActionAttenduePar sont aussi similaires
                 // comparer sur l'ancienneté (dossier le plus ancien le plus pertinent)
-                return 0
+
+                return dateDébut1.getTime() - dateDébut2.getTime()
             }
         }
     })
