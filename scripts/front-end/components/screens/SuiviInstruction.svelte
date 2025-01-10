@@ -49,7 +49,7 @@
     $: dossiersSelectionnés = dossiers
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    /** @type {{nom: string, tri: function}|undefined} */
+    /** @type {{nom: string, tri: function} | undefined} */
     let triSélectionné = undefined
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
@@ -63,7 +63,11 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
-        triSélectionné = undefined
+        
+        // appliquer le tri en cours après le filtrage
+        if(triSélectionné){
+            triSélectionné.tri()
+        }
 	}
 
 
