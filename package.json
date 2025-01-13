@@ -15,7 +15,7 @@
     "prestart:prod-server": "knex migrate:latest",
     "start:prod-server": "node scripts/server/main.js",
     "build-types": "npm-run-all --parallel build-types:*",
-    "build-types:db": "docker exec tooling npx kanel -d postgresql://dev:dev_password@postgres_db:5432/principale -o ./scripts/types/database",
+    "build-types:db": "docker exec tooling npx kanel -d postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731 -o ./scripts/types/database",
     "build-types:ds-88444": "node outils/genere-types-88444.js",
     "migrate:up": "docker exec tooling npx knex migrate:up --env docker_dev",
     "migrate:down": "docker exec tooling npx knex migrate:down --env docker_dev"
