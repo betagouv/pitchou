@@ -18,7 +18,7 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
-            <h1 class="fr-mb-6w">Procédure dossier {dossier.nom_dossier || "sans nom"}</h1>
+            <h1 class="fr-mb-6w">Procédure dossier {dossier.nom || "sans nom"}</h1>
 
             <article class="fr-p-3w fr-mb-4w">
                 <ol>

@@ -43,7 +43,7 @@
     <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
             <h1 class="fr-mb-8w">Aide à la Rédaction arrêté préfectoral</h1>
-            <h2>Dossier {dossier.nom_dossier || "sans nom"}</h2>
+            <h2>Dossier {dossier.nom || "sans nom"}</h2>
 
             <article class="fr-p-3w fr-mb-4w">
                 <section>

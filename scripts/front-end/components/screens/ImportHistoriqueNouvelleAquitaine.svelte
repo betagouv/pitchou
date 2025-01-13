@@ -91,7 +91,7 @@
      */
     function trouverDossierEnBDDCorrespondant(dossiersStockésEnBaseDeDonnées, dossierPartiel88444DepuisTableauSuivi){
         const nomProjetDossierCandidat = dossierPartiel88444DepuisTableauSuivi['Nom du projet']
-        const dossiersAvecCeNom = dossiersStockésEnBaseDeDonnées.filter(d => d.nom_dossier === nomProjetDossierCandidat)
+        const dossiersAvecCeNom = dossiersStockésEnBaseDeDonnées.filter(d => d.nom === nomProjetDossierCandidat)
         if(dossiersAvecCeNom.length === 0)
             return undefined
         

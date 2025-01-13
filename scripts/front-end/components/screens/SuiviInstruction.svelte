@@ -256,8 +256,8 @@
     ])
 
     const trisNomProjet = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier").reverse() },
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() },
     ])
 
     const trisLocalisation = new Set([
@@ -408,7 +408,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
+                            {#each dossiersSelectionnés as { id, nom, déposant_nom,
                             déposant_prénoms, communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
@@ -419,7 +419,7 @@
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
                                     <td>{activité_principale || ''}</td>
                                     <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
-                                    <td>{nom_dossier || ''}</td>
+                                    <td>{nom || ''}</td>
                                     <td>
                                         {#if enjeu_politique}
                                             <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>

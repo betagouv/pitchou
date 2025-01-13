@@ -17,10 +17,9 @@ lunrfr(lunr)
 const créerDossierIndexable = dossier => {
     const {
         id,
-        nom_dossier,
+        nom,
         number_demarches_simplifiées,
         communes,
-        nom,
         déposant_nom,
         déposant_prénoms,
         demandeur_personne_physique_prénoms,
@@ -31,9 +30,8 @@ const créerDossierIndexable = dossier => {
     return {
         id: id.toString(),
         number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
-        nom_dossier: retirerAccents(nom_dossier || ''),
+        nom: retirerAccents(nom || ''),
         communes: communes?.map(({name}) => retirerAccents(name || "")).join(" ") || "",
-        nom: retirerAccents(nom || ""),
         déposant_nom: retirerAccents(déposant_nom || ""),
         déposant_prénoms: retirerAccents(déposant_prénoms || ""),
         demandeur_personne_physique_prénoms: 
@@ -63,7 +61,6 @@ const créerIndexDossiers = dossiers => {
             this.use(lunr.fr)
     
             this.ref("id")
-            this.field("nom_dossier")
             this.field("number_demarches_simplifiées")
             this.field("communes")
             this.field("nom")

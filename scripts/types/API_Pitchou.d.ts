@@ -1,19 +1,8 @@
 import Dossier from './database/public/Dossier.ts'
 import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
 
-/**
- * Ce fichier décrit les types de données retournés par l'API Pitchou
- * 
- */
-
-
-export interface DossierRésumé extends Dossier{
-
-}
-
 
 interface DossierComplémentPersonnesImpliquées {
-    nom_dossier: string;
     déposant_nom: string;
     déposant_prénoms: string;
     demandeur_personne_physique_nom: string;
@@ -67,6 +56,20 @@ type DossierActivitéPrincipale = {
     activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
 } 
 
+
+/**
+ * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
+ * ou le cartouche résumé commun aux onglets des écrans montrant un unique dossier
+ * 
+ * Il a pour objectif d'être plutôt facile à requêter en groupe
+ */
+export type DossierRésumé = Pick<Dossier, 'id' |  'communes' | 'départements' | 'régions' | >
+
+
+/**
+ * Le type DossierComplet contient toutes les informations relatives à un dossier
+ * notamment le contenu du fichier espèces impactées s'il y en a un 
+ */
 export interface DossierComplet extends 
     Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'>, 
     DossierPhaseEtProchaineAction, 

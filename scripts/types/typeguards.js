@@ -29,7 +29,7 @@ function isDossier(x) {
     (isValidDateString(x.date_dépôt) || x.date_dépôt === null) &&
     (x.departements === null || x.departements === undefined || Array.isArray(x.departements)) &&
     (x.communes === null || x.communes === undefined || Array.isArray(x.communes)) &&
-    (typeof x.nom_dossier === "string" || x.nom_dossier === null) &&
+    (typeof x.nom === "string" || x.nom === null) &&
     (typeof x.déposant_nom === "string" || x.déposant_nom === null) &&
     (typeof x.déposant_prénoms === "string" || x.déposant_prénoms === null) &&
     (typeof x.demandeur_personne_physique_nom === "string" || x.demandeur_personne_physique_nom === null) &&

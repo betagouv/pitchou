@@ -293,7 +293,7 @@ const colonnesDossierComplet = [
     "number_demarches_simplifiées",
     "statut",
     "date_dépôt",
-    "dossier.nom as nom_dossier",
+    "dossier.nom as nom",
     "espèces_protégées_concernées",
     "espèces_impactées.id as url_fichier_espèces_impactées",
     "rattaché_au_régime_ae",
