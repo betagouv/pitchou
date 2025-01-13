@@ -20,12 +20,12 @@
     /** @type {number | undefined} */
     export let surfaceHabitatDétruit = undefined 
 
-    /** @param {FauneNonOiseauAtteinte} fauneNonOiseauAtteinte */
-    export let onDupliquerLigne
+    /** @type {undefined | ((f: FauneNonOiseauAtteinte) => void)} */
+    export let onDupliquerLigne = undefined
 
-    /** @param {EspèceProtégée} _espèce */
-    export let onSupprimerLigne
-    $: onSupprimerClick = onSupprimerLigne && (() => onSupprimerLigne(espèce))
+    /** @type {undefined | ((e: EspèceProtégée) => void)} */
+    export let onSupprimerLigne = undefined
+    $: onSupprimerClick = onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce))
 
     /** @type {EspèceProtégée[]} */
     export let espècesProtégéesFauneNonOiseau = []
@@ -48,7 +48,7 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    const dupliquerLigne = () => onDupliquerLigne(
+    const dupliquerLigne = () => onDupliquerLigne && espèce && onDupliquerLigne(
         {   
             espèce,  
             activité,
