@@ -2,7 +2,8 @@
 
 import store from "../store"
 
-/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
+/** @import {DossierComplet, DossierPhase} from '../../types/API_Pitchou.d.ts' */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
@@ -10,7 +11,7 @@ import store from "../store"
 
 /**
  * @param {DossierComplet['id']} id
- * @param {Partial<DossierComplet> & {phase: string}} dossierParams
+ * @param {Partial<DossierComplet> & {phase: DossierPhase}} dossierParams
  * @returns {Promise<void>}
  */
 export function modifierDossier(id, dossierParams) {
