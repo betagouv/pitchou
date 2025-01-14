@@ -2,7 +2,7 @@ import Dossier from './database/public/Dossier.ts'
 import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
 
 
-interface DossierComplémentPersonnesImpliquées {
+type DossierPersonnesImpliquées = {
     déposant_nom: string;
     déposant_prénoms: string;
     demandeur_personne_physique_nom: string;
@@ -24,7 +24,7 @@ type DossierPhase = "Accompagnement amont" | "Étude recevabilité DDEP" | "Inst
 
 type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "Pétitionnaire" | "Consultation du public" | "Autre administration" | "Autre" | "Personne";
 
-interface DossierPhaseEtProchaineAction {
+type DossierPhaseEtProchaineAction = {
     phase: DossierPhase;
     prochaine_action_attendue_par: DossierProchaineActionAttenduePar;
 }
@@ -59,11 +59,17 @@ type DossierActivitéPrincipale = {
 
 /**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
+ * et pouvoir effectuer des recherches dans le tableau de suivi
  * ou le cartouche résumé commun aux onglets des écrans montrant un unique dossier
  * 
  * Il a pour objectif d'être plutôt facile à requêter en groupe
  */
-export type DossierRésumé = Pick<Dossier, 'id' |  'communes' | 'départements' | 'régions' | >
+export type DossierRésumé = Pick<Dossier, 
+    'id' | 'number_demarches_simplifiées' | 'nom' | 
+    'communes' | 'départements' | 'régions' | 
+    'activité_principale' | 'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae'> 
+    & DossierPersonnesImpliquées
+    & DossierPhaseEtProchaineAction
 
 
 /**
@@ -73,9 +79,9 @@ export type DossierRésumé = Pick<Dossier, 'id' |  'communes' | 'départements'
 export interface DossierComplet extends 
     Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'>, 
     DossierPhaseEtProchaineAction, 
-    DossierLocalisation, 
-    DossierComplémentPersonnesImpliquées,
+    DossierLocalisation,
     DossierActivitéPrincipale,
+    DossierPersonnesImpliquées,
     DossierFicherEspècesProtégées {
         // rien d'autre
 }
