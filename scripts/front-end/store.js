@@ -1,6 +1,9 @@
 //@ts-check
 
 import Store from 'baredux'
+// @ts-ignore
+import {dossierCompletVersRésumé} from '../commun/outils-dossiers.js'
+
 /**
  * Un store baredux a pour vocation de refléter notamment le modèle mental de la 
  * personne face à notre application. Le store stocke donc principalement des données (et parfois des singletons)
@@ -15,20 +18,20 @@ import Store from 'baredux'
 // DO NOT import x from './actions/*.js' // you're making an action, so add an action instead
 
 
-/** @import {DossierComplet} from '../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierRésumé} from '../types/API_Pitchou.d.ts' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
-/** @import {default as ÉvènementPhaseDossier} from '../types/database/public/ÉvènementPhaseDossier.ts' */
 
 
 /**
  * @typedef {Object} PitchouState
  * @property {PitchouInstructeurCapabilities} [capabilities]
- * @property {Map<DossierComplet['id'], DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}>} dossiers
+ * @property {Map<DossierRésumé['id'], DossierRésumé>} dossiersRésumés
+ * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
  * @property {IdentitéInstructeurPitchou} [identité]
@@ -43,7 +46,8 @@ import Store from 'baredux'
 
 /** @type {PitchouState} */
 const state = {
-  dossiers: new Map(),
+  dossiersRésumés: new Map(),
+  dossiersComplets: new Map(),
   messagesParDossierId: new Map(),
   erreurs: new Set()
 }
@@ -58,17 +62,26 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['dossiers']} dossiers 
+   * @param {PitchouState['dossiersRésumés']} dossiersRésumés 
    */
-  setDossiers(state, dossiers) {
-    state.dossiers = dossiers
+  setDossiersRésumés(state, dossiersRésumés) {
+    state.dossiersRésumés = dossiersRésumés
   },
   /**
    * @param {PitchouState} state
-   * @param {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} nouveauDossier
+   * @param {PitchouState['dossiersComplets']} dossiersComplets 
    */
-  setDossier(state, nouveauDossier) {
-    state.dossiers.set(nouveauDossier.id, nouveauDossier)
+  setDossiersComplets(state, dossiersComplets) {
+    state.dossiersComplets = dossiersComplets
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {DossierComplet} nouveauDossierComplet
+   */
+  setDossierComplet(state, nouveauDossierComplet) {
+    state.dossiersComplets.set(nouveauDossierComplet.id, nouveauDossierComplet)
+    const résumé = dossierCompletVersRésumé(nouveauDossierComplet)
+    state.dossiersRésumés.set(résumé.id, résumé)
   },
   /**
    * @param {PitchouState} state

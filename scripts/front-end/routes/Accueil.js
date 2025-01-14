@@ -57,7 +57,7 @@ export default async () => {
     // Si on en a, charger des dossiers (s'il n'y a pas de dossiers dans le store)
 
     if(store.state.capabilities && store.state.capabilities.listerDossiers){
-        if(store.state.dossiers.size === 0){
+        if(store.state.dossiersRésumés.size === 0){
             await chargerDossiers()
                 .catch(err => {
                     console.error('Problème de chargement des dossiers', err)
@@ -89,7 +89,7 @@ export default async () => {
          * @returns {ComponentProps<SuiviInstruction>}
          */
         function mapStateToProps(state){
-            const dossiersById = state.dossiers
+            const dossiersById = state.dossiersRésumés
 
 
             return {
