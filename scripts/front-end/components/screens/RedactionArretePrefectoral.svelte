@@ -7,7 +7,7 @@
     
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import { DescriptionMenacesEspèces,} from '../../../types/especes.d.ts' **/
 
     /** @type {DossierComplet} */

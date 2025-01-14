@@ -3,7 +3,7 @@
 
     import Squelette from '../Squelette.svelte'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
     /** @type {DossierComplet} */
     export let dossier

@@ -8,7 +8,7 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.d.ts' */
+    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.ts' */
     //@ts-ignore
     /** @import ÉvènementPhaseDossier from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 

@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */    
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */    
     /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
 
