@@ -8,7 +8,7 @@
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-    /** @import { DescriptionMenacesEspèces,} from '../../../types/especes.d.ts' **/
+    /** @import { DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
     /** @type {DossierComplet} */
     export let dossier
@@ -29,6 +29,7 @@
                             [...new Set(
                                 espècesImpactées
                                     .toSorted(etresVivantsAtteintsCompareEspèce)
+                                    // @ts-ignore
                                     .map(({espèce}) => espèce)
                             )]
                         ]
