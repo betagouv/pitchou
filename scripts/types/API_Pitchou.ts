@@ -49,9 +49,6 @@ interface DossierLocalisation {
     régions: string[] | null | undefined;
 }
 
-interface DossierFicherEspècesProtégées{
-    url_fichier_espèces_impactées?: string
-}
  
 type DossierActivitéPrincipale = {
     activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
@@ -67,7 +64,7 @@ type DossierActivitéPrincipale = {
  */
 export type DossierRésumé = Pick<Dossier, 
     'id' | 'number_demarches_simplifiées' | 'nom' |
-    'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae',
+    'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae' |
     'historique_identifiant_demande_onagre'> 
     & DossierLocalisation
     & DossierPersonnesImpliquées
@@ -86,5 +83,5 @@ export type DossierComplet =
     & DossierPhaseEtProchaineAction
     & DossierPersonnesImpliquées
     & DossierActivitéPrincipale
-    & { espècesImpactées: EspècesImpactées }
+    & { espècesImpactées: EspècesImpactées | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }

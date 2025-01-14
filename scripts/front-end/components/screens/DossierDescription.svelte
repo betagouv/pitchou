@@ -1,4 +1,6 @@
 <script>
+    import DownloadButton from '../DownloadButton.svelte';
+
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
@@ -11,6 +13,17 @@
     /** @type {string | undefined} */
     export let email
 
+    function makeFileContentBlob() {
+        return new Blob(
+            // @ts-ignore
+            [dossier.espècesImpactées && dossier.espècesImpactées.contenu], 
+            {type: dossier.espècesImpactées && dossier.espècesImpactées.media_type}
+        )
+    }
+
+    function makeFilename() {
+        return dossier.espècesImpactées?.nom || 'fichier'
+    } 
 
 </script>
 
@@ -21,10 +34,12 @@
 
             <article class="fr-p-3w fr-mb-4w">
                 <h2>Espèces impactées</h2>
-                {#if dossier.url_fichier_espèces_impactées}
-                    <a class="fr-btn fr-btn--lg" href={dossier.url_fichier_espèces_impactées}>
-                    Télécharger le fichier des espèces impactées
-                    </a>
+                {#if dossier.espècesImpactées}
+                    <DownloadButton 
+                        {makeFileContentBlob}
+                        {makeFilename}
+                        label="Télécharger le fichier des espèces impactées"
+                    ></DownloadButton>
                 {:else if dossier.espèces_protégées_concernées}
                     <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
                     <p>Le pétitionnaire n'a pas encore transmis de fichier, mais il a transmis ceci :</p>
