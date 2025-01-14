@@ -9,8 +9,6 @@
     import { modifierDossier } from '../../actions/dossier.js';
 
     /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.ts' */
-    //@ts-ignore
-    /** @import ÉvènementPhaseDossier from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
@@ -22,10 +20,9 @@
     
     $: phase = dossier.évènementsPhase[0].phase;
     
-    /** @type {Partial<DossierComplet> & {phase: DossierPhase}} */
+    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
     let dossierParams = {
         phase: dossier.évènementsPhase[0].phase,
-        // @ts-ignore
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
     }
     let messageErreur = "" 
