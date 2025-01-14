@@ -49,29 +49,14 @@ export default async ({params: {dossierId}}) => {
     /** @type {Promise<DescriptionMenacesEspèces | undefined>} */
     let espècesImpactées = Promise.resolve(undefined)
 
-    if(dossier.url_fichier_espèces_impactées){
-        espècesImpactées = fetch(dossier.url_fichier_espèces_impactées)
-            .then(response => {
-                if (!response.ok) {
-                    throw new HTTPError(response.status);
-                }
-
-                const mediaType = response.headers.get('Content-Type')
-
-                if(mediaType !== ODS_MEDIA_TYPE){
-                    throw new MediaTypeError({attendu: ODS_MEDIA_TYPE, obtenu: mediaType})
-                }
-                
-                return response.arrayBuffer()
-            })
-            .then(espècesAB => importDescriptionMenacesEspècesFromOdsArrayBuffer(
-                    espècesAB,
-                    espèceByCD_REF,
-                    activités,
-                    méthodes,
-                    transports
-                )
-            )
+    if(dossier.espècesImpactées && dossier.espècesImpactées.contenu){
+        espècesImpactées = importDescriptionMenacesEspècesFromOdsArrayBuffer(
+            dossier.espècesImpactées.contenu,
+            espèceByCD_REF,
+            activités,
+            méthodes,
+            transports
+        )
     }
 
     /**
