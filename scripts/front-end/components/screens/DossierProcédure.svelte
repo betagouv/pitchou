@@ -6,9 +6,8 @@
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */    
-    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
-
-    /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
+    
+    /** @type {DossierComplet} */
     export let dossier
 
     /** @type {string | undefined} */
