@@ -86,4 +86,4 @@ export type DossierComplet =
     & DossierPersonnesImpliquées
     & DossierActivitéPrincipale
     & { espècesImpactées: EspècesImpactées }
-    & { évènementsPhaseDossier: ÉvènementPhaseDossier[] }
+    & { évènementsPhase: ÉvènementPhaseDossier[] }
