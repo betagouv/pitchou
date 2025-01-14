@@ -4,7 +4,7 @@
     import Squelette from '../Squelette.svelte'
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../types.js' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {default as Message} from '../../../types/database/public/Message.ts' */
 
     /** @type {DossierComplet} */
