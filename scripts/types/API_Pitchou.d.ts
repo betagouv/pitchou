@@ -1,5 +1,7 @@
 import Dossier from './database/public/Dossier.ts'
 import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
+import EspècesImpactées from './database/public/EspècesImpactées.ts'
+import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
 
 
 type DossierPersonnesImpliquées = {
@@ -35,7 +37,6 @@ type DossierPhaseEtProchaineAction = {
  * On surcharge ici les propriétés `communes`, `départements` et `régions` pour contraindre le type des valeurs du JSON.
  * 
  */
-
 interface DossierDémarcheSimplifiée88444Communes {
     name: string;
     code: string;
@@ -65,23 +66,24 @@ type DossierActivitéPrincipale = {
  * Il a pour objectif d'être plutôt facile à requêter en groupe
  */
 export type DossierRésumé = Pick<Dossier, 
-    'id' | 'number_demarches_simplifiées' | 'nom' | 
-    'communes' | 'départements' | 'régions' | 
-    'activité_principale' | 'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae'> 
+    'id' | 'number_demarches_simplifiées' | 'nom' |
+    'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae'> 
+    & DossierLocalisation
     & DossierPersonnesImpliquées
     & DossierPhaseEtProchaineAction
+    & DossierActivitéPrincipale
 
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un 
  */
-export interface DossierComplet extends 
-    Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'>, 
-    DossierPhaseEtProchaineAction, 
-    DossierLocalisation,
-    DossierActivitéPrincipale,
-    DossierPersonnesImpliquées,
-    DossierFicherEspècesProtégées {
-        // rien d'autre
-}
+
+export type DossierComplet = 
+    Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'>
+    & DossierLocalisation
+    & DossierPhaseEtProchaineAction
+    & DossierPersonnesImpliquées
+    & DossierActivitéPrincipale
+    & { espècesImpactées: EspècesImpactées }
+    & { évènementsPhaseDossier: ÉvènementPhaseDossier[] }
