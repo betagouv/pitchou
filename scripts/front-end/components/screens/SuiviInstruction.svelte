@@ -14,13 +14,12 @@
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
 
     /** @import {ComponentProps} from 'svelte' */
-    /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
+    /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
-    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
-    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
+    /** @type {DossierRésumé[]} */
     export let dossiers = []
 
     /** @type {PitchouState['relationSuivis']} */
@@ -48,14 +47,14 @@
         return dossierIdsSansSuivi
     })()
 
-    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
+    /** @type {DossierRésumé[]} */
     $: dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     /** @type {{nom: string, tri: function}|undefined} */
     let triSélectionné = undefined
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -412,8 +411,7 @@
                             déposant_prénoms, communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
-                            évènementsPhase, prochaine_action_attendue_par }, i}
-                                {@const phase = /** @type {DossierPhase} */ (évènementsPhase[0].phase)}
+                            phase, prochaine_action_attendue_par }}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>

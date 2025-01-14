@@ -1,5 +1,6 @@
 /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.js' */
 /** @import {default as ÉvènementPhaseDossier} from '../types/database/public/ÉvènementPhaseDossier.ts' */
+/** @import {DossierRésumé} from '../types/API_Pitchou.js' */
 
 import {formatLocalisation, formatDéposant} from './affichageDossier.js'
 
@@ -7,9 +8,9 @@ import {getDébutPhaseActuelle} from './getDébutPhaseActuelle.js'
 
 /**
  * 
- * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
- * @param {keyof DossierComplet | "localisation" | "déposant"} nomColonne 
- * @returns {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]}
+ * @param {DossierRésumé[]} dossiers 
+ * @param {keyof DossierRésumé | "localisation" | "déposant"} nomColonne 
+ * @returns {DossierRésumé[]}
  */
 export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) => {
     return dossiers.toSorted((a, b) => {

@@ -67,7 +67,8 @@ type DossierActivitéPrincipale = {
  */
 export type DossierRésumé = Pick<Dossier, 
     'id' | 'number_demarches_simplifiées' | 'nom' |
-    'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae'> 
+    'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae',
+    'historique_identifiant_demande_onagre'> 
     & DossierLocalisation
     & DossierPersonnesImpliquées
     & DossierPhaseEtProchaineAction
