@@ -4,6 +4,7 @@ import Message from "./database/public/Message.ts"
 
 export interface PitchouInstructeurCapabilities{
     listerDossiers?: () => Promise<{dossiers: DossierRésumé[]}>
+    recupérerDossierComplet?: (dossierId: DossierComplet['id']) => Promise<DossierComplet>
     listerRelationSuivi: () => Promise<{personneEmail: Personne['email'], dossiersSuivisIds: DossierRésumé['id'][]}[]>
     listerMessages?: (dossierId: DossierRésumé['id']) => Promise<Message[]>
     listerÉvènementsPhaseDossier: () => Promise<any[]>

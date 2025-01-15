@@ -59,3 +59,24 @@ export async function chargerMessagesDossier(id){
 
     return store.state.messagesParDossierId.get(id) || messagesP
 }
+
+
+/**
+ * @param {DossierComplet['id']} id
+ * @returns {Promise<DossierComplet>}
+ */
+export async function getDossierComplet(id){
+    const dossierCompletInStore = store.state.dossiersComplets.get(id)
+
+    if(dossierCompletInStore){
+        return dossierCompletInStore
+    }
+
+    if(!store.state.capabilities?.recupérerDossierComplet)
+        throw new TypeError(`Capability recupérerDossierComplet manquante`)
+
+    const dossierComplet = await store.state.capabilities?.recupérerDossierComplet(id)
+    store.mutations.setDossierComplet(dossierComplet)
+    
+    return dossierComplet
+}
