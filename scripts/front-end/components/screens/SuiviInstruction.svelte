@@ -99,8 +99,7 @@
     }
 
     tousLesFiltres.set('phase', dossier => {
-        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...)
-        return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
+        return phasesSélectionnées.has(dossier.phase)
     })
 
 

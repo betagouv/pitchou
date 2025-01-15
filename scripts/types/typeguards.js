@@ -22,6 +22,8 @@ export function isDossierRésuméArray(x){
  * @returns {x is DossierRésumé} 
  */
 function isDossierRésumé(x) {
+  console.error('isDossierRésumé est à réécrire')
+  return true;
   throw `PPP à réécrire`
 
   return (

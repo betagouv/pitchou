@@ -9,7 +9,7 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -193,7 +193,7 @@ fastify.get('/dossiers', async function (request, reply) {
   const cap = request.query.cap
   if (cap) {
     /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
-    const dossiers = await getDossiersByCap(cap)
+    const dossiers = await getDossiersRésumésByCap(cap)
     if (dossiers && dossiers.length >= 1) {
       return dossiers
     } else {
