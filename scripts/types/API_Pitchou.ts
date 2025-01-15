@@ -37,13 +37,13 @@ type DossierPhaseEtProchaineAction = {
  * On surcharge ici les propriétés `communes`, `départements` et `régions` pour contraindre le type des valeurs du JSON.
  * 
  */
-interface DossierDémarcheSimplifiée88444Communes {
+type DossierDémarcheSimplifiée88444Communes = {
     name: string;
     code: string;
     postalCode: string;
 }
   
-interface DossierLocalisation {
+type DossierLocalisation = {
     communes: DossierDémarcheSimplifiée88444Communes[];
     départements: string[] | null | undefined;
     régions: string[] | null | undefined;
@@ -54,6 +54,9 @@ type DossierActivitéPrincipale = {
     activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
 } 
 
+type DonnéesDossierPourStats = Pick<Dossier, 
+    'historique_date_réception_ddep' | 'date_dépôt' |
+    'historique_date_signature_arrêté_préfectoral'>
 
 /**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
@@ -70,6 +73,7 @@ export type DossierRésumé = Pick<Dossier,
     & DossierPersonnesImpliquées
     & DossierPhaseEtProchaineAction
     & DossierActivitéPrincipale
+    & DonnéesDossierPourStats
 
 
 /**
