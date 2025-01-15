@@ -107,6 +107,12 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
+   */
+  resetMessages(state) {
+    state.messagesParDossierId = new Map()
+  },
+  /**
+   * @param {PitchouState} state
    * @param {PitchouState['schemaDS88444']} schemaDS88444
    */
   setSchemaDS88444(state, schemaDS88444) {
