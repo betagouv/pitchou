@@ -10,7 +10,7 @@ import store from "../store"
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 
 /**
- * @param {DossierComplet['id']} id
+ * @param {Dossier['id']} id
  * @param {Partial<DossierComplet> & {phase: DossierPhase}} dossierParams
  * @returns {Promise<void>}
  */
@@ -18,7 +18,7 @@ export function modifierDossier(id, dossierParams) {
     if(!store.state.capabilities?.modifierDossier)
         throw new TypeError(`Capability modifierDossier manquante`)
 
-    const dossierAvantModification = store.state.dossiers.get(id)
+    const dossierAvantModification = store.state.dossiersComplets.get(id)
     const copieDossierAvantModification = Object.assign({}, dossierAvantModification)
     copieDossierAvantModification.évènementsPhase = [...copieDossierAvantModification.évènementsPhase]
 
@@ -33,12 +33,12 @@ export function modifierDossier(id, dossierParams) {
         })
     }
 
-    store.mutations.setDossier(dossierModifié)
+    store.mutations.setDossierComplet(dossierModifié)
 
     return store.state.capabilities?.modifierDossier(id, dossierParams)
         .catch(err  => {
             // en cas d'erreur, remettre le dossier dans le store comme avant la copie
-            store.mutations.setDossier(copieDossierAvantModification)
+            store.mutations.setDossierComplet(copieDossierAvantModification)
             throw err
         })
 }
