@@ -35,6 +35,8 @@ export default async ({params: {dossierId}}) => {
      * @returns 
      */
     function mapStateToProps(state){
+        const dossier = state.dossiersComplets.get(id)
+
         return {
             ...mapStateToSqueletteProps(state),
             dossier

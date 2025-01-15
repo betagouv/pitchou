@@ -7,7 +7,7 @@ import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import DossierProcédure from '../components/screens/DossierProcédure.svelte';
-import { chargerDossiers } from '../actions/main.js';
+import { getDossierComplet } from '../actions/dossier.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
@@ -23,21 +23,11 @@ export default async({params: {dossierId}}) => {
     //@ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    let { dossiers: dossierById } = state 
-
-    let dossiersP;
-
-    if (dossierById.size === 0){
-        dossiersP = chargerDossiers()
-    }
-    else{
-        dossiersP = dossierById
-    }
     
-    const dossiers = await dossiersP
+    const dossier = await getDossierComplet(id)
         
-    // PPP: expliquer que le dossier n'existe pas
-    if (!dossiers.has(id)) return page('/')
+    // TODO: expliquer que le dossier n'existe pas ?
+    if (!dossier) return page('/')
         
     /**
      * 
@@ -45,8 +35,8 @@ export default async({params: {dossierId}}) => {
      * @returns {ComponentProps<DossierProcédure>}
      */
     function mapStateToProps(state){
-        const dossier = state.dossiers.get(id)
-
+        const dossier = state.dossiersComplets.get(id)
+        
         return {
             ...mapStateToSqueletteProps(state),
             dossier,

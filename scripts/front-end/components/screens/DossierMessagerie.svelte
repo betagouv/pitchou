@@ -15,7 +15,7 @@
     const {number_demarches_simplifiées: numdos} = dossier
 
     /** @type {string | undefined} */
-    export let email
+    export let email = undefined
 
     $: messagesTriés = messages.toSorted(
         // @ts-ignore

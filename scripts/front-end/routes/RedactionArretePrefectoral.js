@@ -7,8 +7,9 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import RedactionArretePrefectoral from '../components/screens/RedactionArretePrefectoral.svelte';
-import { chargerActivitésMéthodesTransports, chargerDossiers, chargerListeEspècesProtégées } from '../actions/main.js';
+import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées } from '../actions/main.js';
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
+import { getDossierComplet } from '../actions/dossier.js';
 
 import {HTTPError, MediaTypeError} from '../../commun/errors.js'
 
@@ -29,17 +30,12 @@ export default async ({params: {dossierId}}) => {
     // @ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    let { dossiers } = state 
-
+    
     const espècesProtégées = chargerListeEspècesProtégées()
     const actMétTrans = chargerActivitésMéthodesTransports()
 
-    if (dossiers.size === 0){
-        dossiers = await chargerDossiers()
-    }
-
-    const dossier = dossiers.get(id)
-        
+    const dossier = await getDossierComplet(id)
+    
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
 
@@ -65,8 +61,7 @@ export default async ({params: {dossierId}}) => {
      * @returns {ComponentProps<RedactionArretePrefectoral>}
      */
     function mapStateToProps(state){
-        if (!dossier)
-            throw new TypeError('Dossier manquant')
+        const dossier = state.dossiersComplets.get(id)
 
         return {
             ...mapStateToSqueletteProps(state),
