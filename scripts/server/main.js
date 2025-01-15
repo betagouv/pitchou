@@ -193,9 +193,9 @@ fastify.get('/dossiers', async function (request, reply) {
   const cap = request.query.cap
   if (cap) {
     /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
-    const donnéesDossiers = await getDossiersByCap(cap)
-    if (donnéesDossiers && donnéesDossiers.dossiers && donnéesDossiers.dossiers.length >= 1) {
-      return donnéesDossiers
+    const dossiers = await getDossiersByCap(cap)
+    if (dossiers && dossiers.length >= 1) {
+      return dossiers
     } else {
       reply.code(403).send("Code d'accès non valide.")
     }

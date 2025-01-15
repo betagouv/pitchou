@@ -7,7 +7,7 @@ import page from 'page'
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
-import { isDossierArray } from '../../types/typeguards.js';
+import { isDossierRésuméArray } from '../../types/typeguards.js';
 import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
 
@@ -37,8 +37,8 @@ export function chargerDossiers(){
 
     if(store.state.capabilities?.listerDossiers){
         return store.state.capabilities?.listerDossiers()
-            .then(({dossiers}) => {
-                if (!isDossierArray(dossiers)) {
+            .then((dossiers) => {
+                if (!isDossierRésuméArray(dossiers)) {
                     throw new TypeError("On attendait un tableau de dossiers ici !")
                 }
 

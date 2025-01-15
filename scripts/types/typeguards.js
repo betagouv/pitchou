@@ -4,22 +4,26 @@ import { isValidDateString } from '../commun/typeFormat.js'
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../types/especes.d.ts' */
+//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
+/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
 
 /** 
  * 
  * @param {any} x 
- * @returns {x is Dossier[]} 
+ * @returns {x is DossierRésumé[]} 
  */
-export function isDossierArray(x){
-  return Array.isArray(x) && x.every(isDossier) 
+export function isDossierRésuméArray(x){
+  return Array.isArray(x) && x.every(isDossierRésumé) 
 }
 
 /**
  * 
  * @param {any} x 
- * @returns {x is Dossier} 
+ * @returns {x is DossierRésumé} 
  */
-function isDossier(x) {
+function isDossierRésumé(x) {
+  throw `PPP à réécrire`
+
   return (
     typeof x === "object" &&
     x !== null &&

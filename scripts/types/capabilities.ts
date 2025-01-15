@@ -3,7 +3,7 @@ import Personne from "./database/public/Personne.ts"
 import Message from "./database/public/Message.ts"
 
 export interface PitchouInstructeurCapabilities{
-    listerDossiers?: () => Promise<{dossiers: DossierRésumé[]}>
+    listerDossiers?: () => Promise<DossierRésumé[]>
     recupérerDossierComplet?: (dossierId: DossierComplet['id']) => Promise<DossierComplet>
     listerRelationSuivi: () => Promise<{personneEmail: Personne['email'], dossiersSuivisIds: DossierRésumé['id'][]}[]>
     listerMessages?: (dossierId: DossierRésumé['id']) => Promise<Message[]>

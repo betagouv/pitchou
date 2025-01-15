@@ -3,7 +3,7 @@ import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
 
 //@ts-ignore
-/** @import {DossierComplet, DossierPhase} from '../../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierPhase, DossierRésumé} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
@@ -382,7 +382,7 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
 /**
  * @param {CapDossier['cap']} cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<{dossiers: DossierComplet[], évènementsPhaseDossier: ÉvènementPhaseDossier[]}>}
+ * @returns {Promise<DossierRésumé[]>}
  */
 export async function getDossiersByCap(cap, databaseConnection = directDatabaseConnection){
     const dossiersP = databaseConnection('dossier')
