@@ -9,7 +9,7 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -85,11 +85,12 @@ fastify.register(fastatic, {
  * @param {any} reply 
  */
 function sendIndexHTMLFile(_request, reply){
+  console.log('sendIndexHTMLFile')
   reply.sendFile('index.html')
 }
 
 fastify.get('/saisie-especes', sendIndexHTMLFile)
-fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
+// fastify.get('/dossier/:dossierId', sendIndexHTMLFile) géré plus bas avec une route dédiée qui peut retourner aussi du JSON
 fastify.get('/dossier/:dossierId/description', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/procedure', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
@@ -160,6 +161,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.listerDossiers){
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`
   }
+  if(capBundle.recupérerDossierComplet){
+    ret.recupérerDossierComplet = `/dossier/:dossierId?cap=${capBundle.recupérerDossierComplet}`
+  }
   if(capBundle.listerRelationSuivi){
     ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
   }
@@ -172,8 +176,8 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.modifierDossier){
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`
   }
-  if(capBundle.écritureAnnotationCap){
-    ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.écritureAnnotationCap}`
+  if(capBundle.remplirAnnotations){
+    ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`
   }
   if(capBundle.identité){
     ret.identité = capBundle.identité
@@ -203,6 +207,44 @@ fastify.get('/dossiers', async function (request, reply) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
   }
 })
+
+fastify.get('/dossier/:dossierId', function(request, reply) {
+  console.log(`fastify.get('/dossier/:dossierId'`)
+  const accept = request.headers.accept
+
+  if(accept !== 'application/json'){
+    console.log('html')
+    sendIndexHTMLFile(request, reply)
+  }
+  else{
+    console.log('json')
+    // accept === 'application/json'
+    // @ts-ignore
+    const { cap } = request.query
+
+    if(!cap){
+      reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+      return 
+    }
+    
+    //@ts-ignore
+    if(!request.params.dossierId){
+      reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
+      return 
+    }
+
+    /** @type {DossierComplet['id']} */
+    //@ts-ignore
+    const dossierId = Number(request.params.dossierId)
+
+    /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']>} */
+    const dossierP = getDossierComplet(dossierId, cap)
+
+    return dossierP
+  }
+
+})
+
 
 fastify.post('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
@@ -420,3 +462,5 @@ async function shutdown(signal){
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
+
+

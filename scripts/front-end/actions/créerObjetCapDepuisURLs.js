@@ -2,14 +2,18 @@
 
 import {json} from 'd3-fetch'
 
-//@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {StringValues} from '../../types/tools.d.ts' */
-//@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
-//@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
-//@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
+/** @import {DossierComplet} from '../../types/API_Pitchou.ts' */
+
+
+const commonHeaders = {
+    'Accept': 'application/json'
+}
+
+const commonRequestInit = {headers: commonHeaders}
 
 /**
  * 
@@ -20,7 +24,7 @@ function wrapGETUrl(url){
     if(!url)
         return undefined
 
-    return () => json(url)
+    return () => json(url, commonRequestInit)
 }
 
 /**
@@ -98,7 +102,35 @@ function wrapListerMessages(url){
      */
     return function listerMessages(dossierId){
         // @ts-ignore
-        return json(url.replace(dossierIdURLParam, dossierId))
+        return json(url.replace(dossierIdURLParam, dossierId), commonRequestInit)
+    }
+}
+
+/**
+ * 
+ * @param {string | undefined} url 
+ * @returns {((dossierId: Dossier['id']) => Promise<DossierComplet>) | undefined}
+ */
+function wrapRecupérerDossierComplet(url){
+    if(!url)
+        return undefined
+
+    if(!url.includes(dossierIdURLParam)){
+        throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} dossierId
+     * @returns {Promise<DossierComplet>}
+     */
+    return function(dossierId){
+        // @ts-ignore
+        return json(
+            // @ts-ignore
+            url.replace(dossierIdURLParam, dossierId), 
+            commonRequestInit
+        )
     }
 }
 
@@ -111,6 +143,7 @@ export default function(capURLs){
 
     return {
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
+        recupérerDossierComplet: wrapRecupérerDossierComplet(capURLs.recupérerDossierComplet),
         listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
         listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),
         listerMessages: wrapListerMessages(capURLs.listerMessages),
