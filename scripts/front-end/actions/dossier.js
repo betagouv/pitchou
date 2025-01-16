@@ -72,10 +72,10 @@ export async function getDossierComplet(id){
         return dossierCompletInStore
     }
 
-    if(!store.state.capabilities?.recupérerDossierComplet)
+    if(!store.state.capabilities.recupérerDossierComplet)
         throw new TypeError(`Capability recupérerDossierComplet manquante`)
 
-    const dossierComplet = await store.state.capabilities?.recupérerDossierComplet(id)
+    const dossierComplet = await store.state.capabilities.recupérerDossierComplet(id)
     store.mutations.setDossierComplet(dossierComplet)
     
     return dossierComplet

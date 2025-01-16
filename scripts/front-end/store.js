@@ -29,7 +29,7 @@ import {dossierCompletVersRésumé} from '../commun/outils-dossiers.js'
 
 /**
  * @typedef {Object} PitchouState
- * @property {PitchouInstructeurCapabilities} [capabilities]
+ * @property {Partial<PitchouInstructeurCapabilities>} capabilities
  * @property {Map<DossierRésumé['id'], DossierRésumé>} dossiersRésumés
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
@@ -49,7 +49,8 @@ const state = {
   dossiersRésumés: new Map(),
   dossiersComplets: new Map(),
   messagesParDossierId: new Map(),
-  erreurs: new Set()
+  erreurs: new Set(),
+  capabilities: {}
 }
 
 const mutations = {

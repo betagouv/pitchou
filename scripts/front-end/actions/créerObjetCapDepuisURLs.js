@@ -105,15 +105,13 @@ function wrapListerMessages(url){
 /**
  * 
  * @param {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} capURLs 
- * @returns {PitchouInstructeurCapabilities & {identité: IdentitéInstructeurPitchou}}
+ * @returns {Partial<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}}
  */
 export default function(capURLs){
 
     return {
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
-        //@ts-ignore
         listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
-        // @ts-ignore
         listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),
         listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
