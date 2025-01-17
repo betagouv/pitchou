@@ -1,8 +1,6 @@
 //@ts-check
 
 import Store from 'baredux'
-// @ts-ignore
-import {dossierCompletVersRésumé} from '../commun/outils-dossiers.js'
 
 /**
  * Un store baredux a pour vocation de refléter notamment le modèle mental de la 
@@ -81,8 +79,6 @@ const mutations = {
    */
   setDossierComplet(state, nouveauDossierComplet) {
     state.dossiersComplets.set(nouveauDossierComplet.id, nouveauDossierComplet)
-    const résumé = dossierCompletVersRésumé(nouveauDossierComplet)
-    state.dossiersRésumés.set(résumé.id, résumé)
   },
   /**
    * @param {PitchouState} state
