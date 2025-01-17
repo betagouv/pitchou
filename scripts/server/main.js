@@ -237,10 +237,17 @@ fastify.get('/dossier/:dossierId', function(request, reply) {
     //@ts-ignore
     const dossierId = Number(request.params.dossierId)
 
-    /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']>} */
+    /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']> | Promise<undefined>} */
     const dossierP = getDossierComplet(dossierId, cap)
 
-    return dossierP
+    return dossierP.then(dossier =>{
+      if(!dossier){
+        reply.code(403).send(`Aucun dossier trouvé avec id '${dossierId}'`)
+      }
+      else{
+        return dossier
+      }
+    })
   }
 
 })
@@ -261,13 +268,14 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
     return 
   }
 
+  /** @type {DossierComplet['id']} */
   //@ts-ignore
   const dossierId = Number(request.params.dossierId)
 
   // @ts-ignore
-  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+  const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap)
 
-  if(accessibleDossierId !== dossierId){
+  if(!accessibleDossierId.has(dossierId)){
     reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
     return 
   }
@@ -323,13 +331,14 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
     return 
   }
 
+  /** @type {DossierComplet['id']} */
   //@ts-ignore
   const dossierId = Number(request.params.dossierId)
 
-  //@ts-ignore
-  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+  // @ts-ignore
+  const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap)
 
-  if(accessibleDossierId !== dossierId){
+  if(!accessibleDossierId.has(dossierId)){
     reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
     return 
   }

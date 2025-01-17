@@ -382,15 +382,41 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
 
 
 /**
- * @param {DossierComplet['id']} id 
+ * @param {DossierComplet['id']} dossierId 
  * @param {CapDossier['cap']} cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<DossierComplet>}
+ * @returns {Promise<DossierComplet | undefined>}
  */
-export async function getDossierComplet(id, cap, databaseConnection = directDatabaseConnection){
+export async function getDossierComplet(dossierId, cap, databaseConnection = directDatabaseConnection){
+    /** @type {knex.Knex.Transaction} */
+    let transaction;
+
+    if(databaseConnection.isTransaction){
+        //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
+        transaction = databaseConnection
+    }
+    else{
+        transaction = await databaseConnection.transaction({ readOnly: true })
+    }
+
+    const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap, transaction)
+
+    if(!accessibleDossierId.has(dossierId)){
+        if(!databaseConnection.isTransaction){
+            // transaction créée à la main, la libérer avant de throw
+            await transaction.commit()
+        }
+        throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
+    }
+
+
+
     throw `PPP
+        - Faire la vérif que le dossier.id est bien accessible via cap
         - WHERE id
         - reconcilier les evenementsPhaseDossier ici
+        - rajouter le contenu du fichier espèces impactées
+        - rajouter les messages, même si on ne s'en sert pas encore
     `
 
     const dossiersP = databaseConnection('dossier')
@@ -420,8 +446,18 @@ export async function getDossierComplet(id, cap, databaseConnection = directData
 
     const évènementsPhaseDossierP = getÉvènementsPhaseDossiers(cap, databaseConnection)
 
+    if(!databaseConnection.isTransaction){
+        // transaction locale à cette fonction
+        // nous la refermons donc manuellement
+        Promise.all([dossiersP, évènementsPhaseDossierP])
+            .then(transaction.commit).catch(transaction.rollback)
+    }
+
     return Promise.all([dossiersP, évènementsPhaseDossierP])
         .then(([dossiers, évènementsPhaseDossier]) => ({dossiers, évènementsPhaseDossier}))
+
+
+    
 }
 
 
@@ -538,12 +574,12 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
 }
 
 /**
- * retourne le sous-ensemble d'id accessibles via la cap
+ * retourne le sous-ensemble de dossierIds accessibles via la cap
  * 
  * @param {Dossier['id'] | Dossier['id'][]} dossierIds
  * @param {CapDossier['cap']} cap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Dossier['id'][]>}
+ * @returns {Promise<Set<Dossier['id']>>}
  */
 export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnection = directDatabaseConnection){
     if(!Array.isArray(dossierIds))
@@ -561,7 +597,7 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
         )
         .whereIn('dossier.id', dossierIds)
         .andWhere({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
-        .then(dossiers => dossiers.map(d => d.id))
+        .then(dossiers => new Set(dossiers.map(d => d.id)))
 
     // @ts-ignore
     return ret;
