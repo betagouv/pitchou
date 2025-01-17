@@ -11,7 +11,7 @@
     export let dossier
 
     /** @type {string | undefined} */
-    export let email = undefiend
+    export let email = undefined
 
     function makeFileContentBlob() {
         return new Blob(
