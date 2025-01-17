@@ -124,13 +124,26 @@ function wrapRecupérerDossierComplet(url){
      * @param {Dossier['id']} dossierId
      * @returns {Promise<DossierComplet>}
      */
-    return function(dossierId){
-        // @ts-ignore
-        return json(
+    return async function getDossierComplet(dossierId){
+        /** @type {Awaited<ReturnType<getDossierComplet>> | undefined} */
+        const ret = await json(
             // @ts-ignore
             url.replace(dossierIdURLParam, dossierId), 
             commonRequestInit
         )
+
+        if(!ret){
+            throw new TypeError(`Aucun dossier trouvé avec id '${dossierId}'`)
+        }
+
+        // Le contenu du fichier espèces impactées est disponible sous forme de string base64 dans le JSON
+        // le retransformer en ArrayBuffer pour utilisation côté front-end
+        if(ret.espècesImpactées){
+            // @ts-ignore
+            ret.espècesImpactées.contenu = Uint8Array.from(atob(ret.espècesImpactées.contenu), c => c.charCodeAt(0)).buffer
+        }
+
+        return ret;
     }
 }
 
