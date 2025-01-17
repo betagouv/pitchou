@@ -42,6 +42,8 @@ export default async({params: {dossierId}}) => {
         const dossier = state.dossiersComplets.get(id)
         const messages = state.messagesParDossierId.get(id)
 
+        if(!dossier) throw new TypeError(`Dossier avec id '${id}' manquant dans le store`)
+
         return {
             ...mapStateToSqueletteProps(state),
             dossier,

@@ -91,7 +91,7 @@ export default async () => {
         function mapStateToProps(state){
             const dossiersById = state.dossiersRésumés
 
-
+            // @ts-ignore
             return {
                 ...mapStateToSqueletteProps(state),
                 dossiers: [...dossiersById.values()],
