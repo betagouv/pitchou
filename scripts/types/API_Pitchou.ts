@@ -87,5 +87,5 @@ export type DossierComplet =
     & DossierPhaseEtProchaineAction
     & DossierPersonnesImpliquées
     & DossierActivitéPrincipale
-    & { espècesImpactées: EspècesImpactées | undefined }
+    & { espècesImpactées: Pick<EspècesImpactées, 'contenu' | 'media_type' | 'nom'> | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }

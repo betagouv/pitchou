@@ -286,16 +286,22 @@ export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databa
 
 }
 
-
+/** @type {(keyof DossierComplet)[]} */
 const colonnesDossierComplet = [
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "dossier.id as id",
     //"id_demarches_simplifiées",
     "number_demarches_simplifiées",
     "statut",
     "date_dépôt",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "dossier.nom as nom",
-    "espèces_protégées_concernées",
-    "espèces_impactées.id as url_fichier_espèces_impactées",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "espèces_impactées.contenu as espèces_impactées_contenu",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "espèces_impactées.nom as espèces_impactées_nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "espèces_impactées.media_type as espèces_impactées_media_type",
     "rattaché_au_régime_ae",
     "activité_principale",
 
@@ -308,15 +314,21 @@ const colonnesDossierComplet = [
     "prochaine_action_attendue_par",
 
     // déposant
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "déposant.nom as déposant_nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "déposant.prénoms as déposant_prénoms",
 
     // demandeur_personne_physique
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
 
     // demandeur_personne_morale
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
 
     // annotations privées
@@ -409,54 +421,47 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
         throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
     }
 
-
-
-    throw `PPP
-        - Faire la vérif que le dossier.id est bien accessible via cap
-        - WHERE id
-        - reconcilier les evenementsPhaseDossier ici
-        - rajouter le contenu du fichier espèces impactées
-        - rajouter les messages, même si on ne s'en sert pas encore
-    `
-
-    const dossiersP = databaseConnection('dossier')
+    /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string}>} */
+    const dossierP = transaction('dossier')
         .select(colonnesDossierComplet)
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
-        .join(
-            'arête_cap_dossier__groupe_instructeurs', 
-            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
-        )
+        .join('arête_cap_dossier__groupe_instructeurs', {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'})
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
         .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
-        .then(dossiers => {
-            for(const dossier of dossiers){
-                const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
-                if(id_fichier_espèces_impactées){
-                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
-                    // s'il y a un fichier, ignorer le champ contenant un lien
-                    delete dossier.espèces_protégées_concernées
-                }
+        .andWhere({"dossier.id": dossierId})
+        .first()
 
-            }
-            return dossiers
-        })
-
-    const évènementsPhaseDossierP = getÉvènementsPhaseDossiers(cap, databaseConnection)
+    /** @type {Promise<ÉvènementPhaseDossier[]>} */
+    const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, databaseConnection)
 
     if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
-        Promise.all([dossiersP, évènementsPhaseDossierP])
+        Promise.all([dossierP, évènementsPhaseDossierP])
             .then(transaction.commit).catch(transaction.rollback)
     }
 
-    return Promise.all([dossiersP, évènementsPhaseDossierP])
-        .then(([dossiers, évènementsPhaseDossier]) => ({dossiers, évènementsPhaseDossier}))
+    return Promise.all([dossierP, évènementsPhaseDossierP])
+        .then(([dossier, évènementsPhaseDossier]) => {
+            dossier.évènementsPhase = évènementsPhaseDossier
 
+            if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
+                dossier.espècesImpactées = {
+                    contenu: dossier.espèces_impactées_contenu,
+                    media_type: dossier.espèces_impactées_media_type,
+                    nom: dossier.espèces_impactées_nom,
+                }
 
+                delete dossier.espèces_impactées_contenu
+                delete dossier.espèces_impactées_media_type
+                delete dossier.espèces_impactées_nom
+            }
+
+            return dossier
+        })
     
 }
 
@@ -645,6 +650,20 @@ export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnecti
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+}
+
+/**
+ * @param {Dossier['id']} idDossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ÉvènementPhaseDossier[]>}
+ */
+async function getÉvènementsPhaseDossier(idDossier, databaseConnection = directDatabaseConnection){
+
+    return databaseConnection('évènement_phase_dossier')
+        .select('*')
+        .where({'dossier': idDossier})        
+        .orderBy('horodatage', 'desc');
+
 }
 
 

@@ -208,6 +208,8 @@ fastify.get('/dossiers', async function (request, reply) {
   }
 })
 
+// Cette fonction ne peut pas être async parce que ça donne l'impression à fastify
+// qu'elle répond 2 fois
 fastify.get('/dossier/:dossierId', function(request, reply) {
   console.log(`fastify.get('/dossier/:dossierId'`)
   const accept = request.headers.accept
@@ -238,6 +240,7 @@ fastify.get('/dossier/:dossierId', function(request, reply) {
     const dossierId = Number(request.params.dossierId)
 
     /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']> | Promise<undefined>} */
+    // @ts-ignore
     const dossierP = getDossierComplet(dossierId, cap)
 
     return dossierP.then(dossier =>{
@@ -245,6 +248,12 @@ fastify.get('/dossier/:dossierId', function(request, reply) {
         reply.code(403).send(`Aucun dossier trouvé avec id '${dossierId}'`)
       }
       else{
+        if(dossier.espècesImpactées && dossier.espècesImpactées.contenu){
+          // change le Buffer en string base64 avant le transfert en JSON
+          // @ts-ignore
+          dossier.espècesImpactées.contenu = dossier.espècesImpactées.contenu.toString('base64')
+        }
+        
         return dossier
       }
     })
