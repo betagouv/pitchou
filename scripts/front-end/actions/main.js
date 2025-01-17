@@ -254,7 +254,7 @@ export async function secretFromURL(){
 }
 
 export async function logout(){
-    store.mutations.setCapabilities(undefined)
+    store.mutations.setCapabilities({})
     store.mutations.setIdentité(undefined)
 
     store.mutations.setDossiersRésumés(new Map())
