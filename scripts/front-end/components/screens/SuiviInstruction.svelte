@@ -1,5 +1,5 @@
 <script>
-    import { tick, onMount } from 'svelte';
+    import { onMount } from 'svelte';
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
