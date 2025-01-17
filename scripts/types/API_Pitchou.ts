@@ -44,7 +44,7 @@ type DossierDémarcheSimplifiée88444Communes = {
 }
   
 type DossierLocalisation = {
-    communes: DossierDémarcheSimplifiée88444Communes[];
+    communes: DossierDémarcheSimplifiée88444Communes[] | null | undefined;
     départements: string[] | null | undefined;
     régions: string[] | null | undefined;
 }
