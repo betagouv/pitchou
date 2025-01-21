@@ -24,8 +24,8 @@
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
 
-    /** @type {DossierDemarcheSimplifiee88444["Activité principale"][]} */
-    export let activitésPrincipales
+    /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
+    export let activitésPrincipales = undefined
 
     /** @type {ComponentProps<Squelette>['email']} */
     export let email;

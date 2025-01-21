@@ -13,6 +13,7 @@ import showLoginByEmail from './montrerPageDAccueil.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
+/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ComponentProps} from 'svelte' */
 
 
@@ -95,6 +96,8 @@ export default async () => {
                 ...mapStateToSqueletteProps(state),
                 dossiers: [...dossiersById.values()],
                 relationSuivis: state.relationSuivis,
+                /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
+                //@ts-expect-error TS ne sait pas que les activités principales possibles proviennent du schema
                 activitésPrincipales: activitésPrincipalesChamp?.options,
             }
         }    
