@@ -18,7 +18,7 @@ import Store from 'baredux'
 /** @import {DossierComplet} from '../types/API_Pitchou.d.ts' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
-/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../types/especes.d.ts' */
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
@@ -33,9 +33,9 @@ import Store from 'baredux'
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
- * @property {Map<ClassificationEtreVivant, EspèceProtégée[]>} [espècesProtégéesParClassification]
+ * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
+ * @property { {activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  */
 

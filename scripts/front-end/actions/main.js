@@ -12,7 +12,7 @@ import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
 
 /** @import {PitchouState} from '../store.js' */
-/** @import {ActivitéMenançante, ClassificationEtreVivant, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
 /** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 
@@ -109,7 +109,11 @@ export async function chargerListeEspècesProtégées(){
     const dataEspèces = await dsv(";", getURL('link#especes-data'))
 
     /** @type {PitchouState['espècesProtégéesParClassification']} */
-    const espècesProtégéesParClassification = new Map()
+    const espècesProtégéesParClassification = {
+        oiseau: [] ,
+        "faune non-oiseau": [],
+        flore: []
+    }
     /** @type {PitchouState['espèceByCD_REF']} */
     const espèceByCD_REF = new Map()
 
@@ -120,7 +124,7 @@ export async function chargerListeEspècesProtégées(){
             throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`)
         }
 
-        const espèces = espècesProtégéesParClassification.get(classification) || []
+        const espèces = espècesProtégéesParClassification[classification] || []
 
         /** @type {EspèceProtégée} */
         // @ts-ignore
@@ -129,7 +133,7 @@ export async function chargerListeEspècesProtégées(){
         espèces.push(espèce)
         espèceByCD_REF.set(espèce['CD_REF'], espèce)
 
-        espècesProtégéesParClassification.set(classification, espèces)
+        espècesProtégéesParClassification[classification] = espèces
     }
 
     store.mutations.setEspècesProtégéesParClassification(espècesProtégéesParClassification)
@@ -148,8 +152,13 @@ export async function chargerListeEspècesProtégées(){
  * @returns {NonNullable<PitchouState['activitésMéthodesTransports']>}
  */
 export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
-    /** @type {Map<ClassificationEtreVivant, Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-    const activités = new Map()
+    /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
+    const activités = {
+        oiseau: new Map(),
+        "faune non-oiseau": new Map(),
+        flore: new Map()
+    };
+
     for(const activite of activitésBrutes){
         const classif = activite['Espèces']
 
@@ -162,13 +171,18 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
         }
         
-        const classifActivz = activités.get(classif) || new Map()
+        const classifActivz = activités[classif]
         classifActivz.set(activite.Code, activite)
-        activités.set(classif, classifActivz)
+        activités[classif] = classifActivz
     }
 
-    /** @type {Map<ClassificationEtreVivant, Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
-    const méthodes = new Map()
+    /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
+    const méthodes = {
+        oiseau: new Map(),
+        "faune non-oiseau": new Map(),
+        flore: new Map()
+    };
+
     for(const methode of méthodesBrutes){
         const classif = methode['Espèces']
 
@@ -181,13 +195,18 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
         }
         
-        const classifMeth = méthodes.get(classif) || new Map()
+        const classifMeth = méthodes[classif]
         classifMeth.set(methode.Code, methode)
-        méthodes.set(classif, classifMeth)
+        méthodes[classif] = classifMeth
     }
 
-    /** @type {Map<ClassificationEtreVivant, Map<TransportMenançant['Code'], TransportMenançant>>} */
-    const transports = new Map()
+    /** @type {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} */
+    const transports = {
+        oiseau: new Map(),
+        "faune non-oiseau": new Map(),
+        flore: new Map()
+    };
+    
     for(const transport of transportsBruts){
         const classif = transport['Espèces']
 
@@ -200,9 +219,9 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
             throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
         }
         
-        const classifTrans = transports.get(classif) || new Map()
+        const classifTrans = transports[classif]
         classifTrans.set(transport.Code, transport)
-        transports.set(classif, classifTrans)
+        transports[classif] = classifTrans
     }
 
     return {

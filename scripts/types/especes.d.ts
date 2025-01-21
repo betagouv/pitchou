@@ -4,6 +4,12 @@ export type Règne = 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista'
 export type Classe = 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' 
 export type ClassificationEtreVivant = "oiseau" | "faune non-oiseau" | "flore"
 
+export type ParClassification<T> = {
+    oiseau: T,
+    "faune non-oiseau": T
+    flore: T
+}
+
 /**
  * Lignes du fichier TAXREF.txt (INPN)
  * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
