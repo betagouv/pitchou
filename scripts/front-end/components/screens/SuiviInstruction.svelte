@@ -245,13 +245,14 @@
     
     /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
     $: activitésPrincipalesSélectionnées = new Set()
-
     /**
      * 
      * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
      */
+
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
-        tousLesFiltres.set('activité principale', dossier => {
+        tousLesFiltres.set('activité principale', dossier => {  
+            //@ts-expect-error TS ne comprends pas que l'activité principale est issue de DossierDemarcheSimplifiee88444["Activité principale"]
             return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
         })
 

@@ -1,4 +1,5 @@
 import Dossier from './database/public/Dossier.ts'
+import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
 
 /**
  * Ce fichier décrit les types de données retournés par l'API Pitchou
@@ -61,14 +62,17 @@ interface DossierLocalisation {
 interface DossierFicherEspècesProtégées{
     url_fichier_espèces_impactées?: string
 }
-
-
+ 
+type DossierActivitéPrincipale = {
+    activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
+} 
 
 export interface DossierComplet extends 
     Omit<Dossier, 'communes' | 'départements' | 'régions'>, 
     DossierPhaseEtProchaineAction, 
     DossierLocalisation, 
     DossierComplémentPersonnesImpliquées,
+    DossierActivitéPrincipale,
     DossierFicherEspècesProtégées {
         // rien d'autre
 }
