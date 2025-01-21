@@ -149,19 +149,6 @@ Pour modifier le cron : https://crontab.guru/
 
 `node outils/groupes-espèces.js`
 
-#### Fabriquer la liste des activités principales à partir du schema DS 88444
-
-La liste des activités principales est utilisée dans un des filtres du 
-tableau de bord.
-
-`node outils/genere-activités-principales-88444.js`
-
-Cette commande télécharge aussi la dernière version du schema avant de fabriquer 
-la liste des activités principales.
-
-Pour éviter le téléchargement et fabriquer cette liste à partir du fichier schema existant dans le repo, ajouter l'option `--skipDownload`:
-`node outils/genere-activités-principales-88444.js --skipDownload`
-
 ### Remplir des annotations privées
 
 `node --env-file=.env outils/remplir-annotations.js`

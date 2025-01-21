@@ -243,7 +243,7 @@
     }
 
     
-    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
+    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
     $: activitésPrincipalesSélectionnées = new Set()
 
     /**
