@@ -10,7 +10,8 @@
     /** @type {function} */
     export let mettreÀJourOptionsSélectionnées
 
-    let optionsSélectionnées = new Set(options)
+    /** @type {Set<string>} */
+    export let optionsSélectionnées = new Set(options)
 
     $: optionsAffichées = [...options].map(option => ({option, checked: optionsSélectionnées.has(option)}))
 

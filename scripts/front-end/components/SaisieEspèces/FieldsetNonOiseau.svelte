@@ -9,7 +9,7 @@
      } from "../../triEspèces.js"
     import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
-    import EnteteAvecTri from "../EnteteAvecTri.svelte"
+    import TrisDeTh from "../TrisDeTh.svelte"
 
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
 
@@ -95,7 +95,7 @@
     }
 
     const trisImpacts = new Set([
-        { nom: "Grouper par impact", tri: trierParImpacts },
+        { nom: "Grouper", tri: trierParImpacts },
     ])
 
     function trierParMéthode() {
@@ -104,7 +104,7 @@
     }
 
     const trisMéthodes = new Set([
-        { nom: "Grouper par méthode", tri: trierParMéthode },
+        { nom: "Grouper", tri: trierParMéthode },
     ])
 </script>
 
@@ -117,22 +117,22 @@
                     <thead>
                         <tr>
                             <th>
-                                <EnteteAvecTri
-                                    label="Espèce"
+                                Espèce
+                                <TrisDeTh
                                     tris={trisEspèces}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri
-                                    label="Type d'impact"
+                                Type d'impact
+                                <TrisDeTh
                                     tris={trisImpacts}
                                     bind:triSélectionné
                                 />
                             </th>
                             <th>
-                                <EnteteAvecTri
-                                    label="Méthode"
+                                Méthode
+                                <TrisDeTh
                                     tris={trisMéthodes}
                                     bind:triSélectionné
                                 />
@@ -226,6 +226,10 @@
         table{
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
+
+            tr th {
+                vertical-align: top;
+            }
         }
     }
 </style>
