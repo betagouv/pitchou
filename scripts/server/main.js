@@ -211,15 +211,13 @@ fastify.get('/dossiers', async function (request, reply) {
 // Cette fonction ne peut pas être async parce que ça donne l'impression à fastify
 // qu'elle répond 2 fois
 fastify.get('/dossier/:dossierId', function(request, reply) {
-  console.log(`fastify.get('/dossier/:dossierId'`)
+  // console.log(`fastify.get('/dossier/:dossierId'`)
   const accept = request.headers.accept
 
   if(accept !== 'application/json'){
-    console.log('html')
     sendIndexHTMLFile(request, reply)
   }
   else{
-    console.log('json')
     // accept === 'application/json'
     // @ts-ignore
     const { cap } = request.query
@@ -291,7 +289,7 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
 
   const capPersonne = await getPersonneByDossierCap(cap)
 
-  /** @type {Partial<DossierComplet> & {phase: string}} */
+  /** @type {Partial<DossierComplet>} */
   // @ts-ignore
   const dossierParams = request.body
 

@@ -2,6 +2,8 @@
 
 import Store from 'baredux'
 
+import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
+
 /**
  * Un store baredux a pour vocation de refléter notamment le modèle mental de la 
  * personne face à notre application. Le store stocke donc principalement des données (et parfois des singletons)
@@ -79,6 +81,8 @@ const mutations = {
    */
   setDossierComplet(state, nouveauDossierComplet) {
     state.dossiersComplets.set(nouveauDossierComplet.id, nouveauDossierComplet)
+    const dossierRésumé = DossierCompletToDossierRésumé(nouveauDossierComplet)
+    state.dossiersRésumés.set(nouveauDossierComplet.id, dossierRésumé)
   },
   /**
    * @param {PitchouState} state

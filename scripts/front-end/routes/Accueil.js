@@ -56,23 +56,21 @@ export default async () => {
     // Si on n'en a pas, afficher la page de connexion
     // Si on en a, charger des dossiers (s'il n'y a pas de dossiers dans le store)
 
-    if(store.state.capabilities && store.state.capabilities.listerDossiers){
-        if(store.state.dossiersRésumés.size === 0){
-            await chargerDossiers()
-                .catch(err => {
-                    console.error('Problème de chargement des dossiers', err)
-                    if(err.message.includes('403')){
-                        logoutEtAfficherLoginParEmail({
-                            message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
-                        })
-                    }
-                    else{
-                        logoutEtAfficherLoginParEmail({
-                            message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`
-                        })
-                    }
-                })
-        }
+    if(store.state.capabilities.listerDossiers){
+        await chargerDossiers()
+            .catch(err => {
+                console.error('Problème de chargement des dossiers', err)
+                if(err.message.includes('403')){
+                    logoutEtAfficherLoginParEmail({
+                        message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
+                    })
+                }
+                else{
+                    logoutEtAfficherLoginParEmail({
+                        message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`
+                    })
+                }
+            })
 
         if(!store.state.schemaDS88444){
             throw new TypeError('Schema 88444 manquant dans le store')
@@ -111,7 +109,7 @@ export default async () => {
 
     }
     else{
-        if(store.state.capabilities && !store.state.capabilities.listerDossiers){
+        if(!store.state.capabilities.listerDossiers){
             store.mutations.ajouterErreur({
                 message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Simplifiée de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
             })

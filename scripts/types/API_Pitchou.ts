@@ -28,7 +28,7 @@ export type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "
 
 type DossierPhaseEtProchaineAction = {
     phase: DossierPhase;
-    prochaine_action_attendue_par: DossierProchaineActionAttenduePar;
+    prochaine_action_attendue_par: DossierProchaineActionAttenduePar | null;
 }
 
 /**

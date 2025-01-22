@@ -18,13 +18,17 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
     
-    $: phase = dossier.évènementsPhase[0].phase;
+    $: phaseActuelle = dossier.évènementsPhase[0].phase;
     
     /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
     let dossierParams = {
-        phase: dossier.évènementsPhase[0].phase,
+        phase: phaseActuelle,
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
     }
+
+    $: dossierParams.phase = phaseActuelle
+
+
     let messageErreur = "" 
     let afficherMessageSucces = false
 
@@ -35,7 +39,25 @@
     const mettreAJourDossier = (e) => {
         e.preventDefault()
 
-        modifierDossier(dossier.id, dossierParams)
+        /** @type {Partial<DossierComplet>} */
+        const modifs = {}
+
+        if(phaseActuelle !== dossierParams.phase){
+            modifs.évènementsPhase = [
+                {
+                    dossier: dossier.id,
+                    horodatage: new Date(),
+                    phase: dossierParams.phase,
+                    cause_personne: null
+                }
+            ]
+        }
+        
+        if(dossier.prochaine_action_attendue_par !== dossierParams.prochaine_action_attendue_par){
+            modifs.prochaine_action_attendue_par = dossierParams.prochaine_action_attendue_par
+        }
+
+        modifierDossier(dossier, modifs)
             .then(() => afficherMessageSucces = true)
             .catch((error) => {
                 console.info(error)
@@ -54,7 +76,7 @@
         <div class="fr-col">
             <h1 class="fr-mb-4w">
                 Dossier {dossier.nom || "sans nom"}
-                <TagPhase {phase}></TagPhase>
+                <TagPhase phase={phaseActuelle}></TagPhase>
             </h1>
 
             <nav class="dossier-nav fr-mb-4w">

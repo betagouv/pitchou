@@ -10,35 +10,30 @@ import store from "../store"
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 
 /**
- * @param {Dossier['id']} id
- * @param {Partial<DossierComplet> & {phase: DossierPhase}} dossierParams
+ * @param {DossierComplet} dossier
+ * @param {Partial<DossierComplet>} modifs
  * @returns {Promise<void>}
  */
-export function modifierDossier(id, dossierParams) {
-    if(!store.state.capabilities?.modifierDossier)
+export function modifierDossier(dossier, modifs) {
+    if(!store.state.capabilities.modifierDossier)
         throw new TypeError(`Capability modifierDossier manquante`)
 
-    const dossierAvantModification = store.state.dossiersComplets.get(id)
-    const copieDossierAvantModification = Object.assign({}, dossierAvantModification)
-    copieDossierAvantModification.évènementsPhase = [...copieDossierAvantModification.évènementsPhase]
-
     // modifier le dossier dans le store de manière optimiste
-    const dossierModifié = Object.assign({}, dossierAvantModification, dossierParams)
-    if(dossierParams.phase){
-        dossierModifié.évènementsPhase.unshift({
-            dossier: id,
-            horodatage: new Date(),
-            phase: dossierParams.phase,
-            cause_personne: null // PPP : ça serait mieux avec la personne actuelle 🤷
-        })
+    /** @type {DossierComplet} */
+    const dossierModifié = Object.assign({}, dossier, modifs)
+    if(modifs.évènementsPhase){
+        dossierModifié.évènementsPhase = [
+            ...modifs.évènementsPhase,
+            ...dossier.évènementsPhase
+        ]
     }
 
     store.mutations.setDossierComplet(dossierModifié)
 
-    return store.state.capabilities?.modifierDossier(id, dossierParams)
+    return store.state.capabilities.modifierDossier(dossier.id, modifs)
         .catch(err  => {
-            // en cas d'erreur, remettre le dossier dans le store comme avant la copie
-            store.mutations.setDossierComplet(copieDossierAvantModification)
+            // en cas d'erreur, remettre le dossier précédent dans le store comme avant la copie
+            store.mutations.setDossierComplet(dossier)
             throw err
         })
 }
