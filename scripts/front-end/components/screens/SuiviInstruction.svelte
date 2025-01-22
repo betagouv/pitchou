@@ -322,10 +322,13 @@
 
                 <div class="filtres-actifs">
                     {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
+                        <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
+                    {/if}
+                    {#if activitésPrincipalesSélectionnées.size >= 1}
+                        <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Activités principales : {[...activitésPrincipalesSélectionnées].join(", ")}</span>
                     {/if}
                     {#if texteÀChercher}
-                        <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
+                        <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
                         <button on:click={onSupprimerFiltreTexte}>✖</button>
                     {/if}
                     {#if instructeursSélectionnés.size >= 1}
@@ -337,9 +340,6 @@
                                 </span>
                             {/each}
                         </p>
-                    {/if}
-                    {#if activitésPrincipalesSélectionnées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Activités principales : {[...activitésPrincipalesSélectionnées].join(", ")}</span>
                     {/if}
 
                 </div>
