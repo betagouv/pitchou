@@ -68,7 +68,7 @@ type DossierActivitéPrincipale = {
 } 
 
 export interface DossierComplet extends 
-    Omit<Dossier, 'communes' | 'départements' | 'régions'>, 
+    Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'>, 
     DossierPhaseEtProchaineAction, 
     DossierLocalisation, 
     DossierComplémentPersonnesImpliquées,

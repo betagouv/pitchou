@@ -252,8 +252,10 @@
 
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
         tousLesFiltres.set('activité principale', dossier => {  
-            //@ts-expect-error TS ne comprends pas que l'activité principale est issue de DossierDemarcheSimplifiee88444["Activité principale"]
-            return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+            if(!dossier.activité_principale)
+                return false
+            else
+                return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
         })
 
         activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
