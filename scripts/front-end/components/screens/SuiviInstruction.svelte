@@ -4,13 +4,14 @@
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
-    import EnteteAvecTri from '../EnteteAvecTri.svelte'
+    import TrisDeTh from '../TrisDeTh.svelte'
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
+    import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
-    import {trierDossiersParOrdreAlphabétiqueColonne} from '../../triDossiers.js'
+    import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
@@ -242,6 +243,9 @@
         { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
     ])
 
+    const triPriorisationPhaseProchaineAction = new Set([
+        { nom: "Prioriser", tri: () => dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) },
+    ])
 
     // filtrage avec les filtres initiaux
     onMount(async () => {
@@ -312,29 +316,29 @@
                             <tr>
                                 <th>Voir le dossier</th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Localisation"
+                                    Localisation
+                                    <TrisDeTh
                                         tris={trisLocalisation}
                                         bind:triSélectionné
                                     />
                                 </th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Activité principale"
+                                    Activité principale
+                                    <TrisDeTh
                                         tris={trisActivitéPrincipale}
                                         bind:triSélectionné
                                     />
                                 </th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Porteur de projet"
+                                    Porteur de projet
+                                    <TrisDeTh
                                         tris={trisDéposant}
                                         bind:triSélectionné
                                     />
                                 </th>
                                 <th>
-                                    <EnteteAvecTri
-                                        label="Nom du projet"
+                                    Nom du projet
+                                    <TrisDeTh
                                         tris={trisNomProjet}
                                         bind:triSélectionné
                                     />
@@ -345,6 +349,10 @@
                                     Phase<br>
                                     <br>
                                     Prochaine action attendue de
+                                    <TrisDeTh
+                                        tris={triPriorisationPhaseProchaineAction}
+                                        bind:triSélectionné
+                                    />
                                 </th>
                             </tr>
                         </thead>
@@ -353,7 +361,7 @@
                             déposant_prénoms, communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
-                            évènementsPhase, prochaine_action_attendue_par }}
+                            évènementsPhase, prochaine_action_attendue_par }, i}
                                 {@const phase = /** @type {DossierPhase} */ (évènementsPhase[0].phase)}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
@@ -375,6 +383,7 @@
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
+                                        <IndicateurDélaiPhase dossier={dossiersSelectionnés[i]}></IndicateurDélaiPhase>
                                         {#if prochaine_action_attendue_par}
                                             <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
                                         {/if}

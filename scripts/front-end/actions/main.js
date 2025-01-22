@@ -44,6 +44,12 @@ export function chargerDossiers(){
                     throw new TypeError("On attendait un tableau de dossiers ici !")
                 }
 
+                /* Formatter les dossiers */
+                for(const dossier of dossiers){
+                    dossier.date_dépôt = new Date(dossier.date_dépôt)
+                }
+
+
                 /** @type {PitchouState['dossiers']} */
                 const dossiersById = new Map()
 
