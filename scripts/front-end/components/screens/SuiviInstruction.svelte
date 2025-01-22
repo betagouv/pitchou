@@ -1,4 +1,5 @@
 <script>
+    import { onMount } from 'svelte';
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
@@ -24,12 +25,10 @@
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
 
-    /** @type {ComponentProps<Squelette>['email']} */
+    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
     export let email;
     /** @type {ComponentProps<Squelette>['erreurs']} */
     export let erreurs;
-
-    $: dossiersIdSuivisParInstructeurActuel = relationSuivis && email && relationSuivis.get(email)
 
     $: dossiersIdSuivisParAucunInstructeur = relationSuivis && (() => {
         // démarrer avec tous les ids
@@ -46,7 +45,7 @@
     })()
 
     /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
-    $: dossiersSelectionnés = dossiers
+    $: dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     /** @type {{nom: string, tri: function}|undefined} */
@@ -97,7 +96,7 @@
     }
 
     tousLesFiltres.set('phase', dossier => {
-        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...
+        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...)
         return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
     })
 
@@ -190,52 +189,39 @@
     const AUCUN_INSTRUCTEUR = '(aucun instructeur)'
     const instructeurEmailOptions = (relationSuivis && Array.from(relationSuivis.keys()).sort()) || []
 
-    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>}*/
-    const instructeursOptions = new Set([AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
+    /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
+    const instructeursOptions = new Set([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    $: instructeursSélectionnés = new Set()
+    let instructeursSélectionnés = new Set([email])
+    
+    tousLesFiltres.set('instructeurs', dossier => {
+        if(!relationSuivis)
+            return true;
+
+        if (instructeursSélectionnés.has(AUCUN_INSTRUCTEUR) && dossiersIdSuivisParAucunInstructeur && dossiersIdSuivisParAucunInstructeur.has(dossier.id)) {
+            return true
+        }
+
+        for(const instructeurEmail of instructeursSélectionnés){
+            const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail)
+            if(dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
+                return true
+        }
+
+        return false
+    })
 
     /**
      *
      * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
 	function filtrerParInstructeurs(_instructeursSélectionnées){
-        tousLesFiltres.set('instructeurs', dossier => {
-            if(!relationSuivis)
-                return true;
-
-            if (_instructeursSélectionnées.has(AUCUN_INSTRUCTEUR) && dossiersIdSuivisParAucunInstructeur && dossiersIdSuivisParAucunInstructeur.has(dossier.id)) {
-                return true
-            }
-
-            for(const instructeurEmail of _instructeursSélectionnées){
-                const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail)
-                if(dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
-                    return true
-            }
-
-            return false
-        })
-
         instructeursSélectionnés = new Set(_instructeursSélectionnées)
 
 		filtrerDossiers()
 	}
 
-    let filtrerUniquementDossiersSuivi = false;
-
-    $: if(filtrerUniquementDossiersSuivi){
-        if(dossiersIdSuivisParInstructeurActuel){
-            tousLesFiltres.set('suivis', dossier => dossiersIdSuivisParInstructeurActuel.has(dossier.id))
-
-            filtrerDossiers()
-        }
-    }
-    else{
-        tousLesFiltres.delete('suivis')
-        filtrerDossiers()
-    }
 
     const trisActivitéPrincipale = new Set([
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
@@ -260,6 +246,11 @@
     const triPriorisationPhaseProchaineAction = new Set([
         { nom: "Prioriser", tri: () => dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) },
     ])
+
+    // filtrage avec les filtres initiaux
+    onMount(async () => {
+        filtrerDossiers()
+	});
 </script>
 
 <Squelette {email} {erreurs}>
@@ -291,16 +282,9 @@
                     <FiltreParmiOptions
                         titre="Filtrer par instructeur suivant le dossier"
                         options={instructeursOptions}
+                        optionsSélectionnées={instructeursSélectionnés}
                         mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
                     />
-                    {/if}
-                    {#if dossiersIdSuivisParInstructeurActuel && dossiersIdSuivisParInstructeurActuel.size >= 1}
-                    <div class="fr-checkbox-group flex">
-                        <input bind:checked={filtrerUniquementDossiersSuivi} name="checkbox-1" id="checkbox-1" type="checkbox">
-                        <label class="fr-label" for="checkbox-1">
-                            Afficher uniquement mes dossiers suivis
-                        </label>
-                    </div>
                     {/if}
                 </div>
 
@@ -313,7 +297,14 @@
                         <button on:click={onSupprimerFiltreTexte}>✖</button>
                     {/if}
                     {#if instructeursSélectionnés.size >= 1}
-                        <span class="fr-badge instructeurs fr-badge--sm">Instructeurs : {[...instructeursSélectionnés].join(", ")}</span>
+                        <p>
+                            <span>Dossiers suivis par&nbsp;:</span>
+                            {#each [...instructeursSélectionnés] as instructeur}
+                                <span class="fr-tag fr-tag--sm instructeurs fr-mr-1w fr-mb-1v">
+                                    {instructeur}
+                                </span>
+                            {/each}
+                        </p>
                     {/if}
                 </div>
 
