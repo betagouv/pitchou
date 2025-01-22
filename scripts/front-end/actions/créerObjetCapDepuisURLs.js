@@ -143,6 +143,14 @@ function wrapRecupérerDossierComplet(url){
             ret.espècesImpactées.contenu = Uint8Array.from(atob(ret.espècesImpactées.contenu), c => c.charCodeAt(0)).buffer
         }
 
+        Object.freeze(ret)
+        if(ret.espècesImpactées){
+            Object.freeze(ret.espècesImpactées)
+        }
+        if(ret.évènementsPhase){
+            Object.freeze(ret.évènementsPhase)
+        }
+
         return ret;
     }
 }

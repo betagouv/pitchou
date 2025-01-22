@@ -51,6 +51,7 @@ export function chargerDossiers(){
                 const dossiersById = new Map()
 
                 for(const dossier of dossiers){
+                    Object.freeze(dossier)
                     dossiersById.set(dossier.id, dossier)
                 }
 
