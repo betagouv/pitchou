@@ -48,7 +48,7 @@
     })()
 
     /** @type {DossierRésumé[]} */
-    $: dossiersSelectionnés = []
+    let dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     /** @type {{nom: string, tri: function}|undefined} */
