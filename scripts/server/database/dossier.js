@@ -561,6 +561,7 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
 
             if(évènementPhaseDossier){
                 dossier.phase = évènementPhaseDossier.phase
+                dossier.date_début_phase = évènementPhaseDossier.horodatage
             }
         }
 

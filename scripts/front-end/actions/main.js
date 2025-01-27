@@ -45,6 +45,7 @@ export function chargerDossiers(){
                 /* Formatter les dossiers */
                 for(const dossier of dossiers){
                     dossier.date_dépôt = new Date(dossier.date_dépôt)
+                    dossier.date_début_phase = new Date(dossier.date_début_phase)
                 }
 
                 /** @type {PitchouState['dossiersRésumés']} */

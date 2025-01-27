@@ -26,10 +26,6 @@ export type DossierPhase = "Accompagnement amont" | "Étude recevabilité DDEP" 
 
 export type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "Pétitionnaire" | "Consultation du public" | "Autre administration" | "Autre" | "Personne";
 
-type DossierPhaseEtProchaineAction = {
-    phase: DossierPhase;
-    prochaine_action_attendue_par: DossierProchaineActionAttenduePar | null;
-}
 
 /**
  * Kanel génère un type `unknown` pour les champs JSON. 
@@ -67,10 +63,11 @@ type DonnéesDossierPourStats = Pick<Dossier,
 export type DossierRésumé = Pick<Dossier, 
     'id' | 'number_demarches_simplifiées' | 'nom' | 'date_dépôt' |
     'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae' |
+    'prochaine_action_attendue_par' | 
     'historique_identifiant_demande_onagre'> 
+    & {phase: DossierPhase, date_début_phase: Date}
     & DossierLocalisation
     & DossierPersonnesImpliquées
-    & DossierPhaseEtProchaineAction
     & DossierActivitéPrincipale
     & DonnéesDossierPourStats
 
@@ -79,11 +76,9 @@ export type DossierRésumé = Pick<Dossier,
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un 
  */
-
-export type DossierComplet = 
-    Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'>
+export type DossierComplet = Omit<Dossier, 
+    'communes' | 'départements' | 'régions' | 'activité_principale'>
     & DossierLocalisation
-    & DossierPhaseEtProchaineAction
     & DossierPersonnesImpliquées
     & DossierActivitéPrincipale
     & { espècesImpactées: Pick<EspècesImpactées, 'contenu' | 'media_type' | 'nom'> | undefined }
