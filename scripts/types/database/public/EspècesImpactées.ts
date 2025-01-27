@@ -16,7 +16,7 @@ export default interface EspCesImpactEs {
 
   media_type: string | null;
 
-  contenu: ArrayBuffer | null;
+  contenu: Buffer | null;
 
   DS_checksum: string | null;
 
@@ -34,7 +34,7 @@ export interface EspCesImpactEsInitializer {
 
   media_type?: string | null;
 
-  contenu?: ArrayBuffer | null;
+  contenu?: Buffer | null;
 
   DS_checksum?: string | null;
 
@@ -51,7 +51,7 @@ export interface EspCesImpactEsMutator {
 
   media_type?: string | null;
 
-  contenu?: ArrayBuffer | null;
+  contenu?: Buffer | null;
 
   DS_checksum?: string | null;
 

@@ -16,12 +16,9 @@ import { chargerDossiers } from '../actions/main.js';
 export default async () => {
     console.info('route', '/tmp/stats')
     
-    if(store.state.dossiers.size === 0){
+    if(store.state.dossiersRésumés.size === 0){
         await chargerDossiers()
     }
-
-    const évènementsPhaseDossier = await store.state.capabilities?.listerÉvènementsPhaseDossier()
-
 
     /**
      * 
@@ -29,12 +26,11 @@ export default async () => {
      * @returns {ComponentProps<TmpStats>}
      */
     function mapStateToProps(state){
-        const dossiersById = state.dossiers
+        const dossiersById = state.dossiersRésumés
 
         return {
             ...mapStateToSqueletteProps(state),
-            dossiers: [...dossiersById.values()],
-            évènementsPhaseDossier
+            dossiers: [...dossiersById.values()]
         }
     }    
     

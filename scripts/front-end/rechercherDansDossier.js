@@ -5,22 +5,21 @@ import lunrfr from "lunr-languages/lunr.fr"
 import { retirerAccents } from "../commun/manipulationStrings.js"
 
 /** @import {StringValues} from "../types/tools.d.ts" */
-/** @import {DossierComplet} from "../types/API_Pitchou.d.ts" */
+/** @import {DossierRésumé} from "../types/API_Pitchou.d.ts" */
 
 stemmerSupport(lunr)
 lunrfr(lunr)
 
 /**
- * @param {DossierComplet} dossier
- * @returns {StringValues<Partial<DossierComplet>>}
+ * @param {DossierRésumé} dossier
+ * @returns {StringValues<Partial<DossierRésumé>>}
  */
 const créerDossierIndexable = dossier => {
     const {
         id,
-        nom_dossier,
+        nom,
         number_demarches_simplifiées,
         communes,
-        nom,
         déposant_nom,
         déposant_prénoms,
         demandeur_personne_physique_prénoms,
@@ -31,9 +30,8 @@ const créerDossierIndexable = dossier => {
     return {
         id: id.toString(),
         number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
-        nom_dossier: retirerAccents(nom_dossier || ''),
+        nom: retirerAccents(nom || ''),
         communes: communes?.map(({name}) => retirerAccents(name || "")).join(" ") || "",
-        nom: retirerAccents(nom || ""),
         déposant_nom: retirerAccents(déposant_nom || ""),
         déposant_prénoms: retirerAccents(déposant_prénoms || ""),
         demandeur_personne_physique_prénoms: 
@@ -45,12 +43,12 @@ const créerDossierIndexable = dossier => {
     }
 }
 
-/** @type {Map<DossierComplet[], lunr.Index>} */
+/** @type {Map<DossierRésumé[], lunr.Index>} */
 const indexCache = new Map()
 
 /**
  * 
- * @param {DossierComplet[]} dossiers
+ * @param {DossierRésumé[]} dossiers
  * @returns {lunr.Index}
  */
 const créerIndexDossiers = dossiers => {
@@ -63,7 +61,6 @@ const créerIndexDossiers = dossiers => {
             this.use(lunr.fr)
     
             this.ref("id")
-            this.field("nom_dossier")
             this.field("number_demarches_simplifiées")
             this.field("communes")
             this.field("nom")
@@ -86,8 +83,8 @@ const créerIndexDossiers = dossiers => {
 /**
  * 
  * @param {string} texteÀChercher 
- * @param {DossierComplet[]} dossiers 
- * @returns {Set<DossierComplet['id']>}
+ * @param {DossierRésumé[]} dossiers 
+ * @returns {Set<DossierRésumé['id']>}
  */
 export const trouverDossiersIdCorrespondantsÀTexte = (texteÀChercher, dossiers) => {
     const index = créerIndexDossiers(dossiers)

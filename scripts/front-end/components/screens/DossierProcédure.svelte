@@ -5,20 +5,19 @@
     import TagPhase from '../TagPhase.svelte'
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */    
-    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
-
-    /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */    
+    
+    /** @type {DossierComplet} */
     export let dossier
 
     /** @type {string | undefined} */
-    export let email
+    export let email = undefined
 </script>
 
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
-            <h1 class="fr-mb-6w">Procédure dossier {dossier.nom_dossier || "sans nom"}</h1>
+            <h1 class="fr-mb-6w">Procédure dossier {dossier.nom || "sans nom"}</h1>
 
             <article class="fr-p-3w fr-mb-4w">
                 <ol>

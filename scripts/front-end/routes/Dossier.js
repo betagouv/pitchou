@@ -7,7 +7,8 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
-import { chargerDossiers } from '../actions/main.js';
+import {getDossierComplet} from '../actions/dossier.js'
+
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
@@ -22,13 +23,8 @@ export default async ({params: {dossierId}}) => {
     // @ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    let { dossiers } = state 
-
-    if (dossiers.size === 0){
-        dossiers = await chargerDossiers()
-    }
-
-    const dossier = dossiers.get(id)
+    
+    const dossier = await getDossierComplet(id)
         
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
@@ -39,6 +35,10 @@ export default async ({params: {dossierId}}) => {
      * @returns 
      */
     function mapStateToProps(state){
+        const dossier = state.dossiersComplets.get(id)
+
+        if(!dossier) throw new TypeError(`Dossier avec id '${id}' manquant dans le store`)
+
         return {
             ...mapStateToSqueletteProps(state),
             dossier

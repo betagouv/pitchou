@@ -2,7 +2,7 @@
     //@ts-check
   
 	/** @import { MouseEventHandler } from 'svelte/elements' */
-    /** @import { DossierPhase } from '../../types/API_Pitchou.d.ts' */
+    /** @import { DossierPhase } from '../../types/API_Pitchou.ts' */
 	
 
     /** @type {DossierPhase} */
