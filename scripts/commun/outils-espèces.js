@@ -17,7 +17,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'od
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from 'ods-xlsx' */
-/** @import {FichierEspècesImpactéesOds_V1} from '../types/espècesFichierOds.d.ts' */
+/** @import {FauneNonOiseauAtteinteOds_V1, FichierEspècesImpactéesOds_V1, FloreAtteinteOds_V1, OiseauAtteintOds_V1} from '../types/espècesFichierOds.d.ts' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
@@ -292,6 +292,16 @@ export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, ac
     }
 }
 
+
+/**
+ * 
+ * @param {OiseauAtteintOds_V1 | FauneNonOiseauAtteinteOds_V1 | FloreAtteinteOds_V1} espèceImpactée 
+ * @return {boolean}
+ */
+function ligneEspèceImpactéeHasCD_REF(espèceImpactée){
+    return !!espèceImpactée.CD_REF
+}
+
 /**
  * @param {ArrayBuffer} odsFile
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
@@ -308,7 +318,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     /** @type {FichierEspècesImpactéesOds_V1} */
     const odsContent = tableRawContentToObjects(odsRawContent)
 
-    const lignesOiseauOds = odsContent.get('oiseau')
+    let lignesOiseauOds = odsContent.get('oiseau')
+    lignesOiseauOds = lignesOiseauOds && lignesOiseauOds.filter(ligneEspèceImpactéeHasCD_REF)
+
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseauOds => {
@@ -342,7 +354,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
         })
     }
 
-    const lignesFauneNonOiseauOds = odsContent.get('faune non-oiseau')
+    let lignesFauneNonOiseauOds = odsContent.get('faune non-oiseau') || odsContent.get('faune_non-oiseau')
+    lignesFauneNonOiseauOds = lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.filter(ligneEspèceImpactéeHasCD_REF)
+
     if(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds.map(ligneFauneNonOiseauOds => {
@@ -372,7 +386,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
         })
     }
 
-    const lignesFloreOds = odsContent.get('flore')
+    let lignesFloreOds = odsContent.get('flore')
+    lignesFloreOds = lignesFloreOds && lignesFloreOds.filter(ligneEspèceImpactéeHasCD_REF)
+
     if(lignesFloreOds && lignesFloreOds.length >= 1){
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['flore'] = lignesFloreOds.map(ligneFloreOds => {
