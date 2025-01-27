@@ -65,7 +65,9 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
-        triSélectionné = undefined
+        if(triSélectionné){
+            triSélectionné.tri()
+        }
 	}
 
 
