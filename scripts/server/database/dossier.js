@@ -17,13 +17,15 @@ import {directDatabaseConnection} from '../database.js'
 /** @import {default as EspècesImpactées} from '../../types/database/public/EspècesImpactées.ts' */
 //@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
+//@ts-ignore
+/** @import {PickNonNullable} from '../../types/tools.d.ts' */
 
 
 /**
  * 
  * @param {Dossier['id_demarches_simplifiées'][]} DS_ids 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Pick<Dossier, 'id' | 'id_demarches_simplifiées' | 'number_demarches_simplifiées'>[]>}
+ * @returns {Promise< PickNonNullable<Dossier, 'id' | 'id_demarches_simplifiées' | 'number_demarches_simplifiées'>[] >}
  */
 export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatabaseConnection){
     return databaseConnection('dossier')

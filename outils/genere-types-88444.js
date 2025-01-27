@@ -112,7 +112,13 @@ function champToCommuneJSONSchema({ description }){
     return { type: 'object', tsType: '(GeoAPICommune | string)', description }
 }
 
-
+/**
+ * @param {ChampDescriptor} _ 
+ * @returns {JSONSchema}
+ */
+function champToFileJSONSchema({ description }){
+    return { type: 'object', tsType: 'ChampDSPieceJustificative', description }
+}
 
 /**
  * @param {ChampDescriptor} champ
@@ -124,8 +130,7 @@ function champToArrayJSONSchema({description, champDescriptors}){
     }
 
     champDescriptors = champDescriptors.filter(({__typename}) => {
-        return __typename !== 'HeaderSectionChampDescriptor' && 
-            __typename !== 'PieceJustificativeChampDescriptor' && 
+        return __typename !== 'HeaderSectionChampDescriptor' &&
             __typename !== 'ExplicationChampDescriptor' && 
             __typename !== 'CarteChampDescriptor'
     })
@@ -174,7 +179,8 @@ const DSTypenameToJSONSchema = new Map([
     [ "CommuneChampDescriptor", champToCommuneJSONSchema ],
     // PPP : invalide, mais ne sait pas encore comment bien le gérer
     [ "RepetitionChampDescriptor", champToArrayJSONSchema ],
-    [ "DateChampDescriptor", champToDateJSONSchema ]
+    [ "DateChampDescriptor", champToDateJSONSchema ],
+    [ "PieceJustificativeChampDescriptor", champToFileJSONSchema ]
 ])
 
 
@@ -192,7 +198,6 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors){
         const { __typename, label } = champDescriptor
     
         if(__typename !== 'HeaderSectionChampDescriptor' &&
-            __typename !== 'PieceJustificativeChampDescriptor' &&
             __typename !== 'ExplicationChampDescriptor' && 
             __typename !== 'CarteChampDescriptor') {
             const DSChampToJSONSchema = DSTypenameToJSONSchema.get(__typename)
@@ -261,7 +266,10 @@ const commentaireInitial = `/**
 * et faire relancer outils/genere-types-88444.js
 */`
 
-const imports = `import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`
+const imports = [
+    `import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`,
+    `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
+].join('\n')
 
 
 await Promise.all([

@@ -3,7 +3,7 @@
 import {json} from 'd3-fetch'
 
 //@ts-expect-error TS ne comprend pas que c'est utilisé
-/** @import {StringValues} from '../../types.js' */
+/** @import {StringValues} from '../../types/tools.d.ts' */
 //@ts-expect-error TS ne comprend pas que c'est utilisé
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
 //@ts-expect-error TS ne comprend pas que c'est utilisé

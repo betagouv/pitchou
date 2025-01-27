@@ -458,11 +458,9 @@ fragment PersonnePhysiqueFragment on PersonnePhysique {
 
 
 fragment FileFragment on File {
-  __typename
   filename
   contentType
   checksum
-  byteSize: byteSizeBigInt
   url
   createdAt
 }

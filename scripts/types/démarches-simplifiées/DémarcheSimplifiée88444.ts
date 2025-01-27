@@ -10,6 +10,7 @@
 */
 
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
+import { ChampDSPieceJustificative } from "./apiSchema.ts";
 
 export interface DossierDemarcheSimplifiee88444 {
   /**
@@ -111,6 +112,10 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Ne sait pas encore";
   "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
   /**
+   * Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes
+   */
+  "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes": ChampDSPieceJustificative;
+  /**
    * Ce champ va bientôt être supprimé.
    *
    */
@@ -140,14 +145,18 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Pour établissement public ayant une activité de recherche, pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre d'études scientifiques"
     | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'évaluation préalable et du suivi des impacts sur la biodiversité de projets de travaux, d'ouvrages et d'aménagements"
     | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'élaboration ou du suivi de plans, de schémas, de programmes ou d'autres documents de planification nécessitant l'acquisition de connaissances ou visant à la préservation du patrimoine naturel prévus par des dispositions du code de l'environnement.";
+  "Joindre les pièces justifiant de la finalité de la demande": ChampDSPieceJustificative;
   "Cette demande concerne un programme de suivi déjà existant": boolean;
+  "Joindre le bilan des opérations antérieures": ChampDSPieceJustificative;
   "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?": boolean;
   "Précisez ces mesures :": string;
+  "Ajoutez un fichier décrivant ces mesures complémentaires :": ChampDSPieceJustificative;
   "Année de mise en service": number;
   "Nombre d'éoliennes": number;
   "Hauteur totale bout de pale (m)": number;
   "Diamètre du rotor (m)": number;
   "Garde au sol (m)": number;
+  "Plan des installations": ChampDSPieceJustificative;
   /**
    * La dates de début d'intervention correspond à la date de début des travaux (y compris travaux préparatoires), de début du suivi dans le cas des suivis scientifiques...
    */
@@ -165,11 +174,13 @@ export interface DossierDemarcheSimplifiee88444 {
    */
   "Durée de la dérogation": number;
   "Précisez le périmètre d'intervention": string;
+  "Joindre une carte du périmètre d'intervention si besoin": ChampDSPieceJustificative;
   "Description du protocole de suivi": string;
   "Nombre d'éoliennes à suivre": number;
   "Période des inventaires terrain": string;
   "Nombre de passages pendant le suivi": number;
   "Nombre de passages par semaine de suivi": number;
+  "Pièces jointes décrivant précisément le protocole qui sera mis en place": ChampDSPieceJustificative;
   "Suivi de mortalité - Votre demande concerne :":
     | "Transport des individus blessés vers un centre de soin"
     | "Transport des cadavres pour analyse au bureau"
@@ -190,6 +201,7 @@ export interface DossierDemarcheSimplifiee88444 {
   "Qualification des intervenants": {
     "Nom Prénom": string;
     Qualification: string;
+    CV: ChampDSPieceJustificative;
   }[];
   "Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)": string;
   /**
@@ -197,6 +209,29 @@ export interface DossierDemarcheSimplifiee88444 {
    */
   "Des mesures ERC sont-elles prévues ?": boolean;
   "Indiquer le nombre de nids artificiels posés en compensation": number;
+  /**
+   * Si votre dossier fait plus de 200 Mo, utilisez https://francetransfert.numerique.gouv.fr/upload pour générer un lien que vous indiquerez dans le champ "Description succincte du projet"
+   */
+  "Dépot du dossier complet de demande de dérogation": ChampDSPieceJustificative;
+  /**
+   * Fournir ici l'état des lieux écologique, ainsi que les protocoles d'inventaires utilisés, ayant permis de conclure à l'absence d'individus ou d'habitats d'espèces protégées dans l'emprise du projet.
+   */
+  "Diagnostic écologique": ChampDSPieceJustificative;
+  /**
+   * <strong>Cet argumentaire diot notamment détailler les points suivants.</strong>
+   *
+   * Mesures d’évitement et de réduction (E-R) :
+   * - protocole de mise en œuvre (calendrier, méthodes, matériel, , etc.),
+   * - localisation : une ou des cartes sont annexées, et intègrent la représentation graphique des emprises du projet (sous toutes ses composantes : bâtiments, annexes, base de vie chantier, stockage intermédiaire…)
+   * - complétude (objectifs de performance, indicateurs de suivis, etc.) et garanties d’effectivité des mesures E et R :  la pertinence, la faisabilité technique et l’efficacité des mesures proposées pour atteindre les objectifs inscrits dans la demande de dérogation.
+   *
+   * Après application des mesures d’évitement et de réduction, caractérisation du risque (résiduel) d’atteinte à l’état de conservation des espèces protégées (habitats, individus, population et fonctionnalité des milieux pour chaque espèce)  :
+   * - niveau de risque d’atteinte (compte tenu de la nature des impacts, de son intensité et/ou sa persistance)
+   * - niveau de caractérisation de ce risque (fortement prévisible, potentiel…) en fonction des données du dossier, des connaissances scientifiques , des retours d’expériences…), argumentation à l’appui.
+   *
+   */
+  "Déposez ici l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.": ChampDSPieceJustificative;
+  "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande": ChampDSPieceJustificative[];
 }
 
 
@@ -234,11 +269,17 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */
+  "Dernière contribution en lien avec l'instruction DDEP": ChampDSPieceJustificative;
+  /**
+   * Pour les dossiers historiques en cours de saisie dans DS
+   */
   "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": Date;
+  "Autres documents relatifs au dossier": ChampDSPieceJustificative;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "N° Demande ONAGRE": string;
+  "Saisine de l'instructeur": ChampDSPieceJustificative;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */
@@ -247,10 +288,14 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Date saisine CNPN": Date;
-  "Avis CSRPN/CNPN": "Avis favorable" | "Avis favorable sous condition" | "Avis défavorable";
+  /**
+   * Pour les dossiers historiques en cours de saisie dans DS
+   */
+  "Avis CSRPN/CNPN": ChampDSPieceJustificative;
   "Date avis CSRPN": Date;
   "Date avis CNPN": Date;
   "Date avis conforme Ministre": Date;
+  "Avis conforme Ministre": ChampDSPieceJustificative;
   "Date de début de la consultation du public ou enquête publique": Date;
   "Date de fin de la consultation du public ou enquête publique": Date;
   /**
@@ -267,6 +312,10 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Référence de l'AM": string;
+  /**
+   * Pour les dossiers historiques en cours de saisie dans DS
+   */
+  "AP/AM": ChampDSPieceJustificative;
   "Dépôt GeoMCE effectué ?": "Oui" | "Non" | "Partiel";
   "Date dépôt GeoMCE": Date;
   "Id projet GeoMCE": string;

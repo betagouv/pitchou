@@ -59,6 +59,7 @@
     "lunr-languages": "^1.14.0",
     "minimist": "^1.2.8",
     "ods-xlsx": "github:DavidBruant/ods-xlsx#v0.10.0",
+    "p-limit": "^6.2.0",
     "page": "^1.11.6",
     "pg": "^8.11.5",
     "pino-pretty": "^11.2.2",
