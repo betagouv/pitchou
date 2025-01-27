@@ -635,7 +635,7 @@ if(idToTraitements.size >= 1){
 /** Synchronisation des fichiers téléchargés */
 
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
-    if(fichiersEspècesImpactéesTéléchargés){
+    if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
         //checkMemory()
 
         for(const [number, fichierEspècesImpactées] of fichiersEspècesImpactéesTéléchargés){
@@ -663,7 +663,16 @@ Promise.all([
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés
 ])
-.then(laTransactionDeSynchronisationDS.commit)
-.catch(laTransactionDeSynchronisationDS.rollback)
-.then(closeDatabaseConnection)
+.then(() => {
+    console.log('Sync terminé avec succès, commit de la transaction')
+    return laTransactionDeSynchronisationDS.commit()
+})
+.catch(err => {
+    console.error('Sync échoué', err,  'rollback de la transaction')
+    return laTransactionDeSynchronisationDS.rollback()
+})
+.then(() => {
+    console.log('Fin de la synchronisation, cloture de la connexion avec la base de données')
+    return closeDatabaseConnection()
+})
 
