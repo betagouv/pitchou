@@ -32,8 +32,14 @@
 
     /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
     export let email;
+    
     /** @type {ComponentProps<Squelette>['erreurs']} */
     export let erreurs;
+
+    /** @type {TriTableauSuiviDDEP['id'] | undefined} */
+    export let triIdSélectionné = undefined;
+
+    export let rememberTriFiltres;
 
     $: dossiersIdSuivisParAucunInstructeur = relationSuivis && (() => {
         // démarrer avec tous les ids
@@ -53,8 +59,45 @@
     let dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
+    const trisActivitéPrincipale = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") }, id: 'ActivitéPrincipale-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse()}, id: 'ActivitéPrincipale-ZA' },
+    ]
+
+    const trisNomProjet = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") }, id: 'NomProjet-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() }, id: 'NomProjet-ZA' },
+    ]
+
+    const trisLocalisation = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") }, id: 'Localisation-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() }, id: 'Localisation-ZA' },
+    ]
+
+    const trisDéposant = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") }, id: 'Déposant-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() }, id: 'Déposant-ZA' },
+    ]
+
+    const triPriorisationPhaseProchaineAction = [
+        { nom: "Prioriser", trier(){ dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) }, id: 'Priorisation-PhaseAction' }
+    ]
+    
+    /** @type {TriTableauSuiviDDEP[]} */
+    const tris = [
+        ...trisActivitéPrincipale,
+        ...trisNomProjet,
+        ...trisLocalisation,
+        ...trisDéposant,
+        ...triPriorisationPhaseProchaineAction
+    ]
+
+    // Cette ligne doit être tolérante à ce que triIdSélectionné soit undefined ou n'importe quoi
     /** @type {TriTableauSuiviDDEP | undefined} */
-    let triSélectionné = undefined
+    let triSélectionné = tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0]
+
+    $: rememberTriFiltres(triSélectionné)
+
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new Map()
@@ -67,6 +110,7 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
+
         if(triSélectionné){
             triSélectionné.trier()
         }
@@ -251,30 +295,6 @@
 
 		filtrerDossiers()
     }
-
-    const trisActivitéPrincipale = [
-        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") }, },
-        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse()},  },
-    ]
-
-    const trisNomProjet = [
-        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") } },
-        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() } },
-    ]
-
-    const trisLocalisation = [
-        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") } },
-        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() } },
-    ]
-
-    const trisDéposant = [
-        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") } },
-        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() } },
-    ]
-
-    const triPriorisationPhaseProchaineAction = [
-        { nom: "Prioriser", trier(){ dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) } }
-    ]
 
     // filtrage avec les filtres initiaux
     onMount(async () => {
