@@ -6,7 +6,7 @@ import knex from 'knex';
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
 /** @import {default as CapÉcritureAnnotation} from '../types/database/public/CapÉcritureAnnotation.ts' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
-/** @import {StringValues} from '../types.js' */
+/** @import {StringValues} from '../types/tools.d.ts' */
 
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){

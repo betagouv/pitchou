@@ -55,8 +55,7 @@ type DossierActivitéPrincipale = {
 } 
 
 type DonnéesDossierPourStats = Pick<Dossier, 
-    'historique_date_réception_ddep' | 'date_dépôt' |
-    'historique_date_signature_arrêté_préfectoral'>
+    'historique_date_réception_ddep' | 'historique_date_signature_arrêté_préfectoral'>
 
 /**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
@@ -66,7 +65,7 @@ type DonnéesDossierPourStats = Pick<Dossier,
  * Il a pour objectif d'être plutôt facile à requêter en groupe
  */
 export type DossierRésumé = Pick<Dossier, 
-    'id' | 'number_demarches_simplifiées' | 'nom' |
+    'id' | 'number_demarches_simplifiées' | 'nom' | 'date_dépôt' |
     'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae' |
     'historique_identifiant_demande_onagre'> 
     & DossierLocalisation

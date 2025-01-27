@@ -11,14 +11,10 @@ import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées }
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 import { getDossierComplet } from '../actions/dossier.js';
 
-import {HTTPError, MediaTypeError} from '../../commun/errors.js'
-
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
 /** @import {DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
-
-const ODS_MEDIA_TYPE = 'application/vnd.oasis.opendocument.spreadsheet'
 
 /**
  * @param {Object} ctx
