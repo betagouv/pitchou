@@ -320,29 +320,44 @@
                     {/if}
                 </div>
 
-                <div class="filtres-actifs">
-                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                        <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
-                    {/if}
-                    {#if activitésPrincipalesSélectionnées.size >= 1}
-                        <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Activités principales : {[...activitésPrincipalesSélectionnées].join(", ")}</span>
-                    {/if}
-                    {#if texteÀChercher}
-                        <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
-                        <button on:click={onSupprimerFiltreTexte}>✖</button>
-                    {/if}
+                <section class="filtres-actifs fr-mb-1w">
                     {#if instructeursSélectionnés.size >= 1}
-                        <p>
+                        <div class="fr-mb-1w">
                             <span>Dossiers suivis par&nbsp;:</span>
                             {#each [...instructeursSélectionnés] as instructeur}
-                                <span class="fr-tag fr-tag--sm instructeurs fr-mr-1w fr-mb-1v">
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                                     {instructeur}
                                 </span>
                             {/each}
-                        </p>
+                        </div>
                     {/if}
-
-                </div>
+                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
+                        <div class="fr-mb-1w">
+                            <span>Prochaine action attendue par&nbsp;:</span>
+                            {#each [...prochainesActionsAttenduesParFiltrées] as prochaineActionAttenduePar}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {prochaineActionAttenduePar}
+                                </span>
+                            {/each}
+                        </div>
+                    {/if}
+                    {#if activitésPrincipalesSélectionnées.size >= 1}
+                        <div class="fr-mb-1w">
+                            <span>Activités principales&nbsp;:</span>
+                            {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {activitéPrincipale}
+                                </span>
+                            {/each}
+                        </div>
+                    {/if}
+                    {#if texteÀChercher}
+                        <div class="fr-mb-1w">
+                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
+                            <button on:click={onSupprimerFiltreTexte}>✖</button>
+                        </div>
+                    {/if}
+                </section>
 
                 <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
 
@@ -450,10 +465,6 @@
     h2 small{
         font-size: 0.7em;
         color: var(--text-mention-grey)
-    }
-
-    .fr-badge:not(.instructeurs) {
-        white-space: nowrap;
     }
 
     .filtres {
