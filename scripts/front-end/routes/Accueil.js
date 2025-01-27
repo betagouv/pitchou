@@ -62,7 +62,8 @@ function mapStateToPropsSuiviInstruction(state){
             remember(TRI_FILTRE_CLEF_LOCALSTORAGE, {
                 tri: tri.id,
                 filtres: {
-                    phases: [...filtres.phases]
+                    phases: filtres.phases ? [...filtres.phases] : undefined,
+                    'prochaine action attendue de': filtres['prochaine action attendue de'] ? [...filtres['prochaine action attendue de']] : undefined
                 }
             })
         }

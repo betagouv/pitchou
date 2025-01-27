@@ -100,7 +100,7 @@
     let triSélectionné = tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0]
 
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -159,7 +159,9 @@
 
     /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
     // @ts-ignore
-    let prochainesActionsAttenduesParFiltrées = new Set()
+    let prochainesActionsAttenduesParSélectionnés = filtresSélectionnés['prochaine action attendue de'] ?
+        new Set(filtresSélectionnés['prochaine action attendue de']) :
+        new Set()
 
     /**
      *
@@ -176,7 +178,7 @@
         })
 
         // @ts-ignore
-        prochainesActionsAttenduesParFiltrées = new Set(prochainesActionsAttenduesParSélectionnées)
+        prochainesActionsAttenduesParSélectionnés = new Set(prochainesActionsAttenduesParSélectionnées)
 
         filtrerDossiers()
     }
@@ -300,7 +302,8 @@
     }
 
     $: rememberTriFiltres(triSélectionné, {
-        phases: phasesSélectionnées
+        phases: phasesSélectionnées,
+        'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés
     })
 
     // filtrage avec les filtres initiaux
@@ -339,6 +342,7 @@
                     <FiltreParmiOptions
                         titre="Filtrer par prochaine action attendue par"
                         options={prochainesActionsAttenduesParOptions}
+                        optionsSélectionnées={prochainesActionsAttenduesParSélectionnés}
                         mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
                     />
                     {#if instructeursOptions && instructeursOptions.size >= 2}
@@ -362,10 +366,10 @@
                             {/each}
                         </div>
                     {/if}
-                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
+                    {#if prochainesActionsAttenduesParSélectionnés.size >= 1}
                         <div class="fr-mb-1w">
                             <span>Prochaine action attendue par&nbsp;:</span>
-                            {#each [...prochainesActionsAttenduesParFiltrées] as prochaineActionAttenduePar}
+                            {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
                                 <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                                     {prochaineActionAttenduePar}
                                 </span>
