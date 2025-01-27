@@ -12,12 +12,14 @@
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
-
+    
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
+    /** @import  { TriTableauSuiviDDEP } from '../../../types/interfaceUtilisateur.ts' */
+
 
     /** @type {DossierRésumé[]} */
     export let dossiers = []
@@ -51,7 +53,7 @@
     let dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    /** @type {{nom: string, tri: function}|undefined} */
+    /** @type {TriTableauSuiviDDEP | undefined} */
     let triSélectionné = undefined
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
@@ -66,7 +68,7 @@
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
         if(triSélectionné){
-            triSélectionné.tri()
+            triSélectionné.trier()
         }
 	}
 
@@ -110,7 +112,7 @@
 
     /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
     // @ts-ignore
-    $: prochainesActionsAttenduesParFiltrées = new Set()
+    let prochainesActionsAttenduesParFiltrées = new Set()
 
     /**
      *
@@ -132,7 +134,7 @@
         filtrerDossiers()
     }
 
-    $: texteÀChercher = ''
+    let texteÀChercher = ''
 
     /**
      * @param {string} _texteÀChercher
@@ -231,12 +233,12 @@
 
 
     /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
-    $: activitésPrincipalesSélectionnées = new Set()
+    let activitésPrincipalesSélectionnées = new Set()
+
     /**
      *
      * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
      */
-
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
         tousLesFiltres.set('activité principale', dossier => {
             if(!dossier.activité_principale)
@@ -250,29 +252,29 @@
 		filtrerDossiers()
     }
 
-    const trisActivitéPrincipale = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse() },
-    ])
+    const trisActivitéPrincipale = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") }, },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse()},  },
+    ]
 
-    const trisNomProjet = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() },
-    ])
+    const trisNomProjet = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") } },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() } },
+    ]
 
-    const trisLocalisation = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() },
-    ])
+    const trisLocalisation = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") } },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() } },
+    ]
 
-    const trisDéposant = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
-    ])
+    const trisDéposant = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") } },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() } },
+    ]
 
-    const triPriorisationPhaseProchaineAction = new Set([
-        { nom: "Prioriser", tri: () => dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) },
-    ])
+    const triPriorisationPhaseProchaineAction = [
+        { nom: "Prioriser", trier(){ dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) } }
+    ]
 
     // filtrage avec les filtres initiaux
     onMount(async () => {
