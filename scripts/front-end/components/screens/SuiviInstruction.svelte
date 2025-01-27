@@ -15,6 +15,7 @@
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
+    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
@@ -24,6 +25,9 @@
 
     /** @type {PitchouState['relationSuivis']} */
     export let relationSuivis
+
+    /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
+    export let activitésPrincipales = undefined
 
     /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
     export let email;
@@ -51,7 +55,7 @@
     /** @type {{nom: string, tri: function}|undefined} */
     let triSélectionné = undefined
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -134,10 +138,12 @@
      * @param {string} _texteÀChercher
      */
     function filtrerParTexte(_texteÀChercher) {
+        const texteÀChercherSansEspace = _texteÀChercher.trim()
+
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur
         // les nombres avec une fonction séparée.
-        if (_texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
+        if (texteÀChercherSansEspace.match(/\d[\dA-Za-z\-]*/)) {
             tousLesFiltres.set('texte', dossier => {
                 const {
                     id,
@@ -148,14 +154,14 @@
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
 
-                return String(id) === _texteÀChercher ||
-                    départements?.includes(_texteÀChercher) ||
-                    communesCodes?.includes(_texteÀChercher) ||
-                    number_demarches_simplifiées === _texteÀChercher ||
-                    historique_identifiant_demande_onagre === _texteÀChercher
+                return String(id) === texteÀChercherSansEspace ||
+                    départements?.includes(texteÀChercherSansEspace) ||
+                    communesCodes?.includes(texteÀChercherSansEspace) ||
+                    number_demarches_simplifiées === texteÀChercherSansEspace ||
+                    historique_identifiant_demande_onagre === texteÀChercherSansEspace
             })
         } else {
-            const texteSansAccents = retirerAccents(_texteÀChercher)
+            const texteSansAccents = retirerAccents(texteÀChercherSansEspace)
             // Pour chercher les communes qui contiennent des tirets avec lunr,
             // on a besoin de passer la chaîne de caractères entre "".
             const aRechercher = texteSansAccents.match(/(\w-)+/) ?
@@ -168,7 +174,7 @@
             })
         }
 
-        texteÀChercher = _texteÀChercher;
+        texteÀChercher = texteÀChercherSansEspace;
 
         filtrerDossiers()
     }
@@ -194,7 +200,7 @@
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
     let instructeursSélectionnés = new Set([email])
-    
+
     tousLesFiltres.set('instructeurs', dossier => {
         if(!relationSuivis)
             return true;
@@ -222,6 +228,27 @@
 		filtrerDossiers()
 	}
 
+
+
+    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
+    $: activitésPrincipalesSélectionnées = new Set()
+    /**
+     *
+     * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
+     */
+
+    function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
+        tousLesFiltres.set('activité principale', dossier => {
+            if(!dossier.activité_principale)
+                return false
+            else
+                return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+        })
+
+        activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
+
+		filtrerDossiers()
+    }
 
     const trisActivitéPrincipale = new Set([
         { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
@@ -274,6 +301,11 @@
 
                 <div class="filtres">
                     <FiltreParmiOptions
+                        titre="Filtrer par activité principale"
+                        options={new Set(activitésPrincipales)}
+                        mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
+                    />
+                    <FiltreParmiOptions
                         titre="Filtrer par prochaine action attendue par"
                         options={prochainesActionsAttenduesParOptions}
                         mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
@@ -288,25 +320,44 @@
                     {/if}
                 </div>
 
-                <div class="filtres-actifs">
-                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                        <span class="fr-badge fr-badge--sm">Prochaine action attendue par : {[...prochainesActionsAttenduesParFiltrées].join(", ")}</span>
-                    {/if}
-                    {#if texteÀChercher}
-                        <span class="fr-badge fr-badge--sm">Texte cherché : {texteÀChercher}</span>
-                        <button on:click={onSupprimerFiltreTexte}>✖</button>
-                    {/if}
+                <section class="filtres-actifs fr-mb-1w">
                     {#if instructeursSélectionnés.size >= 1}
-                        <p>
+                        <div class="fr-mb-1w">
                             <span>Dossiers suivis par&nbsp;:</span>
                             {#each [...instructeursSélectionnés] as instructeur}
-                                <span class="fr-tag fr-tag--sm instructeurs fr-mr-1w fr-mb-1v">
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                                     {instructeur}
                                 </span>
                             {/each}
-                        </p>
+                        </div>
                     {/if}
-                </div>
+                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
+                        <div class="fr-mb-1w">
+                            <span>Prochaine action attendue par&nbsp;:</span>
+                            {#each [...prochainesActionsAttenduesParFiltrées] as prochaineActionAttenduePar}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {prochaineActionAttenduePar}
+                                </span>
+                            {/each}
+                        </div>
+                    {/if}
+                    {#if activitésPrincipalesSélectionnées.size >= 1}
+                        <div class="fr-mb-1w">
+                            <span>Activités principales&nbsp;:</span>
+                            {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {activitéPrincipale}
+                                </span>
+                            {/each}
+                        </div>
+                    {/if}
+                    {#if texteÀChercher}
+                        <div class="fr-mb-1w">
+                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
+                            <button on:click={onSupprimerFiltreTexte}>✖</button>
+                        </div>
+                    {/if}
+                </section>
 
                 <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
 
@@ -414,10 +465,6 @@
     h2 small{
         font-size: 0.7em;
         color: var(--text-mention-grey)
-    }
-
-    .fr-badge:not(.instructeurs) {
-        white-space: nowrap;
     }
 
     .filtres {
