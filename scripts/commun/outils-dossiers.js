@@ -44,6 +44,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
     // Trouver la phase la plus récente
     // PPP à corriger
     const phaseActuelle = évènementsPhase[0].phase
+    const dateDébutPhaseActuelle = évènementsPhase[0].horodatage
 
     /** @type {DossierRésumé} */
     const dossierRésumé = {
@@ -77,6 +78,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         
         // Phase et prochaine action
         phase: phaseActuelle,
+        date_début_phase: dateDébutPhaseActuelle,
         // @ts-ignore
         prochaine_action_attendue_par
     }

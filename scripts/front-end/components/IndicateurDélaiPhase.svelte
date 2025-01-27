@@ -3,10 +3,9 @@
     import IndicateurDélai from './IndicateurDélai.svelte';
     import {getDébutPhaseActuelle} from '../getDébutPhaseActuelle.js';
 
-    /** @import {DossierComplet} from '../../types/API_Pitchou.js' */
-    /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.js' */
+    /** @import {DossierRésumé} from '../../types/API_Pitchou.js' */
 
-    /** @type { DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]} } */
+    /** @type { DossierRésumé } */
     export let dossier;
 
     $: débutPhaseActuelle = getDébutPhaseActuelle(dossier)
