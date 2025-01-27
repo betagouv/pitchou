@@ -18,7 +18,7 @@
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
-    /** @import  { TriTableauSuiviDDEP } from '../../../types/interfaceUtilisateur.ts' */
+    /** @import { FiltresLocalStorage, TriTableauSuiviDDEP } from '../../../types/interfaceUtilisateur.ts' */
 
 
     /** @type {DossierRésumé[]} */
@@ -38,6 +38,9 @@
 
     /** @type {TriTableauSuiviDDEP['id'] | undefined} */
     export let triIdSélectionné = undefined;
+
+    /** @type {Partial<FiltresLocalStorage>} */
+    export let filtresSélectionnés = {};
 
     export let rememberTriFiltres;
 
@@ -96,8 +99,6 @@
     /** @type {TriTableauSuiviDDEP | undefined} */
     let triSélectionné = tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0]
 
-    $: rememberTriFiltres(triSélectionné)
-
 
     /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new Map()
@@ -121,11 +122,13 @@
     const phaseOptions = new Set([...phases])
 
     /** @type {Set<DossierPhase>} */
-    let phasesSélectionnées = new Set([
-        'Accompagnement amont',
-        'Étude recevabilité DDEP',
-        'Instruction'
-    ])
+    let phasesSélectionnées = filtresSélectionnés.phases ? 
+        new Set(filtresSélectionnés.phases) :
+        new Set([
+            'Accompagnement amont',
+            'Étude recevabilité DDEP',
+            'Instruction'
+        ])
 
     /**
      *
@@ -296,10 +299,16 @@
 		filtrerDossiers()
     }
 
+    $: rememberTriFiltres(triSélectionné, {
+        phases: phasesSélectionnées
+    })
+
     // filtrage avec les filtres initiaux
     onMount(async () => {
         filtrerDossiers()
 	});
+
+    
 </script>
 
 <Squelette {email} {erreurs}>
