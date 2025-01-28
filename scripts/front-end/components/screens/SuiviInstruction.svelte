@@ -62,6 +62,15 @@
     let dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
+    $: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
+
+    $: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
+
+    $: dossierNonSel = [...dossiersNonSélectionnés][0]
+
+    $: console.log('dossier non sélectionné', dossierNonSel, dossierNonSel.activité_principale, dossierNonSel.phase, dossierNonSel.prochaine_action_attendue_par)
+
+
     const trisActivitéPrincipale = [
         { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") }, id: 'ActivitéPrincipale-AZ' },
         { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse()}, id: 'ActivitéPrincipale-ZA' },
@@ -282,17 +291,20 @@
 	}
 
 
+    const AUCUNE_ACTIVITÉ_PRINCIPALE = '(aucune activité principale)'
+    // @ts-ignore
+    const activitésPrincipalesOptions = new Set([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales])
 
-    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
+    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
     // @ts-ignore
     let activitésPrincipalesSélectionnées = new Set(filtresSélectionnés.activitésPrincipales ?
         filtresSélectionnés.activitésPrincipales :
-        activitésPrincipales
+        activitésPrincipalesOptions
     )
 
     tousLesFiltres.set('activité principale', dossier => {
         if(!dossier.activité_principale)
-            return false
+            return activitésPrincipalesSélectionnées.has(AUCUNE_ACTIVITÉ_PRINCIPALE)
         else
             return activitésPrincipalesSélectionnées.has(dossier.activité_principale)
     })
@@ -307,9 +319,7 @@
 		filtrerDossiers()
     }
 
-    let activitésPrincipalesSet = new Set(activitésPrincipales)
-
-    $: activitésPrincipalesNonSélectionnées = activitésPrincipalesSet.difference(activitésPrincipalesSélectionnées)
+    $: activitésPrincipalesNonSélectionnées = activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées)
 
     $: rememberTriFiltres(triSélectionné, {
         phases: phasesSélectionnées,
@@ -348,7 +358,7 @@
                 <div class="filtres">
                     <FiltreParmiOptions
                         titre="Filtrer par activité principale"
-                        options={new Set(activitésPrincipales)}
+                        options={activitésPrincipalesOptions}
                         optionsSélectionnées={activitésPrincipalesSélectionnées}
                         mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
                     />
