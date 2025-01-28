@@ -250,7 +250,10 @@
     const instructeursOptions = new Set([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    let instructeursSélectionnés = new Set([email])
+    let instructeursSélectionnés = new Set(filtresSélectionnés.instructeurs ?
+        filtresSélectionnés.instructeurs :
+        [email]
+    )
 
     tousLesFiltres.set('instructeurs', dossier => {
         if(!relationSuivis)
@@ -303,7 +306,8 @@
 
     $: rememberTriFiltres(triSélectionné, {
         phases: phasesSélectionnées,
-        'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés
+        'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,
+        instructeurs: instructeursSélectionnés
     })
 
     // filtrage avec les filtres initiaux
