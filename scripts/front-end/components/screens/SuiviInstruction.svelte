@@ -12,12 +12,14 @@
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
-
+    
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
+    /** @import { FiltresLocalStorage, TriTableauSuiviDDEP } from '../../../types/interfaceUtilisateur.ts' */
+
 
     /** @type {DossierRésumé[]} */
     export let dossiers = []
@@ -30,8 +32,17 @@
 
     /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
     export let email;
+    
     /** @type {ComponentProps<Squelette>['erreurs']} */
     export let erreurs;
+
+    /** @type {TriTableauSuiviDDEP['id'] | undefined} */
+    export let triIdSélectionné = undefined;
+
+    /** @type {Partial<FiltresLocalStorage>} */
+    export let filtresSélectionnés = {};
+
+    export let rememberTriFiltres;
 
     $: dossiersIdSuivisParAucunInstructeur = relationSuivis && (() => {
         // démarrer avec tous les ids
@@ -48,13 +59,54 @@
     })()
 
     /** @type {DossierRésumé[]} */
-    $: dossiersSelectionnés = []
+    let dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    /** @type {{nom: string, tri: function}|undefined} */
-    let triSélectionné = undefined
+    //$: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
+    //$: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
+    //$: dossierNonSel = [...dossiersNonSélectionnés][0]
+    //$: dossierNonSel && console.log('dossier non sélectionné', dossierNonSel, dossierNonSel.activité_principale, dossierNonSel.phase, dossierNonSel.prochaine_action_attendue_par)
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
+
+    const trisActivitéPrincipale = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") }, id: 'ActivitéPrincipale-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse()}, id: 'ActivitéPrincipale-ZA' },
+    ]
+
+    const trisNomProjet = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") }, id: 'NomProjet-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() }, id: 'NomProjet-ZA' },
+    ]
+
+    const trisLocalisation = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") }, id: 'Localisation-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() }, id: 'Localisation-ZA' },
+    ]
+
+    const trisDéposant = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") }, id: 'Déposant-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() }, id: 'Déposant-ZA' },
+    ]
+
+    const triPriorisationPhaseProchaineAction = [
+        { nom: "Prioriser", trier(){ dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) }, id: 'Priorisation-PhaseAction' }
+    ]
+    
+    /** @type {TriTableauSuiviDDEP[]} */
+    const tris = [
+        ...trisActivitéPrincipale,
+        ...trisNomProjet,
+        ...trisLocalisation,
+        ...trisDéposant,
+        ...triPriorisationPhaseProchaineAction
+    ]
+
+    // Cette ligne doit être tolérante à ce que triIdSélectionné soit undefined ou n'importe quoi
+    /** @type {TriTableauSuiviDDEP | undefined} */
+    let triSélectionné = tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0]
+
+
+    /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -65,7 +117,10 @@
 		}
 
 		dossiersSelectionnés = nouveauxDossiersSélectionnés;
-        triSélectionné = undefined
+
+        if(triSélectionné){
+            triSélectionné.trier()
+        }
 	}
 
 
@@ -73,11 +128,13 @@
     const phaseOptions = new Set([...phases])
 
     /** @type {Set<DossierPhase>} */
-    let phasesSélectionnées = new Set([
-        'Accompagnement amont',
-        'Étude recevabilité DDEP',
-        'Instruction'
-    ])
+    let phasesSélectionnées = filtresSélectionnés.phases ? 
+        new Set(filtresSélectionnés.phases) :
+        new Set([
+            'Accompagnement amont',
+            'Étude recevabilité DDEP',
+            'Instruction'
+        ])
 
     /**
      *
@@ -108,29 +165,30 @@
 
     /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
     // @ts-ignore
-    $: prochainesActionsAttenduesParFiltrées = new Set()
+    let prochainesActionsAttenduesParSélectionnés = filtresSélectionnés['prochaine action attendue de'] ?
+        new Set(filtresSélectionnés['prochaine action attendue de']) :
+        new Set(prochainesActionsAttenduesParOptions)
+
+    tousLesFiltres.set("prochaine action attendue de", dossier => {
+        if (!dossier.prochaine_action_attendue_par || !prochainesActionsAttenduesParOptions.has(dossier.prochaine_action_attendue_par)) {
+            return prochainesActionsAttenduesParSélectionnés.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)
+        }
+
+        // @ts-ignore
+        return prochainesActionsAttenduesParSélectionnés.has(dossier.prochaine_action_attendue_par)
+    })
 
     /**
      *
-     * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} prochainesActionsAttenduesParSélectionnées
+     * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} _prochainesActionsAttenduesParSélectionnés
      */
-    function filtrerParProchainesActionsAttenduesPar(prochainesActionsAttenduesParSélectionnées) {
-        tousLesFiltres.set("prochaine action attendue de", dossier => {
-            if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
-                return !dossier.prochaine_action_attendue_par
-            }
-
-            // @ts-ignore
-            return prochainesActionsAttenduesParSélectionnées.has(dossier.prochaine_action_attendue_par)
-        })
-
-        // @ts-ignore
-        prochainesActionsAttenduesParFiltrées = new Set(prochainesActionsAttenduesParSélectionnées)
-
+    function filtrerParProchainesActionsAttenduesPar(_prochainesActionsAttenduesParSélectionnés) {
+        prochainesActionsAttenduesParSélectionnés = new Set(_prochainesActionsAttenduesParSélectionnés)
+        
         filtrerDossiers()
     }
 
-    $: texteÀChercher = ''
+    let texteÀChercher = ''
 
     /**
      * @param {string} _texteÀChercher
@@ -197,7 +255,10 @@
     const instructeursOptions = new Set([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    let instructeursSélectionnés = new Set([email])
+    let instructeursSélectionnés = new Set(filtresSélectionnés.instructeurs ?
+        filtresSélectionnés.instructeurs :
+        [email]
+    )
 
     tousLesFiltres.set('instructeurs', dossier => {
         if(!relationSuivis)
@@ -227,55 +288,49 @@
 	}
 
 
+    const AUCUNE_ACTIVITÉ_PRINCIPALE = '(aucune activité principale)'
+    // @ts-ignore
+    const activitésPrincipalesOptions = new Set([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales])
 
-    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
-    $: activitésPrincipalesSélectionnées = new Set()
+    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
+    // @ts-ignore
+    let activitésPrincipalesSélectionnées = new Set(filtresSélectionnés.activitésPrincipales ?
+        filtresSélectionnés.activitésPrincipales :
+        activitésPrincipalesOptions
+    )
+
+    tousLesFiltres.set('activité principale', dossier => {
+        if(!dossier.activité_principale || !activitésPrincipalesOptions.has(dossier.activité_principale))
+            return activitésPrincipalesSélectionnées.has(AUCUNE_ACTIVITÉ_PRINCIPALE)
+        
+        return activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+    })
+
     /**
      *
      * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
      */
-
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
-        tousLesFiltres.set('activité principale', dossier => {
-            if(!dossier.activité_principale)
-                return false
-            else
-                return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
-        })
-
         activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
 
 		filtrerDossiers()
     }
 
-    const trisActivitéPrincipale = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "activité_principale").reverse() },
-    ])
+    $: activitésPrincipalesNonSélectionnées = activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées)
 
-    const trisNomProjet = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() },
-    ])
-
-    const trisLocalisation = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() },
-    ])
-
-    const trisDéposant = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() },
-    ])
-
-    const triPriorisationPhaseProchaineAction = new Set([
-        { nom: "Prioriser", tri: () => dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) },
-    ])
+    $: rememberTriFiltres(triSélectionné, {
+        phases: phasesSélectionnées,
+        'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,
+        instructeurs: instructeursSélectionnés,
+        activitésPrincipales: activitésPrincipalesSélectionnées
+    })
 
     // filtrage avec les filtres initiaux
     onMount(async () => {
         filtrerDossiers()
 	});
+
+    
 </script>
 
 <Squelette {email} {erreurs}>
@@ -300,12 +355,14 @@
                 <div class="filtres">
                     <FiltreParmiOptions
                         titre="Filtrer par activité principale"
-                        options={new Set(activitésPrincipales)}
+                        options={activitésPrincipalesOptions}
+                        optionsSélectionnées={activitésPrincipalesSélectionnées}
                         mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
                     />
                     <FiltreParmiOptions
                         titre="Filtrer par prochaine action attendue par"
                         options={prochainesActionsAttenduesParOptions}
+                        optionsSélectionnées={prochainesActionsAttenduesParSélectionnés}
                         mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
                     />
                     {#if instructeursOptions && instructeursOptions.size >= 2}
@@ -319,36 +376,44 @@
                 </div>
 
                 <section class="filtres-actifs fr-mb-1w">
-                    {#if instructeursSélectionnés.size >= 1}
-                        <div class="fr-mb-1w">
-                            <span>Dossiers suivis par&nbsp;:</span>
-                            {#each [...instructeursSélectionnés] as instructeur}
+                    <div class="fr-mb-1w">
+                        <span>Dossiers suivis par&nbsp;:</span>
+                        {#each [...instructeursSélectionnés] as instructeur}
+                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                {instructeur}
+                            </span>
+                        {/each}
+                    </div>
+
+                    <div class="fr-mb-1w">
+                        <span>Prochaine action attendue par&nbsp;:</span>
+                        {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
+                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                {prochaineActionAttenduePar}
+                            </span>
+                        {/each}
+                    </div>
+                    
+                    <div class="fr-mb-1w">
+                        <span>Activités principales&nbsp;:</span>
+                        {#if activitésPrincipalesNonSélectionnées.size === 0}
+                            <strong>Toutes</strong>
+                        {:else if activitésPrincipalesNonSélectionnées.size <= 4}
+                            <strong>Toutes sauf</strong>
+                            {#each [...activitésPrincipalesNonSélectionnées] as activitéPrincipale}
                                 <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                                    {instructeur}
+                                    {activitéPrincipale}
                                 </span>
                             {/each}
-                        </div>
-                    {/if}
-                    {#if prochainesActionsAttenduesParFiltrées.size >= 1}
-                        <div class="fr-mb-1w">
-                            <span>Prochaine action attendue par&nbsp;:</span>
-                            {#each [...prochainesActionsAttenduesParFiltrées] as prochaineActionAttenduePar}
-                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                                    {prochaineActionAttenduePar}
-                                </span>
-                            {/each}
-                        </div>
-                    {/if}
-                    {#if activitésPrincipalesSélectionnées.size >= 1}
-                        <div class="fr-mb-1w">
-                            <span>Activités principales&nbsp;:</span>
+                        {:else}
                             {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
                                 <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                                     {activitéPrincipale}
                                 </span>
                             {/each}
-                        </div>
-                    {/if}
+                        {/if}
+                    </div>
+                    
                     {#if texteÀChercher}
                         <div class="fr-mb-1w">
                             <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
