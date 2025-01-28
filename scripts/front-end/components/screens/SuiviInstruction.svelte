@@ -161,25 +161,24 @@
     // @ts-ignore
     let prochainesActionsAttenduesParSélectionnés = filtresSélectionnés['prochaine action attendue de'] ?
         new Set(filtresSélectionnés['prochaine action attendue de']) :
-        new Set()
+        new Set(prochainesActionsAttenduesParOptions)
+
+    tousLesFiltres.set("prochaine action attendue de", dossier => {
+        if (!dossier.prochaine_action_attendue_par) {
+            return prochainesActionsAttenduesParSélectionnés.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)
+        }
+
+        // @ts-ignore
+        return prochainesActionsAttenduesParSélectionnés.has(dossier.prochaine_action_attendue_par)
+    })
 
     /**
      *
-     * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} prochainesActionsAttenduesParSélectionnées
+     * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} _prochainesActionsAttenduesParSélectionnés
      */
-    function filtrerParProchainesActionsAttenduesPar(prochainesActionsAttenduesParSélectionnées) {
-        tousLesFiltres.set("prochaine action attendue de", dossier => {
-            if (prochainesActionsAttenduesParSélectionnées.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)) {
-                return !dossier.prochaine_action_attendue_par
-            }
-
-            // @ts-ignore
-            return prochainesActionsAttenduesParSélectionnées.has(dossier.prochaine_action_attendue_par)
-        })
-
-        // @ts-ignore
-        prochainesActionsAttenduesParSélectionnés = new Set(prochainesActionsAttenduesParSélectionnées)
-
+    function filtrerParProchainesActionsAttenduesPar(_prochainesActionsAttenduesParSélectionnés) {
+        prochainesActionsAttenduesParSélectionnés = new Set(_prochainesActionsAttenduesParSélectionnés)
+        
         filtrerDossiers()
     }
 
