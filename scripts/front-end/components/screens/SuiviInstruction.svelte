@@ -62,13 +62,10 @@
     let dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
-    $: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
-
-    $: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
-
-    $: dossierNonSel = [...dossiersNonSélectionnés][0]
-
-    $: console.log('dossier non sélectionné', dossierNonSel, dossierNonSel.activité_principale, dossierNonSel.phase, dossierNonSel.prochaine_action_attendue_par)
+    //$: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
+    //$: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
+    //$: dossierNonSel = [...dossiersNonSélectionnés][0]
+    //$: dossierNonSel && console.log('dossier non sélectionné', dossierNonSel, dossierNonSel.activité_principale, dossierNonSel.phase, dossierNonSel.prochaine_action_attendue_par)
 
 
     const trisActivitéPrincipale = [
@@ -173,7 +170,7 @@
         new Set(prochainesActionsAttenduesParOptions)
 
     tousLesFiltres.set("prochaine action attendue de", dossier => {
-        if (!dossier.prochaine_action_attendue_par) {
+        if (!dossier.prochaine_action_attendue_par || !prochainesActionsAttenduesParOptions.has(dossier.prochaine_action_attendue_par)) {
             return prochainesActionsAttenduesParSélectionnés.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE)
         }
 
@@ -303,10 +300,10 @@
     )
 
     tousLesFiltres.set('activité principale', dossier => {
-        if(!dossier.activité_principale)
+        if(!dossier.activité_principale || !activitésPrincipalesOptions.has(dossier.activité_principale))
             return activitésPrincipalesSélectionnées.has(AUCUNE_ACTIVITÉ_PRINCIPALE)
-        else
-            return activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+        
+        return activitésPrincipalesSélectionnées.has(dossier.activité_principale)
     })
 
     /**
