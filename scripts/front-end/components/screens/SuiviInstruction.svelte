@@ -285,29 +285,38 @@
 
 
     /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} */
-    let activitésPrincipalesSélectionnées = new Set()
+    // @ts-ignore
+    let activitésPrincipalesSélectionnées = new Set(filtresSélectionnés.activitésPrincipales ?
+        filtresSélectionnés.activitésPrincipales :
+        activitésPrincipales
+    )
+
+    tousLesFiltres.set('activité principale', dossier => {
+        if(!dossier.activité_principale)
+            return false
+        else
+            return activitésPrincipalesSélectionnées.has(dossier.activité_principale)
+    })
 
     /**
      *
      * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
      */
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
-        tousLesFiltres.set('activité principale', dossier => {
-            if(!dossier.activité_principale)
-                return false
-            else
-                return _activitésPrincipalesSélectionnées.has(dossier.activité_principale)
-        })
-
         activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
 
 		filtrerDossiers()
     }
 
+    let activitésPrincipalesSet = new Set(activitésPrincipales)
+
+    $: activitésPrincipalesNonSélectionnées = activitésPrincipalesSet.difference(activitésPrincipalesSélectionnées)
+
     $: rememberTriFiltres(triSélectionné, {
         phases: phasesSélectionnées,
         'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,
-        instructeurs: instructeursSélectionnés
+        instructeurs: instructeursSélectionnés,
+        activitésPrincipales: activitésPrincipalesSélectionnées
     })
 
     // filtrage avec les filtres initiaux
@@ -341,6 +350,7 @@
                     <FiltreParmiOptions
                         titre="Filtrer par activité principale"
                         options={new Set(activitésPrincipales)}
+                        optionsSélectionnées={activitésPrincipalesSélectionnées}
                         mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
                     />
                     <FiltreParmiOptions
@@ -360,36 +370,44 @@
                 </div>
 
                 <section class="filtres-actifs fr-mb-1w">
-                    {#if instructeursSélectionnés.size >= 1}
-                        <div class="fr-mb-1w">
-                            <span>Dossiers suivis par&nbsp;:</span>
-                            {#each [...instructeursSélectionnés] as instructeur}
+                    <div class="fr-mb-1w">
+                        <span>Dossiers suivis par&nbsp;:</span>
+                        {#each [...instructeursSélectionnés] as instructeur}
+                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                {instructeur}
+                            </span>
+                        {/each}
+                    </div>
+
+                    <div class="fr-mb-1w">
+                        <span>Prochaine action attendue par&nbsp;:</span>
+                        {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
+                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                {prochaineActionAttenduePar}
+                            </span>
+                        {/each}
+                    </div>
+                    
+                    <div class="fr-mb-1w">
+                        <span>Activités principales&nbsp;:</span>
+                        {#if activitésPrincipalesNonSélectionnées.size === 0}
+                            <strong>Toutes</strong>
+                        {:else if activitésPrincipalesNonSélectionnées.size <= 4}
+                            <strong>Toutes sauf</strong>
+                            {#each [...activitésPrincipalesNonSélectionnées] as activitéPrincipale}
                                 <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                                    {instructeur}
+                                    {activitéPrincipale}
                                 </span>
                             {/each}
-                        </div>
-                    {/if}
-                    {#if prochainesActionsAttenduesParSélectionnés.size >= 1}
-                        <div class="fr-mb-1w">
-                            <span>Prochaine action attendue par&nbsp;:</span>
-                            {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
-                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                                    {prochaineActionAttenduePar}
-                                </span>
-                            {/each}
-                        </div>
-                    {/if}
-                    {#if activitésPrincipalesSélectionnées.size >= 1}
-                        <div class="fr-mb-1w">
-                            <span>Activités principales&nbsp;:</span>
+                        {:else}
                             {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
                                 <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                                     {activitéPrincipale}
                                 </span>
                             {/each}
-                        </div>
-                    {/if}
+                        {/if}
+                    </div>
+                    
                     {#if texteÀChercher}
                         <div class="fr-mb-1w">
                             <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
