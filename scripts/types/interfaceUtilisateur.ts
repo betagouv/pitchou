@@ -1,4 +1,5 @@
 import { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou"
+import Dossier from "./database/public/Dossier"
 import Personne from "./database/public/Personne"
 
 export type TriTableauSuiviDDEP = {
@@ -10,5 +11,6 @@ export type TriTableauSuiviDDEP = {
 export type FiltresLocalStorage = {
     phases: DossierPhase[]
     'prochaine action attendue de': DossierProchaineActionAttenduePar[]
-    instructeurs: NonNullable<Personne['email']>
+    instructeurs: NonNullable<Personne['email']>[]
+    activitésPrincipales: NonNullable<Dossier['activité_principale']>[]
 }
