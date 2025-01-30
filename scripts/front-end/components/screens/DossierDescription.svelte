@@ -1,9 +1,8 @@
 <script>
-    import DownloadButton from '../DownloadButton.svelte';
-
     //@ts-check
-
+    import DownloadButton from '../DownloadButton.svelte';
     import Squelette from '../Squelette.svelte'
+    import EnteteDossier from './Dossier/EnteteDossier.svelte'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
@@ -30,7 +29,7 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
-            <h1 class="fr-mb-6w">Description dossier {dossier.nom || "sans nom"}</h1>
+            <EnteteDossier {dossier}></EnteteDossier>
 
             <article class="fr-p-3w fr-mb-4w">
                 <h2>Espèces impactées</h2>

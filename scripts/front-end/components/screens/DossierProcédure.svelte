@@ -3,6 +3,7 @@
 
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
+    import EnteteDossier from './Dossier/EnteteDossier.svelte'
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */    
@@ -17,7 +18,9 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
-            <h1 class="fr-mb-6w">Procédure dossier {dossier.nom || "sans nom"}</h1>
+
+            <EnteteDossier {dossier}></EnteteDossier>
+            <h2 class="fr-mb-6w">Procédure dossier</h2>
 
             <article class="fr-p-3w fr-mb-4w">
                 <ol>

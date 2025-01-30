@@ -2,6 +2,7 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
+    import EnteteDossier from './Dossier/EnteteDossier.svelte'
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
@@ -27,7 +28,9 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
-            <h1 class="fr-mb-6w">Messagerie dossier {dossier.nom || "sans nom"}</h1>
+            <EnteteDossier {dossier}></EnteteDossier>
+
+            <h2>Messagerie</h2>
 
             <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>
                 Répondre sur Démarches Simplifiées
