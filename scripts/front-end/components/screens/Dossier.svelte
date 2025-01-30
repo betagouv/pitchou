@@ -8,7 +8,6 @@
     
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
-    import { DossierCompletToDossierRésumé } from '../../../commun/outils-dossiers.js';
 
     /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.ts' */
 
@@ -76,7 +75,7 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
-            <EnteteDossier dossier={DossierCompletToDossierRésumé(dossier)}></EnteteDossier>
+            <EnteteDossier {dossier}></EnteteDossier>
 
             <nav class="dossier-nav fr-mb-4w">
                 <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm fr-mb-2w">

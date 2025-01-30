@@ -4,6 +4,7 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     import Loader from '../Loader.svelte'
+    import EnteteDossier from './Dossier/EnteteDossier.svelte'
     
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 
@@ -43,8 +44,9 @@
 <Squelette {email}>
     <div class="fr-grid-row fr-mt-6w">
         <div class="fr-col">
-            <h1 class="fr-mb-8w">Aide à la Rédaction arrêté préfectoral</h1>
-            <h2>Dossier {dossier.nom || "sans nom"}</h2>
+            <EnteteDossier {dossier}></EnteteDossier>
+            
+            <h2 class="fr-mb-8w">Aide à la Rédaction arrêté préfectoral</h2>
 
             <article class="fr-p-3w fr-mb-4w">
                 <section>

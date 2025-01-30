@@ -1,12 +1,14 @@
 <script>
-    /** @import {DossierRésumé} from '../../../../types/API_Pitchou' */
+    /** @import {DossierComplet} from '../../../../types/API_Pitchou' */
 
     import {formatLocalisation, formatDéposant} from '../../../affichageDossier.js'
     import {afficherString} from '../../../affichageValeurs.js'
     import TagPhase from '../../TagPhase.svelte'
 
-    /** @type {DossierRésumé} */
+    /** @type {DossierComplet} */
     export let dossier
+
+    let phase = dossier.évènementsPhase[0].phase
 
 </script>
 
@@ -31,7 +33,7 @@
     <section>
 
         <div>
-            <strong>Phase&nbsp;:&nbsp;</strong><TagPhase phase={dossier.phase}></TagPhase>
+            <strong>Phase&nbsp;:&nbsp;</strong><TagPhase {phase}></TagPhase>
         </div>
         
         <div>
