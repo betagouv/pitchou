@@ -16,8 +16,6 @@
 
     /** @type {string | undefined} */
     export let email = undefined
-
-    const {number_demarches_simplifiées: numdos} = dossier
     
     $: phaseActuelle = dossier.évènementsPhase[0].phase;
     
@@ -76,31 +74,6 @@
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
             <EnteteDossier {dossier}></EnteteDossier>
-
-            <nav class="dossier-nav fr-mb-4w">
-                <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm fr-mb-2w">
-                    <li> 
-                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
-                    </li>
-                </ul>
-                <ul class="fr-btns-group fr-btns-group--inline-lg">
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/description`}>Description du dossier</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/procedure`}>Procédure</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/messagerie`}>Messagerie</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/redaction-arrete-prefectoral`}>Rédaction arrêté préféctoral</a>
-                    </li>
-                </ul>
-            </nav>
 
             <article class="fr-p-3w fr-mb-4w">
                 <section>
