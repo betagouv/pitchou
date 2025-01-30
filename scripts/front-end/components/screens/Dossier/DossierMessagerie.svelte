@@ -21,10 +21,8 @@
 
 </script>
 
-
-
 <div class="fr-col">
-    <h2>Messagerie</h2>
+    <h2>Échanges avec le pétitionnaire</h2>
 
     <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>
         Répondre sur Démarches Simplifiées
