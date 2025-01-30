@@ -8,6 +8,8 @@
     /** @type {DossierComplet} */
     export let dossier
 
+    const {number_demarches_simplifiées: numdos} = dossier
+    
     let phase = dossier.évènementsPhase[0].phase
 
 </script>
@@ -80,8 +82,32 @@
         </div>
         -->
     </section>
-
 </header>
+
+<nav class="dossier-nav fr-mb-4w">
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm fr-mb-2w">
+        <li> 
+            <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+        </li>
+        <li>
+            <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+        </li>
+    </ul>
+    <ul class="fr-btns-group fr-btns-group--inline-lg">
+        <li>
+            <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/description`}>Description du dossier</a>
+        </li>
+        <li>
+            <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/procedure`}>Procédure</a>
+        </li>
+        <li>
+            <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/messagerie`}>Messagerie</a>
+        </li>
+        <li>
+            <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/redaction-arrete-prefectoral`}>Rédaction arrêté préféctoral</a>
+        </li>
+    </ul>
+</nav>
 
 <style lang="scss">
     header{
