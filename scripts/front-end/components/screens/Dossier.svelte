@@ -5,6 +5,7 @@
     //import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
     import EnteteDossier from './Dossier/EnteteDossier.svelte'
+    import DossierTabs from './Dossier/DossierTabs.svelte'
     
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
@@ -13,6 +14,8 @@
 
     /** @type {DossierComplet} */
     export let dossier
+
+    export let messages
 
     /** @type {string | undefined} */
     export let email = undefined
@@ -74,6 +77,7 @@
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
             <EnteteDossier {dossier}></EnteteDossier>
+            <DossierTabs {dossier} {messages}></DossierTabs>
 
             <article class="fr-p-3w fr-mb-4w">
                 <section>

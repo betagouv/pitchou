@@ -9,7 +9,7 @@
     export let dossier
 
     const {number_demarches_simplifiées: numdos} = dossier
-    
+
     let phase = dossier.évènementsPhase[0].phase
 
 </script>
@@ -84,6 +84,7 @@
     </section>
 </header>
 
+<!--
 <nav class="dossier-nav fr-mb-4w">
     <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm fr-mb-2w">
         <li> 
@@ -108,6 +109,7 @@
         </li>
     </ul>
 </nav>
+-->
 
 <style lang="scss">
     header{
