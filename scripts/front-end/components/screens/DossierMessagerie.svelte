@@ -2,7 +2,7 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
-    import EnteteDossier from './Dossier/EnteteDossier.svelte'
+    import EnteteDossier from '../Dossier/EnteteDossier.svelte'
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */

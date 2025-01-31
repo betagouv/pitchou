@@ -1,11 +1,11 @@
 <script>
     import DossierMessagerie from './DossierMessagerie.svelte'
+    import DossierInstruction from './DossierInstruction.svelte'
 
     export let dossier
     export let messages
 
 </script>
-
 
 <div class="fr-tabs">
     <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
@@ -31,7 +31,7 @@
         </li>
     </ul>
     <div id="tabpanel-instruction-panel" aria-labelledby="tabpanel-instruction" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" tabindex="0">
-       <p>Instruction</p>
+        <DossierInstruction {dossier}></DossierInstruction>
     </div>
     <div id="tabpanel-projet-panel" aria-labelledby="tabpanel-projet" class="fr-tabs__panel" role="tabpanel" tabindex="0">
         <p>Projet</p>
