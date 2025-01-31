@@ -10,6 +10,8 @@
     /** @type {DossierComplet} */
     export let dossier
 
+    const {number_demarches_simplifiées: numdos} = dossier
+
     $: phaseActuelle = dossier.évènementsPhase[0].phase;
     
     /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
@@ -65,67 +67,76 @@
 
 </script>
     
-<div class="fr-col">
-    <section class="fr-p-3w fr-mb-4w">
-        <h2>Procédure</h2>
-        <ol>
-        {#each dossier.évènementsPhase as {phase, horodatage}}
-            <li>
-                <TagPhase phase={phase}></TagPhase>
-                - 
-                <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
-            </li>    
-        {/each}
-            <li><strong>Dépôt dossier</strong> - <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
-        </ol>
-    </section>
-    <section class="fr-p-3w fr-mb-4w">
-        
-        <h2 class="fr-h5">Phase et prochaine action attendue</h2>
-        
-        <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
-            {#if messageErreur}
-                <div class="fr-alert fr-alert--error fr-mb-3w">
-                    <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
-                    <p>{messageErreur}</p>
-                </div>
-            {/if}
-            {#if afficherMessageSucces}
-            <div class="fr-alert fr-alert--success fr-mb-3w">
-                <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
-            </div>
-            {/if}
-            <div class="fr-input-group">
-                <label class="fr-label" for="phase">
-                    Phase du dossier
-                </label>
-        
-                <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
-                    {#each [...phases] as phase}
-                        <option value={phase}>{phase}</option>
-                    {/each}
-                </select>
-            </div>
-            <div class="fr-input-group">
-                <label class="fr-label" for="prochaine_action_attendue_par">
-                    Prochaine action attendue de&nbsp;:
-                </label>
-        
-                <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
-                    {#each [...prochaineActionAttenduePar] as acteur}
-                        <option value={acteur}>{acteur}</option>
-                    {/each}
-                </select>
-            </div>
-            <button class="fr-btn" type="submit">
-                Mettre à jour la phase ou de qui est attendu la prochaine action
-            </button>
-        </form>
+<h2>Procédure</h2>
 
-    </section>
-</div>
+<section>
+    <h3>Historique</h3>
+    <ol>
+    {#each dossier.évènementsPhase as {phase, horodatage}}
+        <li>
+            <TagPhase phase={phase}></TagPhase>
+            - 
+            <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
+        </li>    
+    {/each}
+        <li><strong>Dépôt dossier</strong> - <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
+    </ol>
+</section>
+
+<section>
+    <h3>Instruction</h3>
+    <h4>Phase et prochaine action attendue</h4>
+    
+    <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
+        {#if messageErreur}
+            <div class="fr-alert fr-alert--error fr-mb-3w">
+                <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
+                <p>{messageErreur}</p>
+            </div>
+        {/if}
+        {#if afficherMessageSucces}
+        <div class="fr-alert fr-alert--success fr-mb-3w">
+            <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
+        </div>
+        {/if}
+        <div class="fr-input-group">
+            <label class="fr-label" for="phase">
+                Phase du dossier
+            </label>
+    
+            <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
+                {#each [...phases] as phase}
+                    <option value={phase}>{phase}</option>
+                {/each}
+            </select>
+        </div>
+        <div class="fr-input-group">
+            <label class="fr-label" for="prochaine_action_attendue_par">
+                Prochaine action attendue de&nbsp;:
+            </label>
+    
+            <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
+                {#each [...prochaineActionAttenduePar] as acteur}
+                    <option value={acteur}>{acteur}</option>
+                {/each}
+            </select>
+        </div>
+        <button class="fr-btn" type="submit">
+            Mettre à jour la phase ou de qui est attendu la prochaine action
+        </button>
+    </form>
+
+    <h4>Autre</h4>
+    <a class="fr-btn fr-btn--secondary fr-mb-1w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+
+</section>
+
 
 <style lang="scss">
+    section{
+        margin-bottom: 2rem;
+    }
+
     ol{
         list-style: none;
         
