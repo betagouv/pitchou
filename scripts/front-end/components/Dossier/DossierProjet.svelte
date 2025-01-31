@@ -107,13 +107,7 @@
 
 
 <style lang="scss">
-    article {
-        background-color: var(--background-alt-grey);
-
-        pre{
-            white-space: pre-wrap;
-        }
+    pre{
+        white-space: pre-wrap;
     }
-
-
 </style>
