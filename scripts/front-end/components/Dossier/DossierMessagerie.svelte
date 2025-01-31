@@ -1,10 +1,10 @@
 <script>
     //@ts-check
 
-    import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
+    import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
 
-    /** @import {DossierComplet} from '../../../../types/API_Pitchou.ts' */
-    /** @import {default as Message} from '../../../../types/database/public/Message.ts' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
+    /** @import {default as Message} from '../../../types/database/public/Message.ts' */
 
     /** @type {DossierComplet} */
     export let dossier

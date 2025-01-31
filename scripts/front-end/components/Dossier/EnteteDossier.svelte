@@ -1,9 +1,9 @@
 <script>
-    /** @import {DossierComplet} from '../../../../types/API_Pitchou' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou' */
 
-    import {formatLocalisation, formatDéposant} from '../../../affichageDossier.js'
-    import {afficherString} from '../../../affichageValeurs.js'
-    import TagPhase from '../../TagPhase.svelte'
+    import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
+    import {afficherString} from '../../affichageValeurs.js'
+    import TagPhase from '../TagPhase.svelte'
 
     /** @type {DossierComplet} */
     export let dossier

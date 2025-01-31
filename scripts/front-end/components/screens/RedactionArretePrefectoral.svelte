@@ -4,7 +4,7 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     import Loader from '../Loader.svelte'
-    import EnteteDossier from './Dossier/EnteteDossier.svelte'
+    import EnteteDossier from '../Dossier/EnteteDossier.svelte'
     
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
 

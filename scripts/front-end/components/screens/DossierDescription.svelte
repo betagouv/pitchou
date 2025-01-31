@@ -2,7 +2,7 @@
     //@ts-check
     import DownloadButton from '../DownloadButton.svelte';
     import Squelette from '../Squelette.svelte'
-    import EnteteDossier from './Dossier/EnteteDossier.svelte'
+    import EnteteDossier from '../Dossier/EnteteDossier.svelte'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
