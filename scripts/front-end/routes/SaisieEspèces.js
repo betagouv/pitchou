@@ -11,7 +11,7 @@ import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
-import {chargerActivitésMéthodesTransports, chargerListeEspècesProtégées} from '../actions/main.js'
+import {chargerActivitésMéthodesTransports, chargerListeEspècesProtégées} from '../actions/dossier.js'
 
 /** @import {ComponentProps} from 'svelte' */
 

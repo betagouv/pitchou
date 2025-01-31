@@ -7,7 +7,7 @@ import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
-import {getDossierComplet} from '../actions/dossier.js'
+import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
 
 
 /** @import {PitchouState} from '../store.js' */
@@ -24,8 +24,13 @@ export default async ({params: {dossierId}}) => {
     const id = Number(dossierId)
     const { state } = store
     
-    const dossier = await getDossierComplet(id)
-        
+    // en attente de https://github.com/betagouv/pitchou/issues/154
+    const messagesP = chargerMessagesDossier(id)
+    const dossierP = getDossierComplet(id)
+
+    const [dossier] = await Promise.all([dossierP, messagesP])
+
+
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
         
@@ -39,9 +44,12 @@ export default async ({params: {dossierId}}) => {
 
         if(!dossier) throw new TypeError(`Dossier avec id '${id}' manquant dans le store`)
 
+        const messages = state.messagesParDossierId.get(id)
+
         return {
             ...mapStateToSqueletteProps(state),
-            dossier
+            dossier,
+            messages
         }
     }
     
