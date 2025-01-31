@@ -135,17 +135,22 @@
 <style lang="scss">
     section{
         margin-bottom: 2rem;
+
+        h3{
+            margin-bottom: 1rem;
+        }
     }
 
     ol{
         list-style: none;
+        margin-top: 0;
+        padding-left: 0;
         
         li{
-
             &:first-child{
                 font-size: 1.5em;
                 font-weight: bold;
-                padding: 0.7em 0;
+                padding: 0.5em 0;
             }
 
             &::marker{

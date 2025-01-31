@@ -27,29 +27,7 @@ export default async ({params: {dossierId}}) => {
     const id = Number(dossierId)
     const { state } = store
     
-    const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransports()
 
-    const dossier = await getDossierComplet(id)
-    
-    // TODO: expliquer que le dossier n'existe pas ?
-    if (!dossier) return page('/')
-
-    const {espèceByCD_REF} = await espècesProtégées
-    const { activités, méthodes, transports } = await actMétTrans
-
-    /** @type {Promise<DescriptionMenacesEspèces | undefined>} */
-    let espècesImpactées = Promise.resolve(undefined)
-
-    if(dossier.espècesImpactées && dossier.espècesImpactées.contenu){
-        espècesImpactées = importDescriptionMenacesEspècesFromOdsArrayBuffer(
-            dossier.espècesImpactées.contenu,
-            espèceByCD_REF,
-            activités,
-            méthodes,
-            transports
-        )
-    }
 
     /**
      * 
