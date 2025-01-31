@@ -1,6 +1,7 @@
 <script>
     import DossierMessagerie from './DossierMessagerie.svelte'
     import DossierInstruction from './DossierInstruction.svelte'
+    import DossierProjet from './DossierProjet.svelte'
 
     export let dossier
     export let messages
@@ -34,7 +35,7 @@
         <DossierInstruction {dossier}></DossierInstruction>
     </div>
     <div id="tabpanel-projet-panel" aria-labelledby="tabpanel-projet" class="fr-tabs__panel" role="tabpanel" tabindex="0">
-        <p>Projet</p>
+        <DossierProjet {dossier}></DossierProjet>
     </div>
     <div id="tabpanel-échanges-panel" aria-labelledby="tabpanel-échanges" class="fr-tabs__panel" role="tabpanel" tabindex="0">
         <DossierMessagerie {dossier} {messages}></DossierMessagerie>

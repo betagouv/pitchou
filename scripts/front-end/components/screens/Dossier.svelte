@@ -2,12 +2,10 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
-    //import TagPhase from '../TagPhase.svelte'
     import EnteteDossier from '../Dossier/EnteteDossier.svelte'
     import DossierTabs from '../Dossier/DossierTabs.svelte'
-    
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.ts' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
@@ -20,7 +18,7 @@
 </script>
 
 <Squelette {email}>
-    <div class="fr-grid-row fr-mt-4w">
+    <div class="fr-grid-row fr-mt-2w">
         <div class="fr-col">
             <EnteteDossier {dossier}></EnteteDossier>
             <DossierTabs {dossier} {messages}></DossierTabs>
