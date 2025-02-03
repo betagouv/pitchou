@@ -7,6 +7,7 @@
     import DossierMessagerie from '../Dossier/DossierMessagerie.svelte'
     import DossierInstruction from '../Dossier/DossierInstruction.svelte'
     import DossierProjet from '../Dossier/DossierProjet.svelte'
+    import DossierAvis from '../Dossier/DossierAvis.svelte'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
@@ -58,7 +59,7 @@
                     <DossierMessagerie {dossier} {messages}></DossierMessagerie>
                 </div>
                 <div id="tabpanel-avis-panel" aria-labelledby="tabpanel-avis" class="fr-tabs__panel" role="tabpanel" tabindex="0">
-                    <p>Avis</p>
+                    <DossierAvis {dossier}></DossierAvis>
                 </div>
             </div>
         </div>
