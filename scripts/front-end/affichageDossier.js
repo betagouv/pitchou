@@ -12,6 +12,11 @@ import { fr } from 'date-fns/locale'
  * @returns {string} 
  */
 export function formatLocalisation({communes, départements, régions}){
+    // Nettoyage du cas où un dossier a dit qu'il était sur plusieurs communes, mais n'a pas saisi les communes
+    if(Array.isArray(communes) && communes.length === 0){
+        communes = undefined
+    }
+
     // Régions
     if(!communes && !départements && régions){
         return `Régions: ${régions.join(', ')}`
