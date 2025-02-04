@@ -9,7 +9,7 @@ import fastifyCompress from '@fastify/compress'
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierMessages, getDossiersByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -85,11 +85,12 @@ fastify.register(fastatic, {
  * @param {any} reply 
  */
 function sendIndexHTMLFile(_request, reply){
+  console.log('sendIndexHTMLFile')
   reply.sendFile('index.html')
 }
 
 fastify.get('/saisie-especes', sendIndexHTMLFile)
-fastify.get('/dossier/:dossierId', sendIndexHTMLFile)
+// fastify.get('/dossier/:dossierId', sendIndexHTMLFile) géré plus bas avec une route dédiée qui peut retourner aussi du JSON
 fastify.get('/dossier/:dossierId/description', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/procedure', sendIndexHTMLFile)
 fastify.get('/dossier/:dossierId/messagerie', sendIndexHTMLFile)
@@ -160,6 +161,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.listerDossiers){
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`
   }
+  if(capBundle.recupérerDossierComplet){
+    ret.recupérerDossierComplet = `/dossier/:dossierId?cap=${capBundle.recupérerDossierComplet}`
+  }
   if(capBundle.listerRelationSuivi){
     ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
   }
@@ -172,8 +176,8 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.modifierDossier){
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`
   }
-  if(capBundle.écritureAnnotationCap){
-    ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.écritureAnnotationCap}`
+  if(capBundle.remplirAnnotations){
+    ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`
   }
   if(capBundle.identité){
     ret.identité = capBundle.identité
@@ -193,9 +197,9 @@ fastify.get('/dossiers', async function (request, reply) {
   const cap = request.query.cap
   if (cap) {
     /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
-    const donnéesDossiers = await getDossiersByCap(cap)
-    if (donnéesDossiers && donnéesDossiers.dossiers && donnéesDossiers.dossiers.length >= 1) {
-      return donnéesDossiers
+    const dossiers = await getDossiersRésumésByCap(cap)
+    if (dossiers && dossiers.length >= 1) {
+      return dossiers
     } else {
       reply.code(403).send("Code d'accès non valide.")
     }
@@ -203,6 +207,58 @@ fastify.get('/dossiers', async function (request, reply) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
   }
 })
+
+// Cette fonction ne peut pas être async parce que ça donne l'impression à fastify
+// qu'elle répond 2 fois
+fastify.get('/dossier/:dossierId', function(request, reply) {
+  // console.log(`fastify.get('/dossier/:dossierId'`)
+  const accept = request.headers.accept
+
+  if(accept !== 'application/json'){
+    sendIndexHTMLFile(request, reply)
+  }
+  else{
+    // accept === 'application/json'
+    // @ts-ignore
+    const { cap } = request.query
+
+    if(!cap){
+      reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+      return 
+    }
+    
+    //@ts-ignore
+    if(!request.params.dossierId){
+      reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
+      return 
+    }
+
+    /** @type {DossierComplet['id']} */
+    //@ts-ignore
+    const dossierId = Number(request.params.dossierId)
+
+    /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']> | Promise<undefined>} */
+    // @ts-ignore
+    const dossierP = getDossierComplet(dossierId, cap)
+
+    return dossierP.then(dossier =>{
+      if(!dossier){
+        reply.code(403).send(`Aucun dossier trouvé avec id '${dossierId}'`)
+      }
+      else{
+        if(dossier.espècesImpactées && dossier.espècesImpactées.contenu){
+          // change le Buffer en string base64 avant le transfert en JSON
+          // @ts-ignore
+          dossier.espècesImpactées.contenu = dossier.espècesImpactées.contenu.toString('base64')
+        }
+        
+        return dossier
+      }
+    })
+  }
+
+})
+
 
 fastify.post('/dossier/:dossierId', async function(request, reply) {
   // @ts-ignore
@@ -219,20 +275,21 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
     return 
   }
 
+  /** @type {DossierComplet['id']} */
   //@ts-ignore
   const dossierId = Number(request.params.dossierId)
 
   // @ts-ignore
-  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+  const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap)
 
-  if(accessibleDossierId !== dossierId){
+  if(!accessibleDossierId.has(dossierId)){
     reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
     return 
   }
 
   const capPersonne = await getPersonneByDossierCap(cap)
 
-  /** @type {Partial<DossierComplet> & {phase: string}} */
+  /** @type {Partial<DossierComplet>} */
   // @ts-ignore
   const dossierParams = request.body
 
@@ -281,13 +338,14 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
     return 
   }
 
+  /** @type {DossierComplet['id']} */
   //@ts-ignore
   const dossierId = Number(request.params.dossierId)
 
-  //@ts-ignore
-  const [accessibleDossierId] = await dossiersAccessibleViaCap(dossierId, cap)
+  // @ts-ignore
+  const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap)
 
-  if(accessibleDossierId !== dossierId){
+  if(!accessibleDossierId.has(dossierId)){
     reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
     return 
   }
@@ -420,3 +478,5 @@ async function shutdown(signal){
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
+
+

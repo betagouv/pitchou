@@ -7,14 +7,12 @@ import page from 'page'
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
-import { isDossierArray } from '../../types/typeguards.js';
+import { isDossierRésuméArray } from '../../types/typeguards.js';
 import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../../types/especes.d.ts' */
-/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
-/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
@@ -39,50 +37,26 @@ export function chargerDossiers(){
 
     if(store.state.capabilities?.listerDossiers){
         return store.state.capabilities?.listerDossiers()
-            .then(({dossiers, évènementsPhaseDossier}) => {
-                if (!isDossierArray(dossiers)) {
+            .then((dossiers) => {
+                if (!isDossierRésuméArray(dossiers)) {
                     throw new TypeError("On attendait un tableau de dossiers ici !")
                 }
 
                 /* Formatter les dossiers */
                 for(const dossier of dossiers){
                     dossier.date_dépôt = new Date(dossier.date_dépôt)
+                    dossier.date_début_phase = new Date(dossier.date_début_phase)
                 }
 
-
-                /** @type {PitchouState['dossiers']} */
+                /** @type {PitchouState['dossiersRésumés']} */
                 const dossiersById = new Map()
 
                 for(const dossier of dossiers){
-                    /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
-                    //@ts-ignore
-                    const dossierAvecEvènementsPhase = dossier
-                    dossierAvecEvènementsPhase.évènementsPhase = []
-
-                    dossiersById.set(dossierAvecEvènementsPhase.id, dossierAvecEvènementsPhase)
-                }
-                
-                for(const évènementPhaseDossier of évènementsPhaseDossier){
-                    const dossierId = évènementPhaseDossier.dossier
-                    const dossier = dossiersById.get(dossierId)
-
-                    if(!dossier){
-                        throw new Error(`Dossier avec id ${dossierId} manquant`)
-                    }
-
-                    évènementPhaseDossier.horodatage = new Date(évènementPhaseDossier.horodatage)
-
-                    dossier.évènementsPhase.push(évènementPhaseDossier)
+                    Object.freeze(dossier)
+                    dossiersById.set(dossier.id, dossier)
                 }
 
-                for(const dossier of dossiersById.values()){
-                    if(dossier.évènementsPhase.length >= 2){
-                        // Trier les évènements pour mettre les plus récents en premier (le plus récent étant dans [0])
-                        dossier.évènementsPhase.sort((ev1, ev2) => ev2.horodatage.getTime() - ev1.horodatage.getTime())
-                    }                    
-                }
-
-                store.mutations.setDossiers(dossiersById)
+                store.mutations.setDossiersRésumés(dossiersById)
 
                 return dossiersById
             })
@@ -282,8 +256,14 @@ export async function secretFromURL(){
 }
 
 export async function logout(){
-    store.mutations.setCapabilities(undefined)
-    store.mutations.setDossiers(new Map())
+    store.mutations.setCapabilities({})
+    store.mutations.setIdentité(undefined)
+
+    store.mutations.setDossiersRésumés(new Map())
+    store.mutations.setDossiersComplets(new Map())
+    store.mutations.resetMessages()
+    store.mutations.setRelationSuivis(new Map())
+
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }
 

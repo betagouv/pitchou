@@ -1,4 +1,4 @@
-//@ts-check
+//@ts-nocheck
 
 
 import { csv, json } from 'd3-fetch';

@@ -1,5 +1,5 @@
-/** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.js' */
-/** @import {default as ÉvènementPhaseDossier} from '../types/database/public/ÉvènementPhaseDossier.ts' */
+/** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.js' */
+/** @import {DossierRésumé} from '../types/API_Pitchou.js' */
 
 import {formatLocalisation, formatDéposant} from './affichageDossier.js'
 
@@ -7,9 +7,9 @@ import {getDébutPhaseActuelle} from './getDébutPhaseActuelle.js'
 
 /**
  * 
- * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
- * @param {keyof DossierComplet | "localisation" | "déposant"} nomColonne 
- * @returns {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]}
+ * @param {DossierRésumé[]} dossiers 
+ * @param {keyof DossierRésumé | "localisation" | "déposant"} nomColonne 
+ * @returns {DossierRésumé[]}
  */
 export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) => {
     return dossiers.toSorted((a, b) => {
@@ -92,13 +92,13 @@ function compareProchaineActionAttenduePar(prochaineActionAttenduePar1, prochain
 
 /**
  * 
- * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
- * @returns {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]}
+ * @param {DossierRésumé[]} dossiers 
+ * @returns {DossierRésumé[]}
  */
 export function trierDossiersParPhaseProchaineAction(dossiers){
     return dossiers.toSorted((dossier1, dossier2) => {
-        const phase1 = dossier1.évènementsPhase[0].phase
-        const phase2 = dossier2.évènementsPhase[0].phase
+        const phase1 = dossier1.phase
+        const phase2 = dossier2.phase
 
         // @ts-ignore
         const phaseComparison = comparePhase(phase1, phase2)

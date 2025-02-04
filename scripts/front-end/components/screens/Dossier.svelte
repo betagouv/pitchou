@@ -8,11 +8,9 @@
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.d.ts' */
-    //@ts-ignore
-    /** @import ÉvènementPhaseDossier from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
+    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.ts' */
 
-    /** @type {DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}} */
+    /** @type {DossierComplet} */
     export let dossier
 
     /** @type {string | undefined} */
@@ -20,14 +18,17 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
     
-    $: phase = dossier.évènementsPhase[0].phase;
+    $: phaseActuelle = dossier.évènementsPhase[0].phase;
     
-    /** @type {Partial<DossierComplet> & {phase: DossierPhase}} */
+    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
     let dossierParams = {
-        phase: dossier.évènementsPhase[0].phase,
-        // @ts-ignore
+        phase: phaseActuelle,
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
     }
+
+    $: dossierParams.phase = phaseActuelle
+
+
     let messageErreur = "" 
     let afficherMessageSucces = false
 
@@ -38,7 +39,25 @@
     const mettreAJourDossier = (e) => {
         e.preventDefault()
 
-        modifierDossier(dossier.id, dossierParams)
+        /** @type {Partial<DossierComplet>} */
+        const modifs = {}
+
+        if(phaseActuelle !== dossierParams.phase){
+            modifs.évènementsPhase = [
+                {
+                    dossier: dossier.id,
+                    horodatage: new Date(),
+                    phase: dossierParams.phase,
+                    cause_personne: null
+                }
+            ]
+        }
+        
+        if(dossier.prochaine_action_attendue_par !== dossierParams.prochaine_action_attendue_par){
+            modifs.prochaine_action_attendue_par = dossierParams.prochaine_action_attendue_par
+        }
+
+        modifierDossier(dossier, modifs)
             .then(() => afficherMessageSucces = true)
             .catch((error) => {
                 console.info(error)
@@ -56,8 +75,8 @@
     <div class="fr-grid-row fr-mt-4w">
         <div class="fr-col">
             <h1 class="fr-mb-4w">
-                Dossier {dossier.nom_dossier || "sans nom"}
-                <TagPhase {phase}></TagPhase>
+                Dossier {dossier.nom || "sans nom"}
+                <TagPhase phase={phaseActuelle}></TagPhase>
             </h1>
 
             <nav class="dossier-nav fr-mb-4w">

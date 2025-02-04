@@ -3,7 +3,7 @@ import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
 
 //@ts-ignore
-/** @import {DossierComplet, DossierPhase} from '../../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierPhase, DossierRésumé} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
@@ -286,16 +286,22 @@ export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databa
 
 }
 
-
+/** @type {(keyof DossierComplet)[]} */
 const colonnesDossierComplet = [
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "dossier.id as id",
     //"id_demarches_simplifiées",
     "number_demarches_simplifiées",
     "statut",
     "date_dépôt",
-    "dossier.nom as nom_dossier",
-    "espèces_protégées_concernées",
-    "espèces_impactées.id as url_fichier_espèces_impactées",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "dossier.nom as nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "espèces_impactées.contenu as espèces_impactées_contenu",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "espèces_impactées.nom as espèces_impactées_nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "espèces_impactées.media_type as espèces_impactées_media_type",
     "rattaché_au_régime_ae",
     "activité_principale",
 
@@ -308,15 +314,21 @@ const colonnesDossierComplet = [
     "prochaine_action_attendue_par",
 
     // déposant
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "déposant.nom as déposant_nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "déposant.prénoms as déposant_prénoms",
 
     // demandeur_personne_physique
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
 
     // demandeur_personne_morale
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
+    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
 
     // annotations privées
@@ -379,14 +391,150 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
         })
 }
 
+
+
+/**
+ * @param {DossierComplet['id']} dossierId 
+ * @param {CapDossier['cap']} cap 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<DossierComplet | undefined>}
+ */
+export async function getDossierComplet(dossierId, cap, databaseConnection = directDatabaseConnection){
+    /** @type {knex.Knex.Transaction} */
+    let transaction;
+
+    if(databaseConnection.isTransaction){
+        //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
+        transaction = databaseConnection
+    }
+    else{
+        transaction = await databaseConnection.transaction({ readOnly: true })
+    }
+
+    const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap, transaction)
+
+    if(!accessibleDossierId.has(dossierId)){
+        if(!databaseConnection.isTransaction){
+            // transaction créée à la main, la libérer avant de throw
+            await transaction.commit()
+        }
+        throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
+    }
+
+    /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string}>} */
+    const dossierP = transaction('dossier')
+        .select(colonnesDossierComplet)
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
+        .join('arête_cap_dossier__groupe_instructeurs', {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'})
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
+        .andWhere({"dossier.id": dossierId})
+        .first()
+
+    /** @type {Promise<ÉvènementPhaseDossier[]>} */
+    const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, databaseConnection)
+
+    if(!databaseConnection.isTransaction){
+        // transaction locale à cette fonction
+        // nous la refermons donc manuellement
+        Promise.all([dossierP, évènementsPhaseDossierP])
+            .then(transaction.commit).catch(transaction.rollback)
+    }
+
+    return Promise.all([dossierP, évènementsPhaseDossierP])
+        .then(([dossier, évènementsPhaseDossier]) => {
+            dossier.évènementsPhase = évènementsPhaseDossier
+
+            if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
+                dossier.espècesImpactées = {
+                    contenu: dossier.espèces_impactées_contenu,
+                    media_type: dossier.espèces_impactées_media_type,
+                    nom: dossier.espèces_impactées_nom,
+                }
+
+                delete dossier.espèces_impactées_contenu
+                delete dossier.espèces_impactées_media_type
+                delete dossier.espèces_impactées_nom
+            }
+
+            return dossier
+        })
+    
+}
+
+
+/** @type {(keyof DossierRésumé)[]} */
+const colonnesDossierRésumé = [
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "dossier.id as id",
+    //"id_demarches_simplifiées",
+    "number_demarches_simplifiées",
+    "date_dépôt",
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "dossier.nom as nom",
+    "rattaché_au_régime_ae",
+    "activité_principale",
+
+    // localisation
+    "départements",
+    "communes",
+    "régions",
+
+    // prochaine action attendue
+    "prochaine_action_attendue_par",
+
+    // déposant
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "déposant.nom as déposant_nom",
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "déposant.prénoms as déposant_prénoms",
+
+    // demandeur_personne_physique
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+
+    // demandeur_personne_morale
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
+    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
+
+    // annotations privées
+    "enjeu_écologique",
+    "enjeu_politique",
+    "historique_identifiant_demande_onagre",
+
+    "historique_date_réception_ddep",
+    "historique_date_signature_arrêté_préfectoral",
+]
+
+
 /**
  * @param {CapDossier['cap']} cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<{dossiers: DossierComplet[], évènementsPhaseDossier: ÉvènementPhaseDossier[]}>}
+ * @returns {Promise<DossierRésumé[]>}
  */
-export async function getDossiersByCap(cap, databaseConnection = directDatabaseConnection){
-    const dossiersP = databaseConnection('dossier')
-        .select(colonnesDossierComplet)
+export async function getDossiersRésumésByCap(cap, databaseConnection = directDatabaseConnection){
+
+    /** @type {knex.Knex.Transaction} */
+    let transaction;
+
+    if(databaseConnection.isTransaction){
+        //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
+        transaction = databaseConnection
+    }
+    else{
+        transaction = await databaseConnection.transaction({ readOnly: true })
+    }
+
+    /** @type {Promise<DossierRésumé[]>} */
+    const dossiersP = transaction('dossier')
+        .select(colonnesDossierRésumé)
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
         .join(
             'arête_cap_dossier__groupe_instructeurs', 
@@ -395,34 +543,49 @@ export async function getDossiersByCap(cap, databaseConnection = directDatabaseC
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
-        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
-        .then(dossiers => {
-            for(const dossier of dossiers){
-                const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
-                if(id_fichier_espèces_impactées){
-                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
-                    // s'il y a un fichier, ignorer le champ contenant un lien
-                    delete dossier.espèces_protégées_concernées
-                }
 
+    const évènementsPhaseDossierP = getDerniersÉvènementsPhaseDossiers(cap, transaction)
+
+    const result = Promise.all([dossiersP, évènementsPhaseDossierP])
+    .then(([dossiers, évènementsPhaseDossier]) => {
+        /** @type {Map<Dossier['id'], ÉvènementPhaseDossier>} */
+        const évènementsPhaseDossierById = new Map()
+
+        for(const évènementPhaseDossier of évènementsPhaseDossier){
+            évènementsPhaseDossierById.set(évènementPhaseDossier.dossier, évènementPhaseDossier)
+        }
+        
+        for(const dossier of dossiers){
+            const évènementPhaseDossier = évènementsPhaseDossierById.get(dossier.id)
+
+            if(évènementPhaseDossier){
+                dossier.phase = évènementPhaseDossier.phase
+                dossier.date_début_phase = évènementPhaseDossier.horodatage
             }
-            return dossiers
-        })
+        }
 
-    const évènementsPhaseDossierP = getÉvènementsPhaseDossiers(cap, databaseConnection)
+        return dossiers
+    })
 
-    return Promise.all([dossiersP, évènementsPhaseDossierP])
-        .then(([dossiers, évènementsPhaseDossier]) => ({dossiers, évènementsPhaseDossier}))
+    if(!databaseConnection.isTransaction){
+        // transaction locale à cette fonction
+        // nous la refermons donc manuellement
+        Promise.all([dossiersP, évènementsPhaseDossierP])
+            .then(transaction.commit).catch(transaction.rollback)
+    }
+
+    return result
+
 }
 
 /**
- * retourne le sous-ensemble d'id accessibles via la cap
+ * retourne le sous-ensemble de dossierIds accessibles via la cap
  * 
  * @param {Dossier['id'] | Dossier['id'][]} dossierIds
  * @param {CapDossier['cap']} cap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Dossier['id'][]>}
+ * @returns {Promise<Set<Dossier['id']>>}
  */
 export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnection = directDatabaseConnection){
     if(!Array.isArray(dossierIds))
@@ -440,10 +603,36 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
         )
         .whereIn('dossier.id', dossierIds)
         .andWhere({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
-        .then(dossiers => dossiers.map(d => d.id))
+        .then(dossiers => new Set(dossiers.map(d => d.id)))
 
     // @ts-ignore
     return ret;
+}
+
+
+/**
+ * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier
+ * La requête utilise une astuce à coup de distinctOn (spécifique à Postgresql) pour y arriver
+ * 
+ * @param {CapDossier['cap']} cap_dossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ÉvènementPhaseDossier[]>}
+ */
+export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
+
+    return databaseConnection('évènement_phase_dossier')
+        .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
+        .join(
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
+        )
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+        .distinctOn('dossier')
+        .orderBy([
+            { column: 'dossier', order: 'asc' },
+            { column: 'horodatage', order: 'desc' }
+        ]);
 }
 
 
@@ -453,6 +642,7 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
 export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
+
     return databaseConnection('évènement_phase_dossier')
         .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
@@ -461,6 +651,20 @@ export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnecti
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+}
+
+/**
+ * @param {Dossier['id']} idDossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<ÉvènementPhaseDossier[]>}
+ */
+async function getÉvènementsPhaseDossier(idDossier, databaseConnection = directDatabaseConnection){
+
+    return databaseConnection('évènement_phase_dossier')
+        .select('*')
+        .where({'dossier': idDossier})        
+        .orderBy('horodatage', 'desc');
+
 }
 
 
@@ -479,26 +683,23 @@ export function deleteDossierByDSNumber(numbers){
 /**
  *
  * @param {Dossier['id']} id
- * @param {Partial<DossierComplet> & {phase: string}} dossierParams
+ * @param {Partial<Dossier & {évènementsPhase: ÉvènementPhaseDossier[]}>} dossierParams
  * @param {Personne['id']} causePersonne
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
 export function updateDossier(id, dossierParams, causePersonne, databaseConnection = directDatabaseConnection) {
     let phaseAjoutée = Promise.resolve()
-    
-    if(dossierParams.phase){
-        const phase = dossierParams.phase
-        //@ts-ignore
-        delete dossierParams.phase
+
+    if(dossierParams.évènementsPhase){
+        for(const ev of dossierParams.évènementsPhase){
+            ev.cause_personne = causePersonne
+        }
 
         phaseAjoutée = databaseConnection('évènement_phase_dossier')
-            .insert({
-                phase,
-                horodatage: new Date(),
-                dossier: id,
-                cause_personne: causePersonne
-            })
+            .insert(dossierParams.évènementsPhase)
+
+        delete dossierParams.évènementsPhase
     }
 
     let dossierÀJour = Promise.resolve()

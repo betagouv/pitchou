@@ -1,35 +1,40 @@
 <script>
+    /*
+        Notes pour la prochaine itération
+
+        Résoudre les issues suivantes si ça n'a pas encore été fait :
+        - https://github.com/betagouv/pitchou/issues/157
+        - https://github.com/betagouv/pitchou/issues/158
+
+    */
+
+
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.d.ts' */    
-    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
+    /** @import {DossierRésumé} from '../../../types/API_Pitchou.ts' */ 
 
-
-    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
+    /** @type {DossierRésumé[]} */
     export let dossiers = []
 
 
     /** @type {string | undefined} */
-    export let email
+    export let email = undefined
 
     /**
      * 
-     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersEnContrôle(dossiers){
-        return dossiers.filter(dossier => {
-            const phase = dossier.évènementsPhase[0].phase
-            return phase === 'Contrôle'
-        })
+        return dossiers.filter(dossier => dossier.phase === 'Contrôle')
     }
 
     $: dossierEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
 
     /**
      * 
-     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersAvecAPPrisEn2024(dossiers){
         return dossiers.filter(d => {
@@ -46,20 +51,17 @@
 
     /**
      * 
-     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersEnAccompagnement(dossiers){
-        return dossiers.filter(dossier => {
-            const phase = dossier.évènementsPhase[0].phase
-            return phase === 'Accompagnement amont'
-        })
+        return dossiers.filter(dossier => dossier.phase === 'Accompagnement amont')
     }
 
     $: dossiersEnAccompagnement = trouverDossiersEnAccompagnement(dossiers)
     
     /**
      * 
-     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersDeMoinsDe3Ans(dossiers){
         return dossiers.filter(d => {
@@ -73,12 +75,10 @@
 
     /**
      * 
-     * @param {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} dossiers 
+     * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersNonScientifiques(dossiers){
-        return dossiers.filter(d => {
-            return d.activité_principale !== 'Demande à caractère scientifique'
-        })
+        return dossiers.filter(d => d.activité_principale !== 'Demande à caractère scientifique')
     }
 
     $: dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans = trouverDossiersNonScientifiques(dossiersEnAccompagnementDeMoinsDe3Ans)

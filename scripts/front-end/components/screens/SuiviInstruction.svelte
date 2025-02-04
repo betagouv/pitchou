@@ -14,13 +14,12 @@
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
 
     /** @import {ComponentProps} from 'svelte' */
-    /** @import {DossierComplet, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.js' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
+    /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
-    /** @import {default as ÉvènementPhaseDossier} from '../../../types/database/public/ÉvènementPhaseDossier.ts' */
 
-    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
+    /** @type {DossierRésumé[]} */
     export let dossiers = []
 
     /** @type {PitchouState['relationSuivis']} */
@@ -48,14 +47,14 @@
         return dossierIdsSansSuivi
     })()
 
-    /** @type {(DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]})[]} */
+    /** @type {DossierRésumé[]} */
     $: dossiersSelectionnés = []
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     /** @type {{nom: string, tri: function}|undefined} */
     let triSélectionné = undefined
 
-    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierComplet & {évènementsPhase: ÉvènementPhaseDossier[]}) => boolean>}*/
+    /** @type {Map<'département' | 'commune' | 'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new Map()
 
     function filtrerDossiers(){
@@ -100,8 +99,7 @@
     }
 
     tousLesFiltres.set('phase', dossier => {
-        //@ts-expect-error dossier.évènementsPhase[0].phase est de type DossierPhase (enfin, on l'espère...)
-        return phasesSélectionnées.has(dossier.évènementsPhase[0].phase)
+        return phasesSélectionnées.has(dossier.phase)
     })
 
 
@@ -256,8 +254,8 @@
     ])
 
     const trisNomProjet = new Set([
-        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier") },
-        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom_dossier").reverse() },
+        { nom: "Trier de A à Z", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom") },
+        { nom: "Trier de Z à A", tri: () => dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "nom").reverse() },
     ])
 
     const trisLocalisation = new Set([
@@ -408,18 +406,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {#each dossiersSelectionnés as { id, nom_dossier, déposant_nom,
+                            {#each dossiersSelectionnés as { id, nom, déposant_nom,
                             déposant_prénoms, communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique,
-                            évènementsPhase, prochaine_action_attendue_par }, i}
-                                {@const phase = /** @type {DossierPhase} */ (évènementsPhase[0].phase)}
+                            phase, prochaine_action_attendue_par }, i}
                                 <tr>
                                     <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
                                     <td>{activité_principale || ''}</td>
                                     <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
-                                    <td>{nom_dossier || ''}</td>
+                                    <td>{nom || ''}</td>
                                     <td>
                                         {#if enjeu_politique}
                                             <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
