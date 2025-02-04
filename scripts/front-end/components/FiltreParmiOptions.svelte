@@ -35,18 +35,12 @@
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
-    function selectionnerTout(e){
+    function selectionnerTout(){
         optionsSélectionnées = new Set(options)
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
-    function selectionnerRien(e){
+    function selectionnerRien(){
         optionsSélectionnées = new Set()
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
