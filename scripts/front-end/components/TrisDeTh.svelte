@@ -2,21 +2,23 @@
     // @ts-check
     import clsx from 'clsx';
 
-    /** @type {Set<{nom: string, tri: function}>} */
+    /** @import  { TriTableauSuiviDDEP } from '../../types/interfaceUtilisateur.ts' */
+
+    /** @type {TriTableauSuiviDDEP[]} */
     export let tris
 
-    /** @type {{nom: string, tri: function}|undefined} */
+    /** @type {TriTableauSuiviDDEP | undefined} */
     export let triSélectionné = undefined
 
-    /** @type {(tri: {nom: string, tri: function}) => void} */
+    /** @type {(tri: TriTableauSuiviDDEP) => void} */
     const sélectionnerTri = (tri) => { 
         triSélectionné = tri
-        tri["tri"]()
+        tri.trier()
     }
 </script>
 
 <ul class="fr-mt-1w">
-    {#each [...tris] as tri}
+    {#each tris as tri}
         <li class="fr-mb-1v">
             <button 
                 class={clsx(['fr-pt-1v', 'fr-pb-1v', {"sélectionné": triSélectionné === tri}])} 

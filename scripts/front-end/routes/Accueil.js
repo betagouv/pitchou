@@ -1,5 +1,7 @@
 //@ts-check
 
+import remember from 'remember';
+
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
@@ -11,11 +13,64 @@ import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
 import showLoginByEmail from './montrerPageDAccueil.js';
 
+
+/** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
 /** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {ComponentProps} from 'svelte' */
+/** @import {FiltresLocalStorage, TriTableauSuiviDDEP} from '../../types/interfaceUtilisateur.ts' */
 
+const TRI_FILTRE_CLEF_LOCALSTORAGE = 'tri-filtres-tableau-suivi'
+
+const trisFiltresSélectionnés = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE)
+
+/**
+ * 
+ * @param {PitchouState} state 
+ * @returns {ComponentProps<SuiviInstruction>}
+ */
+function mapStateToPropsSuiviInstruction(state){
+    if(!state.schemaDS88444){
+        throw new TypeError('Schema 88444 manquant dans le store')
+    }
+
+    /** @type {ChampDescriptor[]} */
+    const schemaChamps = state.schemaDS88444.revision.champDescriptors
+
+    const activitésPrincipalesChamp = schemaChamps.find(champDescriptor => champDescriptor.label === "Activité principale")
+
+    const dossiersById = state.dossiersRésumés
+
+    // @ts-ignore
+    return {
+        ...mapStateToSqueletteProps(state),
+        dossiers: [...dossiersById.values()],
+        relationSuivis: state.relationSuivis,
+        /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
+        //@ts-expect-error TS ne sait pas que les activités principales possibles proviennent du schema
+        activitésPrincipales: activitésPrincipalesChamp?.options,
+        // @ts-ignore
+        triIdSélectionné: trisFiltresSélectionnés?.tri,
+        // @ts-ignore
+        filtresSélectionnés: trisFiltresSélectionnés?.filtres,
+        /**
+         * 
+         * @param {TriTableauSuiviDDEP} tri 
+         * @param {Partial<FiltresLocalStorage>} filtres 
+         */
+        rememberTriFiltres(tri, filtres){
+            remember(TRI_FILTRE_CLEF_LOCALSTORAGE, {
+                tri: tri.id,
+                filtres: {
+                    phases: filtres.phases ? [...filtres.phases] : undefined,
+                    'prochaine action attendue de': filtres['prochaine action attendue de'] ? [...filtres['prochaine action attendue de']] : undefined,
+                    instructeurs: filtres.instructeurs ? [...filtres.instructeurs] : undefined,
+                    activitésPrincipales: filtres.activitésPrincipales ? [...filtres.activitésPrincipales] : undefined,
+                }
+            })
+        }
+    }
+} 
 
 
 export default async () => {
@@ -71,41 +126,13 @@ export default async () => {
                     })
                 }
             })
-
-        if(!store.state.schemaDS88444){
-            throw new TypeError('Schema 88444 manquant dans le store')
-        }
-
-        /** @type {ChampDescriptor[]} */
-        const schemaChamps = store.state.schemaDS88444.revision.champDescriptors
-
-        const activitésPrincipalesChamp = schemaChamps.find(champDescriptor => champDescriptor.label === "Activité principale")
-
-        /**
-         * 
-         * @param {PitchouState} state 
-         * @returns {ComponentProps<SuiviInstruction>}
-         */
-        function mapStateToProps(state){
-            const dossiersById = state.dossiersRésumés
-
-            // @ts-ignore
-            return {
-                ...mapStateToSqueletteProps(state),
-                dossiers: [...dossiersById.values()],
-                relationSuivis: state.relationSuivis,
-                /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
-                //@ts-expect-error TS ne sait pas que les activités principales possibles proviennent du schema
-                activitésPrincipales: activitésPrincipalesChamp?.options,
-            }
-        }    
         
         const suiviInstructeur = new SuiviInstruction({
             target: svelteTarget,
-            props: mapStateToProps(store.state)
+            props: mapStateToPropsSuiviInstruction(store.state)
         });
 
-        replaceComponent(suiviInstructeur, mapStateToProps)
+        replaceComponent(suiviInstructeur, mapStateToPropsSuiviInstruction)
 
     }
     else{

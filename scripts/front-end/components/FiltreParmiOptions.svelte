@@ -40,16 +40,31 @@
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
-
     function selectionnerRien(){
         optionsSélectionnées = new Set()
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
+    let open = false;
+
+    /** @type {HTMLElement} */
+    let details;
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function detailsOnClick(e){
+        // @ts-ignore
+        if(!details.contains(e.target)){
+            open = false
+        }
+    }
 
 </script>
 
-<details>
+<svelte:body on:click={detailsOnClick}/>
+
+<details bind:open bind:this={details}>
     <summary class="fr-btn fr-btn--secondary fr-btn--sm">
         {titre}
     </summary>

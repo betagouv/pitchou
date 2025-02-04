@@ -67,26 +67,5 @@
 </Squelette>
 
 <style lang="scss">
-    article {
-        background-color: var(--background-alt-grey);
-    }
 
-    section {
-        margin-bottom: 3rem;
-    }
-
-    select {
-        max-width: 90%;
-    }
-
-    .liste-espèces{
-        max-width: 40rem;
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
-    nav.dossier-nav {
-        display: flex;
-        flex-direction: column;
-    }
 </style>
