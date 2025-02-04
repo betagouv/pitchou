@@ -2,183 +2,66 @@
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
-    import TagPhase from '../TagPhase.svelte'
-    import TagEnjeu from '../TagEnjeu.svelte'
-    
-    import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
-    import { modifierDossier } from '../../actions/dossier.js';
+    import EnteteDossier from '../Dossier/EnteteDossier.svelte'
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou.ts' */
+    import DossierMessagerie from '../Dossier/DossierMessagerie.svelte'
+    import DossierInstruction from '../Dossier/DossierInstruction.svelte'
+    import DossierProjet from '../Dossier/DossierProjet.svelte'
+    import DossierAvis from '../Dossier/DossierAvis.svelte'
+
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
 
+    export let messages
+
     /** @type {string | undefined} */
     export let email = undefined
-
-    const {number_demarches_simplifiées: numdos} = dossier
     
-    $: phaseActuelle = dossier.évènementsPhase[0].phase;
-    
-    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
-    let dossierParams = {
-        phase: phaseActuelle,
-        prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
-    }
-
-    $: dossierParams.phase = phaseActuelle
-
-
-    let messageErreur = "" 
-    let afficherMessageSucces = false
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    const mettreAJourDossier = (e) => {
-        e.preventDefault()
-
-        /** @type {Partial<DossierComplet>} */
-        const modifs = {}
-
-        if(phaseActuelle !== dossierParams.phase){
-            modifs.évènementsPhase = [
-                {
-                    dossier: dossier.id,
-                    horodatage: new Date(),
-                    phase: dossierParams.phase,
-                    cause_personne: null
-                }
-            ]
-        }
-        
-        if(dossier.prochaine_action_attendue_par !== dossierParams.prochaine_action_attendue_par){
-            modifs.prochaine_action_attendue_par = dossierParams.prochaine_action_attendue_par
-        }
-
-        modifierDossier(dossier, modifs)
-            .then(() => afficherMessageSucces = true)
-            .catch((error) => {
-                console.info(error)
-                messageErreur = "Quelque chose s'est mal passé du côté serveur."
-            })
-    }
-
-    const retirerAlert = () => { 
-        messageErreur = ""
-        afficherMessageSucces = false
-    }
 </script>
 
 <Squelette {email}>
-    <div class="fr-grid-row fr-mt-4w">
+    <div class="fr-grid-row fr-mt-2w">
         <div class="fr-col">
-            <h1 class="fr-mb-4w">
-                Dossier {dossier.nom || "sans nom"}
-                <TagPhase phase={phaseActuelle}></TagPhase>
-            </h1>
-
-            <nav class="dossier-nav fr-mb-4w">
-                <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm fr-mb-2w">
-                    <li> 
-                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
-                    </li>
-                </ul>
-                <ul class="fr-btns-group fr-btns-group--inline-lg">
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/description`}>Description du dossier</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/procedure`}>Procédure</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/messagerie`}>Messagerie</a>
-                    </li>
-                    <li>
-                        <a class="fr-btn fr-btn--secondary fr-my-0" href={`/dossier/${dossier.id}/redaction-arrete-prefectoral`}>Rédaction arrêté préféctoral</a>
-                    </li>
-                </ul>
-            </nav>
-
-            <article class="fr-p-3w fr-mb-4w">
-                <section>
-                    <h2 class="fr-h5">Phase et prochaine action attendue</h2>
-                    
-                    <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
-                        {#if messageErreur}
-                            <div class="fr-alert fr-alert--error fr-mb-3w">
-                                <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
-                                <p>{messageErreur}</p>
-                            </div>
-                        {/if}
-                        {#if afficherMessageSucces}
-                        <div class="fr-alert fr-alert--success fr-mb-3w">
-                            <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
-                        </div>
-                        {/if}
-                        <div class="fr-input-group">
-                            <label class="fr-label" for="phase">
-                                Phase du dossier
-                            </label>
-                    
-                            <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
-                                {#each [...phases] as phase}
-                                    <option value={phase}>{phase}</option>
-                                {/each}
-                            </select>
-                        </div>
-                        <div class="fr-input-group">
-                            <label class="fr-label" for="prochaine_action_attendue_par">
-                                Acteur(s) concerné(s)
-                            </label>
-                    
-                            <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
-                                {#each [...prochaineActionAttenduePar] as acteur}
-                                    <option value={acteur}>{acteur}</option>
-                                {/each}
-                            </select>
-                        </div>
-                        <button class="fr-btn" type="submit">
-                            Mettre à jour la phase ou de qui est attendu la prochaine action
+            <EnteteDossier {dossier}></EnteteDossier>
+            
+            <div class="fr-tabs">
+                <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+                    <li role="presentation">
+                        <button id="tabpanel-instruction" aria-controls="tabpanel-instruction-panel" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true">
+                            Instruction
                         </button>
-                    </form>
-                </section>
-                <section>
-                    <h2 class="fr-h5">Informations</h2>
-                    <ul>
-                        <li>
-                            <strong>Porteur de projet</strong> : {formatDéposant(dossier)}<br />
-                        </li>
-                        <li>
-                            <strong>Localisation</strong> : {formatLocalisation(dossier)}
-                        </li>
-                        {#if dossier.espèces_protégées_concernées}
-                        <li class="liste-espèces">
-                            <strong>Liste des espèces protégées concernées</strong>
-                            <br>
-                            <a href={dossier.espèces_protégées_concernées}>{dossier.espèces_protégées_concernées}</a> :
-                        </li>
-                        {/if}
-
-                        {#if dossier.enjeu_politique || dossier.enjeu_écologique}
-                            <li>
-                                <strong>Enjeux</strong> : 
-                                {#if dossier.enjeu_politique}
-                                    <TagEnjeu enjeu="politique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
-                                {/if}
-
-                                {#if dossier.enjeu_écologique}
-                                    <TagEnjeu enjeu="écologique" taille='SM' classes={["fr-mb-1w"]}></TagEnjeu>
-                                {/if}
-                            </li>
-                        {/if}
-                    </ul>
-                </section>
-            </article>
+                    </li>
+                    <li role="presentation">
+                        <button id="tabpanel-projet" aria-controls="tabpanel-projet-panel" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" >
+                            Projet
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button id="tabpanel-échanges" aria-controls="tabpanel-échanges-panel" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" >
+                            Échanges
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button id="tabpanel-avis" aria-controls="tabpanel-avis-panel" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" >
+                            Avis
+                        </button>
+                    </li>
+                </ul>
+                <div id="tabpanel-instruction-panel" aria-labelledby="tabpanel-instruction" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" tabindex="0">
+                    <DossierInstruction {dossier}></DossierInstruction>
+                </div>
+                <div id="tabpanel-projet-panel" aria-labelledby="tabpanel-projet" class="fr-tabs__panel" role="tabpanel" tabindex="0">
+                    <DossierProjet {dossier}></DossierProjet>
+                </div>
+                <div id="tabpanel-échanges-panel" aria-labelledby="tabpanel-échanges" class="fr-tabs__panel" role="tabpanel" tabindex="0">
+                    <DossierMessagerie {dossier} {messages}></DossierMessagerie>
+                </div>
+                <div id="tabpanel-avis-panel" aria-labelledby="tabpanel-avis" class="fr-tabs__panel" role="tabpanel" tabindex="0">
+                    <DossierAvis {dossier}></DossierAvis>
+                </div>
+            </div>
         </div>
     </div>
 </Squelette>

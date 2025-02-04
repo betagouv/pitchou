@@ -71,7 +71,7 @@ export function recoverDate(d){
 /**
  * 
  * @param {string} nomCommune 
- * @returns 
+ * @returns {string}
  */
 export function normalizeNomCommune(nomCommune) {
     return nomCommune
