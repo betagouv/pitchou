@@ -1,6 +1,6 @@
 //@ts-check
 
-import {dsv, json} from 'd3-fetch'
+import {dsv} from 'd3-fetch'
 
 import store from "../store"
 import { getURL } from '../getLinkURL.js';
@@ -13,8 +13,9 @@ import { espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEsp
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
-
+//@ts-ignore
 /** @import {PitchouState} from '../store.js' */
+//@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
 
 /**
