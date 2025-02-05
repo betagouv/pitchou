@@ -26,6 +26,21 @@
 
     <link crossorigin="anonymous" rel="stylesheet" href="/build/rollup-bundle-pitchou.css">
     
+    <script>
+        if (!Set.prototype.difference) {
+            Set.prototype.difference = function(otherSet) {
+                // Vérifie que l'argument est bien un Set
+                if (!(otherSet instanceof Set)) {
+                    throw new TypeError('Argument must be a Set');
+                }
+
+                // Crée un nouveau Set avec les éléments qui ne sont pas dans otherSet
+                return new Set([...this].filter(elem => !otherSet.has(elem)));
+            };
+        }
+
+    </script>
+
     <script src="/build/rollup-bundle-pitchou.js" type="module" crossorigin="anonymous"></script>
 </head>
 <body>
