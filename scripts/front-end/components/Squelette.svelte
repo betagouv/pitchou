@@ -1,16 +1,33 @@
 <script>
+    import { differenceInMinutes, format } from 'date-fns'
+    import { fr } from 'date-fns/locale'
+
     import page from 'page'
     import {logout} from '../actions/main.js'
     import store from '../store.js'
 
     /** @import {PitchouState} from '../store.js' */
 
-
     function logoutAndRedirect(){
         logout()
         .then( () => page('/'))
     }
 
+    /**
+     *
+     * @param {Date} date
+     * @returns {string}
+     */
+    export function formatDate(date) {
+
+        const diff = differenceInMinutes(new Date(), date)
+
+        if (diff <= 30) {
+            return `Il y a ${diff} minutes`
+        }
+    
+        return format(date, `d MMMM yyyy HH'h'mm`, { locale: fr })
+    }
 
     /** @type {boolean} */
     export let nav = true;
@@ -20,6 +37,11 @@
 
     /** @type {PitchouState['erreurs']} */
     export let erreurs = new Set()
+
+    /** @type {PitchouState['résultatsSynchronisationDS88444']} */
+    export let résultatsSynchronisationDS88444 = undefined
+
+    $: dernièreSynchronisationRéussie = résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find(r=> r.succès)
 
     let enleverErreur = store.mutations.enleverErreur
 </script>
@@ -227,6 +249,14 @@
                         >Mentions légales</a
                     >
                 </li>-->
+                {#if dernièreSynchronisationRéussie}
+                <li class="fr-footer__bottom-item">
+                    <span class="fr-footer__bottom-link">
+                        Dernière synchronisation avec DS&nbsp;:&nbsp;
+                        <span>{formatDate(dernièreSynchronisationRéussie.horodatage)}</span>
+                    </span>
+                </li>
+                {/if}
             </ul>
             <div class="fr-footer__bottom-copy">
                 <p>
