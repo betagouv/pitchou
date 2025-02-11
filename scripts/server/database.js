@@ -182,3 +182,16 @@ export async function getRésultatsSynchronisationDS88444(databaseConnection = d
     return databaseConnection('résultat_synchronisation_DS_88444')
         .select('*')
 }
+
+/**
+ * 
+ * @param {RésultatSynchronisationDS88444} résultatSynchro 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function addRésultatSynchronisationDS88444(résultatSynchro, databaseConnection = directDatabaseConnection){
+    return databaseConnection('résultat_synchronisation_DS_88444')
+        .insert([résultatSynchro])
+        .onConflict('succès')
+        .merge()
+}
