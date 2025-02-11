@@ -22,7 +22,11 @@
 
         const diff = differenceInMinutes(new Date(), date)
 
-        if (diff <= 30) {
+        if(diff <= 1){
+            return `à l'instant`
+        }
+
+        if(diff <= 30) {
             return `Il y a ${diff} minutes`
         }
     

@@ -9,6 +9,7 @@
     import DossierProjet from '../Dossier/DossierProjet.svelte'
     import DossierAvis from '../Dossier/DossierAvis.svelte'
 
+    /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
     /** @type {DossierComplet} */
@@ -16,12 +17,15 @@
 
     export let messages
 
-    /** @type {string | undefined} */
-    export let email = undefined
+    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
+    export let email;
+
+    /** @type {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} */
+    export let résultatsSynchronisationDS88444;
     
 </script>
 
-<Squelette {email}>
+<Squelette {email} {résultatsSynchronisationDS88444}>
     <div class="fr-grid-row fr-mt-2w">
         <div class="fr-col">
             <EnteteDossier {dossier}></EnteteDossier>
