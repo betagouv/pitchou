@@ -11,6 +11,7 @@
 export const mapStateToSqueletteProps = (state) => {
     return {
         email: state.identité && state.identité.email,
-        erreurs: state.erreurs
+        erreurs: state.erreurs,
+        résultatsSynchronisationDS88444: state.résultatsSynchronisationDS88444
     }
 }

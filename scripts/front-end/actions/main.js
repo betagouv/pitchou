@@ -11,6 +11,7 @@ import { isDossierRésuméArray } from '../../types/typeguards.js';
 import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 
 /** @import {PitchouState} from '../store.js' */
+/** @import {default as RésultatSynchronisationDS88444} from '../../types/database/public/RésultatSynchronisationDS88444.js' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
@@ -72,7 +73,16 @@ export function chargerSchemaDS88444() {
     })
 }
 
+export function chargerRésultatsSynchronisation(){
+    // @ts-ignore
+    return json('résultats-synchronisation').then( (/** @type {RésultatSynchronisationDS88444[]} */ résultatsSync) => {
+        for(const r of résultatsSync){
+            r.horodatage = new Date(r.horodatage)
+        }
 
+        store.mutations.setRésultatsSynchronisationDS88444(résultatsSync)
+    })
+}
 
 export async function secretFromURL(){
     const secret = new URLSearchParams(location.search).get("secret")
@@ -154,7 +164,8 @@ export function init(){
                 message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
             })),
 
-        chargerSchemaDS88444()
+        chargerSchemaDS88444(),
+        chargerRésultatsSynchronisation()
     ])
         
 }

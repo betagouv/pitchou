@@ -40,6 +40,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
  * @property { {activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
+ * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
  */
 
 
@@ -153,6 +154,13 @@ const mutations = {
    */
   enleverErreur(state, erreur){
     state.erreurs.delete(erreur)
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+   */
+  setRésultatsSynchronisationDS88444(state, résultatsSynchronisationDS88444){
+    state.résultatsSynchronisationDS88444 = résultatsSynchronisationDS88444
   }
 }
 

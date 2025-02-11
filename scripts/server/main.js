@@ -7,7 +7,8 @@ import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
-  getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis} from './database.js'
+  getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
+  getRésultatsSynchronisationDS88444} from './database.js'
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
@@ -131,6 +132,12 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
     .then( () => reply.code(204).send() )
   }
 
+})
+
+
+
+fastify.get('/résultats-synchronisation', async function () {
+  return getRésultatsSynchronisationDS88444()
 })
 
 
