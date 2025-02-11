@@ -6,7 +6,6 @@ import { dsvFormat } from 'd3-dsv';
 
 import {espèceProtégéeStringToEspèceProtégée} from '../scripts/commun/outils-espèces.js'
 
-import '../scripts/types.js'
 
 /** @import {
  *   EspèceProtégée,

@@ -8,7 +8,6 @@ import {dsvFormat} from 'd3-dsv'
 
 import {TAXREF_ROWClassification, nomsVernaculaires} from '../scripts/commun/outils-espèces.js'
 
-import '../scripts/types.js'
 /** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée} from "../scripts/types/especes.js" */
 
 process.title = `Génération liste espèces`

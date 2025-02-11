@@ -223,7 +223,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     // Si la localisation avec les champs dédiés (surtout communes et départements) a échoué,
     // se rabattre sur le champ du département principal s'il est présent
-    if(champDépartementPrincipal && (!départements || départements.length === 0)){
+    if(champDépartementPrincipal && champDépartementPrincipal.departement && (!départements || départements.length === 0)){
         départements = [champDépartementPrincipal.departement.code]
     }
 

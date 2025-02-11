@@ -245,12 +245,6 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    */
   "Localisation du projet": string;
   "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer";
-  /**
-   * Ce champ permet de prioriser les dossiers
-   */
-  "Dossier en attente de":
-    | "Action Instructeur"
-    | "Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)";
   "Enjeu écologique": boolean;
   "Enjeu politique": boolean;
   "Commentaires sur les enjeux et la procédure": string;
@@ -262,10 +256,6 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Date de réception DDEP": Date;
-  /**
-   * Ce champ peut être utilisé librement par les instructeur.rices pour se laisser des notes sur où en est l'instruction du dossier
-   */
-  "Commentaires libre sur l'état de l'instruction": string;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */
