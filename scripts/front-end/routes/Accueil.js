@@ -136,7 +136,10 @@ export default async () => {
 
     }
     else{
-        if(!store.state.capabilities.listerDossiers){
+        if(store.state.identité){
+            // quelqu'un est connecté, mais n'a pas de capabilities pour lister des dossiers
+            // cette personne fait sûrement parti d'un service instructeur, mais pas d'un groupe d'instructeur sur DS
+
             store.mutations.ajouterErreur({
                 message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Simplifiée de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
             })
