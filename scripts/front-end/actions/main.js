@@ -75,7 +75,7 @@ export function chargerSchemaDS88444() {
 
 export function chargerRésultatsSynchronisation(){
     // @ts-ignore
-    return json('résultats-synchronisation').then( (/** @type {RésultatSynchronisationDS88444[]} */ résultatsSync) => {
+    return json('/résultats-synchronisation').then( (/** @type {RésultatSynchronisationDS88444[]} */ résultatsSync) => {
         for(const r of résultatsSync){
             r.horodatage = new Date(r.horodatage)
         }
