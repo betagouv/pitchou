@@ -5,6 +5,7 @@ import knex from 'knex';
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
 /** @import {default as CapÉcritureAnnotation} from '../types/database/public/CapÉcritureAnnotation.ts' */
+/** @import {default as RésultatSynchronisationDS88444} from '../types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
 /** @import {StringValues} from '../types/tools.d.ts' */
 
@@ -168,4 +169,29 @@ export async function getRelationSuivis(listeDossiersCap, databaseConnection = d
     return [...retMap].map(([email, dossiersSuivisIds]) => 
         ({personneEmail: email, dossiersSuivisIds: [...dossiersSuivisIds]})
     )
+}
+
+
+
+/**
+ * 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<RésultatSynchronisationDS88444[]>}
+ */
+export async function getRésultatsSynchronisationDS88444(databaseConnection = directDatabaseConnection){
+    return databaseConnection('résultat_synchronisation_DS_88444')
+        .select('*')
+}
+
+/**
+ * 
+ * @param {RésultatSynchronisationDS88444} résultatSynchro 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function addRésultatSynchronisationDS88444(résultatSynchro, databaseConnection = directDatabaseConnection){
+    return databaseConnection('résultat_synchronisation_DS_88444')
+        .insert([résultatSynchro])
+        .onConflict('succès')
+        .merge()
 }

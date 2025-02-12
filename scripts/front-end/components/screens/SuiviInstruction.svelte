@@ -20,6 +20,15 @@
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import { FiltresLocalStorage, TriTableauSuiviDDEP } from '../../../types/interfaceUtilisateur.ts' */
 
+    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
+    export let email;
+    
+    /** @type {ComponentProps<Squelette>['erreurs']} */
+    export let erreurs;
+
+    /** @type {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} */
+    export let résultatsSynchronisationDS88444;
+
 
     /** @type {DossierRésumé[]} */
     export let dossiers = []
@@ -29,12 +38,6 @@
 
     /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
     export let activitésPrincipales = undefined
-
-    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
-    export let email;
-    
-    /** @type {ComponentProps<Squelette>['erreurs']} */
-    export let erreurs;
 
     /** @type {TriTableauSuiviDDEP['id'] | undefined} */
     export let triIdSélectionné = undefined;
@@ -333,7 +336,7 @@
     
 </script>
 
-<Squelette {email} {erreurs}>
+<Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col">
 

@@ -4,7 +4,7 @@ import parseArgs from 'minimist'
 import {sub, format, formatDistanceToNow} from 'date-fns'
 import { fr } from "date-fns/locale"
 
-import {dumpEntreprises, closeDatabaseConnection, créerTransaction} from '../scripts/server/database.js'
+import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
@@ -26,6 +26,7 @@ import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-d
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as EspècesImpactées} from '../scripts/types/database/public/EspècesImpactées.ts' */
+/** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -665,11 +666,33 @@ Promise.all([
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
-    return laTransactionDeSynchronisationDS.commit()
+
+    /** @type {RésultatSynchronisationDS88444} */
+    const résultatSynchro = {
+        succès: true,
+        horodatage: new Date(),
+        erreur: null
+    }
+
+    return Promise.allSettled([
+        addRésultatSynchronisationDS88444(résultatSynchro),
+        laTransactionDeSynchronisationDS.commit()
+    ])
 })
 .catch(err => {
     console.error('Sync échoué', err,  'rollback de la transaction')
-    return laTransactionDeSynchronisationDS.rollback()
+    
+    /** @type {RésultatSynchronisationDS88444} */
+    const résultatSynchro = {
+        succès: false,
+        horodatage: new Date(),
+        erreur: err.toString()
+    }
+
+    return Promise.allSettled([
+        addRésultatSynchronisationDS88444(résultatSynchro),
+        laTransactionDeSynchronisationDS.rollback()
+    ])
 })
 .then(() => {
     console.log('Fin de la synchronisation, cloture de la connexion avec la base de données')
