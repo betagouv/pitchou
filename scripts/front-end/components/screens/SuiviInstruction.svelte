@@ -191,6 +191,9 @@
         filtrerDossiers()
     }
 
+    $: prochainesActionsAttenduesParNonSélectionnés = prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés)
+
+
     let texteÀChercher = ''
 
     /**
@@ -390,11 +393,22 @@
 
                     <div class="fr-mb-1w">
                         <span>Prochaine action attendue par&nbsp;:</span>
-                        {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
-                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                                {prochaineActionAttenduePar}
-                            </span>
-                        {/each}
+                        {#if prochainesActionsAttenduesParNonSélectionnés.size === 0}
+                            <strong>Toutes options</strong>
+                        {:else if prochainesActionsAttenduesParNonSélectionnés.size <= 2}
+                            <strong>Toutes options sauf</strong>
+                            {#each [...prochainesActionsAttenduesParNonSélectionnés] as prochaineActionAttenduePar}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {prochaineActionAttenduePar}
+                                </span>
+                            {/each}
+                        {:else}
+                            {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {prochaineActionAttenduePar}
+                                </span>
+                            {/each}
+                        {/if}
                     </div>
                     
                     <div class="fr-mb-1w">
