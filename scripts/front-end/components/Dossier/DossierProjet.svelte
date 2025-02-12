@@ -5,6 +5,8 @@
     import NomEspèce from '../NomEspèce.svelte';
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
+    
+    /** @import { ClassificationEtreVivant } from '../../../types/especes.d.ts';*/
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
@@ -12,6 +14,14 @@
     export let dossier
 
     const {number_demarches_simplifiées: numdos} = dossier
+
+    /** @type { {[Property in ClassificationEtreVivant]: string } } */
+    /** @type { any } */
+    const classifToH3 = {
+        'oiseau': "Faune - oiseaux",
+        "faune non-oiseau": "Faune - hors oiseaux",
+        flore: "Flore"
+    }
 
     function makeFileContentBlob() {
         return new Blob(
@@ -26,6 +36,7 @@
     } 
 
     $: espècesImpactées = dossier.espècesImpactées && dossier.espècesImpactées.contenu && 
+        // @ts-ignore
         espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
 
     $: espècesImpactéesUniquesTriées = espècesImpactées && espècesImpactées.then(espècesImpactées => {
@@ -60,8 +71,6 @@
         label="Télécharger le fichier des espèces impactées"
     ></DownloadButton>
 
-    <h3>Liste</h3>
-
     {#await espècesImpactéesUniquesTriées}
         <Loader></Loader>
     {:then espècesImpactéesUniquesTriées} 
@@ -69,7 +78,7 @@
             {#each Object.keys(espècesImpactéesUniquesTriées) as classif}
                 {#if espècesImpactéesUniquesTriées[classif].length >= 1}
                     <section class="liste-especes">
-                        <h3>Liste des {classif}</h3>
+                        <h3>{classifToH3[classif]}</h3>
                         {#each espècesImpactéesUniquesTriées[classif] as espèce, index (espèce) }
                             {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèce}/>
                         {/each}
@@ -107,6 +116,16 @@
 
 
 <style lang="scss">
+    .liste-especes{
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+
+        h3{
+            margin-bottom: 1rem;
+        }
+    }
+
+
     pre{
         white-space: pre-wrap;
     }
