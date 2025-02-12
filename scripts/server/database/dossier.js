@@ -130,7 +130,6 @@ const varcharKeys = [
     'historique_nom_porteur',
     'historique_localisation',
     'ddep_nécessaire',
-    'en_attente_de',
     'historique_décision',
     'historique_référence_arrêté_préfectoral',
     'historique_référence_arrêté_ministériel',
@@ -337,13 +336,10 @@ const colonnesDossierComplet = [
     "historique_localisation",
     */
     "ddep_nécessaire",
-    "en_attente_de",
-    
 
     "enjeu_écologique",
     "enjeu_politique",
     "commentaire_enjeu",
-    "commentaire_libre",
     "historique_identifiant_demande_onagre",
 
     "historique_date_réception_ddep",
