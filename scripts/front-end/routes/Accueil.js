@@ -22,7 +22,7 @@ import showLoginByEmail from './montrerPageDAccueil.js';
 
 const TRI_FILTRE_CLEF_LOCALSTORAGE = 'tri-filtres-tableau-suivi'
 
-const trisFiltresSélectionnés = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE)
+let trisFiltresSélectionnés = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE)
 
 /**
  * 
@@ -59,7 +59,7 @@ function mapStateToPropsSuiviInstruction(state){
          * @param {Partial<FiltresLocalStorage>} filtres 
          */
         rememberTriFiltres(tri, filtres){
-            remember(TRI_FILTRE_CLEF_LOCALSTORAGE, {
+            const nouveauxTrisFiltresSélectionnés = {
                 tri: tri.id,
                 filtres: {
                     phases: filtres.phases ? [...filtres.phases] : undefined,
@@ -67,7 +67,11 @@ function mapStateToPropsSuiviInstruction(state){
                     instructeurs: filtres.instructeurs ? [...filtres.instructeurs] : undefined,
                     activitésPrincipales: filtres.activitésPrincipales ? [...filtres.activitésPrincipales] : undefined,
                 }
-            })
+            }
+
+            remember(TRI_FILTRE_CLEF_LOCALSTORAGE, nouveauxTrisFiltresSélectionnés)
+
+            trisFiltresSélectionnés = nouveauxTrisFiltresSélectionnés
         }
     }
 } 
