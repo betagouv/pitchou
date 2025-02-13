@@ -289,17 +289,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
     const historique_nom_porteur = annotationById.get(pitchouKeyToAnnotationDS.get("Nom du porteur de projet"))?.stringValue
     const historique_localisation = annotationById.get(pitchouKeyToAnnotationDS.get("Localisation du projet"))?.stringValue
     const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue
-    const en_attente_de = annotationById.get(pitchouKeyToAnnotationDS.get("Dossier en attente de"))?.stringValue
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
     const commentaire_enjeu = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires sur les enjeux et la procédure")).stringValue
 
     const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS.get("Date de réception DDEP")).date
-    
-    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires libre sur l'état de l'instruction")) ?
-        annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires libre sur l'état de l'instruction")).stringValue :
-        undefined;
         
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
@@ -355,14 +350,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
         historique_nom_porteur,
         historique_localisation,
         ddep_nécessaire,
-        en_attente_de,
 
         enjeu_écologique,
         enjeu_politique,
         commentaire_enjeu,
         
         historique_date_réception_ddep,
-        commentaire_libre,
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
         historique_date_saisine_csrpn,

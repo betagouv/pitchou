@@ -41,8 +41,6 @@ export default interface Dossier {
 
   ddep_nécessaire: string | null;
 
-  en_attente_de: string | null;
-
   enjeu_politique: boolean | null;
 
   commentaire_enjeu: string | null;
@@ -76,8 +74,6 @@ export default interface Dossier {
   historique_référence_arrêté_ministériel: string | null;
 
   enjeu_écologique: boolean | null;
-
-  commentaire_libre: string | null;
 
   rattaché_au_régime_ae: boolean | null;
 
@@ -121,8 +117,6 @@ export interface DossierInitializer {
 
   ddep_nécessaire?: string | null;
 
-  en_attente_de?: string | null;
-
   enjeu_politique?: boolean | null;
 
   commentaire_enjeu?: string | null;
@@ -156,8 +150,6 @@ export interface DossierInitializer {
   historique_référence_arrêté_ministériel?: string | null;
 
   enjeu_écologique?: boolean | null;
-
-  commentaire_libre?: string | null;
 
   rattaché_au_régime_ae?: boolean | null;
 
@@ -200,8 +192,6 @@ export interface DossierMutator {
 
   ddep_nécessaire?: string | null;
 
-  en_attente_de?: string | null;
-
   enjeu_politique?: boolean | null;
 
   commentaire_enjeu?: string | null;
@@ -235,8 +225,6 @@ export interface DossierMutator {
   historique_référence_arrêté_ministériel?: string | null;
 
   enjeu_écologique?: boolean | null;
-
-  commentaire_libre?: string | null;
 
   rattaché_au_régime_ae?: boolean | null;
 
