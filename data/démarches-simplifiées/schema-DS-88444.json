@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2024-12-30T09:57:47+01:00",
+    "dateDerniereModification": "2025-02-11T15:37:23+01:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTcyNDYw",
-        "datePublication": "2024-12-18T14:29:14+01:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTgwMjgz",
+        "datePublication": "2025-02-10T11:01:02+01:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
@@ -945,18 +945,6 @@
                 "required": false
             },
             {
-                "__typename": "DropDownListChampDescriptor",
-                "id": "Q2hhbXAtNDM3NDc2Nw==",
-                "label": "Dossier en attente de",
-                "description": "Ce champ permet de prioriser les dossiers",
-                "required": false,
-                "options": [
-                    "Action Instructeur",
-                    "Action extérieure (CSRPN, CNPN, expert, pétitionnaire, autre service...)"
-                ],
-                "otherOption": false
-            },
-            {
                 "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDI2MDQ4MQ==",
                 "label": "Enjeux",
@@ -1003,13 +991,6 @@
                 "id": "Q2hhbXAtNDE0NzgzMg==",
                 "label": "Date de réception DDEP",
                 "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false
-            },
-            {
-                "__typename": "TextareaChampDescriptor",
-                "id": "Q2hhbXAtNDM4OTkxMg==",
-                "label": "Commentaires libre sur l'état de l'instruction",
-                "description": "Ce champ peut être utilisé librement par les instructeur.rices pour se laisser des notes sur où en est l'instruction du dossier",
                 "required": false
             },
             {
