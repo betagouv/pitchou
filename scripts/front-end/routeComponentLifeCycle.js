@@ -24,6 +24,8 @@ export function replaceComponent(newComponent, newMapStateToProps) {
   if (currentComponent) currentComponent.$destroy();
 
   currentComponent = newComponent;
+  document.documentElement.scrollTo(0, 0) 
+
   currentMapStateToProps = newMapStateToProps;
 }
 
