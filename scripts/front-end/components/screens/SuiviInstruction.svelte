@@ -7,6 +7,7 @@
     import TrisDeTh from '../TrisDeTh.svelte'
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
+    import BoutonModale from '../DSFR/BoutonModale.svelte'
     import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
@@ -445,7 +446,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Voir le dossier</th>
+                                <th>
+                                    Voir le dossier
+                                    <br>
+                                    Commentaire
+                                </th>
                                 <th>
                                     Localisation
                                     <TrisDeTh
@@ -488,13 +493,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {#each dossiersSelectionnés as { id, nom, déposant_nom,
-                            déposant_prénoms, communes, départements, régions,
+                            {#each dossiersSelectionnés as { id, nom, 
+                            demandeur_personne_morale_raison_sociale, déposant_nom, déposant_prénoms, 
+                            communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
-                            enjeu_politique, enjeu_écologique,
+                            enjeu_politique, enjeu_écologique, commentaire_enjeu,
                             phase, prochaine_action_attendue_par }, i}
                                 <tr>
-                                    <td><a href={`/dossier/${id}`}>Voir le dossier</a></td>
+                                    <td>
+                                        <a href={`/dossier/${id}`}>Voir le dossier</a>
+                                        {#if commentaire_enjeu && commentaire_enjeu.trim().length >= 1}
+                                            <BoutonModale id={`dsfr-modale-${id}`}>
+                                                <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
+                        
+                                                <header class="titre-modale" slot="titre-modale">
+                                                    <h1 class="fr-modal__title">
+                                                        Commentaire dossier {nom}
+                                                    </h1>
+                                                    <h2 class="fr-modal__title">
+                                                        {demandeur_personne_morale_raison_sociale ? demandeur_personne_morale_raison_sociale : formatDéposant({déposant_nom, déposant_prénoms})}
+                                                        &nbsp;-&nbsp;
+                                                        {formatLocalisation({communes, départements, régions})}
+                                                    </h2>
+                                                </header>
+                        
+                                                <div class="contenu-modale" slot="contenu-modale">
+                                                    {commentaire_enjeu}
+                                                </div>
+                                            </BoutonModale>
+                                        {/if}
+                                    </td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
                                     <td>{activité_principale || ''}</td>
                                     <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
@@ -554,5 +582,15 @@
 
     .filtres-actifs {
         margin-bottom: 0.5rem;
+    }
+
+    .titre-modale{
+        h1{
+            margin-bottom: 0.8rem;
+        }
+        h2{
+            margin-bottom: 0.6rem;
+            font-size: 1.1rem;
+        }
     }
 </style>

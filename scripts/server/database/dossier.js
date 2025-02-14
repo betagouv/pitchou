@@ -507,6 +507,9 @@ const colonnesDossierRésumé = [
     // annotations privées
     "enjeu_écologique",
     "enjeu_politique",
+
+    "commentaire_enjeu",
+
     "historique_identifiant_demande_onagre",
 
     "historique_date_réception_ddep",
