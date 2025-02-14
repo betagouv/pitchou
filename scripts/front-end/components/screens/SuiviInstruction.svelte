@@ -446,11 +446,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>
-                                    Voir le dossier
-                                    <br>
-                                    Commentaire
-                                </th>
+                                <th>Voir le dossier</th>
                                 <th>
                                     Localisation
                                     <TrisDeTh
@@ -501,7 +497,8 @@
                             phase, prochaine_action_attendue_par }, i}
                                 <tr>
                                     <td>
-                                        <a href={`/dossier/${id}`}>Voir le dossier</a>
+                                        <a class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
+
                                         {#if commentaire_enjeu && commentaire_enjeu.trim().length >= 1}
                                             <BoutonModale id={`dsfr-modale-${id}`}>
                                                 <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
