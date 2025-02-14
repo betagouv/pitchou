@@ -4,6 +4,7 @@
     import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
     import {afficherString} from '../../affichageValeurs.js'
     import TagPhase from '../TagPhase.svelte'
+    import BoutonModale from '../DSFR/BoutonModale.svelte'
 
     /** @type {DossierComplet} */
     export let dossier
@@ -59,9 +60,17 @@
                 {/if}
             </div>
             <div>
-                <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line" data-fr-opened="false" aria-controls="fr-modal-1">
-                    Commentaire
-                </button>
+                {#if dossier.commentaire_enjeu && dossier.commentaire_enjeu.trim().length >= 1}
+                    <BoutonModale id={`dsfr-modale-${dossier.id}`}>
+                        <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
+
+                        <h1 slot="titre-modale" id="fr-modal-title-modal-1" class="fr-modal__title">Commentaire enjeux et procédure</h1>
+
+                        <div class="contenu-modale" slot="contenu-modale">
+                            {dossier.commentaire_enjeu}
+                        </div>
+                    </BoutonModale>
+                {/if}
             </div>
         </div>
 
@@ -81,25 +90,7 @@
     </section>
 </header>
 
-<dialog aria-labelledby="fr-modal-title-modal-1" id="fr-modal-1" class="fr-modal">
-    <div class="fr-container fr-container--fluid fr-container-md">
-        <div class="fr-grid-row fr-grid-row--center">
-            <div class="fr-col-12 fr-col-md-8 fr-col-lg-8">
-                <div class="fr-modal__body">
-                    <div class="fr-modal__header">
-                        <button class="fr-btn--close fr-btn" title="Fermer la fenêtre modale" aria-controls="fr-modal-1">Fermer</button>
-                    </div>
-                    <div class="fr-modal__content">
-                        <h1 id="fr-modal-title-modal-1" class="fr-modal__title">Commentaire enjeux</h1>
-                        <div class="commentaire-enjeux">
-                            {dossier.commentaire_enjeu}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</dialog>
+
 
 
 <style lang="scss">
@@ -127,9 +118,8 @@
 
     }
 
-    dialog {
-        .commentaire-enjeux{
-            white-space: preserve;
-        }
+    .contenu-modale{
+        white-space: preserve;
     }
+
 </style>
