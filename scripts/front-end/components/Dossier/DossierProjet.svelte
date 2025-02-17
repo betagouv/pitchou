@@ -15,12 +15,14 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
 
+    const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
+
     /** @type {Map<ActivitéMenançante['Code'], ((esp: any) => string)>}  */
     let activitéVersDonnéesSecondaires = new Map([
         [
             '7', (/** @type {OiseauAtteint} */ espèceImpactée) => {
                 console.log('espèceImpactée', espèceImpactée)
-                return espèceImpactée.nombreIndividus || ''
+                return espèceImpactée.nombreIndividus || VALEUR_NON_RENSEIGNÉ
             }
         ]
     ])
