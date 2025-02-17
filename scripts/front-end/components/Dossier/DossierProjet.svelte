@@ -17,13 +17,37 @@
 
     const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
 
-    /** @type {Map<ActivitéMenançante['Code'], ((esp: any) => string)>}  */
+    /**
+     * 
+     * @param {OiseauAtteint} espèceImpactée
+     * @returns {string}
+     */
+    function individus(espèceImpactée){
+        return espèceImpactée.nombreIndividus || VALEUR_NON_RENSEIGNÉ
+    }
+
+
+
+    /** @type {Map<ActivitéMenançante['Code'] | undefined, Map<string, ((esp: any) => string)>>}  */
     let activitéVersDonnéesSecondaires = new Map([
         [
-            '7', (/** @type {OiseauAtteint} */ espèceImpactée) => {
-                console.log('espèceImpactée', espèceImpactée)
-                return espèceImpactée.nombreIndividus || VALEUR_NON_RENSEIGNÉ
-            }
+            '2', 
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+        ],
+        [
+            '7', 
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+        ],
+        [
+            undefined,
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+            
         ]
     ])
 
@@ -92,30 +116,35 @@
             {:then espècesImpactéesParActivité} 
                 {#if espècesImpactéesParActivité}
                     {#each [...espècesImpactéesParActivité.entries()] as [activité, espècesImpactéesParCetteActivité]}
-                    {@const donnéeRésiduellePourActivité = activité && activitéVersDonnéesSecondaires.get(activité.Code)}
-                        <div class="liste-especes">
+                    {@const donnéeRésiduellePourActivité = activitéVersDonnéesSecondaires.get(activité && activité.Code)}
+                        <section class="liste-especes">
                             <h3>{activité ? activité['étiquette affichée'] : `Type d'impact non-renseignée`}</h3>
                             <table class="fr-table">
                                 <thead>
                                     <tr>
                                         <th>Espèce</th>
-                                        <th>Impact résiduel</th>
+                                        {#each donnéeRésiduellePourActivité.keys() as colonne}
+                                            <th>{colonne}</th>
+                                        {/each}
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {#each espècesImpactéesParCetteActivité as espèceImpactée }
                                         <tr>
                                             <td><NomEspèce espèce={espèceImpactée.espèce}/></td>
-                                            <td>
-                                                {#if donnéeRésiduellePourActivité}
-                                                    {donnéeRésiduellePourActivité(espèceImpactée)}
-                                                {/if}
-                                            </td>
+                                            {#each donnéeRésiduellePourActivité.values() as getDonnéeRésiduelle}
+                                                <td>{getDonnéeRésiduelle(espèceImpactée)}</td>
+                                            {/each}
                                         </tr>
                                     {/each}
                                 </tbody>
+
                             </table>
-                        </div>
+
+
+                            
+                        </section>
                     {/each}
                 {/if}
             {:catch erreur}
