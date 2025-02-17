@@ -6,7 +6,7 @@
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
     
-    /** @import { ClassificationEtreVivant } from '../../../types/especes.d.ts';*/
+    /** @import { ActivitéMenançante, ClassificationEtreVivant, DescriptionMenacesEspèces, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../../types/especes.d.ts';*/
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
@@ -15,13 +15,15 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    /** @type { {[Property in ClassificationEtreVivant]: string } } */
-    /** @type { any } */
-    const classifToH3 = {
-        'oiseau': "Faune - oiseaux",
-        "faune non-oiseau": "Faune - hors oiseaux",
-        flore: "Flore"
-    }
+    /** @type {Map<ActivitéMenançante['Code'], ((esp: any) => string)>}  */
+    let activitéVersDonnéesSecondaires = new Map([
+        [
+            '7', (/** @type {OiseauAtteint} */ espèceImpactée) => {
+                console.log('espèceImpactée', espèceImpactée)
+                return espèceImpactée.nombreIndividus || ''
+            }
+        ]
+    ])
 
     function makeFileContentBlob() {
         return new Blob(
@@ -39,24 +41,35 @@
         // @ts-ignore
         espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
 
-    $: espècesImpactéesUniquesTriées = espècesImpactées && espècesImpactées.then(espècesImpactées => {
+    /** @type {Promise<Map<ActivitéMenançante, (OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte)[]>> | undefined} */
+    let espècesImpactéesParActivité
+
+    $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(espècesImpactées => {
+        const _espècesImpactééesParActivité = new Map()
+
         if(espècesImpactées){
-            return Object.fromEntries(
-                Object.entries(espècesImpactées)
-                    .map(([classif, espècesImpactées]) => 
-                        [
-                            classif, 
-                            [...new Set(
-                                espècesImpactées
-                                    .toSorted(etresVivantsAtteintsCompareEspèce)
-                                    // @ts-ignore
-                                    .map(({espèce}) => espèce)
-                            )]
-                        ]
-                    )
-            )
+            for(const classif of ['oiseau', 'faune non-oiseau', 'flore']){
+                if(espècesImpactées[classif]){
+                    for(const espèceImpactée of espècesImpactées[classif]){
+                        const activité = espèceImpactée.activité
+                        const esps = _espècesImpactééesParActivité.get(activité) || []
+                        esps.push(espèceImpactée)
+                        _espècesImpactééesParActivité.set(activité, esps)
+                    }
+                }
+            }
+
+            for(const [activité, esps] of _espècesImpactééesParActivité){
+                _espècesImpactééesParActivité.set(
+                    activité, 
+                    esps.toSorted(etresVivantsAtteintsCompareEspèce)
+                )
+            }
+
+            return _espècesImpactééesParActivité
         }
     })
+    .catch(err => console.error('err', err))
 
 </script>
 
@@ -72,19 +85,35 @@
                 label="Télécharger le fichier des espèces impactées"
             ></DownloadButton>
 
-            {#await espècesImpactéesUniquesTriées}
+            {#await espècesImpactéesParActivité}
                 <Loader></Loader>
-            {:then espècesImpactéesUniquesTriées} 
-                {#if espècesImpactéesUniquesTriées}
-                    {#each Object.keys(espècesImpactéesUniquesTriées) as classif}
-                        {#if espècesImpactéesUniquesTriées[classif].length >= 1}
-                            <section class="liste-especes">
-                                <h3>{classifToH3[classif]}</h3>
-                                {#each espècesImpactéesUniquesTriées[classif] as espèce, index (espèce) }
-                                    {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèce}/>
-                                {/each}
-                            </section>
-                        {/if}
+            {:then espècesImpactéesParActivité} 
+                {#if espècesImpactéesParActivité}
+                    {#each [...espècesImpactéesParActivité.entries()] as [activité, espècesImpactéesParCetteActivité]}
+                    {@const donnéeRésiduellePourActivité = activité && activitéVersDonnéesSecondaires.get(activité.Code)}
+                        <div class="liste-especes">
+                            <h3>{activité ? activité['étiquette affichée'] : `Type d'impact non-renseignée`}</h3>
+                            <table class="fr-table">
+                                <thead>
+                                    <tr>
+                                        <th>Espèce</th>
+                                        <th>Impact résiduel</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {#each espècesImpactéesParCetteActivité as espèceImpactée }
+                                        <tr>
+                                            <td><NomEspèce espèce={espèceImpactée.espèce}/></td>
+                                            <td>
+                                                {#if donnéeRésiduellePourActivité}
+                                                    {donnéeRésiduellePourActivité(espèceImpactée)}
+                                                {/if}
+                                            </td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
                     {/each}
                 {/if}
             {:catch erreur}
