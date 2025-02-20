@@ -25,22 +25,35 @@
 
 
     /**
-     * 
      * @param {OiseauAtteint} espèceImpactée
      * @returns {string}
      */
-    function individus(espèceImpactée){
+     function individus(espèceImpactée){
         return espèceImpactée.nombreIndividus || VALEUR_NON_RENSEIGNÉ
     }
 
+    /**
+     * @param {OiseauAtteint} espèceImpactée
+     * @returns {string}
+     */
+    function surface(espèceImpactée){
+        return espèceImpactée.surfaceHabitatDétruit ? `${espèceImpactée.surfaceHabitatDétruit}m²` : VALEUR_NON_RENSEIGNÉ
+    }
 
 
+    
     /** @type {Map<ActivitéMenançante['Code'] | undefined, Map<string, ((esp: any) => string)>>}  */
     let activitéVersDonnéesSecondaires = new Map([
         [
             '2', 
             new Map([
                 [ `Nombre d'individus`, individus ]
+            ])
+        ],
+        [
+            '4-1-pitchou-aires', 
+            new Map([
+                [ `Surface`, surface ]
             ])
         ],
         [
