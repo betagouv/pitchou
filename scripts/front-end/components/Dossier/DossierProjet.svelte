@@ -6,7 +6,7 @@
     import {chargerActivitésMéthodesTransports, espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
     
-    /** @import { ActivitéMenançante, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../../types/especes.d.ts';*/
+    /** @import { ActivitéMenançante, EspèceProtégée, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../../types/especes.d.ts';*/
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
@@ -74,12 +74,12 @@
         // @ts-ignore
         espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
 
-    /** @type {Promise<Map<ActivitéMenançante, (OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte)[]>> | undefined} */
+    /** @type {Promise<Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[] | undefined} */
     let espècesImpactéesParActivité
 
     $: espècesImpactéesParActivité = espècesImpactées && Promise.all([espècesImpactées, activitéByCodeP])
         .then(([espècesImpactées, activitéByCode]) => {
-        /** @type {Map<ActivitéMenançante | undefined, (OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte)[]>} */
+        /** @type {Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[]>} */
         const _espècesImpactéesParActivité = new Map()
 
         /**
@@ -89,7 +89,17 @@
         function push(espèceImpactée){
             const activité = espèceImpactée.activité
             const esps = _espècesImpactéesParActivité.get(activité) || []
-            esps.push(espèceImpactée)
+            const donnéesSecondaires = activitéVersDonnéesSecondaires.get(espèceImpactée.activité?.Code)
+
+            if(!donnéesSecondaires){
+                throw new Error(`Pas de données secondaires pour activité ${espèceImpactée.activité?.Code}`)
+            }
+
+            esps.push({
+                espèce: espèceImpactée.espèce,
+                détails: [...donnéesSecondaires.values()]
+                    .map(funcDétail => funcDétail(espèceImpactée))
+            })
             _espècesImpactéesParActivité.set(activité, esps)
         }
 
@@ -166,17 +176,17 @@
                         <thead>
                             <tr>
                                 <th>Espèce</th>
-                                {#each donnéeRésiduellePourActivité.keys() as colonne}
-                                    <th>{colonne}</th>
+                                {#each donnéeRésiduellePourActivité.keys() as nomColonne}
+                                    <th>{nomColonne}</th>
                                 {/each}
                             </tr>
                         </thead>
                         <tbody>
-                            {#each espècesImpactéesParCetteActivité as espèceImpactée }
+                            {#each espècesImpactéesParCetteActivité as {espèce, détails} }
                                 <tr>
-                                    <td><NomEspèce espèce={espèceImpactée.espèce}/></td>
-                                    {#each donnéeRésiduellePourActivité.values() as getDonnéeRésiduelle}
-                                        <td>{getDonnéeRésiduelle(espèceImpactée)}</td>
+                                    <td><NomEspèce espèce={espèce}/></td>
+                                    {#each détails as détail}
+                                        <td>{détail}</td>
                                     {/each}
                                 </tr>
                             {/each}
