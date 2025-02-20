@@ -63,7 +63,7 @@ type DonnéesDossierPourStats = Pick<Dossier,
 export type DossierRésumé = Pick<Dossier, 
     'id' | 'number_demarches_simplifiées' | 'nom' | 'date_dépôt' |
     'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae' |
-    'prochaine_action_attendue_par' | 
+    'prochaine_action_attendue_par' | 'commentaire_enjeu' |
     'historique_identifiant_demande_onagre'> 
     & {phase: DossierPhase, date_début_phase: Date}
     & DossierLocalisation
