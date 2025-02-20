@@ -3,25 +3,73 @@
     import DownloadButton from '../DownloadButton.svelte';
     import Loader from '../Loader.svelte';
     import NomEspèce from '../NomEspèce.svelte';
-    import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
+    import {chargerActivitésMéthodesTransports, espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
     
-    /** @import { ClassificationEtreVivant } from '../../../types/especes.d.ts';*/
+    /** @import { ActivitéMenançante, EspèceProtégée, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../../types/especes.d.ts';*/
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
 
+    /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
+    const activitéByCodeP = chargerActivitésMéthodesTransports()
+        .then(({activités}) => 
+            new Map([...activités.oiseau, ...activités['faune non-oiseau'], ...activités.flore])
+        )
+
     const {number_demarches_simplifiées: numdos} = dossier
 
-    /** @type { {[Property in ClassificationEtreVivant]: string } } */
-    /** @type { any } */
-    const classifToH3 = {
-        'oiseau': "Faune - oiseaux",
-        "faune non-oiseau": "Faune - hors oiseaux",
-        flore: "Flore"
+    const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
+
+
+    /**
+     * @param {OiseauAtteint} espèceImpactée
+     * @returns {string}
+     */
+     function individus(espèceImpactée){
+        return espèceImpactée.nombreIndividus || VALEUR_NON_RENSEIGNÉ
     }
+
+    /**
+     * @param {OiseauAtteint} espèceImpactée
+     * @returns {string}
+     */
+    function surface(espèceImpactée){
+        return espèceImpactée.surfaceHabitatDétruit ? `${espèceImpactée.surfaceHabitatDétruit}m²` : VALEUR_NON_RENSEIGNÉ
+    }
+
+
+    
+    /** @type {Map<ActivitéMenançante['Code'] | undefined, Map<string, ((esp: any) => string)>>}  */
+    let activitéVersDonnéesSecondaires = new Map([
+        [
+            '2', 
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+        ],
+        [
+            '4-1-pitchou-aires', 
+            new Map([
+                [ `Surface`, surface ]
+            ])
+        ],
+        [
+            '7', 
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+        ],
+        [
+            undefined,
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+            
+        ]
+    ])
 
     function makeFileContentBlob() {
         return new Blob(
@@ -39,24 +87,82 @@
         // @ts-ignore
         espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
 
-    $: espècesImpactéesUniquesTriées = espècesImpactées && espècesImpactées.then(espècesImpactées => {
+    /** @type {Promise<Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[] | undefined} */
+    let espècesImpactéesParActivité
+
+    $: espècesImpactéesParActivité = espècesImpactées && Promise.all([espècesImpactées, activitéByCodeP])
+        .then(([espècesImpactées, activitéByCode]) => {
+        /** @type {Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[]>} */
+        const _espècesImpactéesParActivité = new Map()
+
+        /**
+         * 
+         * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
+         */
+        function push(espèceImpactée){
+            const activité = espèceImpactée.activité
+            const esps = _espècesImpactéesParActivité.get(activité) || []
+            const donnéesSecondaires = activitéVersDonnéesSecondaires.get(espèceImpactée.activité?.Code)
+
+            if(!donnéesSecondaires){
+                throw new Error(`Pas de données secondaires pour activité ${espèceImpactée.activité?.Code}`)
+            }
+
+            esps.push({
+                espèce: espèceImpactée.espèce,
+                détails: [...donnéesSecondaires.values()]
+                    .map(funcDétail => funcDétail(espèceImpactée))
+            })
+            _espècesImpactéesParActivité.set(activité, esps)
+        }
+
         if(espècesImpactées){
-            return Object.fromEntries(
-                Object.entries(espècesImpactées)
-                    .map(([classif, espècesImpactées]) => 
-                        [
-                            classif, 
-                            [...new Set(
-                                espècesImpactées
-                                    .toSorted(etresVivantsAtteintsCompareEspèce)
-                                    // @ts-ignore
-                                    .map(({espèce}) => espèce)
-                            )]
-                        ]
-                    )
-            )
+            for(const classif of (/** @type {const} */ (['oiseau', 'faune non-oiseau', 'flore']))){
+                if(espècesImpactées[classif]){
+                    for(const espèceImpactée of espècesImpactées[classif]){
+                        let activité = espèceImpactée.activité
+                        if(activité?.Code === '4'){ // Destruction intentionnelle de nids, œufs, aires de repos ou reproduction
+                            // séparer en sous-activités
+                            if(espèceImpactée.surfaceHabitatDétruit){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: activitéByCode.get('4-1-pitchou-aires')
+                                })
+                            }
+
+                            if(espèceImpactée.nombreNids){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: activitéByCode.get('4-2-pitchou-nids')
+                                })
+                            }
+
+                            if(espèceImpactée.nombreOeufs){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: activitéByCode.get('4-3-pitchou-œufs')
+                                })
+                            }
+
+                        }
+                        else{
+                            push(espèceImpactée)
+                        }
+                    }
+                }
+            }
+
+            for(const [activité, esps] of _espècesImpactéesParActivité){
+                _espècesImpactéesParActivité.set(
+                    activité, 
+                    esps.toSorted(etresVivantsAtteintsCompareEspèce)
+                )
+            }
+
+            return _espècesImpactéesParActivité
         }
     })
+    .catch(err => console.error('err', err))
 
 </script>
 
@@ -71,19 +177,39 @@
         label="Télécharger le fichier des espèces impactées"
     ></DownloadButton>
 
-    {#await espècesImpactéesUniquesTriées}
+    {#await espècesImpactéesParActivité}
         <Loader></Loader>
-    {:then espècesImpactéesUniquesTriées} 
-        {#if espècesImpactéesUniquesTriées}
-            {#each Object.keys(espècesImpactéesUniquesTriées) as classif}
-                {#if espècesImpactéesUniquesTriées[classif].length >= 1}
-                    <section class="liste-especes">
-                        <h3>{classifToH3[classif]}</h3>
-                        {#each espècesImpactéesUniquesTriées[classif] as espèce, index (espèce) }
-                            {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèce}/>
-                        {/each}
-                    </section>
-                {/if}
+    {:then espècesImpactéesParActivité} 
+        {#if espècesImpactéesParActivité}
+            {#each [...espècesImpactéesParActivité.entries()] as [activité, espècesImpactéesParCetteActivité]}
+            {@const donnéeRésiduellePourActivité = activitéVersDonnéesSecondaires.get(activité && activité.Code)}
+                <section class="liste-especes">
+                    <h3>{activité ? activité['étiquette affichée'] : `Type d'impact non-renseignée`}</h3>
+                    <table class="fr-table">
+                        <thead>
+                            <tr>
+                                <th>Espèce</th>
+                                {#each donnéeRésiduellePourActivité.keys() as nomColonne}
+                                    <th>{nomColonne}</th>
+                                {/each}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each espècesImpactéesParCetteActivité as {espèce, détails} }
+                                <tr>
+                                    <td><NomEspèce espèce={espèce}/></td>
+                                    {#each détails as détail}
+                                        <td>{détail}</td>
+                                    {/each}
+                                </tr>
+                            {/each}
+                        </tbody>
+
+                    </table>
+
+
+                    
+                </section>
             {/each}
         {/if}
     {:catch erreur}
