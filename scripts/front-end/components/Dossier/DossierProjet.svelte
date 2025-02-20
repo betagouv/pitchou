@@ -3,19 +3,26 @@
     import DownloadButton from '../DownloadButton.svelte';
     import Loader from '../Loader.svelte';
     import NomEspèce from '../NomEspèce.svelte';
-    import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
+    import {chargerActivitésMéthodesTransports, espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import { etresVivantsAtteintsCompareEspèce } from '../../espèceFieldset';
     
-    /** @import { ActivitéMenançante, ClassificationEtreVivant, DescriptionMenacesEspèces, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../../types/especes.d.ts';*/
+    /** @import { ActivitéMenançante, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../../types/especes.d.ts';*/
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
 
+    /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
+    const activitéByCodeP = chargerActivitésMéthodesTransports()
+        .then(({activités}) => 
+            new Map([...activités.oiseau, ...activités['faune non-oiseau'], ...activités.flore])
+        )
+
     const {number_demarches_simplifiées: numdos} = dossier
 
     const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
+
 
     /**
      * 
@@ -70,29 +77,66 @@
     /** @type {Promise<Map<ActivitéMenançante, (OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte)[]>> | undefined} */
     let espècesImpactéesParActivité
 
-    $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(espècesImpactées => {
-        const _espècesImpactééesParActivité = new Map()
+    $: espècesImpactéesParActivité = espècesImpactées && Promise.all([espècesImpactées, activitéByCodeP])
+        .then(([espècesImpactées, activitéByCode]) => {
+        /** @type {Map<ActivitéMenançante | undefined, (OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte)[]>} */
+        const _espècesImpactéesParActivité = new Map()
+
+        /**
+         * 
+         * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
+         */
+        function push(espèceImpactée){
+            const activité = espèceImpactée.activité
+            const esps = _espècesImpactéesParActivité.get(activité) || []
+            esps.push(espèceImpactée)
+            _espècesImpactéesParActivité.set(activité, esps)
+        }
 
         if(espècesImpactées){
-            for(const classif of ['oiseau', 'faune non-oiseau', 'flore']){
+            for(const classif of (/** @type {const} */ (['oiseau', 'faune non-oiseau', 'flore']))){
                 if(espècesImpactées[classif]){
                     for(const espèceImpactée of espècesImpactées[classif]){
-                        const activité = espèceImpactée.activité
-                        const esps = _espècesImpactééesParActivité.get(activité) || []
-                        esps.push(espèceImpactée)
-                        _espècesImpactééesParActivité.set(activité, esps)
+                        let activité = espèceImpactée.activité
+                        if(activité?.Code === '4'){ // Destruction intentionnelle de nids, œufs, aires de repos ou reproduction
+                            // séparer en sous-activités
+                            if(espèceImpactée.surfaceHabitatDétruit){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: activitéByCode.get('4-1-pitchou-aires')
+                                })
+                            }
+
+                            if(espèceImpactée.nombreNids){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: activitéByCode.get('4-2-pitchou-nids')
+                                })
+                            }
+
+                            if(espèceImpactée.nombreOeufs){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: activitéByCode.get('4-3-pitchou-œufs')
+                                })
+                            }
+
+                        }
+                        else{
+                            push(espèceImpactée)
+                        }
                     }
                 }
             }
 
-            for(const [activité, esps] of _espècesImpactééesParActivité){
-                _espècesImpactééesParActivité.set(
+            for(const [activité, esps] of _espècesImpactéesParActivité){
+                _espècesImpactéesParActivité.set(
                     activité, 
                     esps.toSorted(etresVivantsAtteintsCompareEspèce)
                 )
             }
 
-            return _espècesImpactééesParActivité
+            return _espècesImpactéesParActivité
         }
     })
     .catch(err => console.error('err', err))
@@ -126,7 +170,6 @@
                                         {#each donnéeRésiduellePourActivité.keys() as colonne}
                                             <th>{colonne}</th>
                                         {/each}
-                                        
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -139,11 +182,7 @@
                                         </tr>
                                     {/each}
                                 </tbody>
-
                             </table>
-
-
-                            
                         </section>
                     {/each}
                 {/if}
