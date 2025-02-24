@@ -60,62 +60,83 @@
 
 </script>
 
-<a class="fr-btn fr-btn--secondary fr-mb-1w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+<section class="row">
 
+    <section>
+        <h2>Espèces impactées</h2>
+        {#if dossier.espècesImpactées}
+            <DownloadButton 
+                {makeFileContentBlob}
+                {makeFilename}
+                classname="fr-btn fr-btn--secondary"
+                label="Télécharger le fichier des espèces impactées"
+            ></DownloadButton>
 
-<h2>Espèces impactées</h2>
-{#if dossier.espècesImpactées}
-    <DownloadButton 
-        {makeFileContentBlob}
-        {makeFilename}
-        label="Télécharger le fichier des espèces impactées"
-    ></DownloadButton>
-
-    {#await espècesImpactéesUniquesTriées}
-        <Loader></Loader>
-    {:then espècesImpactéesUniquesTriées} 
-        {#if espècesImpactéesUniquesTriées}
-            {#each Object.keys(espècesImpactéesUniquesTriées) as classif}
-                {#if espècesImpactéesUniquesTriées[classif].length >= 1}
-                    <section class="liste-especes">
-                        <h3>{classifToH3[classif]}</h3>
-                        {#each espècesImpactéesUniquesTriées[classif] as espèce, index (espèce) }
-                            {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèce}/>
-                        {/each}
-                    </section>
+            {#await espècesImpactéesUniquesTriées}
+                <Loader></Loader>
+            {:then espècesImpactéesUniquesTriées} 
+                {#if espècesImpactéesUniquesTriées}
+                    {#each Object.keys(espècesImpactéesUniquesTriées) as classif}
+                        {#if espècesImpactéesUniquesTriées[classif].length >= 1}
+                            <section class="liste-especes">
+                                <h3>{classifToH3[classif]}</h3>
+                                {#each espècesImpactéesUniquesTriées[classif] as espèce, index (espèce) }
+                                    {#if index !== 0 },&nbsp;{/if}<NomEspèce espèce={espèce}/>
+                                {/each}
+                            </section>
+                        {/if}
+                    {/each}
                 {/if}
-            {/each}
+            {:catch erreur}
+                <div class="fr-alert fr-alert--error fr-mb-3w">
+                    {#if erreur.name === 'HTTPError'}
+                        Erreur de réception du fichier. Veuillez réessayer en rafraichissant la page maintenant ou plus tard.
+                    {:else if erreur.name === 'MediaTypeError'}
+                        Le fichier d'espèces impactées dans le dossier n'est pas d'un type qui permet de récupérer la liste des espèces.
+                        Un fichier .ods est attendu. Le fichier dans le dossier est le type <code>{erreur.obtenu}</code>.
+                        Vous pouvez demander au pétitionnaire de fournir le fichier dans le bon format à la place du fichier actuel.
+                    {:else}
+                        Une erreur est survenue. Veuillez réessayer en rafraichissant la page maintenant ou plus tard.
+                    {/if}
+                </div>
+            {/await}
+
+        {:else if dossier.espèces_protégées_concernées}
+            <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
+            <p>Le pétitionnaire n'a pas encore transmis de fichier, mais il a transmis ceci :</p>
+            
+            <pre>{dossier.espèces_protégées_concernées}</pre>
+            <p>
+                <strong>Recommandation&nbsp;:</strong> l'inviter à plutôt transmettre 
+                <a href="/saisie-especes">un fichier qu'il peut créer sur Pitchou</a>,
+                puis déposer ce fichier au bon endroit sur son dossier sur Démarches Simplifiées
+            </p>
+        {:else}
+            <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
         {/if}
-    {:catch erreur}
-        <div class="fr-alert fr-alert--error fr-mb-3w">
-            {#if erreur.name === 'HTTPError'}
-                Erreur de réception du fichier. Veuillez réessayer en rafraichissant la page maintenant ou plus tard.
-            {:else if erreur.name === 'MediaTypeError'}
-                Le fichier d'espèces impactées dans le dossier n'est pas d'un type qui permet de récupérer la liste des espèces.
-                Un fichier .ods est attendu. Le fichier dans le dossier est le type <code>{erreur.obtenu}</code>.
-                Vous pouvez demander au pétitionnaire de fournir le fichier dans le bon format à la place du fichier actuel.
-            {:else}
-                Une erreur est survenue. Veuillez réessayer en rafraichissant la page maintenant ou plus tard.
-            {/if}
-        </div>
-    {/await}
+    </section>
 
-{:else if dossier.espèces_protégées_concernées}
-    <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
-    <p>Le pétitionnaire n'a pas encore transmis de fichier, mais il a transmis ceci :</p>
-    
-    <pre>{dossier.espèces_protégées_concernées}</pre>
-    <p>
-        <strong>Recommandation&nbsp;:</strong> l'inviter à plutôt transmettre 
-        <a href="/saisie-especes">un fichier qu'il peut créer sur Pitchou</a>,
-        puis déposer ce fichier au bon endroit sur son dossier sur Démarches Simplifiées
-    </p>
-{:else}
-    <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
-{/if}
-
+    <section>
+        <h2>Dossier déposé</h2>
+        <a class="fr-btn fr-mb-1w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}>Dossier sur Démarches Simplifiées</a>
+    </section>
+</section>
 
 <style lang="scss">
+
+    .row{
+        display: flex;
+        flex-direction: row;
+
+        &>:nth-child(1){
+            flex: 3;
+        }
+
+        &>:nth-child(2){
+            flex: 2;
+        }
+    }
+
     .liste-especes{
         margin-top: 2rem;
         margin-bottom: 2rem;
