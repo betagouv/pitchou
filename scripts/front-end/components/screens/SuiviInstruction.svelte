@@ -494,7 +494,7 @@
                             communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
                             enjeu_politique, enjeu_écologique, commentaire_enjeu,
-                            phase, prochaine_action_attendue_par }, i}
+                            phase, prochaine_action_attendue_par }, i (id)}
                                 <tr>
                                     <td>
                                         <a class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
