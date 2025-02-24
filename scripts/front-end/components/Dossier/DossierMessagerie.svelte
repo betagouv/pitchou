@@ -20,11 +20,13 @@
 
 </script>
 
-<h2>Échanges avec le pétitionnaire</h2>
+<div class="row">
+    <h2>Échanges avec le pétitionnaire</h2>
 
-<a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>
-    Répondre sur Démarches Simplifiées
-</a>
+    <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>
+        Répondre sur Démarches Simplifiées
+    </a>
+</div>
 
 <article class="messages fr-mt-2w fr-mb-4w">
 {#each messagesTriés as {contenu, date, email_expéditeur} }
@@ -51,6 +53,18 @@
 
 
 <style lang="scss">
+
+    .row{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        margin-bottom: 2rem;
+
+        h2{
+            margin-bottom: 0;
+        }
+    }
 
     section {
         margin-bottom: 3rem;

@@ -1,22 +1,47 @@
 <script>
     //@ts-check
 
-    //import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
-
     /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
 
     /** @type {DossierComplet} */
     export let dossier
 
-    console.log('dossier', dossier)
+    const {number_demarches_simplifiées: numdos} = dossier
 
 </script>
 
-<h2>Avis experts</h2>
+<div class="row">
 
-<p>(bientôt...)</p>
+    <section>
+        <h2>Avis experts</h2>
 
+        <p>(bientôt ici...)</p>
+    </section>
+
+    <section>
+        <a class="fr-btn fr-mr-3w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/avis_new`}>
+            Demander un avis
+        </a>
+        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/avis`}>
+            Voir les avis
+        </a>
+    </section>
+
+</div>
 
 <style lang="scss">
+    .row{
+        display: flex;
+        flex-direction: row;
 
+        &>:nth-child(1){
+            flex: 3;
+        }
+
+        &>:nth-child(2){
+            flex: 2;
+
+            text-align: right;
+        }
+    }
 </style>
