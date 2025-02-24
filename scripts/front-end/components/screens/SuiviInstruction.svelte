@@ -497,7 +497,7 @@
                             phase, prochaine_action_attendue_par }, i}
                                 <tr>
                                     <td>
-                                        <a class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
+                                        <a class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
 
                                         {#if commentaire_enjeu && commentaire_enjeu.trim().length >= 1}
                                             <BoutonModale id={`dsfr-modale-${id}`}>
@@ -579,6 +579,10 @@
 
     .filtres-actifs {
         margin-bottom: 0.5rem;
+    }
+
+    .voir-le-dossier{
+        white-space: pre;
     }
 
     .titre-modale{
