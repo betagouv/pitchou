@@ -14,6 +14,10 @@ export default interface VNementPhaseDossier {
   horodatage: Date;
 
   cause_personne: PersonneId | null;
+
+  DS_emailAgentTraitant: string | null;
+
+  DS_motivation: string | null;
 }
 
 /** Represents the initializer for the table public.évènement_phase_dossier */
@@ -25,6 +29,10 @@ export interface VNementPhaseDossierInitializer {
   horodatage: Date;
 
   cause_personne?: PersonneId | null;
+
+  DS_emailAgentTraitant?: string | null;
+
+  DS_motivation?: string | null;
 }
 
 /** Represents the mutator for the table public.évènement_phase_dossier */
@@ -36,4 +44,8 @@ export interface VNementPhaseDossierMutator {
   horodatage?: Date;
 
   cause_personne?: PersonneId | null;
+
+  DS_emailAgentTraitant?: string | null;
+
+  DS_motivation?: string | null;
 }

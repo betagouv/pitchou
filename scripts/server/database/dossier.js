@@ -92,12 +92,14 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
     const évènementsPhaseDossier = [];
     
     for(const [dossierId, apiTraitements] of idToTraitements){
-        for(const {dateTraitement, state} of apiTraitements){
+        for(const {dateTraitement, state, emailAgentTraitant, motivation} of apiTraitements){
             évènementsPhaseDossier.push({
                 phase: traitementPhaseToDossierPhase(state),
                 horodatage: new Date(dateTraitement),
                 dossier: dossierId,
-                cause_personne: null // signifie que c'est l'outil de sync DS qui est la cause
+                cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
+                DS_emailAgentTraitant: emailAgentTraitant,
+                DS_motivation: motivation
             })
         }
     };
@@ -105,7 +107,7 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
     return databaseConnection('évènement_phase_dossier')
         .insert(évènementsPhaseDossier)
         .onConflict(['dossier', 'phase', 'horodatage'])
-        .ignore()
+        .merge()
 }
 
 /**
@@ -562,6 +564,11 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
                 dossier.phase = évènementPhaseDossier.phase
                 dossier.date_début_phase = évènementPhaseDossier.horodatage
             }
+            else{
+                // dépôt du dossier
+                dossier.phase = 'Accompagnement amont'
+                dossier.date_début_phase = dossier.date_dépôt
+            }
         }
 
         return dossiers
@@ -628,6 +635,13 @@ export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, database
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
         .distinctOn('dossier')
+        .andWhere(function () {
+            // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
+            // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
+            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant', 
+            // on ne veut pas le refléter côté interface
+            this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
+        })
         .orderBy([
             { column: 'dossier', order: 'asc' },
             { column: 'horodatage', order: 'desc' }
@@ -650,6 +664,13 @@ export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnecti
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+        .andWhere(function () {
+            // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
+            // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
+            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant', 
+            // on ne veut pas le refléter côté interface
+            this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
+        })
 }
 
 /**
@@ -661,7 +682,14 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 
     return databaseConnection('évènement_phase_dossier')
         .select('*')
-        .where({'dossier': idDossier})        
+        .where({'dossier': idDossier})  
+        .andWhere(function () {
+            // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
+            // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
+            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant', 
+            // on ne veut pas le refléter côté interface
+            this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
+        })
         .orderBy('horodatage', 'desc');
 
 }
