@@ -8,6 +8,7 @@
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
     import BoutonModale from '../DSFR/BoutonModale.svelte'
+    import Pagination from '../DSFR/Pagination.svelte'
     import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
@@ -29,7 +30,6 @@
 
     /** @type {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} */
     export let résultatsSynchronisationDS88444;
-
 
     /** @type {DossierRésumé[]} */
     export let dossiers = []
@@ -338,6 +338,44 @@
 	});
 
     
+    // Pagination du tableau de suivi
+    /** @typedef {() => void} SelectionneurPage */
+
+    const NOMBRE_DOSSIERS_PAR_PAGE = 20
+
+    /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
+    let selectionneursPage;
+    /** @type {SelectionneurPage | undefined} */
+    let pageActuelle;
+    /** @type {typeof dossiersSelectionnés} */
+    let dossiersAffichés;
+
+
+    $: {
+        if(dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
+            const nombreDePages = Math.ceil(dossiersSelectionnés.length/NOMBRE_DOSSIERS_PAR_PAGE)
+
+            selectionneursPage = [
+                undefined,
+                ...Array(nombreDePages).fill(undefined).map((_, i) => function page(){
+                    dossiersAffichés = dossiersSelectionnés.slice(NOMBRE_DOSSIERS_PAR_PAGE*i, NOMBRE_DOSSIERS_PAR_PAGE*(i+1))
+                    // nerdisme JS : la page est représentée par la function qui la représente
+                    // et on va chercher son nom ("page") qui représente une function distincte
+                    // pour chaque tour du map
+                    pageActuelle = page
+                })
+            ]
+
+            // Sélectionner la première page
+            selectionneursPage[1]()
+        }
+        else{
+            dossiersAffichés = dossiersSelectionnés
+            selectionneursPage = undefined
+            pageActuelle = undefined
+        }
+    }
+
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
@@ -440,10 +478,10 @@
                     {/if}
                 </section>
 
-                <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers affichés</h2>
+                <h2 class="fr-mt-2w">{dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers sélectionnés</h2>
 
                 <div class="fr-table fr-table--bordered">
-                    <table>
+                    <table class="fr-mb-2w">
                         <thead>
                             <tr>
                                 <th>Voir le dossier</th>
@@ -489,7 +527,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {#each dossiersSelectionnés as { id, nom, 
+                            {#each dossiersAffichés as { id, nom, 
                             demandeur_personne_morale_raison_sociale, déposant_nom, déposant_prénoms, 
                             communes, départements, régions,
                             activité_principale, rattaché_au_régime_ae,
@@ -548,6 +586,10 @@
                         </tbody>
 
                     </table>
+
+                    {#if selectionneursPage}
+                    <Pagination {selectionneursPage} {pageActuelle}></Pagination>
+                    {/if}
                 </div>
             {:else}
                 <div class="fr-mb-5w">Vous n'avez pas encore de dossiers dans votre groupe instructeurs</div>
