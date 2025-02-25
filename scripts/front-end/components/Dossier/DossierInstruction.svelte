@@ -79,7 +79,12 @@
                 <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
             </li>    
         {/each}
-            <li><strong>Dépôt dossier</strong> - <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
+            <li>
+                <TagPhase phase="Accompagnement amont"></TagPhase>
+                -
+                <strong>Dépôt dossier</strong>
+                -
+                <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
         </ol>
     </section>
 
