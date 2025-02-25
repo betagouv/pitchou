@@ -19,32 +19,20 @@
 
     */
 
-    /**
-     * @typedef {() => void} SelectionneurPage
-     */
+    /** @typedef {() => void} SelectionneurPage */
 
     /** @type {[undefined, ...rest: SelectionneurPage[]]} */
-    export let selectionneursPage = [
-        undefined, 
-        ...Array(12).fill(undefined).map((_, i) => function page(){
-            pageActuelle = page
-            console.log('page', i+1)
-        })
-    ];
+    export let selectionneursPage;
 
     $: selectionnerPremièrePage = selectionneursPage[1]
     $: selectionnerDernièrePage = selectionneursPage.at(-1)
 
     $: numéroDernièrePage = selectionneursPage.length - 1
 
-    /** @type {SelectionneurPage} */
-    export let pageActuelle = selectionneursPage[1];
-
-    $: pageActuelle = selectionneursPage[1]
+    /** @type {SelectionneurPage | undefined} */
+    export let pageActuelle;
 
     $: numéroPageSelectionné = selectionneursPage.indexOf(pageActuelle)
-
-    $: console.log('indexSelectionné', numéroPageSelectionné)
 
     $: selectionnerPagePrécédente = selectionneursPage[numéroPageSelectionné - 1]
     $: selectionnerPageSuivante = selectionneursPage[numéroPageSelectionné + 1]
@@ -134,3 +122,9 @@
         </li>
     </ul>
 </nav>
+
+<style lang="scss">
+    nav ul {
+        justify-content: center;
+    }
+</style>
