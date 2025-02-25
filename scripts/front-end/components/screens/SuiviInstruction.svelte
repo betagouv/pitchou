@@ -8,6 +8,7 @@
     import TagPhase from '../TagPhase.svelte'
     import TagEnjeu from '../TagEnjeu.svelte'
     import BoutonModale from '../DSFR/BoutonModale.svelte'
+    import Pagination from '../DSFR/Pagination.svelte'
     import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
     import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
@@ -343,6 +344,8 @@
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col">
+
+            <Pagination></Pagination>
 
             <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
