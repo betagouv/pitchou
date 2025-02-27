@@ -529,7 +529,6 @@
                         <tbody>
                             {#each dossiersAffichés as dossier (dossier)}
                             {@const { id, nom, 
-                                demandeur_personne_morale_raison_sociale, déposant_nom, déposant_prénoms, 
                                 communes, départements, régions,
                                 activité_principale, rattaché_au_régime_ae,
                                 enjeu_politique, enjeu_écologique, commentaire_enjeu,
@@ -547,7 +546,7 @@
                                                         Commentaire dossier {nom}
                                                     </h1>
                                                     <h2 class="fr-modal__title">
-                                                        {demandeur_personne_morale_raison_sociale ? demandeur_personne_morale_raison_sociale : formatPorteurDeProjet(dossier)}
+                                                        {formatPorteurDeProjet(dossier)}
                                                         &nbsp;-&nbsp;
                                                         {formatLocalisation({communes, départements, régions})}
                                                     </h2>
