@@ -1,14 +1,14 @@
 /** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.js' */
 /** @import {DossierRésumé} from '../types/API_Pitchou.js' */
 
-import {formatLocalisation, formatDéposant} from './affichageDossier.js'
+import {formatLocalisation, formatPorteurDeProjet} from './affichageDossier.js'
 
 import {getDébutPhaseActuelle} from './getDébutPhaseActuelle.js'
 
 /**
  * 
  * @param {DossierRésumé[]} dossiers 
- * @param {keyof DossierRésumé | "localisation" | "déposant"} nomColonne 
+ * @param {keyof DossierRésumé | "localisation" | "porteur de projet"} nomColonne 
  * @returns {DossierRésumé[]}
  */
 export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) => {
@@ -19,9 +19,9 @@ export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) 
         if (nomColonne === "localisation") {
             colonneA = formatLocalisation(a).trim()
             colonneB = formatLocalisation(b).trim()
-        } else if (nomColonne === "déposant") {
-            colonneA = formatDéposant(a).trim()
-            colonneB = formatDéposant(b).trim()
+        } else if (nomColonne === "porteur de projet") {
+            colonneA = formatPorteurDeProjet(a).trim()
+            colonneB = formatPorteurDeProjet(b).trim()
         } else {
             colonneA = a[nomColonne] 
             colonneB = b[nomColonne]

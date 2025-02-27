@@ -10,7 +10,7 @@
     import BoutonModale from '../DSFR/BoutonModale.svelte'
     import Pagination from '../DSFR/Pagination.svelte'
     import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
-    import {formatLocalisation, formatDéposant, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
+    import {formatLocalisation, formatPorteurDeProjet, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
@@ -87,9 +87,9 @@
         { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "localisation").reverse() }, id: 'Localisation-ZA' },
     ]
 
-    const trisDéposant = [
-        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant") }, id: 'Déposant-AZ' },
-        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "déposant").reverse() }, id: 'Déposant-ZA' },
+    const trisPorteurDeProjet = [
+        { nom: "Trier de A à Z", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "porteur de projet") }, id: 'PorteurDeProjet-AZ' },
+        { nom: "Trier de Z à A", trier(){ dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(dossiersSelectionnés, "porteur de projet").reverse() }, id: 'PorteurDeProjet-ZA' },
     ]
 
     const triPriorisationPhaseProchaineAction = [
@@ -101,7 +101,7 @@
         ...trisActivitéPrincipale,
         ...trisNomProjet,
         ...trisLocalisation,
-        ...trisDéposant,
+        ...trisPorteurDeProjet,
         ...triPriorisationPhaseProchaineAction
     ]
 
@@ -502,7 +502,7 @@
                                 <th>
                                     Porteur de projet
                                     <TrisDeTh
-                                        tris={trisDéposant}
+                                        tris={trisPorteurDeProjet}
                                         bind:triSélectionné
                                     />
                                 </th>
@@ -547,7 +547,7 @@
                                                         Commentaire dossier {nom}
                                                     </h1>
                                                     <h2 class="fr-modal__title">
-                                                        {demandeur_personne_morale_raison_sociale ? demandeur_personne_morale_raison_sociale : formatDéposant({déposant_nom, déposant_prénoms})}
+                                                        {demandeur_personne_morale_raison_sociale ? demandeur_personne_morale_raison_sociale : formatPorteurDeProjet(dossier)}
                                                         &nbsp;-&nbsp;
                                                         {formatLocalisation({communes, départements, régions})}
                                                     </h2>
@@ -561,7 +561,7 @@
                                     </td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
                                     <td>{activité_principale || ''}</td>
-                                    <td>{formatDéposant({déposant_nom, déposant_prénoms})}</td>
+                                    <td>{formatPorteurDeProjet(dossier)}</td>
                                     <td>{nom || ''}</td>
                                     <td>
                                         {#if enjeu_politique}
