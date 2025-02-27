@@ -42,7 +42,9 @@
                     dossier: dossier.id,
                     horodatage: new Date(),
                     phase: dossierParams.phase,
-                    cause_personne: null
+                    cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
+                    DS_emailAgentTraitant: null,
+                    DS_motivation: null
                 }
             ]
         }
