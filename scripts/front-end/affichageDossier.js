@@ -82,22 +82,6 @@ export function formatPorteurDeProjet(dossier){
     }
 }
 
-/**
- * @param {Partial<DossierComplet>} demandeur
- * @returns {string} 
- */
-export function formatDemandeur({demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret}){
-    if(demandeur_personne_physique_nom){
-        return demandeur_personne_physique_nom + ' ' + demandeur_personne_physique_prénoms
-    }
-    else{
-        if(demandeur_personne_morale_siret){
-            return `${demandeur_personne_morale_raison_sociale} (${demandeur_personne_morale_siret})`
-        }
-        else
-            return '(inconnu)'
-    }
-}
 
 /**
  *
