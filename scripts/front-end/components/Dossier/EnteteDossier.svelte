@@ -1,7 +1,7 @@
 <script>
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
 
-    import {formatLocalisation, formatDéposant} from '../../affichageDossier.js'
+    import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
     import {afficherString} from '../../affichageValeurs.js'
     import TagPhase from '../TagPhase.svelte'
     import BoutonModale from '../DSFR/BoutonModale.svelte'
@@ -23,7 +23,7 @@
         </div>
         <div>
             <span class="fr-icon-user-fill" aria-hidden="true"></span>
-            {formatDéposant(dossier)}
+            {formatPorteurDeProjet(dossier)}
         </div>
         <div>
             <span class="fr-icon-briefcase-fill" aria-hidden="true"></span>

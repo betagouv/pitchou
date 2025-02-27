@@ -4,8 +4,7 @@ import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.d.ts'*/
-/** @import {DossierComplet} from '../types/API_Pitchou.d.ts'*/
+/** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.d.ts' */
 
 /**
  * @param {Partial<DossierComplet>} localisation
@@ -42,11 +41,18 @@ export function formatLocalisation({communes, départements, régions}){
     return communes.map(({name}) => name).join(', ') + ' ' + `(${Array.isArray(départements) ? départements.join(', ') : ''})`
 }
 
+
+
+
+
 /**
- * @param {Partial<DossierComplet>} déposant
+ * @param {DossierComplet | DossierRésumé} déposant
  * @returns {string} 
  */
-export function formatDéposant({déposant_nom, déposant_prénoms}){
+function formatDéposant({déposant_nom, déposant_prénoms}){
+    if(!déposant_nom && !déposant_prénoms)
+        return '(inconnu)'
+
     if(!déposant_nom){
         déposant_nom = ''
     }
@@ -58,21 +64,24 @@ export function formatDéposant({déposant_nom, déposant_prénoms}){
 }
 
 /**
- * @param {Partial<DossierComplet>} demandeur
+ * 
+ * @param {DossierComplet | DossierRésumé} dossier 
  * @returns {string} 
  */
-export function formatDemandeur({demandeur_personne_physique_nom, demandeur_personne_physique_prénoms, demandeur_personne_morale_raison_sociale, demandeur_personne_morale_siret}){
-    if(demandeur_personne_physique_nom){
-        return demandeur_personne_physique_nom + ' ' + demandeur_personne_physique_prénoms
+export function formatPorteurDeProjet(dossier){
+    if(dossier.demandeur_personne_morale_siret){
+        return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`
     }
     else{
-        if(demandeur_personne_morale_siret){
-            return `${demandeur_personne_morale_raison_sociale} (${demandeur_personne_morale_siret})`
+        if(dossier.demandeur_personne_physique_nom){
+            return dossier.demandeur_personne_physique_nom + ' ' + dossier.demandeur_personne_physique_prénoms
         }
-        else
-            return '(inconnu)'
+        else{
+            return formatDéposant(dossier)
+        }
     }
 }
+
 
 /**
  *
