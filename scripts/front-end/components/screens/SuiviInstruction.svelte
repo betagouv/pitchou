@@ -527,12 +527,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {#each dossiersAffichés as { id, nom, 
-                            demandeur_personne_morale_raison_sociale, déposant_nom, déposant_prénoms, 
-                            communes, départements, régions,
-                            activité_principale, rattaché_au_régime_ae,
-                            enjeu_politique, enjeu_écologique, commentaire_enjeu,
-                            phase, prochaine_action_attendue_par }, i (id)}
+                            {#each dossiersAffichés as dossier (dossier)}
+                            {@const { id, nom, 
+                                demandeur_personne_morale_raison_sociale, déposant_nom, déposant_prénoms, 
+                                communes, départements, régions,
+                                activité_principale, rattaché_au_régime_ae,
+                                enjeu_politique, enjeu_écologique, commentaire_enjeu,
+                                phase, prochaine_action_attendue_par } = dossier}
                                 <tr>
                                     <td>
                                         <a class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
@@ -576,7 +577,7 @@
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
-                                        <IndicateurDélaiPhase dossier={dossiersSelectionnés[i]}></IndicateurDélaiPhase>
+                                        <IndicateurDélaiPhase {dossier}></IndicateurDélaiPhase>
                                         {#if prochaine_action_attendue_par}
                                             <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
                                         {/if}

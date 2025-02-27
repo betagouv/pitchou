@@ -9,7 +9,7 @@
     /** @type {DossierComplet} */
     export let dossier
 
-    let phase = dossier.évènementsPhase[0].phase
+    let phase = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
 
 </script>
 

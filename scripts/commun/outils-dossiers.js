@@ -1,6 +1,6 @@
 
 //@ts-expect-error https://github.com/microsoft/TypeScript/issues/60908
-/** @import {DossierComplet, DossierRésumé} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, DossierPhase, DossierRésumé} from '../types/API_Pitchou.ts' */
 
 /**
  * @param {DossierComplet} dossierComplet
@@ -15,6 +15,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         activité_principale,
         enjeu_politique,
         enjeu_écologique,
+        commentaire_enjeu,
         rattaché_au_régime_ae,
         historique_identifiant_demande_onagre,
         historique_date_réception_ddep,
@@ -43,8 +44,9 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
 
     // Trouver la phase la plus récente
     // PPP à corriger
-    const phaseActuelle = évènementsPhase[0].phase
-    const dateDébutPhaseActuelle = évènementsPhase[0].horodatage
+    /** @type {DossierPhase} */
+    const phaseActuelle = évènementsPhase[0] ? évènementsPhase[0].phase : 'Accompagnement amont'
+    const dateDébutPhaseActuelle = évènementsPhase[0] ? évènementsPhase[0].horodatage : date_dépôt
 
     /** @type {DossierRésumé} */
     const dossierRésumé = {
@@ -55,6 +57,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         activité_principale,
         enjeu_politique,
         enjeu_écologique,
+        commentaire_enjeu,
         rattaché_au_régime_ae,
         historique_identifiant_demande_onagre,
         

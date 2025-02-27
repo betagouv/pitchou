@@ -12,7 +12,7 @@
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    $: phaseActuelle = dossier.évènementsPhase[0].phase;
+    $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
     
     /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
     let dossierParams = {
