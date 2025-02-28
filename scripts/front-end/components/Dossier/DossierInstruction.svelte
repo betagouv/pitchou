@@ -93,8 +93,8 @@
 
     <section>
         <h2>Annotations privées</h2>
-        <a class="fr-btn fr-btn--secondary fr-mb-8w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
+        <a class="fr-btn fr-btn--secondary fr-mb-6w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
         <TransitionDePhase {dossier}></TransitionDePhase>
 
@@ -129,7 +129,6 @@
             <button class="fr-btn" type="submit">Mettre à jour</button>
         </form>
 
-        
     </section>
 
 </section>
