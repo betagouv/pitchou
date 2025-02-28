@@ -61,59 +61,66 @@
     };
 </script>
 
-<h2>Transition de phase</h2>
+<section class="fr-mb-2w">
 
-{#if phase === "Accompagnement amont"}
-    <div class="fr-fieldset__element">
-        <div class="fr-checkbox-group">
-            <input
-                id="checkboxes-1"
-                type="checkbox"
-                bind:checked={DDEPnécessaire}
-            />
-            <label class="fr-label" for="checkboxes-1">
-                DDEP nécessaire
-            </label>
-        </div>
-    </div>
-    <div class="fr-fieldset__element">
-        <div class="fr-checkbox-group">
-            <input
-                id="checkboxes-2"
-                type="checkbox"
-                bind:checked={dossierCompletEtRégulier}
-            />
-            <label class="fr-label" for="checkboxes-2">
-                Dossier complet et régulier
-            </label>
-        </div>
-    </div>
+    <h2>Transition de phase</h2>
 
-    {#if !DDEPnécessaire}
-        <button class="fr-btn" disabled>Changer de phase</button>
-    {:else if !dossierCompletEtRégulier}
-        <button class="fr-btn">
-            Passer le dossier à <TagPhase phase="Étude recevabilité DDEP" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
-        </button>
+    {#if phase === "Accompagnement amont"}
+        <div class="fr-fieldset__element">
+            <div class="fr-checkbox-group">
+                <input
+                    id="checkboxes-1"
+                    type="checkbox"
+                    bind:checked={DDEPnécessaire}
+                />
+                <label class="fr-label" for="checkboxes-1">
+                    DDEP nécessaire
+                </label>
+            </div>
+        </div>
+        <div class="fr-fieldset__element">
+            <div class="fr-checkbox-group">
+                <input
+                    id="checkboxes-2"
+                    type="checkbox"
+                    disabled={!DDEPnécessaire}
+                    bind:checked={dossierCompletEtRégulier}
+                />
+                <label class="fr-label" for="checkboxes-2">
+                    Dossier complet et régulier
+                </label>
+            </div>
+        </div>
+
+        {#if !DDEPnécessaire}
+            <button class="fr-btn" disabled>
+                Passer le dossier à ...
+            </button>
+        {:else if !dossierCompletEtRégulier}
+            <button class="fr-btn">
+                Passer le dossier à <TagPhase phase="Étude recevabilité DDEP" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
+            </button>
+        {:else}
+            <button class="fr-btn">
+                Passer le dossier à <TagPhase phase="Instruction" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
+            </button>
+        {/if}
+
+
+        
     {:else}
-        <button class="fr-btn">
-            Passer le dossier à <TagPhase phase="Instruction" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
-        </button>
+        <div class="fr-input-group">
+            <label class="fr-label" for="phase"> Phase du dossier </label>
+
+            <select bind:value={phase} class="fr-select" id="phase">
+                {#each [...phases] as phase}
+                    <option value={phase}>{phase}</option>
+                {/each}
+            </select>
+        </div>
     {/if}
 
-
-    
-{:else}
-    <div class="fr-input-group">
-        <label class="fr-label" for="phase"> Phase du dossier </label>
-
-        <select bind:value={phase} class="fr-select" id="phase">
-            {#each [...phases] as phase}
-                <option value={phase}>{phase}</option>
-            {/each}
-        </select>
-    </div>
-{/if}
+</section>
 
 <style lang="scss">
 </style>
