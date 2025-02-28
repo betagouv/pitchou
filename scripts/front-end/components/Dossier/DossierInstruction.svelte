@@ -2,6 +2,7 @@
     //@ts-check
 
     import TagPhase from '../TagPhase.svelte'
+    import TransitionDePhase from './TransitionDePhase.svelte'
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
@@ -95,7 +96,10 @@
         <a class="fr-btn fr-btn--secondary fr-mb-8w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
 
-        <h2>Phase et action attendue</h2>
+        <TransitionDePhase {dossier}></TransitionDePhase>
+
+
+        <h2>Action attendue</h2>
         
         <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
             {#if messageErreur}
@@ -109,17 +113,8 @@
                 <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
             </div>
             {/if}
-            <div class="fr-input-group">
-                <label class="fr-label" for="phase">
-                    Phase du dossier
-                </label>
-        
-                <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
-                    {#each [...phases] as phase}
-                        <option value={phase}>{phase}</option>
-                    {/each}
-                </select>
-            </div>
+
+            
             <div class="fr-input-group">
                 <label class="fr-label" for="prochaine_action_attendue_par">
                     Prochaine action attendue de&nbsp;:
