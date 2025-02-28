@@ -1,13 +1,10 @@
 <script>
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
 
-    import {
-        formatLocalisation,
-        formatPorteurDeProjet,
-    } from "../../affichageDossier.js";
-    import { afficherString } from "../../affichageValeurs.js";
     import TagPhase from "../TagPhase.svelte";
-    import BoutonModale from "../DSFR/BoutonModale.svelte";
+    import Loader from "../Loader.svelte";
+    import { modifierDossier } from '../../actions/dossier.js';
+
 
     /** @type {DossierComplet} */
     export let dossier;
@@ -18,6 +15,28 @@
 
     let DDEPnécessaire = false;
     let dossierCompletEtRégulier = false;
+
+    /** @type {undefined | Promise<any>} */
+    let modificationEnCours = undefined;
+
+    function passerÀPhaseÉtudeRecevabilité(){
+        /** @type {Partial<DossierComplet>} */
+        const modifs = {
+            évènementsPhase : [
+                {
+                    dossier: dossier.id,
+                    horodatage: new Date(),
+                    phase: 'Étude recevabilité DDEP',
+                    cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
+                    DS_emailAgentTraitant: null,
+                    DS_motivation: null,
+                }
+            ]
+        }
+
+        modificationEnCours = modifierDossier(dossier, modifs)
+    }
+
 
 
     /**
@@ -30,18 +49,6 @@
         /** @type {Partial<DossierComplet>} */
         const modifs = {};
 
-        if (phaseActuelle !== dossierParams.phase) {
-            modifs.évènementsPhase = [
-                {
-                    dossier: dossier.id,
-                    horodatage: new Date(),
-                    phase: dossierParams.phase,
-                    cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
-                    DS_emailAgentTraitant: null,
-                    DS_motivation: null,
-                },
-            ];
-        }
 
         if (
             dossier.prochaine_action_attendue_par !==
@@ -97,27 +104,34 @@
                 Passer le dossier à ...
             </button>
         {:else if !dossierCompletEtRégulier}
-            <button class="fr-btn">
+            <button class="fr-btn" on:click={passerÀPhaseÉtudeRecevabilité}>
                 Passer le dossier à <TagPhase phase="Étude recevabilité DDEP" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
             </button>
+            {#if modificationEnCours}
+                {#await modificationEnCours}
+                    <Loader></Loader>
+                {:then}
+                    ✅
+                {:catch err}
+                    <details>
+                        <summary>❌ Une erreur est survenue. Réessayer plus tard</summary>
+                        <div>
+                            <strong>Informations techniques</strong>
+                            <pre>{err}</pre>
+                        </div>
+                    </details>
+                {/await}
+            {/if}
         {:else}
             <button class="fr-btn">
                 Passer le dossier à <TagPhase phase="Instruction" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
             </button>
         {/if}
 
-
-        
+    {:else if phase === "Étude recevabilité DDEP"}
+        Étude recevabilité DDEP
     {:else}
-        <div class="fr-input-group">
-            <label class="fr-label" for="phase"> Phase du dossier </label>
-
-            <select bind:value={phase} class="fr-select" id="phase">
-                {#each [...phases] as phase}
-                    <option value={phase}>{phase}</option>
-                {/each}
-            </select>
-        </div>
+        bientôt...
     {/if}
 
 </section>
