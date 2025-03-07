@@ -1,9 +1,9 @@
 <script>
-    /** @import {DossierComplet} from '../../../types/API_Pitchou' */
-
     import TagPhase from "../TagPhase.svelte";
     import Loader from "../Loader.svelte";
     import { modifierDossier } from '../../actions/dossier.js';
+
+    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou' */
 
 
     /** @type {DossierComplet} */
@@ -20,37 +20,32 @@
     /** @type {undefined | Promise<any>} */
     let modificationEnCours = undefined;
 
-    function passerÀPhaseÉtudeRecevabilité(){
-        /** @type {Partial<DossierComplet>} */
-        const modifs = {
-            évènementsPhase : [{
-                dossier: dossier.id,
-                horodatage: new Date(),
-                phase: 'Étude recevabilité DDEP',
-                cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
-                DS_emailAgentTraitant: null,
-                DS_motivation: null,
-            }]
-        }
+    /**
+     * 
+     * @param {DossierPhase} phase
+     */
+    function créerFonctionPassagePhase(phase){
+        return () => {
+            /** @type {Partial<DossierComplet>} */
+            const modifs = {
+                évènementsPhase : [{
+                    dossier: dossier.id,
+                    horodatage: new Date(),
+                    phase,
+                    cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
+                    DS_emailAgentTraitant: null,
+                    DS_motivation: null,
+                }]
+            }
 
-        modificationEnCours = modifierDossier(dossier, modifs)
+            modificationEnCours = modifierDossier(dossier, modifs)
+        }
     }
 
-    function passerÀPhaseAccompagnementAmont(){
-        /** @type {Partial<DossierComplet>} */
-        const modifs = {
-            évènementsPhase : [{
-                dossier: dossier.id,
-                horodatage: new Date(),
-                phase: 'Accompagnement amont',
-                cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
-                DS_emailAgentTraitant: null,
-                DS_motivation: null,
-            }]
-        }
-
-        modificationEnCours = modifierDossier(dossier, modifs)
-    }
+    const passerÀPhaseÉtudeRecevabilité = créerFonctionPassagePhase('Étude recevabilité DDEP')
+    const passerÀPhaseAccompagnementAmont = créerFonctionPassagePhase('Accompagnement amont')
+    const passerÀPhaseInstruction = créerFonctionPassagePhase('Instruction')
+    
 
     /**
      *
@@ -136,7 +131,7 @@
                 {/await}
             {/if}
         {:else}
-            <button class="fr-btn">
+            <button class="fr-btn" on:click={passerÀPhaseInstruction}>
                 Passer le dossier à <TagPhase phase="Instruction" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
             </button>
         {/if}
@@ -170,7 +165,7 @@
 
         {#if DDEPnécessaire}
             {#if dossierCompletEtRégulier}
-                <button class="fr-btn">
+                <button class="fr-btn" on:click={passerÀPhaseInstruction}>
                     Passer le dossier à <TagPhase phase="Instruction" taille="SM" classes={["fr-ml-1w"]}></TagPhase>
                 </button>
             {:else}
