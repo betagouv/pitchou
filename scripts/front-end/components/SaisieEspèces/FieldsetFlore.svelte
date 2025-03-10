@@ -11,6 +11,7 @@
     import TrisDeTh from "../TrisDeTh.svelte"
 
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
+    /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
     /** @type {FloreAtteinte[]} */
     export let floresAtteintes
@@ -30,7 +31,7 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    /** @type {{nom: string, tri: function}|undefined}*/
+    /** @type {TriTableau | undefined}*/
     let triSélectionné = undefined
 
     function rerender() {
@@ -77,19 +78,21 @@
         rerender()
     }
 
-    const trisEspèces = new Set([
-        { nom: "Trier de A à Z", tri: trierParFloreDeAaZ },
-        { nom: "Trier de Z à A", tri: trierParFloreDeZaA },
-    ])
+    /** @type {TriTableau[]} */
+    const trisEspèces = [
+        { nom: "Trier de A à Z", trier: trierParFloreDeAaZ, id: 'espèces-AZ' },
+        { nom: "Trier de Z à A", trier: trierParFloreDeZaA, id: 'espèces-AZ' },
+    ]
 
     function trierParImpacts() {
         floresAtteintes = grouperParActivité(floresAtteintes)
         rerender()
     }
 
-    const trisImpacts = new Set([
-        { nom: "Grouper", tri: trierParImpacts },
-    ])
+    /** @type {TriTableau[]} */
+    const trisImpacts = [
+        { nom: "Grouper", trier: trierParImpacts, id: 'impacts' },
+    ]
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">

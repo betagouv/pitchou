@@ -20,7 +20,7 @@
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
-    /** @import { FiltresLocalStorage, TriTableauSuiviDDEP } from '../../../types/interfaceUtilisateur.ts' */
+    /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
     /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
     export let email;
@@ -40,7 +40,7 @@
     /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
     export let activitésPrincipales = undefined
 
-    /** @type {TriTableauSuiviDDEP['id'] | undefined} */
+    /** @type {TriTableau['id'] | undefined} */
     export let triIdSélectionné = undefined;
 
     /** @type {Partial<FiltresLocalStorage>} */
@@ -96,7 +96,7 @@
         { nom: "Prioriser", trier(){ dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) }, id: 'Priorisation-PhaseAction' }
     ]
     
-    /** @type {TriTableauSuiviDDEP[]} */
+    /** @type {TriTableau[]} */
     const tris = [
         ...trisActivitéPrincipale,
         ...trisNomProjet,
@@ -106,7 +106,7 @@
     ]
 
     // Cette ligne doit être tolérante à ce que triIdSélectionné soit undefined ou n'importe quoi
-    /** @type {TriTableauSuiviDDEP | undefined} */
+    /** @type {TriTableau | undefined} */
     let triSélectionné = tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0]
 
 

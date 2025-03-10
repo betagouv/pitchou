@@ -18,7 +18,7 @@ import showLoginByEmail from './montrerPageDAccueil.js';
 /** @import {PitchouState} from '../store.js' */
 /** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {FiltresLocalStorage, TriTableauSuiviDDEP} from '../../types/interfaceUtilisateur.ts' */
+/** @import {FiltresLocalStorage, TriTableau} from '../../types/interfaceUtilisateur.ts' */
 
 const TRI_FILTRE_CLEF_LOCALSTORAGE = 'tri-filtres-tableau-suivi'
 
@@ -55,7 +55,7 @@ function mapStateToPropsSuiviInstruction(state){
         filtresSélectionnés: trisFiltresSélectionnés?.filtres,
         /**
          * 
-         * @param {TriTableauSuiviDDEP} tri 
+         * @param {TriTableau} tri 
          * @param {Partial<FiltresLocalStorage>} filtres 
          */
         rememberTriFiltres(tri, filtres){

@@ -12,6 +12,8 @@
     import TrisDeTh from "../TrisDeTh.svelte"
 
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
+    /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
+
 
     /** @type {OiseauAtteint[]} */
     export let oiseauxAtteints
@@ -37,7 +39,7 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    /** @type {{nom: string, tri: function}|undefined}*/
+    /** @type {TriTableau | undefined} */
     let triSélectionné = undefined
 
     function rerender() {
@@ -84,28 +86,31 @@
         rerender()
     }
 
-    const trisEspèces = new Set([
-        { nom: "Trier de A à Z", tri: trierParOiseauxDeAaZ },
-        { nom: "Trier de Z à A", tri: trierParOiseauxDeZaA },
-    ])
+    /** @type {TriTableau[]} */
+    const trisEspèces = [
+        { nom: "Trier de A à Z", trier: trierParOiseauxDeAaZ, id: "espèces-AZ" },
+        { nom: "Trier de Z à A", trier: trierParOiseauxDeZaA, id: "espèces-ZA" },
+    ]
 
     function trierParImpacts() {
         oiseauxAtteints = grouperParActivité(oiseauxAtteints)
         rerender()
     }
 
-    const trisImpacts = new Set([
-        { nom: "Grouper", tri: trierParImpacts }
-    ])
+    /** @type {TriTableau[]} */
+    const trisImpacts = [
+        { nom: "Grouper", trier: trierParImpacts, id: "impacts" }
+    ]
 
     function trierParMéthode() {
         oiseauxAtteints = grouperParMéthode(oiseauxAtteints)
         rerender()
     }
 
-    const trisMéthodes = new Set([
-        { nom: "Grouper", tri: trierParMéthode}
-    ])
+    /** @type {TriTableau[]} */
+    const trisMéthodes = [
+        { nom: "Grouper", trier: trierParMéthode, id: "impacts"}
+    ]
 </script>
 
 <div class="fr-grid-row fr-mb-4w fr-grid-row--center">

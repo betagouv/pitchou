@@ -2,15 +2,15 @@
     // @ts-check
     import clsx from 'clsx';
 
-    /** @import  { TriTableauSuiviDDEP } from '../../types/interfaceUtilisateur.ts' */
+    /** @import  { TriTableau } from '../../types/interfaceUtilisateur.ts' */
 
-    /** @type {TriTableauSuiviDDEP[]} */
+    /** @type {TriTableau[]} */
     export let tris
 
-    /** @type {TriTableauSuiviDDEP | undefined} */
+    /** @type {TriTableau | undefined} */
     export let triSélectionné = undefined
 
-    /** @type {(tri: TriTableauSuiviDDEP) => void} */
+    /** @type {(tri: TriTableau) => void} */
     const sélectionnerTri = (tri) => { 
         triSélectionné = tri
         tri.trier()
