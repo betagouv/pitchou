@@ -15,5 +15,4 @@ Un dossier peut être dans un phase parmi les suivantes :
     - Cette phase a lieu après la phase amont si l'instructeur a conclu qu'une DDEP n'est pas nécessaire, ou si le pétitionnaire abandonne son projet et donc sa DDEP, etc.
 
 
-
-(PPP rajouter diagramme)
+![Tableau récapitulatif](phases_pitchou.png)
