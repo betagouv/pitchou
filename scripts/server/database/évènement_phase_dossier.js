@@ -14,7 +14,8 @@ import {directDatabaseConnection} from '../database.js'
 
 // TypeScript produit des faux warning de non-utilisation https://github.com/microsoft/TypeScript/issues/60908
 // mais rajouter un statement juste après les imports enlève ces warning
-// Enlever cette ligne après le merge de https://github.com/microsoft/TypeScript/issues/60908
+// Enlever cette ligne après le merge de https://github.com/microsoft/TypeScript/pull/60921
+// @ts-ignore
 const inutile = true;
 
 /**
@@ -41,7 +42,7 @@ function traitementPhaseToDossierPhase(DSTraitementState){
 
 /**
  * @param {Map<Dossier['id'], API_DS_SCHEMA.Traitement[]>} idToTraitements
- * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
 export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
@@ -67,6 +68,16 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
         .merge()
 }
 
+/**
+ * 
+ * @param {ÉvènementPhaseDossier[]} évènementsPhase 
+ * @param {knex.Knex.Transaction | knex.Knex} databaseConnection 
+ * @returns {Promise<void>}
+ */
+export async function ajouterÉvènementsPhaseDossier(évènementsPhase, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_phase_dossier')
+        .insert(évènementsPhase)
+}
 
 /**
  * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier

@@ -583,34 +583,14 @@ export function deleteDossierByDSNumber(numbers){
 /**
  *
  * @param {Dossier['id']} id
- * @param {Partial<Dossier & {évènementsPhase: ÉvènementPhaseDossier[]}>} dossierParams
- * @param {Personne['id']} causePersonne
+ * @param {Partial<Dossier>} dossierParams
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
-export function updateDossier(id, dossierParams, causePersonne, databaseConnection = directDatabaseConnection) {
-    let phaseAjoutée = Promise.resolve()
-
-    if(dossierParams.évènementsPhase){
-        for(const ev of dossierParams.évènementsPhase){
-            ev.cause_personne = causePersonne
-        }
-
-        phaseAjoutée = databaseConnection('évènement_phase_dossier')
-            .insert(dossierParams.évènementsPhase)
-
-        delete dossierParams.évènementsPhase
-    }
-
-    let dossierÀJour = Promise.resolve()
-
-    if(Object.keys(dossierParams).length >= 1){
-        dossierÀJour = databaseConnection('dossier')
-            .where({ id })
-            .update(dossierParams)
-    }
-
-    return Promise.all([phaseAjoutée, dossierÀJour])
+export function updateDossier(id, dossierParams, databaseConnection = directDatabaseConnection) {
+    return databaseConnection('dossier')
+        .where({ id })
+        .update(dossierParams)
 }
 
 /**

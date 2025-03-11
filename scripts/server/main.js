@@ -10,7 +10,8 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
   getRésultatsSynchronisationDS88444} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, updateDossier } from './database/dossier.js'
+import { getÉvènementsPhaseDossiers } from './database/évènement_phase_dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
