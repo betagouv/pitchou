@@ -63,6 +63,12 @@
             ])
         ],
         [
+            '30', 
+            new Map([
+                [ `Nombre d'individus`, individus ]
+            ])
+        ],
+        [
             undefined,
             new Map([
                 [ `Nombre d'individus`, individus ]
@@ -141,7 +147,7 @@
                                 push({
                                     ...espèceImpactée,
                                     activité: activitéByCode.get('4-3-pitchou-œufs')
-                                })
+                                }) 
                             }
 
                         }
