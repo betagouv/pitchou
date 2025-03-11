@@ -46,34 +46,31 @@
     let activitéVersDonnéesSecondaires = new Map([
         [
             '2', 
-            new Map([
-                [ `Nombre d'individus`, individus ]
-            ])
+            new Map([ [ `Nombre d'individus`, individus ] ])
         ],
         [
             '4-1-pitchou-aires', 
-            new Map([
-                [ `Surface`, surface ]
-            ])
+            new Map([ [ `Surface`, surface ] ])
         ],
         [
             '7', 
-            new Map([
-                [ `Nombre d'individus`, individus ]
-            ])
+            new Map([ [ `Nombre d'individus`, individus ] ])
         ],
         [
             '30', 
-            new Map([
-                [ `Nombre d'individus`, individus ]
-            ])
+            new Map([ [ `Nombre d'individus`, individus ] ])
+        ],
+        [
+            '60', 
+            new Map([ [ `Surface`, surface ] ])
+        ],
+        [
+            '80', 
+            new Map([ [ `Surface`, surface ] ])
         ],
         [
             undefined,
-            new Map([
-                [ `Nombre d'individus`, individus ]
-            ])
-            
+            new Map([ [ `Nombre d'individus`, individus ] ])
         ]
     ])
 
