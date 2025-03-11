@@ -13,6 +13,16 @@
     /** @type {DossierComplet} */
     export let dossier
 
+    /** @type {ActivitéMenançante} */
+    const ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION = {
+        Code: 'mix-1-10-3-30-6-40',
+        "étiquette affichée": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
+        "Libellé long": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
+        Espèces: 'faune non-oiseau', // champ inutilisé
+        Méthode: 'n', // champ inutilisé
+        transport: 'n' // champ inutilisé
+    }
+
     /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     const activitéByCodeP = chargerActivitésMéthodesTransports()
         .then(({activités}) => 
@@ -44,34 +54,16 @@
     
     /** @type {Map<ActivitéMenançante['Code'] | undefined, Map<string, ((esp: any) => string)>>}  */
     let activitéVersDonnéesSecondaires = new Map([
-        [
-            '2', 
-            new Map([ [ `Nombre d'individus`, individus ] ])
-        ],
-        [
-            '4-1-pitchou-aires', 
-            new Map([ [ `Surface`, surface ] ])
-        ],
-        [
-            '7', 
-            new Map([ [ `Nombre d'individus`, individus ] ])
-        ],
-        [
-            '30', 
-            new Map([ [ `Nombre d'individus`, individus ] ])
-        ],
-        [
-            '60', 
-            new Map([ [ `Surface`, surface ] ])
-        ],
-        [
-            '80', 
-            new Map([ [ `Surface`, surface ] ])
-        ],
-        [
-            undefined,
-            new Map([ [ `Nombre d'individus`, individus ] ])
-        ]
+        // 1, 10, 3, 30, 6, 40
+        [ ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION.Code, new Map([ [ `Nombre d'individus`, individus ] ]) ],
+
+        [ '2', new Map([ [ `Nombre d'individus`, individus ] ]) ],
+        [ '4-1-pitchou-aires', new Map([ [ `Surface`, surface ] ]) ],
+        [ '7', new Map([ [ `Nombre d'individus`, individus ] ]) ],
+
+        [ '60', new Map([ [ `Surface`, surface ] ]) ],
+        [ '80', new Map([ [ `Surface`, surface ] ]) ],
+        [ undefined, new Map([ [ `Nombre d'individus`, individus ] ]) ]
     ])
 
     function makeFileContentBlob() {
@@ -123,8 +115,9 @@
             for(const classif of (/** @type {const} */ (['oiseau', 'faune non-oiseau', 'flore']))){
                 if(espècesImpactées[classif]){
                     for(const espèceImpactée of espècesImpactées[classif]){
-                        let activité = espèceImpactée.activité
-                        if(activité?.Code === '4'){ // Destruction intentionnelle de nids, œufs, aires de repos ou reproduction
+                        const activité = espèceImpactée.activité
+                        const code  = activité?.Code || ''
+                        if(code === '4'){ // Destruction intentionnelle de nids, œufs, aires de repos ou reproduction
                             // séparer en sous-activités
                             if(espèceImpactée.surfaceHabitatDétruit){
                                 push({
@@ -149,7 +142,14 @@
 
                         }
                         else{
-                            push(espèceImpactée)
+                            if(['1', '10', '3', '30', '6', '40'].includes(code)){
+                                push({
+                                    ...espèceImpactée,
+                                    activité: ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION
+                                })
+                            }
+                            else
+                                push(espèceImpactée)
                         }
                     }
                 }
