@@ -3,7 +3,6 @@
 import { replaceComponent } from '../routeComponentLifeCycle.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
-import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import PrototypeGénérationFichier from '../components/screens/PrototypeGénérationFichier.svelte';
 
@@ -16,13 +15,11 @@ export default async () => {
     
     /**
      * 
-     * @param {PitchouState} state 
+     * @param {PitchouState} _state 
      * @returns {ComponentProps<PrototypeGénérationFichier>}
      */
-    function mapStateToProps(state){
-        return {
-            ...mapStateToSqueletteProps(state)
-        }
+    function mapStateToProps(_state){
+        return {}
     }    
     
     const suiviInstructeur = new PrototypeGénérationFichier({

@@ -6,33 +6,39 @@
     /** @type {HTMLInputElement} */
     let templateInput;
 
-
     let nom = 'David Bruant';
     let dateNaissance = '1987-03-08';
 
+    // preload un template en dur pour la fun
     fetch('/outils/template-1.odt')
-    .then(r => r.blob())
-    .then(blob => {
-        //console.log('blob', blob)
+        .then(r => r.blob())
+        .then(blob => {
+            //console.log('blob', blob)
 
-        const file = new File([blob], 'template.odt')
-        let container = new DataTransfer(); 
-        container.items.add(file);
-        templateInput.files = container.files;
-    })
+            const file = new File([blob], 'template.odt')
+            let container = new DataTransfer(); 
+            container.items.add(file);
+            templateInput.files = container.files;
+        })
 
 
     function makeFileContentBlob(){
         const formData = new FormData()
 
-        formData.set('template', templateInput.files[0])
-        formData.set('données', JSON.stringify({nom, dateNaissance}))
+        if(templateInput.files && templateInput.files[0]){
+            formData.set('template', templateInput.files[0])
 
-        return fetch('/prototype/generer-fichier', {
-            method: 'POST',
-            body: formData
-        })
-        .then(r => r.blob())
+            // va peut-être jeter une exception
+            const données = JSON.stringify({nom, dateNaissance})
+
+            formData.set('données', données)
+
+            return fetch('/prototype/generer-fichier', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.blob())
+        }   
     }
 
 </script>

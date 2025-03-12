@@ -467,23 +467,37 @@ fastify.post('/remplir-annotations', async (request, reply) => {
 
 
 
-
+ 
 fastify.get('/prototype/generation-fichier', sendIndexHTMLFile)
 
 fastify.post('/prototype/generer-fichier', async (request, reply) => {
-  const formData = await request.formData()
-  
-  /** @type {File} */
-  const templateFile = formData.get('template')
-  const données = JSON.parse(formData.get('données'))
-  
-  const template = Buffer.from(await templateFile.arrayBuffer())
+    const formData = await request.formData()
+    
+    /** @type {FormDataEntryValue | null} */
+    const templateFile = formData.get('template')
+    if(!templateFile){
+        reply.code(400).send(`Fichier template manquant`)
+        return
+    }
+    if(typeof templateFile === 'string'){
+        reply.code(400).send(`La valeur 'template' devrait être un fichier`)
+        return
+    }
 
-  console.log('template', template)
-  console.log('données', données)
+    const donnéesString = formData.get('données')
+    if(!donnéesString){
+        reply.code(400).send(`Données manquantes`)
+        return
+    }
+    if(typeof donnéesString !== 'string'){
+        reply.code(400).send(`La valeur 'données' devrait être une string`)
+        return
+    }
 
-  return générerFichier(template, données)
+    const template = Buffer.from(await templateFile.arrayBuffer())
+    const données = JSON.parse(donnéesString)
 
+    return générerFichier(template, données)
 })
 
 
