@@ -6,6 +6,9 @@
     /** @type {HTMLInputElement} */
     let templateInput;
 
+    let files;
+    $: template = files && files[0]
+
     let nom = 'David Bruant';
     let dateNaissance = '1987-03-08';
 
@@ -19,14 +22,16 @@
             let container = new DataTransfer(); 
             container.items.add(file);
             templateInput.files = container.files;
+            files = templateInput.files
         })
+
 
 
     function makeFileContentBlob(){
         const formData = new FormData()
 
-        if(templateInput.files && templateInput.files[0]){
-            formData.set('template', templateInput.files[0])
+        if(template){
+            formData.set('template', template)
 
             // va peut-être jeter une exception
             const données = JSON.stringify({nom, dateNaissance})
@@ -56,9 +61,9 @@
 
                 <div class="fr-upload-group">
                     <label class="fr-label" for="file-upload">Importer un template .odt à remplir
-                        <!-- <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span> -->
+                        <!-- <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : odt</span> -->
                     </label>
-                    <input bind:this={templateInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                    <input bind:this={templateInput} bind:files={files} class="fr-upload" type="file" accept=".odt, .ods" id="file-upload" name="file-upload">
                 </div>
 
                 <h2>Données</h2>
@@ -71,17 +76,24 @@
                     <input class="fr-input" bind:value={dateNaissance} type="date" id="text-input-nom" name="text-input-nom">
                 </div>
 
-                <DownloadButton
-                    makeFileContentBlob={makeFileContentBlob}
-                    makeFilename={() => 'Fichier.odt'}
-                ></DownloadButton>
+                {#if template}
+                    <DownloadButton
+                        label="Générer fichier"
+                        makeFileContentBlob={makeFileContentBlob}
+                        makeFilename={() => 'Fichier.odt'}
+                    ></DownloadButton>
+                {:else}
+                    <button class="fr-btn fr-btn--lg" disabled>Générer fichier</button>
+                {/if}
+                
             </section>
-
 
         </article>
     </div>
 </Squelette>
 
 <style lang="scss">
-    
+    article{
+        margin-bottom: 4rem;
+    }
 </style>
