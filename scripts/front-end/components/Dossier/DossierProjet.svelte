@@ -140,13 +140,19 @@
         return dossier.espècesImpactées?.nom || 'fichier'
     } 
 
-    $: espècesImpactées = dossier.espècesImpactées && dossier.espècesImpactées.contenu && 
+    /** @type {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined} */
+    let espècesImpactées;
+
+    $: espècesImpactées = (
+        dossier.espècesImpactées && dossier.espècesImpactées.contenu && 
         // @ts-ignore
         espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
+    ) || undefined
 
-    /** @type {Promise<Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[] | undefined} */
+    /** @type {Promise<Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[]>> | undefined} */
     let espècesImpactéesParActivité
 
+    // @ts-ignore
     $: espècesImpactéesParActivité = espècesImpactées && Promise.all([espècesImpactées, activitéByCodeP])
         .then(([espècesImpactées, activitéByCode]) => {
         /** @type {Map<ActivitéMenançante | undefined, {espèce: EspèceProtégée, détails: string[]}[]>} */
@@ -188,6 +194,7 @@
                                 })
                             }
 
+                            // @ts-ignore
                             if(espèceImpactée.nombreNids){
                                 push({
                                     ...espèceImpactée,
@@ -195,6 +202,7 @@
                                 })
                             }
 
+                            // @ts-ignore
                             if(espèceImpactée.nombreOeufs){
                                 push({
                                     ...espèceImpactée,
@@ -227,7 +235,7 @@
             return _espècesImpactéesParActivité
         }
     })
-    .catch(err => console.error('err', err))
+    //.catch(err => console.error('err', err))
 
 </script>
 
@@ -255,9 +263,11 @@
                                 <thead>
                                     <tr>
                                         <th>Espèce</th>
-                                        {#each donnéeRésiduellePourActivité.keys() as nomColonne}
-                                            <th>{nomColonne}</th>
-                                        {/each}
+                                        {#if donnéeRésiduellePourActivité}
+                                            {#each donnéeRésiduellePourActivité.keys() as nomColonne}
+                                                <th>{nomColonne}</th>
+                                            {/each}
+                                        {/if}
                                     </tr>
                                 </thead>
                                 <tbody>

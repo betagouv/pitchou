@@ -347,6 +347,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 nombreNids,
                 nombreOeufs,
                 surfaceHabitatDétruit,
+                //@ts-ignore
                 activité: activites['oiseau'].get(codeActivité),
                 méthode: methodes['oiseau'].get(codeMéthode),	
                 transport: transports['oiseau'].get(codeTransport),
@@ -379,6 +380,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
+                //@ts-ignore
                 activité: activites['faune non-oiseau'].get(codeActivité),
                 méthode: methodes['faune non-oiseau'].get(codeMéthode),	
                 transport: transports['faune non-oiseau'].get(codeTransport),
@@ -409,6 +411,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
+                //@ts-ignore
                 activité: activites['flore'].get(codeActivité)
             }
         })
