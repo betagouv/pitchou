@@ -6,6 +6,7 @@
     /** @type {HTMLInputElement} */
     let templateInput;
 
+    /** @type {FileList | undefined} */
     let files;
     $: template = files && files[0]
 
@@ -30,20 +31,23 @@
     function makeFileContentBlob(){
         const formData = new FormData()
 
-        if(template){
-            formData.set('template', template)
+        if(!template)
+            throw new Error(`template manquant`)
 
-            // va peut-être jeter une exception
-            const données = JSON.stringify({nom, dateNaissance})
+            
+        formData.set('template', template)
 
-            formData.set('données', données)
+        // va peut-être jeter une exception
+        const données = JSON.stringify({nom, dateNaissance})
 
-            return fetch('/prototype/generer-fichier', {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.blob())
-        }   
+        formData.set('données', données)
+
+        return fetch('/prototype/generer-fichier', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.blob())
+        
     }
 
 </script>
