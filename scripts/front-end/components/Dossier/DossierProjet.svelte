@@ -23,11 +23,49 @@
         transport: 'n' // champ inutilisé
     }
 
+    
+
     /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     const activitéByCodeP = chargerActivitésMéthodesTransports()
-        .then(({activités}) => 
-            new Map([...activités.oiseau, ...activités['faune non-oiseau'], ...activités.flore])
-        )
+        .then(({activités}) => {
+            // Rajouter les activités spécifiques Pitchou
+            // Les activités sont standardisées à l'échelle européenne
+            // https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd (type 'activitiesType')
+            // Pour les besoins de Pitchou, nous rajoutons des activités 
+            // Nous essayons d'utiliser des identifiants qui ne collisionnerons pas avec le futur
+
+            const activité4 = activités.oiseau.get('4')
+            if(!activité4){
+                throw Error(`Activité 4 manquante`)
+            }
+
+            /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
+            // @ts-ignore
+            const activitésAdditionnelles = new Map([
+                {
+                    ...activité4,
+                    Code: '4-1-pitchou-aires',
+                    "étiquette affichée": `Destruction d’aires de repos ou reproduction`
+                },
+                {
+                    ...activité4,
+                    Code: '4-2-pitchou-nids',
+                    "étiquette affichée": `Destruction de nids`
+                },
+                {
+                    ...activité4,
+                    Code: '4-3-pitchou-œufs',
+                    "étiquette affichée": `Destruction d'œufs`
+                }
+            ].map(a => [a.Code, a]))
+
+            return new Map([
+                ...activités.oiseau, 
+                ...activitésAdditionnelles, 
+                ...activités['faune non-oiseau'], 
+                ...activités.flore
+            ])
+        })
 
     const {number_demarches_simplifiées: numdos} = dossier
 
@@ -35,7 +73,7 @@
 
 
     /**
-     * @param {OiseauAtteint} espèceImpactée
+     * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
      * @returns {string}
      */
      function individus(espèceImpactée){
@@ -43,11 +81,27 @@
     }
 
     /**
-     * @param {OiseauAtteint} espèceImpactée
+     * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
      * @returns {string}
      */
     function surface(espèceImpactée){
         return espèceImpactée.surfaceHabitatDétruit ? `${espèceImpactée.surfaceHabitatDétruit}m²` : VALEUR_NON_RENSEIGNÉ
+    }
+
+    /**
+     * @param {OiseauAtteint} espèceImpactée
+     * @returns {string}
+     */
+     function nids(espèceImpactée){
+        return espèceImpactée.nombreNids ? `${espèceImpactée.nombreNids}` : VALEUR_NON_RENSEIGNÉ
+    }
+
+    /**
+     * @param {OiseauAtteint} espèceImpactée
+     * @returns {string}
+     */
+    function œufs(espèceImpactée){
+        return espèceImpactée.nombreOeufs ? `${espèceImpactée.nombreOeufs}` : VALEUR_NON_RENSEIGNÉ
     }
 
 
@@ -59,6 +113,9 @@
 
         [ '2', new Map([ [ `Nombre d'individus`, individus ] ]) ],
         [ '4-1-pitchou-aires', new Map([ [ `Surface`, surface ] ]) ],
+        [ '4-2-pitchou-nids', new Map([ [ `Nombre de nids`, nids ] ]) ],
+        [ '4-3-pitchou-œufs', new Map([ [ `Nombre d'œufs`, œufs ] ]) ],
+        [ '5', new Map([ [ `Nombre d'œufs`, œufs ] ]) ],
         [ '7', new Map([ [ `Nombre d'individus`, individus ] ]) ],
 
         [ '60', new Map([ [ `Surface`, surface ] ]) ],

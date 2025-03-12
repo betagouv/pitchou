@@ -168,42 +168,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
         classifActivz.set(activite.Code, activite)
         activités[classif] = classifActivz
     }
-
-    // Rajouter les activités spécifiques Pitchou
-    // Les activités sont standardisées à l'échelle européenne
-    // https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd (type 'activitiesType')
-    // Pour les besoins de Pitchou, nous rajoutons des activités 
-    // Nous essayons d'utiliser des identifiants qui ne collisionnerons pas avec le futur
-
-    const activité4 = activités.oiseau.get('4')
-    if(!activité4){
-        throw Error(`Activité 4 manquante`)
-    }
-
-    const activitésAdditionnelles = [
-        {
-            ...activité4,
-            Code: '4-1-pitchou-aires',
-            "étiquette affichée": `Destruction d’aires de repos ou reproduction`
-        },
-        {
-            ...activité4,
-            Code: '4-2-pitchou-nids',
-            "étiquette affichée": `Destruction de nids`
-        },
-        {
-            ...activité4,
-            Code: '4-3-pitchou-œufs',
-            "étiquette affichée": `Destruction d'œufs"`
-        }
-    ]
-
-    for(const activité of activitésAdditionnelles){
-        Object.freeze(activité)
-        activités.oiseau.set(activité.Code, activité)
-    }
-
-
+    
 
     /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
     const méthodes = {
