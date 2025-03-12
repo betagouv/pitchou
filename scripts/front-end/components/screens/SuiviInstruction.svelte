@@ -636,4 +636,8 @@
             font-size: 1.1rem;
         }
     }
+
+    .contenu-modale{
+        white-space: preserve;
+    }
 </style>
