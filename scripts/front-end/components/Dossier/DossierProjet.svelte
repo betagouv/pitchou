@@ -117,9 +117,14 @@
         [ '4-3-pitchou-œufs', new Map([ [ `Nombre d'œufs`, œufs ] ]) ],
         [ '5', new Map([ [ `Nombre d'œufs`, œufs ] ]) ],
         [ '7', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-
+        [ '8', new Map([ [ `Nombre d'individus`, individus ] ]) ],
+        [ '20', new Map([ [ `Nombre d'individus`, individus ] ]) ],
+        // insatisfaisant pour "Destruction intentionnelle d’oeufs/pontes" (faune non-oiseau)
+        [ '50', new Map([ [ `Nombre d'individus`, individus ] ]) ],
         [ '60', new Map([ [ `Surface`, surface ] ]) ],
+        [ '70', new Map([ [ `Nombre d'individus`, individus ] ]) ],
         [ '80', new Map([ [ `Surface`, surface ] ]) ],
+        [ '90', new Map([ [ `Nombre d'individus`, individus ] ]) ],
         [ undefined, new Map([ [ `Nombre d'individus`, individus ] ]) ]
     ])
 
