@@ -86,7 +86,6 @@ fastify.register(fastatic, {
  * @param {any} reply 
  */
 function sendIndexHTMLFile(_request, reply){
-  console.log('sendIndexHTMLFile')
   reply.sendFile('index.html')
 }
 
@@ -450,6 +449,13 @@ fastify.post('/remplir-annotations', async (request, reply) => {
     }
   }
 })
+
+
+
+
+fastify.get('/prototype/generation-fichier', sendIndexHTMLFile)
+
+
 
 
 // Lancer le serveur HTTP
