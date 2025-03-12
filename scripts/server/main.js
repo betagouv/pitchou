@@ -5,6 +5,7 @@ import path from 'node:path'
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
+import fastifyMultipart from '@fastify/multipart'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -29,6 +30,7 @@ import synchronisationComplèteSiNécessaire from './synchro-complète-si néces
 /** @import {DossierComplet} from '../types/API_Pitchou.ts' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import générerFichier from './générerFichierDepuisTemplate.js'
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
@@ -77,6 +79,19 @@ await fastify.register(fastifyCompress)
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
+})
+
+fastify.register(fastifyMultipart, {
+  attachFieldsToBody: true,
+  limits: {
+    fieldNameSize: 100, // Max field name size in bytes
+    fieldSize: 100,     // Max field value size in bytes
+    fields: 10,         // Max number of non-file fields
+    fileSize: 1000000,  // For multipart forms, the max file size in bytes
+    files: 5,           // Max number of file fields
+    headerPairs: 2000,  // Max number of header key=>value pairs
+    parts: 1000         // For multipart forms, the max number of parts (fields + files)
+  }
 })
 
 
@@ -455,6 +470,21 @@ fastify.post('/remplir-annotations', async (request, reply) => {
 
 fastify.get('/prototype/generation-fichier', sendIndexHTMLFile)
 
+fastify.post('/prototype/generer-fichier', async (request, reply) => {
+  const formData = await request.formData()
+  
+  /** @type {File} */
+  const templateFile = formData.get('template')
+  const données = JSON.parse(formData.get('données'))
+  
+  const template = Buffer.from(await templateFile.arrayBuffer())
+
+  console.log('template', template)
+  console.log('données', données)
+
+  return générerFichier(template, données)
+
+})
 
 
 

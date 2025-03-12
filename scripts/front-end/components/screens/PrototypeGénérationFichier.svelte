@@ -1,16 +1,38 @@
 <script>
     //@ts-check
     import Squelette from '../Squelette.svelte'
+    import DownloadButton from '../DownloadButton.svelte'
 
-    let files;
+    /** @type {HTMLInputElement} */
+    let templateInput;
 
-    let nom;
-    let dateNaissance
 
-    function onSubmit(e){
-        e.preventDefault()
+    let nom = 'David Bruant';
+    let dateNaissance = '1987-03-08';
 
-        console.log('générer', files, nom, dateNaissance)
+    fetch('/outils/template-1.odt')
+    .then(r => r.blob())
+    .then(blob => {
+        //console.log('blob', blob)
+
+        const file = new File([blob], 'template.odt')
+        let container = new DataTransfer(); 
+        container.items.add(file);
+        templateInput.files = container.files;
+    })
+
+
+    function makeFileContentBlob(){
+        const formData = new FormData()
+
+        formData.set('template', templateInput.files[0])
+        formData.set('données', JSON.stringify({nom, dateNaissance}))
+
+        return fetch('/prototype/generer-fichier', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.blob())
     }
 
 </script>
@@ -23,14 +45,14 @@
                 <p>⚠️ Prototype ⚠️</p>
             </header>
 
-            <form on:submit={onSubmit}>
+            <section>
                 <h2>Charger un template .odt</h2>
 
                 <div class="fr-upload-group">
                     <label class="fr-label" for="file-upload">Importer un template .odt à remplir
                         <!-- <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span> -->
                     </label>
-                    <input bind:files={files} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                    <input bind:this={templateInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
                 </div>
 
                 <h2>Données</h2>
@@ -43,8 +65,11 @@
                     <input class="fr-input" bind:value={dateNaissance} type="date" id="text-input-nom" name="text-input-nom">
                 </div>
 
-                <button class="fr-btn" type="submit">Générer</button>
-            </form>
+                <DownloadButton
+                    makeFileContentBlob={makeFileContentBlob}
+                    makeFilename={() => 'Fichier.odt'}
+                ></DownloadButton>
+            </section>
 
 
         </article>
