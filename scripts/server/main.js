@@ -6,6 +6,9 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
+import AdmZip from 'adm-zip'
+
+import {tableRawContentToObjects, tableWithoutEmptyRows, getODSTableRawContent} from 'ods-xlsx'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -484,20 +487,41 @@ fastify.post('/prototype/generer-fichier', async (request, reply) => {
         return
     }
 
-    const donnéesString = formData.get('données')
-    if(!donnéesString){
+    const dataFile = formData.get('data')
+    if(!dataFile){
         reply.code(400).send(`Données manquantes`)
         return
     }
-    if(typeof donnéesString !== 'string'){
-        reply.code(400).send(`La valeur 'données' devrait être une string`)
+    if(typeof dataFile === 'string'){
+        reply.code(400).send(`La valeur 'data' devrait être un fichier`)
         return
     }
 
     const template = Buffer.from(await templateFile.arrayBuffer())
-    const données = JSON.parse(donnéesString)
+    const données = await getODSTableRawContent(await dataFile.arrayBuffer())
+        .then(tableWithoutEmptyRows)
+        .then(tableRawContentToObjects)
+        // suppose une feuille unique
+        // @ts-ignore
+        .then(tableObjects => tableObjects.values().next().value)
 
-    return générerFichier(template, données)
+    return Promise.all(
+        // @ts-ignore
+        données.map(({nomFichier, ...rest}) => {
+            return générerFichier(template, rest)
+              .then(contenu => { return {nomFichier, contenu} })
+        })
+    )
+    .then(fichiers => {
+        const zip = new AdmZip();
+
+        for(const {nomFichier, contenu} of fichiers){
+            zip.addFile(`${nomFichier}.odt`, contenu);
+        }
+        
+        return zip.toBuffer();
+    })
+
 })
 
 
