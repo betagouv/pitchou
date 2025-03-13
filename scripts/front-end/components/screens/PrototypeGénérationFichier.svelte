@@ -14,19 +14,6 @@
     let dataFiles;
     $: data = dataFiles && dataFiles[0]
 
-    // preload un template en dur pour la fun
-    fetch('/data/génération-fichiers/template-anniversaire.odt')
-        .then(r => r.blob())
-        .then(blob => {
-            //console.log('blob', blob)
-
-            const file = new File([blob], 'template-anniversaire.odt')
-            let container = new DataTransfer(); 
-            container.items.add(file);
-            templateInput.files = container.files;
-            templateFiles = templateInput.files
-        })
-
 
     function makeFileContentBlob(){
         const formData = new FormData()
@@ -39,7 +26,7 @@
         }
             
         formData.set('template', template)
-        formData.set('données', data)
+        formData.set('data', data)
 
         return fetch('/prototype/generer-fichier', {
                 method: 'POST',
@@ -85,6 +72,8 @@
                     Par exemple, si le document-type contient <code>&lbrace;d.nom&rbrace;</code> et 
                     <code>&lbrace;d.dateNaissance&rbrace;</code>, alors le fichier de données doit avoir
                     des colonnes <code>nom</code> et <code>dateNaissance</code>
+                    <br>
+                    La colonne <code>nomFichier</code> permet de donner un nom de fichier
                 </p>
 
                 <div class="fr-upload-group">
@@ -98,7 +87,7 @@
                     <DownloadButton
                         label="Générer fichier"
                         makeFileContentBlob={makeFileContentBlob}
-                        makeFilename={() => 'Fichier.odt'}
+                        makeFilename={() => 'Fichiers.zip'}
                     ></DownloadButton>
                 {:else}
                     <button class="fr-btn fr-btn--lg" disabled>Générer fichier</button>
