@@ -3,9 +3,6 @@
     import Squelette from '../Squelette.svelte'
     import DownloadButton from '../DownloadButton.svelte'
 
-    /** @type {HTMLInputElement} */
-    let templateInput;
-
     /** @type {FileList | undefined} */
     let templateFiles;
     $: template = templateFiles && templateFiles[0]
@@ -61,7 +58,7 @@
                     <label class="fr-label" for="file-upload-template">Importer un document-type .odt à remplir
                         <!-- <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : odt</span> -->
                     </label>
-                    <input bind:this={templateInput} bind:files={templateFiles} class="fr-upload" type="file" accept=".odt, .ods" id="file-upload-template" name="file-upload-template">
+                    <input bind:files={templateFiles} class="fr-upload" type="file" accept=".odt, .ods" id="file-upload-template" name="file-upload-template">
                 </div>
 
                 <h2>Charger un fichier de données .ods</h2>
