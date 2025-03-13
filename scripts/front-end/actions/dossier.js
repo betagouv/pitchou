@@ -164,9 +164,11 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
         }
         
         const classifActivz = activités[classif]
+        Object.freeze(activite)
         classifActivz.set(activite.Code, activite)
         activités[classif] = classifActivz
     }
+    
 
     /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
     const méthodes = {
@@ -188,6 +190,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
         }
         
         const classifMeth = méthodes[classif]
+        Object.freeze(methode)
         classifMeth.set(methode.Code, methode)
         méthodes[classif] = classifMeth
     }
@@ -212,6 +215,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
         }
         
         const classifTrans = transports[classif]
+        Object.freeze(transport)
         classifTrans.set(transport.Code, transport)
         transports[classif] = classifTrans
     }

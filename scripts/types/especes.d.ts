@@ -57,8 +57,17 @@ export interface EspèceProtégée {
  */
 export type EspèceProtégéeStrings = StringValues<EspèceProtégée>
 
+// d'après la nomenclature pour le rapportage à la Commission Européenne
+export type CodeActivitéStandard = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90'
+
+// pour quand on veut réunir ou séparer des activités
+export type CodeActivitéPitchou = '4-1-pitchou-aires' | '4-2-pitchou-nids' | '4-3-pitchou-œufs' | 'mix-1-10-3-30-6-40';
+
+
+
+
 export interface ActivitéMenançante {
-    Code: string,
+    Code: CodeActivitéStandard | CodeActivitéPitchou,
     Espèces: ClassificationEtreVivant,
     "Libellé long": string,
     "étiquette affichée": string,
