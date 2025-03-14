@@ -27,7 +27,16 @@
         <button class="fr-btn" type="submit">Chercher</button>
     </div>
     
-    <p class="fr-hint-text">Vous pouvez rechercher par départements, communes, nom de projet, porteur de projet, numéro de dossier, numéro Onagre.</p>
+    <p class="fr-hint-text">
+        Vous pouvez rechercher par 
+        départements, 
+        communes, 
+        nom de projet, 
+        porteur de projet, 
+        numéro de dossier DS,
+        identifiant Pitchou, 
+        numéro Onagre.
+    </p>
 </form>
 
 <style lang="scss">
