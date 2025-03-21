@@ -594,10 +594,10 @@ let synchronisationDossierDansGroupeInstructeur;
 
 if(dossiersDS.length >= 1){
     /** Synchronisation de l'information des dossiers suivis */
-    synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS);
+    synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS, laTransactionDeSynchronisationDS);
 
     /** Synchronisation de l'information de quel dossier appartient à quel groupe_instructeurs */
-    synchronisationDossierDansGroupeInstructeur = synchroniserDossierDansGroupeInstructeur(dossiersDS);
+    synchronisationDossierDansGroupeInstructeur = synchroniserDossierDansGroupeInstructeur(dossiersDS, laTransactionDeSynchronisationDS);
 }
 
 

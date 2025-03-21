@@ -277,6 +277,10 @@ export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databa
         const dossierId = dossierNumberDSToId.get(String(number))
         const groupe_instructeursId =  groupeInstructeursLabelToId.get(label)
 
+        if(!groupe_instructeursId){
+            throw new Error(`groupe_instructeursId manquant pour groupe ${label}`)
+        }
+
         return {dossier: dossierId, groupe_instructeurs: groupe_instructeursId}
     })
     
