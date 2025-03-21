@@ -199,7 +199,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     }
     else{
         if(projetSitué === `d'un ou plusieurs départements` && champDépartements){
-            départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement.code))]
+            départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement?.code))]
         }
         else{
             if(projetSitué === `d'une ou plusieurs régions` && champRégions){
