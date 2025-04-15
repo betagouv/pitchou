@@ -227,7 +227,7 @@ export async function créerEspècesGroupéesParImpact(espècesImpactées) {
 
     return [..._espècesImpactéesParActivité]
         .map(([activité, espèces]) => ({
-            activité: activité ? activité['Libellé long'] : `Type d'impact non-renseignée`, 
+            activité: activité ? activité['étiquette affichée'] : `Type d'impact non-renseignée`, 
             // @ts-ignore
             impactsRésiduels: [...activitéVersDonnéesSecondaires.get(activité?.Code).keys()],
             espèces

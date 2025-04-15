@@ -61,7 +61,10 @@
 		const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
         const blob = new Blob([documentArrayBuffer], {type: template.type});
 
-		download(blob, template.name)
+        const [part1, part2] = template.name.split('.')
+        const datetime = (new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)
+
+		download(blob, `${part1}-${datetime}.${part2}`)
 	}
 
     /**
