@@ -8,6 +8,7 @@
     import DossierInstruction from '../Dossier/DossierInstruction.svelte'
     import DossierProjet from '../Dossier/DossierProjet.svelte'
     import DossierAvis from '../Dossier/DossierAvis.svelte'
+    import DossierGénérationDocuments from '../Dossier/DossierGénérationDocuments.svelte'
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
@@ -52,6 +53,11 @@
                             Avis
                         </button>
                     </li>
+                    <li role="presentation">
+                        <button id="tabpanel-génération-documents" aria-controls="tabpanel-génération-documents-panel" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" >
+                            Génération document
+                        </button>
+                    </li>
                 </ul>
                 <div id="tabpanel-instruction-panel" aria-labelledby="tabpanel-instruction" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" tabindex="0">
                     <DossierInstruction {dossier}></DossierInstruction>
@@ -64,6 +70,9 @@
                 </div>
                 <div id="tabpanel-avis-panel" aria-labelledby="tabpanel-avis" class="fr-tabs__panel" role="tabpanel" tabindex="0">
                     <DossierAvis {dossier}></DossierAvis>
+                </div>
+                <div id="tabpanel-génération-documents-panel" aria-labelledby="tabpanel-génération-documents" class="fr-tabs__panel" role="tabpanel" tabindex="0">
+                    <DossierGénérationDocuments {dossier}></DossierGénérationDocuments>
                 </div>
             </div>
         </div>
