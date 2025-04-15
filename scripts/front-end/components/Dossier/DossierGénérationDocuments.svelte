@@ -1,6 +1,8 @@
 <script>
     import {fillOdtTemplate} from '@odfjs/odfjs'
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
+    import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
+    import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */  
 
@@ -12,6 +14,22 @@
 
     /** @type {DossierComplet} */
     export let dossier
+
+    /** @type {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined} */
+    let espècesImpactées;
+
+    $: espècesImpactées = (
+        dossier.espècesImpactées && dossier.espècesImpactées.contenu && 
+        // @ts-ignore
+        espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
+    ) || undefined
+
+    /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
+    let espècesImpactéesParActivité
+
+    $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(créerEspècesGroupéesParImpact)
+    //.catch(err => console.error('err', err))
+
 
     /**
      * 
@@ -32,7 +50,8 @@
                 demandeur: formatPorteurDeProjet(dossier),
                 localisation: formatLocalisation(dossier),
                 régime_autorisation_environnementale: dossier.rattaché_au_régime_ae === null ? '' :
-                    (dossier.rattaché_au_régime_ae ? 'Oui' : 'Non')
+                    (dossier.rattaché_au_régime_ae ? 'Oui' : 'Non'),
+                espèces_impacts: await espècesImpactéesParActivité
             }
         }
 
