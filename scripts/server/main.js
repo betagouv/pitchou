@@ -8,7 +8,7 @@ import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
 import AdmZip from 'adm-zip'
 
-import {tableRawContentToObjects, tableWithoutEmptyRows, getODSTableRawContent} from 'ods-xlsx'
+import {tableRawContentToObjects, tableWithoutEmptyRows, getODSTableRawContent} from '@odfjs/odfjs'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,

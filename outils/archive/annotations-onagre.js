@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises'
 import { join } from 'node:path';
 
 import ky from 'ky'
-import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
+import {getODSTableRawContent, sheetRawContentToObjects} from '@odfjs/odfjs'
 
 import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../scripts/import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
 import { normalizeNomCommune } from '../scripts/commun/typeFormat.js';

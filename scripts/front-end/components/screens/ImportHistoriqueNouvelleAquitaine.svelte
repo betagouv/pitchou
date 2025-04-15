@@ -1,7 +1,7 @@
 <script>
     //@ts-check
     import {text} from 'd3-fetch';
-    import {getODSTableRawContent, sheetRawContentToObjects} from 'ods-xlsx'
+    import {getODSTableRawContent, sheetRawContentToObjects} from '@odfjs/odfjs'
 
     import Squelette from '../Squelette.svelte'
 

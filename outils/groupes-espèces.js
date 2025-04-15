@@ -1,7 +1,7 @@
 //@ts-check
 
 import {readFile, writeFile} from 'node:fs/promises'
-import {sheetRawContentToObjects, getODSTableRawContent} from 'ods-xlsx'
+import {sheetRawContentToObjects, getODSTableRawContent} from '@odfjs/odfjs'
 import { dsvFormat } from 'd3-dsv';
 
 import {espèceProtégéeStringToEspèceProtégée} from '../scripts/commun/outils-espèces.js'

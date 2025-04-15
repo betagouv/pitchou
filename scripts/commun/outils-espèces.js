@@ -1,5 +1,5 @@
 //@ts-check
-import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'ods-xlsx'
+import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from '@odfjs/odfjs'
 
 /** @import {
  *    ClassificationEtreVivant, 
@@ -16,7 +16,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from 'od
  *    MéthodeMenançante, 
  *    TransportMenançant,
  * } from "../types/especes.d.ts" */
-/** @import {SheetRawContent, SheetRawCellContent} from 'ods-xlsx' */
+/** @import {SheetRawContent, SheetRawCellContent} from '@odfjs/odfjs' */
 /** @import {FauneNonOiseauAtteinteOds_V1, FichierEspècesImpactéesOds_V1, FloreAtteinteOds_V1, OiseauAtteintOds_V1} from '../types/espècesFichierOds.d.ts' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
