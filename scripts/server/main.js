@@ -6,9 +6,6 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
-import AdmZip from 'adm-zip'
-
-import {tableRawContentToObjects, tableWithoutEmptyRows, getODSTableRawContent} from '@odfjs/odfjs'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -33,7 +30,6 @@ import synchronisationComplèteSiNécessaire from './synchro-complète-si néces
 /** @import {DossierComplet} from '../types/API_Pitchou.ts' */
 
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import générerFichier from './générerFichierDepuisTemplate.js'
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
@@ -109,7 +105,6 @@ function sendIndexHTMLFile(_request, reply){
 
 fastify.get('/saisie-especes', sendIndexHTMLFile)
 // fastify.get('/dossier/:dossierId', sendIndexHTMLFile) géré plus bas avec une route dédiée qui peut retourner aussi du JSON
-fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
 
@@ -468,61 +463,6 @@ fastify.post('/remplir-annotations', async (request, reply) => {
   }
 })
 
-
-
- 
-fastify.get('/prototype/generation-fichier', sendIndexHTMLFile)
-
-fastify.post('/prototype/generer-fichier', async (request, reply) => {
-    const formData = await request.formData()
-    
-    /** @type {FormDataEntryValue | null} */
-    const templateFile = formData.get('template')
-    if(!templateFile){
-        reply.code(400).send(`Fichier template manquant`)
-        return
-    }
-    if(typeof templateFile === 'string'){
-        reply.code(400).send(`La valeur 'template' devrait être un fichier`)
-        return
-    }
-
-    const dataFile = formData.get('data')
-    if(!dataFile){
-        reply.code(400).send(`Données manquantes`)
-        return
-    }
-    if(typeof dataFile === 'string'){
-        reply.code(400).send(`La valeur 'data' devrait être un fichier`)
-        return
-    }
-
-    const template = Buffer.from(await templateFile.arrayBuffer())
-    const données = await getODSTableRawContent(await dataFile.arrayBuffer())
-        .then(tableWithoutEmptyRows)
-        .then(tableRawContentToObjects)
-        // suppose une feuille unique
-        // @ts-ignore
-        .then(tableObjects => tableObjects.values().next().value)
-
-    return Promise.all(
-        // @ts-ignore
-        données.map(({nomFichier, ...rest}) => {
-            return générerFichier(template, rest)
-              .then(contenu => { return {nomFichier, contenu} })
-        })
-    )
-    .then(fichiers => {
-        const zip = new AdmZip();
-
-        for(const {nomFichier, contenu} of fichiers){
-            zip.addFile(`${nomFichier}.odt`, contenu);
-        }
-        
-        return zip.toBuffer();
-    })
-
-})
 
 
 

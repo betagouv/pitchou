@@ -134,22 +134,6 @@
                 <a class="fr-nav__link" href="/saisie-especes">Saisie espèces protégées</a>
             </li>
             <li class="fr-nav__item">
-                <button
-                    class="fr-nav__btn"
-                    aria-expanded="false"
-                    aria-controls="menu-774">Import historique</button
-                >
-                <div class="fr-collapse fr-menu" id="menu-774">
-                    <ul class="fr-menu__list">
-                        <li>
-                            <a class="fr-nav__link" href="/import-historique/nouvelle-aquitaine">
-                                Import historique DREAL Nouvelle-Aquitaine
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            <li class="fr-nav__item">
                 <a class="fr-nav__link" href="/preremplissage-derogation">Pré-remplissage dérogation</a>
             </li>
         </ul>
