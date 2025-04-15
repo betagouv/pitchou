@@ -1,11 +1,13 @@
 <script>
     import {fillOdtTemplate} from '@odfjs/odfjs'
+    import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */  
 
     /** @type {FileList | undefined} */
     let templateFiles;
     $: template = templateFiles && templateFiles[0]
+
 
 
     /** @type {DossierComplet} */
@@ -23,8 +25,18 @@
         }
 
 		const data = {
-            nom: dossier.nom
-		}
+            dossier:{
+                nom: dossier.nom,
+                identifiant_onagre: dossier.historique_identifiant_demande_onagre,
+                activité_principale: dossier.activité_principale,
+                demandeur: formatPorteurDeProjet(dossier),
+                localisation: formatLocalisation(dossier),
+                régime_autorisation_environnementale: dossier.rattaché_au_régime_ae === null ? '' :
+                    (dossier.rattaché_au_régime_ae ? 'Oui' : 'Non')
+            }
+        }
+
+        console.log('data', data)
 
 		const templateAB = await template.arrayBuffer()
 		const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
