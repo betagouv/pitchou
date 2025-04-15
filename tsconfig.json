@@ -7,9 +7,7 @@
     ],
     "exclude": [
       "node_modules", 
-      "scripts/import-dossiers-historiques/nouvelle-aquitaine/**/*.js",
-      "scripts/front-end/routes/import-historique/NouvelleAquitaine.js",
-      "scripts/front-end/components/screens/ImportHistoriqueNouvelleAquitaine.svelte"
+      "scripts/import-dossiers-historiques/nouvelle-aquitaine/**/*.js"
     ],
     "compilerOptions": {
       "allowJs": true,

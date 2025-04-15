@@ -105,7 +105,6 @@ function sendIndexHTMLFile(_request, reply){
 
 fastify.get('/saisie-especes', sendIndexHTMLFile)
 // fastify.get('/dossier/:dossierId', sendIndexHTMLFile) géré plus bas avec une route dédiée qui peut retourner aussi du JSON
-fastify.get('/import-historique/nouvelle-aquitaine', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
 
