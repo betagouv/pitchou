@@ -6,8 +6,7 @@
       "outils/**/*.js"
     ],
     "exclude": [
-      "node_modules", 
-      "scripts/import-dossiers-historiques/nouvelle-aquitaine/**/*.js"
+      "node_modules"
     ],
     "compilerOptions": {
       "allowJs": true,
