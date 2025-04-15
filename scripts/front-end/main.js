@@ -9,8 +9,6 @@ import ImportHistoriqueNouvelleAquitaine from './routes/import-historique/Nouvel
 import PreremplissageDerogation from './routes/PreremplissageDerogation.js';
 import TmpStats from './routes/TmpStats.js';
 
-import PrototypeGénérationFichier from './routes/PrototypeGénérationFichier.js'
-
 import { init } from './actions/main.js';
 
 
@@ -23,8 +21,6 @@ page('/preremplissage-derogation', PreremplissageDerogation)
 page('/tmp/stats', TmpStats)
 
 page('/import-historique/nouvelle-aquitaine', ImportHistoriqueNouvelleAquitaine)
-
-page('/prototype/generation-fichier', PrototypeGénérationFichier)
 
 
 init()
