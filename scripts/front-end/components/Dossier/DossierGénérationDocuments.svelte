@@ -1,5 +1,5 @@
 <script>
-    import {fillOdtTemplate} from '@odfjs/odfjs'
+    import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
@@ -36,6 +36,11 @@
     $: urlDocumentGénéré = documentGénéré && URL.createObjectURL(documentGénéré);
     /** @type {string | undefined} */
     let nomDocumentGénéré
+
+    /** @type {Promise<string> | undefined} */
+    $: texteDocumentGénéré = documentGénéré && documentGénéré.arrayBuffer()
+        .then(getOdtTextContent)
+
 
     /**
      * 
@@ -97,7 +102,14 @@
             <a class="fr-link fr-link--download" download={nomDocumentGénéré} href={urlDocumentGénéré}>
                 Télécharger le document généré
             </a>
-
+            <details>
+                <summary>Voir le texte brut</summary>
+                {#await texteDocumentGénéré}
+                    (... en chargement ...)
+                {:then texte} 
+                    <div class="texte-document-généré">{texte}</div>
+                {/await}
+            </details>
 
         </div>
     {/if}
@@ -113,9 +125,11 @@
         }
     }
 
+    .texte-document-généré{
+        white-space: preserve;
+        padding: 1rem;
 
-
-
-
+        background-color: var(--background-contrast-grey);
+    }
 
 </style>
