@@ -32,7 +32,7 @@
 
     /** @type {Blob | undefined} */
     let documentGénéré;
-    /** @type {URL | undefined} */
+    /** @type {string | undefined} */
     $: urlDocumentGénéré = documentGénéré && URL.createObjectURL(documentGénéré);
     /** @type {string | undefined} */
     let nomDocumentGénéré
