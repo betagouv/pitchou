@@ -54,16 +54,14 @@
         }
 
 		const data = {
-            dossier:{
-                nom: dossier.nom,
-                identifiant_onagre: dossier.historique_identifiant_demande_onagre,
-                activité_principale: dossier.activité_principale,
-                demandeur: formatPorteurDeProjet(dossier),
-                localisation: formatLocalisation(dossier),
-                régime_autorisation_environnementale: dossier.rattaché_au_régime_ae === null ? '' :
-                    (dossier.rattaché_au_régime_ae ? 'Oui' : 'Non'),
-                espèces_impacts: await espècesImpactéesParActivité
-            }
+            nom: dossier.nom,
+            identifiant_onagre: dossier.historique_identifiant_demande_onagre,
+            activité_principale: dossier.activité_principale,
+            demandeur: formatPorteurDeProjet(dossier),
+            localisation: formatLocalisation(dossier),
+            régime_autorisation_environnementale: dossier.rattaché_au_régime_ae === null ? '' :
+                (dossier.rattaché_au_régime_ae ? 'Oui' : 'Non'),
+            espèces_impacts: await espècesImpactéesParActivité
         }
 
         console.log('data', data)
