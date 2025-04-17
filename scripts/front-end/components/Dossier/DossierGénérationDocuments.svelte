@@ -30,6 +30,12 @@
     $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(créerEspècesGroupéesParImpact)
     //.catch(err => console.error('err', err))
 
+    /** @type {Blob | undefined} */
+    let documentGénéré;
+    /** @type {URL | undefined} */
+    $: urlDocumentGénéré = documentGénéré && URL.createObjectURL(documentGénéré);
+    /** @type {string | undefined} */
+    let nomDocumentGénéré
 
     /**
      * 
@@ -59,27 +65,13 @@
 
 		const templateAB = await template.arrayBuffer()
 		const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
-        const blob = new Blob([documentArrayBuffer], {type: template.type});
+        documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
 
         const [part1, part2] = template.name.split('.')
         const datetime = (new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)
-
-		download(blob, `${part1}-${datetime}.${part2}`)
+		nomDocumentGénéré = `${part1}-${datetime}.${part2}`
 	}
 
-    /**
-     * 
-     * @param {Blob} blob
-     * @param {string} filename
-     */
-    async function download(blob, filename){
-        const link = document.createElement("a");
-        link.download = filename;
-        link.href = URL.createObjectURL(blob);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
 </script>
 
 <div class="row">
@@ -99,11 +91,31 @@
 
         <button class="fr-btn" type="submit" disabled={!template}>Générer le document !</button>
     </form>
+
+    {#if documentGénéré && nomDocumentGénéré}
+        <div>            
+            <a class="fr-link fr-link--download" download={nomDocumentGénéré} href={urlDocumentGénéré}>
+                Télécharger le document généré
+            </a>
+
+
+        </div>
+    {/if}
 </div>
 
 
 <style lang="scss">
-    .fr-upload-group{
-        margin-bottom: 1rem;
+    form{
+        margin-bottom: 2rem;
+
+        .fr-upload-group{
+            margin-bottom: 2rem;
+        }
     }
+
+
+
+
+
+
 </style>
