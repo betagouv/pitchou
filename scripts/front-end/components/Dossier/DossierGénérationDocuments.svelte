@@ -1,5 +1,5 @@
 <script>
-    import {fillOdtTemplate} from '@odfjs/odfjs'
+    import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
@@ -30,6 +30,17 @@
     $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(créerEspècesGroupéesParImpact)
     //.catch(err => console.error('err', err))
 
+    /** @type {Blob | undefined} */
+    let documentGénéré;
+    /** @type {string | undefined} */
+    $: urlDocumentGénéré = documentGénéré && URL.createObjectURL(documentGénéré);
+    /** @type {string | undefined} */
+    let nomDocumentGénéré
+
+    /** @type {Promise<string> | undefined} */
+    $: texteDocumentGénéré = documentGénéré && documentGénéré.arrayBuffer()
+        .then(getOdtTextContent)
+
 
     /**
      * 
@@ -59,27 +70,13 @@
 
 		const templateAB = await template.arrayBuffer()
 		const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
-        const blob = new Blob([documentArrayBuffer], {type: template.type});
+        documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
 
         const [part1, part2] = template.name.split('.')
         const datetime = (new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)
-
-		download(blob, `${part1}-${datetime}.${part2}`)
+		nomDocumentGénéré = `${part1}-${datetime}.${part2}`
 	}
 
-    /**
-     * 
-     * @param {Blob} blob
-     * @param {string} filename
-     */
-    async function download(blob, filename){
-        const link = document.createElement("a");
-        link.download = filename;
-        link.href = URL.createObjectURL(blob);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
 </script>
 
 <div class="row">
@@ -99,11 +96,40 @@
 
         <button class="fr-btn" type="submit" disabled={!template}>Générer le document !</button>
     </form>
+
+    {#if documentGénéré && nomDocumentGénéré}
+        <div>            
+            <a class="fr-link fr-link--download" download={nomDocumentGénéré} href={urlDocumentGénéré}>
+                Télécharger le document généré
+            </a>
+            <details>
+                <summary>Voir le texte brut</summary>
+                {#await texteDocumentGénéré}
+                    (... en chargement ...)
+                {:then texte} 
+                    <div class="texte-document-généré">{texte}</div>
+                {/await}
+            </details>
+
+        </div>
+    {/if}
 </div>
 
 
 <style lang="scss">
-    .fr-upload-group{
-        margin-bottom: 1rem;
+    form{
+        margin-bottom: 2rem;
+
+        .fr-upload-group{
+            margin-bottom: 2rem;
+        }
     }
+
+    .texte-document-généré{
+        white-space: preserve;
+        padding: 1rem;
+
+        background-color: var(--background-contrast-grey);
+    }
+
 </style>
