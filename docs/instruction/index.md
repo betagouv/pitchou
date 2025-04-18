@@ -8,3 +8,4 @@ Vous y trouverez :
 - une [explication de comment un service instructeur peut intégrer Pitchou](./embarquement-nouveau-service-instructeur)
 - une [explication des différentes phases de l'instruction d'un dossier DDEP](./phases-instructions)
 - [Pourquoi le CERFA n'est-il plus nécessaire ?](./cerfa)
+- [Utiliser et créer des **document-types**](./document-types)
