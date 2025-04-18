@@ -17,7 +17,7 @@ Les données disponibles sont :
 - <code>{demandeur}</code> (type: texte) - Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale
 - <code>{localisation}</code> (type: texte) - Localisation du dossier
 - <code>{activité_principale}</code> (type: texte) - Activité principale du dossier
-- <code>{régime_autorisation_environnementale}</code> (type: texte) - Nom du dossier
+- <code>{régime_autorisation_environnementale}</code> (type: texte) - 'Oui' ou 'Non'
 - <code>{identifiant_onagre}</code> (type: texte) - Identifiant Onagre du dossier si présent
 - <code>{espèces_impacts}</code> (type: collection d'objets) - La liste des espèces impactées telles que listées par le pétitionnaire groupées par impact. Chaque objet contient les propriétés suivantes :
     - <code>{activité}</code> (type: texte) - impact sur l'espèce

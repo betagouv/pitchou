@@ -25,5 +25,3 @@ Le plus gros du travail repose sur la création de document-types qui seront rem
 
 [Une page est dédiée à la création de des document-types](./creation.md)
 
-
-⚠️
