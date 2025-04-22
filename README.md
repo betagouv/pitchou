@@ -43,7 +43,6 @@ Pour régénérer tous les types :
 
 exécuter `npm run build-types:db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
-Dans le fichier .js du type supprimer l'export ligne 3 `export {};`
 
 
 #### Re-générer les types à partir du schema DS 88444

@@ -115,11 +115,6 @@ export interface DossierDemarcheSimplifiee88444 {
    * Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes
    */
   "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes": ChampDSPieceJustificative;
-  /**
-   * Ce champ va bientôt être supprimé.
-   *
-   */
-  "NE PAS REMPLIR - Lien vers la liste des espèces concernées": string;
   "Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet": string;
   "Motif de la dérogation":
     | "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)"

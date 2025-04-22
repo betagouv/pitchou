@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2025-02-11T15:37:23+01:00",
+    "dateDerniereModification": "2025-04-18T13:29:12+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTgwMjgz",
-        "datePublication": "2025-02-10T11:01:02+01:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTgzMjA0",
+        "datePublication": "2025-03-21T09:09:18+01:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
@@ -397,13 +397,6 @@
                 "description": "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
                 "required": false,
                 "fileTemplate": null
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtMzg5NzQwNQ==",
-                "label": "NE PAS REMPLIR - Lien vers la liste des espèces concernées",
-                "description": "Ce champ va bientôt être supprimé.\r\n",
-                "required": false
             },
             {
                 "__typename": "HeaderSectionChampDescriptor",
@@ -1224,6 +1217,13 @@
                 "__typename": "TextareaChampDescriptor",
                 "id": "Q2hhbXAtNDY5ODI4OA==",
                 "label": "GeoMCE - commentaire libre",
+                "description": "",
+                "required": false
+            },
+            {
+                "__typename": "CarteChampDescriptor",
+                "id": "Q2hhbXAtNTA2NTIwOA==",
+                "label": "Nouvelle annotation",
                 "description": "",
                 "required": false
             }

@@ -3,12 +3,12 @@
 
 import { type DossierId } from './Dossier';
 
-/** Identifier type for public.espèces_impactées */
-export type EspCesImpactEsId = string & { __brand: 'EspCesImpactEsId' };
+/** Identifier type for public.fichier */
+export type FichierId = string & { __brand: 'FichierId' };
 
-/** Represents the table public.espèces_impactées */
-export default interface EspCesImpactEs {
-  id: EspCesImpactEsId;
+/** Represents the table public.fichier */
+export default interface Fichier {
+  id: FichierId;
 
   dossier: DossierId;
 
@@ -23,10 +23,10 @@ export default interface EspCesImpactEs {
   DS_createdAt: Date | null;
 }
 
-/** Represents the initializer for the table public.espèces_impactées */
-export interface EspCesImpactEsInitializer {
+/** Represents the initializer for the table public.fichier */
+export interface FichierInitializer {
   /** Default value: gen_random_uuid() */
-  id?: EspCesImpactEsId;
+  id?: FichierId;
 
   dossier: DossierId;
 
@@ -41,9 +41,9 @@ export interface EspCesImpactEsInitializer {
   DS_createdAt?: Date | null;
 }
 
-/** Represents the mutator for the table public.espèces_impactées */
-export interface EspCesImpactEsMutator {
-  id?: EspCesImpactEsId;
+/** Represents the mutator for the table public.fichier */
+export interface FichierMutator {
+  id?: FichierId;
 
   dossier?: DossierId;
 
