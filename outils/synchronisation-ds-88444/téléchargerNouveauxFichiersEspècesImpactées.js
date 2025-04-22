@@ -1,6 +1,9 @@
 import {extname} from 'node:path';
 import { trouverFichiersEspècesImpactéesExistants } from '../../scripts/server/database/espèces_impactées.js';
+import { makeFichierHash } from '../../scripts/server/database/fichier.js';
+
 import téléchargerFichierDS from './téléchargerFichierDS.js';
+
 
 /** @import {DossierDS88444, DSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {FichierMutator, default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
@@ -42,20 +45,7 @@ function DScontentTypeToActualMediaType({contentType, filename}){
     return contentType
 }
 
-/**
- * Fonction qui créé une clef unique pour la valeur de son argument
- * 
- * @param {Partial<Fichier>} espèceImpactée 
- * @returns {string}
- */
-function makeEspèceImpactéeHash(espèceImpactée){
-    return [
-        espèceImpactée.DS_checksum,
-        espèceImpactée.DS_createdAt?.toISOString(),
-        espèceImpactée.nom,
-        espèceImpactée.media_type,
-    ].join('-')
-}
+
 
 /**
  * Cette fonction lance tous les téléchargements d'un coup et retourne tous les résultats en un seul bloc
@@ -87,7 +77,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
         transaction
     )
 
-    const fichierHashDéjàEnBDD = new Set( fichiersDéjaEnBDD.map(makeEspèceImpactéeHash) )
+    const fichierHashDéjàEnBDD = new Set( fichiersDéjaEnBDD.map(makeFichierHash) )
 
     //console.log('fichierHashDéjàEnBDD', fichierHashDéjàEnBDD)
 
@@ -95,7 +85,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
     // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données
     const fichiersÀTélécharger = new Map([...candidatsFichiersImpactéesFormatBDD]
         .filter(([_, fichier]) => {
-            const hash = makeEspèceImpactéeHash(fichier)
+            const hash = makeFichierHash(fichier)
             return !fichierHashDéjàEnBDD.has(hash)
         })
     )
