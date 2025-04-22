@@ -14,7 +14,7 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 //@ts-ignore
-/** @import {default as EspècesImpactées} from '../../types/database/public/EspècesImpactées.ts' */
+/** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
 //@ts-ignore
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 //@ts-ignore
@@ -302,11 +302,11 @@ const colonnesDossierComplet = [
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "dossier.nom as nom",
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
-    "espèces_impactées.contenu as espèces_impactées_contenu",
+    "fichier.contenu as espèces_impactées_contenu",
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
-    "espèces_impactées.nom as espèces_impactées_nom",
+    "fichier.nom as espèces_impactées_nom",
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
-    "espèces_impactées.media_type as espèces_impactées_media_type",
+    "fichier.media_type as espèces_impactées_media_type",
     "rattaché_au_régime_ae",
     "activité_principale",
 
@@ -378,7 +378,7 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
-        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
+        .leftJoin('fichier', {'fichier.dossier': 'dossier.id'})
         .then(dossiers => {
             for(const dossier of dossiers){
                 const id_fichier_espèces_impactées = dossier.url_fichier_espèces_impactées
@@ -431,7 +431,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
-        .leftJoin('espèces_impactées', {'espèces_impactées.dossier': 'dossier.id'})
+        .leftJoin('fichier', {'fichier.dossier': 'dossier.id'})
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
         .andWhere({"dossier.id": dossierId})
         .first()
@@ -745,11 +745,11 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
 }
 
 /**
- * @param {EspècesImpactées['id']} fichierId 
+ * @param {Fichier['id']} fichierId 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export function getFichierEspècesImpactées(fichierId, databaseConnection = directDatabaseConnection){
-    return databaseConnection('espèces_impactées')
+    return databaseConnection('fichier')
         .select('*')
         .where('id', fichierId)
         .first()
