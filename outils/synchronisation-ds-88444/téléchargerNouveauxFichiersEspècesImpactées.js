@@ -3,7 +3,7 @@ import { trouverFichiersEspècesImpactéesExistants } from '../../scripts/server
 import téléchargerFichierDS from './téléchargerFichierDS.js';
 
 /** @import {DossierDS88444, DSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {EspCesImpactEsMutator, default as EspècesImpactées} from '../../scripts/types/database/public/EspècesImpactées.ts' */
+/** @import {FichierMutator, default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
 
 const openDocumentTypes = new Map([
@@ -45,7 +45,7 @@ function DScontentTypeToActualMediaType({contentType, filename}){
 /**
  * Fonction qui créé une clef unique pour la valeur de son argument
  * 
- * @param {Partial<EspècesImpactées>} espèceImpactée 
+ * @param {Partial<Fichier>} espèceImpactée 
  * @returns {string}
  */
 function makeEspèceImpactéeHash(espèceImpactée){
@@ -62,10 +62,10 @@ function makeEspèceImpactéeHash(espèceImpactée){
  * 
  * @param {Map<DossierDS88444['number'], DSPieceJustificative>} candidatsFichiersImpactées 
  * @param {Knex.Transaction | Knex} [transaction]
- * @returns {Promise<Map<DossierDS88444['number'], Partial<EspècesImpactées>>>}
+ * @returns {Promise<Map<DossierDS88444['number'], Partial<Fichier>>>}
  */
 export default async function téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, transaction){
-    /** @type {Map<DossierDS88444['number'], EspCesImpactEsMutator & {url?: string}>} */
+    /** @type {Map<DossierDS88444['number'], FichierMutator & {url?: string}>} */
     const candidatsFichiersImpactéesFormatBDD = new Map(
         [...candidatsFichiersImpactées].map(([number, {filename, contentType, checksum, createdAt, url}]) => {
             return [
@@ -102,7 +102,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
 
     //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
 
-    /** @typedef { [DossierDS88444['number'], Partial<EspècesImpactées>] } ReturnMapEntryData */
+    /** @typedef { [DossierDS88444['number'], Partial<Fichier>] } ReturnMapEntryData */
 
     // Télécharger les fichiers et les mettre dans un format prêt à être insérés en BDD (mais qui n'a pas de Dossier.id)
     /** @type {Promise<ReturnMapEntryData | undefined>[]} */

@@ -1,6 +1,6 @@
 import Dossier from './database/public/Dossier.ts'
 import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
-import EspècesImpactées from './database/public/EspècesImpactées.ts'
+import Fichier from './database/public/Fichier.ts'
 import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
 
 
@@ -81,5 +81,5 @@ export type DossierComplet = Omit<Dossier,
     & DossierLocalisation
     & DossierPersonnesImpliquées
     & DossierActivitéPrincipale
-    & { espècesImpactées: Pick<EspècesImpactées, 'contenu' | 'media_type' | 'nom'> | undefined }
+    & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }

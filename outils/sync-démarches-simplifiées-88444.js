@@ -25,7 +25,7 @@ import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-d
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {default as EspècesImpactées} from '../scripts/types/database/public/EspècesImpactées.ts' */
+/** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
@@ -117,7 +117,7 @@ const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescript
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique" | "espèces_protégées_concernées">[]} */
+/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique" | "espèces_protégées_concernées" | "espèces_impactées">[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
 {
     id: id_demarches_simplifiées,
@@ -481,7 +481,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique"| "espèces_protégées_concernées">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique"| "espèces_protégées_concernées" | "espèces_impactées">[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
@@ -523,7 +523,7 @@ const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) =>
 
 //checkMemory()
 
-/** @type {Promise<Map<DossierDS88444['number'], Partial<EspècesImpactées>>> | Promise<void> } */
+/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>>> | Promise<void> } */
 let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
 if(candidatsFichiersImpactées.size >= 1){
     fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)

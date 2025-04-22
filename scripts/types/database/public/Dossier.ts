@@ -3,6 +3,7 @@
 
 import { type PersonneId } from './Personne';
 import { type EntrepriseSiret } from './Entreprise';
+import { type FichierId } from './Fichier';
 
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: 'DossierId' };
@@ -80,6 +81,8 @@ export default interface Dossier {
   prochaine_action_attendue_par: string | null;
 
   activité_principale: string | null;
+
+  espèces_impactées: FichierId | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -156,6 +159,8 @@ export interface DossierInitializer {
   prochaine_action_attendue_par?: string | null;
 
   activité_principale?: string | null;
+
+  espèces_impactées?: FichierId | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -231,4 +236,6 @@ export interface DossierMutator {
   prochaine_action_attendue_par?: string | null;
 
   activité_principale?: string | null;
+
+  espèces_impactées?: FichierId | null;
 }
