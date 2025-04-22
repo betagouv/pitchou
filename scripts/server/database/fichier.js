@@ -1,4 +1,4 @@
-
+//@ts-expect-error https://github.com/microsoft/TypeScript/issues/60908
 /** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
 
 /**

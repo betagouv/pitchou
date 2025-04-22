@@ -4,6 +4,7 @@ import { makeFichierHash } from '../../../scripts/server/database/fichier.js';
 
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
+//@ts-expect-error https://github.com/microsoft/TypeScript/issues/60908
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {Knex} from 'knex' */
 
