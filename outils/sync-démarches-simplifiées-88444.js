@@ -8,7 +8,7 @@ import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésulta
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
-import { ajouterFichiersEspèces } from '../scripts/server/database/espèces_impactées.js'
+import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
 
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
@@ -631,15 +631,8 @@ if(idToTraitements.size >= 1){
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
         //checkMemory()
-
-        for(const [number, fichierEspècesImpactées] of fichiersEspècesImpactéesTéléchargés){
-            const dossierId = dossierIdByDS_number.get(number)
-    
-            fichierEspècesImpactées.dossier = dossierId
-        }
-    
-        return ajouterFichiersEspèces(
-            [...fichiersEspècesImpactéesTéléchargés.values()],
+        return ajouterFichiersEspècesImpactéesDepuisDS88444(
+            fichiersEspècesImpactéesTéléchargés,
             laTransactionDeSynchronisationDS
         )
     }
