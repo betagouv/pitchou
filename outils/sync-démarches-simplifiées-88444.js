@@ -29,7 +29,7 @@ import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-d
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative, DSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
@@ -63,7 +63,7 @@ else{
     lastModified = sub(new Date(), {hours: 12})
 }
 
-console.log(
+console.info(
     `Synchronisation des dossiers de la démarche`, 
     DEMARCHE_NUMBER, 
     'modifiés depuis le', 
@@ -92,8 +92,9 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 )
 
 
+console.info('Nombre de dossiers', dossiersDS.length)
+
 //console.log('démarche', démarche)
-console.log('Nombre de dossiers', dossiersDS.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
 //console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
@@ -503,6 +504,7 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
 
 /** Télécharger les fichiers espèces impactées */
 
+/** @type {Map<DossierDS88444['number'], DSPieceJustificative>} */
 // @ts-ignore
 const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) => {
     const fichierEspècesImpactéesChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
@@ -511,13 +513,20 @@ const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) =>
     // @ts-ignore
     const champFichierEspècesImpactées = champs.find(c => c.id === fichierEspècesImpactéesChampId)
 
+    // ne garder que le premier fichier et ignorer les autres
     const descriptionFichierEspècesImpactées = champFichierEspècesImpactées?.files[0]
 
-    return [
-        number,
-        descriptionFichierEspècesImpactées
-    ]
-}).filter(([_, des]) => des !== undefined))
+    if(descriptionFichierEspècesImpactées){
+        return [
+            number,
+            descriptionFichierEspècesImpactées
+        ]
+    }
+    else{
+        return undefined
+    }
+    
+}).filter(x => x !== undefined))
 
 //console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
 
@@ -530,6 +539,10 @@ if(candidatsFichiersImpactées.size >= 1){
 }
 
 
+
+/**
+ * Synchronisation des dossiers
+ */
 let dossiersSynchronisés
 if(dossiers.length >= 1){
     dossiersSynchronisés = dumpDossiers(dossiers)
@@ -545,6 +558,15 @@ await Promise.all([
     dossiersSynchronisés,
     dossiersSupprimés
 ])
+
+/**
+ * Après synchronisation des dossiers
+ * 
+ * Désormais, chaque dossier de la variable 'dossiers' avec un numéro de dossier DS 
+ * a aussi un identifiant de dossier pitchou
+ */
+
+
 
 /**
  * Synchronisation de toutes les choses qui ont besoin d'un Dossier['id']
