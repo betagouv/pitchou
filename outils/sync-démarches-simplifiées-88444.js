@@ -20,12 +20,15 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargésNouveauxFichiersEspècesImpactées.js'
+import téléchargerNouveauxFichiersAP_AM from './synchronisation-ds-88444/téléchargerNouveauxFichiersAP_AM.js'
+import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
 
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
+/** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, DSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
@@ -364,7 +367,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
         date_avis_csrpn,
         date_avis_cnpn,
         avis_csrpn_cnpn,
+        
         date_consultation_public,
+
         historique_décision,
         historique_date_signature_arrêté_préfectoral,
         historique_référence_arrêté_préfectoral,
@@ -509,7 +514,28 @@ if(!fichierEspècesImpactéeChampId){
     throw new Error('fichierEspècesImpactéeChampId is undefined')
 }
 
-const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(dossiersDS, fichierEspècesImpactéeChampId, laTransactionDeSynchronisationDS)
+/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} */
+const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
+    dossiersDS, 
+    fichierEspècesImpactéeChampId, 
+    laTransactionDeSynchronisationDS
+)
+
+
+/** Télécharger les nouveaux arrêtés préfectoraux et ministériels depuis les annotations privées */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierAP_AMAnnotationId = pitchouKeyToAnnotationDS.get('AP/AM')
+
+if(!fichierAP_AMAnnotationId){
+    throw new Error('fichierAP_AMAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} */
+const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
+    dossiersDS, 
+    fichierAP_AMAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
 
 
 
@@ -621,7 +647,7 @@ if(idToTraitements.size >= 1){
 }
 
 
-/** Synchronisation des fichiers téléchargés */
+/** Synchronisation des fichiers espèces impactées téléchargés */
 
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
@@ -635,6 +661,29 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 })
 
 
+/** Synchronisation des fichiers AP/AM téléchargés */
+
+/* Pour le moment, on ne fait rien d'utile des fichiers AP/AM */
+
+fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
+    console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
+})
+
+
+/*
+const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
+    if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
+        //checkMemory()
+        throw `il faut aussi les méta-données de l'arrêté`
+
+        return miseÀJourDécisionsAdministrativesDepuisDS88444(
+            fichiersAP_AMTéléchargés,
+            laTransactionDeSynchronisationDS
+        )
+    }
+})
+*/
+
 
 /** Fin de l'outil de synchronisation - fermeture */
 
@@ -644,7 +693,8 @@ Promise.all([
     traitementsSynchronisés,
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
-    fichiersEspècesImpactéesSynchronisés
+    fichiersEspècesImpactéesSynchronisés,
+    //fichiersAP_AMSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')

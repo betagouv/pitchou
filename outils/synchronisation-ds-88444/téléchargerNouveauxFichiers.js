@@ -102,6 +102,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
     // Télécharger les fichiers et les mettre dans un format prêt à être insérés en BDD (mais qui n'a pas de Dossier.id)
     /** @type {Promise<ReturnMapEntryData | undefined>[]} */
+    // @ts-ignore
     const retMapDataPs = [...fichiersÀTélécharger].map(([number, fichiers]) => {
         return Promise.all(fichiers.map(async fichier => {
             const {url} = fichier

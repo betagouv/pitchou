@@ -13,29 +13,29 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} 
  */
-export default function téléchargerNouveauxFichiersEspècesImpactées(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
+export default function téléchargerNouveauxFichiersAP_AM(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
 
     /** @type {Map<DossierDS88444['number'], DSPieceJustificative[]>} */
-    const candidatsFichiersEspècesImpactées = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
+    const candidatsFichiersAP_AM = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
 
-    // console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
+    //console.log('candidatsFichiersAP_AM', candidatsFichiersAP_AM)
 
     //checkMemory()
 
-    /** @type { ReturnType<téléchargerNouveauxFichiersEspècesImpactées> } */
-    let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
-    if(candidatsFichiersEspècesImpactées.size >= 1){
+    /** @type { ReturnType<téléchargerNouveauxFichiersAP_AM> } */
+    let fichiersAP_AMTéléchargésP = Promise.resolve() 
+    if(candidatsFichiersAP_AM.size >= 1){
         // ne garder que le premier fichier et ignorer les autres
-        let candidatsFichiersEspècesImpactéesUnParChamp = new Map(
-            [...candidatsFichiersEspècesImpactées].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
+        let candidatsFichiersAP_AMUnParChamp = new Map(
+            [...candidatsFichiersAP_AM].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
         )
 
-        fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiers(
-            candidatsFichiersEspècesImpactéesUnParChamp, 
+        fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiers(
+            candidatsFichiersAP_AMUnParChamp, 
             laTransactionDeSynchronisationDS
         )
     }
 
-    return fichiersEspècesImpactéesTéléchargésP
+    return fichiersAP_AMTéléchargésP
 }
 
