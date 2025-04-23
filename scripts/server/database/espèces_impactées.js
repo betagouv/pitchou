@@ -49,8 +49,6 @@ export async function ajouterFichiersEspècesImpactéesDepuisDS88444(espècesImp
     /** @type {Fichier[]} */
     const fichiersInsérés = await databaseConnection('fichier')
         .insert([...espècesImpactéesParNuméroDossier.values()])
-        .onConflict('dossier')
-        .merge()
         .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
 
     // Associer les nouveaux fichiers au bon dossier
