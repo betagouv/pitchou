@@ -19,14 +19,12 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 //import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import téléchargerNouveauxFichiers from './synchronisation-ds-88444/téléchargerNouveauxFichiers.js'
-import trouverCandidatsFichiersÀTélécharger from './synchronisation-ds-88444/trouverCandidatsFichiersÀTélécharger.js'
+import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargésNouveauxFichiersEspècesImpactées.js'
 
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, DSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -503,8 +501,7 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
 })
 
 
-/** Télécharger les fichiers espèces impactées */
-
+/** Télécharger les nouveaux fichiers espèces impactées */
 /** @type {ChampDescriptor['id'] | undefined} */
 const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
 
@@ -512,23 +509,7 @@ if(!fichierEspècesImpactéeChampId){
     throw new Error('fichierEspècesImpactéeChampId is undefined')
 }
 
-/** @type {Map<DossierDS88444['number'], DSPieceJustificative[]>} */
-const candidatsFichiersImpactées = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierEspècesImpactéeChampId)
-
-// console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
-
-//checkMemory()
-
-/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void> } */
-let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
-if(candidatsFichiersImpactées.size >= 1){
-    // ne garder que le premier fichier et ignorer les autres
-    let candidatsFichiersImpactéesUnParChamp = new Map(
-        [...candidatsFichiersImpactées].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
-    )
-
-    fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiers(candidatsFichiersImpactéesUnParChamp, laTransactionDeSynchronisationDS)
-}
+const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(dossiersDS, fichierEspècesImpactéeChampId, laTransactionDeSynchronisationDS)
 
 
 
