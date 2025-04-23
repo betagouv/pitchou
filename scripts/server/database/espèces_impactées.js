@@ -1,34 +1,12 @@
 import {directDatabaseConnection} from '../database.js'
-
 import { makeFichierHash } from '../../../scripts/server/database/fichier.js';
 
-
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
-//@ts-expect-error https://github.com/microsoft/TypeScript/issues/60908
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {Knex} from 'knex' */
 
-/**
- * 
- * @param {Partial<Fichier>[]} descriptionsEspècesImpactées
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<Partial<Fichier>[]>}
- */
-export function trouverFichiersEspècesImpactéesExistants(descriptionsEspècesImpactées, databaseConnection = directDatabaseConnection){
-
-    return databaseConnection('fichier')
-        .select(['DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
-        .whereIn(
-            ['DS_checksum', 'DS_createdAt', 'nom', 'media_type'],
-            // @ts-ignore
-            descriptionsEspècesImpactées
-                .map(({DS_checksum, DS_createdAt, nom, media_type}) => 
-                    [DS_checksum, DS_createdAt, nom, media_type]
-                )
-        )
-
-}
-
+//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
+const inutile = true;
 
 /**
  * 
@@ -40,8 +18,7 @@ export async function ajouterFichiersEspècesImpactéesDepuisDS88444(espècesImp
 
     // Trouver les fichiers déjà en place (pour les supprimer plus bas)
     const fichiersIdPrécédents = await databaseConnection('dossier')
-        //.select(['espèces_impactées'])
-        .select(['*'])
+        .select(['espèces_impactées'])
         .whereIn('number_demarches_simplifiées', [...espècesImpactéesParNuméroDossier.keys()])
         .andWhereNot({'espèces_impactées': null})
 

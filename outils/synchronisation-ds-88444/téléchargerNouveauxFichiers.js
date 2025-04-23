@@ -1,5 +1,5 @@
 import {extname} from 'node:path';
-import { trouverFichiersEspècesImpactéesExistants } from '../../scripts/server/database/espèces_impactées.js';
+import { trouverFichiersExistants } from '../../scripts/server/database/fichier.js';
 import { makeFichierHash } from '../../scripts/server/database/fichier.js';
 
 import téléchargerFichierDS from './téléchargerFichierDS.js';
@@ -50,14 +50,14 @@ function DScontentTypeToActualMediaType({contentType, filename}){
 /**
  * Cette fonction lance tous les téléchargements d'un coup et retourne tous les résultats en un seul bloc
  * 
- * @param {Map<DossierDS88444['number'], DSPieceJustificative>} candidatsFichiersImpactées 
+ * @param {Map<DossierDS88444['number'], DSPieceJustificative>} candidatsFichiers 
  * @param {Knex.Transaction | Knex} [transaction]
  * @returns {Promise<Map<DossierDS88444['number'], Partial<Fichier>>>}
  */
-export default async function téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, transaction){
+export default async function téléchargerNouveauxFichiers(candidatsFichiers, transaction){
     /** @type {Map<DossierDS88444['number'], FichierMutator & {url?: string}>} */
-    const candidatsFichiersImpactéesFormatBDD = new Map(
-        [...candidatsFichiersImpactées].map(([number, {filename, contentType, checksum, createdAt, url}]) => {
+    const candidatsFichiersBDD = new Map(
+        [...candidatsFichiers].map(([number, {filename, contentType, checksum, createdAt, url}]) => {
             return [
                 number,
                 {
@@ -72,8 +72,8 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
     )
 
     // Chercher dans la base de données les fichiers que nous avons déjà et qui ressemblent aux candidats
-    const fichiersDéjaEnBDD = await trouverFichiersEspècesImpactéesExistants(
-        [...candidatsFichiersImpactéesFormatBDD.values()], 
+    const fichiersDéjaEnBDD = await trouverFichiersExistants(
+        [...candidatsFichiersBDD.values()], 
         transaction
     )
 
@@ -83,7 +83,7 @@ export default async function téléchargerNouveauxFichiersEspècesImpactées(ca
 
 
     // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données
-    const fichiersÀTélécharger = new Map([...candidatsFichiersImpactéesFormatBDD]
+    const fichiersÀTélécharger = new Map([...candidatsFichiersBDD]
         .filter(([_, fichier]) => {
             const hash = makeFichierHash(fichier)
             return !fichierHashDéjàEnBDD.has(hash)
