@@ -9,7 +9,7 @@ const inutile = true;
  * 
  * @param {DossierDS88444[]} dossiers 
  * @param {ChampDescriptor['id']} champDescriptorId
- * @returns {Map<DossierDS88444['number'], DSPieceJustificative>}
+ * @returns {Map<DossierDS88444['number'], DSPieceJustificative[]>}
  */
 export default function trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId){
     /** @type {ReturnType<trouverCandidatsFichiersÀTélécharger>} */
@@ -20,18 +20,11 @@ export default function trouverCandidatsFichiersÀTélécharger(dossiers, champD
         // @ts-ignore
         const champFichier = champs.find(c => c.id === champDescriptorId) || annotations.find(c => c.id === champDescriptorId)
 
-        // ne garder que le premier fichier et ignorer les autres
-        const descriptionFichier = champFichier?.files[0]
+        const descriptionFichier = champFichier?.files
 
-        if(descriptionFichier){
-            return [
-                number,
-                descriptionFichier
-            ]
-        }
-        else{
-            return undefined
-        }
+        return descriptionFichier && descriptionFichier.length >= 1 ?
+            [ number, descriptionFichier ] : 
+            undefined
         
     }).filter(x => x !== undefined))
 

@@ -10,7 +10,7 @@ const inutile = true;
 
 /**
  * 
- * @param {Map<DossierDS88444['number'], Partial<Fichier>>} espècesImpactéesParNuméroDossier
+ * @param {Map<DossierDS88444['number'], Partial<Fichier>[]>} espècesImpactéesParNuméroDossier
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
@@ -25,7 +25,8 @@ export async function ajouterFichiersEspècesImpactéesDepuisDS88444(espècesImp
     // Insérer les nouveaux fichiers
     /** @type {Fichier[]} */
     const fichiersInsérés = await databaseConnection('fichier')
-        .insert([...espècesImpactéesParNuméroDossier.values()])
+        // ignorer les fichiers autres que le premier fichier d'espèces impactées
+        .insert([...espècesImpactéesParNuméroDossier.values()].map(fichiersEspèces => fichiersEspèces[0]))
         .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
 
     // Associer les nouveaux fichiers au bon dossier
@@ -38,7 +39,10 @@ export async function ajouterFichiersEspècesImpactéesDepuisDS88444(espècesImp
         hashToFichierId.set(hash, id)
     }
 
-    const updatePs = [...espècesImpactéesParNuméroDossier].map(([numberDossier, fichier]) => {
+    const updatePs = [...espècesImpactéesParNuméroDossier].map(([numberDossier, fichiers]) => {
+        // ignorer les fichiers autres que le premier fichier d'espèces impactées
+        const fichier = fichiers[0]
+
         const hash = makeFichierHash(fichier)
         const fichierId = hashToFichierId.get(hash)
 

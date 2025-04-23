@@ -512,17 +512,22 @@ if(!fichierEspècesImpactéeChampId){
     throw new Error('fichierEspècesImpactéeChampId is undefined')
 }
 
-/** @type {Map<DossierDS88444['number'], DSPieceJustificative>} */
+/** @type {Map<DossierDS88444['number'], DSPieceJustificative[]>} */
 const candidatsFichiersImpactées = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierEspècesImpactéeChampId)
 
-console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
+// console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
 
 //checkMemory()
 
-/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>>> | Promise<void> } */
+/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void> } */
 let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
 if(candidatsFichiersImpactées.size >= 1){
-    fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiers(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+    // ne garder que le premier fichier et ignorer les autres
+    let candidatsFichiersImpactéesUnParChamp = new Map(
+        [...candidatsFichiersImpactées].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
+    )
+
+    fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiers(candidatsFichiersImpactéesUnParChamp, laTransactionDeSynchronisationDS)
 }
 
 
@@ -640,6 +645,7 @@ if(idToTraitements.size >= 1){
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
         //checkMemory()
+
         return ajouterFichiersEspècesImpactéesDepuisDS88444(
             fichiersEspècesImpactéesTéléchargés,
             laTransactionDeSynchronisationDS
