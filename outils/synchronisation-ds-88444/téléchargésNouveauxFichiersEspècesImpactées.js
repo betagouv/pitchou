@@ -11,9 +11,9 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
  * @param {DossierDS88444[]} dossiers 
  * @param {ChampDescriptor['id']} champDescriptorId
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} 
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} 
  */
-export default function téléchargerNouveauxFichiersEspècesImpactées(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
+export default async function téléchargerNouveauxFichiersEspècesImpactées(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
 
     /** @type {Map<DossierDS88444['number'], DSPieceJustificative[]>} */
     const candidatsFichiersEspècesImpactées = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
@@ -22,20 +22,21 @@ export default function téléchargerNouveauxFichiersEspècesImpactées(dossiers
 
     //checkMemory()
 
-    /** @type { ReturnType<téléchargerNouveauxFichiersEspècesImpactées> } */
-    let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
     if(candidatsFichiersEspècesImpactées.size >= 1){
         // ne garder que le premier fichier et ignorer les autres
         let candidatsFichiersEspècesImpactéesUnParChamp = new Map(
             [...candidatsFichiersEspècesImpactées].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
         )
 
-        fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiers(
+        return téléchargerNouveauxFichiers(
             candidatsFichiersEspècesImpactéesUnParChamp, 
             laTransactionDeSynchronisationDS
         )
+        .then(nouveauxFichiers => {
+            return new Map([...nouveauxFichiers].map(
+                ([numéro, [id]]) => [numéro, id]
+            ))
+        })
     }
-
-    return fichiersEspècesImpactéesTéléchargésP
 }
 

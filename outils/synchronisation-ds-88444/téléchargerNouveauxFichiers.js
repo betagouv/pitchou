@@ -1,5 +1,7 @@
 import {extname} from 'node:path';
-import { trouverFichiersExistants } from '../../scripts/server/database/fichier.js';
+import byteSize from 'byte-size'
+
+import { ajouterFichier, trouverFichiersExistants } from '../../scripts/server/database/fichier.js';
 import { makeFichierHash } from '../../scripts/server/database/fichier.js';
 
 import téléchargerFichierDS from './téléchargerFichierDS.js';
@@ -9,7 +11,7 @@ import téléchargerFichierDS from './téléchargerFichierDS.js';
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
 
-/** @typedef {Partial<Fichier> & {url?: string}} FichierÀTélécharger */
+/** @typedef {Omit<Fichier, 'id' | 'contenu'> & {url: string}} FichierÀTélécharger */
 
 
 const openDocumentTypes = new Map([
@@ -51,11 +53,12 @@ function DScontentTypeToActualMediaType({contentType, filename}){
 
 
 /**
- * Cette fonction lance tous les téléchargements d'un coup et retourne tous les résultats en un seul bloc
+ * Cette fonction lance les téléchargements, sauvegade les fichiers en base de données
+ * et retourne l'association entre le dossier et les Fichier['id'] correspondants
  * 
  * @param {Map<DossierDS88444['number'], DSPieceJustificative[]>} candidatsFichiers 
  * @param {Knex.Transaction | Knex} [transaction]
- * @returns {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>>}
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
 export default async function téléchargerNouveauxFichiers(candidatsFichiers, transaction){
     /** @type {Map<DossierDS88444['number'], FichierÀTélécharger[]>} */
@@ -98,33 +101,46 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
     //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
 
-    /** @typedef { [DossierDS88444['number'], Partial<Fichier>[]] } ReturnMapEntryData */
+    /** @typedef { [DossierDS88444['number'], Fichier['id'][]] } ReturnMapEntryData */
 
-    // Télécharger les fichiers et les mettre dans un format prêt à être insérés en BDD (mais qui n'a pas de Dossier.id)
+    // Télécharger les fichiers et les mettre directement en base de données
     /** @type {Promise<ReturnMapEntryData | undefined>[]} */
+    
     // @ts-ignore
     const retMapDataPs = [...fichiersÀTélécharger].map(([number, fichiers]) => {
         return Promise.all(fichiers.map(async fichier => {
             const {url} = fichier
-            try {        
-                // @ts-ignore
+            /** @type {Omit<Fichier, 'id'>} */
+            let fichierBDD;
+
+            try {
                 const { contenu } = await téléchargerFichierDS(url);
                 const { DS_checksum, DS_createdAt, media_type, nom } = fichier;
 
-                return {
+                fichierBDD = {
                     DS_checksum,
                     DS_createdAt,
                     media_type,
                     nom,
                     contenu: Buffer.from(contenu) // knex n'accepte que les Buffer node, pas les ArrayBuffer
-                }
+                } 
 
             } catch (err) {
                 console.error(`Erreur lors du téléchargement d'un fichier`, err);
                 return undefined;
             }
+
+            console.log(
+                `Dossier DS`, number,
+                `- Téléchargement et stockage fichier '${fichierBDD.nom}'`, 
+                // @ts-ignore
+                `(${byteSize(fichierBDD.contenu?.byteLength)})`
+            )
+
+            return ajouterFichier(fichierBDD, transaction)
+                .then(f => f.id)
         }))
-        .then(fichiersTéléchargés => [number, fichiersTéléchargés])
+        .then(fichiersTéléchargés => [number, fichiersTéléchargés.filter(f => f !== undefined)])
     })
 
     /** @type {ReturnMapEntryData[]} */

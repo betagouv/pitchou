@@ -11,9 +11,9 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
  * @param {DossierDS88444[]} dossiers 
  * @param {ChampDescriptor['id']} champDescriptorId
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} 
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} 
  */
-export default function téléchargerNouveauxFichiersAP_AM(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
+export default async function téléchargerNouveauxFichiersAP_AM(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
 
     /** @type {Map<DossierDS88444['number'], DSPieceJustificative[]>} */
     const candidatsFichiersAP_AM = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
@@ -22,20 +22,21 @@ export default function téléchargerNouveauxFichiersAP_AM(dossiers, champDescri
 
     //checkMemory()
 
-    /** @type { ReturnType<téléchargerNouveauxFichiersAP_AM> } */
-    let fichiersAP_AMTéléchargésP = Promise.resolve() 
     if(candidatsFichiersAP_AM.size >= 1){
         // ne garder que le premier fichier et ignorer les autres
         let candidatsFichiersAP_AMUnParChamp = new Map(
             [...candidatsFichiersAP_AM].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
         )
 
-        fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiers(
+        return téléchargerNouveauxFichiers(
             candidatsFichiersAP_AMUnParChamp, 
             laTransactionDeSynchronisationDS
         )
+        .then(nouveauxFichiers => {
+            return new Map([...nouveauxFichiers].map(
+                ([numéro, [id]]) => [numéro, id]
+            ))
+        })
     }
-
-    return fichiersAP_AMTéléchargésP
 }
 

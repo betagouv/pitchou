@@ -514,7 +514,7 @@ if(!fichierEspècesImpactéeChampId){
     throw new Error('fichierEspècesImpactéeChampId is undefined')
 }
 
-/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} */
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
 const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
     dossiersDS, 
     fichierEspècesImpactéeChampId, 
@@ -530,12 +530,13 @@ if(!fichierAP_AMAnnotationId){
     throw new Error('fichierAP_AMAnnotationId is undefined')
 }
 
-/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>[]>> | Promise<void>} */
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
 const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
     dossiersDS, 
     fichierAP_AMAnnotationId, 
     laTransactionDeSynchronisationDS
 )
+
 
 
 

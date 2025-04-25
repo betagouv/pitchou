@@ -44,3 +44,17 @@ export function trouverFichiersExistants(descriptionsFichier, databaseConnection
 
 }
 
+/**
+ * 
+ * @param {Partial<Fichier>} f 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Partial<Fichier>>}
+ */
+export function ajouterFichier(f, databaseConnection = directDatabaseConnection){
+    return databaseConnection('fichier')
+        .insert(f)
+        .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
+        .then(files => files[0])
+}
+
+
