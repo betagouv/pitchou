@@ -98,7 +98,7 @@ export interface Traitement{
     motivation: string | null
 }
 
-type Champs88444 = BaseChampDS | ChampDSCommune | ChampDSDépartement | ChampDSRégions | ChampDSPieceJustificative;
+export type Champs88444 = BaseChampDS | ChampDSCommune | ChampDSDépartement | ChampDSRégions | ChampDSPieceJustificative;
 type Annotations88444 = Champs88444
 
 

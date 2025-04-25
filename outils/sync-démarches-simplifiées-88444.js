@@ -19,19 +19,19 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 //import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargerNouveauxFichiersEspècesImpactées.js'
-
+import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargésNouveauxFichiersEspècesImpactées.js'
+import téléchargerNouveauxFichiersAP_AM from './synchronisation-ds-88444/téléchargerNouveauxFichiersAP_AM.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-/** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
+/** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampDSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 // récups les données de DS
 
@@ -63,7 +63,7 @@ else{
     lastModified = sub(new Date(), {hours: 12})
 }
 
-console.log(
+console.info(
     `Synchronisation des dossiers de la démarche`, 
     DEMARCHE_NUMBER, 
     'modifiés depuis le', 
@@ -92,8 +92,9 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 )
 
 
+console.info('Nombre de dossiers', dossiersDS.length)
+
 //console.log('démarche', démarche)
-console.log('Nombre de dossiers', dossiersDS.length)
 //console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
 //console.log('champs', démarche.dossiers.nodes[0].champs)
 //console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
@@ -364,7 +365,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
         date_avis_csrpn,
         date_avis_cnpn,
         avis_csrpn_cnpn,
+        
         date_consultation_public,
+
         historique_décision,
         historique_date_signature_arrêté_préfectoral,
         historique_référence_arrêté_préfectoral,
@@ -501,35 +504,43 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
 })
 
 
-/** Télécharger les fichiers espèces impactées */
+/** Télécharger les nouveaux fichiers espèces impactées */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
 
-// @ts-ignore
-const candidatsFichiersImpactées = new Map(dossiersDS.map(({number, champs}) => {
-    const fichierEspècesImpactéesChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
-
-    /** @type {ChampDSPieceJustificative | undefined} */
-    // @ts-ignore
-    const champFichierEspècesImpactées = champs.find(c => c.id === fichierEspècesImpactéesChampId)
-
-    const descriptionFichierEspècesImpactées = champFichierEspècesImpactées?.files[0]
-
-    return [
-        number,
-        descriptionFichierEspècesImpactées
-    ]
-}).filter(([_, des]) => des !== undefined))
-
-//console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
-
-//checkMemory()
-
-/** @type {Promise<Map<DossierDS88444['number'], Partial<Fichier>>> | Promise<void> } */
-let fichiersEspècesImpactéesTéléchargésP = Promise.resolve() 
-if(candidatsFichiersImpactées.size >= 1){
-    fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(candidatsFichiersImpactées, laTransactionDeSynchronisationDS)
+if(!fichierEspècesImpactéeChampId){
+    throw new Error('fichierEspècesImpactéeChampId is undefined')
 }
 
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
+const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
+    dossiersDS, 
+    fichierEspècesImpactéeChampId, 
+    laTransactionDeSynchronisationDS
+)
 
+
+/** Télécharger les nouveaux arrêtés préfectoraux et ministériels depuis les annotations privées */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierAP_AMAnnotationId = pitchouKeyToAnnotationDS.get('AP/AM')
+
+if(!fichierAP_AMAnnotationId){
+    throw new Error('fichierAP_AMAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
+const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
+    dossiersDS, 
+    fichierAP_AMAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
+
+
+
+
+/**
+ * Synchronisation des dossiers
+ */
 let dossiersSynchronisés
 if(dossiers.length >= 1){
     dossiersSynchronisés = dumpDossiers(dossiers)
@@ -545,6 +556,15 @@ await Promise.all([
     dossiersSynchronisés,
     dossiersSupprimés
 ])
+
+/**
+ * Après synchronisation des dossiers
+ * 
+ * Désormais, chaque dossier de la variable 'dossiers' avec un numéro de dossier DS 
+ * a aussi un identifiant de dossier pitchou
+ */
+
+
 
 /**
  * Synchronisation de toutes les choses qui ont besoin d'un Dossier['id']
@@ -626,11 +646,12 @@ if(idToTraitements.size >= 1){
 }
 
 
-/** Synchronisation des fichiers téléchargés */
+/** Synchronisation des fichiers espèces impactées téléchargés */
 
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
         //checkMemory()
+
         return ajouterFichiersEspècesImpactéesDepuisDS88444(
             fichiersEspècesImpactéesTéléchargés,
             laTransactionDeSynchronisationDS
@@ -638,6 +659,29 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
     }
 })
 
+
+/** Synchronisation des fichiers AP/AM téléchargés */
+
+/* Pour le moment, on ne fait rien d'utile des fichiers AP/AM */
+
+fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
+    console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
+})
+
+
+/*
+const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
+    if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
+        //checkMemory()
+        throw `il faut aussi les méta-données de l'arrêté`
+
+        return miseÀJourDécisionsAdministrativesDepuisDS88444(
+            fichiersAP_AMTéléchargés,
+            laTransactionDeSynchronisationDS
+        )
+    }
+})
+*/
 
 
 /** Fin de l'outil de synchronisation - fermeture */
@@ -648,7 +692,8 @@ Promise.all([
     traitementsSynchronisés,
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
-    fichiersEspècesImpactéesSynchronisés
+    fichiersEspècesImpactéesSynchronisés,
+    //fichiersAP_AMSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
