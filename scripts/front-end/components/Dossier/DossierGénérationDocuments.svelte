@@ -10,6 +10,8 @@
     let templateFiles;
     $: template = templateFiles && templateFiles[0]
 
+    /** @type {Error | undefined}*/
+    let erreurGénérationDocument;
 
 
     /** @type {DossierComplet} */
@@ -67,12 +69,18 @@
         console.log('data', data)
 
 		const templateAB = await template.arrayBuffer()
-		const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
-        documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
+        try{
+            const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
+            documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
 
-        const [part1, part2] = template.name.split('.')
-        const datetime = (new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)
-		nomDocumentGénéré = `${part1}-${datetime}.${part2}`
+            const [part1, part2] = template.name.split('.')
+            const datetime = (new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)
+            nomDocumentGénéré = `${part1}-${datetime}.${part2}`
+        }
+        catch(err){
+            // @ts-ignore
+            erreurGénérationDocument = err
+        }
 	}
 
 </script>
@@ -81,6 +89,13 @@
     <h2>Génération de documents</h2>
 
     <p>Générer des documents à partir d'un document-type et des données de ce dossier</p>
+
+    {#if erreurGénérationDocument}
+        <div class="fr-alert fr-alert--error fr-mb-3w">
+            <h3 class="fr-alert__title">Erreur lors de la génération du document :</h3>
+            <p>{erreurGénérationDocument}</p>
+        </div>
+    {/if}
 
     <form on:submit={generateDoc}>
         <div class="fr-upload-group">
