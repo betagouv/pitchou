@@ -88,7 +88,11 @@
 <div class="row">
     <h2>Génération de documents</h2>
 
-    <p>Générer des documents à partir d'un document-type et des données de ce dossier</p>
+    <p>
+        Générer des documents à partir d'un <a target="_blank" href="https://betagouv.github.io/pitchou/instruction/document-types/">document-type</a> et des données de ce dossier
+        <br>
+        Vous pouvez <a target="_blank" href="https://betagouv.github.io/pitchou/instruction/document-types/creation.html">créer vos propres document-types</a>
+    </p>
 
     {#if erreurGénérationDocument}
         <div class="fr-alert fr-alert--error fr-mb-3w">
