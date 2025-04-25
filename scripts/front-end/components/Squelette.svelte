@@ -136,6 +136,9 @@
             <li class="fr-nav__item">
                 <a class="fr-nav__link" href="/preremplissage-derogation">Pré-remplissage dérogation</a>
             </li>
+            <li class="fr-nav__item">
+                <a class="fr-nav__link" href="https://betagouv.github.io/pitchou/" target="_blank">Aide pitchou</a>
+            </li>
         </ul>
     </nav>
 {/if}
