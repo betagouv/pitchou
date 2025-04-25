@@ -21,8 +21,6 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargésNouveauxFichiersEspècesImpactées.js'
 import téléchargerNouveauxFichiersAP_AM from './synchronisation-ds-88444/téléchargerNouveauxFichiersAP_AM.js'
-import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
-
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -30,7 +28,7 @@ import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/ser
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, DSPieceJustificative} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
