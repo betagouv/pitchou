@@ -1,13 +1,13 @@
 # Document-types
 
-Pitchou permet de générer des documents à partir de 
-- document-types
+Pitchou permet de **générer des documents** à partir :
+- d'un document-type
 - et des données d'un dossier DDEP.
 
 L'outil de génération de documents est volontairement très flexible pour permettre de générer en un clic des documents variés comme :
-- une saisine CSRPN/CNPN,
-- une demande de compléments
-- ou même, à terme, un arrêté préfectoral.
+- une **saisine CSRPN/CNPN**,
+- une **demande de compléments**,
+- ou même, à terme, **un arrêté préfectoral**.
 
 Cette flexibilité permet de prendre en compte les pratiques diverses des différents service-instructeurs, et de rester ouvert à des changements de cadre législatifs.
 
@@ -20,7 +20,4 @@ Cette flexibilité permet de prendre en compte les pratiques diverses des diffé
 
 ## Les document-types
 
-Le plus gros du travail repose sur la création de document-types qui seront remplis par Pitchou.
-
-[Une page est dédiée à la création de des document-types](./creation.md)
-
+Une page détaille [comment créer vos document-types](./creation.md)
