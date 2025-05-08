@@ -21,6 +21,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargésNouveauxFichiersEspècesImpactées.js'
 import téléchargerNouveauxFichiersAP_AM from './synchronisation-ds-88444/téléchargerNouveauxFichiersAP_AM.js'
+import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -528,7 +529,7 @@ if(!fichierAP_AMAnnotationId){
     throw new Error('fichierAP_AMAnnotationId is undefined')
 }
 
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
 const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
     dossiersDS, 
     fichierAP_AMAnnotationId, 
@@ -544,10 +545,6 @@ const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
 let dossiersSynchronisés
 if(dossiers.length >= 1){
     dossiersSynchronisés = dumpDossiers(dossiers)
-    .catch(err => {
-        console.error('sync démarche simplifiée database error', err)
-        process.exit(1)
-    })
 }
 
 const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
@@ -662,14 +659,7 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 
 /** Synchronisation des fichiers AP/AM téléchargés */
 
-/* Pour le moment, on ne fait rien d'utile des fichiers AP/AM */
 
-fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
-    console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
-})
-
-
-/*
 const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
     if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
         //checkMemory()
@@ -677,11 +667,12 @@ const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_
 
         return miseÀJourDécisionsAdministrativesDepuisDS88444(
             fichiersAP_AMTéléchargés,
+            dossierIdByDS_number
             laTransactionDeSynchronisationDS
         )
     }
 })
-*/
+
 
 
 /** Fin de l'outil de synchronisation - fermeture */
@@ -693,7 +684,7 @@ Promise.all([
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
-    //fichiersAP_AMSynchronisés
+    fichiersAP_AMSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')

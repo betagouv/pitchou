@@ -11,7 +11,7 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
  * @param {DossierDS88444[]} dossiers 
  * @param {ChampDescriptor['id']} champDescriptorId
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} 
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} 
  */
 export default async function téléchargerNouveauxFichiersAP_AM(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
 
@@ -23,20 +23,10 @@ export default async function téléchargerNouveauxFichiersAP_AM(dossiers, champ
     //checkMemory()
 
     if(candidatsFichiersAP_AM.size >= 1){
-        // ne garder que le premier fichier et ignorer les autres
-        let candidatsFichiersAP_AMUnParChamp = new Map(
-            [...candidatsFichiersAP_AM].map(([number, descriptionFichier]) => [number, [descriptionFichier[0]]])
-        )
-
         return téléchargerNouveauxFichiers(
-            candidatsFichiersAP_AMUnParChamp, 
+            candidatsFichiersAP_AM, 
             laTransactionDeSynchronisationDS
         )
-        .then(nouveauxFichiers => {
-            return new Map([...nouveauxFichiers].map(
-                ([numéro, [id]]) => [numéro, id]
-            ))
-        })
     }
 }
 
