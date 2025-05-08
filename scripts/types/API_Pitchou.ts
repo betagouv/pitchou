@@ -83,3 +83,7 @@ export type DossierComplet = Omit<Dossier,
     & DossierActivitéPrincipale
     & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }
+
+
+export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
+
