@@ -21,6 +21,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import téléchargerNouveauxFichiersEspècesImpactées from './synchronisation-ds-88444/téléchargésNouveauxFichiersEspècesImpactées.js'
 import téléchargerNouveauxFichiersAP_AM from './synchronisation-ds-88444/téléchargerNouveauxFichiersAP_AM.js'
+import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -28,9 +29,9 @@ import téléchargerNouveauxFichiersAP_AM from './synchronisation-ds-88444/tél�
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, BaseChampDS, Annotations88444, Champs88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 // récups les données de DS
@@ -118,7 +119,14 @@ const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescript
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique" | "espèces_protégées_concernées" | "espèces_impactées">[]} */
+
+
+/** @type {Map<DatabaseDossier['number_demarches_simplifiées'], DécisionAdministrativeAnnotation88444>} */
+const donnéesDécisionAdministrativeParNuméroDossier = new Map();
+
+
+
+/** @type {Omit<DossierPourSynchronisation, "demandeur_personne_physique" | "espèces_protégées_concernées" | "espèces_impactées" >[]} */
 const dossiersPourSynchronisation = dossiersDS.map((
 {
     id: id_demarches_simplifiées,
@@ -161,6 +169,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /** 
      * Champs 
      */
+    /** @type {Map<string | undefined, Champs88444>} */
     /** @type {Map<string | undefined, any>} */
     const champById = new Map()
     for(const champ of champs){
@@ -282,6 +291,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /**
      * Annotations privées
      */
+    /** @type {Map<string | undefined, Annotations88444>} */
     /** @type {Map<string | undefined, any>} */
     const annotationById = new Map()
     for(const annotation of annotations){
@@ -320,11 +330,20 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
 
-    const historique_décision = annotationById.get(pitchouKeyToAnnotationDS.get("Décision")).stringValue
-    const historique_date_signature_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Date de signature de l'AP")).date
-    const historique_référence_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AP")).stringValue
-    const historique_date_signature_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Date de l'AM")).date
-    const historique_référence_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AM")).stringValue
+    
+    const décision = annotationById.get(pitchouKeyToAnnotationDS.get("Décision")).stringValue
+    const date_signature_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Date de signature de l'AP")).date
+    const référence_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AP")).stringValue
+    const date_signature_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Date de l'AM")).date
+    const référence_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AM")).stringValue
+
+    donnéesDécisionAdministrativeParNuméroDossier.set(number_demarches_simplifiées, {
+        décision: décision || undefined,
+        date_signature_arrêté_préfectoral: date_signature_arrêté_préfectoral ? new Date(date_signature_arrêté_préfectoral) : undefined,
+        référence_arrêté_préfectoral: référence_arrêté_préfectoral || undefined,
+        date_signature_arrêté_ministériel: date_signature_arrêté_ministériel ? new Date(date_signature_arrêté_ministériel) : undefined,
+        référence_arrêté_ministériel: référence_arrêté_ministériel || undefined,
+    })
 
     return {
         // méta-données
@@ -368,11 +387,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
         
         date_consultation_public,
 
-        historique_décision,
-        historique_date_signature_arrêté_préfectoral,
-        historique_référence_arrêté_préfectoral,
-        historique_date_signature_arrêté_ministériel,
-        historique_référence_arrêté_ministériel,
     }
     
 })
@@ -528,7 +542,7 @@ if(!fichierAP_AMAnnotationId){
     throw new Error('fichierAP_AMAnnotationId is undefined')
 }
 
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
 const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
     dossiersDS, 
     fichierAP_AMAnnotationId, 
@@ -544,10 +558,6 @@ const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
 let dossiersSynchronisés
 if(dossiers.length >= 1){
     dossiersSynchronisés = dumpDossiers(dossiers)
-    .catch(err => {
-        console.error('sync démarche simplifiée database error', err)
-        process.exit(1)
-    })
 }
 
 const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
@@ -662,26 +672,22 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 
 /** Synchronisation des fichiers AP/AM téléchargés */
 
-/* Pour le moment, on ne fait rien d'utile des fichiers AP/AM */
 
-fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
-    console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
-})
-
-
-/*
 const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
     if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
         //checkMemory()
-        throw `il faut aussi les méta-données de l'arrêté`
+        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
 
         return miseÀJourDécisionsAdministrativesDepuisDS88444(
             fichiersAP_AMTéléchargés,
+            dossiers,
+            dossierIdByDS_number,
+            donnéesDécisionAdministrativeParNuméroDossier,
             laTransactionDeSynchronisationDS
         )
     }
 })
-*/
+
 
 
 /** Fin de l'outil de synchronisation - fermeture */
@@ -693,7 +699,7 @@ Promise.all([
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
-    //fichiersAP_AMSynchronisés
+    fichiersAP_AMSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
