@@ -676,10 +676,11 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
     if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
         //checkMemory()
-        throw `il faut aussi les méta-données de l'arrêté`
+        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
 
         return miseÀJourDécisionsAdministrativesDepuisDS88444(
             fichiersAP_AMTéléchargés,
+            dossiers,
             dossierIdByDS_number,
             donnéesDécisionAdministrativeParNuméroDossier,
             laTransactionDeSynchronisationDS

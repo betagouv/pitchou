@@ -97,7 +97,14 @@ Cela va dévoiler un fichier `.pgsql` du même nom
 Ensuite :
 
 ```sh
-docker exec postgres_db pg_restore --clean --if-exists --dbname=especes_pro_3731 --username=dev --no-owner --jobs=6 /var/lib/pitchou/backups/<nom_fichier>.pgsql
+# Supprimer la base de données existante
+docker exec postgres_db dropdb -f --username=dev especes_pro_3731
+
+# Recréer la base de données 
+docker exec postgres_db createdb --username=dev especes_pro_3731
+
+# Restore des données
+docker exec postgres_db pg_restore --no-owner --no-privileges --no-comments --dbname=especes_pro_3731 --username=dev --jobs=6 /var/lib/pitchou/backups/<nom du fichier>.pgsql
 ```
 
 ##### Restorer un backup en prod
