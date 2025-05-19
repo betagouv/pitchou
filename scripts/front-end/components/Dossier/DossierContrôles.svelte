@@ -10,6 +10,8 @@
 
     export let décisionsAdministratives = dossier.décisionsAdministratives || []
 
+    console.log('décisionsAdministratives', décisionsAdministratives)
+
 </script>
 
 <div class="row">
@@ -19,7 +21,7 @@
     {#if décisionsAdministratives.length === 0}
         Il n'y a pas de décisions administrative à contrôler concernant ce dossier
     {:else}
-        Ce dossier a ${décisionsAdministratives.length} décisions administratives
+        Ce dossier a {décisionsAdministratives.length} décisions administratives
     {/if}
 </div>
 

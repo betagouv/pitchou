@@ -183,3 +183,15 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
             .whereIn('id', [...fichiersIdsOrphelins])
     }
 }
+
+/**
+ * 
+ * @param {Dossier['id']} dossierId 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<DécisionAdministrative[]>}
+ */
+export function getDécisionAdministratives(dossierId, databaseConnection = directDatabaseConnection){
+    return databaseConnection('décision_administrative')
+        .select('*')
+        .where({dossier: dossierId})
+}
