@@ -8,6 +8,7 @@
     import DossierInstruction from '../Dossier/DossierInstruction.svelte'
     import DossierProjet from '../Dossier/DossierProjet.svelte'
     import DossierAvis from '../Dossier/DossierAvis.svelte'
+    import DossierContrôles from '../Dossier/DossierContrôles.svelte'
     import DossierGénérationDocuments from '../Dossier/DossierGénérationDocuments.svelte'
 
     /** @import {ComponentProps} from 'svelte' */
@@ -54,6 +55,11 @@
                         </button>
                     </li>
                     <li role="presentation">
+                        <button id="tabpanel-contrôles" aria-controls="tabpanel-contrôles" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" >
+                            Contrôles
+                        </button>
+                    </li>
+                    <li role="presentation">
                         <button id="tabpanel-génération-documents" aria-controls="tabpanel-génération-documents-panel" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" >
                             Génération document
                         </button>
@@ -70,6 +76,9 @@
                 </div>
                 <div id="tabpanel-avis-panel" aria-labelledby="tabpanel-avis" class="fr-tabs__panel" role="tabpanel" tabindex="0">
                     <DossierAvis {dossier}></DossierAvis>
+                </div>
+                <div id="tabpanel-contrôles" aria-labelledby="tabpanel-contrôles" class="fr-tabs__panel" role="tabpanel" tabindex="0">
+                    <DossierContrôles {dossier}></DossierContrôles>
                 </div>
                 <div id="tabpanel-génération-documents-panel" aria-labelledby="tabpanel-génération-documents" class="fr-tabs__panel" role="tabpanel" tabindex="0">
                     <DossierGénérationDocuments {dossier}></DossierGénérationDocuments>
