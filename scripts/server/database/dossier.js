@@ -22,6 +22,9 @@ import {directDatabaseConnection} from '../database.js'
 
 
 /**
+ * Récupérer les id Pitchou à partir des id DS (pas les numéro)
+ * 
+ * PPP : c'est un peu bizarre d'utiliser les ids DS, on pourrait utiliser les numéros
  * 
  * @param {Dossier['id_demarches_simplifiées'][]} DS_ids 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]

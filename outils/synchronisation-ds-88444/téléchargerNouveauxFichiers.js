@@ -140,14 +140,20 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
             return ajouterFichier(fichierBDD, transaction)
                 .then(f => f.id)
         }))
-        .then(fichiersTéléchargés => [number, fichiersTéléchargés.filter(f => f !== undefined)])
+        .then(fichiersTéléchargés => {
+            const fichiersTéléchargésAvecSuccès = fichiersTéléchargés.filter(f => f !== undefined)
+
+            if(fichiersTéléchargésAvecSuccès.length >= 1){
+                return [number, fichiersTéléchargésAvecSuccès]
+            }
+            else{
+                return undefined
+            }
+        })
     })
 
     /** @type {ReturnMapEntryData[]} */
-    const ret = (await Promise.allSettled(retMapDataPs))
-        .filter(({status}) => status === 'fulfilled')
-        // @ts-ignore
-        .map((promiseFulfilledResult) => promiseFulfilledResult.value)
+    const ret = (await Promise.all(retMapDataPs)) // ignore download errors
         .filter(x => x !== undefined)
 
     return new Map(ret)

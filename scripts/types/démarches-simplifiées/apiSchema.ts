@@ -8,6 +8,15 @@ export interface BaseChampDS {
     prefilled: boolean
 }
 
+export interface ChampDSCheckbox extends BaseChampDS{
+    value: boolean
+    checked: boolean
+}
+export interface ChampDSDate extends BaseChampDS{
+    date: string // ISO8601Date
+}
+
+
 interface BaseRepetitionChampsDS<ChampDSSpecific> extends BaseChampDS {
     rows: {
         champs: ChampDSSpecific[]
@@ -98,8 +107,8 @@ export interface Traitement{
     motivation: string | null
 }
 
-export type Champs88444 = BaseChampDS | ChampDSCommune | ChampDSDépartement | ChampDSRégions | ChampDSPieceJustificative;
-type Annotations88444 = Champs88444
+export type Champs88444 = BaseChampDS | ChampDSCheckbox | ChampDSCommune | ChampDSDépartement | ChampDSRégions | ChampDSPieceJustificative;
+export type Annotations88444 = BaseChampDS | ChampDSCheckbox | ChampDSDate
 
 
 export interface DossierDS<Champs, Annotations> {

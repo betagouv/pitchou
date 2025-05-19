@@ -1,89 +1,185 @@
 import {directDatabaseConnection} from '../database.js'
-import { makeFichierHash } from '../../../scripts/server/database/fichier.js';
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
+/** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
+/** @import {default as DécisionAdministrative} from '../../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {TypeDécisionAdministrative} from '../../../scripts/types/API_Pitchou.ts' */
+/** @import {DécisionAdministrativeAnnotation88444} from '../../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+
 /** @import {Knex} from 'knex' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
 
+/** @type { { [key in (AnnotationsPriveesDemarcheSimplifiee88444['Décision'])]: TypeDécisionAdministrative } } */
+const décisionAnnotationDSToDécisionPitchou = {
+    "AP dérogation" : 'Arrêté dérogation',
+    "AP modificatif" : 'Arrêté modificatif',
+    "AP Refus" : 'Arrêté refus',
+}
+
+
 /**
  * 
- * @param {Map<DossierDS88444['number'], Partial<Fichier>[]>} espècesImpactéesParNuméroDossier
+ * @param {Dossier['id'][]} dossierIds 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
+ */
+function getFichierIdByDossierId(dossierIds, databaseConnection = directDatabaseConnection){
+
+    return databaseConnection('décision_administrative')
+        .select(['fichier', 'id', 'dossier'])
+        .whereIn('dossier', dossierIds)
+        .then((/** @type {DécisionAdministrative[]} */ décisionsAdmin) => {
+            /** @type {Awaited<ReturnType<getFichierIdByDossierId>>} */
+            const fichiersIdPrécédents = new Map()
+
+            for(const {dossier, fichier} of décisionsAdmin){
+                const fichierIdsPourCeFichier = fichiersIdPrécédents.get(dossier) || []
+                
+                if(fichier !== null)
+                    fichierIdsPourCeFichier.push(fichier)
+                
+                if(fichierIdsPourCeFichier.length >= 1)
+                    fichiersIdPrécédents.set(dossier, fichierIdsPourCeFichier)
+            }
+
+            return fichiersIdPrécédents
+        })
+}
+
+/**
+ * 
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]>} fichierDécisionAdminParNuméroDossier
+ * @param {Dossier[]} dossiers
+ * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number
+ * @param {Map<Dossier['number_demarches_simplifiées'], DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier 
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export async function miseÀJourDécisionsAdministrativesDepuisDS88444(espècesImpactéesParNuméroDossier, databaseConnection = directDatabaseConnection){
+export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierDécisionAdminParNuméroDossier, dossiers, dossierIdByDS_number, donnéesDécisionAdministrativeParNuméroDossier, databaseConnection = directDatabaseConnection){
+
+    const dossiersIdPourLesquelsChercherDesFichiersOrphelins = [...dossierIdByDS_number.values()]
 
     // trouver les fichiers AP/AM qui étaient déjà là pour les dossiers avec un fichier AP/AM
     // et l'id de la décision_administative à laquelle il était attaché
+    /** @type {Map<Dossier['id'], Fichier['id'][]>} */
+    const fichiersIdPrécédentsParDossierId = await getFichierIdByDossierId(dossiersIdPourLesquelsChercherDesFichiersOrphelins, databaseConnection)
+
+    //console.log('fichiersIdPrécédents', fichiersIdPrécédentsParDossierId)
+
+    /** @type {Partial<DécisionAdministrative>[]} */
+    const décisionsAdministrativesÀRajouter = []
+
+    // fabriquer les décision_administrative par dossier
+    for(const dossier of dossiers){
+        const number_demarches_simplifiées = dossier.number_demarches_simplifiées 
+
+        const id = dossierIdByDS_number.get(Number(number_demarches_simplifiées))
+
+        if(!id){
+            throw new TypeError(`dossierIdByDS_number.get(Number(${number_demarches_simplifiées})) est undefined`)
+        }
+
+        /** @type {DécisionAdministrativeAnnotation88444 | undefined} */
+        const décisionAdministrative = donnéesDécisionAdministrativeParNuméroDossier.get(number_demarches_simplifiées)
+
+        if(!décisionAdministrative){
+            throw new TypeError(`Données des annotations de la décision administrative manquante (id pitchou: ${dossier.id} - numéro DS: ${number_demarches_simplifiées})`);
+        }
+
+        
+        let fichierIds = fichierDécisionAdminParNuméroDossier.get(Number(number_demarches_simplifiées))
+
+        if(fichierIds){
+            //@ts-expect-error ignorer AModifFichierIds délibérément
+            let [APFichierId, AMFichierId, ...AModifFichierIds] = fichierIds
+
+            /** @type {Partial<DécisionAdministrative> | undefined} */
+            let AP = undefined;
+            /** @type {Partial<DécisionAdministrative> | undefined} */
+            let AM = undefined;
+            
+            const décision = décisionAdministrative.décision
+            // @ts-ignore
+            const type = décisionAnnotationDSToDécisionPitchou[décision]
+
+            if(décisionAdministrative.référence_arrêté_préfectoral || décisionAdministrative.date_signature_arrêté_préfectoral){
+                AP = {
+                    dossier: id,
+                    numéro: décisionAdministrative.référence_arrêté_préfectoral,
+                    type,
+                    date_signature: décisionAdministrative.date_signature_arrêté_préfectoral,
+                    fichier: APFichierId
+                }
+            }
+
+            // S'il n'y a pas d'AP et un fichier unique, ce fichier est en fait un AM
+            if(!AP){
+                AMFichierId = APFichierId
+            }
+
+            if(décisionAdministrative.référence_arrêté_ministériel || décisionAdministrative.date_signature_arrêté_ministériel){
+                AM = {
+                    dossier: id,
+                    numéro: décisionAdministrative.référence_arrêté_ministériel,
+                    type,
+                    date_signature: décisionAdministrative.date_signature_arrêté_ministériel,
+                    fichier: AMFichierId
+                    // S'il n'y a qu'un seul fichier, il va dans APFichierId et AMFichierId est undefined
+                    // c'est une décision délibérée, ça sera à corriger à la main si besoin
+                }
+            }
+
+            if(AP){
+                décisionsAdministrativesÀRajouter.push(AP)
+            }
+
+            if(AM){
+                décisionsAdministrativesÀRajouter.push(AM)
+            }
+        }
+        else{
+            // ignorer les fichiers associés à ce dossier 
+            fichiersIdPrécédentsParDossierId.delete(id)
+        }
+
+        
+    }
+
 
     // Pour chaque dossier, s'il n'y a pas de décision_administrative, en créer une
     // sinon, la mettre à jour avec les données dispo
     // dans tous les cas, recups les id des décision_administrative
+    if(décisionsAdministrativesÀRajouter.length >= 1){
+        //console.log('décisionsAdministrativesÀRajouter', décisionsAdministrativesÀRajouter)
 
-
-    // Rajouter les nouveaux fichiers
-    // recups leurs IDs pour les ré-associer au dossier
-
-    // 
-
-
-
-
-
-
-
-    // Trouver les fichiers déjà en place (pour les supprimer plus bas)
-    const fichiersIdPrécédents = await databaseConnection('dossier')
-        .select(['espèces_impactées'])
-        .whereIn('number_demarches_simplifiées', [...espècesImpactéesParNuméroDossier.keys()])
-        .andWhereNot({'espèces_impactées': null})
-
-    // Insérer les nouveaux fichiers
-    /** @type {Fichier[]} */
-    const fichiersInsérés = await databaseConnection('fichier')
-        // ignorer les fichiers autres que le premier fichier d'espèces impactées
-        .insert([...espècesImpactéesParNuméroDossier.values()].map(fichiersEspèces => fichiersEspèces[0]))
-        .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
-
-    // Associer les nouveaux fichiers au bon dossier
-    /** @type {Map<ReturnType<makeFichierHash>, Fichier['id'] >} */
-    const hashToFichierId = new Map()
-    for(const fichier of fichiersInsérés){
-        const {id} = fichier
-        const hash = makeFichierHash(fichier)
-
-        hashToFichierId.set(hash, id)
+        await databaseConnection('décision_administrative')
+            .insert(décisionsAdministrativesÀRajouter)
+            .onConflict(['dossier', 'numéro'])
+            .merge(['type', 'date_signature', 'fichier'])
+            .returning('*')
     }
 
-    const updatePs = [...espècesImpactéesParNuméroDossier].map(([numberDossier, fichiers]) => {
-        // ignorer les fichiers autres que le premier fichier d'espèces impactées
-        const fichier = fichiers[0]
+    /** @type {Map<Dossier['id'], Fichier['id'][]>} */
+    const fichiersIdParDossierIdAprèsInsertion = await getFichierIdByDossierId(dossiersIdPourLesquelsChercherDesFichiersOrphelins, databaseConnection)
 
-        const hash = makeFichierHash(fichier)
-        const fichierId = hashToFichierId.get(hash)
+    /** @type {Set<Fichier['id']>} */
+    const fichiersIdPrécédentsPourCesDossiersSet = new Set([...fichiersIdPrécédentsParDossierId.values()].flat())
+    /** @type {Set<Fichier['id']>} */
+    const fichiersIdAprèsInsertion = new Set([...fichiersIdParDossierIdAprèsInsertion.values()].flat())
 
-        if(!hash){
-            throw new Error(`hash non reconnu. Hash : '${hash}', hashs possibles : ${[...hashToFichierId.keys()].join(', ')}`)
-        }
+    //console.log('fichiersIdPrécédentsPourCesDossiersSet', fichiersIdPrécédentsPourCesDossiersSet)
+    //console.log('fichiersIdAprèsInsertion', fichiersIdAprèsInsertion)
 
-        return databaseConnection('dossier')
-            .update({espèces_impactées: fichierId})
-            .where({number_demarches_simplifiées: numberDossier})
-    })
+    const fichiersIdsOrphelins = fichiersIdPrécédentsPourCesDossiersSet.difference(fichiersIdAprèsInsertion)
 
-    // Supprimer les fichiers qui étaient attachés à un dossier et ne sont plus pertinents
-    return Promise.all(updatePs).then(() => {
-        const fichiersOrphelinsIds = fichiersIdPrécédents
-            .map(({espèces_impactées}) => espèces_impactées)
-
-        if(fichiersOrphelinsIds.length >= 1){
-            return databaseConnection('fichier')
-                .delete()
-                .whereIn('id', fichiersOrphelinsIds)
-        }
-    })
-
+    if(fichiersIdsOrphelins.size >= 1){
+        //console.log('fichiersIdsOrphelins', fichiersIdsOrphelins)
+        return databaseConnection('fichier')
+            .delete()
+            .whereIn('id', [...fichiersIdsOrphelins])
+    }
 }
