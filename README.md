@@ -67,9 +67,14 @@ URL pour pgadmin en dev :
 
 `npm start:production`
 
+L'application est déployée sur Scalingo
+
+Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/platform/cli/start)
+
 ### Base de données
 
 On utilise une base de données Postgres 15.7 en prod
+
 
 #### Backups
 
@@ -78,23 +83,26 @@ https://doc.scalingo.com/databases/postgresql/backing-up
 
 Actuellement, on a un backup quotidien des 7 derniers jours, un backup hebdomadaire des 4 dernières semaines et 10 backups manuels
 
-Ces backups se trouvent dans l'onglet `BACKUPS` du dashboard de l'addon PostgreSQL
-
 
 ##### Restorer un backup en local
 
-Après avoir téléchargé un backup de la prod, le mettre dans le dossier `backups` et lancer : 
+**Récupérer le dernier backup**
 
 ```sh
 cd backups
+
+# Télécharger le dernier backup
+scalingo --app especes-protegees --addon postgresql backups-download
+
+# Dézipper le fichier .pgsql
 tar -xf <nom_fichier>.tar.gz
 # ignorer le message qui dit "tar: Suppression de « / » au début des noms des membres"
+
+ll # afficher le nom du fichier .pgsql
 cd -
 ```
 
-Cela va dévoiler un fichier `.pgsql` du même nom
-
-Ensuite :
+**Restore le dernier backup**
 
 ```sh
 # Supprimer la base de données existante
@@ -106,6 +114,7 @@ docker exec postgres_db createdb --username=dev especes_pro_3731
 # Restore des données
 docker exec postgres_db pg_restore --no-owner --no-privileges --no-comments --dbname=especes_pro_3731 --username=dev --jobs=6 /var/lib/pitchou/backups/<nom du fichier>.pgsql
 ```
+
 
 ##### Restorer un backup en prod
 
@@ -125,20 +134,26 @@ Pour aller en arrière et en avant d'un cran dans la liste des migrations :
 `npm run migrate:down`
 `npm run migrate:up`
 
+
 ### Fabriquer la liste des espèces protégées
 
 pour les autocomplete de saisie espèces notamment
 
 `node outils/liste-espèces.js`
 
+
 ### Ajouter une espèce manquante
+
 Dans le fichier `data/sources_especes/espèces_manquantes.csv` ajouter l'espèce avec son identifiant INPN (CD_NOM),nom latin (LB_NOM), nom vernaculaire (NOM_VERN) et sa justification légale (LABEL_STATUT).
 
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces complétée.
 
+
 ### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
 
-En dev, depuis le container du serveur
+#### En dev
+
+depuis le container du serveur
 
 `docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js` (dernières heures par défaut)
 
@@ -147,9 +162,26 @@ En dev, depuis le container du serveur
 
 `docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
-### Cron
+
+#### En prod
+
+##### Synchronisation régulière
+
+Un [crontab](cron.json) tourne régulièrement pour récupérer les dossiers récemment modifiés dans DS et les synchroniser en base de données
 
 Pour modifier le cron : https://crontab.guru/
+
+
+##### Synchronisation complète ponctuelle
+
+Parfois, notamment après des changements dans le modèle de données, il est nécessaire de synchroniser tous les dossiers
+
+Pour le faire, on peut utiliser un [*one-off container*}(https://doc.scalingo.com/platform/app/tasks) :
+
+```sh
+scalingo --app especes-protegees run node outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01
+```
+
 
 ### Fabriquer le JSON de la liste des groupes d'espèces
 
