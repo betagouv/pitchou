@@ -73,7 +73,7 @@ export type DossierRésumé = Pick<Dossier,
     & DonnéesDossierPourStats
 
 
-type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> & {fichier_url: string}
+type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> & {fichier_url: string | undefined}
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
