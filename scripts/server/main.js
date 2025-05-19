@@ -20,7 +20,6 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 
-import synchronisationComplèteSiNécessaire from './synchro-complète-si nécessaire.js'
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
@@ -475,8 +474,6 @@ try {
   process.exit(1)
 }
 
-// la synchronisation complète a lieu après le lancement du serveur
-synchronisationComplèteSiNécessaire()
 
 
 
