@@ -12,7 +12,7 @@ export type DossierPourSynchronisation = Omit<DossierDatabase, PropsDécisionHis
     demandeur_personne_morale: EntrepriseInitializer | undefined,
 }
 
-export type DécisionAdministrativeAnnotation88444{
+export type DécisionAdministrativeAnnotation88444 = {
     décision: AnnotationsPriveesDemarcheSimplifiee88444['Décision'] | undefined,
     date_signature_arrêté_préfectoral: AnnotationsPriveesDemarcheSimplifiee88444[`Date de signature de l'AP`] | undefined,
     référence_arrêté_préfectoral: AnnotationsPriveesDemarcheSimplifiee88444[`Référence de l'AP`] | undefined,

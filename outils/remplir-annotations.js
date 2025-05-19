@@ -1,6 +1,7 @@
 //@ts-check
 
 import remplirAnnotations from '../scripts/server/démarches-simplifiées/remplirAnnotations.js'
+// @ts-ignore
 import {dossierSuiviNAVersAnnotationsDS88444} from '../scripts/import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444} from "../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.js" */

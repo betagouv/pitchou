@@ -1,6 +1,6 @@
 import {directDatabaseConnection} from '../database.js'
 
-/** @import {default as Fichier, FichierId} from '../../../scripts/types/database/public/Fichier.ts' */
+/** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
 /** @import {default as DécisionAdministrative} from '../../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -68,7 +68,7 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
     /** @type {Map<Dossier['id'], Fichier['id'][]>} */
     const fichiersIdPrécédentsParDossierId = await getFichierIdByDossierId(dossiersIdPourLesquelsChercherDesFichiersOrphelins, databaseConnection)
 
-    console.log('fichiersIdPrécédents', fichiersIdPrécédentsParDossierId)
+    //console.log('fichiersIdPrécédents', fichiersIdPrécédentsParDossierId)
 
     /** @type {Partial<DécisionAdministrative>[]} */
     const décisionsAdministrativesÀRajouter = []
@@ -94,6 +94,7 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
         let fichierIds = fichierDécisionAdminParNuméroDossier.get(Number(number_demarches_simplifiées))
 
         if(fichierIds){
+            //@ts-expect-error ignorer AModifFichierIds délibérément
             let [APFichierId, AMFichierId, ...AModifFichierIds] = fichierIds
 
             /** @type {Partial<DécisionAdministrative> | undefined} */
@@ -148,16 +149,14 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
         
     }
 
-    /** @type {DécisionAdministrative[]} */
-    let décisionsAdministrativesInsérées = []
 
     // Pour chaque dossier, s'il n'y a pas de décision_administrative, en créer une
     // sinon, la mettre à jour avec les données dispo
     // dans tous les cas, recups les id des décision_administrative
     if(décisionsAdministrativesÀRajouter.length >= 1){
-        console.log('décisionsAdministrativesÀRajouter', décisionsAdministrativesÀRajouter)
+        //console.log('décisionsAdministrativesÀRajouter', décisionsAdministrativesÀRajouter)
 
-        décisionsAdministrativesInsérées = await databaseConnection('décision_administrative')
+        await databaseConnection('décision_administrative')
             .insert(décisionsAdministrativesÀRajouter)
             .onConflict(['dossier', 'numéro'])
             .merge(['type', 'date_signature', 'fichier'])
@@ -172,13 +171,13 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
     /** @type {Set<Fichier['id']>} */
     const fichiersIdAprèsInsertion = new Set([...fichiersIdParDossierIdAprèsInsertion.values()].flat())
 
-    console.log('fichiersIdPrécédentsPourCesDossiersSet', fichiersIdPrécédentsPourCesDossiersSet)
-    console.log('fichiersIdAprèsInsertion', fichiersIdAprèsInsertion)
+    //console.log('fichiersIdPrécédentsPourCesDossiersSet', fichiersIdPrécédentsPourCesDossiersSet)
+    //console.log('fichiersIdAprèsInsertion', fichiersIdAprèsInsertion)
 
     const fichiersIdsOrphelins = fichiersIdPrécédentsPourCesDossiersSet.difference(fichiersIdAprèsInsertion)
 
     if(fichiersIdsOrphelins.size >= 1){
-        console.log('fichiersIdsOrphelins', fichiersIdsOrphelins)
+        //console.log('fichiersIdsOrphelins', fichiersIdsOrphelins)
         return databaseConnection('fichier')
             .delete()
             .whereIn('id', [...fichiersIdsOrphelins])

@@ -29,9 +29,10 @@ import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/ser
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, DossierDS88444, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, BaseChampDS, Annotations88444, Champs88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, Annotations88444, Champs88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444, PropsDécisionHistorique} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 // récups les données de DS
@@ -498,7 +499,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique"| "espèces_protégées_concernées" | "espèces_impactées">[]} */
+/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique"| "espèces_protégées_concernées" | "espèces_impactées" | PropsDécisionHistorique>[]} */
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,
@@ -677,10 +678,11 @@ const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_
     if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
         //checkMemory()
         console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
-        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
+        //console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
 
         return miseÀJourDécisionsAdministrativesDepuisDS88444(
             fichiersAP_AMTéléchargés,
+            // @ts-ignore
             dossiers,
             dossierIdByDS_number,
             donnéesDécisionAdministrativeParNuméroDossier,
