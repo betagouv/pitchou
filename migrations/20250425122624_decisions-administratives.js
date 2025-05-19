@@ -8,7 +8,7 @@ export async function up(knex) {
         table.uuid('id').primary().defaultTo(knex.fn.uuid())
 
         // un dossier peut avoir plusieurs décision_administrative
-        table.integer('dossier').index()
+        table.integer('dossier').notNullable().index()
         table.foreign('dossier')
             .references('id').inTable('dossier').onDelete('CASCADE')
 

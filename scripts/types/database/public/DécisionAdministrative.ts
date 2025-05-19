@@ -11,7 +11,7 @@ export type DCisionAdministrativeId = string & { __brand: 'DCisionAdministrative
 export default interface DCisionAdministrative {
   id: DCisionAdministrativeId;
 
-  dossier: DossierId | null;
+  dossier: DossierId;
 
   numéro: string | null;
 
@@ -29,7 +29,7 @@ export interface DCisionAdministrativeInitializer {
   /** Default value: gen_random_uuid() */
   id?: DCisionAdministrativeId;
 
-  dossier?: DossierId | null;
+  dossier: DossierId;
 
   numéro?: string | null;
 
@@ -46,7 +46,7 @@ export interface DCisionAdministrativeInitializer {
 export interface DCisionAdministrativeMutator {
   id?: DCisionAdministrativeId;
 
-  dossier?: DossierId | null;
+  dossier?: DossierId;
 
   numéro?: string | null;
 

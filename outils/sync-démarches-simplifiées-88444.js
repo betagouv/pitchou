@@ -677,6 +677,7 @@ const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_
     if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
         //checkMemory()
         console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
+        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
 
         return miseÀJourDécisionsAdministrativesDepuisDS88444(
             fichiersAP_AMTéléchargés,

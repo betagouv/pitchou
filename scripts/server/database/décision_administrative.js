@@ -1,7 +1,6 @@
 import {directDatabaseConnection} from '../database.js'
-import { makeFichierHash } from '../../../scripts/server/database/fichier.js';
 
-/** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
+/** @import {default as Fichier, FichierId} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
 /** @import {default as DécisionAdministrative} from '../../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -24,6 +23,35 @@ const décisionAnnotationDSToDécisionPitchou = {
 
 /**
  * 
+ * @param {Dossier['id'][]} dossierIds 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
+ */
+function getFichierIdByDossierId(dossierIds, databaseConnection = directDatabaseConnection){
+
+    return databaseConnection('décision_administrative')
+        .select(['fichier', 'id', 'dossier'])
+        .whereIn('dossier', dossierIds)
+        .then((/** @type {DécisionAdministrative[]} */ décisionsAdmin) => {
+            /** @type {Awaited<ReturnType<getFichierIdByDossierId>>} */
+            const fichiersIdPrécédents = new Map()
+
+            for(const {dossier, fichier} of décisionsAdmin){
+                const fichierIdsPourCeFichier = fichiersIdPrécédents.get(dossier) || []
+                
+                if(fichier !== null)
+                    fichierIdsPourCeFichier.push(fichier)
+                
+                if(fichierIdsPourCeFichier.length >= 1)
+                    fichiersIdPrécédents.set(dossier, fichierIdsPourCeFichier)
+            }
+
+            return fichiersIdPrécédents
+        })
+}
+
+/**
+ * 
  * @param {Map<DossierDS88444['number'], Fichier['id'][]>} fichierDécisionAdminParNuméroDossier
  * @param {Dossier[]} dossiers
  * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number
@@ -41,22 +69,8 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
 
     // trouver les fichiers AP/AM qui étaient déjà là pour les dossiers avec un fichier AP/AM
     // et l'id de la décision_administative à laquelle il était attaché
-    /** @type {Map<Dossier['id'], DécisionAdministrative['id'][]>} */
-    const fichiersIdPrécédentsParDossierId = await databaseConnection('décision_administrative')
-        .select(['fichier', 'id', 'dossier'])
-        .whereIn('dossier', [...dossierIdByDS_number.values()])
-        .then(décisionsAdmin => {
-            /** @type {typeof fichiersIdPrécédentsParDossierId} */
-            const fichiersIdPrécédents = new Map()
-
-            for(const {dossier, fichier} of décisionsAdmin){
-                const fichierIdsPourCeFichier = fichiersIdPrécédents.get(dossier) || []
-                fichierIdsPourCeFichier.push(fichier)
-                fichiersIdPrécédents.set(dossier, fichierIdsPourCeFichier)
-            }
-
-            return fichiersIdPrécédents
-        })
+    /** @type {Map<Dossier['id'], Fichier['id'][]>} */
+    const fichiersIdPrécédentsParDossierId = await getFichierIdByDossierId([...dossierIdByDS_number.values()], databaseConnection)
 
     console.log('fichiersIdPrécédents', fichiersIdPrécédentsParDossierId)
 
@@ -150,24 +164,27 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
         décisionsAdministrativesInsérées = await databaseConnection('décision_administrative')
             .insert(décisionsAdministrativesÀRajouter)
             .onConflict(['dossier', 'numéro'])
-            .merge()
+            .merge(['type', 'date_signature', 'fichier'])
             .returning('*')
     }
 
+    /** @type {Map<Dossier['id'], Fichier['id'][]>} */
+    const fichiersIdParDossierIdAprèsInsertion = await getFichierIdByDossierId([...dossierIdByDS_number.values()], databaseConnection)
+
+    /** @type {Set<Fichier['id']>} */
     const fichiersIdPrécédentsPourCesDossiersSet = new Set([...fichiersIdPrécédentsParDossierId.values()].flat())
-    const fichiersIdEnBDDPourCesDossiersSet = new Set(décisionsAdministrativesInsérées.map(décAdm => décAdm.fichier))
+    /** @type {Set<Fichier['id']>} */
+    const fichiersIdAprèsInsertion = new Set([...fichiersIdParDossierIdAprèsInsertion.values()].flat())
 
     console.log('fichiersIdPrécédentsPourCesDossiersSet', fichiersIdPrécédentsPourCesDossiersSet)
-    console.log('fichiersIdEnBDDPourCesDossiersSet', fichiersIdEnBDDPourCesDossiersSet)
+    console.log('fichiersIdAprèsInsertion', fichiersIdAprèsInsertion)
 
-    const fichiersIdsOrphelins = fichiersIdPrécédentsPourCesDossiersSet.difference(fichiersIdEnBDDPourCesDossiersSet)
+    const fichiersIdsOrphelins = fichiersIdPrécédentsPourCesDossiersSet.difference(fichiersIdAprèsInsertion)
 
-    
     if(fichiersIdsOrphelins.size >= 1){
         console.log('fichiersIdsOrphelins', fichiersIdsOrphelins)
         return databaseConnection('fichier')
             .delete()
             .whereIn('id', [...fichiersIdsOrphelins])
     }
-
 }
