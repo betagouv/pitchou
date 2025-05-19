@@ -9,11 +9,6 @@ const TIMEOUT_DELAY = 20*1000; // ms
  * @returns {Promise<{mediaType: string | null, contenu: ArrayBuffer}>}
  */
 async function _téléchargerFichierDS(url){
-    // simuler l'échec de téléchargements
-    if(Math.random() < 0.5){
-        return Promise.reject(`Erreur simulée de téléchargement`)
-    }
-
     try{
         const réponseSansBody = await ky.get(url, {
             timeout: TIMEOUT_DELAY

@@ -61,16 +61,12 @@ function getFichierIdByDossierId(dossierIds, databaseConnection = directDatabase
  */
 export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierDécisionAdminParNuméroDossier, dossiers, dossierIdByDS_number, donnéesDécisionAdministrativeParNuméroDossier, databaseConnection = directDatabaseConnection){
 
-    /** @type {Map<Dossier['number_demarches_simplifiées'], Dossier>} */
-    const dossierByNumber = new Map()
-    for(const dossier of dossiers){
-        dossierByNumber.set(dossier.number_demarches_simplifiées, dossier)
-    }
+    const dossiersIdPourLesquelsChercherDesFichiersOrphelins = [...dossierIdByDS_number.values()]
 
     // trouver les fichiers AP/AM qui étaient déjà là pour les dossiers avec un fichier AP/AM
     // et l'id de la décision_administative à laquelle il était attaché
     /** @type {Map<Dossier['id'], Fichier['id'][]>} */
-    const fichiersIdPrécédentsParDossierId = await getFichierIdByDossierId([...dossierIdByDS_number.values()], databaseConnection)
+    const fichiersIdPrécédentsParDossierId = await getFichierIdByDossierId(dossiersIdPourLesquelsChercherDesFichiersOrphelins, databaseConnection)
 
     console.log('fichiersIdPrécédents', fichiersIdPrécédentsParDossierId)
 
@@ -169,7 +165,7 @@ export async function miseÀJourDécisionsAdministrativesDepuisDS88444(fichierD�
     }
 
     /** @type {Map<Dossier['id'], Fichier['id'][]>} */
-    const fichiersIdParDossierIdAprèsInsertion = await getFichierIdByDossierId([...dossierIdByDS_number.values()], databaseConnection)
+    const fichiersIdParDossierIdAprèsInsertion = await getFichierIdByDossierId(dossiersIdPourLesquelsChercherDesFichiersOrphelins, databaseConnection)
 
     /** @type {Set<Fichier['id']>} */
     const fichiersIdPrécédentsPourCesDossiersSet = new Set([...fichiersIdPrécédentsParDossierId.values()].flat())
