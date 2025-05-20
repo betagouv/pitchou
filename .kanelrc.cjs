@@ -3,10 +3,6 @@ function ÉvènementPhaseDossier_phase_typeDossierPhase(output){
 
     const {declarations} = output[ÉvènementPhaseDossierKey]
 
-    const int0 = declarations[0]
-    const prop0 = int0.properties[0]
-    //console.log('prop0', prop0)
-
     for(const {properties} of declarations){
         for(const prop of properties){
             if(prop.name === 'phase'){
@@ -29,12 +25,48 @@ function ÉvènementPhaseDossier_phase_typeDossierPhase(output){
     return output
 }
 
+/**
+ * 
+ * @param {string} outputKey 
+ * @param {string} propertyName 
+ * @param {string} typeName 
+ * @returns 
+ */
+function makePreRenderHook(outputKey, propertyName, typeName){
+    return function Dossier_scientifique_type_demande(output){
+        const {declarations} = output[outputKey]
+
+        for(const {properties} of declarations){
+            if(properties){
+                for(const prop of properties){
+                    if(prop.name === propertyName){
+                        prop.typeName = typeName
+                    }
+                }
+            }
+        }
+
+        return output
+    }
+}
+
+const Dossier_scientifique_type_demande = makePreRenderHook(
+    'scripts/types/database/public/Dossier', 'scientifique_type_demande', 'string[]'
+)
+const Dossier_scientifique_mode_capture = makePreRenderHook(
+    'scripts/types/database/public/Dossier', 'scientifique_mode_capture', 'string[]'
+)
+
+
+
 module.exports = {
     customTypeMap: {
         'pg_catalog.bytea': 'Buffer'
     },
 
     preRenderHooks: [
-        ÉvènementPhaseDossier_phase_typeDossierPhase
+        ÉvènementPhaseDossier_phase_typeDossierPhase,
+        Dossier_scientifique_type_demande,
+        Dossier_scientifique_mode_capture
     ]
 }

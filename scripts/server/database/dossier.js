@@ -307,6 +307,7 @@ const colonnesDossierComplet = [
     "date_dépôt",
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "dossier.nom as nom",
+    "description",
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
     "fichier_espèces_impactées.id as espèces_impactées_id",
     //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
@@ -350,6 +351,11 @@ const colonnesDossierComplet = [
     "historique_localisation",
     */
     "ddep_nécessaire",
+    
+    "scientifique_type_demande",
+    "scientifique_description_protocole_suivi",
+    "scientifique_mode_capture",
+    "scientifique_modalités_source_lumineuses",
 
     "enjeu_écologique",
     "enjeu_politique",
