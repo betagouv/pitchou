@@ -11,14 +11,16 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
   getRésultatsSynchronisationDS88444} from './database.js'
 
-import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getFichierEspècesImpactées, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
+import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
+import {getFichier} from './database/fichier.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
 
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
+import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -28,7 +30,7 @@ import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {DossierComplet} from '../types/API_Pitchou.ts' */
 
-import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+
 
 /** @type {SchemaDémarcheSimplifiée} */
 // @ts-expect-error TS ne peut pas le savoir
@@ -311,7 +313,9 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
   return updateDossier(dossierId, dossierParams, capPersonne.id)
 })
 
-fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
+
+//@ts-expect-error Fastify type is hard to get
+async function téléchargementFichierRouteHandler(request, reply) {
   
   //@ts-ignore
   if(!request.params.fichierId){
@@ -322,7 +326,7 @@ fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
   //@ts-ignore
   const fichierId = request.params.fichierId
 
-  const fichier = await getFichierEspècesImpactées(fichierId)
+  const fichier = await getFichier(fichierId)
 
   if(!fichier){
     reply.code(404).send('Fichier non trouvé')
@@ -334,7 +338,10 @@ fastify.get('/especes-impactees/:fichierId', async function(request, reply) {
       .header('content-type', fichier.media_type)
       .send(fichier.contenu)
   }
-})
+}
+
+fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler)
+fastify.get('/decision-administrative/:fichierId', téléchargementFichierRouteHandler)
 
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {

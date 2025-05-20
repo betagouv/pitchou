@@ -58,3 +58,13 @@ export function ajouterFichier(f, databaseConnection = directDatabaseConnection)
 }
 
 
+/**
+ * @param {Fichier['id']} fichierId 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ */
+export function getFichier(fichierId, databaseConnection = directDatabaseConnection){
+    return databaseConnection('fichier')
+        .select('*')
+        .where('id', fichierId)
+        .first()
+}

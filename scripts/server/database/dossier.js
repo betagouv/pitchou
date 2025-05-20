@@ -721,7 +721,6 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 }
 
 
-
 /**
  *
  * @param {number[]} numbers
@@ -764,15 +763,4 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
     }
 
     return Promise.all([phaseAjoutée, dossierÀJour])
-}
-
-/**
- * @param {Fichier['id']} fichierId 
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- */
-export function getFichierEspècesImpactées(fichierId, databaseConnection = directDatabaseConnection){
-    return databaseConnection('fichier')
-        .select('*')
-        .where('id', fichierId)
-        .first()
 }
