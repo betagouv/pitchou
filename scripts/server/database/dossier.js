@@ -1,6 +1,7 @@
 import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
+import {getDécisionAdministratives} from './décision_administrative.js';
 
 //@ts-ignore
 /** @import {DossierComplet, DossierPhase, DossierRésumé} from '../../types/API_Pitchou.d.ts' */
@@ -11,6 +12,8 @@ import {directDatabaseConnection} from '../database.js'
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+//@ts-ignore
+/** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
 //@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 //@ts-ignore
@@ -443,16 +446,18 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
     const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, databaseConnection)
+    /** @type {Promise<DécisionAdministrative[]>} */
+    const décisionsAdministrativesP = getDécisionAdministratives(dossierId, databaseConnection)
 
     if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
-        Promise.all([dossierP, évènementsPhaseDossierP])
+        Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP])
             .then(transaction.commit).catch(transaction.rollback)
     }
 
-    return Promise.all([dossierP, évènementsPhaseDossierP])
-        .then(([dossier, évènementsPhaseDossier]) => {
+    return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP])
+        .then(([dossier, évènementsPhaseDossier, décisionsAdministratives]) => {
             dossier.évènementsPhase = évènementsPhaseDossier
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
@@ -465,6 +470,18 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                 delete dossier.espèces_impactées_contenu
                 delete dossier.espèces_impactées_media_type
                 delete dossier.espèces_impactées_nom
+            }
+
+            if(décisionsAdministratives.length >= 1){
+                dossier.décisionsAdministratives = décisionsAdministratives.map(
+                    ({
+                        id, numéro, type, date_signature, date_fin_obligations,
+                        fichier
+                    }) => ({
+                        id, numéro, type, date_signature, date_fin_obligations,
+                        fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined
+                    })
+                )
             }
 
             return dossier
@@ -704,7 +721,6 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 }
 
 
-
 /**
  *
  * @param {number[]} numbers
@@ -747,15 +763,4 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
     }
 
     return Promise.all([phaseAjoutée, dossierÀJour])
-}
-
-/**
- * @param {Fichier['id']} fichierId 
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- */
-export function getFichierEspècesImpactées(fichierId, databaseConnection = directDatabaseConnection){
-    return databaseConnection('fichier')
-        .select('*')
-        .where('id', fichierId)
-        .first()
 }

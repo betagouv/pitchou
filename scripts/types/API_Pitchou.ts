@@ -2,6 +2,7 @@ import Dossier from './database/public/Dossier.ts'
 import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
 import Fichier from './database/public/Fichier.ts'
 import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
+import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
 
 
 type DossierPersonnesImpliquées = {
@@ -72,6 +73,8 @@ export type DossierRésumé = Pick<Dossier,
     & DonnéesDossierPourStats
 
 
+type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> & {fichier_url: string | undefined}
+
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un 
@@ -83,6 +86,7 @@ export type DossierComplet = Omit<Dossier,
     & DossierActivitéPrincipale
     & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }
+    & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
