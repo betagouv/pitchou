@@ -87,6 +87,13 @@ export default interface Dossier {
   /** Description du dossier fournie par le pétitionnaire */
   description: string | null;
 
+  date_début_intervention: Date | null;
+
+  date_fin_intervention: Date | null;
+
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  durée_intervention: number | null;
+
   scientifique_type_demande: string[] | null;
 
   scientifique_description_protocole_suivi: string | null;
@@ -181,6 +188,13 @@ export interface DossierInitializer {
   /** Description du dossier fournie par le pétitionnaire */
   description?: string | null;
 
+  date_début_intervention?: Date | null;
+
+  date_fin_intervention?: Date | null;
+
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  durée_intervention?: number | null;
+
   scientifique_type_demande?: string[] | null;
 
   scientifique_description_protocole_suivi?: string | null;
@@ -273,6 +287,13 @@ export interface DossierMutator {
 
   /** Description du dossier fournie par le pétitionnaire */
   description?: string | null;
+
+  date_début_intervention?: Date | null;
+
+  date_fin_intervention?: Date | null;
+
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  durée_intervention?: number | null;
 
   scientifique_type_demande?: string[] | null;
 

@@ -7,6 +7,11 @@ export async function up(knex) {
     await knex.schema.alterTable('dossier', function (table) {
         table.text('description')
             .comment(`Description du dossier fournie par le pétitionnaire`)
+        table.date('date_début_intervention')
+        table.date('date_fin_intervention')
+        table.float('durée_intervention')
+            .comment(`Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle`)
+
         table.json('scientifique_type_demande')
         table.text('scientifique_description_protocole_suivi')
         table.json('scientifique_mode_capture')
@@ -29,6 +34,9 @@ export async function down(knex) {
     await knex.schema.alterTable('dossier', function (table) {
         table.dropColumns(
             'description',
+            'date_début_intervention',
+            'date_fin_intervention',
+            'durée_intervention',
             'scientifique_type_demande',
             'scientifique_description_protocole_suivi',
             'scientifique_mode_capture',
