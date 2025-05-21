@@ -356,6 +356,8 @@ const colonnesDossierComplet = [
     "scientifique_description_protocole_suivi",
     "scientifique_mode_capture",
     "scientifique_modalités_source_lumineuses",
+    'scientifique_modalités_marquage',
+    'scientifique_modalités_transport',
 
     "enjeu_écologique",
     "enjeu_politique",

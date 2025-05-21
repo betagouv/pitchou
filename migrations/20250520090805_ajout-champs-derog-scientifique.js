@@ -12,6 +12,8 @@ export async function up(knex) {
         table.json('scientifique_mode_capture')
         table.text('scientifique_modalités_source_lumineuses')
             .comment(`null signifie qu'il n'y a pas d'utilisation de sources lumineuses`)
+        table.text('scientifique_modalités_marquage')
+        table.text('scientifique_modalités_transport')
 
     });
 
@@ -30,7 +32,9 @@ export async function down(knex) {
             'scientifique_type_demande',
             'scientifique_description_protocole_suivi',
             'scientifique_mode_capture',
-            'scientifique_modalités_source_lumineuses'
+            'scientifique_modalités_source_lumineuses',
+            'scientifique_modalités_marquage',
+            'scientifique_modalités_transport'
         )
     });
 

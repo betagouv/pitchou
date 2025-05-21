@@ -327,6 +327,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
         scientifique_modalités_source_lumineuses_précisez : 
         undefined
 
+    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de marquage pour chaque taxon`]} */
+    const scientifique_modalités_marquage = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de marquage pour chaque taxon`))?.stringValue || undefined
+
+
+    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`]} */
+    const scientifique_modalités_transport = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`))?.stringValue || undefined
 
 
     /**
@@ -417,7 +423,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
         scientifique_description_protocole_suivi,
         scientifique_mode_capture,
         scientifique_modalités_source_lumineuses,
-
+        scientifique_modalités_marquage,
+        scientifique_modalités_transport,
+        
         // annotations privées
         historique_nom_porteur,
         historique_localisation,

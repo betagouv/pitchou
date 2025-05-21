@@ -64,7 +64,9 @@
             scientifique_type_demande,
             scientifique_description_protocole_suivi,
             scientifique_mode_capture,
-            scientifique_modalités_source_lumineuses
+            scientifique_modalités_source_lumineuses,
+            scientifique_modalités_marquage,
+            scientifique_modalités_transport
         } = dossier
 
 
@@ -82,7 +84,9 @@
                 type_demande: scientifique_type_demande,
                 description_protocole_suivi: scientifique_description_protocole_suivi,
                 mode_capture: scientifique_mode_capture,
-                modalités_source_lumineuses: scientifique_modalités_source_lumineuses
+                modalités_source_lumineuses: scientifique_modalités_source_lumineuses,
+                modalités_marquage: scientifique_modalités_marquage,
+                modalités_transport: scientifique_modalités_transport
             }
         }
 

@@ -95,6 +95,10 @@ export default interface Dossier {
 
   /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses: string | null;
+
+  scientifique_modalités_marquage: string | null;
+
+  scientifique_modalités_transport: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -185,6 +189,10 @@ export interface DossierInitializer {
 
   /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses?: string | null;
+
+  scientifique_modalités_marquage?: string | null;
+
+  scientifique_modalités_transport?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -274,4 +282,8 @@ export interface DossierMutator {
 
   /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses?: string | null;
+
+  scientifique_modalités_marquage?: string | null;
+
+  scientifique_modalités_transport?: string | null;
 }
