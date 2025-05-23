@@ -218,6 +218,15 @@
         }
     }
 
+    details{
+        cursor: initial;
+
+        summary{
+            cursor: pointer;
+
+        }
+    }
+
     .texte-document-généré{
         white-space: preserve;
         padding: 1rem;
