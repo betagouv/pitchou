@@ -10,8 +10,6 @@
 
     export let décisionsAdministratives = dossier.décisionsAdministratives || []
 
-    console.log('décisionsAdministratives', décisionsAdministratives)
-
     const NON_RENSEIGNÉ = '(non renseigné)'
 
 </script>

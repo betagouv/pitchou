@@ -17,6 +17,8 @@
     /** @type {DossierComplet} */
     export let dossier
 
+    console.info('Dossier complet', dossier)
+
     export let messages
 
     /** @type {NonNullable<ComponentProps<Squelette>['email']>} */

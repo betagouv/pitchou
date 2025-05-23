@@ -177,8 +177,20 @@ const dossiersPourSynchronisation = dossiersDS.map((
         champById.set(champ.id, champ)
     }
 
+    /** @type {DossierDemarcheSimplifiee88444['Nom du projet']} */ 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
+    /** @type {DossierDemarcheSimplifiee88444['Description synthétique du projet']} */ 
+    const description = champById.get(pitchouKeyToChampDS.get('Description synthétique du projet'))?.stringValue
+    /** @type {DossierDemarcheSimplifiee88444['Activité principale']} */ 
     const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
+
+    /** @type {DossierDemarcheSimplifiee88444['Date de début d’intervention']} */ 
+    const date_début_intervention = champById.get(pitchouKeyToChampDS.get('Date de début d’intervention'))?.date
+    /** @type {DossierDemarcheSimplifiee88444['Date de fin d’intervention']} */ 
+    const date_fin_intervention = champById.get(pitchouKeyToChampDS.get('Date de fin d’intervention'))?.date
+    /** @type {DossierDemarcheSimplifiee88444['Durée de la dérogation']} */ 
+    const durée_intervention = Number(champById.get(pitchouKeyToChampDS.get('Durée de la dérogation'))?.stringValue)
+
 
 
     /* localisation */
@@ -288,6 +300,51 @@ const dossiersPourSynchronisation = dossiersDS.map((
         rattaché_au_régime_ae = false
     }
 
+    
+    /** Données dossier scientifique */
+    /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
+    const scientifique_type_demande_values = champById.get(pitchouKeyToChampDS.get('Recherche scientifique - Votre demande concerne :'))?.values
+    const scientifique_type_demande = scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined
+    
+    /** @type {DossierDemarcheSimplifiee88444['Description du protocole de suivi']} */
+    const scientifique_description_protocole_suivi = champById.get(pitchouKeyToChampDS.get('Description du protocole de suivi'))?.stringValue
+
+    
+    /** @type {DossierDemarcheSimplifiee88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`][]} */
+    const scientifique_précisez_mode_capture_values = champById.get(pitchouKeyToChampDS.get(`En cas de nécessité de capture d'individus, précisez le mode de capture`))?.values
+
+    /** @type {DossierDemarcheSimplifiee88444[`Préciser le(s) autre(s) moyen(s) de capture`]} */
+    const scientifique_precisez_autre_capture = champById.get(pitchouKeyToChampDS.get(`Préciser le(s) autre(s) moyen(s) de capture`))?.stringValue
+
+    /** @type {Set<DossierDemarcheSimplifiee88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`] | DossierDemarcheSimplifiee88444[`Préciser le(s) autre(s) moyen(s) de capture`]>} */
+    const scientifique_mode_capture_set = scientifique_précisez_mode_capture_values ? new Set(scientifique_précisez_mode_capture_values) : new Set()
+    
+    if(scientifique_precisez_autre_capture){
+        scientifique_mode_capture_set.delete('Autre moyen de capture (préciser)')
+        scientifique_mode_capture_set.add(scientifique_precisez_autre_capture)
+    }
+
+    const scientifique_mode_capture = JSON.stringify([...scientifique_mode_capture_set])
+
+
+    /** @type {DossierDemarcheSimplifiee88444[`Utilisez-vous des sources lumineuses ?`]} */
+    const scientifique_modalités_source_lumineuses_boolean = champById.get(pitchouKeyToChampDS.get(`Utilisez-vous des sources lumineuses ?`))?.checked
+
+    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de l'utilisation des sources lumineuses`]} */
+    const scientifique_modalités_source_lumineuses_précisez = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de l'utilisation des sources lumineuses`))?.stringValue
+
+
+    const scientifique_modalités_source_lumineuses = scientifique_modalités_source_lumineuses_boolean && scientifique_modalités_source_lumineuses_précisez ?
+        scientifique_modalités_source_lumineuses_précisez : 
+        undefined
+
+    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de marquage pour chaque taxon`]} */
+    const scientifique_modalités_marquage = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de marquage pour chaque taxon`))?.stringValue || undefined
+
+
+    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`]} */
+    const scientifique_modalités_transport = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`))?.stringValue || undefined
+
 
     /**
      * Annotations privées
@@ -350,7 +407,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
         // méta-données
         id_demarches_simplifiées,
         number_demarches_simplifiées,
-        nom,
         statut,
         date_dépôt,
 
@@ -361,12 +417,28 @@ const dossiersPourSynchronisation = dossiersDS.map((
         //représentant,
 
         // champs
+        nom,
+        description,
         activité_principale,
+        date_début_intervention,
+        date_fin_intervention,
+        durée_intervention,
+
+        // localisation
         // https://knexjs.org/guide/schema-builder.html#json
         communes: JSON.stringify(communes),
         départements: JSON.stringify(départements),
         régions: JSON.stringify(régions),
+
         rattaché_au_régime_ae,
+
+        // données dossier scientifique
+        scientifique_type_demande,
+        scientifique_description_protocole_suivi,
+        scientifique_mode_capture,
+        scientifique_modalités_source_lumineuses,
+        scientifique_modalités_marquage,
+        scientifique_modalités_transport,
 
         // annotations privées
         historique_nom_porteur,
