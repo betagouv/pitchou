@@ -363,6 +363,9 @@ const colonnesDossierComplet = [
     "scientifique_modalités_source_lumineuses",
     'scientifique_modalités_marquage',
     'scientifique_modalités_transport',
+    'scientifique_périmètre_intervention',
+    'scientifique_intervenants',
+    'scientifique_précisions_autres_intervenants',
 
     "enjeu_écologique",
     "enjeu_politique",

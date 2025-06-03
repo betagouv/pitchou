@@ -113,7 +113,10 @@
             scientifique_mode_capture,
             scientifique_modalités_source_lumineuses,
             scientifique_modalités_marquage,
-            scientifique_modalités_transport
+            scientifique_modalités_transport,
+            scientifique_périmètre_intervention,
+            scientifique_intervenants,
+            scientifique_précisions_autres_intervenants
         } = dossier
 
 
@@ -136,7 +139,10 @@
                 mode_capture: scientifique_mode_capture,
                 modalités_source_lumineuses: scientifique_modalités_source_lumineuses,
                 modalités_marquage: scientifique_modalités_marquage,
-                modalités_transport: scientifique_modalités_transport
+                modalités_transport: scientifique_modalités_transport,
+                périmètre_intervention: scientifique_périmètre_intervention,
+                intervenants: scientifique_intervenants,
+                précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
             },
 
             ...functions
