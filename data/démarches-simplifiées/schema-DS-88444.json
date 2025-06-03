@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2025-04-18T13:29:12+02:00",
+    "dateDerniereModification": "2025-06-03T16:51:21+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTgzMjA0",
-        "datePublication": "2025-03-21T09:09:18+01:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMTk4MTQw",
+        "datePublication": "2025-05-20T11:54:38+02:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
@@ -35,13 +35,6 @@
                 "required": false,
                 "collapsibleExplanationEnabled": false,
                 "collapsibleExplanationText": null
-            },
-            {
-                "__typename": "HeaderSectionChampDescriptor",
-                "id": "Q2hhbXAtNDYzNTA4OQ==",
-                "label": "Adaptons ce formulaire à votre projet",
-                "description": "",
-                "required": false
             },
             {
                 "__typename": "TextChampDescriptor",
@@ -88,6 +81,7 @@
                     "Préservation de la sécurité et santé publique",
                     "Production énergie autre-projets liés au nucléaire",
                     "Production énergie renouvelable - Éolien",
+                    "Production énergie renouvelable - Éolien -  Suivi mortalité",
                     "Production énergie renouvelable - Photovoltaïque",
                     "Production énergie renouvelable - Hydroélectricité",
                     "Production énergie renouvelable - Méthaniseur, biomasse",
@@ -104,18 +98,6 @@
                     "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
                     "UTN (Unité Touristique Nouvelle)",
                     "ZAC",
-                    "Autre"
-                ],
-                "otherOption": false
-            },
-            {
-                "__typename": "DropDownListChampDescriptor",
-                "id": "Q2hhbXAtNDM2ODY3NA==",
-                "label": "Éolien - Votre demande concerne :",
-                "description": "",
-                "required": true,
-                "options": [
-                    "Suivi de mortalité pour un parc éolien",
                     "Autre"
                 ],
                 "otherOption": false

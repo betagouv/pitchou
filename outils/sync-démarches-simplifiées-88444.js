@@ -345,6 +345,32 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`]} */
     const scientifique_modalités_transport = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`))?.stringValue || undefined
 
+    /** @type {DossierDemarcheSimplifiee88444[`Précisez le périmètre d'intervention`]} */
+    const scientifique_périmètre_intervention = champById.get(pitchouKeyToChampDS.get(`Précisez le périmètre d'intervention`))?.stringValue || undefined
+
+    /** @type {DossierDemarcheSimplifiee88444[`Qualification des intervenants`]} */
+    let scientifique_qualifications_intervenants = champById.get(pitchouKeyToChampDS.get(`Qualification des intervenants`)) || undefined
+
+    scientifique_qualifications_intervenants = scientifique_qualifications_intervenants && 
+        scientifique_qualifications_intervenants.rows.map(r => r.champs)
+
+    /** @type { {nom_complet: string, qualification: string}[] | undefined} */
+    let scientifique_intervenants = undefined;
+
+    if(Array.isArray(scientifique_qualifications_intervenants)){
+        scientifique_intervenants = scientifique_qualifications_intervenants.map(champs => {
+            const champNomComplet = champs.find(c => c.label === 'Nom Prénom')
+            const champQualification = champs.find(c => c.label === 'Qualification')
+
+            return {
+                nom_complet: champNomComplet && champNomComplet.stringValue,
+                qualification: champQualification && champQualification.stringValue,
+            }
+        })
+    }
+
+    /** @type {DossierDemarcheSimplifiee88444[`Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)`]} */
+    const scientifique_précisions_autres_intervenants = champById.get(pitchouKeyToChampDS.get(`Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)`))?.stringValue || undefined;
 
     /**
      * Annotations privées
@@ -439,6 +465,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
         scientifique_modalités_source_lumineuses,
         scientifique_modalités_marquage,
         scientifique_modalités_transport,
+        scientifique_périmètre_intervention,
+        scientifique_intervenants: JSON.stringify(scientifique_intervenants),
+        scientifique_précisions_autres_intervenants,
 
         // annotations privées
         historique_nom_porteur,

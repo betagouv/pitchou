@@ -46,6 +46,7 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Préservation de la sécurité et santé publique"
     | "Production énergie autre-projets liés au nucléaire"
     | "Production énergie renouvelable - Éolien"
+    | "Production énergie renouvelable - Éolien -  Suivi mortalité"
     | "Production énergie renouvelable - Photovoltaïque"
     | "Production énergie renouvelable - Hydroélectricité"
     | "Production énergie renouvelable - Méthaniseur, biomasse"
@@ -63,7 +64,6 @@ export interface DossierDemarcheSimplifiee88444 {
     | "UTN (Unité Touristique Nouvelle)"
     | "ZAC"
     | "Autre";
-  "Éolien - Votre demande concerne :": "Suivi de mortalité pour un parc éolien" | "Autre";
   "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
   "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
   "Avez-vous réalisé un état des lieux écologique complet ?": boolean;

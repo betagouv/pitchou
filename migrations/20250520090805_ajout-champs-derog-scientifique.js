@@ -20,6 +20,10 @@ export async function up(knex) {
         table.text('scientifique_modalités_marquage')
         table.text('scientifique_modalités_transport')
 
+        table.text('scientifique_périmètre_intervention')
+        table.json('scientifique_intervenants')
+        table.text('scientifique_précisions_autres_intervenants')
+
     });
 
 };
@@ -42,7 +46,11 @@ export async function down(knex) {
             'scientifique_mode_capture',
             'scientifique_modalités_source_lumineuses',
             'scientifique_modalités_marquage',
-            'scientifique_modalités_transport'
+            'scientifique_modalités_transport',
+            'scientifique_périmètre_intervention',
+            'scientifique_intervenants',
+            'scientifique_précisions_autres_intervenants'
+
         )
     });
 

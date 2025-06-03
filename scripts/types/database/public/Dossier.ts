@@ -106,6 +106,12 @@ export default interface Dossier {
   scientifique_modalités_marquage: string | null;
 
   scientifique_modalités_transport: string | null;
+
+  scientifique_périmètre_intervention: string | null;
+
+  scientifique_intervenants: unknown | null;
+
+  scientifique_précisions_autres_intervenants: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -207,6 +213,12 @@ export interface DossierInitializer {
   scientifique_modalités_marquage?: string | null;
 
   scientifique_modalités_transport?: string | null;
+
+  scientifique_périmètre_intervention?: string | null;
+
+  scientifique_intervenants?: unknown | null;
+
+  scientifique_précisions_autres_intervenants?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -307,4 +319,10 @@ export interface DossierMutator {
   scientifique_modalités_marquage?: string | null;
 
   scientifique_modalités_transport?: string | null;
+
+  scientifique_périmètre_intervention?: string | null;
+
+  scientifique_intervenants?: unknown | null;
+
+  scientifique_précisions_autres_intervenants?: string | null;
 }
