@@ -46,6 +46,7 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Préservation de la sécurité et santé publique"
     | "Production énergie autre-projets liés au nucléaire"
     | "Production énergie renouvelable - Éolien"
+    | "Production énergie renouvelable - Éolien -  Suivi mortalité"
     | "Production énergie renouvelable - Photovoltaïque"
     | "Production énergie renouvelable - Hydroélectricité"
     | "Production énergie renouvelable - Méthaniseur, biomasse"
@@ -63,7 +64,6 @@ export interface DossierDemarcheSimplifiee88444 {
     | "UTN (Unité Touristique Nouvelle)"
     | "ZAC"
     | "Autre";
-  "Éolien - Votre demande concerne :": "Suivi de mortalité pour un parc éolien" | "Autre";
   "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
   "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
   "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
@@ -110,7 +110,7 @@ export interface DossierDemarcheSimplifiee88444 {
     | "Oui"
     | "Non"
     | "Ne sait pas encore";
-  "À quelle procédure le projet est-il soumis ?": "Autorisation ICPE" | "Autorisation loi sur l'eau";
+  "À quelle procédure le projet est-il soumis ?": ("Autorisation ICPE" | "Autorisation loi sur l'eau")[];
   /**
    * Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes
    */
@@ -125,21 +125,23 @@ export interface DossierDemarcheSimplifiee88444 {
     | "A des fins de repeuplement et de réintroduction de ces espèces et pour des opérations de reproduction nécessaires à ces fins, y compris la propagation artificielle des plantes"
     | "Pour permettre la prise ou la détention d'un nombre limité et spécifié de certains spécimens, dans des conditions strictement contrôlées, d'une manière sélective et dans une mesure limitée";
   "Synthèse des éléments justifiant le motif de la dérogation": string;
-  "Recherche scientifique - Votre demande concerne :":
+  "Recherche scientifique - Votre demande concerne :": (
     | "Une/des capture(s)/relâcher(s) immédiat(s) sur place sans marquage"
     | "Une/des capture(s)/relâcher(s) immédiat(s) sur place avec marquage"
     | "Prélèvement de matériel biologique"
-    | "Autre cas";
+    | "Autre cas"
+  )[];
   "Prise ou détention limité ou spécifié - Précisez":
     | "Espèces autres que oiseaux"
     | "Oiseaux autre que pour la fauconnerie"
     | "Oiseaux pour la fauconnerie"
     | "Oiseaux chassables"
     | "Oiseaux non chassables et utilisation d’une méthode interdite par l’annexe IV";
-  "Captures/Relâchers/Prélèvement - Finalité(s) de la demande":
+  "Captures/Relâchers/Prélèvement - Finalité(s) de la demande": (
     | "Pour établissement public ayant une activité de recherche, pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre d'études scientifiques"
     | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'évaluation préalable et du suivi des impacts sur la biodiversité de projets de travaux, d'ouvrages et d'aménagements"
-    | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'élaboration ou du suivi de plans, de schémas, de programmes ou d'autres documents de planification nécessitant l'acquisition de connaissances ou visant à la préservation du patrimoine naturel prévus par des dispositions du code de l'environnement.";
+    | "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'élaboration ou du suivi de plans, de schémas, de programmes ou d'autres documents de planification nécessitant l'acquisition de connaissances ou visant à la préservation du patrimoine naturel prévus par des dispositions du code de l'environnement."
+  )[];
   "Joindre les pièces justifiant de la finalité de la demande": ChampDSPieceJustificative;
   "Cette demande concerne un programme de suivi déjà existant": boolean;
   "Joindre le bilan des opérations antérieures": ChampDSPieceJustificative;
@@ -176,18 +178,20 @@ export interface DossierDemarcheSimplifiee88444 {
   "Nombre de passages pendant le suivi": number;
   "Nombre de passages par semaine de suivi": number;
   "Pièces jointes décrivant précisément le protocole qui sera mis en place": ChampDSPieceJustificative;
-  "Suivi de mortalité - Votre demande concerne :":
+  "Suivi de mortalité - Votre demande concerne :": (
     | "Transport des individus blessés vers un centre de soin"
     | "Transport des cadavres pour analyse au bureau"
-    | "Envoi des cadavres collectés vers le MNHN/UMR CESCO pour abonder au programme de veille sanitaire";
+    | "Envoi des cadavres collectés vers le MNHN/UMR CESCO pour abonder au programme de veille sanitaire"
+  )[];
   "Description du mode de collecte sur le terrain": string;
   "Méthode de conservation": string;
   "Adresse des locaux où seront examinés les cadavres": string;
-  "En cas de nécessité de capture d'individus, précisez le mode de capture":
+  "En cas de nécessité de capture d'individus, précisez le mode de capture": (
     | "Manuelle"
     | "Au filet"
     | "Avec épuisette"
-    | "Autre moyen de capture (préciser)";
+    | "Autre moyen de capture (préciser)"
+  )[];
   "Préciser le(s) autre(s) moyen(s) de capture": string;
   "Utilisez-vous des sources lumineuses ?": boolean;
   "Précisez les modalités de l'utilisation des sources lumineuses": string;

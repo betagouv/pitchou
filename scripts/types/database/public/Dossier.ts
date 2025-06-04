@@ -83,6 +83,35 @@ export default interface Dossier {
   activité_principale: string | null;
 
   espèces_impactées: FichierId | null;
+
+  /** Description du dossier fournie par le pétitionnaire */
+  description: string | null;
+
+  date_début_intervention: Date | null;
+
+  date_fin_intervention: Date | null;
+
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  durée_intervention: number | null;
+
+  scientifique_type_demande: string[] | null;
+
+  scientifique_description_protocole_suivi: string | null;
+
+  scientifique_mode_capture: string[] | null;
+
+  /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
+  scientifique_modalités_source_lumineuses: string | null;
+
+  scientifique_modalités_marquage: string | null;
+
+  scientifique_modalités_transport: string | null;
+
+  scientifique_périmètre_intervention: string | null;
+
+  scientifique_intervenants: unknown | null;
+
+  scientifique_précisions_autres_intervenants: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -161,6 +190,35 @@ export interface DossierInitializer {
   activité_principale?: string | null;
 
   espèces_impactées?: FichierId | null;
+
+  /** Description du dossier fournie par le pétitionnaire */
+  description?: string | null;
+
+  date_début_intervention?: Date | null;
+
+  date_fin_intervention?: Date | null;
+
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  durée_intervention?: number | null;
+
+  scientifique_type_demande?: string[] | null;
+
+  scientifique_description_protocole_suivi?: string | null;
+
+  scientifique_mode_capture?: string[] | null;
+
+  /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
+  scientifique_modalités_source_lumineuses?: string | null;
+
+  scientifique_modalités_marquage?: string | null;
+
+  scientifique_modalités_transport?: string | null;
+
+  scientifique_périmètre_intervention?: string | null;
+
+  scientifique_intervenants?: unknown | null;
+
+  scientifique_précisions_autres_intervenants?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -238,4 +296,33 @@ export interface DossierMutator {
   activité_principale?: string | null;
 
   espèces_impactées?: FichierId | null;
+
+  /** Description du dossier fournie par le pétitionnaire */
+  description?: string | null;
+
+  date_début_intervention?: Date | null;
+
+  date_fin_intervention?: Date | null;
+
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  durée_intervention?: number | null;
+
+  scientifique_type_demande?: string[] | null;
+
+  scientifique_description_protocole_suivi?: string | null;
+
+  scientifique_mode_capture?: string[] | null;
+
+  /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
+  scientifique_modalités_source_lumineuses?: string | null;
+
+  scientifique_modalités_marquage?: string | null;
+
+  scientifique_modalités_transport?: string | null;
+
+  scientifique_périmètre_intervention?: string | null;
+
+  scientifique_intervenants?: unknown | null;
+
+  scientifique_précisions_autres_intervenants?: string | null;
 }

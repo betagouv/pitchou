@@ -57,7 +57,7 @@ else{
 }
 
 /**
- * @param {ChampDescriptor} _ 
+ * @param {Pick<ChampDescriptor, 'description'>} _ 
  * @returns {JSONSchema}
  */
 function champToStringJSONSchema({ description }){
@@ -65,11 +65,26 @@ function champToStringJSONSchema({ description }){
 }
 
 /**
- * @param {ChampDescriptor} _ 
+ * @param {Pick<ChampDescriptor, 'description' | 'options'>} _ 
  * @returns {JSONSchema}
  */
 function champToStringEnumJSONSchema({ description, options }){
     return { type: 'string', description, enum: options }
+}
+
+/**
+ * @param {ChampDescriptor} _ 
+ * @returns {JSONSchema}
+ */
+function champToStringArrayJSONSchema({ description, options }){
+    // enum: options
+    return { 
+        type: 'array', 
+        description, 
+        items: options ? 
+            champToStringEnumJSONSchema({description: '', options}) :
+            champToStringJSONSchema({description: ''})
+    }
 }
 
 /**
@@ -164,7 +179,7 @@ function champToArrayJSONSchema({description, champDescriptors}){
 /** @type {Map<ChampDescriptorTypename, (cd: ChampDescriptor) => (JSONSchema | undefined)>} */
 const DSTypenameToJSONSchema = new Map([
     [ "DropDownListChampDescriptor", champToStringEnumJSONSchema ],
-    [ "MultipleDropDownListChampDescriptor", champToStringEnumJSONSchema ],
+    [ "MultipleDropDownListChampDescriptor", champToStringArrayJSONSchema ],
     [ "YesNoChampDescriptor", champToBooleanJSONSchema ],
     [ "CheckboxChampDescriptor", champToBooleanJSONSchema ],
     [ "SiretChampDescriptor", champToStringJSONSchema ],
@@ -177,7 +192,6 @@ const DSTypenameToJSONSchema = new Map([
     [ "DecimalNumberChampDescriptor", champToNumberJSONSchema ],
     [ "DepartementChampDescriptor", champToDépartementJSONSchema ],
     [ "CommuneChampDescriptor", champToCommuneJSONSchema ],
-    // PPP : invalide, mais ne sait pas encore comment bien le gérer
     [ "RepetitionChampDescriptor", champToArrayJSONSchema ],
     [ "DateChampDescriptor", champToDateJSONSchema ],
     [ "PieceJustificativeChampDescriptor", champToFileJSONSchema ]

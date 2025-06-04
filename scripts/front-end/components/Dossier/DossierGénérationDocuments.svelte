@@ -1,4 +1,7 @@
 <script>
+    import {format} from 'date-fns'
+    import {fr} from 'date-fns/locale';
+
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
@@ -46,6 +49,41 @@
 
     /**
      * 
+     * @param {number} n
+     * @param {number} precision
+     * @returns {string}
+     */
+    function afficher_nombre(n, precision = 2){
+        if(Number.isInteger(n))
+            return n.toString(10)
+        else{
+            return n.toFixed(precision)
+        }
+    }
+
+    /**
+     * 
+     * @param {Date} date
+     * @param {string} formatString
+     * @returns {string}
+     */
+    function formatter_date(date, formatString){
+        date = new Date(date)
+        return format(date, formatString, { locale: fr })
+    }
+
+
+    /**
+     * 
+     * @param {Date} date
+     * @returns {string}
+     */
+    function formatter_date_simple(date){
+        return formatter_date(date, 'd MMMM yyyy')
+    }
+
+    /**
+     * 
      * @param {SubmitEvent} e
      */
     async function generateDoc(e){
@@ -55,15 +93,59 @@
             throw new Error(`Missing template`)
         }
 
+        const functions = {
+            afficher_nombre,
+            formatter_date,
+            formatter_date_simple
+        }
+
+        const {
+            nom,
+            description,
+            date_début_intervention,
+            date_fin_intervention,
+            durée_intervention,
+            historique_identifiant_demande_onagre,
+            activité_principale,
+            rattaché_au_régime_ae,
+            scientifique_type_demande,
+            scientifique_description_protocole_suivi,
+            scientifique_mode_capture,
+            scientifique_modalités_source_lumineuses,
+            scientifique_modalités_marquage,
+            scientifique_modalités_transport,
+            scientifique_périmètre_intervention,
+            scientifique_intervenants,
+            scientifique_précisions_autres_intervenants
+        } = dossier
+
+
 		const data = {
-            nom: dossier.nom,
-            identifiant_onagre: dossier.historique_identifiant_demande_onagre,
-            activité_principale: dossier.activité_principale,
+            nom,
+            description,
+            identifiant_onagre: historique_identifiant_demande_onagre,
+            activité_principale,
+            date_début_intervention,
+            date_fin_intervention,
+            durée_intervention,
             demandeur: formatPorteurDeProjet(dossier),
             localisation: formatLocalisation(dossier),
-            régime_autorisation_environnementale: dossier.rattaché_au_régime_ae === null ? '' :
-                (dossier.rattaché_au_régime_ae ? 'Oui' : 'Non'),
-            espèces_impacts: await espècesImpactéesParActivité
+            régime_autorisation_environnementale: rattaché_au_régime_ae === null ? '' :
+                (rattaché_au_régime_ae ? 'Oui' : 'Non'),
+            espèces_impacts: await espècesImpactéesParActivité,
+            scientifique: {
+                type_demande: scientifique_type_demande,
+                description_protocole_suivi: scientifique_description_protocole_suivi,
+                mode_capture: scientifique_mode_capture,
+                modalités_source_lumineuses: scientifique_modalités_source_lumineuses,
+                modalités_marquage: scientifique_modalités_marquage,
+                modalités_transport: scientifique_modalités_transport,
+                périmètre_intervention: scientifique_périmètre_intervention,
+                intervenants: scientifique_intervenants,
+                précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
+            },
+
+            ...functions
         }
 
         console.log('data', data)
@@ -139,6 +221,15 @@
 
         .fr-upload-group{
             margin-bottom: 2rem;
+        }
+    }
+
+    details{
+        cursor: initial;
+
+        summary{
+            cursor: pointer;
+
         }
     }
 

@@ -299,21 +299,27 @@ export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databa
 
 /** @type {(keyof DossierComplet)[]} */
 const colonnesDossierComplet = [
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "dossier.id as id",
     //"id_demarches_simplifiées",
     "number_demarches_simplifiées",
     "statut",
     "date_dépôt",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "dossier.nom as nom",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    "description",
+
+    'date_début_intervention',
+    'date_fin_intervention',
+    'durée_intervention',
+
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "fichier_espèces_impactées.id as espèces_impactées_id",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "fichier_espèces_impactées.contenu as espèces_impactées_contenu",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "fichier_espèces_impactées.nom as espèces_impactées_nom",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "fichier_espèces_impactées.media_type as espèces_impactées_media_type",
     "rattaché_au_régime_ae",
     "activité_principale",
@@ -327,21 +333,21 @@ const colonnesDossierComplet = [
     "prochaine_action_attendue_par",
 
     // déposant
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "déposant.nom as déposant_nom",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "déposant.prénoms as déposant_prénoms",
 
     // demandeur_personne_physique
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
 
     // demandeur_personne_morale
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-    //@ts-expect-error pas exacement une keyof DossierComplet, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
 
     // annotations privées
@@ -350,6 +356,16 @@ const colonnesDossierComplet = [
     "historique_localisation",
     */
     "ddep_nécessaire",
+    
+    "scientifique_type_demande",
+    "scientifique_description_protocole_suivi",
+    "scientifique_mode_capture",
+    "scientifique_modalités_source_lumineuses",
+    'scientifique_modalités_marquage',
+    'scientifique_modalités_transport',
+    'scientifique_périmètre_intervention',
+    'scientifique_intervenants',
+    'scientifique_précisions_autres_intervenants',
 
     "enjeu_écologique",
     "enjeu_politique",
@@ -492,12 +508,12 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
 /** @type {(keyof DossierRésumé)[]} */
 const colonnesDossierRésumé = [
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "dossier.id as id",
     //"id_demarches_simplifiées",
     "number_demarches_simplifiées",
     "date_dépôt",
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "dossier.nom as nom",
     "rattaché_au_régime_ae",
     "activité_principale",
@@ -511,21 +527,21 @@ const colonnesDossierRésumé = [
     "prochaine_action_attendue_par",
 
     // déposant
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "déposant.nom as déposant_nom",
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "déposant.prénoms as déposant_prénoms",
 
     // demandeur_personne_physique
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
 
     // demandeur_personne_morale
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-    //@ts-expect-error pas exacement une keyof DossierRésumé, mais quand même
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
 
     // annotations privées
