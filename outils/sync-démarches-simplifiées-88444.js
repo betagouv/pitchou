@@ -32,7 +32,7 @@ import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/ser
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444, Annotations88444, Champs88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444, PropsDécisionHistorique} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 // récups les données de DS
@@ -304,7 +304,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /** Données dossier scientifique */
     /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
     const scientifique_type_demande_values = champById.get(pitchouKeyToChampDS.get('Recherche scientifique - Votre demande concerne :'))?.values
-    const scientifique_type_demande = scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined
     
     /** @type {DossierDemarcheSimplifiee88444['Description du protocole de suivi']} */
     const scientifique_description_protocole_suivi = champById.get(pitchouKeyToChampDS.get('Description du protocole de suivi'))?.stringValue
@@ -460,7 +459,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
         rattaché_au_régime_ae,
 
         // données dossier scientifique
-        scientifique_type_demande,
+        scientifique_type_demande: scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined,
         scientifique_description_protocole_suivi,
         scientifique_mode_capture,
         scientifique_modalités_source_lumineuses,
@@ -601,7 +600,8 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Omit<DatabaseDossier, "id"|"phase"|"prochaine_action_attendue_par"| "demandeur_personne_physique"| "espèces_protégées_concernées" | "espèces_impactées" | PropsDécisionHistorique>[]} */
+/** @type {Partial<DatabaseDossier>[]} */
+// @ts-ignore
 const dossiers = dossiersPourSynchronisation.map(dossier => {
     const { 
         déposant,

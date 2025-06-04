@@ -6,10 +6,15 @@ import {AnnotationsPriveesDemarcheSimplifiee88444} from '../démarches-simplifi�
 
 export type PropsDécisionHistorique = 'historique_décision' | 'historique_date_signature_arrêté_préfectoral' | 'historique_référence_arrêté_préfectoral' | 'historique_date_signature_arrêté_ministériel' | 'historique_référence_arrêté_ministériel'
 
-export type DossierPourSynchronisation = Omit<DossierDatabase, PropsDécisionHistorique | "id" | "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "phase" | "prochaine_action_attendue_par"> & {
+// les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
+type JSONTypeProps = 'scientifique_type_demande' | 'scientifique_mode_capture' | 'scientifique_modalités_source_lumineuses'
+
+export type DossierPourSynchronisation = Omit<DossierDatabase, PropsDécisionHistorique | JSONTypeProps | "id" | "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "phase" | "prochaine_action_attendue_par"> & {
     déposant: PersonneInitializer,
     demandeur_personne_physique: PersonneInitializer | undefined,
     demandeur_personne_morale: EntrepriseInitializer | undefined,
+} & {
+   [key in JSONTypeProps] : string | undefined
 }
 
 export type DécisionAdministrativeAnnotation88444 = {

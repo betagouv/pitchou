@@ -157,7 +157,7 @@ depuis le container du serveur
 
 `docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js` (dernières heures par défaut)
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-07-25` (synchroniser les dossiers modifiés depuis le 25 juillet 2024)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
 
 
 `docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
