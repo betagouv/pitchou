@@ -54,14 +54,16 @@ export interface ChampDSDépartement extends BaseChampDS {
 
 export type ChampDSDépartements = BaseRepetitionChampsDS<ChampDSDépartement>
 
-export interface BaseChampDSRégion extends BaseChampDS {
+export interface ChampDSRégion extends BaseChampDS {
     region: {
         code: string
         name: string
     }
 }
 
-export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégions>
+export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégion>
+
+export type ChampScientifiqueIntervenants = BaseRepetitionChampsDS<BaseChampDS>
 
 export interface DSPieceJustificative{
     filename: string,

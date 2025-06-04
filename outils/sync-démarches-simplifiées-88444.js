@@ -29,7 +29,7 @@ import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/ser
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Traitement, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444, Annotations88444, Champs88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444, PropsDécisionHistorique} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
@@ -348,17 +348,18 @@ const dossiersPourSynchronisation = dossiersDS.map((
     /** @type {DossierDemarcheSimplifiee88444[`Précisez le périmètre d'intervention`]} */
     const scientifique_périmètre_intervention = champById.get(pitchouKeyToChampDS.get(`Précisez le périmètre d'intervention`))?.stringValue || undefined
 
-    /** @type {DossierDemarcheSimplifiee88444[`Qualification des intervenants`]} */
+    /** @type {ChampScientifiqueIntervenants | undefined} */
     let scientifique_qualifications_intervenants = champById.get(pitchouKeyToChampDS.get(`Qualification des intervenants`)) || undefined
 
-    scientifique_qualifications_intervenants = scientifique_qualifications_intervenants && 
+    /** @type {BaseChampDS[][] | undefined} */
+    let rowsChamp = scientifique_qualifications_intervenants && 
         scientifique_qualifications_intervenants.rows.map(r => r.champs)
 
-    /** @type { {nom_complet: string, qualification: string}[] | undefined} */
+    /** @type { {nom_complet?: string, qualification?: string}[] | undefined} */
     let scientifique_intervenants = undefined;
 
-    if(Array.isArray(scientifique_qualifications_intervenants)){
-        scientifique_intervenants = scientifique_qualifications_intervenants.map(champs => {
+    if(Array.isArray(rowsChamp)){
+        scientifique_intervenants = rowsChamp.map(champs => {
             const champNomComplet = champs.find(c => c.label === 'Nom Prénom')
             const champQualification = champs.find(c => c.label === 'Qualification')
 

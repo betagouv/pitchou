@@ -177,7 +177,6 @@ const DSTypenameToJSONSchema = new Map([
     [ "DecimalNumberChampDescriptor", champToNumberJSONSchema ],
     [ "DepartementChampDescriptor", champToDépartementJSONSchema ],
     [ "CommuneChampDescriptor", champToCommuneJSONSchema ],
-    // PPP : invalide, mais ne sait pas encore comment bien le gérer
     [ "RepetitionChampDescriptor", champToArrayJSONSchema ],
     [ "DateChampDescriptor", champToDateJSONSchema ],
     [ "PieceJustificativeChampDescriptor", champToFileJSONSchema ]
