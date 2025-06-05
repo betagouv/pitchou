@@ -49,21 +49,34 @@
 
     /**
      * 
-     * @param {number} n
+     * @param {any} n
      * @param {number} precision
      * @returns {string}
      */
     function afficher_nombre(n, precision = 2){
-        if(Number.isInteger(n))
-            return n.toString(10)
-        else{
-            return n.toFixed(precision)
+        if(typeof n === 'string'){
+            n = parseFloat(n)
         }
+
+        if(typeof n === 'number'){
+            if(Number.isNaN(n)){
+                return '(erreur de calcul)'
+            }
+
+
+            if(Number.isInteger(n))
+                return n.toString(10)
+            else{
+                return n.toFixed(precision)
+            }
+        }
+
+        return '(non renseigné)'
     }
 
     /**
      * 
-     * @param {Date} date
+     * @param {any} date
      * @param {string} formatString
      * @returns {string}
      */
@@ -75,7 +88,7 @@
 
     /**
      * 
-     * @param {Date} date
+     * @param {any} date
      * @returns {string}
      */
     function formatter_date_simple(date){
