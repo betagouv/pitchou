@@ -4,10 +4,11 @@
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
-    import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou' */  
+    /** @import {DossierComplet} from '../../../types/API_Pitchou' */
+    /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
+
 
     /** @type {FileList | undefined} */
     let templateFiles;
@@ -20,14 +21,8 @@
     /** @type {DossierComplet} */
     export let dossier
 
-    /** @type {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined} */
-    let espècesImpactées;
-
-    $: espècesImpactées = (
-        dossier.espècesImpactées && dossier.espècesImpactées.contenu && 
-        // @ts-ignore
-        espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
-    ) || undefined
+    /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
+    export let espècesImpactées;
 
     /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
     let espècesImpactéesParActivité
@@ -132,6 +127,16 @@
             scientifique_précisions_autres_intervenants
         } = dossier
 
+        let espèces_impacts = undefined
+
+        try{
+            // on laisse les erreurs sortir silencieusement ici s'il y en a
+            espèces_impacts = await espècesImpactéesParActivité
+        }
+        catch(e){
+            // ignore errors
+        }
+
 
 		const data = {
             nom,
@@ -145,7 +150,7 @@
             localisation: formatLocalisation(dossier),
             régime_autorisation_environnementale: rattaché_au_régime_ae === null ? '' :
                 (rattaché_au_régime_ae ? 'Oui' : 'Non'),
-            espèces_impacts: await espècesImpactéesParActivité,
+            espèces_impacts,
             scientifique: {
                 type_demande: scientifique_type_demande,
                 description_protocole_suivi: scientifique_description_protocole_suivi,
