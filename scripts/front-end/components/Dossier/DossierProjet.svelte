@@ -2,14 +2,13 @@
     //@ts-check
     import DownloadButton from '../DownloadButton.svelte';
     import Loader from '../Loader.svelte';
-    import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js'
     import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
     
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
+    /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
-
 
     const {number_demarches_simplifiées: numdos} = dossier
 
@@ -24,16 +23,10 @@
 
     function makeFilename() {
         return dossier.espècesImpactées?.nom || 'fichier'
-    } 
+    }
 
-    /** @type {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined} */
-    let espècesImpactées;
-
-    $: espècesImpactées = (
-        dossier.espècesImpactées && dossier.espècesImpactées.contenu && 
-        // @ts-ignore
-        espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
-    ) || undefined
+    /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
+    export let espècesImpactées;
 
     /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
     let espècesImpactéesParActivité
@@ -88,12 +81,12 @@
                     {/each}
                 {/if}
             {:catch erreur}
-                <div class="fr-alert fr-alert--error fr-mb-3w">
+                <div class="fr-alert fr-alert--error fr-mb-3w fr-mt-2w">
                     {#if erreur.name === 'HTTPError'}
                         Erreur de réception du fichier. Veuillez réessayer en rafraichissant la page maintenant ou plus tard.
                     {:else if erreur.name === 'MediaTypeError'}
                         Le fichier d'espèces impactées dans le dossier n'est pas d'un type qui permet de récupérer la liste des espèces.
-                        Un fichier .ods est attendu. Le fichier dans le dossier est le type <code>{erreur.obtenu}</code>.
+                        Un fichier <code>{erreur.attendu}</code> est attendu. Le fichier dans le dossier est de type <code>{erreur.obtenu}</code>.
                         Vous pouvez demander au pétitionnaire de fournir le fichier dans le bon format à la place du fichier actuel.
                     {:else}
                         Une erreur est survenue. Veuillez réessayer en rafraichissant la page maintenant ou plus tard.

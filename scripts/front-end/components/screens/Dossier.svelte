@@ -10,15 +10,47 @@
     import DossierAvis from '../Dossier/DossierAvis.svelte'
     import DossierContrôles from '../Dossier/DossierContrôles.svelte'
     import DossierGénérationDocuments from '../Dossier/DossierGénérationDocuments.svelte'
+    import {MediaTypeError} from '../../../commun/errors.js';
+    import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js';
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
+    /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
     /** @type {DossierComplet} */
     export let dossier
 
     console.info('Dossier complet', dossier)
 
+
+    const EXTENSION_ATTENDUE = '.ods'
+
+    /**
+     * 
+     * @param {DossierComplet} dossier
+     * @return {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined}
+     */
+    function getEspècesImpactés(dossier){
+        const espècesImpactées = dossier.espècesImpactées
+
+        if(!espècesImpactées || !espècesImpactées.contenu){
+            return undefined
+        }
+
+        const extension = '.' + espècesImpactées.nom?.split('.').pop()
+
+        if(extension !== EXTENSION_ATTENDUE){
+            return Promise.reject(new MediaTypeError({attendu: EXTENSION_ATTENDUE, obtenu: extension}))
+        }
+
+        //@ts-expect-error le mismatch ArrayBuffer/Buffer vient des histoires de génération de type et interactions avec Postgres
+        return espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
+    }
+
+
+    /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
+    $: espècesImpactées = getEspècesImpactés(dossier)
+ 
     export let messages
 
     /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
@@ -71,7 +103,7 @@
                     <DossierInstruction {dossier}></DossierInstruction>
                 </div>
                 <div id="tabpanel-projet-panel" aria-labelledby="tabpanel-projet" class="fr-tabs__panel" role="tabpanel" tabindex="0">
-                    <DossierProjet {dossier}></DossierProjet>
+                    <DossierProjet {dossier} {espècesImpactées}></DossierProjet>
                 </div>
                 <div id="tabpanel-échanges-panel" aria-labelledby="tabpanel-échanges" class="fr-tabs__panel" role="tabpanel" tabindex="0">
                     <DossierMessagerie {dossier} {messages}></DossierMessagerie>
@@ -83,7 +115,7 @@
                     <DossierContrôles {dossier}></DossierContrôles>
                 </div>
                 <div id="tabpanel-génération-documents-panel" aria-labelledby="tabpanel-génération-documents" class="fr-tabs__panel" role="tabpanel" tabindex="0">
-                    <DossierGénérationDocuments {dossier}></DossierGénérationDocuments>
+                    <DossierGénérationDocuments {dossier} {espècesImpactées}></DossierGénérationDocuments>
                 </div>
             </div>
         </div>
