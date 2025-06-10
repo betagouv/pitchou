@@ -15,14 +15,15 @@ Par exemple :
 - <code>{ localisation }</code> pour la localisation du dossier
 - <code>{ demandeur }</code> pour le nom du porteur de projet.
 
-Les balises ont des types qui peuvent être
-- **texte** (qui peut être aussi appelé "chaîne de caractères" ou "string")
+Les balises ont des types qui peuvent être :
+- **texte**
 - **nombre** 
 - **date**
 - **booléen** (vrai ou faux)
+<!--
 - **objet**, un type qui possède d'autres données nommées (accessibles via <code>objet.propriété</code>)
 - **collection**, une liste de données
-
+-->
 
 ## Balises disponibles
 
