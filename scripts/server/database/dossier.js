@@ -137,10 +137,7 @@ const varcharKeys = [
     'nom',
     'historique_nom_porteur',
     'historique_localisation',
-    'ddep_nécessaire',
-    'historique_décision',
-    'historique_référence_arrêté_préfectoral',
-    'historique_référence_arrêté_ministériel',
+    'ddep_nécessaire'
 ]
 
 
@@ -382,11 +379,6 @@ const colonnesDossierComplet = [
     "avis_csrpn_cnpn",
     "date_consultation_public",
 */
-    "historique_décision",
-    "historique_date_signature_arrêté_préfectoral",
-    "historique_référence_arrêté_préfectoral",
-    "historique_date_signature_arrêté_ministériel",
-    "historique_référence_arrêté_ministériel"
 
 ]
 
@@ -553,7 +545,6 @@ const colonnesDossierRésumé = [
     "historique_identifiant_demande_onagre",
 
     "historique_date_réception_ddep",
-    "historique_date_signature_arrêté_préfectoral",
 ]
 
 

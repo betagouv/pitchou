@@ -64,16 +64,6 @@ export default interface Dossier {
 
   date_consultation_public: Date | null;
 
-  historique_décision: string | null;
-
-  historique_date_signature_arrêté_préfectoral: Date | null;
-
-  historique_référence_arrêté_préfectoral: string | null;
-
-  historique_date_signature_arrêté_ministériel: Date | null;
-
-  historique_référence_arrêté_ministériel: string | null;
-
   enjeu_écologique: boolean | null;
 
   rattaché_au_régime_ae: boolean | null;
@@ -171,16 +161,6 @@ export interface DossierInitializer {
 
   date_consultation_public?: Date | null;
 
-  historique_décision?: string | null;
-
-  historique_date_signature_arrêté_préfectoral?: Date | null;
-
-  historique_référence_arrêté_préfectoral?: string | null;
-
-  historique_date_signature_arrêté_ministériel?: Date | null;
-
-  historique_référence_arrêté_ministériel?: string | null;
-
   enjeu_écologique?: boolean | null;
 
   rattaché_au_régime_ae?: boolean | null;
@@ -276,16 +256,6 @@ export interface DossierMutator {
   avis_csrpn_cnpn?: string | null;
 
   date_consultation_public?: Date | null;
-
-  historique_décision?: string | null;
-
-  historique_date_signature_arrêté_préfectoral?: Date | null;
-
-  historique_référence_arrêté_préfectoral?: string | null;
-
-  historique_date_signature_arrêté_ministériel?: Date | null;
-
-  historique_référence_arrêté_ministériel?: string | null;
 
   enjeu_écologique?: boolean | null;
 
