@@ -20,9 +20,10 @@ Les balises ont des types qui peuvent être :
 - **nombre** 
 - **date**
 - **booléen** (vrai ou faux)
+- **liste**, une liste de données
+
 <!--
 - **objet**, un type qui possède d'autres données nommées (accessibles via <code>objet.propriété</code>)
-- **collection**, une liste de données
 -->
 
 ## Balises disponibles
@@ -37,13 +38,19 @@ Balise | Type de balise | Donnée correspondante
 {activité_principale} | texte | Activité principale du dossier
 {régime_autorisation_environnementale} | texte | 'Oui' ou 'Non'
 {identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
-{espèces_impacts} | **collection d'objets** | liste les espèces et l'impact pour chacune, telles que remplies par le pétitionnaire. Chaque objet (= espèce + impact) contient les propriétés : {activité} et {espèces}
-{activité} | texte | Impact sur l'espèce
-{espèces} | **collection d'objets** | liste les espèces. Chaque objet (= espèce) contient les propriétés suivantes : {nomVernaculaire} et {nomScientifique}
+{liste_especes_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {impact} et {liste_especes}
+
+Pour la liste {liste_especes_par_impact} :
+Balise | Type de balise | Donnée correspondante
+ :--- | :--- | :--- 
+{impact} | texte | Type d'impact (ex : desctruction, capture, ceuillette…)
+{liste_especes} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire} et {nomScientifique}
+
+Pour la liste {liste_especes} :
+Balise | Type de balise | Donnée correspondante
+ :--- | :--- | :--- 
 {nomVernaculaire} | texte | Nom vernaculaire de l'espèce
 {nomScientifique} | texte | Nom scientifique de l'espèce
-
-
 
 
 ## Exemples 
