@@ -90,29 +90,29 @@ La DREAL Île-de-France
 
 ### Génération d'une liste
 
-Les balises de type "collection" peuvent générer des listes.
-Pour afficher les données dans une liste, il faut utiliser une boucle qui
-- commence par <code>{#each liste as élément}</code> 
-- se terminent par <code>{/each}</code>
+Pour afficher les données d'une liste, il faut utiliser une boucle qui
+- commence par <code>{#each LISTE as ÉLÉMENT}</code>
+- se termine par <code>{/each}</code>
 
-#### Exemple de liste
 ```
-{#each liste as élément}
-Contenu qui est répété pour chaque élément
+{#each LISTE as ÉLÉMENT}
+Contenu qui est répété pour chaque {ÉLÉMENT}
 {/each}
 ```
 
-**liste** est le nom de la liste\
-**élément** est un nom que vous pouvez choisir librement et qui sera utilisé pour nommer chaque élément de la liste un à la fois dans la zone qui est répétée pour chaque élément
+- **LISTE** est une balise qui de type "liste"\
+- **ÉLÉMENT** est un nom que vous pouvez choisir librement et qui sera utilisé par le générateur pour nommer chaque élément de la liste, un à la fois dans la zone qui est répétée. 
 
-Imaginons une liste <code>espèces</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
+#### Exemple de liste
+
+Imaginons une liste <code>liste_especes</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
 
 et un document type qui contient:
 
 ```
 Voici les oiseaux les plus importants au monde : 
 
-{#each espèces as oiseau}
+{#each liste_especes as oiseau}
 🐦 oiseau impacté : {oiseau}
 {/each}
 ```
