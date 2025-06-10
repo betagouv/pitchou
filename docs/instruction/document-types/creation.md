@@ -100,7 +100,7 @@ Contenu qui est répété pour chaque {ÉLÉMENT}
 {/each}
 ```
 
-- **LISTE** est une balise qui de type "liste"\
+- **LISTE** est une balise qui de type "liste"
 - **ÉLÉMENT** est un nom que vous pouvez choisir librement et qui sera utilisé par le générateur pour nommer chaque élément de la liste, un à la fois dans la zone qui est répétée. 
 
 #### Exemple de liste
