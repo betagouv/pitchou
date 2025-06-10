@@ -51,8 +51,7 @@ type DossierActivitéPrincipale = {
     activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
 } 
 
-type DonnéesDossierPourStats = Pick<Dossier, 
-    'historique_date_réception_ddep' | 'historique_date_signature_arrêté_préfectoral'>
+type DonnéesDossierPourStats = Pick<Dossier, 'historique_date_réception_ddep'>
 
 /**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi

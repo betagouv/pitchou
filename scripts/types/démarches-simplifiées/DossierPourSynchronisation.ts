@@ -4,12 +4,10 @@ import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
 
 import {AnnotationsPriveesDemarcheSimplifiee88444} from '../démarches-simplifiées/DémarcheSimplifiée88444.ts'
 
-export type PropsDécisionHistorique = 'historique_décision' | 'historique_date_signature_arrêté_préfectoral' | 'historique_référence_arrêté_préfectoral' | 'historique_date_signature_arrêté_ministériel' | 'historique_référence_arrêté_ministériel'
-
 // les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
 type JSONTypeProps = 'scientifique_type_demande' | 'scientifique_mode_capture' | 'scientifique_modalités_source_lumineuses'
 
-export type DossierPourSynchronisation = Omit<DossierDatabase, PropsDécisionHistorique | JSONTypeProps | "id" | "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "phase" | "prochaine_action_attendue_par"> & {
+export type DossierPourSynchronisation = Omit<DossierDatabase, JSONTypeProps | "id" | "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "phase" | "prochaine_action_attendue_par"> & {
     déposant: PersonneInitializer,
     demandeur_personne_physique: PersonneInitializer | undefined,
     demandeur_personne_morale: EntrepriseInitializer | undefined,

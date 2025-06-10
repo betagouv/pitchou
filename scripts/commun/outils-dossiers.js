@@ -20,7 +20,6 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         historique_identifiant_demande_onagre,
         historique_date_réception_ddep,
         date_dépôt,
-        historique_date_signature_arrêté_préfectoral,
         
         // Localisation (déjà au bon format)
         communes,
@@ -64,7 +63,6 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         // Statistiques
         historique_date_réception_ddep,
         date_dépôt,
-        historique_date_signature_arrêté_préfectoral,
         
         // Localisation
         communes,

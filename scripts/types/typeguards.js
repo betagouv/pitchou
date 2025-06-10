@@ -93,7 +93,6 @@ function isDossierRésumé(x) {
   const statsValid = (
       (x.historique_date_réception_ddep === null || isValidDateString(x.historique_date_réception_ddep))
       && isValidDateString(x.date_dépôt)
-      && (x.historique_date_signature_arrêté_préfectoral === null || isValidDateString(x.historique_date_signature_arrêté_préfectoral))
   );
 
   return statsValid;

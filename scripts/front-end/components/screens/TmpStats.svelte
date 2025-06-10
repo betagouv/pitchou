@@ -1,15 +1,13 @@
 <script>
+    //@ts-nocheck
     /*
         Notes pour la prochaine itération
 
         Résoudre les issues suivantes si ça n'a pas encore été fait :
         - https://github.com/betagouv/pitchou/issues/157
-        - https://github.com/betagouv/pitchou/issues/158
 
     */
 
-
-    //@ts-check
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
 
@@ -37,6 +35,8 @@
      * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersAvecAPPrisEn2024(dossiers){
+        throw `PPP: à refaire avec la nouvelle table DécisionAdministrative`
+
         return dossiers.filter(d => {
             const historique_date_signature_arrêté_préfectoral = d.historique_date_signature_arrêté_préfectoral
 
@@ -48,6 +48,7 @@
     }
 
     $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossierEnPhaseContrôle)
+    
 
     /**
      * 
@@ -89,13 +90,14 @@
         <article class="fr-col">
             <header class="fr-mb-2w">
                 <h1>Des stats pour les chefs DREAL N-A</h1>
-                <p>⚠️ Page très temporaire ⚠️</p>
+                <p>⚠️ Page cassée et à refaire sur demande ⚠️</p>
             </header>
 
             <section>
                 <h2 class="fr-mt-2w">Nombre de dossiers&nbsp;: {dossiers.length} dossiers affichés</h2>
             </section>
 
+            <!--
             <section>
                 <h2>Dossiers avec AP</h2>
                 <ul>
@@ -136,6 +138,8 @@
                     </li>
                 </ul>
             </section>
+            
+            -->
         </article>
     </div>
 </Squelette>
