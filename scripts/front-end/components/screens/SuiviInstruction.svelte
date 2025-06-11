@@ -379,10 +379,10 @@
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
-    <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
+    <div class="fr-grid-row fr-mt-4w fr-grid-row--center">
         <div class="fr-col">
 
-            <h1>Suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
+            <h1>Tableau de suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr></h1>
 
             {#if dossiers.length >= 1}
                 <BarreRecherche
@@ -592,7 +592,16 @@
                     {/if}
                 </div>
             {:else}
-                <div class="fr-mb-5w">Vous n'avez pas encore de dossiers dans votre groupe instructeurs</div>
+                <div class="fr-mb-5w">
+                    Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
+                    <br>
+                    Vous pouvez <a href="https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees">créer des dossiers sur démarches simplifiées</a>.
+                    Et répondre un département correspondant à votre département ou région à la question 
+                    "Dans quel département se localise majoritairement votre projet ?"
+                    <br>
+                    Le dossier sera alors visible ici après 10-15 minutes d'attente maximum
+                </div>
+                
             {/if}
         </div>
     </div>
