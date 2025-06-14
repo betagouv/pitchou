@@ -7,7 +7,11 @@
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
 
-    let {numéro, type, date_signature, date_fin_obligations, fichier_url, prescriptions: _prescriptions} = décisionAdministrative
+    let {
+        numéro, type, date_signature, date_fin_obligations, fichier_url, 
+        prescriptions: _prescriptions,
+        ajouterModifierPrescription, supprimerPrescription
+    } = décisionAdministrative
 
     /** @type {Partial<Prescription>[]}*/
     $: prescriptions = _prescriptions || []
@@ -38,13 +42,44 @@
         rerender()
     }
 
+    /** @type {WeakMap<Partial<Prescription>, {prescriptionIdP: Promise<Prescription['id']>, updateAfterRecievingId: boolean}>}*/
+    const prescriptionToPendingIdAndLatestData = new WeakMap()
+
     /**
      * 
-     * @param {Prescription} prescription
+     * @param {Partial<Prescription>} prescription
      */
-    function savePrescription(prescription){
-        console.log('prescription', prescription)
-        rerender()
+    async function savePrescription(prescription){
+        console.log('savePrescription', prescription)
+
+        const prescriptionEntry = prescriptionToPendingIdAndLatestData.get(prescription)
+        if(prescriptionEntry){
+            prescriptionEntry.updateAfterRecievingId = true
+        }
+        else{
+            if(ajouterModifierPrescription){
+                /** @type {Promise<Prescription['id'] | undefined>} */
+                const prescriptionIdP = ajouterModifierPrescription(prescription)
+
+                if(!prescription.id){
+                    const newPrescriptionEntry = {
+                        prescriptionIdP,
+                        updateAfterRecievingId: false
+                    }
+
+                    prescriptionToPendingIdAndLatestData.set(prescription, newPrescriptionEntry)
+                    prescription.id = await prescriptionIdP
+
+                    // Peut avoir changé pendant le await
+                    const updateAfterRecievingId = newPrescriptionEntry.updateAfterRecievingId
+                    
+                    prescriptionToPendingIdAndLatestData.delete(prescription)
+                    
+                    if(updateAfterRecievingId)
+                        ajouterModifierPrescription(prescription)
+                }
+            }
+        }
     }
 
 </script>

@@ -75,7 +75,12 @@ export type DossierRésumé = Pick<Dossier,
 
 export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> 
     & {fichier_url: string | undefined}
-    & {prescriptions: Prescription[] | undefined}
+    & {
+        prescriptions: Prescription[] | undefined,
+        prescriptionURL: string, 
+        ajouterModifierPrescription?: (p: Prescription) => Promise<Prescription['id'] | undefined>,
+        supprimerPrescription?: (p: Prescription) => Promise<undefined>
+    }
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
