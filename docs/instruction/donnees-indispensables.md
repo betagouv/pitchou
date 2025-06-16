@@ -1,4 +1,4 @@
-# Quelles sont données à remplir dans DS et indispensables pour l'instruction ?
+# Quelles sont les données à remplir dans DS et indispensables pour l'instruction ?
 
 Un certain nombre de champs doivent être remplis dans le formulaire DS par le pétitionnaire, afin de considérer que le dossier est **complet et permettre son instruction.**
 
