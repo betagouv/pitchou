@@ -12,7 +12,7 @@ export async function up(knex) {
         table.foreign('dossier')
             .references('id').inTable('dossier').onDelete('CASCADE')
 
-        // identifiant administratif
+        // identifiant   s administratif
         table.string('numéro').index()
         table.string('type')
 
