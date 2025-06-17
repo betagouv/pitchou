@@ -172,6 +172,14 @@ function wrapRecupérerDossierComplet(url){
                 }
                 
                 décisionAdministrative.supprimerPrescription = wrapDELETEUrl(prescriptionURL)
+
+                if(Array.isArray(décisionAdministrative.prescriptions)){
+                    for(const p of décisionAdministrative.prescriptions){
+                        if(p.date_échéance)
+                            p.date_échéance = new Date(p.date_échéance)
+                    }
+                }
+
                 return décisionAdministrative
             })
         }

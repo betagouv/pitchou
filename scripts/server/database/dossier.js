@@ -486,6 +486,16 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                 delete dossier.espèces_impactées_nom
             }
 
+            /** @type {Map<DécisionAdministrative['id'], Prescription[]>} */
+            const prescriptionsParDécisionId = new Map()
+            for(const p of prescriptions){
+                const id = p.décision_administrative
+                const prescrPourCetId = prescriptionsParDécisionId.get(id) || []
+                prescrPourCetId.push(p)
+                prescriptionsParDécisionId.set(id, prescrPourCetId)
+            }
+
+
             if(décisionsAdministratives.length >= 1){
                 dossier.décisionsAdministratives = décisionsAdministratives.map(
                     ({
@@ -493,6 +503,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                         fichier
                     }) => ({
                         id, numéro, type, date_signature, date_fin_obligations,
+                        prescriptions: prescriptionsParDécisionId.get(id),
                         fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined,
                         prescriptionURL: `/decision-administrative/${id}/prescription`
                     })

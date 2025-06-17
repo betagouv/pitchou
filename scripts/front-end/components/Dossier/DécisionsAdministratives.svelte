@@ -1,5 +1,6 @@
 <script>
     import {formatDateAbsolue} from '../../affichageDossier.js'
+    import DateInput from '../common/DateInput.svelte'
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
     /** @import Prescription from '../../../types/database/public/Prescription.ts' */
@@ -68,7 +69,8 @@
                     }
 
                     prescriptionToPendingIdAndLatestData.set(prescription, newPrescriptionEntry)
-                    prescription.id = await prescriptionIdP
+                    // @ts-ignore
+                    prescription.id = (await prescriptionIdP).prescriptionId
 
                     // Peut avoir changé pendant le await
                     const updateAfterRecievingId = newPrescriptionEntry.updateAfterRecievingId
@@ -112,6 +114,7 @@
                     <tr>
                         <th>Numéro article</th>
                         <th>Description</th>
+                        <th>Date échéance</th>
                         <th>Surface compensée (m²)</th>
                         <th>Surface évitée (m²)</th>
                         <th>Individus compensés</th>
@@ -124,14 +127,17 @@
                 <tbody>
                     {#each prescriptions as prescription}
                     <tr class="prescription" on:focusout={() => savePrescription(prescription)}>
-                        <td><input class="fr-input" bind:value={prescription.numéro_article} id="prescription-numéro-article"></td>
-                        <td><input class="fr-input" bind:value={prescription.description} id="prescription-description"></td>
-                        <td><input class="fr-input" bind:value={prescription.surface_compensée} id="prescription-surface_compensée" type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.surface_évitée} id="prescription-surface_évitée" type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.individus_compensés} id="prescription-individus_compensés" type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.individus_évités} id="prescription-individus_évités" type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.nids_compensés} id="prescription-nids_compensés" type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.nids_évités} id="prescription-nids_évités" type="number" min="0"></td>
+                        <td><input class="fr-input" bind:value={prescription.numéro_article}></td>
+                        <td><input class="fr-input" bind:value={prescription.description}></td>
+                        
+                        <td><DateInput bind:date={prescription.date_échéance}></DateInput></td>
+
+                        <td><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></td>
+                        <td><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></td>
+                        <td><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></td>
+                        <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
+                        <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
+                        <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
                         <td><button type="button">❌</button></td>
                     </tr>
                     {/each}

@@ -17,13 +17,13 @@ const inutile = true;
  * 
  * @param {Partial<Prescription>} prescription 
  * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<Prescription['id']>}
+ * @returns {Promise<{prescriptionId: Prescription['id']}>}
  */
 export function ajouterPrescription(prescription, databaseConnection = directDatabaseConnection){
     return databaseConnection('prescription')
         .insert(prescription)
         .returning(['id'])
-        .then(prescriptions => prescriptions[0].id)
+        .then(prescriptions => ({prescriptionId: prescriptions[0].id}))
 }
 
 /**
