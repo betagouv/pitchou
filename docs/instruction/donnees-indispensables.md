@@ -20,7 +20,7 @@ Les champs concernés sont les suivants :
   
 ### Section 2. Description du projet
 * Localisation du projet
-* Cartographie du projet : privilégier l'outil de dessin d'un polygone ou celui de sélection des parcelles cadastrales
+* Cartographie du projet : privilégier l'outil de dessin d'un polygone ou celui de sélection des parcelles cadastrales (remplissage fortement recommandé, mais non absolument indispensable).
   
 ### Section 3. Espèces concernées par la dérogation
 Veiller à lister toutes les espèces impactées par le projet, pour chaque espèce :
@@ -36,3 +36,5 @@ Si une espèce est concernée par plusieurs impacts, il convient de créer une l
 * Date de fin d'intervention
 * Durée de la dérogation
 * Des mesures ERC sont-elles prévues
+
+  L'ensemble des ces données sont à remplir par le porteur de projet (hors AE) au moment du dépôt de son dossier ou dès la phase amont. En cas d'erreur, l'instructeur peut utiliser la fonction "Demander une correction" de DS , qui permet d'avertir le pétitionnaire et de repasser le dossier en mode "construction".
