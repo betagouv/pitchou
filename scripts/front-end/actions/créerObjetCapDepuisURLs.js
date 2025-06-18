@@ -48,12 +48,12 @@ function wrapPOSTUrl(url){
  * @param {string | undefined} url 
  * @returns {((body: any) => Promise<any>) | undefined}
  */
-function wrapDELETEUrl(url){
+/*function wrapDELETEUrl(url){
     if(!url)
         return undefined
 
     return () => json(url, {method: 'DELETE'})
-}
+}*/
 
 
 
@@ -165,14 +165,6 @@ function wrapRecupérerDossierComplet(url){
         }
         if(ret.décisionsAdministratives){
             ret.décisionsAdministratives = ret.décisionsAdministratives.map(décisionAdministrative => {
-                const prescriptionURL = décisionAdministrative.prescriptionURL
-                const ajouterModifierPrescription = wrapPOSTUrl(prescriptionURL)
-                if(ajouterModifierPrescription){
-                    décisionAdministrative.ajouterModifierPrescription = ajouterModifierPrescription
-                }
-                
-                décisionAdministrative.supprimerPrescription = wrapDELETEUrl(prescriptionURL)
-
                 if(Array.isArray(décisionAdministrative.prescriptions)){
                     for(const p of décisionAdministrative.prescriptions){
                         if(p.date_échéance)

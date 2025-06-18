@@ -18,6 +18,7 @@ export function getPrescriptions(décisionIds, databaseConnection = directDataba
     return databaseConnection('prescription')
         .select('*')
         .whereIn('décision_administrative', décisionIds)
+        .orderBy('date_échéance', 'asc')
 }
 
 /**

@@ -504,8 +504,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                     }) => ({
                         id, numéro, type, date_signature, date_fin_obligations,
                         prescriptions: prescriptionsParDécisionId.get(id),
-                        fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined,
-                        prescriptionURL: `/prescription`
+                        fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined
                     })
                 )
             }

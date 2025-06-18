@@ -76,10 +76,7 @@ export type DossierRésumé = Pick<Dossier,
 export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> 
     & {fichier_url: string | undefined}
     & {
-        prescriptions: Prescription[] | undefined,
-        prescriptionURL: string, 
-        ajouterModifierPrescription?: (p: Prescription) => Promise<Prescription['id'] | undefined>,
-        supprimerPrescription?: (p: Prescription) => Promise<undefined>
+        prescriptions: Prescription[] | undefined
     }
 
 /**

@@ -3,7 +3,7 @@
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
     import {formatDateAbsolue} from '../../affichageDossier.js'
-    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées} from '../../actions/prescriptions.js'
+    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterModifierPrescription} from '../../actions/prescriptions.js'
 
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
@@ -14,8 +14,7 @@
 
     let {
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
-        prescriptions: _prescriptions,
-        ajouterModifierPrescription
+        prescriptions: _prescriptions
     } = décisionAdministrative
 
     /** @type {Set<Partial<Prescription>>}*/
@@ -47,7 +46,7 @@
         rerender()
     }
 
-    /** @type {WeakMap<Partial<Prescription>, {prescriptionIdP: Promise<Prescription['id']>, updateAfterRecievingId: boolean}>}*/
+    /** @type {WeakMap<Partial<Prescription>, {prescriptionIdP: Promise<Prescription['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
     const prescriptionToPendingIdAndLatestData = new WeakMap()
 
     /**
