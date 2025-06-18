@@ -50,14 +50,14 @@
     <section class="column">
         <h2>Informations du projet</h2>
         <p>
-            <strong>Description :</strong>
+            <strong>Description&nbsp;:</strong>
             {dossier.description && dossier.description.length > 0
                 ? dossier.description
                 : "Non renseignée"}
         </p>
 
         <p>
-            <strong>Date de début :</strong>
+            <strong>Date de début&nbsp;:</strong>
             {#if dossier.date_début_intervention}
                 <time datetime={dossier.date_début_intervention.toISOString()}>
                     {formatDateRelative(dossier.date_début_intervention)}
@@ -68,7 +68,7 @@
         </p>
 
         <p>
-            <strong>Date de fin :</strong>
+            <strong>Date de fin&nbsp;:</strong>
             {#if dossier.date_fin_intervention}
                 <time
                     datetime={new Date(
@@ -83,7 +83,7 @@
         </p>
 
         <p>
-            <strong>Durée de l'intervention :</strong>
+            <strong>Durée de l'intervention&nbsp;:</strong>
             {dossier.durée_intervention
                 ? dossier.durée_intervention + " années"
                 : "Non renseignée"}
@@ -157,7 +157,7 @@
             <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
             <p>
                 Le pétitionnaire n'a pas encore transmis de fichier, mais il a
-                transmis ceci :
+                transmis ceci&nbsp;:
             </p>
 
             <pre>{dossier.espèces_protégées_concernées}</pre>
@@ -194,35 +194,35 @@
             <h3>Méthodes</h3>
 
             <p>
-                <strong> Modes de capture :</strong>
+                <strong> Modes de capture&nbsp;:</strong>
                 {dossier.scientifique_mode_capture &&
                 dossier.scientifique_mode_capture.length
                     ? dossier.scientifique_mode_capture.join(", ")
                     : "Non renseignées"}
             </p>
             <p>
-                <strong> Source lumineuse :</strong>
+                <strong> Source lumineuse&nbsp;:</strong>
                 {dossier.scientifique_modalités_source_lumineuses ??
                     "Non renseignée"}
             </p>
             <p>
-                <strong> Marquage :</strong>
+                <strong> Marquage&nbsp;:</strong>
                 {dossier.scientifique_modalités_marquage ?? "Non renseigné"}
             </p>
             <p>
-                <strong> Transport :</strong>
+                <strong> Transport&nbsp;:</strong>
                 {dossier.scientifique_modalités_transport ?? "Non renseigné"}
             </p>
 
             <h3>Périmètre et intervenant.e.s</h3>
             <p>
                 <strong>
-                    Périmètre :
+                    Périmètre&nbsp;:
                 </strong>{dossier.scientifique_périmètre_intervention ??
                     "Non renseigné"}
             </p>
             <p>
-                <strong> Intervenant.e.s : </strong>
+                <strong> Intervenant.e.s&nbsp;: </strong>
                 {#if scientifiquesIntervenants}
                     {#each scientifiquesIntervenants as { nom_complet, qualification }}
                         {nom_complet} - {qualification}
@@ -233,7 +233,7 @@
             </p>
             <p>
                 <strong>
-                    Précisions :
+                    Précisions&nbsp;:
                 </strong>{dossier.scientifique_précisions_autres_intervenants ??
                     "Non renseignées"}
             </p>
