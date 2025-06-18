@@ -120,7 +120,7 @@ function wrapRecupérerDossierComplet(url){
     }
 
     /**
-     * 
+     * @description Récupère les données du dossier et les formatte.
      * @param {Dossier['id']} dossierId
      * @returns {Promise<DossierComplet>}
      */
@@ -134,6 +134,17 @@ function wrapRecupérerDossierComplet(url){
 
         if(!ret){
             throw new TypeError(`Aucun dossier trouvé avec id '${dossierId}'`)
+        }
+
+        // Formattage des dates
+        if (ret.date_début_intervention) {
+            ret.date_début_intervention = new Date(ret.date_début_intervention)
+        }
+        if (ret.date_fin_intervention) {
+            ret.date_fin_intervention = new Date(ret.date_fin_intervention)
+        }
+        if (ret.date_dépôt) {
+            ret.date_dépôt = new Date(ret.date_dépôt)
         }
 
         // Le contenu du fichier espèces impactées est disponible sous forme de string base64 dans le JSON
