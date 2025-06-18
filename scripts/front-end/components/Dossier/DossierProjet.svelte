@@ -51,7 +51,7 @@
         <h2>Informations du projet</h2>
         <p>
             <strong>Description&nbsp;:</strong>
-            {dossier.description && dossier.description.length > 0
+            {dossier.description && dossier.description.length >= 1
                 ? dossier.description
                 : "Non renseignée"}
         </p>
@@ -196,7 +196,7 @@
             <p>
                 <strong> Modes de capture&nbsp;:</strong>
                 {dossier.scientifique_mode_capture &&
-                dossier.scientifique_mode_capture.length
+                dossier.scientifique_mode_capture.length >= 1
                     ? dossier.scientifique_mode_capture.join(", ")
                     : "Non renseignées"}
             </p>
@@ -223,12 +223,12 @@
             </p>
             <p>
                 <strong> Intervenant.e.s&nbsp;: </strong>
-                {#if scientifiquesIntervenants}
+                {#if scientifiquesIntervenants && scientifiquesIntervenants.length >= 1}
                     {#each scientifiquesIntervenants as { nom_complet, qualification }}
                         {nom_complet} - {qualification}
                     {/each}
                 {:else}
-                    Non renseignés
+                    Non renseigné.e.s
                 {/if}
             </p>
             <p>
