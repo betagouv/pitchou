@@ -1,4 +1,5 @@
 <script>
+    import toJSONPerserveDate from '../../../commun/DateToJSON.js';
     import {formatDateAbsolue} from '../../affichageDossier.js'
     import DateInput from '../common/DateInput.svelte'
 
@@ -52,6 +53,11 @@
      */
     async function savePrescription(prescription){
         console.log('savePrescription', prescription)
+
+        if(prescription.date_échéance){
+            Object.defineProperty(prescription.date_échéance, 'toJSON', {value: toJSONPerserveDate})
+        }
+        
 
         const prescriptionEntry = prescriptionToPendingIdAndLatestData.get(prescription)
         if(prescriptionEntry){

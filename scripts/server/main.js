@@ -13,7 +13,7 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
-import { ajouterPrescription } from './database/prescription.js'
+import { ajouterPrescription, modifierPrescription } from './database/prescription.js'
 import {getFichier} from './database/fichier.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -346,16 +346,8 @@ fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler
 fastify.get('/decision-administrative/:fichierId', téléchargementFichierRouteHandler)
 
 
-fastify.post('/decision-administrative/:decisionId/prescription', function(request, reply) {  
-  //@ts-ignore
-  if(!request.params.decisionId){
-    reply.code(400).send(`Paramètre 'decisionId' manquant dans l'URL`)
-    return 
-  }
-
-  const decisionId = request.params.decisionId
-
-  /** @type { {dossierId: string, annotations: Partial<AnnotationsPriveesDemarcheSimplifiee88444>} } */
+fastify.post('/prescription', function(request, reply) {  
+  /** @type { Partial<Prescription> } */
   // @ts-ignore
   const prescriptionData = request.body
 

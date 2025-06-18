@@ -3,7 +3,7 @@
 
     export let YYYYMMDD = "yyyy-MM-dd";
     /** @type {Date | null | undefined} */
-    export let date = new Date();
+    export let date = undefined
 
     /** @type {string | null | undefined} */
     let internal;

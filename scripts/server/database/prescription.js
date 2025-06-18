@@ -26,6 +26,19 @@ export function ajouterPrescription(prescription, databaseConnection = directDat
         .then(prescriptions => ({prescriptionId: prescriptions[0].id}))
 }
 
+
+/**
+ * 
+ * @param {Partial<Prescription>} prescription 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export function modifierPrescription(prescription, databaseConnection = directDatabaseConnection){
+    return databaseConnection('prescription')
+        .update(prescription)
+        .where({id: prescription.id})
+}
+
 /**
  * 
  * @param {DécisionAdministrative['id'][]} décisionIds 
