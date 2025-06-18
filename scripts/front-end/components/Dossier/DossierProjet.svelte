@@ -82,7 +82,7 @@
     <p>
       <strong>Durée de l'intervention :</strong>
       {dossier.durée_intervention
-        ? dossier.durée_intervention
+        ? dossier.durée_intervention + ' années'
         : "Non renseignée"}
     </p>
 
@@ -168,9 +168,10 @@
       </p>
     {/if}
 
+    {#if dossier.scientifique_type_demande}
     <h2>Données scientifiques</h2>
     <h3>Type de demande</h3>
-    <p>{dossier.scientifique_type_demande?.join(", ") ?? "Non renseigné"}</p>
+    <p>{dossier.scientifique_type_demande.join(", ")}</p>
 
     <h3>Protocole de suivi</h3>
     <p>{dossier.scientifique_description_protocole_suivi ?? "Non renseigné"}</p>
@@ -197,15 +198,21 @@
       {dossier.scientifique_modalités_transport ?? "Non renseigné"}
     </p>
 
-    <h3>Périmètre et intervenants</h3>
+    <h3>Périmètre et intervenant.e.s</h3>
     <p>
       <strong>
         Périmètre :
       </strong>{dossier.scientifique_périmètre_intervention ?? "Non renseigné"}
     </p>
     <p>
-      <strong> Intervenants : </strong>{dossier.scientifique_intervenants ??
-        "Non renseignés"}
+      <strong> Intervenant.e.s : </strong>
+      {#if dossier.scientifique_intervenants && dossier.scientifique_intervenants!=[null]}
+        {#each dossier.scientifique_intervenants as {nom_complet,qualification}}
+         {nom_complet} - {qualification}
+        {/each}
+      {:else}
+        Non renseignés
+      {/if}
     </p>
     <p>
       <strong>
@@ -213,6 +220,7 @@
       </strong>{dossier.scientifique_précisions_autres_intervenants ??
         "Non renseignées"}
     </p>
+    {/if}
   </section>
 
   <section>
