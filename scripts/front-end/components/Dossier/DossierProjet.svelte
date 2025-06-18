@@ -3,6 +3,7 @@
     import DownloadButton from "../DownloadButton.svelte";
     import Loader from "../Loader.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
+    import { formatDateRelative } from "../../affichageDossier.js";
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -59,17 +60,10 @@
             <strong>Date de début :</strong>
             {#if dossier.date_début_intervention}
                 <time
-                    datetime={new Date(
-                        dossier.date_début_intervention,
-                    ).toISOString()}
+                    datetime={
+                        dossier.date_début_intervention.toISOString()}
                 >
-                    {new Date(
-                        dossier.date_début_intervention,
-                    ).toLocaleDateString("fr-FR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                    })}
+                    {formatDateRelative(dossier.date_début_intervention)}
                 </time>
             {:else}
                 Non renseignée
@@ -84,14 +78,7 @@
                         dossier.date_fin_intervention,
                     ).toISOString()}
                 >
-                    {new Date(dossier.date_fin_intervention).toLocaleDateString(
-                        "fr-FR",
-                        {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                        },
-                    )}
+                    {formatDateRelative(dossier.date_fin_intervention)}
                 </time>
             {:else}
                 Non renseignée
