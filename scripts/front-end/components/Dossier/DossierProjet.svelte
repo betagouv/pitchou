@@ -8,6 +8,7 @@
   /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
   /** @type {DossierComplet} */
+  // @ts-ignore
   export let dossier;
 
   const { number_demarches_simplifiées: numdos } = dossier;
@@ -30,8 +31,13 @@
   /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
   let espècesImpactéesParActivité;
 
+  // @ts-ignore
   $: espècesImpactéesParActivité =
     espècesImpactées && espècesImpactées.then(créerEspècesGroupéesParImpact);
+
+  /** @type {{nom_complet:string,qualification:string}[]| undefined} */
+  // @ts-ignore
+  let scientifiquesIntervenants = dossier.scientifique_intervenants;
 </script>
 
 <section class="row">
@@ -82,7 +88,7 @@
     <p>
       <strong>Durée de l'intervention :</strong>
       {dossier.durée_intervention
-        ? dossier.durée_intervention + ' années'
+        ? dossier.durée_intervention + " années"
         : "Non renseignée"}
     </p>
 
@@ -169,57 +175,60 @@
     {/if}
 
     {#if dossier.scientifique_type_demande}
-    <h2>Données scientifiques</h2>
-    <h3>Type de demande</h3>
-    <p>{dossier.scientifique_type_demande.join(", ")}</p>
+      <h2>Données scientifiques</h2>
+      <h3>Type de demande</h3>
+      <p>{dossier.scientifique_type_demande.join(", ")}</p>
 
-    <h3>Protocole de suivi</h3>
-    <p>{dossier.scientifique_description_protocole_suivi ?? "Non renseigné"}</p>
+      <h3>Protocole de suivi</h3>
+      <p>
+        {dossier.scientifique_description_protocole_suivi ?? "Non renseigné"}
+      </p>
 
-    <h3>Méthodes</h3>
+      <h3>Méthodes</h3>
 
-    <p>
-      <strong> Modes de capture :</strong>
-      {dossier.scientifique_mode_capture &&
-      dossier.scientifique_mode_capture.length
-        ? dossier.scientifique_mode_capture.join(", ")
-        : "Non renseignées"}
-    </p>
-    <p>
-      <strong> Source lumineuse :</strong>
-      {dossier.scientifique_modalités_source_lumineuses ?? "Non renseignée"}
-    </p>
-    <p>
-      <strong> Marquage :</strong>
-      {dossier.scientifique_modalités_marquage ?? "Non renseigné"}
-    </p>
-    <p>
-      <strong> Transport :</strong>
-      {dossier.scientifique_modalités_transport ?? "Non renseigné"}
-    </p>
+      <p>
+        <strong> Modes de capture :</strong>
+        {dossier.scientifique_mode_capture &&
+        dossier.scientifique_mode_capture.length
+          ? dossier.scientifique_mode_capture.join(", ")
+          : "Non renseignées"}
+      </p>
+      <p>
+        <strong> Source lumineuse :</strong>
+        {dossier.scientifique_modalités_source_lumineuses ?? "Non renseignée"}
+      </p>
+      <p>
+        <strong> Marquage :</strong>
+        {dossier.scientifique_modalités_marquage ?? "Non renseigné"}
+      </p>
+      <p>
+        <strong> Transport :</strong>
+        {dossier.scientifique_modalités_transport ?? "Non renseigné"}
+      </p>
 
-    <h3>Périmètre et intervenant.e.s</h3>
-    <p>
-      <strong>
-        Périmètre :
-      </strong>{dossier.scientifique_périmètre_intervention ?? "Non renseigné"}
-    </p>
-    <p>
-      <strong> Intervenant.e.s : </strong>
-      {#if dossier.scientifique_intervenants && dossier.scientifique_intervenants!=[null]}
-        {#each dossier.scientifique_intervenants as {nom_complet,qualification}}
-         {nom_complet} - {qualification}
-        {/each}
-      {:else}
-        Non renseignés
-      {/if}
-    </p>
-    <p>
-      <strong>
-        Précisions :
-      </strong>{dossier.scientifique_précisions_autres_intervenants ??
-        "Non renseignées"}
-    </p>
+      <h3>Périmètre et intervenant.e.s</h3>
+      <p>
+        <strong>
+          Périmètre :
+        </strong>{dossier.scientifique_périmètre_intervention ??
+          "Non renseigné"}
+      </p>
+      <p>
+        <strong> Intervenant.e.s : </strong>
+        {#if scientifiquesIntervenants}
+          {#each scientifiquesIntervenants as { nom_complet, qualification }}
+            {nom_complet} - {qualification}
+          {/each}
+        {:else}
+          Non renseignés
+        {/if}
+      </p>
+      <p>
+        <strong>
+          Précisions :
+        </strong>{dossier.scientifique_précisions_autres_intervenants ??
+          "Non renseignées"}
+      </p>
     {/if}
   </section>
 
