@@ -57,7 +57,7 @@
         </p>
 
         <p>
-            <strong>Date de début&nbsp;:</strong>
+            <strong>Date de début d'intervention ou des travaux&nbsp;:</strong>
             {#if dossier.date_début_intervention}
                 <time datetime={dossier.date_début_intervention.toISOString()}>
                     {formatDateRelative(dossier.date_début_intervention)}
@@ -68,7 +68,7 @@
         </p>
 
         <p>
-            <strong>Date de fin&nbsp;:</strong>
+            <strong>Date de fin d'intervention ou des travaux&nbsp;:</strong>
             {#if dossier.date_fin_intervention}
                 <time
                     datetime={new Date(
@@ -83,7 +83,7 @@
         </p>
 
         <p>
-            <strong>Durée de l'intervention&nbsp;:</strong>
+            <strong>Durée de la dérogation&nbsp;:</strong>
             {dossier.durée_intervention
                 ? dossier.durée_intervention + " années"
                 : "Non renseignée"}
