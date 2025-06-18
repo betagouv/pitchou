@@ -15,6 +15,7 @@ import {getPrescriptions} from './prescription.js';
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 //@ts-ignore
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
+//@ts-ignore
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 //@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
