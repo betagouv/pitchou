@@ -2,16 +2,23 @@ import {directDatabaseConnection} from '../database.js'
 
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
-/** @import {DossierDS88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {TypeDécisionAdministrative} from '../../types/API_Pitchou.ts' */
-/** @import {DécisionAdministrativeAnnotation88444} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 /** @import {Knex} from 'knex' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
 
+/**
+ * 
+ * @param {DécisionAdministrative['id'][]} décisionIds 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Prescription[]>}
+ */
+export function getPrescriptions(décisionIds, databaseConnection = directDatabaseConnection){
+    return databaseConnection('prescription')
+        .select('*')
+        .whereIn('décision_administrative', décisionIds)
+}
 
 /**
  * 
@@ -39,14 +46,15 @@ export function modifierPrescription(prescription, databaseConnection = directDa
         .where({id: prescription.id})
 }
 
+
 /**
  * 
- * @param {DécisionAdministrative['id'][]} décisionIds 
+ * @param {Prescription['id']} id 
  * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<Prescription[]>}
+ * @returns {Promise<any>}
  */
-export function getPrescriptions(décisionIds, databaseConnection = directDatabaseConnection){
+export function supprimerPrescription(id, databaseConnection = directDatabaseConnection){
     return databaseConnection('prescription')
-        .select('*')
-        .whereIn('décision_administrative', décisionIds)
+        .delete()
+        .where({id})
 }

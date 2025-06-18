@@ -1,7 +1,10 @@
 <script>
+    import DateInput from '../common/DateInput.svelte'
+
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
     import {formatDateAbsolue} from '../../affichageDossier.js'
-    import DateInput from '../common/DateInput.svelte'
+    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées} from '../../actions/prescriptions.js'
+
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
     /** @import Prescription from '../../../types/database/public/Prescription.ts' */
@@ -12,11 +15,11 @@
     let {
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
         prescriptions: _prescriptions,
-        ajouterModifierPrescription, supprimerPrescription
+        ajouterModifierPrescription
     } = décisionAdministrative
 
-    /** @type {Partial<Prescription>[]}*/
-    $: prescriptions = _prescriptions || []
+    /** @type {Set<Partial<Prescription>>}*/
+    $: prescriptions = _prescriptions ? new Set(_prescriptions) : new Set()
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
@@ -39,7 +42,7 @@
             surface_évitée: undefined
         }
 
-        prescriptions.push(nouvellePrescription)
+        prescriptions.add(nouvellePrescription)
 
         rerender()
     }
@@ -90,6 +93,21 @@
         }
     }
 
+    /**
+     * 
+     * @param {Partial<Prescription>} prescription
+     */
+    function supprimerPrescription(prescription){
+        if(prescription.id){
+            supprimerPrescriptionBaseDeDonnées(prescription.id)
+        }
+
+        prescriptions.delete(prescription)
+
+        rerender()
+    }
+
+
 </script>
 
 <section class="décision-administrative">
@@ -108,7 +126,7 @@
     <section class="prescriptions">
         <h5>Prescriptions</h5>
         
-        {#if prescriptions.length === 0}
+        {#if prescriptions.size === 0}
             <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
@@ -144,7 +162,7 @@
                         <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                         <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                         <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                        <td><button type="button">❌</button></td>
+                        <td><button type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></td>
                     </tr>
                     {/each}
                     <tr>

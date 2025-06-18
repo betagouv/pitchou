@@ -13,7 +13,7 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
-import { ajouterPrescription, modifierPrescription } from './database/prescription.js'
+import { ajouterPrescription, modifierPrescription, supprimerPrescription } from './database/prescription.js'
 import {getFichier} from './database/fichier.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -375,7 +375,8 @@ fastify.delete('/prescription/:prescriptionId', async function(request, reply) {
     return 
   }
 
-  throw `PPP`
+  // @ts-ignore
+  return supprimerPrescription(request.params.prescriptionId)
 })
 
 
