@@ -59,10 +59,7 @@
         <p>
             <strong>Date de début :</strong>
             {#if dossier.date_début_intervention}
-                <time
-                    datetime={
-                        dossier.date_début_intervention.toISOString()}
-                >
+                <time datetime={dossier.date_début_intervention.toISOString()}>
                     {formatDateRelative(dossier.date_début_intervention)}
                 </time>
             {:else}
@@ -182,7 +179,11 @@
         {#if dossier.scientifique_type_demande}
             <h2>Données scientifiques</h2>
             <h3>Type de demande</h3>
-            <p>{dossier.scientifique_type_demande.join(", ")}</p>
+            <ul>
+                {#each dossier.scientifique_type_demande as typeDemande}
+                    <li>{typeDemande}</li>
+                {/each}
+            </ul>
 
             <h3>Protocole de suivi</h3>
             <p>
