@@ -1,12 +1,12 @@
 import {directDatabaseConnection} from '../database.js'
 
+//@ts-ignore
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
+//@ts-ignore
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
 
 /** @import {Knex} from 'knex' */
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
 
 /**
  * 
