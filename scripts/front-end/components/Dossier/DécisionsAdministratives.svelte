@@ -54,8 +54,6 @@
      * @param {Partial<Prescription>} prescription
      */
     async function savePrescription(prescription){
-        console.log('savePrescription', prescription)
-
         if(prescription.date_échéance){
             Object.defineProperty(prescription.date_échéance, 'toJSON', {value: toJSONPerserveDate})
         }
