@@ -149,7 +149,11 @@
                 </thead>
                 <tbody>
                     {#each prescriptions as prescription}
-                    <tr class="prescription" on:focusout={() => savePrescription(prescription)}>
+                    <tr class="prescription" on:focusout={(e) => {
+                        if (!e.target?.classList.contains('bouton-supprimer')) {
+                            savePrescription(prescription)
+                        }
+                    }}>
                         <td><input class="fr-input" bind:value={prescription.numéro_article}></td>
                         <td><input class="fr-input" bind:value={prescription.description}></td>
                         
@@ -161,7 +165,7 @@
                         <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                         <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                         <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                        <td><button type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></td>
+                        <td><button class="bouton-supprimer" type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></td>
                     </tr>
                     {/each}
                     <tr>
