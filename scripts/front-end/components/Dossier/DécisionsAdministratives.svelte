@@ -3,7 +3,7 @@
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
     import {formatDateAbsolue} from '../../affichageDossier.js'
-    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterModifierPrescription} from '../../actions/prescriptions.js'
+    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
 
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
@@ -57,36 +57,35 @@
         if(prescription.date_échéance){
             Object.defineProperty(prescription.date_échéance, 'toJSON', {value: toJSONPerserveDate})
         }
-        
 
-        const prescriptionEntry = prescriptionToPendingIdAndLatestData.get(prescription)
-        if(prescriptionEntry){
-            prescriptionEntry.updateAfterRecievingId = true
-        }
-        else{
-            if(ajouterModifierPrescription){
+        if (prescription.id) {
+            modifierPrescription(prescription)
+        } else {
+            const pendingPrescriptionIdEntry = prescriptionToPendingIdAndLatestData.get(prescription)
+            if(pendingPrescriptionIdEntry){
+                pendingPrescriptionIdEntry.updateAfterRecievingId = true
+            } else {
                 /** @type {Promise<Prescription['id'] | undefined>} */
-                const prescriptionIdP = ajouterModifierPrescription(prescription)
+                const prescriptionIdP = ajouterPrescriptionBaseDeDonnées(prescription)
 
-                if(!prescription.id){
-                    const newPrescriptionEntry = {
-                        prescriptionIdP,
-                        updateAfterRecievingId: false
-                    }
-
-                    prescriptionToPendingIdAndLatestData.set(prescription, newPrescriptionEntry)
-                    // @ts-ignore
-                    prescription.id = (await prescriptionIdP).prescriptionId
-
-                    // Peut avoir changé pendant le await
-                    const updateAfterRecievingId = newPrescriptionEntry.updateAfterRecievingId
-                    
-                    prescriptionToPendingIdAndLatestData.delete(prescription)
-                    
-                    if(updateAfterRecievingId)
-                        ajouterModifierPrescription(prescription)
+                const newPendingPrescriptionIdEntry = {
+                    prescriptionIdP,
+                    updateAfterRecievingId: false
                 }
-            }
+
+                prescriptionToPendingIdAndLatestData.set(prescription, newPendingPrescriptionIdEntry)
+
+                // @ts-ignore
+                prescription.id = (await prescriptionIdP).prescriptionId
+
+                // Peut avoir changé pendant le await
+                const updateAfterRecievingId = newPendingPrescriptionIdEntry.updateAfterRecievingId
+                
+                prescriptionToPendingIdAndLatestData.delete(prescription)
+                
+                if(updateAfterRecievingId)
+                    modifierPrescription(prescription)
+            }   
         }
     }
 
