@@ -112,7 +112,7 @@ docker exec postgres_db dropdb -f --username=dev especes_pro_3731
 docker exec postgres_db createdb --username=dev especes_pro_3731
 
 # Restore des données
-docker exec postgres_db pg_restore --no-owner --no-privileges --no-comments --dbname=especes_pro_3731 --username=dev --jobs=6 /var/lib/pitchou/backups/<nom du fichier>.pgsql
+docker exec postgres_db pg_restore --no-owner --no-privileges --dbname=especes_pro_3731 --username=dev --jobs=6 /var/lib/pitchou/backups/<nom du fichier>.pgsql
 ```
 
 

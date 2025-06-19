@@ -43,6 +43,20 @@ function wrapPOSTUrl(url){
     })
 }
 
+/**
+ * 
+ * @param {string | undefined} url 
+ * @returns {((body: any) => Promise<any>) | undefined}
+ */
+/*function wrapDELETEUrl(url){
+    if(!url)
+        return undefined
+
+    return () => json(url, {method: 'DELETE'})
+}*/
+
+
+
 const dossierIdURLParam = ':dossierId'
 
 /**
@@ -154,13 +168,27 @@ function wrapRecupérerDossierComplet(url){
             ret.espècesImpactées.contenu = Uint8Array.from(atob(ret.espècesImpactées.contenu), c => c.charCodeAt(0)).buffer
         }
 
-        Object.freeze(ret)
         if(ret.espècesImpactées){
             Object.freeze(ret.espècesImpactées)
         }
         if(ret.évènementsPhase){
             Object.freeze(ret.évènementsPhase)
         }
+        if(ret.décisionsAdministratives){
+            ret.décisionsAdministratives = ret.décisionsAdministratives.map(décisionAdministrative => {
+                if(Array.isArray(décisionAdministrative.prescriptions)){
+                    for(const p of décisionAdministrative.prescriptions){
+                        if(p.date_échéance)
+                            p.date_échéance = new Date(p.date_échéance)
+                    }
+                }
+
+                return décisionAdministrative
+            })
+        }
+        Object.freeze(ret)
+
+
 
         return ret;
     }

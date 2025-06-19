@@ -3,6 +3,7 @@ import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/Démar
 import Fichier from './database/public/Fichier.ts'
 import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
+import Prescription from './database/public/Prescription.ts'
 
 
 type DossierPersonnesImpliquées = {
@@ -72,7 +73,11 @@ export type DossierRésumé = Pick<Dossier,
     & DonnéesDossierPourStats
 
 
-type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> & {fichier_url: string | undefined}
+export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> 
+    & {fichier_url: string | undefined}
+    & {
+        prescriptions: Prescription[] | undefined
+    }
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier

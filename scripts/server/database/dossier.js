@@ -2,6 +2,7 @@ import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
 import {getDécisionAdministratives} from './décision_administrative.js';
+import {getPrescriptions} from './prescription.js';
 
 //@ts-ignore
 /** @import {DossierComplet, DossierPhase, DossierRésumé} from '../../types/API_Pitchou.d.ts' */
@@ -14,6 +15,8 @@ import {getDécisionAdministratives} from './décision_administrative.js';
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
 //@ts-ignore
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
+//@ts-ignore
+/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 //@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 //@ts-ignore
@@ -457,15 +460,19 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<DécisionAdministrative[]>} */
     const décisionsAdministrativesP = getDécisionAdministratives(dossierId, databaseConnection)
 
+    const decisionIds = (await décisionsAdministrativesP).map(d => d.id)
+    /** @type {Promise<Prescription[]>} */
+    const prescriptionsP = getPrescriptions(decisionIds, databaseConnection)
+
     if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
-        Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP])
+        Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP])
             .then(transaction.commit).catch(transaction.rollback)
     }
 
-    return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP])
-        .then(([dossier, évènementsPhaseDossier, décisionsAdministratives]) => {
+    return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP])
+        .then(([dossier, évènementsPhaseDossier, décisionsAdministratives, prescriptions]) => {
             dossier.évènementsPhase = évènementsPhaseDossier
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
@@ -480,6 +487,16 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                 delete dossier.espèces_impactées_nom
             }
 
+            /** @type {Map<DécisionAdministrative['id'], Prescription[]>} */
+            const prescriptionsParDécisionId = new Map()
+            for(const p of prescriptions){
+                const id = p.décision_administrative
+                const prescrPourCetId = prescriptionsParDécisionId.get(id) || []
+                prescrPourCetId.push(p)
+                prescriptionsParDécisionId.set(id, prescrPourCetId)
+            }
+
+
             if(décisionsAdministratives.length >= 1){
                 dossier.décisionsAdministratives = décisionsAdministratives.map(
                     ({
@@ -487,6 +504,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                         fichier
                     }) => ({
                         id, numéro, type, date_signature, date_fin_obligations,
+                        prescriptions: prescriptionsParDécisionId.get(id),
                         fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined
                     })
                 )
