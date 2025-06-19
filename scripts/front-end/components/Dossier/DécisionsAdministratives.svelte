@@ -147,6 +147,7 @@
                 <tbody>
                     {#each prescriptions as prescription}
                     <tr class="prescription" on:focusout={(e) => {
+                        //@ts-ignore
                         if (!e.target?.classList.contains('bouton-supprimer')) {
                             savePrescription(prescription)
                         }
