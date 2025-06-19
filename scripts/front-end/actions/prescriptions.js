@@ -8,9 +8,23 @@ const inutile = true;
 /**
  * 
  * @param {Partial<Prescription>} prescription 
- * @returns {Promise<Prescription['id'] | undefined>}
+ * @returns {Promise<Prescription['id']>}
  */
-export function ajouterModifierPrescription(prescription){
+export function ajouterPrescription(prescription){
+    //@ts-ignore
+    return json('/prescription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prescription)
+    })
+}
+
+/**
+ * 
+ * @param {Partial<Prescription>} prescription 
+ * @returns {Promise<undefined>}
+ */
+export function modifierPrescription(prescription){
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
