@@ -57,6 +57,27 @@
         </p>
 
         <p>
+            <strong>Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet&nbsp;:</strong>
+            {
+                dossier.justification_absence_autre_solution_satisfaisante && dossier.justification_absence_autre_solution_satisfaisante.length >= 1 ? dossier.justification_absence_autre_solution_satisfaisante : `Non renseignée`
+            }
+        </p>
+
+        <p>
+            <strong>Motif de la dérogation&nbsp;:</strong>
+            {
+                dossier.motif_dérogation ?? `Non renseigné`
+            }
+        </p>
+
+        <p>
+            <strong>Synthèse des éléments justifiant le motif de la dérogation&nbsp;:</strong>
+            {
+                dossier.justification_motif_dérogation && dossier.justification_motif_dérogation.length >= 1 ? dossier.justification_motif_dérogation : `Non renseignée`
+            }
+        </p>
+
+        <p>
             <strong>Date de début d'intervention ou des travaux&nbsp;:</strong>
             {#if dossier.date_début_intervention}
                 <time datetime={dossier.date_début_intervention.toISOString()}>

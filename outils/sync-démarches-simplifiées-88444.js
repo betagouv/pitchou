@@ -192,11 +192,11 @@ const dossiersPourSynchronisation = dossiersDS.map((
     const durée_intervention = Number(champById.get(pitchouKeyToChampDS.get('Durée de la dérogation'))?.stringValue)
 
     /** @type {DossierDemarcheSimplifiee88444[`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`]} */
-    const justification_absence_autre_solution_satisfaisante = champById.get(pitchouKeyToChampDS.get(`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`))?.stringValue
+    const justification_absence_autre_solution_satisfaisante = champById.get(pitchouKeyToChampDS.get(`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`))?.stringValue.trim()
     /** @type {DossierDemarcheSimplifiee88444[`Motif de la dérogation`]} */
     const motif_dérogation = champById.get(pitchouKeyToChampDS.get(`Motif de la dérogation`))?.stringValue
         /** @type {DossierDemarcheSimplifiee88444[`Synthèse des éléments justifiant le motif de la dérogation`]} */
-    const justification_motif_dérogation = champById.get(pitchouKeyToChampDS.get(`Synthèse des éléments justifiant le motif de la dérogation`))?.stringValue
+    const justification_motif_dérogation = champById.get(pitchouKeyToChampDS.get(`Synthèse des éléments justifiant le motif de la dérogation`))?.stringValue.trim()
 
 
 
