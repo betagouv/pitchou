@@ -38,15 +38,15 @@ Balise | Type de balise | Donnée correspondante
 {activité_principale} | texte | Activité principale du dossier
 {régime_autorisation_environnementale} | texte | 'Oui' ou 'Non'
 {identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
-{liste_especes_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {impact} et {liste_especes}
+{liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {impact} et {liste_espèces}
 
-Pour la liste {liste_especes_par_impact} :
+Pour la liste {liste_espèces_par_impact} :
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {impact} | texte | Type d'impact (ex : desctruction, capture, ceuillette…)
-{liste_especes} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire} et {nomScientifique}
+{liste_espèces} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire} et {nomScientifique}
 
-Pour la liste {liste_especes} :
+Pour la liste {liste_espèces} :
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {nomVernaculaire} | texte | Nom vernaculaire de l'espèce
@@ -105,14 +105,14 @@ Contenu qui est répété pour chaque {ÉLÉMENT}
 
 #### Exemple de liste
 
-Imaginons une liste <code>liste_especes</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
+Imaginons une liste <code>liste_espèces</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
 
 et un document type qui contient:
 
 ```
 Voici les oiseaux les plus importants au monde : 
 
-{#each liste_especes as oiseau}
+{#each liste_espèces as oiseau}
 🐦 oiseau impacté : {oiseau}
 {/each}
 ```
