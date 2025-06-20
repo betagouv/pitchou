@@ -36,21 +36,43 @@ Balise | Type de balise | Donnée correspondante
 {demandeur} | texte | Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale
 {localisation} | texte | Localisation du dossier
 {activité_principale} | texte | Activité principale du dossier
+{description} | texte | Description du projet fournie par le pétitionnaire
 {régime_autorisation_environnementale} | texte | 'Oui' ou 'Non'
+{justification_absence_autre_solution_satisfaisante} | texte | Justification de l'absence d'autre solution satisfaisante (Article L411-2 du Code de l'Environnement)
+{motif_dérogation} | texte | Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
+{justification_motif_dérogation} | texte | Justification du motif
 {identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
 {liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {impact} et {liste_espèces}
+{date_début_intervention} | date | Date de début de l'intervention
+{date_fin_intervention} | date | Date de fin de l'intervention
+{durée_intervention} | nombre | Durée de l'intervention
+{scientifique.type_demande} | **liste** de texte | 
+{scientifique.description_protocole_suivi} | texte | 
+{scientifique.mode_capture} | texte | 
+{scientifique.modalités_source_lumineuses} | texte | 
+{scientifique.modalités_marquage} | texte | 
+{scientifique.modalités_transport} | texte | 
+{scientifique.périmètre_intervention} | texte | 
+{scientifique.intervenants} | **liste** | 
+{scientifique.précisions_autres_intervenants} | texte |
 
-Pour la liste {liste_espèces_par_impact} :
+Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient :
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
-{impact} | texte | Type d'impact (ex : desctruction, capture, ceuillette…)
+{impact} | texte | Type d'impact (ex : desctruction, capture, cueillette…)
 {liste_espèces} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire} et {nomScientifique}
 
-Pour la liste {liste_espèces} :
+Pour la liste {liste_espèces}, chaque élément de la liste contient :
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {nomVernaculaire} | texte | Nom vernaculaire de l'espèce
 {nomScientifique} | texte | Nom scientifique de l'espèce
+
+Pour la liste {scientifique.intervenants}, chaque élément de la liste contient :
+Balise | Type de balise | Donnée correspondante
+ :--- | :--- | :--- 
+{nom_complet} | texte | Nom de la personne scientifique qui intervient
+{qualification} | texte | Qualification de la personne scientifique qui intervient
 
 
 ## Exemples 
