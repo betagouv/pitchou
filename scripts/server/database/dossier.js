@@ -313,6 +313,10 @@ const colonnesDossierComplet = [
     'date_fin_intervention',
     'durée_intervention',
 
+    'justification_absence_autre_solution_satisfaisante',
+    'motif_dérogation',
+    'justification_motif_dérogation',
+
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "fichier_espèces_impactées.id as espèces_impactées_id",
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
