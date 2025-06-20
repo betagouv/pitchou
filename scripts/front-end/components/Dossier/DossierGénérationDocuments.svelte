@@ -156,7 +156,12 @@
             localisation: formatLocalisation(dossier),
             régime_autorisation_environnementale: rattaché_au_régime_ae === null ? '' :
                 (rattaché_au_régime_ae ? 'Oui' : 'Non'),
-            espèces_impacts,
+            liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité}) => ({
+                // ,impactsRésiduels}) => ({
+                liste_espèces: espèces,
+                impact: activité,
+                // liste_impacts_résiduels: impactsRésiduels,
+            }) ),
             scientifique: {
                 type_demande: scientifique_type_demande,
                 description_protocole_suivi: scientifique_description_protocole_suivi,
