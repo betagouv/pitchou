@@ -46,7 +46,7 @@
      * 
      * @param {any} n
      * @param {number} precision
-     * @returns {string}
+     * @returns {string | undefined}
      */
     function afficher_nombre(n, precision = 2){
         if(typeof n === 'string'){
@@ -58,7 +58,6 @@
                 return '(erreur de calcul)'
             }
 
-
             if(Number.isInteger(n))
                 return n.toString(10)
             else{
@@ -66,16 +65,18 @@
             }
         }
 
-        return '(non renseigné)'
+        return undefined
     }
 
     /**
      * 
      * @param {any} date
      * @param {string} formatString
-     * @returns {string}
+     * @returns {string | undefined}
      */
     function formatter_date(date, formatString){
+        if(!date)
+            return undefined
         date = new Date(date)
         return format(date, formatString, { locale: fr })
     }
@@ -84,7 +85,7 @@
     /**
      * 
      * @param {any} date
-     * @returns {string}
+     * @returns {string | undefined}
      */
     function formatter_date_simple(date){
         return formatter_date(date, 'd MMMM yyyy')
