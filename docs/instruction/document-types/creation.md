@@ -109,8 +109,70 @@ Nous vous souhaitons une belle journée,
 La DREAL Île-de-France
 ```
 
+### Affichage conditionnel ({#if})
 
-### Génération d'une liste
+Il est possible d'afficher un morceau de document seulement si certaines conditions sont remplies.
+
+Par exemple, imaginons que l'on souhaite afficher le numéro de dossier Onagre.
+
+On pourrait écrire :
+```
+Numéro de dossier Onagre : {identifiant_onagre}
+```
+
+S'il y a un numéro Onagre, le résultat sera : 
+```
+Numéro de dossier Onagre : 165876498
+```
+
+Toutefois, si le dossier pitchou n'a pas de numéro Onagre associé, on va se retrouver avec le résultat suivant : 
+```
+Numéro de dossier Onagre :
+```
+
+---
+
+Pour faire un affichage plus propre, on peut utiliser l'affichage conditionnel pour que ce morceau de phrase ne s'affiche que s'il y a un numéro Onagre.
+
+```
+{#if identifiant_onagre}
+Numéro de dossier Onagre : {identifiant_onagre}
+{/if}
+```
+
+Dans ce cas-là, 
+
+S'il y a un numéro Onagre, le résultat sera : 
+```
+Numéro de dossier Onagre : 165876498
+```
+
+Toutefois, si le dossier pitchou n'a pas de numéro Onagre associé, le résultat sera :
+```
+```
+(il n'y a rien d'afficher)
+
+---
+
+Pour rendre les choses plus explicites, on pourrait vouloir écrire `(non renseigné)`. On peut utiliser le `{:else}` ("sinon"):
+
+```
+Numéro de dossier Onagre : {#if identifiant_onagre} {identifiant_onagre} {:else} (non renseigné) {/if}
+```
+
+Ainsi, s'il y a un numéro Onagre, le résultat sera : 
+```
+Numéro de dossier Onagre : 165876498
+```
+
+et s'il n'y a pas de numéro Onagre : 
+```
+Numéro de dossier Onagre : (non renseigné)
+```
+
+
+
+### Génération d'une liste ({#each})
 
 Pour afficher les données d'une liste, il faut utiliser une boucle qui
 - commence par <code>{#each LISTE as ÉLÉMENT}</code>
@@ -149,6 +211,8 @@ Voici les oiseaux les plus importants au monde :
 🐦 oiseau impacté : aigle botté
 🐦 oiseau impacté : coucou geai
 ```
+
+
 
 
 ## Points de vigilance
