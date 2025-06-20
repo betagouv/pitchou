@@ -110,6 +110,9 @@
         const {
             nom,
             description,
+            justification_absence_autre_solution_satisfaisante,
+            motif_dérogation,
+            justification_motif_dérogation,
             date_début_intervention,
             date_fin_intervention,
             durée_intervention,
@@ -141,6 +144,9 @@
 		const data = {
             nom,
             description,
+            justification_absence_autre_solution_satisfaisante,
+            motif_dérogation,
+            justification_motif_dérogation,
             identifiant_onagre: historique_identifiant_demande_onagre,
             activité_principale,
             date_début_intervention,
