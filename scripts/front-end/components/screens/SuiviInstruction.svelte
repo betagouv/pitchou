@@ -572,7 +572,7 @@
                                         {/if}
                                     </td>
                                     <td>
-                                        {rattaché_au_régime_ae ? "oui" : "non"}
+                                        {rattaché_au_régime_ae === null ? 'Non renseigné' : rattaché_au_régime_ae ? "oui" : "non"}
                                     </td>
                                     <td>
                                         <TagPhase {phase} taille='SM'></TagPhase>
