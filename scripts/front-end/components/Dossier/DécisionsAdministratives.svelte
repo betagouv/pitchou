@@ -30,10 +30,10 @@
     function ajouterPrescription(){
         /** @type {Partial<Prescription>} */
         const nouvellePrescription = {
+            décision_administrative: décisionAdministrative.id,
             date_échéance: undefined,
             numéro_article: '',
             description: '',
-            décision_administrative: décisionAdministrative.id,
             individus_compensés: undefined,
             individus_évités: undefined,
             nids_compensés: undefined,
@@ -115,9 +115,43 @@
         if(file){
             const importPrescriptionFileAB = await file.arrayBuffer()
             const rawData = await getODSTableRawContent(importPrescriptionFileAB)
-            const cleanData = tableRawContentToObjects(tableWithoutEmptyRows(rawData))
+            const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0]
 
             console.log('import prescriptions clean data', cleanData)
+
+            /** @type {Partial<Prescription>[]} */
+            const candidatsPrescriptions = cleanData.filter(row => {
+                const prescriptionNumDec = row['Numéro décision administrative'] && row['Numéro décision administrative'].trim()
+                return !prescriptionNumDec || prescriptionNumDec === (numéro && numéro.trim())
+            })
+            .map(row => {
+                const {
+                    "Numéro article": numéro_article,
+                    "Description": description,
+                    "Date échéance": date_échéance,
+                    "Surface compensée": surface_compensée,
+                    "Surface évitée": surface_évitée,
+                    "Individus compensés": individus_compensés, 
+                    "Individus évités": individus_évités,
+                    "Nids compensés": nids_compensés,
+                    "Nids évités": nids_évités,
+                } = row
+
+                return {
+                    décision_administrative: décisionAdministrative.id,
+                    date_échéance,
+                    numéro_article,
+                    description,
+                    individus_compensés,
+                    individus_évités,
+                    nids_compensés,
+                    nids_évités,
+                    surface_compensée,
+                    surface_évitée
+                }
+            })
+                 
+            console.log('candidatsPrescriptions', candidatsPrescriptions)
 
         }
     }
