@@ -139,20 +139,22 @@
 
                 return {
                     décision_administrative: décisionAdministrative.id,
-                    date_échéance,
+                    date_échéance: !date_échéance ? undefined : date_échéance,
                     numéro_article,
                     description,
-                    individus_compensés,
-                    individus_évités,
-                    nids_compensés,
-                    nids_évités,
-                    surface_compensée,
-                    surface_évitée
+                    individus_compensés: !individus_compensés ? undefined : individus_compensés,
+                    individus_évités: !individus_évités ? undefined : individus_évités,
+                    nids_compensés: !nids_compensés ? undefined : nids_compensés,
+                    nids_évités: !nids_évités ? undefined : nids_évités,
+                    surface_compensée: !surface_compensée ? undefined : surface_compensée,
+                    surface_évitée: !surface_évitée ? undefined : surface_évitée,
                 }
             })
                  
-            console.log('candidatsPrescriptions', candidatsPrescriptions)
-
+            prescriptions = prescriptions.union(new Set(candidatsPrescriptions))
+            for(const p of prescriptions){
+                savePrescription(p)
+            }
         }
     }
 
