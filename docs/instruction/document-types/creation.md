@@ -38,7 +38,7 @@ Balise | Type de balise | Donnée correspondante
 {activité_principale} | texte | Activité principale du dossier
 {description} | texte | Description du projet fournie par le pétitionnaire
 {régime_autorisation_environnementale_renseigné} | booléen | "true" ou "false" | Valeur indiquant si l'information relative à l’Autorisation Environnementale a été renseignée dans le formulaire.
-{régime_autorisation_environnementale} | booléen | "true" ou "false" | Valeur indiquant si le projet est soumis ou non au régime de l'Autorisation Environnementale. Si l'information n’a pas encore été fournie, la valeur sera "false".
+{régime_autorisation_environnementale} | booléen | "true" ou "false" | Valeur indiquant si le projet est soumis ou non au régime de l'Autorisation Environnementale.
 {justification_absence_autre_solution_satisfaisante} | texte | Justification de l'absence d'autre solution satisfaisante (Article L411-2 du Code de l'Environnement)
 {motif_dérogation} | texte | Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
 {justification_motif_dérogation} | texte | Justification du motif

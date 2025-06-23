@@ -155,8 +155,8 @@
             durée_intervention,
             demandeur: formatPorteurDeProjet(dossier),
             localisation: formatLocalisation(dossier),
-            régime_autorisation_environnementale: Boolean(rattaché_au_régime_ae),
             régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
+            régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné':rattaché_au_régime_ae,
             liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité}) => ({
                 // ,impactsRésiduels}) => ({
                 liste_espèces: espèces,
