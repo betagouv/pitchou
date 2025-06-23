@@ -120,10 +120,12 @@
             console.log('import prescriptions clean data', cleanData)
 
             /** @type {Partial<Prescription>[]} */
+            // @ts-ignore
             const candidatsPrescriptions = cleanData.filter(row => {
                 const prescriptionNumDec = row['Numéro décision administrative'] && row['Numéro décision administrative'].trim()
                 return !prescriptionNumDec || prescriptionNumDec === (numéro && numéro.trim())
             })
+            // @ts-ignore
             .map(row => {
                 const {
                     "Numéro article": numéro_article,
