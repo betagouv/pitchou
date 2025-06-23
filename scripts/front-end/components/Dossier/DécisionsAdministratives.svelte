@@ -1,4 +1,5 @@
 <script>
+    import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} from '@odfjs/odfjs'
     import DateInput from '../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
@@ -112,8 +113,12 @@
         const file = files && files[0]
 
         if(file){
-            const descriptionMenacesEspèces = await file.arrayBuffer()
-            // PPP: récupérer les données
+            const importPrescriptionFileAB = await file.arrayBuffer()
+            const rawData = await getODSTableRawContent(importPrescriptionFileAB)
+            const cleanData = tableRawContentToObjects(tableWithoutEmptyRows(rawData))
+
+            console.log('import prescriptions clean data', cleanData)
+
         }
     }
 
