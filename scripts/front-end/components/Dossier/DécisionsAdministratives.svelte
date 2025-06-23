@@ -117,8 +117,6 @@
             const rawData = await getODSTableRawContent(importPrescriptionFileAB)
             const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0]
 
-            console.log('import prescriptions clean data', cleanData)
-
             /** @type {Partial<Prescription>[]} */
             // @ts-ignore
             const candidatsPrescriptions = cleanData.filter(row => {
