@@ -3,7 +3,7 @@
     import {fr} from 'date-fns/locale';
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
-    import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
+    import {formatLocalisation, formatPorteurDeProjet, formatteRégimeAutorisationEnvironnementale} from '../../affichageDossier.js'
     import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
@@ -155,8 +155,8 @@
             durée_intervention,
             demandeur: formatPorteurDeProjet(dossier),
             localisation: formatLocalisation(dossier),
-            régime_autorisation_environnementale: rattaché_au_régime_ae === null ? '' :
-                (rattaché_au_régime_ae ? 'Oui' : 'Non'),
+            régime_autorisation_environnementale: formatteRégimeAutorisationEnvironnementale(rattaché_au_régime_ae),
+            régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null ? 'Oui' : 'Non',
             liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité}) => ({
                 // ,impactsRésiduels}) => ({
                 liste_espèces: espèces,
