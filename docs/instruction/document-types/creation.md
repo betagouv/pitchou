@@ -36,21 +36,43 @@ Balise | Type de balise | Donnée correspondante
 {demandeur} | texte | Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale
 {localisation} | texte | Localisation du dossier
 {activité_principale} | texte | Activité principale du dossier
+{description} | texte | Description du projet fournie par le pétitionnaire
 {régime_autorisation_environnementale} | texte | 'Oui' ou 'Non'
+{justification_absence_autre_solution_satisfaisante} | texte | Justification de l'absence d'autre solution satisfaisante (Article L411-2 du Code de l'Environnement)
+{motif_dérogation} | texte | Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
+{justification_motif_dérogation} | texte | Justification du motif
 {identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
 {liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {impact} et {liste_espèces}
+{date_début_intervention} | date | Date de début de l'intervention
+{date_fin_intervention} | date | Date de fin de l'intervention
+{durée_intervention} | nombre | Durée de l'intervention
+{scientifique.type_demande} | **liste** de texte | 
+{scientifique.description_protocole_suivi} | texte | 
+{scientifique.mode_capture} | texte | 
+{scientifique.modalités_source_lumineuses} | texte | 
+{scientifique.modalités_marquage} | texte | 
+{scientifique.modalités_transport} | texte | 
+{scientifique.périmètre_intervention} | texte | 
+{scientifique.intervenants} | **liste** | 
+{scientifique.précisions_autres_intervenants} | texte |
 
-Pour la liste {liste_espèces_par_impact} :
+Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient :
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
-{impact} | texte | Type d'impact (ex : desctruction, capture, ceuillette…)
+{impact} | texte | Type d'impact (ex : desctruction, capture, cueillette…)
 {liste_espèces} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire} et {nomScientifique}
 
-Pour la liste {liste_espèces} :
+Pour la liste {liste_espèces}, chaque élément de la liste contient :
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {nomVernaculaire} | texte | Nom vernaculaire de l'espèce
 {nomScientifique} | texte | Nom scientifique de l'espèce
+
+Pour la liste {scientifique.intervenants}, chaque élément de la liste contient :
+Balise | Type de balise | Donnée correspondante
+ :--- | :--- | :--- 
+{nom_complet} | texte | Nom de la personne scientifique qui intervient
+{qualification} | texte | Qualification de la personne scientifique qui intervient
 
 
 ## Exemples 
@@ -87,8 +109,70 @@ Nous vous souhaitons une belle journée,
 La DREAL Île-de-France
 ```
 
+### Affichage conditionnel ({#if})
 
-### Génération d'une liste
+Il est possible d'afficher un morceau de document seulement si certaines conditions sont remplies.
+
+Par exemple, imaginons que l'on souhaite afficher le numéro de dossier Onagre.
+
+On pourrait écrire :
+```
+Numéro de dossier Onagre : {identifiant_onagre}
+```
+
+S'il y a un numéro Onagre, le résultat sera : 
+```
+Numéro de dossier Onagre : 165876498
+```
+
+Toutefois, si le dossier pitchou n'a pas de numéro Onagre associé, on va se retrouver avec le résultat suivant : 
+```
+Numéro de dossier Onagre :
+```
+
+---
+
+Pour faire un affichage plus propre, on peut utiliser l'affichage conditionnel pour que ce morceau de phrase ne s'affiche que s'il y a un numéro Onagre.
+
+```
+{#if identifiant_onagre}
+Numéro de dossier Onagre : {identifiant_onagre}
+{/if}
+```
+
+Dans ce cas-là, 
+
+S'il y a un numéro Onagre, le résultat sera : 
+```
+Numéro de dossier Onagre : 165876498
+```
+
+Toutefois, si le dossier pitchou n'a pas de numéro Onagre associé, le résultat sera :
+```
+```
+(il n'y a rien d'afficher)
+
+---
+
+Pour rendre les choses plus explicites, on pourrait vouloir écrire `(non renseigné)`. On peut utiliser le `{:else}` ("sinon"):
+
+```
+Numéro de dossier Onagre : {#if identifiant_onagre} {identifiant_onagre} {:else} (non renseigné) {/if}
+```
+
+Ainsi, s'il y a un numéro Onagre, le résultat sera : 
+```
+Numéro de dossier Onagre : 165876498
+```
+
+et s'il n'y a pas de numéro Onagre : 
+```
+Numéro de dossier Onagre : (non renseigné)
+```
+
+
+
+### Génération d'une liste ({#each})
 
 Pour afficher les données d'une liste, il faut utiliser une boucle qui
 - commence par <code>{#each LISTE as ÉLÉMENT}</code>
@@ -127,6 +211,8 @@ Voici les oiseaux les plus importants au monde :
 🐦 oiseau impacté : aigle botté
 🐦 oiseau impacté : coucou geai
 ```
+
+
 
 
 ## Points de vigilance
