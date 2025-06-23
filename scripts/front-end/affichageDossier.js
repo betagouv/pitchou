@@ -116,18 +116,6 @@ export function formatDateRelative(date) {
     return formatDateAbsolue(date)
 }
 
-  /**
-   *
-   * @param {boolean | null} rattaché_au_régime_ae
-   * @returns {string}
-   */
-export function formatteRégimeAutorisationEnvironnementale(rattaché_au_régime_ae) {
-    if (rattaché_au_régime_ae===null) {
-        return 'Non renseigné'
-    } 
-    return rattaché_au_régime_ae ? 'Oui' : 'Non'
-}
-
 /** @type {Set<DossierPhase>} */
 export const phases = new Set([
     "Accompagnement amont",
