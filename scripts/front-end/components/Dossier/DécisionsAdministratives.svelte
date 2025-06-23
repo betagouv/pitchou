@@ -103,6 +103,20 @@
         rerender()
     }
 
+    /**
+     * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
+     */
+    async function onFileInput(e){
+        /** @type {FileList | null} */
+        const files = e.currentTarget.files
+        const file = files && files[0]
+
+        if(file){
+            const descriptionMenacesEspèces = await file.arrayBuffer()
+            // PPP: récupérer les données
+        }
+    }
+
 
 </script>
 
@@ -128,6 +142,18 @@
             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
                 Ajouter une prescription
             </button>
+
+            <section class="fr-mb-4w">
+                <h6>Import d'un fichier d'espèces</h6>
+                <div class="fr-upload-group">
+                    <label class="fr-label" for="file-upload">
+                        Importer un fichier de prescriptions. Un <a href="/data/modèles/modèle ajout prescriptions.ods">modèle est disponible</a>.
+                        Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles sont toutes optionnelles)
+                        <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : .ods</span>
+                    </label>
+                    <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                </div>
+            </section>
         {:else}
             <table>
                 <thead>
