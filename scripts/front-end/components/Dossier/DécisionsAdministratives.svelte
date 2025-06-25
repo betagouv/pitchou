@@ -185,7 +185,7 @@
             </button>
 
             <section class="fr-mb-4w">
-                <h6>Import d'un fichier d'espèces</h6>
+                <h6>Import d'un fichier de prescriptions</h6>
                 <div class="fr-upload-group">
                     <label class="fr-label" for="file-upload">
                         Importer un fichier de prescriptions. Un <a href="/data/modèles/modèle ajout prescriptions.ods">modèle est disponible</a>.
