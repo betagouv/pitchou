@@ -157,11 +157,14 @@
             localisation: formatLocalisation(dossier),
             régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
             régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné':rattaché_au_régime_ae,
-            liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité}) => ({
-                // ,impactsQuantifiés}) => ({
-                liste_espèces: espèces,
+            liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité,impactsQuantifiés}) => ({
+                liste_espèces: espèces.map(({nomVernaculaire,nomScientifique, détails}) => ({
+                    nomVernaculaire,
+                    nomScientifique,
+                    liste_impacts_quantifiés:détails,
+                })),
                 impact: activité,
-                // liste_impacts_résiduels: impactsQuantifiés,
+                colonnes_impacts_quantifiés: impactsQuantifiés,
             }) ),
             scientifique: {
                 type_demande: scientifique_type_demande,
