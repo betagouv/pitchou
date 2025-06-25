@@ -1,4 +1,5 @@
 <script>
+    import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} from '@odfjs/odfjs'
     import DateInput from '../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
@@ -29,10 +30,10 @@
     function ajouterPrescription(){
         /** @type {Partial<Prescription>} */
         const nouvellePrescription = {
+            décision_administrative: décisionAdministrative.id,
             date_échéance: undefined,
             numéro_article: '',
             description: '',
-            décision_administrative: décisionAdministrative.id,
             individus_compensés: undefined,
             individus_évités: undefined,
             nids_compensés: undefined,
@@ -103,6 +104,60 @@
         rerender()
     }
 
+    /**
+     * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
+     */
+    async function onFileInput(e){
+        /** @type {FileList | null} */
+        const files = e.currentTarget.files
+        const file = files && files[0]
+
+        if(file){
+            const importPrescriptionFileAB = await file.arrayBuffer()
+            const rawData = await getODSTableRawContent(importPrescriptionFileAB)
+            const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0]
+
+            /** @type {Partial<Prescription>[]} */
+            // @ts-ignore
+            const candidatsPrescriptions = cleanData.filter(row => {
+                const prescriptionNumDec = row['Numéro décision administrative'] && row['Numéro décision administrative'].trim()
+                return !prescriptionNumDec || prescriptionNumDec === (numéro && numéro.trim())
+            })
+            // @ts-ignore
+            .map(row => {
+                const {
+                    "Numéro article": numéro_article,
+                    "Description": description,
+                    "Date échéance": date_échéance,
+                    "Surface compensée": surface_compensée,
+                    "Surface évitée": surface_évitée,
+                    "Individus compensés": individus_compensés, 
+                    "Individus évités": individus_évités,
+                    "Nids compensés": nids_compensés,
+                    "Nids évités": nids_évités,
+                } = row
+
+                return {
+                    décision_administrative: décisionAdministrative.id,
+                    date_échéance: !date_échéance ? undefined : date_échéance,
+                    numéro_article,
+                    description,
+                    individus_compensés: !individus_compensés ? undefined : individus_compensés,
+                    individus_évités: !individus_évités ? undefined : individus_évités,
+                    nids_compensés: !nids_compensés ? undefined : nids_compensés,
+                    nids_évités: !nids_évités ? undefined : nids_évités,
+                    surface_compensée: !surface_compensée ? undefined : surface_compensée,
+                    surface_évitée: !surface_évitée ? undefined : surface_évitée,
+                }
+            })
+                 
+            prescriptions = prescriptions.union(new Set(candidatsPrescriptions))
+            for(const p of prescriptions){
+                savePrescription(p)
+            }
+        }
+    }
+
 
 </script>
 
@@ -128,6 +183,18 @@
             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
                 Ajouter une prescription
             </button>
+
+            <section class="fr-mb-4w">
+                <h6>Import d'un fichier d'espèces</h6>
+                <div class="fr-upload-group">
+                    <label class="fr-label" for="file-upload">
+                        Importer un fichier de prescriptions. Un <a href="/data/modèles/modèle ajout prescriptions.ods">modèle est disponible</a>.
+                        Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles sont toutes optionnelles)
+                        <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : .ods</span>
+                    </label>
+                    <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                </div>
+            </section>
         {:else}
             <table>
                 <thead>
