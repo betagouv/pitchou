@@ -86,7 +86,7 @@ let activitéVersDonnéesSecondaires = new Map([
 /**
  * @typedef {Object} EspècesParActivité
  * @prop {string} activité
- * @prop {string[]} impactsRésiduels
+ * @prop {string[]} impactsQuantifiés
  * @prop {EspèceImpactéeSimplifiée[]} espèces
  */
 
@@ -229,7 +229,7 @@ export async function créerEspècesGroupéesParImpact(espècesImpactées) {
         .map(([activité, espèces]) => ({
             activité: activité ? activité['étiquette affichée'] : `Type d'impact non-renseignée`, 
             // @ts-ignore
-            impactsRésiduels: [...activitéVersDonnéesSecondaires.get(activité?.Code).keys()],
+            impactsQuantifiés: [...activitéVersDonnéesSecondaires.get(activité?.Code).keys()],
             espèces
         }))
 }

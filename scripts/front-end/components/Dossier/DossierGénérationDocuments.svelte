@@ -158,10 +158,10 @@
             régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
             régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné':rattaché_au_régime_ae,
             liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité}) => ({
-                // ,impactsRésiduels}) => ({
+                // ,impactsQuantifiés}) => ({
                 liste_espèces: espèces,
                 impact: activité,
-                // liste_impacts_résiduels: impactsRésiduels,
+                // liste_impacts_résiduels: impactsQuantifiés,
             }) ),
             scientifique: {
                 type_demande: scientifique_type_demande,
