@@ -123,15 +123,15 @@
                 <Loader></Loader>
             {:then espècesImpactéesParActivité}
                 {#if espècesImpactéesParActivité}
-                    {#each espècesImpactéesParActivité as { activité, espèces, impactsRésiduels }}
+                    {#each espècesImpactéesParActivité as { activité, espèces, impactsQuantifiés }}
                         <section class="liste-especes">
                             <h3>{activité}</h3>
                             <table class="fr-table">
                                 <thead>
                                     <tr>
                                         <th>Espèce</th>
-                                        {#if impactsRésiduels && impactsRésiduels.length >= 1}
-                                            {#each impactsRésiduels as nomColonne}
+                                        {#if impactsQuantifiés && impactsQuantifiés.length >= 1}
+                                            {#each impactsQuantifiés as nomColonne}
                                                 <th>{nomColonne}</th>
                                             {/each}
                                         {/if}
