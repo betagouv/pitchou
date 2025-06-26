@@ -50,6 +50,10 @@
     <section class="column">
         <h2>Informations du projet</h2>
         <p>
+            <strong>Identifiant Pitchou&nbsp;:</strong>
+            {dossier.id}
+        </p>
+        <p>
             <strong>Description&nbsp;:</strong>
             {dossier.description && dossier.description.length >= 1
                 ? dossier.description
