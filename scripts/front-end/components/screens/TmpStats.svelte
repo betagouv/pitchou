@@ -76,7 +76,7 @@
         return dossiers.filter(d => {
             const dateDépôt = new Date(d.historique_date_réception_ddep || d.date_dépôt)
 
-            return dateDépôt.getFullYear() >= 2022
+            return isBefore(sub(aujourdhui, {years: 3}), dateDépôt)
         })
     }
 
