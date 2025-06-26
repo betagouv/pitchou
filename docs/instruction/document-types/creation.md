@@ -43,6 +43,7 @@ Balise | Type de balise | Donnée correspondante
 {motif_dérogation} | texte | Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
 {justification_motif_dérogation} | texte | Justification du motif
 {identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
+{identifiant_pitchou} | texte | Identifiant du Dossier Pitchou
 {liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {liste_noms_impacts_quantifiés} et {liste_espèces}.
 {date_début_intervention} | date | Date de début de l'intervention
 {date_fin_intervention} | date | Date de fin de l'intervention
