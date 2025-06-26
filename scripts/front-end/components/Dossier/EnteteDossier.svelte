@@ -16,7 +16,7 @@
 <header class="fr-mb-2w">
     <section>
 
-        <h1 class="fr-mb-1v">{dossier.nom}</h1>
+        <h1 class="fr-mb-1v">Dossier n°{dossier.id}&nbsp;:&nbsp;{dossier.nom}</h1>
         <div>
             <span class="fr-icon-map-pin-2-fill" aria-hidden="true"></span>
             {formatLocalisation(dossier)}
@@ -29,6 +29,12 @@
             <span class="fr-icon-briefcase-fill" aria-hidden="true"></span>
             {dossier.activité_principale}
         </div>
+        {#if dossier.number_demarches_simplifiées}
+            <div>
+                <span class="fr-icon-folder-2-fill" aria-hidden="true"></span>
+                Numéro dossier Démarches Simplifiées&nbsp:&nbsp{dossier.number_demarches_simplifiées}
+            </div>
+        {/if}
     </section>
 
     <section>

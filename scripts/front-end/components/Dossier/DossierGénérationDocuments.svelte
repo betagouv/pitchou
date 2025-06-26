@@ -177,7 +177,7 @@
                 intervenants: scientifique_intervenants,
                 précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
             },
-
+            identifiant_pitchou: dossier.id,
             ...functions
         }
 
