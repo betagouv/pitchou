@@ -5,10 +5,10 @@ import {directDatabaseConnection} from '../database.js'
 /** @import {default as DécisionAdministrative} from '../../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {TypeDécisionAdministrative} from '../../../scripts/types/API_Pitchou.ts' */
+/** @import {FrontEndDécisionAdministrative, TypeDécisionAdministrative} from '../../../scripts/types/API_Pitchou.ts' */
 /** @import {DécisionAdministrativeAnnotation88444} from '../../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
-/** @import {Knex} from 'knex' */
+/** @import {knex, Knex} from 'knex' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
@@ -194,4 +194,23 @@ export function getDécisionAdministratives(dossierId, databaseConnection = dire
     return databaseConnection('décision_administrative')
         .select('*')
         .where({dossier: dossierId})
+}
+
+/**
+ * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier
+ * La requête utilise une astuce à coup de distinctOn (spécifique à Postgresql) pour y arriver
+ * 
+ * @param {import('../../types/database/public/CapDossier.ts').CapDossierCap} cap_dossier 
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<FrontEndDécisionAdministrative[]>}
+ */
+export function getDécisionsAdministratives(cap_dossier, databaseConnection = directDatabaseConnection){
+    return databaseConnection('décision_administrative')
+        .select('décision_administrative.*')
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'décision_administrative.dossier'})
+        .join(
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
+        )
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
 }

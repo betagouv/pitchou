@@ -1,4 +1,5 @@
 <script>
+    import { add, isAfter } from 'date-fns';
     //@ts-nocheck
     /*
         Notes pour la prochaine itération
@@ -32,22 +33,22 @@
 
     /**
      * 
-     * @param {DossierRésumé[]} dossiers 
+     * @param {DossierRésumé[]} dossiers
+     * @param {Date} dateDepuis
      */
-    function trouverDossiersAvecAPPrisEn2024(dossiers){
-        throw `PPP: à refaire avec la nouvelle table DécisionAdministrative`
-
+    function trouverDossiersAvecAPPrisDepuis(dossiers,dateDepuis){
+        
         return dossiers.filter(d => {
-            const historique_date_signature_arrêté_préfectoral = d.historique_date_signature_arrêté_préfectoral
+            const date_signature = d.décisionsAdministratives?.find((décision) => décision.date_signature !== null && isAfter(décision.date_signature, dateDepuis))
 
-            if(!historique_date_signature_arrêté_préfectoral)
-                return true // vrai uniquement parce qu'on est en 2024 à l'écrture du code
+            if (date_signature)
+                return true
 
-            return new Date(historique_date_signature_arrêté_préfectoral).getFullYear() === 2024
+            return false
         })
     }
 
-    $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossierEnPhaseContrôle)
+    $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, add(new Date(2014, 8, 1, 10, 19, 50), { years: 3 }))
     
 
     /**
@@ -97,7 +98,8 @@
                 <h2 class="fr-mt-2w">Nombre de dossiers&nbsp;: {dossiers.length} dossiers affichés</h2>
             </section>
 
-            <!--
+         
+            
             <section>
                 <h2>Dossiers avec AP</h2>
                 <ul>
@@ -139,7 +141,8 @@
                 </ul>
             </section>
             
-            -->
+         
+            
         </article>
     </div>
 </Squelette>
