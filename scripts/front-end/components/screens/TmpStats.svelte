@@ -1,5 +1,5 @@
 <script>
-    import { add, isAfter } from 'date-fns';
+    import { endOfYear, getYear, isAfter, isBefore, startOfYear, sub } from 'date-fns';
     //@ts-nocheck
     /*
         Notes pour la prochaine itération
@@ -21,6 +21,8 @@
     /** @type {string | undefined} */
     export let email = undefined
 
+   const aujourdhui = new Date()
+
     /**
      * 
      * @param {DossierRésumé[]} dossiers 
@@ -34,21 +36,26 @@
     /**
      * 
      * @param {DossierRésumé[]} dossiers
-     * @param {Date} dateDepuis
+     * @param {Date} dateDebut
+     * @param {Date | undefined} dateFin
      */
-    function trouverDossiersAvecAPPrisDepuis(dossiers,dateDepuis){
+    function trouverDossiersAvecAPPrisDepuis(dossiers, dateDebut, dateFin = aujourdhui){
         
         return dossiers.filter(d => {
-            const date_signature = d.décisionsAdministratives?.find((décision) => décision.date_signature !== null && isAfter(décision.date_signature, dateDepuis))
+            return d.décisionsAdministratives?.find((décision) => (décision.date_signature !== null &&
+                isAfter(décision.date_signature, dateDebut) &&
+                isBefore(décision.date_signature, dateFin))
+            )
 
-            if (date_signature)
-                return true
-
-            return false
         })
     }
 
-    $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, add(new Date(2014, 8, 1, 10, 19, 50), { years: 3 }))
+
+    $: dossierAvecAPDepuisAnneeEnCours = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(aujourdhui))
+
+    $: annéeDernière = sub(aujourdhui, {years: 1})
+    
+    $: dossierAvecAPAnneePrecedente = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(annéeDernière), endOfYear(annéeDernière))
     
 
     /**
@@ -91,7 +98,6 @@
         <article class="fr-col">
             <header class="fr-mb-2w">
                 <h1>Des stats pour les chefs DREAL N-A</h1>
-                <p>⚠️ Page cassée et à refaire sur demande ⚠️</p>
             </header>
 
             <section>
@@ -111,8 +117,14 @@
                     <li><strong>
                         Nombre de dossiers 
                         en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> 
-                        avec AP pris en 2024
-                        </strong>&nbsp;: {dossiersAvecAPPrisEn2024.length}
+                        avec AP pris en {getYear(aujourdhui)}
+                        </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
+                    </li>
+                    <li><strong>
+                        Nombre de dossiers 
+                        en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> 
+                        avec AP pris en {getYear(annéeDernière)}
+                        </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
                     </li>
                 </ul>
             </section>
