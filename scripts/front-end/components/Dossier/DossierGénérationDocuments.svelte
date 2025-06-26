@@ -164,7 +164,7 @@
                     liste_impacts_quantifiés:détails,
                 })),
                 impact: activité,
-                colonnes_impacts_quantifiés: impactsQuantifiés,
+                liste_noms_impacts_quantifiés: impactsQuantifiés,
             }) ),
             scientifique: {
                 type_demande: scientifique_type_demande,

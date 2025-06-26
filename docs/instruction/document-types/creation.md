@@ -43,7 +43,7 @@ Balise | Type de balise | Donnée correspondante
 {motif_dérogation} | texte | Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
 {justification_motif_dérogation} | texte | Justification du motif
 {identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
-{liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {impact} et {liste_espèces}
+{liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {liste_noms_impacts_quantifiés} et {liste_espèces}.
 {date_début_intervention} | date | Date de début de l'intervention
 {date_fin_intervention} | date | Date de fin de l'intervention
 {durée_intervention} | nombre | Durée de l'intervention
@@ -57,19 +57,25 @@ Balise | Type de balise | Donnée correspondante
 {scientifique.intervenants} | **liste** | 
 {scientifique.précisions_autres_intervenants} | texte |
 
+
 Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient :
+
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {impact} | texte | Type d'impact (ex : desctruction, capture, cueillette…)
-{liste_espèces} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire} et {nomScientifique}
+{liste_espèces} | **liste** | Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : {nomVernaculaire}, {nomScientifique} et {liste_impacts_quantifiés}
+{liste_noms_impacts_quantifiés} | **liste** | Liste des noms des impacts quantifiés (Surface, Nombre d'individus...)
 
 Pour la liste {liste_espèces}, chaque élément de la liste contient :
+
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {nomVernaculaire} | texte | Nom vernaculaire de l'espèce
 {nomScientifique} | texte | Nom scientifique de l'espèce
+{liste_impacts_quantifiés} | **liste** | Liste des impacts quantifiés (Surface, nombre d'individus...). Cette liste est alignée avec {liste_noms_impacts_quantifiés}.
 
 Pour la liste {scientifique.intervenants}, chaque élément de la liste contient :
+
 Balise | Type de balise | Donnée correspondante
  :--- | :--- | :--- 
 {nom_complet} | texte | Nom de la personne scientifique qui intervient
