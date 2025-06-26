@@ -1,4 +1,5 @@
 <script>
+    import { endOfYear, getYear, isAfter, isBefore, startOfYear, sub } from 'date-fns';
     //@ts-nocheck
     /*
         Notes pour la prochaine itération
@@ -20,6 +21,8 @@
     /** @type {string | undefined} */
     export let email = undefined
 
+   const aujourdhui = new Date()
+
     /**
      * 
      * @param {DossierRésumé[]} dossiers 
@@ -32,22 +35,27 @@
 
     /**
      * 
-     * @param {DossierRésumé[]} dossiers 
+     * @param {DossierRésumé[]} dossiers
+     * @param {Date} dateDebut
+     * @param {Date | undefined} dateFin
      */
-    function trouverDossiersAvecAPPrisEn2024(dossiers){
-        throw `PPP: à refaire avec la nouvelle table DécisionAdministrative`
-
+    function trouverDossiersAvecAPPrisDepuis(dossiers, dateDebut, dateFin = aujourdhui){
+        
         return dossiers.filter(d => {
-            const historique_date_signature_arrêté_préfectoral = d.historique_date_signature_arrêté_préfectoral
+            return d.décisionsAdministratives?.find((décision) => (décision.date_signature !== null &&
+                isAfter(décision.date_signature, dateDebut) &&
+                isBefore(décision.date_signature, dateFin))
+            )
 
-            if(!historique_date_signature_arrêté_préfectoral)
-                return true // vrai uniquement parce qu'on est en 2024 à l'écrture du code
-
-            return new Date(historique_date_signature_arrêté_préfectoral).getFullYear() === 2024
         })
     }
 
-    $: dossiersAvecAPPrisEn2024 = trouverDossiersAvecAPPrisEn2024(dossierEnPhaseContrôle)
+
+    $: dossierAvecAPDepuisAnneeEnCours = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(aujourdhui))
+
+    $: annéeDernière = sub(aujourdhui, {years: 1})
+    
+    $: dossierAvecAPAnneePrecedente = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(annéeDernière), endOfYear(annéeDernière))
     
 
     /**
@@ -68,7 +76,7 @@
         return dossiers.filter(d => {
             const dateDépôt = new Date(d.historique_date_réception_ddep || d.date_dépôt)
 
-            return dateDépôt.getFullYear() >= 2022
+            return isBefore(sub(aujourdhui, {years: 3}), dateDépôt)
         })
     }
 
@@ -90,14 +98,14 @@
         <article class="fr-col">
             <header class="fr-mb-2w">
                 <h1>Des stats pour les chefs DREAL N-A</h1>
-                <p>⚠️ Page cassée et à refaire sur demande ⚠️</p>
             </header>
 
             <section>
                 <h2 class="fr-mt-2w">Nombre de dossiers&nbsp;: {dossiers.length} dossiers affichés</h2>
             </section>
 
-            <!--
+         
+            
             <section>
                 <h2>Dossiers avec AP</h2>
                 <ul>
@@ -109,8 +117,14 @@
                     <li><strong>
                         Nombre de dossiers 
                         en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> 
-                        avec AP pris en 2024
-                        </strong>&nbsp;: {dossiersAvecAPPrisEn2024.length}
+                        avec AP pris en {getYear(aujourdhui)}
+                        </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
+                    </li>
+                    <li><strong>
+                        Nombre de dossiers 
+                        en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> 
+                        avec AP pris en {getYear(annéeDernière)}
+                        </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
                     </li>
                 </ul>
             </section>
@@ -139,7 +153,8 @@
                 </ul>
             </section>
             
-            -->
+         
+            
         </article>
     </div>
 </Squelette>

@@ -52,7 +52,7 @@ type DossierActivitéPrincipale = {
     activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
 } 
 
-type DonnéesDossierPourStats = Pick<Dossier, 'historique_date_réception_ddep'>
+type DonnéesDossierPourStats = Pick<Dossier, 'historique_date_réception_ddep'> & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}
 
 /**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
@@ -73,7 +73,7 @@ export type DossierRésumé = Pick<Dossier,
     & DonnéesDossierPourStats
 
 
-export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier' | 'dossier'> 
+export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier'> 
     & {fichier_url: string | undefined}
     & {
         prescriptions: Prescription[] | undefined

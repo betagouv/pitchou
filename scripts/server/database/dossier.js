@@ -1,11 +1,11 @@
 import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
-import {getDécisionAdministratives} from './décision_administrative.js';
+import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
 import {getPrescriptions} from './prescription.js';
 
 //@ts-ignore
-/** @import {DossierComplet, DossierPhase, DossierRésumé} from '../../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierPhase, DossierRésumé, FrontEndDécisionAdministrative} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
@@ -505,11 +505,11 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                 dossier.décisionsAdministratives = décisionsAdministratives.map(
                     ({
                         id, numéro, type, date_signature, date_fin_obligations,
-                        fichier
+                        fichier, dossier
                     }) => ({
                         id, numéro, type, date_signature, date_fin_obligations,
                         prescriptions: prescriptionsParDécisionId.get(id),
-                        fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined
+                        fichier_url: fichier ? `/decision-administrative/${fichier}`: undefined, dossier
                     })
                 )
             }
@@ -603,8 +603,10 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
 
     const évènementsPhaseDossierP = getDerniersÉvènementsPhaseDossiers(cap, transaction)
 
-    const result = Promise.all([dossiersP, évènementsPhaseDossierP])
-    .then(([dossiers, évènementsPhaseDossier]) => {
+    const décisionsAdministrativesP = getDécisionsAdministratives(cap, transaction)
+
+    const result = Promise.all([dossiersP, évènementsPhaseDossierP, décisionsAdministrativesP])
+    .then(([dossiers, évènementsPhaseDossier,décisionsAdministratives]) => {
         /** @type {Map<Dossier['id'], ÉvènementPhaseDossier>} */
         const évènementsPhaseDossierById = new Map()
 
@@ -623,6 +625,22 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
                 // dépôt du dossier
                 dossier.phase = 'Accompagnement amont'
                 dossier.date_début_phase = dossier.date_dépôt
+            }
+        }
+
+        /** @type {Map<Dossier['id'], FrontEndDécisionAdministrative[]>} */
+        const décisionsAdministrativesById = new Map()
+        for (const décisionAdministrative of décisionsAdministratives){
+            const décisionsAdministrativesPourCetId = décisionsAdministrativesById.get(décisionAdministrative.dossier) || []
+            décisionsAdministrativesPourCetId.push(décisionAdministrative)
+            décisionsAdministrativesById.set(décisionAdministrative.dossier, décisionsAdministrativesPourCetId )
+        }
+
+        for (const dossier of dossiers){
+            const décisionAdministrative = décisionsAdministrativesById.get(dossier.id)
+
+            if (décisionAdministrative) {
+                dossier.décisionsAdministratives = décisionAdministrative
             }
         }
 
