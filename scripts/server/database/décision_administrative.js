@@ -2,6 +2,7 @@ import {directDatabaseConnection} from '../database.js'
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
+/** @import {default as CapDossier} from '../../../scripts/types/database/public/CapDossier.ts' */
 /** @import {default as DécisionAdministrative} from '../../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
@@ -197,10 +198,9 @@ export function getDécisionAdministratives(dossierId, databaseConnection = dire
 }
 
 /**
- * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier
- * La requête utilise une astuce à coup de distinctOn (spécifique à Postgresql) pour y arriver
+ * Récupère les décisions administratives pour chaque dossier
  * 
- * @param {import('../../types/database/public/CapDossier.ts').CapDossierCap} cap_dossier 
+ * @param {CapDossier['cap']} cap_dossier 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<FrontEndDécisionAdministrative[]>}
  */
