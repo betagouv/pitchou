@@ -25,6 +25,7 @@
 
     function rerender(){
         prescriptions = prescriptions
+        prescriptionsEnContrôle = prescriptionsEnContrôle
     }
 
     function ajouterPrescription(){
@@ -158,13 +159,31 @@
         }
     }
 
+    let prescriptionsEnContrôle = new Set()
+
+    function ouvrirContrôles(prescription){
+        prescriptionsEnContrôle.add(prescription)
+
+        rerender()
+    }
+
+    function fermerContrôles(prescription){
+        prescriptionsEnContrôle.delete(prescription)
+
+        rerender()
+    }
+
+    function ajouterContrôle(prescription){
+        
+    }
+
 
 </script>
 
 <section class="décision-administrative">
     <h4>{type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}</h4>
     <div class="fr-mb-1w">Date de fin des obligations : {date_fin_obligations ? formatDateAbsolue(date_fin_obligations) : NON_RENSEIGNÉ}</div>
-    <div>Fichier de l'arrêté : 
+    <div class="fr-mb-1w">Fichier de l'arrêté : 
         {#if fichier_url}
             <a class="fr-btn" href={fichier_url}>
                 Télécharger
@@ -206,7 +225,7 @@
                 <li>Individus évités</li>
                 <li>Nids compensés</li>
                 <li>Nids évités</li>
-                <li>Supprimer</li>
+                <li>Contrôles</li>
             </ul>
             <ul>
                 {#each prescriptions as prescription}
@@ -216,18 +235,39 @@
                             savePrescription(prescription)
                         }
                     }}>
-                        <span><input class="fr-input" bind:value={prescription.numéro_article}></span>
-                        <span><input class="fr-input" bind:value={prescription.description}></span>
-                        
-                        <span><DateInput bind:date={prescription.date_échéance}></DateInput></span>
+                        <section>
+                            <span><input class="fr-input" bind:value={prescription.numéro_article}></span>
+                            <span><input class="fr-input" bind:value={prescription.description}></span>
+                            
+                            <span><DateInput bind:date={prescription.date_échéance}></DateInput></span>
 
-                        <span><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></span>
-                        <span><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></span>
-                        <span><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></span>
-                        <span><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></span>
-                        <span><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></span>
-                        <span><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></span>
-                        <span><button class="bouton-supprimer" type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></span>
+                            <span><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></span>
+                            <span><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></span>
+                            <span><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></span>
+                            <span><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></span>
+                            <span><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></span>
+                            <span><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></span>
+                            <span><button class="fr-btn" on:click={() => ouvrirContrôles(prescription)}>Contrôles</button></span>
+                        </section>
+                        {#if prescriptionsEnContrôle.has(prescription)}
+                        <section>
+                            <h6>Contrôles</h6>
+                            <ul>
+                                <li> PPP : lister les contrôles
+                            </ul>
+
+                            <button class="fr-btn" on:click={() => ajouterContrôle(prescription)}>Contrôler maintenant</button>
+
+
+
+                            <button class="fr-btn" on:click={() => fermerContrôles(prescription)}>Fermer les contrôles</button>
+
+
+                            <h6>Supprimer la prescription</h6>
+                            <button class="fr-btn" type="button" on:click={() => supprimerPrescription(prescription)}>Supprimer</button>
+                        </section>
+                        {/if}
+
                     </li>
                 {/each}
                 <li>
@@ -270,7 +310,7 @@
 
                 padding-left: 0;
 
-                li{
+                li, li > section:first-child{
                     display: flex;
                     flex-direction: row;
                 }
@@ -280,8 +320,13 @@
                 flex-direction: row;
             }
 
+            li.prescription{
+                display: flex;
+                flex-direction: column;
+            }
 
-            .prescription, .colonnes{
+
+            .prescription > section:first-child, .colonnes{
                 &>*{
                     margin: 0 2px;
                 }
@@ -306,11 +351,6 @@
                     flex-direction: row;
                     justify-content: center;
                     align-items: center;
-
-                    button{
-                        all: unset;
-                        cursor: pointer;
-                    }
                 }
 
                 input{
