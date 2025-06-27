@@ -196,48 +196,58 @@
                 </div>
             </section>
         {:else}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Numéro article</th>
-                        <th>Description</th>
-                        <th>Date échéance</th>
-                        <th>Surface compensée (m²)</th>
-                        <th>Surface évitée (m²)</th>
-                        <th>Individus compensés</th>
-                        <th>Individus évités</th>
-                        <th>Nids compensés</th>
-                        <th>Nids évités</th>
-                        <th>Supprimer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each prescriptions as prescription}
-                    <tr class="prescription" on:focusout={(e) => {
+            <ul class="colonnes">
+                <li>Numéro article</li>
+                <li>Description</li>
+                <li>Date échéance</li>
+                <li>Surface compensée (m²)</li>
+                <li>Surface évitée (m²)</li>
+                <li>Individus compensés</li>
+                <li>Individus évités</li>
+                <li>Nids compensés</li>
+                <li>Nids évités</li>
+                <li>Supprimer</li>
+            </ul>
+            <ul>
+                {#each prescriptions as prescription}
+                    <li class="prescription" on:focusout={(e) => {
                         //@ts-ignore
                         if (!e.target?.classList.contains('bouton-supprimer')) {
                             savePrescription(prescription)
                         }
                     }}>
-                        <td><input class="fr-input" bind:value={prescription.numéro_article}></td>
-                        <td><input class="fr-input" bind:value={prescription.description}></td>
+                        <span><input class="fr-input" bind:value={prescription.numéro_article}></span>
+                        <span><input class="fr-input" bind:value={prescription.description}></span>
                         
-                        <td><DateInput bind:date={prescription.date_échéance}></DateInput></td>
+                        <span><DateInput bind:date={prescription.date_échéance}></DateInput></span>
 
-                        <td><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                        <td><button class="bouton-supprimer" type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></td>
+                        <span><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></span>
+                        <span><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></span>
+                        <span><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></span>
+                        <span><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></span>
+                        <span><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></span>
+                        <span><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></span>
+                        <span><button class="bouton-supprimer" type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></span>
+                    </li>
+                {/each}
+                <li>
+                    <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                        Ajouter une prescription
+                    </button>
+                </li>
+            </ul>
+
+            <table>
+                <thead>
+                    <tr>
+                        
                     </tr>
-                    {/each}
+                </thead>
+                <tbody>
+                    
                     <tr>
                         <td colspan=5>
-                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
-                                Ajouter une prescription
-                            </button>
+                            
                         </td>
                     </tr>
                 </tbody>
@@ -253,23 +263,49 @@
         margin-bottom: 3rem;
 
         .prescriptions{
-            .prescription{
-                td:nth-child(1){
+            ul{
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+
+                padding-left: 0;
+
+                li{
+                    display: flex;
+                    flex-direction: row;
+                }
+            }
+
+            ul.colonnes{
+                flex-direction: row;
+            }
+
+
+            .prescription, .colonnes{
+                &>*{
+                    margin: 0 2px;
+                }
+
+                &>:nth-child(1){
                     width: 5rem;
                 }
-                td:nth-child(2){
-                    width: 21rem;
+                &>:nth-child(2){
+                    width: 15rem;
+                }
+                &>:nth-child(3){
+                    width: 9rem;
                 }
 
-                td:nth-child(n+3){
-                    width: 6.5rem;
+
+                &>:nth-child(n+4){
+                    width: 6rem;
                 }
 
-                td:last-of-type{
-                    width: 3rem;
-
-                    text-align: center;
-                    vertical-align: middle;
+                &>:last-of-type{
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
 
                     button{
                         all: unset;
@@ -278,7 +314,7 @@
                 }
 
                 input{
-                    padding-right: 0.5rem;
+                    padding-right: 0.4rem;
                     padding-left: 0.5rem;
                 }
 
