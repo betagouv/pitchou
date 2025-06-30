@@ -1,5 +1,16 @@
 # Document-types
 
+## Table des matières
+
+- [Balises disponibles](#balises-disponibles)
+- [Exemples](#exemples)
+  - [Génération d'un accusé de réception](#génération-dun-accusé-de-réception)
+  - [Affichage conditionnel ({#if})](#affichage-conditionnel-if)
+  - [Génération d'une liste ({#each})](#génération-dune-liste-each)
+- [Points de vigilance](#points-de-vigilance)
+
+---
+
 Les [document-types](../index.md) sont des "modèles" vous permettant ensuite de **générer en un clic des documents remplis avec les données d'un dossier.**
 
 Les document-types sont : 
@@ -25,6 +36,9 @@ Les balises ont des types qui peuvent être :
 <!--
 - **objet**, un type qui possède d'autres données nommées (accessibles via <code>objet.propriété</code>)
 -->
+---
+
+&nbsp;
 
 ## Balises disponibles
 
@@ -174,6 +188,8 @@ Les balises ont des types qui peuvent être :
     </div>
 </div>
 
+&nbsp;
+
 Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient :
 
 <div class="fr-table">
@@ -211,6 +227,8 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
         </div>
     </div>
 </div>
+
+&nbsp;
 
 Pour la liste {liste_espèces}, chaque élément de la liste contient :
 
@@ -282,6 +300,8 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
         </div>
     </div>
 </div>
+
+&nbsp;
 
 ## Exemples 
 
