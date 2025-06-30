@@ -28,36 +28,151 @@ Les balises ont des types qui peuvent être :
 
 ## Balises disponibles
 
-Les balises disponibles sont :
-
-Balise | Type de balise | Donnée correspondante
- :--- | :--- | :--- 
-{nom} | texte | Nom du dossier
-{demandeur} | texte | Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale
-{localisation} | texte | Localisation du dossier
-{activité_principale} | texte | Activité principale du dossier
-{description} | texte | Description du projet fournie par le pétitionnaire
-{régime_autorisation_environnementale_renseigné} | booléen | "true" ou "false" | Valeur indiquant si l'information relative à l’Autorisation Environnementale a été renseignée dans le formulaire.
-{régime_autorisation_environnementale} | booléen | "true" ou "false" | Valeur indiquant si le projet est soumis ou non au régime de l'Autorisation Environnementale.
-{justification_absence_autre_solution_satisfaisante} | texte | Justification de l'absence d'autre solution satisfaisante (Article L411-2 du Code de l'Environnement)
-{motif_dérogation} | texte | Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
-{justification_motif_dérogation} | texte | Justification du motif
-{identifiant_onagre} | texte | Identifiant Onagre du dossier si présent
-{identifiant_pitchou} | texte | Identifiant du Dossier Pitchou
-{liste_espèces_par_impact} | **liste** | Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {liste_noms_impacts_quantifiés} et {liste_espèces}.
-{date_début_intervention} | date | Date de début de l'intervention
-{date_fin_intervention} | date | Date de fin de l'intervention
-{durée_intervention} | nombre | Durée de l'intervention
-{scientifique.type_demande} | **liste** de texte | 
-{scientifique.description_protocole_suivi} | texte | 
-{scientifique.mode_capture} | texte | 
-{scientifique.modalités_source_lumineuses} | texte | 
-{scientifique.modalités_marquage} | texte | 
-{scientifique.modalités_transport} | texte | 
-{scientifique.périmètre_intervention} | texte | 
-{scientifique.intervenants} | **liste** | 
-{scientifique.précisions_autres_intervenants} | texte |
-
+<div class="fr-table">
+    <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+            <div class="fr-table__content">
+                <table>
+                    <caption>Liste des balises disponibles</caption>
+                    <thead>
+                        <tr> 
+                            <th scope="col"> Balise
+                            <th scope="col"> Type de balise
+                            <th scope="col"> Description
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row"> {nom}
+                            <td> texte
+                            <td> Nom du dossier
+                        </tr>
+                        <tr>
+                            <th scope="row"> {demandeur}
+                            <td> texte
+                            <td> Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale
+                        </tr>
+                        <tr>
+                            <th scope="row"> {localisation}
+                            <td> texte
+                            <td> Localisation du dossier
+                        </tr>
+                        <tr>
+                            <th scope="row"> {activité_principale}
+                            <td> texte
+                            <td> Activité principale du dossier
+                        </tr>
+                        <tr>
+                            <th scope="row"> {description}
+                            <td> texte
+                            <td> Description du projet fournie par le pétitionnaire
+                        </tr>
+                        <tr>
+                            <th scope="row"> {régime_autorisation_environnementale_renseigné}
+                            <td> booléen
+                            <td> Valeur indiquant si l'information relative à l'Autorisation Environnementale a été renseignée dans le formulaire.
+                        </tr>
+                        <tr>
+                            <th scope="row"> {régime_autorisation_environnementale}
+                            <td> booléen
+                            <td> Valeur indiquant si le projet est soumis ou non au régime de l'Autorisation Environnementale.
+                        </tr>
+                        <tr>
+                            <th scope="row"> {justification_absence_autre_solution_satisfaisante}
+                            <td> texte
+                            <td> Justification de l'absence d'autre solution satisfaisante (Article L411-2 du Code de l'Environnement)
+                        </tr>
+                        <tr>
+                            <th scope="row"> {motif_dérogation}
+                            <td> texte
+                            <td> Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)
+                        </tr>
+                        <tr>
+                            <th scope="row"> {justification_motif_dérogation}
+                            <td> texte
+                            <td> Justification du motif
+                        </tr>
+                        <tr>
+                            <th scope="row"> {identifiant_onagre}
+                            <td> texte
+                            <td> Identifiant Onagre du dossier si présent
+                        </tr>
+                        <tr>
+                            <th scope="row"> {identifiant_pitchou}
+                            <td> texte
+                            <td> Identifiant du Dossier Pitchou
+                        </tr>
+                        <tr>
+                            <th scope="row"> {liste_espèces_par_impact}
+                            <td> <strong>liste</strong>
+                            <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : {liste_noms_impacts_quantifiés} et {liste_espèces}.
+                        </tr>
+                        <tr>
+                            <th scope="row"> {date_début_intervention}
+                            <td> date
+                            <td> Date de début de l'intervention
+                        </tr>
+                        <tr>
+                            <th scope="row"> {date_fin_intervention}
+                            <td> date
+                            <td> Date de fin de l'intervention
+                        </tr>
+                        <tr>
+                            <th scope="row"> {durée_intervention}
+                            <td> nombre
+                            <td> Durée de l'intervention
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.type_demande}
+                            <td> <strong>liste</strong> de texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.description_protocole_suivi}
+                            <td> texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.mode_capture}
+                            <td> texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.modalités_source_lumineuses}
+                            <td> texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.modalités_marquage}
+                            <td> texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.modalités_transport}
+                            <td> texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.périmètre_intervention}
+                            <td> texte
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.intervenants}
+                            <td> <strong>liste</strong>
+                            <td> 
+                        </tr>
+                        <tr>
+                            <th scope="row"> {scientifique.précisions_autres_intervenants}
+                            <td> texte
+                            <td> 
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient :
 
