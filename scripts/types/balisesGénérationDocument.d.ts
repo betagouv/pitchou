@@ -1,15 +1,8 @@
-/**
- * Type pour un intervenant scientifique
- */
-export interface IntervenantScientifique {
-  nom_complet: string;
-  qualification: string;
-}
 
 /**
  * Type pour une espèce dans une liste d'espèces
  */
-export interface Espece {
+interface Espece {
   nomVernaculaire: string;
   nomScientifique: string;
   liste_impacts_quantifiés: string[];
@@ -18,7 +11,7 @@ export interface Espece {
 /**
  * Type pour un élément de la liste des espèces par impact
  */
-export interface EspeceParImpact {
+interface EspeceParImpact {
   impact: string;
   liste_espèces: Espece[];
   liste_noms_impacts_quantifiés: string[];
@@ -27,7 +20,7 @@ export interface EspeceParImpact {
 /**
  * Type pour les données scientifiques du dossier s'il est à caractère scientifique
  */
-export interface DonneesScientifiques {
+interface DonneesScientifiques {
   type_demande: string[] | null;
   description_protocole_suivi: string | null;
   mode_capture: string[] | null;
@@ -42,7 +35,7 @@ export interface DonneesScientifiques {
 /**
  * Fonctions utilitaires pour le formatage
  */
-export interface FonctionsUtilitaires {
+interface FonctionsUtilitaires {
   afficher_nombre: (n: any, precision?: number) => string | undefined;
   formatter_date: (date: any, formatString: string) => string | undefined;
   formatter_date_simple: (date: any) => string | undefined;
@@ -53,6 +46,7 @@ export interface FonctionsUtilitaires {
  * 
  * Contient toutes les données disponibles pour remplacer les balises dans les templates
  * @remark Attention, modifier le type de retour de cette fonction peut casser le rendu des documents existants.
+ * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  **/
 export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   nom: string | null;

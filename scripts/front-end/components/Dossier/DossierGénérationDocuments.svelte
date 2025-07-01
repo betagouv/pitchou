@@ -3,7 +3,6 @@
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
-    import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -22,12 +21,6 @@
 
     /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
     export let espècesImpactées;
-
-    /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
-    let espècesImpactéesParActivité
-
-    $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(créerEspècesGroupéesParImpact)
-    //.catch(err => console.error('err', err))
 
     /** @type {Blob | undefined} */
     let documentGénéré;
@@ -57,14 +50,13 @@
 
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a
-            espèces_impacts = await espècesImpactéesParActivité
+            espèces_impacts = await espècesImpactées
         }
         catch(e){
             // ignore errors
         }
 
-
-		const balises = getBalisesGénérationDocument(dossier, espèces_impacts)
+		const balises = await getBalisesGénérationDocument(dossier, espèces_impacts)
 
         console.log('balises', balises)
 

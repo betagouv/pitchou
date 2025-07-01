@@ -2,23 +2,22 @@ import {format} from 'date-fns'
 import {fr} from 'date-fns/locale';
 
 import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
-
+import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {BalisesGénérationDocument} from '../../types/balisesGénérationDocument.ts' */
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {EspècesParActivité} from './créerEspècesGroupéesParImpact.js' */
+/** @import {DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 
 /**
  * @param {DossierComplet} dossier
- * @param {EspècesParActivité[]| undefined} espèces_impacts Liste des espèces concernées par le dossier 
- * regroupées par activité
- * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
+ * @param {DescriptionMenacesEspèces | undefined} espècesImpactées Description des espèces impactées par le dossier
+ * @returns {Promise<BalisesGénérationDocument>} Liste des balises fournies aux instructeur.i.ces
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
-export function getBalisesGénérationDocument(dossier,espèces_impacts) {
+export async function getBalisesGénérationDocument(dossier, espècesImpactées) {
     const functions = {
         afficher_nombre,
         formatter_date,
@@ -48,6 +47,15 @@ export function getBalisesGénérationDocument(dossier,espèces_impacts) {
     scientifique_précisions_autres_intervenants
     } = dossier
 
+    // Transformer les espèces impactées si elles existent
+    let espèces_impacts = undefined
+    if (espècesImpactées) {
+        try {
+            espèces_impacts = await créerEspècesGroupéesParImpact(espècesImpactées)
+        } catch (e) {
+            console.error('Erreur lors de la transformation des espèces impactées:', e)
+        }
+    }
 
     return {
         nom,
@@ -88,7 +96,6 @@ export function getBalisesGénérationDocument(dossier,espèces_impacts) {
         ...functions
     }
 }
-
 
 /**
  * 
