@@ -51,6 +51,8 @@ interface FonctionsUtilitaires {
 export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   nom: string | null;
   demandeur: string;
+  enjeu_politique: boolean;
+  enjeu_écologique: boolean;
   localisation: string;
   activité_principale: string | null;
   description: string | null;

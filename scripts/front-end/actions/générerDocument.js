@@ -27,6 +27,8 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
     const {
     nom,
     description,
+    enjeu_écologique,
+    enjeu_politique,
     justification_absence_autre_solution_satisfaisante,
     motif_dérogation,
     justification_motif_dérogation,
@@ -60,6 +62,8 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
     return {
         nom,
         description,
+        enjeu_écologique: !!enjeu_écologique,
+        enjeu_politique: !!enjeu_politique,
         justification_absence_autre_solution_satisfaisante,
         motif_dérogation,
         justification_motif_dérogation,

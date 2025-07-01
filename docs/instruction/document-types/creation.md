@@ -87,6 +87,16 @@ Les balises ont des types qui peuvent être :
                             <td> Durée de l'intervention</td>
                         </tr>
                         <tr>
+                            <th scope="row"><code>{enjeu_écologique}</code></th>
+                            <td>Booléen</td>
+                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu écologique, sinon <code>false</code></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><code>{enjeu_politique}</code></th>
+                            <td>Booléen</td>
+                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu politique, sinon <code>false</code></td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{identifiant_onagre}</code></th>
                             <td> texte</td>
                             <td> Identifiant Onagre du dossier si présent</td>
@@ -202,7 +212,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr> 
                             <th scope="col"> Balise</th>
                             <th scope="col"> Type de balise</th>
-                            <th scope="col"> Donnée correspondante</th>
+                            <th scope="col"> Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -242,7 +252,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                         <tr> 
                             <th scope="col"> Balise</th>
                             <th scope="col"> Type de balise</th>
-                            <th scope="col"> Donnée correspondante</th>
+                            <th scope="col"> Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -280,7 +290,7 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
                         <tr> 
                             <th scope="col"> Balise</th>
                             <th scope="col"> Type de balise</th>
-                            <th scope="col"> Donnée correspondante</th>
+                            <th scope="col"> Description</th>
                         </tr>
                     </thead>
                     <tbody>
