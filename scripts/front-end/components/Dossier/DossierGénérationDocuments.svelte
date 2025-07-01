@@ -1,10 +1,8 @@
 <script>
-    import {format} from 'date-fns'
-    import {fr} from 'date-fns/locale';
+
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
-    import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
-    import {créerEspècesGroupéesParImpact} from '../../actions/créerEspècesGroupéesParImpact.js'
+    import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -24,12 +22,6 @@
     /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
     export let espècesImpactées;
 
-    /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
-    let espècesImpactéesParActivité
-
-    $: espècesImpactéesParActivité = espècesImpactées && espècesImpactées.then(créerEspècesGroupéesParImpact)
-    //.catch(err => console.error('err', err))
-
     /** @type {Blob | undefined} */
     let documentGénéré;
     /** @type {string | undefined} */
@@ -42,54 +34,6 @@
         .then(getOdtTextContent)
 
 
-    /**
-     * 
-     * @param {any} n
-     * @param {number} precision
-     * @returns {string | undefined}
-     */
-    function afficher_nombre(n, precision = 2){
-        if(typeof n === 'string'){
-            n = parseFloat(n)
-        }
-
-        if(typeof n === 'number'){
-            if(Number.isNaN(n)){
-                return '(erreur de calcul)'
-            }
-
-            if(Number.isInteger(n))
-                return n.toString(10)
-            else{
-                return n.toFixed(precision)
-            }
-        }
-
-        return undefined
-    }
-
-    /**
-     * 
-     * @param {any} date
-     * @param {string} formatString
-     * @returns {string | undefined}
-     */
-    function formatter_date(date, formatString){
-        if(!date)
-            return undefined
-        date = new Date(date)
-        return format(date, formatString, { locale: fr })
-    }
-
-
-    /**
-     * 
-     * @param {any} date
-     * @returns {string | undefined}
-     */
-    function formatter_date_simple(date){
-        return formatter_date(date, 'd MMMM yyyy')
-    }
 
     /**
      * 
@@ -102,90 +46,23 @@
             throw new Error(`Missing template`)
         }
 
-        const functions = {
-            afficher_nombre,
-            formatter_date,
-            formatter_date_simple
-        }
-
-        const {
-            nom,
-            description,
-            justification_absence_autre_solution_satisfaisante,
-            motif_dérogation,
-            justification_motif_dérogation,
-            date_début_intervention,
-            date_fin_intervention,
-            durée_intervention,
-            historique_identifiant_demande_onagre,
-            activité_principale,
-            rattaché_au_régime_ae,
-            scientifique_type_demande,
-            scientifique_description_protocole_suivi,
-            scientifique_mode_capture,
-            scientifique_modalités_source_lumineuses,
-            scientifique_modalités_marquage,
-            scientifique_modalités_transport,
-            scientifique_périmètre_intervention,
-            scientifique_intervenants,
-            scientifique_précisions_autres_intervenants
-        } = dossier
-
         let espèces_impacts = undefined
 
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a
-            espèces_impacts = await espècesImpactéesParActivité
+            espèces_impacts = await espècesImpactées
         }
         catch(e){
             // ignore errors
         }
 
+		const balises = await getBalisesGénérationDocument(dossier, espèces_impacts)
 
-		const data = {
-            nom,
-            description,
-            justification_absence_autre_solution_satisfaisante,
-            motif_dérogation,
-            justification_motif_dérogation,
-            identifiant_onagre: historique_identifiant_demande_onagre,
-            activité_principale,
-            date_début_intervention,
-            date_fin_intervention,
-            durée_intervention,
-            demandeur: formatPorteurDeProjet(dossier),
-            localisation: formatLocalisation(dossier),
-            régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
-            régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné':rattaché_au_régime_ae,
-            liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité,impactsQuantifiés}) => ({
-                liste_espèces: espèces.map(({nomVernaculaire,nomScientifique, détails}) => ({
-                    nomVernaculaire,
-                    nomScientifique,
-                    liste_impacts_quantifiés:détails,
-                })),
-                impact: activité,
-                liste_noms_impacts_quantifiés: impactsQuantifiés,
-            }) ),
-            scientifique: {
-                type_demande: scientifique_type_demande,
-                description_protocole_suivi: scientifique_description_protocole_suivi,
-                mode_capture: scientifique_mode_capture,
-                modalités_source_lumineuses: scientifique_modalités_source_lumineuses,
-                modalités_marquage: scientifique_modalités_marquage,
-                modalités_transport: scientifique_modalités_transport,
-                périmètre_intervention: scientifique_périmètre_intervention,
-                intervenants: scientifique_intervenants,
-                précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
-            },
-            identifiant_pitchou: dossier.id,
-            ...functions
-        }
-
-        console.log('data', data)
+        console.log('balises', balises)
 
 		const templateAB = await template.arrayBuffer()
         try{
-            const documentArrayBuffer = await fillOdtTemplate(templateAB, data)
+            const documentArrayBuffer = await fillOdtTemplate(templateAB, balises)
             documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
 
             const [part1, part2] = template.name.split('.')
