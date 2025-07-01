@@ -1,43 +1,21 @@
 import {format} from 'date-fns'
 import {fr} from 'date-fns/locale';
 
-import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js'
+import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
 
+
+//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
+/** @import {BalisesGénérationDocument} from '../../types/balisesGénérationDocument.ts' */
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {EspècesParActivité} from './créerEspècesGroupéesParImpact.js' */
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
 
 /**
- * @typedef {Object} BalisesGénérationDocument
- * @prop {string | null} nom
- * @prop {string | null} description
- * @prop {string | null} justification_absence_autre_solution_satisfaisante
- * @prop {string | null} motif_dérogation
- * @prop {string | null} justification_motif_dérogation
- * @prop {string | null} identifiant_onagre
- * @prop {string | null} activité_principale
- * @prop {Date | null} date_début_intervention
- * @prop {Date | null} date_fin_intervention
- * @prop {number | null} durée_intervention
- * @prop {string} demandeur
- * @prop {string} localisation
- * @prop {boolean} régime_autorisation_environnementale_renseigné
- * @prop {string | boolean} régime_autorisation_environnementale
- * @prop {Array<{liste_espèces: Array<{nomVernaculaire: string, nomScientifique: string, liste_impacts_quantifiés: string[]}>, impact: string, liste_noms_impacts_quantifiés: string[]}> | undefined} liste_espèces_par_impact
- * @prop {{type_demande: string[] | null, description_protocole_suivi: string | null, mode_capture: string[] | null, modalités_source_lumineuses: string | null, modalités_marquage: string | null, modalités_transport: string | null, périmètre_intervention: string | null, intervenants: unknown | null, précisions_autres_intervenants: string | null}} scientifique
- * @prop {number} identifiant_pitchou
- * @prop {(n: any, precision?: number) => string | undefined} afficher_nombre
- * @prop {(date: any, formatString: string) => string | undefined} formatter_date
- * @prop {(date: any) => string | undefined} formatter_date_simple
- */
-
-/**
  * @param {DossierComplet} dossier
  * @param {EspècesParActivité[]| undefined} espèces_impacts Liste des espèces concernées par le dossier 
  * regroupées par activité
  * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
- * @remark Attention, modifier le type de retour de cette fonction peut casser le rendu des documents existants.
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
 export function getBalisesGénérationDocument(dossier,espèces_impacts) {
@@ -85,7 +63,7 @@ export function getBalisesGénérationDocument(dossier,espèces_impacts) {
         demandeur: formatPorteurDeProjet(dossier),
         localisation: formatLocalisation(dossier),
         régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
-        régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné':rattaché_au_régime_ae,
+        régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné' : rattaché_au_régime_ae,
         liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité,impactsQuantifiés}) => ({
             liste_espèces: espèces.map(({nomVernaculaire,nomScientifique, détails}) => ({
                 nomVernaculaire,
