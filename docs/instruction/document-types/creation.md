@@ -67,11 +67,6 @@ Les balises ont des types qui peuvent être :
                             <td> Date de début de l'intervention</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{date_dépôt}</code></th>
-                            <td> date</td>
-                            <td> Date du dépôt de la demande de dérogation</td>
-                        </tr>
-                        <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
                             <td> date</td>
                             <td> Date de fin de l'intervention</td>
