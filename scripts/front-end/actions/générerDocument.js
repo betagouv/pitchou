@@ -26,6 +26,7 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
 
     const {
     nom,
+    date_dépôt,
     description,
     enjeu_écologique,
     enjeu_politique,
@@ -61,6 +62,7 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
 
     return {
         nom,
+        date_dépôt,
         description,
         enjeu_écologique: !!enjeu_écologique,
         enjeu_politique: !!enjeu_politique,
