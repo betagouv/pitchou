@@ -3,13 +3,16 @@ import {fr} from 'date-fns/locale';
 
 import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
 import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
+import { getActivitéByCodeP } from './dossier.js';
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {BalisesGénérationDocument} from '../../types/balisesGénérationDocument.ts' */
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
+/** @import {DescriptionMenacesEspèces, ActivitéMenançante} from '../../../types/especes.d.ts' */
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
+//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
+/** @import {EspècesParActivité} from './créerEspècesGroupéesParImpact.js' */
 
 /**
  * @param {DossierComplet} dossier
@@ -52,15 +55,19 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
     scientifique_précisions_autres_intervenants
     } = dossier
 
-    // Transformer les espèces impactées si elles existent
-    let espèces_impacts = undefined
-    if (espècesImpactées) {
-        try {
-            espèces_impacts = await créerEspècesGroupéesParImpact(espècesImpactées)
-        } catch (e) {
-            console.error('Erreur lors de la transformation des espèces impactées:', e)
-        }
-    }
+    /** @type {EspècesParActivité[] | undefined} */
+    let espèces_impacts;
+
+    /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
+    let activitéByCodeP = getActivitéByCodeP()
+
+    $: espèces_impacts =
+        espècesImpactées &&
+        activitéByCodeP &&
+        Promise.all([espècesImpactées, activitéByCodeP])
+            .then(([value, activitéByCode]) => 
+                créerEspècesGroupéesParImpact(value, activitéByCode)
+            );
 
     return {
         nom,
