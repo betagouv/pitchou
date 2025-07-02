@@ -26,6 +26,8 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
 
     const {
     nom,
+    commentaire_enjeu,
+    date_consultation_public,
     description,
     enjeu_écologique,
     enjeu_politique,
@@ -62,6 +64,8 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
 
     return {
         nom,
+        commentaires_DREAL: commentaire_enjeu?.trim() ?? '',
+        date_début_consultation_public: date_consultation_public,
         description,
         enjeu_écologique: !!enjeu_écologique,
         enjeu_politique: !!enjeu_politique,

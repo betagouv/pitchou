@@ -377,6 +377,7 @@ const colonnesDossierComplet = [
     "historique_identifiant_demande_onagre",
 
     "historique_date_réception_ddep",
+    'date_consultation_public',
 /*    
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
@@ -384,7 +385,6 @@ const colonnesDossierComplet = [
     "date_avis_csrpn",
     "date_avis_cnpn",
     "avis_csrpn_cnpn",
-    "date_consultation_public",
 */
 
 ]

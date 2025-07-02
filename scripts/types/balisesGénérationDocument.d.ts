@@ -50,6 +50,8 @@ interface FonctionsUtilitaires {
  **/
 export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   nom: string | null;
+  commentaires_DREAL: string;
+  date_début_consultation_public: Date | null;
   demandeur: string;
   enjeu_politique: boolean;
   enjeu_écologique: boolean;

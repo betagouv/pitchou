@@ -62,9 +62,19 @@ Les balises ont des types qui peuvent être :
                             <td> Activité principale du dossier</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{commentaires_DREAL}</code></th>
+                            <td> texte</td>
+                            <td> Commentaires complémentaires sur le dossier apportés par la DREAL.</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{date_début_intervention}</code></th>
                             <td> date</td>
                             <td> Date de début de l'intervention</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{date_début_consultation_public}</code></th>
+                            <td> date</td>
+                            <td> Date de début de la consultation du public ou enquête publique.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
