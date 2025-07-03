@@ -3,7 +3,7 @@ import {fr} from 'date-fns/locale';
 
 import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
 import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
-import { getActivitéByCodeP } from './dossier.js';
+
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {BalisesGénérationDocument} from '../../types/balisesGénérationDocument.ts' */
@@ -56,19 +56,16 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
     } = dossier
 
     /** @type {EspècesParActivité[] | undefined} */
-    let espèces_impacts;
-
-    /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-    let activitéByCodeP = getActivitéByCodeP()
-
-    $: espèces_impacts =
-        espècesImpactées &&
-        activitéByCodeP &&
-        Promise.all([espècesImpactées, activitéByCodeP])
-            .then(([value, activitéByCode]) => 
-                créerEspècesGroupéesParImpact(value, activitéByCode)
-            );
-
+    // Transformer les espèces impactées si elles existent
+    let espèces_impacts = undefined
+    if (espècesImpactées) {
+        try {
+            espèces_impacts = await créerEspècesGroupéesParImpact(espècesImpactées)
+        } catch (e) {
+            console.error('Erreur lors de la transformation des espèces impactées:', e)
+        }
+    }
+    
     return {
         nom,
         commentaire_instruction: commentaire_enjeu?.trim() ?? '',

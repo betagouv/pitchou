@@ -41,6 +41,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property { {activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
+ * @property {Map<ActivitéMenançante['Code'], ActivitéMenançante>} [activitéByCode]
  */
 
 
@@ -51,7 +52,7 @@ const state = {
   dossiersComplets: new Map(),
   messagesParDossierId: new Map(),
   erreurs: new Set(),
-  capabilities: {}
+  capabilities: {},
 }
 
 const mutations = {
@@ -161,6 +162,13 @@ const mutations = {
    */
   setRésultatsSynchronisationDS88444(state, résultatsSynchronisationDS88444){
     state.résultatsSynchronisationDS88444 = résultatsSynchronisationDS88444
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['activitéByCode']} activitéByCode
+   */
+  setActivitéByCode(state, activitéByCode){
+    state.activitéByCode = activitéByCode
   }
 }
 

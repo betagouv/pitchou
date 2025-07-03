@@ -16,7 +16,7 @@ import { espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEsp
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
 
 /**
  * @param {DossierComplet} dossier
@@ -228,10 +228,36 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
 }
 
 /**
- * @remark à déplacer dans un fichier activitésMéthodesTransports.ts à créer ?
+ * Charge et organise les activités, méthodes et transports depuis les fichiers CSV externes.
+ * 
+ * Cette fonction récupère les données depuis trois sources distinctes :
+ * - Les activités menaçantes (activités-data)
+ * - Les méthodes menaçantes (methodes-data) 
+ * - Les transports menaçants (transports-data)
+ * 
+ * Les données sont organisées par classification d'espèces (oiseau, faune non-oiseau, flore)
+ * et indexées par leur code pour un accès optimisé.
+ * 
  * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
+ * Une promesse résolue avec un objet contenant :
+ * - `activités` : Map des activités organisées par classification
+ * - `méthodes` : Map des méthodes organisées par classification  
+ * - `transports` : Map des transports organisés par classification
+ * 
+ * @throws {TypeError} Si une classification d'espèce n'est pas reconnue
+ * @throws {Error} Si les fichiers de données ne peuvent pas être chargés
+ * 
+ * @remarks
+ * - La fonction utilise un cache dans le store pour éviter les rechargements inutiles
+ * - Les données sont automatiquement gelées (Object.freeze) pour prévenir les modifications
+ * - Cette fonction met également à jour le store avec les activités indexées par code
+ * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
+ * 
+ * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
+ * @see {@link getActivitéByCode} Pour la création des activités additionnelles Pitchou
+ * 
  */
-export async function chargerActivitésMéthodesTransports(){
+export async function chargerActivitésMéthodesTransportsActivitéByCode(){
 
     if(store.state.activitésMéthodesTransports){
         return Promise.resolve(store.state.activitésMéthodesTransports)
@@ -248,6 +274,8 @@ export async function chargerActivitésMéthodesTransports(){
     const ret = actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
     
     store.mutations.setActivitésMéthodesTransports(ret)
+    
+    store.mutations.setActivitéByCode(getActivitéByCode(ret.activités))
 
     return ret
 }
@@ -258,7 +286,7 @@ export async function chargerActivitésMéthodesTransports(){
  */
 export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArrayBuffer){
     const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransports()
+    const actMétTrans = chargerActivitésMéthodesTransportsActivitéByCode()
 
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans
@@ -276,8 +304,8 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
 /**
  * Récupère et fusionne l'ensemble des activités issues du standard européen 
  * ainsi que les activités spécifiques à Pitchou, en les indexant par leur code.
- * 
- * @returns {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>}
+ * @param {ParClassification<Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>>} activités
+ * @returns {Map<ActivitéMenançante['Code'], ActivitéMenançante>}
  * Une promesse résolue avec une `Map` contenant toutes les activités, 
  * indexées par leur code.
  *
@@ -294,48 +322,36 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
-export async function getActivitéByCodeP() {
-    const activitéByCode = await chargerActivitésMéthodesTransports()
-        .then(({activités}) => {
+export function getActivitéByCode(activités) {
+    const activité4 = activités.oiseau.get('4')
+    if(!activité4){
+        throw Error(`Activité 4 manquante`)
+    }
 
-            // Rajouter les activités spécifiques Pitchou
-            // Les activités sont standardisées à l'échelle européenne
-            // https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd (type 'activitiesType')
-            // Pour les besoins de Pitchou, nous rajoutons des activités 
-            // Nous essayons d'utiliser des identifiants qui ne collisionnerons pas avec le futur
+    /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
+    //@ts-ignore
+    const activitésAdditionnelles = new Map([
+        {
+            ...activité4,
+            Code: '4-1-pitchou-aires',
+            "étiquette affichée": `Destruction d’aires de repos ou reproduction`
+        },
+        {
+            ...activité4,
+            Code: '4-2-pitchou-nids',
+            "étiquette affichée": `Destruction de nids`
+        },
+        {
+            ...activité4,
+            Code: '4-3-pitchou-œufs',
+            "étiquette affichée": `Destruction d'œufs`
+        }
+    ].map(a => [a.Code, a]))
 
-             const activité4 = activités.oiseau.get('4')
-             if(!activité4){
-                 throw Error(`Activité 4 manquante`)
-             }
-
-             /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
-            //@ts-ignore
-             const activitésAdditionnelles = new Map([
-                 {
-                     ...activité4,
-                     Code: '4-1-pitchou-aires',
-                     "étiquette affichée": `Destruction d’aires de repos ou reproduction`
-                 },
-                 {
-                     ...activité4,
-                     Code: '4-2-pitchou-nids',
-                     "étiquette affichée": `Destruction de nids`
-                 },
-                 {
-                     ...activité4,
-                     Code: '4-3-pitchou-œufs',
-                     "étiquette affichée": `Destruction d'œufs`
-                 }
-             ].map(a => [a.Code, a]))
-
-             return new Map([
-                 ...activités.oiseau, 
-                 ...activitésAdditionnelles, 
-                 ...activités['faune non-oiseau'], 
-                 ...activités.flore
-             ])
-         })
-
-    return activitéByCode
+    return new Map([
+        ...activités.oiseau, 
+        ...activitésAdditionnelles, 
+        ...activités['faune non-oiseau'], 
+        ...activités.flore
+    ])
 }

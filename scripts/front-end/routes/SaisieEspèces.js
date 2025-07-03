@@ -11,7 +11,7 @@ import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
-import {chargerActivitésMéthodesTransports, chargerListeEspècesProtégées} from '../actions/dossier.js'
+import {chargerActivitésMéthodesTransportsActivitéByCode, chargerListeEspècesProtégées} from '../actions/dossier.js'
 
 /** @import {ComponentProps} from 'svelte' */
 
@@ -22,7 +22,7 @@ export default async () => {
     /** @type {Promise<GroupesEspèces | undefined>} */
     const groupesEspècesBrutesP = json(getURL('link#groupes-especes-data'))
     const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransports()
+    const actMétTrans = chargerActivitésMéthodesTransportsActivitéByCode()
 
     const groupesEspècesBrutes = await groupesEspècesBrutesP
 

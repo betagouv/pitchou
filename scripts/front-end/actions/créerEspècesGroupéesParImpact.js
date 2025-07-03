@@ -1,5 +1,7 @@
 
+import store from '../store.js'
 /** @import { ActivitéMenançante, DescriptionMenacesEspèces, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
+
 
 
 /** @type {ActivitéMenançante} */
@@ -93,13 +95,18 @@ let activitéVersDonnéesSecondaires = new Map([
 /**
  * 
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<ActivitéMenançante['Code'], ActivitéMenançante>} activitéByCode
  * @returns {EspècesParActivité[]}
  */
-export function créerEspècesGroupéesParImpact(espècesImpactées, activitéByCode) {
+export function créerEspècesGroupéesParImpact(espècesImpactées) {
 
     /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
     const _espècesImpactéesParActivité = new Map()
+
+    const activitéByCode = store.state.activitéByCode
+
+    if (!activitéByCode) {
+         throw new Error(`Une erreur est survenue lors la récupération des activités indexées par leur code`)
+    }
 
     /**
      * 
