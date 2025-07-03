@@ -70,7 +70,7 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
         enjeu_écologique: !!enjeu_écologique,
         enjeu_politique: !!enjeu_politique,
         justification_absence_autre_solution_satisfaisante,
-        mesures_erc_prévues: !!mesures_erc_prévues,
+        mesures_erc_prévues: mesures_erc_prévues===null ? 'Non renseigné' : mesures_erc_prévues,
         motif_dérogation,
         justification_motif_dérogation,
         identifiant_onagre: historique_identifiant_demande_onagre,
