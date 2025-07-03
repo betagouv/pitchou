@@ -4,10 +4,9 @@
     import Loader from "../Loader.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
-    import { getActivitéByCodeP } from "../../actions/dossier.js";
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-    /** @import {DescriptionMenacesEspèces, ActivitéMenançante} from '../../../types/especes.d.ts' */
+    /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
     /** @type {DossierComplet} */
     // @ts-ignore
@@ -34,17 +33,11 @@
     /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
     export let espècesImpactées;
 
-    /** @type {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-    export let activitéByCodeP = getActivitéByCodeP()
 
     $: espècesImpactéesParActivité =
         espècesImpactées &&
-        activitéByCodeP &&
-        Promise.all([espècesImpactées, activitéByCodeP])
-            .then(([value, activitéByCode]) => 
-                créerEspècesGroupéesParImpact(value, activitéByCode)
-            );
-
+        espècesImpactées.then(créerEspècesGroupéesParImpact);
+        
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore
     let scientifiquesIntervenants = dossier.scientifique_intervenants;
