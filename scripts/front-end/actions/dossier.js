@@ -228,7 +228,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
 }
 
 /**
- * @remark à déplacer dans un fichier activitésMéthodesTransports ?
+ * @remark à déplacer dans un fichier activitésMéthodesTransports.ts à créer ?
  * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
  */
 export async function chargerActivitésMéthodesTransports(){
