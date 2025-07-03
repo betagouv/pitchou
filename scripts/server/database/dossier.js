@@ -378,6 +378,8 @@ const colonnesDossierComplet = [
 
     "historique_date_réception_ddep",
     'date_consultation_public',
+
+    "mesures_erc_prévues",
 /*    
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
