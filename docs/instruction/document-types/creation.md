@@ -62,9 +62,9 @@ Les balises ont des types qui peuvent être :
                             <td> Activité principale du dossier</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{commentaires_DREAL}</code></th>
+                            <th scope="row"> <code>{commentaire_instruction}</code></th>
                             <td> texte</td>
-                            <td> Commentaires complémentaires sur le dossier apportés par la DREAL.</td>
+                            <td> Commentaires complémentaires sur le dossier apportés par le service instructeur.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_début_intervention}</code></th>
