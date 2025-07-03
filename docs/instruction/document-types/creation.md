@@ -108,13 +108,15 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_espèces_par_impact}</code></th>
-                            <td> <strong>liste</strong></td>
-                            <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
+                            <td> liste</td>
+                            <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : <a href="#liste-noms-impacts-quantifies"><code>{liste_noms_impacts_quantifiés}</code></a> et <a href="#liste-espèces"><code>{liste_espèces}</code></a>.</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{localisation}</code></th>
-                            <td> texte</td>
-                            <td> Localisation du dossier</td>
+                            <th scope="row"><code>{localisation}</code></th>
+                            <td>texte</td>
+                            <td>
+                                Indique la localisation géographique du dossier. Elle peut inclure, si disponibles, le ou les noms des communes, départements et régions concernés. Si aucune information n’est disponible, la valeur '(inconnue)' est utilisée.
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{motif_dérogation}</code></th>
@@ -143,8 +145,8 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"> <code>{scientifique.intervenants}</code></th>
-                            <td> <strong>liste</strong></td>
-                            <td> </td>
+                            <td> liste</td>
+                            <td> <a href="#scientifique-intervenants">Liste des intervenants scientifiques</a></td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{scientifique.mode_capture}</code></th>
@@ -178,7 +180,7 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"> <code>{scientifique.type_demande}</code></th>
-                            <td> <strong>liste</strong> de texte</td>
+                            <td> liste</td>
                             <td> </td>
                         </tr>
                     </tbody>
@@ -196,7 +198,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
     <div class="fr-table__wrapper">
         <div class="fr-table__container">
             <div class="fr-table__content">
-                <table>
+                <table id="liste-noms-impacts-quantifies">
                     <caption>Propriétés de {liste_espèces_par_impact}</caption>
                     <thead>
                         <tr> 
@@ -213,12 +215,12 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_espèces}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : <code>{liste_impacts_quantifiés}</code>, <code>{nomScientifique}</code> et <code>{nomVernaculaire}</code></td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_noms_impacts_quantifiés}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste des noms des impacts quantifiés (Surface, Nombre d'individus...)</td>
                         </tr>
                     </tbody>
@@ -236,7 +238,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
     <div class="fr-table__wrapper">
         <div class="fr-table__container">
             <div class="fr-table__content">
-                <table>
+                <table id="liste-espèces">
                     <caption>Propriétés de {liste_espèces}</caption>
                     <thead>
                         <tr> 
@@ -248,7 +250,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                     <tbody>
                         <tr>
                             <th scope="row"> <code>{liste_impacts_quantifiés}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste des impacts quantifiés (Surface, nombre d'individus...). Cette liste est alignée avec <code>{liste_noms_impacts_quantifiés}</code>.</td>
                         </tr>
                         <tr>
@@ -274,7 +276,7 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
     <div class="fr-table__wrapper">
         <div class="fr-table__container">
             <div class="fr-table__content">
-                <table>
+                <table id="scientifique-intervenants">
                     <caption>Propriétés de {scientifique.intervenants}</caption>
                     <thead>
                         <tr> 
