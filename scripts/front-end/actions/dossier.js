@@ -274,11 +274,25 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
 }
 
 /**
- * Crée un Map unifié de toutes les activités menaçantes indexées par leur code.
+ * Récupère et fusionne l'ensemble des activités issues du standard européen 
+ * ainsi que les activités spécifiques à Pitchou, en les indexant par leur code.
  * 
  * @returns {Promise<Map<ActivitéMenançante['Code'], ActivitéMenançante>>}
- * @remark à déplacer dans un fichier activitésMéthodesTransports ?
+ * Une promesse résolue avec une `Map` contenant toutes les activités, 
+ * indexées par leur code.
+ *
+ * @throws {Error} Si l’activité "4" (de base) est absente, ce qui empêche la création
+ * des variantes spécifiques à Pitchou.
+ *
+ * @remarks
+ * - Les données retournées sont indépendantes du dossier sélectionné.
+ * - Les activités spécifiques Pitchou utilisent des identifiants personnalisés 
+ *   pour éviter toute collision future avec les standards européens.
+ * - Cette fonction pourrait être déplacée dans un fichier dédié, 
+ *   comme `activitésMéthodesTransports.ts`.
+ *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
+ * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
 export async function getActivitéByCodeP() {
     const activitéByCode = await chargerActivitésMéthodesTransports()
