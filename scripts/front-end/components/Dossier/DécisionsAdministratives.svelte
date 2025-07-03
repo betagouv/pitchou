@@ -194,9 +194,8 @@
     </div>
 
     <section class="prescriptions">
-        <h5>Prescriptions</h5>
-        
         {#if prescriptions.size === 0}
+            <h5>Prescriptions</h5>
             <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
@@ -215,6 +214,19 @@
                 </div>
             </section>
         {:else}
+            <h5>{prescriptions.size} prescriptions</h5>
+
+            {#each prescriptions as prescription}
+                <section>
+                    <p><strong>{prescription.description}</strong></p>
+                    <p>numéro article&nbsp;:&nbsp;{prescription.description}</p>
+                </section>
+            {/each}
+
+
+
+
+            <!--
             <ul class="colonnes">
                 <li>Numéro article</li>
                 <li>Description</li>
@@ -277,21 +289,7 @@
                 </li>
             </ul>
 
-            <table>
-                <thead>
-                    <tr>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                    <tr>
-                        <td colspan=5>
-                            
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            -->
         {/if}
         
     </section>
