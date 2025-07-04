@@ -22,11 +22,6 @@ function faireApparaîtreToastCopié(event) {
   toast.className = 'copy-toast';
   toast.textContent = 'Copié !';
 
-  // Positionner le toast : on le place en absolute, relatif à la balise code
-  // Donc on doit rendre la balise code position: relative
-  codeEl.style.position = 'relative';
-
-
   codeEl.appendChild(toast);
 
 
@@ -37,7 +32,6 @@ function faireApparaîtreToastCopié(event) {
     toast.classList.remove('show');
     setTimeout(() => {
       toast.remove();
-      codeEl.style.position = '';
     }, 300);
   }, 1200);
 }
