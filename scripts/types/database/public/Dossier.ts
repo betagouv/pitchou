@@ -107,6 +107,8 @@ export default interface Dossier {
   motif_dérogation: string | null;
 
   justification_motif_dérogation: string | null;
+
+  mesures_erc_prévues: boolean | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -209,6 +211,8 @@ export interface DossierInitializer {
   motif_dérogation?: string | null;
 
   justification_motif_dérogation?: string | null;
+
+  mesures_erc_prévues?: boolean | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -310,4 +314,6 @@ export interface DossierMutator {
   motif_dérogation?: string | null;
 
   justification_motif_dérogation?: string | null;
+
+  mesures_erc_prévues?: boolean | null;
 }

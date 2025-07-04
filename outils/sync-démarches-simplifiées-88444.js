@@ -308,6 +308,11 @@ const dossiersPourSynchronisation = dossiersDS.map((
         rattaché_au_régime_ae = false
     }
 
+    /** Mesures ERC prévues */
+    const mesures_erc_prévues_champ = champById.get(
+        pitchouKeyToChampDS.get("Des mesures ERC sont-elles prévues ?")
+    )
+    const mesures_erc_prévues = mesures_erc_prévues_champ?.checked
     
     /** Données dossier scientifique */
     /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
@@ -468,7 +473,11 @@ const dossiersPourSynchronisation = dossiersDS.map((
         départements: JSON.stringify(départements),
         régions: JSON.stringify(régions),
 
+        // régime AE
         rattaché_au_régime_ae,
+
+        // mesurse ERC prévues
+        mesures_erc_prévues,
 
         // données dossier scientifique
         scientifique_type_demande: scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined,

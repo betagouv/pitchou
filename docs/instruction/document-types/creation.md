@@ -62,9 +62,19 @@ Les balises ont des types qui peuvent être :
                             <td> Activité principale du dossier</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{commentaire_instruction}</code></th>
+                            <td> texte</td>
+                            <td> Commentaires complémentaires sur le dossier apportés par le service instructeur.</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{date_début_intervention}</code></th>
                             <td> date</td>
                             <td> Date de début de l'intervention</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{date_début_consultation_public}</code></th>
+                            <td> date</td>
+                            <td> Date de début de la consultation du public ou enquête publique.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
@@ -85,6 +95,16 @@ Les balises ont des types qui peuvent être :
                             <th scope="row"> <code>{durée_intervention}</code></th>
                             <td> nombre</td>
                             <td> Durée de l'intervention</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><code>{enjeu_écologique}</code></th>
+                            <td>Booléen</td>
+                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu écologique, sinon <code>false</code></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><code>{enjeu_politique}</code></th>
+                            <td>Booléen</td>
+                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu politique, sinon <code>false</code></td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{identifiant_onagre}</code></th>
@@ -115,6 +135,16 @@ Les balises ont des types qui peuvent être :
                             <th scope="row"> <code>{localisation}</code></th>
                             <td> texte</td>
                             <td> Localisation du dossier</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{mesures_erc_prévues}</code></th>
+                            <td> booléen</td>
+                            <td> Valeur indiquant si le dossier prévoit des mesures ERC ou non.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{mesures_erc_prévues_renseigné}</code></th>
+                            <td> booléen</td>
+                            <td>Indique si le champ relatif aux mesures ERC prévues dans le dossier a été complété dans le formulaire.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{motif_dérogation}</code></th>
@@ -202,7 +232,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr> 
                             <th scope="col"> Balise</th>
                             <th scope="col"> Type de balise</th>
-                            <th scope="col"> Donnée correspondante</th>
+                            <th scope="col"> Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -242,7 +272,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                         <tr> 
                             <th scope="col"> Balise</th>
                             <th scope="col"> Type de balise</th>
-                            <th scope="col"> Donnée correspondante</th>
+                            <th scope="col"> Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -280,7 +310,7 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
                         <tr> 
                             <th scope="col"> Balise</th>
                             <th scope="col"> Type de balise</th>
-                            <th scope="col"> Donnée correspondante</th>
+                            <th scope="col"> Description</th>
                         </tr>
                     </thead>
                     <tbody>
