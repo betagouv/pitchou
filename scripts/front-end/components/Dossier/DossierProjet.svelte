@@ -33,14 +33,11 @@
     /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
     export let espècesImpactées;
 
-    /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
-    let espècesImpactéesParActivité;
 
-    // @ts-ignore
     $: espècesImpactéesParActivité =
         espècesImpactées &&
         espècesImpactées.then(créerEspècesGroupéesParImpact);
-
+        
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore
     let scientifiquesIntervenants = dossier.scientifique_intervenants;
