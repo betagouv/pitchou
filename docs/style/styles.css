@@ -1,3 +1,9 @@
+code {
+    /* Pour positionner le toast, on le place en absolute, relatif à la balise code
+    * Donc on doit rendre la balise code position: relative */
+    position: relative; 
+}
+
 .copy-toast {
     bottom: 50%;
     left: 50%;
@@ -11,7 +17,6 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateY(0);
     transform: translateX(-50%) translateY(0);
     white-space: nowrap;
 }
