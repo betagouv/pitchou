@@ -62,6 +62,7 @@ export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   régime_autorisation_environnementale: boolean | 'Non renseigné' ;
   justification_absence_autre_solution_satisfaisante: string | null;
   mesures_erc_prévues: boolean | 'Non renseigné';
+  mesures_erc_prévues_renseigné: boolean;
   motif_dérogation: string | null;
   justification_motif_dérogation: string | null;
   identifiant_onagre: string | null;

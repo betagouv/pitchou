@@ -21,7 +21,7 @@ Le serveur récupère les données des dossiers via [l'API Démarches Simplifié
 ## En dév
 
 En dev, on peut lancer `npm run dev` pour lancer le tout.\
-Le repo est synchroniser dans le conteneur du serveur via un volume.\
+Le repo est synchronisé dans le conteneur du serveur via un volume.\
 Les données de la base de données sont sauvegarder dans un volume dans le repo (pour faire des test facilement)
 
 http://localhost:2648/

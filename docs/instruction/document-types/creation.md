@@ -142,6 +142,11 @@ Les balises ont des types qui peuvent être :
                             <td> Valeur indiquant si le dossier prévoit des mesures ERC ou non.</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{mesures_erc_prévues_renseigné}</code></th>
+                            <td> booléen</td>
+                            <td>Indique si le champ relatif aux mesures ERC prévues dans le dossier a été complété dans le formulaire.</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{motif_dérogation}</code></th>
                             <td> texte</td>
                             <td> Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)</td>
