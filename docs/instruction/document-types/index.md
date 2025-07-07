@@ -21,3 +21,5 @@ Cette flexibilité permet de prendre en compte les pratiques diverses des diffé
 ## Les document-types
 
 Une page détaille [comment créer vos document-types](./creation.md)
+
+Vous pouvez trouver [ici quelques modèles à utiliser ou pour vous inspirer.](./modeles.md)
