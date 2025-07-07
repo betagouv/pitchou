@@ -4,5 +4,5 @@ Vous trouverez sur cette page plusieurs modèles téléchargeables. Il peuvent s
 
 - [Saisine CNPN scientifique](./bibliotheque/Saisine CNPN Scientifique.odt)
 - [Texte saisine CNPN](./bibliotheque/texte-saisine-CNPN.odt)
-- Fiche synthèse préfet
-- Fiche synthèse
+- [Fiche synthèse](./bibliotheque/Fiche synthétique projet.odt)
+- [Fiche synthèse préfet](./bibliotheque/Préfet Fiche synthétique projet.odt)
