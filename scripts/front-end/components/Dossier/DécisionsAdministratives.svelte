@@ -3,7 +3,7 @@
     import DateInput from '../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
-    import {formatDateAbsolue} from '../../affichageDossier.js'
+    import {formatDateAbsolue, formatDateRelative} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
 
 
@@ -25,6 +25,7 @@
 
     function rerender(){
         prescriptions = prescriptions
+        prescriptionsEnContrôle = prescriptionsEnContrôle
     }
 
     function ajouterPrescription(){
@@ -158,13 +159,36 @@
         }
     }
 
+    let prescriptionsEnContrôle = new Set()
+    /*
+    function ouvrirContrôles(prescription){
+        prescriptionsEnContrôle.add(prescription)
+
+        rerender()
+    }
+
+    function fermerContrôles(prescription){
+        prescriptionsEnContrôle.delete(prescription)
+
+        rerender()
+    }
+
+    function ajouterContrôle(prescription){
+        
+    }
+    */
+
+    /** @type {'consulter' | 'modifier'} */
+    let vuePrescription = 'consulter'
+
+
 
 </script>
 
 <section class="décision-administrative">
     <h4>{type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}</h4>
     <div class="fr-mb-1w">Date de fin des obligations : {date_fin_obligations ? formatDateAbsolue(date_fin_obligations) : NON_RENSEIGNÉ}</div>
-    <div>Fichier de l'arrêté : 
+    <div class="fr-mb-1w">Fichier de l'arrêté : 
         {#if fichier_url}
             <a class="fr-btn" href={fichier_url}>
                 Télécharger
@@ -175,9 +199,8 @@
     </div>
 
     <section class="prescriptions">
-        <h5>Prescriptions</h5>
-        
         {#if prescriptions.size === 0}
+            <h5>Prescriptions</h5>
             <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
@@ -196,52 +219,96 @@
                 </div>
             </section>
         {:else}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Numéro article</th>
-                        <th>Description</th>
-                        <th>Date échéance</th>
-                        <th>Surface compensée (m²)</th>
-                        <th>Surface évitée (m²)</th>
-                        <th>Individus compensés</th>
-                        <th>Individus évités</th>
-                        <th>Nids compensés</th>
-                        <th>Nids évités</th>
-                        <th>Supprimer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each prescriptions as prescription}
-                    <tr class="prescription" on:focusout={(e) => {
-                        //@ts-ignore
-                        if (!e.target?.classList.contains('bouton-supprimer')) {
-                            savePrescription(prescription)
-                        }
-                    }}>
-                        <td><input class="fr-input" bind:value={prescription.numéro_article}></td>
-                        <td><input class="fr-input" bind:value={prescription.description}></td>
-                        
-                        <td><DateInput bind:date={prescription.date_échéance}></DateInput></td>
+            <h5>{prescriptions.size} prescriptions</h5>
 
-                        <td><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
-                        <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                        <td><button class="bouton-supprimer" type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></td>
-                    </tr>
-                    {/each}
-                    <tr>
-                        <td colspan=5>
+            {#if vuePrescription === 'consulter'}
+                {#each prescriptions as prescription}
+                    <section class="prescription-consultée">
+                        <h6>
+                            {prescription.description} 
+                            {#if prescription.numéro_article}
+                            - 
+                            <small><strong>Numéro article&nbsp;:&nbsp;</strong>
+                                {prescription.numéro_article}
+                            </small>
+                            {/if}
+                        </h6>
+                        <p></p>
+                        <p><strong>Date d'échéance&nbsp;:</strong>
+                            {#if prescription.date_échéance}
+                                <time datetime={prescription.date_échéance?.toISOString()}>{formatDateRelative(prescription.date_échéance)}</time>
+                            {:else}
+                                {NON_RENSEIGNÉ}
+                            {/if}
+                        </p>
+                        {#if prescription.surface_évitée || prescription.surface_compensée || 
+                            prescription.individus_évités || prescription.surface_compensée || 
+                            prescription.nids_évités || prescription.nids_compensés}
+                            <p class="impacts-quantifiés">
+                                {#if prescription.surface_évitée}<span><strong>Surface évitée&nbsp;:</strong> {prescription.surface_évitée}m²</span>{/if}
+                                {#if prescription.surface_compensée}<span><strong>Surface compensée&nbsp;:</strong> {prescription.surface_compensée}m²</span>{/if}
+                                {#if prescription.individus_évités}<span><strong>Individus évités&nbsp;:</strong> {prescription.individus_évités}</span>{/if}
+                                {#if prescription.individus_compensés}<span><strong>Individus compensés&nbsp;:</strong> {prescription.individus_compensés}</span>{/if}
+                                {#if prescription.nids_évités}<span><strong>Nids évités&nbsp;:</strong> {prescription.nids_évités}</span>{/if}
+                                {#if prescription.nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {prescription.nids_compensés}</span>{/if}
+                            </p>
+                        {/if}
+                    </section>
+                {/each}
+
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
+                    Modifier les prescriptions
+                </button>
+            {:else}
+                <table class="prescriptions">
+                    <thead>
+                        <tr>
+                            <th>Numéro article</th>
+                            <th>Description</th>
+                            <th>Date échéance</th>
+                            <th>Surface compensée (m²)</th>
+                            <th>Surface évitée (m²)</th>
+                            <th>Individus compensés</th>
+                            <th>Individus évités</th>
+                            <th>Nids compensés</th>
+                            <th>Nids évités</th>
+                            <th>Supprimer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each prescriptions as prescription}
+                            <tr class="prescription" on:focusout={(e) => {
+                                //@ts-ignore
+                                if (!e.target?.classList.contains('bouton-supprimer')) {
+                                    savePrescription(prescription)
+                                }
+                            }}>
+                                <td><input class="fr-input" bind:value={prescription.numéro_article}></td>
+                                <td><input class="fr-input" bind:value={prescription.description}></td>
+                                
+                                <td><DateInput bind:date={prescription.date_échéance}></DateInput></td>
+
+                                <td><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
+                                <td><button class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
+                            </tr>
+                        {/each}
+                        <tr><td colspan="9" class="fr-pt-1w">
                             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
                                 Ajouter une prescription
                             </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </td></tr>
+                    </tbody>
+                </table>
+
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" on:click={() => vuePrescription = 'consulter'}>
+                    Modification terminées
+                </button>
+            {/if}
         {/if}
         
     </section>
@@ -250,35 +317,66 @@
 
 <style lang="scss">
     .décision-administrative{
+        h5{
+            margin-bottom: 1rem;
+        }
+
         margin-bottom: 3rem;
 
-        .prescriptions{
-            .prescription{
-                td:nth-child(1){
+        .prescription-consultée{
+            margin-bottom: 1rem;
+
+            h6, p{
+                margin-bottom: 0.4rem;
+            }
+
+            .impacts-quantifiés{
+                span{
+                    display: inline-block;
+                    white-space: wrap;
+
+                    &::after{
+                        content: '|';
+                        padding: 0 1rem;
+                    }
+
+                    &:first-child{
+                        padding-left: 0;
+                    }
+
+                    &:last-child{
+                        &::after{
+                            content: none;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        table.prescriptions{
+            .prescription, thead > tr{
+                &>*{
+                    margin: 0 2px;
+                }
+
+                &>:nth-child(1){
                     width: 5rem;
                 }
-                td:nth-child(2){
-                    width: 21rem;
+                &>:nth-child(2){
+                    width: 20rem;
+                }
+                &>:nth-child(3){
+                    width: 9rem;
                 }
 
-                td:nth-child(n+3){
-                    width: 6.5rem;
-                }
 
-                td:last-of-type{
-                    width: 3rem;
-
-                    text-align: center;
-                    vertical-align: middle;
-
-                    button{
-                        all: unset;
-                        cursor: pointer;
-                    }
+                &>:nth-child(n+4){
+                    width: 6rem;
                 }
 
                 input{
-                    padding-right: 0.5rem;
+                    padding-right: 0.4rem;
                     padding-left: 0.5rem;
                 }
 

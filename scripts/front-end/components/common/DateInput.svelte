@@ -16,3 +16,11 @@
 </script>
 
 <input type="date" class="fr-input" bind:value={internal} />
+
+<style lang="scss">
+input{
+    padding-right: 0.4rem;
+    padding-left: 0.5rem;
+}
+
+</style>
