@@ -160,7 +160,7 @@
     }
 
     let prescriptionsEnContrôle = new Set()
-
+    /*
     function ouvrirContrôles(prescription){
         prescriptionsEnContrôle.add(prescription)
 
@@ -176,6 +176,7 @@
     function ajouterContrôle(prescription){
         
     }
+    */
 
     /** @type {'consulter' | 'modifier'} */
     let vuePrescription = 'consulter'
