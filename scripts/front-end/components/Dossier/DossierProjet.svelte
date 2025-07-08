@@ -4,7 +4,7 @@
     import Loader from "../Loader.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
-    import { chargerActivitésMéthodesTransportsActivitéByCode } from "../../actions/dossier.js";
+    import { chargerActivitésMéthodesTransports } from "../../actions/dossier.js";
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -34,7 +34,7 @@
     /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
     export let espècesImpactées;
 
-    const promesseRéférentiels = chargerActivitésMéthodesTransportsActivitéByCode();
+    const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
     $: espècesImpactéesParActivité =
         espècesImpactées && promesseRéférentiels

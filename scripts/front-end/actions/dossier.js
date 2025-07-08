@@ -254,7 +254,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
-export async function chargerActivitésMéthodesTransportsActivitéByCode(){
+export async function chargerActivitésMéthodesTransports(){
 
     if(store.state.activitésMéthodesTransports){
         return Promise.resolve(store.state.activitésMéthodesTransports)
@@ -284,7 +284,7 @@ export async function chargerActivitésMéthodesTransportsActivitéByCode(){
  */
 export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArrayBuffer){
     const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransportsActivitéByCode()
+    const actMétTrans = chargerActivitésMéthodesTransports()
 
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans

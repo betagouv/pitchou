@@ -3,7 +3,7 @@
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
-    import { chargerActivitésMéthodesTransportsActivitéByCode } from '../../actions/dossier.js';
+    import { chargerActivitésMéthodesTransports as chargerActivitésMéthodesTransports } from '../../actions/dossier.js';
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -49,7 +49,7 @@
 
         let espèces_impacts = undefined
 
-        const { activitésNomenclaturePitchou } = await chargerActivitésMéthodesTransportsActivitéByCode()
+        const { activitésNomenclaturePitchou } = await chargerActivitésMéthodesTransports()
 
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a
