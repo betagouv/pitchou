@@ -255,7 +255,7 @@
                     </section>
                 {/each}
 
-                <button class="fr-btn btn-secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
                     Modifier les prescriptions
                 </button>
             {:else}
@@ -300,8 +300,11 @@
                             </button>
                         </td></tr>
                     </tbody>
-                    
                 </table>
+
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" on:click={() => vuePrescription = 'consulter'}>
+                    Modification terminées
+                </button>
             {/if}
         {/if}
         
@@ -311,6 +314,10 @@
 
 <style lang="scss">
     .décision-administrative{
+        h5{
+            margin-bottom: 1rem;
+        }
+
         margin-bottom: 3rem;
 
         .prescription-consultée{
