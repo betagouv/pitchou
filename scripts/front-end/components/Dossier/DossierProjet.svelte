@@ -39,8 +39,8 @@
     $: espècesImpactéesParActivité =
         espècesImpactées && promesseRéférentiels
             ? Promise.all([espècesImpactées, promesseRéférentiels])
-                .then(([value, { nomenclatureActivitésPitchou }]) =>
-                    créerEspècesGroupéesParImpact(value, nomenclatureActivitésPitchou)
+                .then(([value, { activitésNomenclaturePitchou }]) =>
+                    créerEspècesGroupéesParImpact(value, activitésNomenclaturePitchou)
                 )
             : undefined;
 

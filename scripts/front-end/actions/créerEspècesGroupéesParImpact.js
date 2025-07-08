@@ -94,10 +94,10 @@ let activitéVersDonnéesSecondaires = new Map([
 /**
  * 
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} nomenclatureActivitésPitchou
+ * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitésNomenclaturePitchou
  * @returns {EspècesParActivité[]}
  */
-export function créerEspècesGroupéesParImpact(espècesImpactées, nomenclatureActivitésPitchou) {
+export function créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou) {
 
     /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
     const _espècesImpactéesParActivité = new Map()
@@ -136,7 +136,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, nomenclatur
                     if(espèceImpactée.surfaceHabitatDétruit){
                         push({
                             ...espèceImpactée,
-                            activité: nomenclatureActivitésPitchou.get('4-1-pitchou-aires')
+                            activité: activitésNomenclaturePitchou.get('4-1-pitchou-aires')
                         })
                     }
 
@@ -144,7 +144,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, nomenclatur
                     if(espèceImpactée.nombreNids){
                         push({
                             ...espèceImpactée,
-                            activité: nomenclatureActivitésPitchou.get('4-2-pitchou-nids')
+                            activité: activitésNomenclaturePitchou.get('4-2-pitchou-nids')
                         })
                     }
 
@@ -152,7 +152,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, nomenclatur
                     if(espèceImpactée.nombreOeufs){
                         push({
                             ...espèceImpactée,
-                            activité: nomenclatureActivitésPitchou.get('4-3-pitchou-œufs')
+                            activité: activitésNomenclaturePitchou.get('4-3-pitchou-œufs')
                         }) 
                     }
 

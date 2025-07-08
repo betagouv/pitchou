@@ -61,11 +61,11 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
     // Transformer les espèces impactées si elles existent
     let espèces_impacts = undefined
 
-    const { nomenclatureActivitésPitchou }  = await chargerActivitésMéthodesTransportsActivitéByCode()
+    const { activitésNomenclaturePitchou }  = await chargerActivitésMéthodesTransportsActivitéByCode()
     
     if (espècesImpactées) {
         try {
-            espèces_impacts = await créerEspècesGroupéesParImpact(espècesImpactées, nomenclatureActivitésPitchou)
+            espèces_impacts = await créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou)
         } catch (e) {
             console.error('Erreur lors de la transformation des espèces impactées:', e)
         }
