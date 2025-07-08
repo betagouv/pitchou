@@ -94,10 +94,10 @@ let activitéVersDonnéesSecondaires = new Map([
 /**
  * 
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitéByCode
+ * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} nomenclatureActivitésPitchou
  * @returns {EspècesParActivité[]}
  */
-export function créerEspècesGroupéesParImpact(espècesImpactées, activitéByCode) {
+export function créerEspècesGroupéesParImpact(espècesImpactées, nomenclatureActivitésPitchou) {
 
     /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
     const _espècesImpactéesParActivité = new Map()
@@ -136,7 +136,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéBy
                     if(espèceImpactée.surfaceHabitatDétruit){
                         push({
                             ...espèceImpactée,
-                            activité: activitéByCode.get('4-1-pitchou-aires')
+                            activité: nomenclatureActivitésPitchou.get('4-1-pitchou-aires')
                         })
                     }
 
@@ -144,7 +144,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéBy
                     if(espèceImpactée.nombreNids){
                         push({
                             ...espèceImpactée,
-                            activité: activitéByCode.get('4-2-pitchou-nids')
+                            activité: nomenclatureActivitésPitchou.get('4-2-pitchou-nids')
                         })
                     }
 
@@ -152,7 +152,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéBy
                     if(espèceImpactée.nombreOeufs){
                         push({
                             ...espèceImpactée,
-                            activité: activitéByCode.get('4-3-pitchou-œufs')
+                            activité: nomenclatureActivitésPitchou.get('4-3-pitchou-œufs')
                         }) 
                     }
 

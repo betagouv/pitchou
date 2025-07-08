@@ -234,24 +234,13 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
 }
 
 /**
- * Charge et organise les activités, méthodes et transports depuis les fichiers CSV externes.
- * 
- * Cette fonction récupère les données depuis trois sources distinctes :
- * - Les activités menaçantes (activités-data)
- * - Les méthodes menaçantes (methodes-data) 
- * - Les transports menaçants (transports-data)
- * 
- * Les données sont organisées par classification d'espèces (oiseau, faune non-oiseau, flore)
- * et indexées par leur code pour un accès optimisé.
- * 
+ * Charge et organise données concernant les activités, méthodes et transports depuis les fichiers CSV externes.
+ *  
  * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
- * Une promesse résolue avec un objet contenant :
- * - `activités` : Map des activités organisées par classification
- * - `méthodes` : Map des méthodes organisées par classification  
- * - `transports` : Map des transports organisés par classification
- * 
- * @throws {TypeError} Si une classification d'espèce n'est pas reconnue
- * @throws {Error} Si les fichiers de données ne peuvent pas être chargés
+ * - activités : Map indexée par classification d'espèce (oiseau, faune non-oiseau, flore) contenant les activités menaçantes indexées par leur code
+ * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
+ * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
+ * - nomenclatureActivitésPitchou : Map unifiée de toutes les activités (standard + spécifiques Pitchou) indexées par leur code
  * 
  * @remarks
  * - La fonction utilise un cache dans le store pour éviter les rechargements inutiles
@@ -260,9 +249,10 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
  * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
  * 
  * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
- * @see {@link getActivitéByCode} Pour la création des activités additionnelles Pitchou
+ * @see {@link getNomenclatureActivitésPitchou} Pour la création des activités additionnelles Pitchou
  * 
- * @remark Mettre cette fonction dehors du dossier ?
+ * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
+ * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
 export async function chargerActivitésMéthodesTransportsActivitéByCode(){
 
@@ -279,11 +269,11 @@ export async function chargerActivitésMéthodesTransportsActivitéByCode(){
     ])
 
     const activitésMéthodesTransports =  actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
-    const activitéByCode = getActivitéByCode(activitésMéthodesTransports.activités)
+    const nomenclatureActivitésPitchou = getNomenclatureActivitésPitchou(activitésMéthodesTransports.activités)
 
-    store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, activitéByCode})
+    store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, nomenclatureActivitésPitchou: nomenclatureActivitésPitchou})
 
-    const ret = {...activitésMéthodesTransports, activitéByCode }
+    const ret = {...activitésMéthodesTransports, nomenclatureActivitésPitchou }
 
     return ret
 }
@@ -320,17 +310,10 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
  * @throws {Error} Si l’activité "4" (de base) est absente, ce qui empêche la création
  * des variantes spécifiques à Pitchou.
  *
- * @remarks
- * - Les données retournées sont indépendantes du dossier sélectionné.
- * - Les activités spécifiques Pitchou utilisent des identifiants personnalisés 
- *   pour éviter toute collision future avec les standards européens.
- * - Cette fonction pourrait être déplacée dans un fichier dédié, 
- *   comme `activitésMéthodesTransports.ts`.
- *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
-export function getActivitéByCode(activités) {
+export function getNomenclatureActivitésPitchou(activités) {
     const activité4 = activités.oiseau.get('4')
     if(!activité4){
         throw Error(`Activité 4 manquante`)
