@@ -159,24 +159,37 @@
         }
     }
 
+    /** @type {Set<Partial<Prescription>>} */
     let prescriptionsEnContrôle = new Set()
-    /*
+    
+    /**
+     * 
+     * @param {Partial<Prescription>}  prescription
+     */
     function ouvrirContrôles(prescription){
         prescriptionsEnContrôle.add(prescription)
 
         rerender()
     }
 
+    /**
+     * 
+     * @param {Partial<Prescription>}  prescription
+     */
     function fermerContrôles(prescription){
         prescriptionsEnContrôle.delete(prescription)
 
         rerender()
     }
 
+    /**
+     * 
+     * @param {Partial<Prescription>}  prescription
+     */
     function ajouterContrôle(prescription){
         
     }
-    */
+    
 
     /** @type {'consulter' | 'modifier'} */
     let vuePrescription = 'consulter'
@@ -253,6 +266,23 @@
                                 {#if prescription.nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {prescription.nids_compensés}</span>{/if}
                             </p>
                         {/if}
+
+                        {#if prescriptionsEnContrôle.has(prescription)}
+                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
+                            on:click={() => fermerContrôles(prescription)}>
+                            Fermer contrôles
+                        </button>
+                        {:else}
+                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
+                            on:click={() => ouvrirContrôles(prescription)}>
+                            Ouvrir contrôles
+                        </button>
+                        {/if}
+
+                        {#if prescriptionsEnContrôle.has(prescription)}
+                            les contrôles
+                        {/if}
+
                     </section>
                 {/each}
 
@@ -324,7 +354,14 @@
         margin-bottom: 3rem;
 
         .prescription-consultée{
-            margin-bottom: 1rem;
+            --prescription-padding-top: 0.5rem;
+
+            padding: var(--prescription-padding-top);
+            margin-bottom: var(--prescription-padding-top);
+
+            &:hover{
+                background-color: var(--background-contrast-grey);
+            }
 
             h6, p{
                 margin-bottom: 0.4rem;
@@ -350,6 +387,15 @@
                         }
                     }
                 }
+            }
+
+
+            position: relative;
+
+            button.contrôles{
+                position: absolute;
+                top: var(--prescription-padding-top);
+                right: var(--prescription-padding-top);
             }
         }
 
