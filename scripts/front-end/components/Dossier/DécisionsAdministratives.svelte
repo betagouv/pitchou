@@ -1,14 +1,15 @@
 <script>
     import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} from '@odfjs/odfjs'
     import DateInput from '../common/DateInput.svelte'
+    import Prescription from './Prescription.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
-    import {formatDateAbsolue, formatDateRelative} from '../../affichageDossier.js'
+    import {formatDateAbsolue} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
 
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
-    /** @import Prescription from '../../../types/database/public/Prescription.ts' */
+    /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
 
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
@@ -18,7 +19,7 @@
         prescriptions: _prescriptions
     } = décisionAdministrative
 
-    /** @type {Set<Partial<Prescription>>}*/
+    /** @type {Set<Partial<PrescriptionType>>}*/
     $: prescriptions = _prescriptions ? new Set(_prescriptions) : new Set()
 
     const NON_RENSEIGNÉ = '(non renseigné)'
@@ -29,7 +30,7 @@
     }
 
     function ajouterPrescription(){
-        /** @type {Partial<Prescription>} */
+        /** @type {Partial<PrescriptionType>} */
         const nouvellePrescription = {
             décision_administrative: décisionAdministrative.id,
             date_échéance: undefined,
@@ -48,12 +49,12 @@
         rerender()
     }
 
-    /** @type {WeakMap<Partial<Prescription>, {prescriptionIdP: Promise<Prescription['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
+    /** @type {WeakMap<Partial<PrescriptionType>, {prescriptionIdP: Promise<PrescriptionType['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
     const prescriptionToPendingIdAndLatestData = new WeakMap()
 
     /**
      * 
-     * @param {Partial<Prescription>} prescription
+     * @param {Partial<PrescriptionType>} prescription
      */
     async function savePrescription(prescription){
         if(prescription.date_échéance){
@@ -93,7 +94,7 @@
 
     /**
      * 
-     * @param {Partial<Prescription>} prescription
+     * @param {Partial<PrescriptionType>} prescription
      */
     function supprimerPrescription(prescription){
         if(prescription.id){
@@ -118,7 +119,7 @@
             const rawData = await getODSTableRawContent(importPrescriptionFileAB)
             const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0]
 
-            /** @type {Partial<Prescription>[]} */
+            /** @type {Partial<PrescriptionType>[]} */
             // @ts-ignore
             const candidatsPrescriptions = cleanData.filter(row => {
                 const prescriptionNumDec = row['Numéro décision administrative'] && row['Numéro décision administrative'].trim()
@@ -159,36 +160,8 @@
         }
     }
 
-    /** @type {Set<Partial<Prescription>>} */
+    /** @type {Set<Partial<PrescriptionType>>} */
     let prescriptionsEnContrôle = new Set()
-    
-    /**
-     * 
-     * @param {Partial<Prescription>}  prescription
-     */
-    function ouvrirContrôles(prescription){
-        prescriptionsEnContrôle.add(prescription)
-
-        rerender()
-    }
-
-    /**
-     * 
-     * @param {Partial<Prescription>}  prescription
-     */
-    function fermerContrôles(prescription){
-        prescriptionsEnContrôle.delete(prescription)
-
-        rerender()
-    }
-
-    /**
-     * 
-     * @param {Partial<Prescription>}  prescription
-     */
-    function ajouterContrôle(prescription){
-        
-    }
     
 
     /** @type {'consulter' | 'modifier'} */
@@ -236,54 +209,7 @@
 
             {#if vuePrescription === 'consulter'}
                 {#each prescriptions as prescription}
-                    <section class="prescription-consultée">
-                        <h6>
-                            {prescription.description} 
-                            {#if prescription.numéro_article}
-                            - 
-                            <small><strong>Numéro article&nbsp;:&nbsp;</strong>
-                                {prescription.numéro_article}
-                            </small>
-                            {/if}
-                        </h6>
-                        <p></p>
-                        <p><strong>Date d'échéance&nbsp;:</strong>
-                            {#if prescription.date_échéance}
-                                <time datetime={prescription.date_échéance?.toISOString()}>{formatDateRelative(prescription.date_échéance)}</time>
-                            {:else}
-                                {NON_RENSEIGNÉ}
-                            {/if}
-                        </p>
-                        {#if prescription.surface_évitée || prescription.surface_compensée || 
-                            prescription.individus_évités || prescription.surface_compensée || 
-                            prescription.nids_évités || prescription.nids_compensés}
-                            <p class="impacts-quantifiés">
-                                {#if prescription.surface_évitée}<span><strong>Surface évitée&nbsp;:</strong> {prescription.surface_évitée}m²</span>{/if}
-                                {#if prescription.surface_compensée}<span><strong>Surface compensée&nbsp;:</strong> {prescription.surface_compensée}m²</span>{/if}
-                                {#if prescription.individus_évités}<span><strong>Individus évités&nbsp;:</strong> {prescription.individus_évités}</span>{/if}
-                                {#if prescription.individus_compensés}<span><strong>Individus compensés&nbsp;:</strong> {prescription.individus_compensés}</span>{/if}
-                                {#if prescription.nids_évités}<span><strong>Nids évités&nbsp;:</strong> {prescription.nids_évités}</span>{/if}
-                                {#if prescription.nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {prescription.nids_compensés}</span>{/if}
-                            </p>
-                        {/if}
-
-                        {#if prescriptionsEnContrôle.has(prescription)}
-                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
-                            on:click={() => fermerContrôles(prescription)}>
-                            Fermer contrôles
-                        </button>
-                        {:else}
-                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
-                            on:click={() => ouvrirContrôles(prescription)}>
-                            Ouvrir contrôles
-                        </button>
-                        {/if}
-
-                        {#if prescriptionsEnContrôle.has(prescription)}
-                            les contrôles
-                        {/if}
-
-                    </section>
+                    <Prescription {prescription}></Prescription>
                 {/each}
 
                 <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
@@ -352,52 +278,6 @@
         }
 
         margin-bottom: 3rem;
-
-        .prescription-consultée{
-            --prescription-padding-top: 0.5rem;
-
-            padding: var(--prescription-padding-top);
-            margin-bottom: var(--prescription-padding-top);
-
-            &:hover{
-                background-color: var(--background-contrast-grey);
-            }
-
-            h6, p{
-                margin-bottom: 0.4rem;
-            }
-
-            .impacts-quantifiés{
-                span{
-                    display: inline-block;
-                    white-space: wrap;
-
-                    &::after{
-                        content: '|';
-                        padding: 0 1rem;
-                    }
-
-                    &:first-child{
-                        padding-left: 0;
-                    }
-
-                    &:last-child{
-                        &::after{
-                            content: none;
-                        }
-                    }
-                }
-            }
-
-
-            position: relative;
-
-            button.contrôles{
-                position: absolute;
-                top: var(--prescription-padding-top);
-                right: var(--prescription-padding-top);
-            }
-        }
 
 
         table.prescriptions{
