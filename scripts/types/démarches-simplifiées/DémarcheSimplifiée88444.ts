@@ -64,7 +64,9 @@ export interface DossierDemarcheSimplifiee88444 {
     | "UTN (Unité Touristique Nouvelle)"
     | "ZAC"
     | "Autre";
-  "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
+  "Restauration, démolition de bâtiments, ouvrages d'art - Votre demande concerne :":
+    | "Destruction de nids d'Hirondelles"
+    | "Autre";
   "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
   "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
   /**
@@ -98,6 +100,7 @@ export interface DossierDemarcheSimplifiee88444 {
   "Numéro de téléphone de contact": string;
   "Adresse mail de contact": string;
   "Description synthétique du projet": string;
+  "Nombre de nids d'Hirondelles détruits": number;
   "Le projet se situe au niveau…":
     | "d'une ou plusieurs communes"
     | "d'un ou plusieurs départements"
