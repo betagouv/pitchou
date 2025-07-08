@@ -3,7 +3,7 @@ import {fr} from 'date-fns/locale';
 
 import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
 import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
-import { chargerActivitésMéthodesTransportsActivitéByCode } from './dossier.js';
+
 
 //@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import { CodeActivitéPitchou, CodeActivitéStandard  } from '../../types/especes.d.ts' */
@@ -19,10 +19,11 @@ import { chargerActivitésMéthodesTransportsActivitéByCode } from './dossier.j
 /**
  * @param {DossierComplet} dossier
  * @param {DescriptionMenacesEspèces | undefined} espècesImpactées Description des espèces impactées par le dossier
- * @returns {Promise<BalisesGénérationDocument>} Liste des balises fournies aux instructeur.i.ces
+ * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitésNomenclaturePitchou
+ * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
-export async function getBalisesGénérationDocument(dossier, espècesImpactées) {
+export function getBalisesGénérationDocument(dossier, espècesImpactées, activitésNomenclaturePitchou) {
     const functions = {
         afficher_nombre,
         formatter_date,
@@ -59,17 +60,8 @@ export async function getBalisesGénérationDocument(dossier, espècesImpactées
 
     /** @type {EspècesParActivité[] | undefined} */
     // Transformer les espèces impactées si elles existent
-    let espèces_impacts = undefined
+    const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou)
 
-    const { activitésNomenclaturePitchou }  = await chargerActivitésMéthodesTransportsActivitéByCode()
-    
-    if (espècesImpactées) {
-        try {
-            espèces_impacts = await créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou)
-        } catch (e) {
-            console.error('Erreur lors de la transformation des espèces impactées:', e)
-        }
-    }
     
     return {
         nom,
