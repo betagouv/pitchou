@@ -141,8 +141,14 @@ export async function chargerListeEspècesProtégées(){
  * @param {MéthodeMenançante[]} méthodesBrutes 
  * @param {TransportMenançant[]} transportsBruts 
  * 
- * @returns {NonNullable<PitchouState['activitésMéthodesTransports']>}
+ * @returns {{
+ *  activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, 
+ *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, 
+ *  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>> 
+ * }}
  */
+
+
 export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
     /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     const activités = {
@@ -256,6 +262,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
  * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
  * @see {@link getActivitéByCode} Pour la création des activités additionnelles Pitchou
  * 
+ * @remark Mettre cette fonction dehors du dossier ?
  */
 export async function chargerActivitésMéthodesTransportsActivitéByCode(){
 
@@ -271,11 +278,12 @@ export async function chargerActivitésMéthodesTransportsActivitéByCode(){
         dsv(";", getURL('link#transports-data'))
     ])
 
-    const ret = actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
-    
-    store.mutations.setActivitésMéthodesTransports(ret)
-    
-    store.mutations.setActivitéByCode(getActivitéByCode(ret.activités))
+    const activitésMéthodesTransports =  actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
+    const activitéByCode = getActivitéByCode(activitésMéthodesTransports.activités)
+
+    store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, activitéByCode})
+
+    const ret = {...activitésMéthodesTransports, activitéByCode }
 
     return ret
 }

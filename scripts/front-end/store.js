@@ -38,10 +38,9 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} } [activitésMéthodesTransports]
+ * @property { {activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>, activitéByCode: Map<ActivitéMenançante['Code'], ActivitéMenançante> } } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
- * @property {Map<ActivitéMenançante['Code'], ActivitéMenançante>} [activitéByCode]
  */
 
 
@@ -163,13 +162,6 @@ const mutations = {
   setRésultatsSynchronisationDS88444(state, résultatsSynchronisationDS88444){
     state.résultatsSynchronisationDS88444 = résultatsSynchronisationDS88444
   },
-  /**
-   * @param {PitchouState} state
-   * @param {PitchouState['activitéByCode']} activitéByCode
-   */
-  setActivitéByCode(state, activitéByCode){
-    state.activitéByCode = activitéByCode
-  }
 }
 
 /** @typedef { typeof mutations } PitchouMutations */
