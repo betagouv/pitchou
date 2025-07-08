@@ -3,7 +3,7 @@
     import DateInput from '../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
-    import {formatDateAbsolue} from '../../affichageDossier.js'
+    import {formatDateAbsolue, formatDateRelative} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
 
 
@@ -177,6 +177,10 @@
         
     }
 
+    /** @type {'consulter' | 'modifier'} */
+    let vuePrescription = 'consulter'
+
+
 
 </script>
 
@@ -216,80 +220,89 @@
         {:else}
             <h5>{prescriptions.size} prescriptions</h5>
 
-            {#each prescriptions as prescription}
-                <section>
-                    <p><strong>{prescription.description}</strong></p>
-                    <p>numéro article&nbsp;:&nbsp;{prescription.description}</p>
-                </section>
-            {/each}
-
-
-
-
-            <!--
-            <ul class="colonnes">
-                <li>Numéro article</li>
-                <li>Description</li>
-                <li>Date échéance</li>
-                <li>Surface compensée (m²)</li>
-                <li>Surface évitée (m²)</li>
-                <li>Individus compensés</li>
-                <li>Individus évités</li>
-                <li>Nids compensés</li>
-                <li>Nids évités</li>
-                <li>Contrôles</li>
-            </ul>
-            <ul>
+            {#if vuePrescription === 'consulter'}
                 {#each prescriptions as prescription}
-                    <li class="prescription" on:focusout={(e) => {
-                        //@ts-ignore
-                        if (!e.target?.classList.contains('bouton-supprimer')) {
-                            savePrescription(prescription)
-                        }
-                    }}>
-                        <section>
-                            <span><input class="fr-input" bind:value={prescription.numéro_article}></span>
-                            <span><input class="fr-input" bind:value={prescription.description}></span>
-                            
-                            <span><DateInput bind:date={prescription.date_échéance}></DateInput></span>
-
-                            <span><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></span>
-                            <span><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></span>
-                            <span><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></span>
-                            <span><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></span>
-                            <span><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></span>
-                            <span><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></span>
-                            <span><button class="fr-btn" on:click={() => ouvrirContrôles(prescription)}>Contrôles</button></span>
-                        </section>
-                        {#if prescriptionsEnContrôle.has(prescription)}
-                        <section>
-                            <h6>Contrôles</h6>
-                            <ul>
-                                <li> PPP : lister les contrôles
-                            </ul>
-
-                            <button class="fr-btn" on:click={() => ajouterContrôle(prescription)}>Contrôler maintenant</button>
-
-
-
-                            <button class="fr-btn" on:click={() => fermerContrôles(prescription)}>Fermer les contrôles</button>
-
-
-                            <h6>Supprimer la prescription</h6>
-                            <button class="fr-btn" type="button" on:click={() => supprimerPrescription(prescription)}>Supprimer</button>
-                        </section>
+                    <section class="prescription-consultée">
+                        <h6>
+                            {prescription.description} 
+                            {#if prescription.numéro_article}
+                            - 
+                            <small><strong>Numéro article&nbsp;:&nbsp;</strong>
+                                {prescription.numéro_article}
+                            </small>
+                            {/if}
+                        </h6>
+                        <p></p>
+                        <p><strong>Date d'échéance&nbsp;:</strong>
+                            {#if prescription.date_échéance}
+                                <time datetime={prescription.date_échéance?.toISOString()}>{formatDateRelative(prescription.date_échéance)}</time>
+                            {:else}
+                                {NON_RENSEIGNÉ}
+                            {/if}
+                        </p>
+                        {#if prescription.surface_évitée || prescription.surface_compensée || 
+                            prescription.individus_évités || prescription.surface_compensée || 
+                            prescription.nids_évités || prescription.nids_compensés}
+                            <p class="impacts-quantifiés">
+                                {#if prescription.surface_évitée}<span><strong>Surface évitée&nbsp;:</strong> {prescription.surface_évitée}m²</span>{/if}
+                                {#if prescription.surface_compensée}<span><strong>Surface compensée&nbsp;:</strong> {prescription.surface_compensée}m²</span>{/if}
+                                {#if prescription.individus_évités}<span><strong>Individus évités&nbsp;:</strong> {prescription.individus_évités}</span>{/if}
+                                {#if prescription.individus_compensés}<span><strong>Individus compensés&nbsp;:</strong> {prescription.individus_compensés}</span>{/if}
+                                {#if prescription.nids_évités}<span><strong>Nids évités&nbsp;:</strong> {prescription.nids_évités}</span>{/if}
+                                {#if prescription.nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {prescription.nids_compensés}</span>{/if}
+                            </p>
                         {/if}
-
-                    </li>
+                    </section>
                 {/each}
-                <li>
-                    <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
-                        Ajouter une prescription
-                    </button>
-                </li>
-            </ul>
 
-            -->
+                <button class="fr-btn btn-secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
+                    Modifier les prescriptions
+                </button>
+            {:else}
+                <table class="prescriptions">
+                    <thead>
+                        <tr>
+                            <th>Numéro article</th>
+                            <th>Description</th>
+                            <th>Date échéance</th>
+                            <th>Surface compensée (m²)</th>
+                            <th>Surface évitée (m²)</th>
+                            <th>Individus compensés</th>
+                            <th>Individus évités</th>
+                            <th>Nids compensés</th>
+                            <th>Nids évités</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each prescriptions as prescription}
+                            <tr class="prescription" on:focusout={(e) => {
+                                //@ts-ignore
+                                if (!e.target?.classList.contains('bouton-supprimer')) {
+                                    savePrescription(prescription)
+                                }
+                            }}>
+                                <td><input class="fr-input" bind:value={prescription.numéro_article}></td>
+                                <td><input class="fr-input" bind:value={prescription.description}></td>
+                                
+                                <td><DateInput bind:date={prescription.date_échéance}></DateInput></td>
+
+                                <td><input class="fr-input" bind:value={prescription.surface_compensée} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.surface_évitée} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.individus_compensés} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
+                                <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
+                            </tr>
+                        {/each}
+                        <tr><td colspan="9" class="fr-pt-1w">
+                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                                Ajouter une prescription
+                            </button>
+                        </td></tr>
+                    </tbody>
+                    
+                </table>
+            {/if}
         {/if}
         
     </section>
@@ -300,31 +313,39 @@
     .décision-administrative{
         margin-bottom: 3rem;
 
-        .prescriptions{
-            ul{
-                list-style: none;
-                display: flex;
-                flex-direction: column;
+        .prescription-consultée{
+            margin-bottom: 1rem;
 
-                padding-left: 0;
+            h6, p{
+                margin-bottom: 0.4rem;
+            }
 
-                li, li > section:first-child{
-                    display: flex;
-                    flex-direction: row;
+            .impacts-quantifiés{
+                span{
+                    display: inline-block;
+                    white-space: wrap;
+
+                    &::after{
+                        content: '|';
+                        padding: 0 1rem;
+                    }
+
+                    &:first-child{
+                        padding-left: 0;
+                    }
+
+                    &:last-child{
+                        &::after{
+                            content: none;
+                        }
+                    }
                 }
             }
-
-            ul.colonnes{
-                flex-direction: row;
-            }
-
-            li.prescription{
-                display: flex;
-                flex-direction: column;
-            }
+        }
 
 
-            .prescription > section:first-child, .colonnes{
+        table.prescriptions{
+            .prescription, thead > tr{
                 &>*{
                     margin: 0 2px;
                 }
@@ -333,7 +354,7 @@
                     width: 5rem;
                 }
                 &>:nth-child(2){
-                    width: 15rem;
+                    width: 20rem;
                 }
                 &>:nth-child(3){
                     width: 9rem;
@@ -342,13 +363,6 @@
 
                 &>:nth-child(n+4){
                     width: 6rem;
-                }
-
-                &>:last-of-type{
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
                 }
 
                 input{
