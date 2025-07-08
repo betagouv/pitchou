@@ -109,6 +109,8 @@ export default interface Dossier {
   justification_motif_dérogation: string | null;
 
   mesures_erc_prévues: boolean | null;
+
+  nb_nid_hirondelles_détruits: number | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -213,6 +215,8 @@ export interface DossierInitializer {
   justification_motif_dérogation?: string | null;
 
   mesures_erc_prévues?: boolean | null;
+
+  nb_nid_hirondelles_détruits?: number | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -316,4 +320,6 @@ export interface DossierMutator {
   justification_motif_dérogation?: string | null;
 
   mesures_erc_prévues?: boolean | null;
+
+  nb_nid_hirondelles_détruits?: number | null;
 }

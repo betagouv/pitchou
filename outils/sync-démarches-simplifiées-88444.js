@@ -313,6 +313,11 @@ const dossiersPourSynchronisation = dossiersDS.map((
         pitchouKeyToChampDS.get("Des mesures ERC sont-elles prévues ?")
     )
     const mesures_erc_prévues = mesures_erc_prévues_champ?.checked
+
+    /** Nombre de nids d'hirondelles détruits */
+    const nb_nid_hirondelles_détruits = Number(champById.get(
+        pitchouKeyToChampDS.get("Nombre de nids d'Hirondelles détruits")
+    )?.stringValue)
     
     /** Données dossier scientifique */
     /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
@@ -478,6 +483,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
         // mesurse ERC prévues
         mesures_erc_prévues,
+
+        // nombre de nids d'hirondelles détruits
+        nb_nid_hirondelles_détruits,
 
         // données dossier scientifique
         scientifique_type_demande: scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined,
