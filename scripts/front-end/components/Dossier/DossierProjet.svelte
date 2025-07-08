@@ -4,6 +4,7 @@
     import Loader from "../Loader.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
+    import { chargerActivitésMéthodesTransportsActivitéByCode } from "../../actions/dossier.js";
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -33,10 +34,16 @@
     /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
     export let espècesImpactées;
 
+    const promesseRéférentiels = chargerActivitésMéthodesTransportsActivitéByCode();
 
     $: espècesImpactéesParActivité =
-        espècesImpactées &&
-        espècesImpactées.then(créerEspècesGroupéesParImpact);
+        espècesImpactées && promesseRéférentiels
+            ? Promise.all([espècesImpactées, promesseRéférentiels])
+                .then(([value, { activitéByCode }]) =>
+                    créerEspècesGroupéesParImpact(value, activitéByCode)
+                )
+            : undefined;
+
         
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore
