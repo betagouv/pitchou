@@ -2,7 +2,7 @@
     //import DateInput from '../common/DateInput.svelte'
 
     import {formatDateRelative} from '../../affichageDossier.js'
-    //import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
+    import {envoyerContrôle} from '../../actions/contrôle.js'
 
     /** @import Prescription from '../../../types/database/public/Prescription.ts' */
 
@@ -10,19 +10,22 @@
     export let prescription
 
     let {
-        description, date_échéance, numéro_article,
-        surface_évitée, surface_compensée, individus_évités, individus_compensés, nids_évités, nids_compensés
+        id, description, date_échéance, numéro_article,
+        surface_évitée, surface_compensée, individus_évités, individus_compensés, nids_évités, nids_compensés,
+        contrôles: _contrôles
     } = prescription
 
+    /** @type {Set<Partial<Controle>>}*/
+    $: contrôles = _contrôles ? new Set(_contrôles) : new Set()
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     function rerender(){
+        contrôles = contrôles
     }
 
 
     let contrôlesOuverts = false
-
 
     function ouvrirContrôles(){
         contrôlesOuverts = true;
@@ -36,13 +39,32 @@
         rerender()
     }
 
+    /** @type {Partial<Controle> | undefined} */
+    let contrôleEnCours;
+
     function ajouterContrôle(){
-        
+        /** @type {Controle} */
+        contrôleEnCours = {
+            prescription: id,
+            date_contrôle: new Date(),
+            résultat: null,
+            commentaire: null,
+            type_action_suite_contrôle: null,
+            date_action_suite_contrôle: null,
+            date_prochaine_échéance: null
+        }
+
+        rerender()
     }
-    
 
+    async function saveContrôle(e){
+        e.preventDefalut()
+        contrôleEnCours = undefined;
 
+        contrôles.add(contrôleEnCours)
 
+        await envoyerContrôle(contrôleEnCours)
+    }
 
 </script>
 
@@ -90,7 +112,24 @@
     {/if}
 
     {#if contrôlesOuverts}
-        les contrôles
+        <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterContrôle}>
+            Ajouter un contrôle
+        </button>
+
+        {#if contrôleEnCours}
+            <form on:submit={saveContrôle}>
+                trucs à emplir
+
+                <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                    Finir le contrôle
+                </button>
+
+                <button type="button" class="fr-btn fr-btn--secondary" on:click={() => contrôleEnCours = undefined}>
+                    Fermer le contrôle sans sauvegarder
+                </button>
+            </form>
+        {/if}
+
     {/if}
 
 </section>
