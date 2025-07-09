@@ -74,12 +74,14 @@ export default interface Dossier {
 
   espèces_impactées: FichierId | null;
 
+  /** Description du dossier fournie par le pétitionnaire */
   description: string | null;
 
   date_début_intervention: Date | null;
 
   date_fin_intervention: Date | null;
 
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
   durée_intervention: number | null;
 
   scientifique_type_demande: string[] | null;
@@ -88,6 +90,7 @@ export default interface Dossier {
 
   scientifique_mode_capture: string[] | null;
 
+  /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses: string | null;
 
   scientifique_modalités_marquage: string | null;
@@ -178,12 +181,14 @@ export interface DossierInitializer {
 
   espèces_impactées?: FichierId | null;
 
+  /** Description du dossier fournie par le pétitionnaire */
   description?: string | null;
 
   date_début_intervention?: Date | null;
 
   date_fin_intervention?: Date | null;
 
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
   durée_intervention?: number | null;
 
   scientifique_type_demande?: string[] | null;
@@ -192,6 +197,7 @@ export interface DossierInitializer {
 
   scientifique_mode_capture?: string[] | null;
 
+  /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses?: string | null;
 
   scientifique_modalités_marquage?: string | null;
@@ -281,12 +287,14 @@ export interface DossierMutator {
 
   espèces_impactées?: FichierId | null;
 
+  /** Description du dossier fournie par le pétitionnaire */
   description?: string | null;
 
   date_début_intervention?: Date | null;
 
   date_fin_intervention?: Date | null;
 
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
   durée_intervention?: number | null;
 
   scientifique_type_demande?: string[] | null;
@@ -295,6 +303,7 @@ export interface DossierMutator {
 
   scientifique_mode_capture?: string[] | null;
 
+  /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses?: string | null;
 
   scientifique_modalités_marquage?: string | null;

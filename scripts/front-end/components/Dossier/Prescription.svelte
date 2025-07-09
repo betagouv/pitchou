@@ -2,9 +2,10 @@
     //import DateInput from '../common/DateInput.svelte'
 
     import {formatDateRelative} from '../../affichageDossier.js'
-    import {envoyerContrôle} from '../../actions/contrôle.js'
+    import {ajouterContrôle as envoyerContrôle} from '../../actions/contrôle.js'
 
     /** @import Prescription from '../../../types/database/public/Prescription.ts' */
+    /** @import Contrôle from '../../../types/database/public/Contrôle.ts' */
 
     /** @type {Partial<Prescription>} */
     export let prescription
@@ -15,7 +16,7 @@
         contrôles: _contrôles
     } = prescription
 
-    /** @type {Set<Partial<Controle>>}*/
+    /** @type {Set<Partial<Contrôle>>}*/
     $: contrôles = _contrôles ? new Set(_contrôles) : new Set()
 
     const NON_RENSEIGNÉ = '(non renseigné)'
@@ -39,11 +40,11 @@
         rerender()
     }
 
-    /** @type {Partial<Controle> | undefined} */
+    /** @type {Partial<Contrôle> | undefined} */
     let contrôleEnCours;
 
     function ajouterContrôle(){
-        /** @type {Controle} */
+        /** @type {Contrôle} */
         contrôleEnCours = {
             prescription: id,
             date_contrôle: new Date(),
@@ -57,13 +58,20 @@
         rerender()
     }
 
-    async function saveContrôle(e){
-        e.preventDefalut()
-        contrôleEnCours = undefined;
+    /**
+     * 
+     * @param {Event} e
+     */
+    async function formSubmit(e){
+        e.preventDefault()
 
-        contrôles.add(contrôleEnCours)
+        if(contrôleEnCours){
+            contrôles.add(contrôleEnCours)
 
-        await envoyerContrôle(contrôleEnCours)
+            await envoyerContrôle(contrôleEnCours)
+            contrôleEnCours = undefined;
+        }
+
     }
 
 </script>
@@ -117,8 +125,8 @@
         </button>
 
         {#if contrôleEnCours}
-            <form on:submit={saveContrôle}>
-                trucs à emplir
+            <form on:submit={formSubmit}>
+                <textarea bind:value={contrôleEnCours.commentaire}></textarea>
 
                 <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
                     Finir le contrôle
