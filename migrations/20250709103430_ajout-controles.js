@@ -11,10 +11,10 @@ export async function up(knex) {
         table.foreign('prescription')
             .references('id').inTable('prescription').onDelete('CASCADE')
 
-        table.date('date_contrôle')
+        table.datetime('date_contrôle', { precision: 0 }) // précision à la seconde
         table.string('résultat')
             .comment(`Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini`)
-        table.string('commentaire')
+        table.text('commentaire')
         table.string('type_action_suite_contrôle')
             .comment(`Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini`)
         table.date('date_action_suite_contrôle')

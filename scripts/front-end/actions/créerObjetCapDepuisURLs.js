@@ -180,15 +180,28 @@ function wrapRecupérerDossierComplet(url){
                     for(const p of décisionAdministrative.prescriptions){
                         if(p.date_échéance)
                             p.date_échéance = new Date(p.date_échéance)
+
+                        if(Array.isArray(p.contrôles)){
+                            for(const contrôle of p.contrôles){
+                                if(contrôle.date_contrôle){
+                                    contrôle.date_contrôle = new Date(contrôle.date_contrôle)
+                                }
+                                if(contrôle.date_action_suite_contrôle){
+                                    contrôle.date_action_suite_contrôle = new Date(contrôle.date_action_suite_contrôle)
+                                }
+                                if(contrôle.date_prochaine_échéance){
+                                    contrôle.date_prochaine_échéance = new Date(contrôle.date_prochaine_échéance)
+                                }
+                            }
+                        }
                     }
                 }
 
                 return décisionAdministrative
             })
         }
+
         Object.freeze(ret)
-
-
 
         return ret;
     }

@@ -2,7 +2,7 @@
     import DateInput from '../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
-    import {formatDateRelative} from '../../affichageDossier.js'
+    import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
     import {ajouterContrôle as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../actions/contrôle.js'
 
     /** @import {FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
@@ -17,13 +17,15 @@
         contrôles: _contrôles
     } = prescription
 
-    /** @type {Set<Partial<Contrôle>>}*/
-    $: contrôles = _contrôles ? new Set(_contrôles) : new Set()
+    /** @type {Partial<Contrôle>[]}*/
+    $: contrôles = _contrôles ? [..._contrôles] : []
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     function rerender(){
-        contrôles = contrôles
+        contrôles = contrôles.toSorted(
+            ({date_contrôle: dc1}, {date_contrôle: dc2}) => (dc2?.getTime() || 0) - (dc1?.getTime() || 0)
+        )
     }
 
 
@@ -67,11 +69,8 @@
         e.preventDefault()
 
         if(contrôleEnCours){
-            contrôles.add(contrôleEnCours)
+            contrôles.push(contrôleEnCours)
 
-            if(contrôleEnCours.date_contrôle){
-                Object.defineProperty(contrôleEnCours.date_contrôle, 'toJSON', {value: toJSONPerserveDate})
-            }
             if(contrôleEnCours.date_action_suite_contrôle){
                 Object.defineProperty(contrôleEnCours.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
             }
@@ -83,6 +82,7 @@
             contrôleEnCours = undefined;
         }
 
+        rerender()
     }
 
 </script>
@@ -131,67 +131,86 @@
     {/if}
 
     {#if contrôlesOuverts}
-        <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterContrôle}>
-            Ajouter un contrôle
-        </button>
+        <section class="contrôles">
+            <h6>{#if contrôles.length === 1}1 contrôle{:else}{contrôles.length} contrôles {/if}</h6>
 
-        {#if contrôleEnCours}
-            <form on:submit={formSubmit}>
-                <div class="fr-input-group">
-                    <label class="fr-label" for="text-input">
-                        Résultat
-                    </label>
-                    <input class="fr-input" list="résultats-contrôle" bind:value={contrôleEnCours.résultat}>
-                    <datalist id="résultats-contrôle">
-                        {#each résultatsContrôle as résultatContrôle}
-                            <option>{résultatContrôle}</option>
-                        {/each}
-                    </datalist>
-                </div>
+            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterContrôle}>
+                Ajouter un contrôle
+            </button>
 
-                <div class="fr-input-group">
-                    <label class="fr-label" for="text-input">
-                        Commentaire libre
-                    </label>
-                    <textarea class="fr-input" bind:value={contrôleEnCours.commentaire}></textarea>
-                </div>
+            {#if contrôleEnCours}
+                <form on:submit={formSubmit}>
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="text-input">
+                            Résultat
+                        </label>
+                        <input class="fr-input" list="résultats-contrôle" bind:value={contrôleEnCours.résultat}>
+                        <datalist id="résultats-contrôle">
+                            {#each résultatsContrôle as résultatContrôle}
+                                <option>{résultatContrôle}</option>
+                            {/each}
+                        </datalist>
+                    </div>
+
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="text-input">
+                            Commentaire libre
+                        </label>
+                        <textarea class="fr-input" bind:value={contrôleEnCours.commentaire}></textarea>
+                    </div>
 
 
-                <div class="fr-input-group">
-                    <label class="fr-label" for="text-input">
-                        Action suite au contrôle
-                    </label>
-                    <input class="fr-input" list="type-actions" bind:value={contrôleEnCours.type_action_suite_contrôle}>
-                    <datalist id="type-actions">
-                        {#each typesActionSuiteContrôle as typeActionSuiteContrôle}
-                            <option>{typeActionSuiteContrôle}</option>
-                        {/each}
-                    </datalist>
-                </div>
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="text-input">
+                            Action suite au contrôle
+                        </label>
+                        <input class="fr-input" list="type-actions" bind:value={contrôleEnCours.type_action_suite_contrôle}>
+                        <datalist id="type-actions">
+                            {#each typesActionSuiteContrôle as typeActionSuiteContrôle}
+                                <option>{typeActionSuiteContrôle}</option>
+                            {/each}
+                        </datalist>
+                    </div>
 
-                <div class="fr-input-group">
-                    <label class="fr-label" for="text-input">
-                        Date de l'action suite au contrôle
-                    </label>
-                    <DateInput bind:date={contrôleEnCours.date_action_suite_contrôle}></DateInput>
-                </div>
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="text-input">
+                            Date de l'action suite au contrôle
+                        </label>
+                        <DateInput bind:date={contrôleEnCours.date_action_suite_contrôle}></DateInput>
+                    </div>
 
-                <div class="fr-input-group">
-                    <label class="fr-label" for="text-input">
-                        Date prochaine échéance
-                    </label>
-                    <DateInput bind:date={contrôleEnCours.date_prochaine_échéance}></DateInput>
-                </div>
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="text-input">
+                            Date prochaine échéance
+                        </label>
+                        <DateInput bind:date={contrôleEnCours.date_prochaine_échéance}></DateInput>
+                    </div>
 
-                <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-                    Finir le contrôle
-                </button>
+                    <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                        Finir le contrôle
+                    </button>
 
-                <button type="button" class="fr-btn fr-btn--secondary" on:click={() => contrôleEnCours = undefined}>
-                    Fermer le contrôle sans sauvegarder
-                </button>
-            </form>
-        {/if}
+                    <button type="button" class="fr-btn fr-btn--secondary" on:click={() => contrôleEnCours = undefined}>
+                        Fermer le contrôle sans sauvegarder
+                    </button>
+                </form>
+            {/if}
+
+            {#each contrôles as contrôle}
+                <section class="contrôle">
+                    <h6>Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time></h6>
+                    <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
+                    <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
+                    <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
+                    <strong>Date action suite au contrôle&nbsp;:</strong> 
+                        <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
+                    <br>
+                    <strong>Date prochaine échéance&nbsp;:</strong> 
+                        <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
+                    <br>
+                </section>
+            {/each}
+        </section>
 
     {/if}
 
@@ -232,6 +251,12 @@
                     content: none;
                 }
             }
+        }
+    }
+
+    section.contrôles{
+        section.contrôle{
+            margin-bottom: 0.5rem;
         }
     }
 
