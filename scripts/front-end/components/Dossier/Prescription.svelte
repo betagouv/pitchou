@@ -5,10 +5,10 @@
     import {formatDateRelative} from '../../affichageDossier.js'
     import {ajouterContrôle as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../actions/contrôle.js'
 
-    /** @import Prescription from '../../../types/database/public/Prescription.ts' */
+    /** @import {FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../types/database/public/Contrôle.ts' */
 
-    /** @type {Partial<Prescription>} */
+    /** @type {Partial<FrontEndPrescription>} */
     export let prescription
 
     let {

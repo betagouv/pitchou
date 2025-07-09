@@ -10,15 +10,14 @@ import {directDatabaseConnection} from '../database.js'
 
 /**
  * 
- * @param {Prescription['id'][]} prescriptionId 
+ * @param {Prescription['id'][]} prescriptionIds 
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Contrôle[]>}
  */
-export function getContrôles(prescriptionId, databaseConnection = directDatabaseConnection){
+export function getContrôles(prescriptionIds, databaseConnection = directDatabaseConnection){
     return databaseConnection('contrôle')
         .select('*')
-        .whereIn('prescription', prescriptionId)
-        .orderBy('date_contrôle', 'asc')
+        .whereIn('prescription', prescriptionIds)
 }
 
 /**
