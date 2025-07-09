@@ -1,6 +1,6 @@
-import {chargerActivitésMéthodesTransports} from './dossier.js'
 
-/** @import { ActivitéMenançante, DescriptionMenacesEspèces, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
+/** @import { ActivitéMenançante, CodeActivitéPitchou, CodeActivitéStandard, DescriptionMenacesEspèces, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
+
 
 
 /** @type {ActivitéMenançante} */
@@ -94,53 +94,10 @@ let activitéVersDonnéesSecondaires = new Map([
 /**
  * 
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @returns {Promise<EspècesParActivité[]>}
+ * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitésNomenclaturePitchou
+ * @returns {EspècesParActivité[]}
  */
-export async function créerEspècesGroupéesParImpact(espècesImpactées) {
-
-    /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
-    const activitéByCode = await chargerActivitésMéthodesTransports()
-        .then(({activités}) => {
-            // Rajouter les activités spécifiques Pitchou
-            // Les activités sont standardisées à l'échelle européenne
-            // https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd (type 'activitiesType')
-            // Pour les besoins de Pitchou, nous rajoutons des activités 
-            // Nous essayons d'utiliser des identifiants qui ne collisionnerons pas avec le futur
-
-            const activité4 = activités.oiseau.get('4')
-            if(!activité4){
-                throw Error(`Activité 4 manquante`)
-            }
-
-            /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
-            // @ts-ignore
-            const activitésAdditionnelles = new Map([
-                {
-                    ...activité4,
-                    Code: '4-1-pitchou-aires',
-                    "étiquette affichée": `Destruction d’aires de repos ou reproduction`
-                },
-                {
-                    ...activité4,
-                    Code: '4-2-pitchou-nids',
-                    "étiquette affichée": `Destruction de nids`
-                },
-                {
-                    ...activité4,
-                    Code: '4-3-pitchou-œufs',
-                    "étiquette affichée": `Destruction d'œufs`
-                }
-            ].map(a => [a.Code, a]))
-
-            return new Map([
-                ...activités.oiseau, 
-                ...activitésAdditionnelles, 
-                ...activités['faune non-oiseau'], 
-                ...activités.flore
-            ])
-        })
-
-
+export function créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou) {
 
     /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
     const _espècesImpactéesParActivité = new Map()
@@ -179,7 +136,7 @@ export async function créerEspècesGroupéesParImpact(espècesImpactées) {
                     if(espèceImpactée.surfaceHabitatDétruit){
                         push({
                             ...espèceImpactée,
-                            activité: activitéByCode.get('4-1-pitchou-aires')
+                            activité: activitésNomenclaturePitchou.get('4-1-pitchou-aires')
                         })
                     }
 
@@ -187,7 +144,7 @@ export async function créerEspècesGroupéesParImpact(espècesImpactées) {
                     if(espèceImpactée.nombreNids){
                         push({
                             ...espèceImpactée,
-                            activité: activitéByCode.get('4-2-pitchou-nids')
+                            activité: activitésNomenclaturePitchou.get('4-2-pitchou-nids')
                         })
                     }
 
@@ -195,7 +152,7 @@ export async function créerEspècesGroupéesParImpact(espècesImpactées) {
                     if(espèceImpactée.nombreOeufs){
                         push({
                             ...espèceImpactée,
-                            activité: activitéByCode.get('4-3-pitchou-œufs')
+                            activité: activitésNomenclaturePitchou.get('4-3-pitchou-œufs')
                         }) 
                     }
 

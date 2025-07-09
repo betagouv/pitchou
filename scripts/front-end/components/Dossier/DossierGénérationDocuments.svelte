@@ -3,6 +3,7 @@
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
+    import { chargerActivitésMéthodesTransports as chargerActivitésMéthodesTransports } from '../../actions/dossier.js';
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -48,6 +49,8 @@
 
         let espèces_impacts = undefined
 
+        const { activitésNomenclaturePitchou } = await chargerActivitésMéthodesTransports()
+
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a
             espèces_impacts = await espècesImpactées
@@ -56,7 +59,7 @@
             // ignore errors
         }
 
-		const balises = await getBalisesGénérationDocument(dossier, espèces_impacts)
+		const balises = getBalisesGénérationDocument(dossier, espèces_impacts, activitésNomenclaturePitchou)
 
         console.log('balises', balises)
 

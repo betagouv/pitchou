@@ -16,7 +16,7 @@ import { espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEsp
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
 
 /**
  * @param {DossierComplet} dossier
@@ -141,8 +141,14 @@ export async function chargerListeEspècesProtégées(){
  * @param {MéthodeMenançante[]} méthodesBrutes 
  * @param {TransportMenançant[]} transportsBruts 
  * 
- * @returns {NonNullable<PitchouState['activitésMéthodesTransports']>}
+ * @returns {{
+ *  activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, 
+ *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, 
+ *  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>> 
+ * }}
  */
+
+
 export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
     /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
     const activités = {
@@ -228,8 +234,25 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
 }
 
 /**
- * 
+ * Charge et organise données concernant les activités, méthodes et transports depuis les fichiers CSV externes.
+ *  
  * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
+ * - activités : Map indexée par classification d'espèce (oiseau, faune non-oiseau, flore) contenant les activités menaçantes indexées par leur code
+ * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
+ * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
+ * - activitésNomenclaturePitchou : Map unifiée de toutes les activités (standard + spécifiques Pitchou) indexées par leur code
+ * 
+ * @remarks
+ * - La fonction utilise un cache dans le store pour éviter les rechargements inutiles
+ * - Les données sont automatiquement gelées (Object.freeze) pour prévenir les modifications
+ * - Cette fonction met également à jour le store avec les activités indexées par code
+ * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
+ * 
+ * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
+ * @see {@link getActivitésNomenclaturePitchou} Pour la création des activités additionnelles Pitchou
+ * 
+ * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
+ * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
 export async function chargerActivitésMéthodesTransports(){
 
@@ -245,9 +268,12 @@ export async function chargerActivitésMéthodesTransports(){
         dsv(";", getURL('link#transports-data'))
     ])
 
-    const ret = actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
-    
-    store.mutations.setActivitésMéthodesTransports(ret)
+    const activitésMéthodesTransports =  actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
+    const activitésNomenclaturePitchou = getActivitésNomenclaturePitchou(activitésMéthodesTransports.activités)
+
+    store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou})
+
+    const ret = {...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou }
 
     return ret
 }
@@ -271,4 +297,52 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
         transports
     )
 
+}
+
+/**
+ * Récupère et fusionne l'ensemble des activités issues du standard européen 
+ * ainsi que les activités spécifiques à Pitchou, en les indexant par leur code.
+ * @param {ParClassification<Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>>} activités
+ * @returns {Map<ActivitéMenançante['Code'], ActivitéMenançante>}
+ * Une promesse résolue avec une `Map` contenant toutes les activités, 
+ * indexées par leur code.
+ *
+ * @throws {Error} Si l’activité "4" (de base) est absente, ce qui empêche la création
+ * des variantes spécifiques à Pitchou.
+ *
+ * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
+ * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
+ */
+export function getActivitésNomenclaturePitchou(activités) {
+    const activité4 = activités.oiseau.get('4')
+    if(!activité4){
+        throw Error(`Activité 4 manquante`)
+    }
+
+    /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
+    //@ts-ignore
+    const activitésAdditionnelles = new Map([
+        {
+            ...activité4,
+            Code: '4-1-pitchou-aires',
+            "étiquette affichée": `Destruction d’aires de repos ou reproduction`
+        },
+        {
+            ...activité4,
+            Code: '4-2-pitchou-nids',
+            "étiquette affichée": `Destruction de nids`
+        },
+        {
+            ...activité4,
+            Code: '4-3-pitchou-œufs',
+            "étiquette affichée": `Destruction d'œufs`
+        }
+    ].map(a => [a.Code, a]))
+
+    return new Map([
+        ...activités.oiseau, 
+        ...activitésAdditionnelles, 
+        ...activités['faune non-oiseau'], 
+        ...activités.flore
+    ])
 }
