@@ -1,8 +1,9 @@
 <script>
-    //import DateInput from '../common/DateInput.svelte'
+    import DateInput from '../common/DateInput.svelte'
 
+    import toJSONPerserveDate from '../../../commun/DateToJSON.js';
     import {formatDateRelative} from '../../affichageDossier.js'
-    import {ajouterContrôle as envoyerContrôle} from '../../actions/contrôle.js'
+    import {ajouterContrôle as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../actions/contrôle.js'
 
     /** @import Prescription from '../../../types/database/public/Prescription.ts' */
     /** @import Contrôle from '../../../types/database/public/Contrôle.ts' */
@@ -68,6 +69,16 @@
         if(contrôleEnCours){
             contrôles.add(contrôleEnCours)
 
+            if(contrôleEnCours.date_contrôle){
+                Object.defineProperty(contrôleEnCours.date_contrôle, 'toJSON', {value: toJSONPerserveDate})
+            }
+            if(contrôleEnCours.date_action_suite_contrôle){
+                Object.defineProperty(contrôleEnCours.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
+            }
+            if(contrôleEnCours.date_prochaine_échéance){
+                Object.defineProperty(contrôleEnCours.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
+            }
+
             await envoyerContrôle(contrôleEnCours)
             contrôleEnCours = undefined;
         }
@@ -126,7 +137,51 @@
 
         {#if contrôleEnCours}
             <form on:submit={formSubmit}>
-                <textarea bind:value={contrôleEnCours.commentaire}></textarea>
+                <div class="fr-input-group">
+                    <label class="fr-label" for="text-input">
+                        Résultat
+                    </label>
+                    <input class="fr-input" list="résultats-contrôle" bind:value={contrôleEnCours.résultat}>
+                    <datalist id="résultats-contrôle">
+                        {#each résultatsContrôle as résultatContrôle}
+                            <option>{résultatContrôle}</option>
+                        {/each}
+                    </datalist>
+                </div>
+
+                <div class="fr-input-group">
+                    <label class="fr-label" for="text-input">
+                        Commentaire libre
+                    </label>
+                    <textarea class="fr-input" bind:value={contrôleEnCours.commentaire}></textarea>
+                </div>
+
+
+                <div class="fr-input-group">
+                    <label class="fr-label" for="text-input">
+                        Action suite au contrôle
+                    </label>
+                    <input class="fr-input" list="type-actions" bind:value={contrôleEnCours.type_action_suite_contrôle}>
+                    <datalist id="type-actions">
+                        {#each typesActionSuiteContrôle as typeActionSuiteContrôle}
+                            <option>{typeActionSuiteContrôle}</option>
+                        {/each}
+                    </datalist>
+                </div>
+
+                <div class="fr-input-group">
+                    <label class="fr-label" for="text-input">
+                        Date de l'action suite au contrôle
+                    </label>
+                    <DateInput bind:date={contrôleEnCours.date_action_suite_contrôle}></DateInput>
+                </div>
+
+                <div class="fr-input-group">
+                    <label class="fr-label" for="text-input">
+                        Date prochaine échéance
+                    </label>
+                    <DateInput bind:date={contrôleEnCours.date_prochaine_échéance}></DateInput>
+                </div>
 
                 <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
                     Finir le contrôle

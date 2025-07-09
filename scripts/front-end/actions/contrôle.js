@@ -1,9 +1,21 @@
 import {text, json} from 'd3-fetch'
 
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
+/** @import {RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
+
+/** @type {Set<RésultatContrôle>} */
+export const résultatsContrôle = new Set([
+    "Conforme", "Non conforme", "Trop tard", "En cours","Non conforme (Pas d'informations reçues)"
+])
+
+/** @type {Set<TypesActionSuiteContrôle>} */
+export const typesActionSuiteContrôle = new Set([
+    "Email", "Courrier", "Courrier recommandé avec accusé de réception"
+])
+
 
 /**
  * 
