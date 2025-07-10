@@ -87,6 +87,7 @@
         Générer des documents à partir d'un <a target="_blank" href="https://betagouv.github.io/pitchou/instruction/document-types/">document-type</a> et des données de ce dossier
         <br>
         Vous pouvez <a target="_blank" href="https://betagouv.github.io/pitchou/instruction/document-types/creation.html">créer vos propres document-types</a>
+        Attention, il est impossible de générer des documents pour ce dossier si aucune liste d'espèce n'a été saisie par le pétitionnaire.
     </p>
 
     {#if erreurGénérationDocument}
