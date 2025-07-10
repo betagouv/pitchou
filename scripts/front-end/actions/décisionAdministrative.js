@@ -3,7 +3,7 @@ import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} 
 import {isValidDate} from '../../commun/typeFormat.js'
 import {ajouterPrescriptionsEtContrôles} from './prescriptions.js'
 
-/** @import {FrontEndPrescription, FrontEndDécisionAdministrative} from '../../types/API_Pitchou.ts' */
+/** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
 /** @import Contrôle from '../../types/database/public/Contrôle.ts' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
@@ -74,9 +74,33 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
             const date_prochaine_échéanceProp = `${numéroContrôle} Date Echéance`
 
             const date_contrôle = row[date_contrôleProp]
-            const résultat = row[résultatProp]
+            /** @type {RésultatContrôle} */
+            let résultat = row[résultatProp]
+            if(résultat && résultat.trim() === 'non conforme'){
+                résultat = 'Non conforme'
+            }
+            if(résultat && résultat.trim() === 'conforme'){
+                résultat = 'Conforme'
+            }
+            if(résultat && résultat.trim() === 'en cours'){
+                résultat = 'En cours'
+            }
+            if(résultat && résultat.trim() === 'trop tard'){
+                résultat = 'Trop tard'
+            }
+
             const commentaire = row[commentaireProp]
-            const type_action_suite_contrôle = row[type_action_suite_contrôleProp]
+
+            /** @type {TypesActionSuiteContrôle} */
+            let type_action_suite_contrôle = row[type_action_suite_contrôleProp]
+
+            if(type_action_suite_contrôle && type_action_suite_contrôle.trim() === 'mail'){
+                type_action_suite_contrôle = 'Email'
+            }
+            if(type_action_suite_contrôle && type_action_suite_contrôle.trim() === 'courrier'){
+                type_action_suite_contrôle = 'Courrier'
+            }
+
             const date_action_suite_contrôle = row[date_action_suite_contrôleProp]
             const date_prochaine_échéance = row[date_prochaine_échéanceProp]
 
