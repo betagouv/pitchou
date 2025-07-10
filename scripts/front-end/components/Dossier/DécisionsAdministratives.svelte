@@ -216,7 +216,7 @@
                                 <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                                <td><button class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
+                                <td><button class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
                             </tr>
                         {/each}
                         <tr><td colspan="9" class="fr-pt-1w">
