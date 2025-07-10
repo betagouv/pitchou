@@ -58,11 +58,13 @@
         catch(e){
             // @ts-ignore
             erreurGénérationDocument = e
+            return;
         }
 
         if (!espèces_impacts) {
             // @ts-ignore
             erreurGénérationDocument = new Error("Attention, il est impossible de générer des documents pour ce dossier si aucune liste d'espèce n'a été saisie par le pétitionnaire.")
+            return;
         }
 
 		const balises = getBalisesGénérationDocument(dossier, espèces_impacts, activitésNomenclaturePitchou)
