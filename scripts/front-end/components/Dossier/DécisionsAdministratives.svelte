@@ -26,7 +26,7 @@
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
     let prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
-    $: console.log('prescriptions', prescriptions)
+    //$: console.log('prescriptions', prescriptions)
 
 
     const NON_RENSEIGNÉ = '(non renseigné)'
@@ -108,8 +108,6 @@
         }
 
         prescriptions.delete(prescription)
-
-        console.log('prescriptions après suppression', prescriptions)
 
         rerender()
     }
