@@ -9,6 +9,7 @@ import PreremplissageDerogation from './routes/PreremplissageDerogation.js';
 import TmpStats from './routes/TmpStats.js';
 
 import { init } from './actions/main.js';
+import Stats from './routes/Stats.js';
 
 
 page('/', Accueil)
@@ -18,6 +19,7 @@ page('/dossier/:dossierId', Dossier)
 page('/saisie-especes', SaisieEspèces)
 page('/preremplissage-derogation', PreremplissageDerogation)
 page('/tmp/stats', TmpStats)
+page('/stats', Stats)
 
 
 init()
