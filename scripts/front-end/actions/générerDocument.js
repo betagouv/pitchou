@@ -18,7 +18,7 @@ import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpa
 
 /**
  * @param {DossierComplet} dossier
- * @param {DescriptionMenacesEspèces | undefined} espècesImpactées Description des espèces impactées par le dossier
+ * @param {DescriptionMenacesEspèces} espècesImpactées Description des espèces impactées par le dossier
  * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitésNomenclaturePitchou
  * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
