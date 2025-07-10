@@ -20,7 +20,7 @@
     /** @type {DossierComplet} */
     export let dossier
 
-    console.info('Dossier complet', dossier)
+    $: console.info('Dossier complet', dossier)
 
 
     const EXTENSION_ATTENDUE = '.ods'

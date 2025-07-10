@@ -4,6 +4,7 @@ import Fichier from './database/public/Fichier.ts'
 import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
 import Prescription from './database/public/Prescription.ts'
+import Contrôle from './database/public/Contrôle.ts'
 
 
 type DossierPersonnesImpliquées = {
@@ -73,11 +74,13 @@ export type DossierRésumé = Pick<Dossier,
     & DonnéesDossierPourStats
 
 
+export type FrontEndPrescription = Prescription 
+    &  { contrôles: Contrôle[] | undefined }
+
+
 export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier'> 
-    & {fichier_url: string | undefined}
-    & {
-        prescriptions: Prescription[] | undefined
-    }
+    & { fichier_url: string | undefined }
+    & { prescriptions: FrontEndPrescription[] | undefined }
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
@@ -94,4 +97,8 @@ export type DossierComplet = Omit<Dossier,
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
+
+
+export type RésultatContrôle = "Conforme" | "Non conforme" | "Trop tard" | "En cours" | "Non conforme (Pas d'informations reçues)"
+export type TypesActionSuiteContrôle = "Email" | "Courrier" | "Courrier recommandé avec accusé de réception"
 

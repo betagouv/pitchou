@@ -3,9 +3,10 @@ import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
 import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
 import {getPrescriptions} from './prescription.js';
+import {getContrôles} from './controle.js';
 
 //@ts-ignore
-/** @import {DossierComplet, DossierPhase, DossierRésumé, FrontEndDécisionAdministrative} from '../../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierPhase, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
@@ -17,6 +18,8 @@ import {getPrescriptions} from './prescription.js';
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
 //@ts-ignore
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
+//@ts-ignore
+/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
 //@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 //@ts-ignore
@@ -462,23 +465,28 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
         .first()
 
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
-    const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, databaseConnection)
+    const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction)
     /** @type {Promise<DécisionAdministrative[]>} */
-    const décisionsAdministrativesP = getDécisionAdministratives(dossierId, databaseConnection)
 
+    const décisionsAdministrativesP = getDécisionAdministratives(dossierId, transaction)
     const decisionIds = (await décisionsAdministrativesP).map(d => d.id)
+
     /** @type {Promise<Prescription[]>} */
-    const prescriptionsP = getPrescriptions(decisionIds, databaseConnection)
+    const prescriptionsP = getPrescriptions(decisionIds, transaction)
+    const prescriptionIds = (await prescriptionsP).map(d => d.id)
+
+    /** @type {Promise<Contrôle[]>} */
+    const contrôlesP = getContrôles(prescriptionIds, transaction)
 
     if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
-        Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP])
+        Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
             .then(transaction.commit).catch(transaction.rollback)
     }
 
-    return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP])
-        .then(([dossier, évènementsPhaseDossier, décisionsAdministratives, prescriptions]) => {
+    return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
+        .then(([dossier, évènementsPhaseDossier, décisionsAdministratives, prescriptions, contrôles]) => {
             dossier.évènementsPhase = évènementsPhaseDossier
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
@@ -493,11 +501,27 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                 delete dossier.espèces_impactées_nom
             }
 
-            /** @type {Map<DécisionAdministrative['id'], Prescription[]>} */
+            /** @type {Map<Prescription['id'], Contrôle[]>} */
+            const contrôlesParPrescriptionId = new Map()
+            for(const c of contrôles){
+                const id = c.prescription
+                const contrôlesPourCetId = contrôlesParPrescriptionId.get(id) || []
+                contrôlesPourCetId.push(c)
+                contrôlesParPrescriptionId.set(id, contrôlesPourCetId)
+            }
+
+
+            /** @type {Map<DécisionAdministrative['id'], FrontEndPrescription[]>} */
             const prescriptionsParDécisionId = new Map()
             for(const p of prescriptions){
+                const contrôles = contrôlesParPrescriptionId.get(p.id)
+                // @ts-ignore p devient un FrontEndPrescription
+                p.contrôles = contrôles
+
                 const id = p.décision_administrative
                 const prescrPourCetId = prescriptionsParDécisionId.get(id) || []
+
+                // @ts-ignore p est devenu un FrontEndPrescription
                 prescrPourCetId.push(p)
                 prescriptionsParDécisionId.set(id, prescrPourCetId)
             }

@@ -7,7 +7,9 @@
     /** @type {DossierComplet} */
     export let dossier
 
-    export let décisionsAdministratives = dossier.décisionsAdministratives || []
+    $: décisionsAdministratives = dossier.décisionsAdministratives || []
+
+    //$: console.log('décisionsAdministratives', décisionsAdministratives)
 </script>
 
 <div class="row">
@@ -18,7 +20,7 @@
         Il n'y a pas de décisions administrative à contrôler concernant ce dossier
     {:else}
         {#each décisionsAdministratives as décisionAdministrative}
-            <DécisionsAdministratives {décisionAdministrative}></DécisionsAdministratives>
+            <DécisionsAdministratives {décisionAdministrative} dossierId={dossier.id}></DécisionsAdministratives>
         {/each}
     {/if}
 </div>
