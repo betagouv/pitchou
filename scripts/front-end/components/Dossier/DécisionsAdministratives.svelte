@@ -9,7 +9,7 @@
     import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../actions/dossier.js'
 
-    /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
+    /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
     /** @import Dossier from '../../../types/database/public/Dossier.ts' */
     /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
 
@@ -24,14 +24,15 @@
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
     } = décisionAdministrative
 
-    /** @type {Set<Partial<PrescriptionType>>}*/
-    $: prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
+    /** @type {Set<Partial<FrontEndPrescription>>}*/
+    let prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
+    //$: console.log('prescriptions', prescriptions)
+
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     function rerender(){
         prescriptions = prescriptions
-        prescriptionsEnContrôle = prescriptionsEnContrôle
     }
 
     function ajouterPrescription(){
@@ -122,18 +123,17 @@
         if(file){
             const importPrescriptionFileAB = await file.arrayBuffer()
             créerPrescriptionContrôlesÀPartirDeFichier(importPrescriptionFileAB, décisionAdministrative)
-                .then(() => refreshDossierComplet(dossierId))
+                .then(nouvellesPrescriptions => {
+                    prescriptions = new Set(nouvellesPrescriptions)
+
+                    refreshDossierComplet(dossierId)
+                })
         }
     }
-
-    /** @type {Set<Partial<PrescriptionType>>} */
-    let prescriptionsEnContrôle = new Set()
     
 
     /** @type {'consulter' | 'modifier'} */
     let vuePrescription = 'consulter'
-
-
 
 </script>
 
@@ -216,7 +216,7 @@
                                 <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                                <td><button class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
+                                <td><button class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
                             </tr>
                         {/each}
                         <tr><td colspan="9" class="fr-pt-1w">
