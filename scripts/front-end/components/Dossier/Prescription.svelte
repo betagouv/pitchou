@@ -258,15 +258,7 @@
             margin-bottom: 0.5rem;
         }
     }
-
-
-    position: relative;
-
-    button.contrôles{
-        position: absolute;
-        top: var(--prescription-padding-top);
-        right: var(--prescription-padding-top);
-    }
+    
 }
 
 
