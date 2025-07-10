@@ -14,7 +14,7 @@ const inutile = true;
  * 
  * @param {ArrayBuffer} fichierPrescriptionContrôleAB 
  * @param {FrontEndDécisionAdministrative} décisionAdministrative 
- * @returns {Promise<any>}
+ * @returns {Promise<FrontEndPrescription[]>}
  */
 export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPrescriptionContrôleAB, décisionAdministrative){
     const rawData = await getODSTableRawContent(fichierPrescriptionContrôleAB)
@@ -132,5 +132,7 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
         
     //console.log('candidatsPrescriptions', candidatsPrescriptions)
 
+    // @ts-ignore
     return ajouterPrescriptionsEtContrôles(candidatsPrescriptions)
+        .then(() => candidatsPrescriptions)
 }
