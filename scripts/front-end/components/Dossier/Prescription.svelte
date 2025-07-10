@@ -20,6 +20,8 @@
     /** @type {Partial<Contrôle>[]}*/
     $: contrôles = _contrôles ? [..._contrôles] : []
 
+    $: console.log('contrôles', contrôles)
+
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     function rerender(){

@@ -7,9 +7,15 @@
     import {formatDateAbsolue} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
     import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../actions/décisionAdministrative.js'
+    import {refreshDossierComplet} from '../../actions/dossier.js'
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
+    /** @import Dossier from '../../../types/database/public/Dossier.ts' */
     /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
+
+    /** @type {Dossier['id']} */
+    export let dossierId
+
 
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
@@ -21,6 +27,8 @@
 
     /** @type {Set<Partial<PrescriptionType>>}*/
     $: prescriptions = _prescriptions ? new Set(_prescriptions) : new Set()
+
+    $: console.log('prescriptions', prescriptions)
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
@@ -117,6 +125,7 @@
         if(file){
             const importPrescriptionFileAB = await file.arrayBuffer()
             créerPrescriptionContrôlesÀPartirDeFichier(importPrescriptionFileAB, décisionAdministrative)
+                .then(() => refreshDossierComplet(dossierId))
         }
     }
 

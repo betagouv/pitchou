@@ -1,9 +1,13 @@
 import {directDatabaseConnection} from '../database.js'
 
+import {ajouterContrôles} from './controle.js'
+
 //@ts-ignore
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 //@ts-ignore
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
+//@ts-ignore
+/** @import {FrontEndPrescription} from '../../types/API_Pitchou.ts' */
 
 /** @import {Knex} from 'knex' */
 
@@ -33,6 +37,29 @@ export function ajouterPrescription(prescription, databaseConnection = directDat
         .returning(['id'])
         .then(prescriptions => ({prescriptionId: prescriptions[0].id}))
 }
+
+/**
+ * 
+ * @param {Omit<FrontEndPrescription, 'id'>[]} prescriptions 
+ */
+export function ajouterPrescriptionsEtContrôles(prescriptions){
+
+    return Promise.allSettled(prescriptions.map(prescription => {
+        const contrôles = prescription.contrôles
+        delete prescription.contrôles
+
+        return ajouterPrescription(prescription).then(({prescriptionId}) => {
+            if(contrôles && contrôles.length >= 1){
+                for(const contrôle of contrôles){
+                    contrôle.prescription = prescriptionId
+                }
+
+                return ajouterContrôles(contrôles)
+            }
+        })
+    }))
+}
+
 
 
 /**

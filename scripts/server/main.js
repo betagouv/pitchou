@@ -13,8 +13,8 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
-import { ajouterPrescription, modifierPrescription, supprimerPrescription } from './database/prescription.js'
-import { ajouterContrôle, modifierContrôle } from './database/controle.js'
+import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
+import { ajouterContrôles, modifierContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
@@ -32,7 +32,7 @@ import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.jso
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, FrontEndPrescription} from '../types/API_Pitchou.ts' */
 
 
 
@@ -367,6 +367,19 @@ fastify.post('/prescription', function(request, reply) {
 })
 
 
+fastify.post('/prescriptions-et-contrôles', function(request, reply) {  
+  /** @type { Omit<FrontEndPrescription, 'id'>[] } */
+  // @ts-ignore
+  const prescriptionData = request.body
+
+  return ajouterPrescriptionsEtContrôles(prescriptionData)
+    .then(() => { reply.send('') })
+    .catch((/** @type {any} */ err) => {
+      reply.code(400).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
+    })
+})
+
+
 
 fastify.delete('/prescription/:prescriptionId', async function(request, reply) {  
   //@ts-ignore
@@ -391,7 +404,7 @@ fastify.post('/contrôle', function(request, reply) {
     ret = modifierContrôle(contrôleData)
   }
   else{
-    ret = ajouterContrôle(contrôleData)
+    ret = ajouterContrôles(contrôleData)
   }
 
   return ret.then((/** @type {Contrôle['id'] | undefined} */ contrôleId) => {

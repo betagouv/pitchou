@@ -85,6 +85,20 @@ export async function getDossierComplet(id){
     return dossierComplet
 }
 
+/**
+ * @param {DossierComplet['id']} id
+ * @returns {Promise<DossierComplet>}
+ */
+export async function refreshDossierComplet(id){
+    if(!store.state.capabilities.recupérerDossierComplet)
+        throw new TypeError(`Capability recupérerDossierComplet manquante`)
+
+    const dossierComplet = await store.state.capabilities.recupérerDossierComplet(id)
+    store.mutations.setDossierComplet(dossierComplet)
+    
+    return dossierComplet
+}
+
 
 /**
  * 

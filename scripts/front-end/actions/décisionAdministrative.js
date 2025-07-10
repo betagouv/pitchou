@@ -1,16 +1,20 @@
 import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} from '@odfjs/odfjs'
 
 import {isValidDate} from '../../commun/typeFormat.js'
+import {ajouterPrescriptionsEtContrôles} from './prescriptions.js'
 
 /** @import {FrontEndPrescription, FrontEndDécisionAdministrative} from '../../types/API_Pitchou.ts' */
 /** @import Contrôle from '../../types/database/public/Contrôle.ts' */
+
+//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
+const inutile = true;
 
 /**
  * Trouve les données et les synchronise en BDD
  * 
  * @param {ArrayBuffer} fichierPrescriptionContrôleAB 
  * @param {FrontEndDécisionAdministrative} décisionAdministrative 
- * @returns {Promise<void>}
+ * @returns {Promise<any>}
  */
 export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPrescriptionContrôleAB, décisionAdministrative){
     const rawData = await getODSTableRawContent(fichierPrescriptionContrôleAB)
@@ -18,7 +22,7 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
 
     const numéroDécision = décisionAdministrative.numéro
 
-    /** @type {Partial<FrontEndPrescription>[]} */
+    /** @type {Omit<FrontEndPrescription, 'id'>[]} */
     // @ts-ignore
     const candidatsPrescriptions = cleanData.filter(row => {
         const prescriptionNumDec = row['Numéro décision administrative'] && row['Numéro décision administrative'].trim()
@@ -27,7 +31,7 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
     })
     // @ts-ignore
     .map(row => {
-        console.log('row', row)
+        //console.log('row', row)
 
         const {
             "Numéro article": numéro_article,
@@ -41,9 +45,10 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
             "Nids évités": nids_évités,
         } = row
 
+        /** @type {Omit<FrontEndPrescription, 'id'>} */
         const prescription = {
             décision_administrative: décisionAdministrative.id,
-            date_échéance: isValidDate(new Date(date_échéance)) ? new Date(date_échéance) : undefined,
+            date_échéance: isValidDate(new Date(date_échéance)) ? new Date(date_échéance) : null,
             numéro_article,
             description,
             individus_compensés: !individus_compensés ? undefined : individus_compensés,
@@ -52,22 +57,28 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
             nids_évités: !nids_évités ? undefined : nids_évités,
             surface_compensée: !surface_compensée ? undefined : surface_compensée,
             surface_évitée: !surface_évitée ? undefined : surface_évitée,
+            contrôles: undefined
         }
 
-        /** @type {Partial<Contrôle>[]} */
+        /** @type {Omit<Contrôle, 'id' | 'prescription'>[]} */
         let contrôles = []
 
         let numéroContrôle = 1
 
-        //while(true){
-            const {
-                '1 Date contrôle': date_contrôle,
-                '1 Résultat contrôle': résultat,
-                '1 Commentaire': commentaire,
-                '1 Type de Suite': type_action_suite_contrôle,
-                '1 Date de la suite': date_action_suite_contrôle,
-                '1 Date Echéance': date_prochaine_échéance
-            } = row
+        while(true){
+            const date_contrôleProp = `${numéroContrôle} Date contrôle`
+            const résultatProp = `${numéroContrôle} Résultat contrôle`
+            const commentaireProp = `${numéroContrôle} Commentaire`
+            const type_action_suite_contrôleProp = `${numéroContrôle} Type de Suite`
+            const date_action_suite_contrôleProp = `${numéroContrôle} Date de la suite`
+            const date_prochaine_échéanceProp = `${numéroContrôle} Date Echéance`
+
+            const date_contrôle = row[date_contrôleProp]
+            const résultat = row[résultatProp]
+            const commentaire = row[commentaireProp]
+            const type_action_suite_contrôle = row[type_action_suite_contrôleProp]
+            const date_action_suite_contrôle = row[date_action_suite_contrôleProp]
+            const date_prochaine_échéance = row[date_prochaine_échéanceProp]
 
             if(date_contrôle && résultat){
                 contrôles.push({
@@ -78,24 +89,24 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
                     date_action_suite_contrôle: isValidDate(new Date(date_action_suite_contrôle)) ? new Date(date_action_suite_contrôle) : null,
                     date_prochaine_échéance: isValidDate(new Date(date_prochaine_échéance)) ? new Date(date_prochaine_échéance) : null,
                 })
+
+                numéroContrôle = numéroContrôle+1
             }
             else{
-                //break;
-            }
-        //}
+                break;
+            }   
+        }
 
-        console.log('contrôles', contrôles)
+        if(contrôles.length >= 1){
+            // @ts-ignore
+            prescription.contrôles = contrôles
+        }
 
-        
-
-
-
+        return prescription;
     })
-        
-    console.log('candidatsPrescriptions', candidatsPrescriptions)
 
-    // prescriptions = prescriptions.union(new Set(candidatsPrescriptions))
-    /*for(const p of prescriptions){
-        savePrescription(p)
-    }*/
+        
+    //console.log('candidatsPrescriptions', candidatsPrescriptions)
+
+    return ajouterPrescriptionsEtContrôles(candidatsPrescriptions)
 }
