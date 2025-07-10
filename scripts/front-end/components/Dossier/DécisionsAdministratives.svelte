@@ -22,13 +22,10 @@
 
     let {
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
-        prescriptions: _prescriptions
     } = décisionAdministrative
 
     /** @type {Set<Partial<PrescriptionType>>}*/
-    $: prescriptions = _prescriptions ? new Set(_prescriptions) : new Set()
-
-    $: console.log('prescriptions', prescriptions)
+    $: prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 

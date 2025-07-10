@@ -14,13 +14,10 @@
     let {
         id, description, date_échéance, numéro_article,
         surface_évitée, surface_compensée, individus_évités, individus_compensés, nids_évités, nids_compensés,
-        contrôles: _contrôles
     } = prescription
 
     /** @type {Partial<Contrôle>[]}*/
-    $: contrôles = _contrôles ? [..._contrôles] : []
-
-    $: console.log('contrôles', contrôles)
+    $: contrôles = prescription.contrôles ? [...prescription.contrôles] : []
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 

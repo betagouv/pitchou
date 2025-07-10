@@ -7,9 +7,9 @@
     /** @type {DossierComplet} */
     export let dossier
 
-    export let décisionsAdministratives = dossier.décisionsAdministratives || []
+    $: décisionsAdministratives = dossier.décisionsAdministratives || []
 
-    $: console.log('décisionsAdministratives', décisionsAdministratives)
+    //$: console.log('décisionsAdministratives', décisionsAdministratives)
 </script>
 
 <div class="row">
