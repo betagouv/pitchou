@@ -1,12 +1,12 @@
-<script>
-    import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} from '@odfjs/odfjs'
+<script>    
     import DateInput from '../common/DateInput.svelte'
     import Prescription from './Prescription.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
+
     import {formatDateAbsolue} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
-
+    import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../actions/décisionAdministrative.js'
 
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
     /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
@@ -116,47 +116,7 @@
 
         if(file){
             const importPrescriptionFileAB = await file.arrayBuffer()
-            const rawData = await getODSTableRawContent(importPrescriptionFileAB)
-            const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0]
-
-            /** @type {Partial<PrescriptionType>[]} */
-            // @ts-ignore
-            const candidatsPrescriptions = cleanData.filter(row => {
-                const prescriptionNumDec = row['Numéro décision administrative'] && row['Numéro décision administrative'].trim()
-                return !prescriptionNumDec || prescriptionNumDec === (numéro && numéro.trim())
-            })
-            // @ts-ignore
-            .map(row => {
-                const {
-                    "Numéro article": numéro_article,
-                    "Description": description,
-                    "Date échéance": date_échéance,
-                    "Surface compensée": surface_compensée,
-                    "Surface évitée": surface_évitée,
-                    "Individus compensés": individus_compensés, 
-                    "Individus évités": individus_évités,
-                    "Nids compensés": nids_compensés,
-                    "Nids évités": nids_évités,
-                } = row
-
-                return {
-                    décision_administrative: décisionAdministrative.id,
-                    date_échéance: !date_échéance ? undefined : date_échéance,
-                    numéro_article,
-                    description,
-                    individus_compensés: !individus_compensés ? undefined : individus_compensés,
-                    individus_évités: !individus_évités ? undefined : individus_évités,
-                    nids_compensés: !nids_compensés ? undefined : nids_compensés,
-                    nids_évités: !nids_évités ? undefined : nids_évités,
-                    surface_compensée: !surface_compensée ? undefined : surface_compensée,
-                    surface_évitée: !surface_évitée ? undefined : surface_évitée,
-                }
-            })
-                 
-            prescriptions = prescriptions.union(new Set(candidatsPrescriptions))
-            for(const p of prescriptions){
-                savePrescription(p)
-            }
+            créerPrescriptionContrôlesÀPartirDeFichier(importPrescriptionFileAB, décisionAdministrative)
         }
     }
 
