@@ -10,6 +10,7 @@ import Contrôle from './database/public/Contrôle.ts'
 type DossierPersonnesImpliquées = {
     déposant_nom: string;
     déposant_prénoms: string;
+    déposant_email: string;
     demandeur_personne_physique_nom: string;
     demandeur_personne_physique_prénoms: string;
     demandeur_personne_morale_raison_sociale: string;
