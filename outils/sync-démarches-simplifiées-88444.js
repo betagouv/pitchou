@@ -133,7 +133,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
     id: id_demarches_simplifiées,
     number,
     dateDepot: date_dépôt, 
-    state: statut, 
     demandeur,
     champs,
     annotations
@@ -446,7 +445,6 @@ const dossiersPourSynchronisation = dossiersDS.map((
         // méta-données
         id_demarches_simplifiées,
         number_demarches_simplifiées,
-        statut,
         date_dépôt,
 
         // demandeur/déposant
