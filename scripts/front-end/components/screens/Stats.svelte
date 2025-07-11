@@ -33,9 +33,65 @@
         )
     }
 
+    /**
+     * Trouve toutes les décisions administratives avec prescriptions
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {number}
+     */
+    function compterDécisionsAvecPrescriptions(dossiers) {
+        let total = 0
+        for (const dossier of dossiers) {
+            if (dossier.décisionsAdministratives) {
+                for (const décision of dossier.décisionsAdministratives) {
+                    if (décision.prescriptions && décision.prescriptions.length > 0) {
+                        total++
+                    }
+                }
+            }
+        }
+        return total
+    }
+
+    /**
+     * Trouve toutes les décisions administratives sans prescriptions
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {number}
+     */
+    function compterDécisionsSansPrescriptions(dossiers) {
+        let total = 0
+        for (const dossier of dossiers) {
+            if (dossier.décisionsAdministratives) {
+                for (const décision of dossier.décisionsAdministratives) {
+                    if (!décision.prescriptions || décision.prescriptions.length === 0) {
+                        total++
+                    }
+                }
+            }
+        }
+        return total
+    }
+
+    /**
+     * Compte le nombre total de décisions administratives
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {number}
+     */
+    function compterTotalDécisions(dossiers) {
+        let total = 0
+        for (const dossier of dossiers) {
+            if (dossier.décisionsAdministratives) {
+                total += dossier.décisionsAdministratives.length
+            }
+        }
+        return total
+    }
+
     $: dossiersEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
     $: dossiersEnPhaseContrôleAvecDécision = trouverDossiersEnContrôleAvecDécision(dossiers)
     $: dossiersEnPhaseContrôleSansDécision = dossiersEnPhaseContrôle.length - dossiersEnPhaseContrôleAvecDécision.length
+    $: décisionsAvecPrescriptions = compterDécisionsAvecPrescriptions(dossiers)
+    $: décisionsSansPrescriptions = compterDécisionsSansPrescriptions(dossiers)
+    $: totalDécisions = compterTotalDécisions(dossiers)
 </script>
 
 <Squelette {email} nav={false}>
@@ -49,15 +105,8 @@
             </header>
 
             <section>
-                <h2 class="fr-mt-2w">Dossiers en phase contrôle</h2>
+                <h2 class="fr-mt-2w">Répartition des dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> avec et sans décision adminsistrative</h2>
                 <div class="fr-card fr-card--no-arrow">
-                    <div class="fr-card__header">
-                        <div class="fr-card__content">
-                            <h3 class="fr-card__title">
-                                Répartition des dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
-                            </h3>
-                        </div>
-                    </div>
                     <div class="fr-card__body">
                         <div class="fr-card__content">
                             <p class="fr-text--sm fr-mb-2w">
@@ -88,6 +137,40 @@
                     </div>
                 </div>
             </section>
+
+            <section class="fr-mt-4w">
+                <h2 class="fr-mt-2w">Répartition des dossiers avec décision administrative avec et sans prescription</h2>
+                <div class="fr-card fr-card--no-arrow">
+                    <div class="fr-card__body">
+                        <div class="fr-card__content">
+                            <p class="fr-text--sm fr-mb-2w">
+                                Les <strong>prescriptions</strong> sont les obligations imposées au bénéficiaire de la dérogation pour compenser les impacts sur les espèces protégées.
+                            </p>
+
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-4">
+                                    <div class="stat-item">
+                                        <span class="stat-number">{décisionsAvecPrescriptions}</span>
+                                        <span class="stat-label">Avec prescriptions</span>
+                                    </div>
+                                </div>
+                                <div class="fr-col-4">
+                                    <div class="stat-item">
+                                        <span class="stat-number">{décisionsSansPrescriptions}</span>
+                                        <span class="stat-label">Sans prescriptions</span>
+                                    </div>
+                                </div>
+                                <div class="fr-col-4">
+                                    <div class="stat-item total-stat">
+                                        <span class="stat-number">{totalDécisions}</span>
+                                        <span class="stat-label">Total</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </article>
     </div>
 </Squelette>
@@ -96,13 +179,7 @@
     .fr-card {
         border: 1px solid var(--border-default-grey);
         border-radius: 8px;
-        padding-inline: 1.5rem;
-    }
-
-    .fr-card__title {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        padding: 1.5rem;
     }
 
     .stat-item {
