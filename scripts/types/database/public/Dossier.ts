@@ -14,8 +14,6 @@ export default interface Dossier {
 
   id_demarches_simplifiées: string | null;
 
-  statut: string | null;
-
   date_dépôt: Date;
 
   espèces_protégées_concernées: string | null;
@@ -121,8 +119,6 @@ export interface DossierInitializer {
 
   id_demarches_simplifiées?: string | null;
 
-  statut?: string | null;
-
   date_dépôt: Date;
 
   espèces_protégées_concernées?: string | null;
@@ -226,8 +222,6 @@ export interface DossierMutator {
   id?: DossierId;
 
   id_demarches_simplifiées?: string | null;
-
-  statut?: string | null;
 
   date_dépôt?: Date;
 

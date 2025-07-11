@@ -112,6 +112,7 @@ fastify.get('/saisie-especes', sendIndexHTMLFile)
 // fastify.get('/dossier/:dossierId', sendIndexHTMLFile) géré plus bas avec une route dédiée qui peut retourner aussi du JSON
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
+fastify.get('/stats', sendIndexHTMLFile)
 
 
 

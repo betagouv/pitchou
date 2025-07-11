@@ -139,7 +139,6 @@ export async function getDossierMessages(dossierId, databaseConnection = directD
 
 /** @type {(keyof Dossier)[]} */
 const varcharKeys = [
-    'statut',
     'nom',
     'historique_nom_porteur',
     'historique_localisation',
@@ -306,7 +305,6 @@ const colonnesDossierComplet = [
     "dossier.id as id",
     //"id_demarches_simplifiées",
     "number_demarches_simplifiées",
-    "statut",
     "date_dépôt",
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "dossier.nom as nom",
