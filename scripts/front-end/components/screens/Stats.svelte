@@ -137,7 +137,31 @@
         return emails.size
     }
 
-    // Estimation France (statique, à ajuster si besoin)
+    /**
+     * Compte le nombre de dossiers déposés depuis septembre 2024
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {number}
+     */
+    function compterDossiersDepuisSept2024(dossiers) {
+        const dateLimite = new Date('2024-09-01')
+        return dossiers.filter(dossier => dossier.date_dépôt && new Date(dossier.date_dépôt) >= dateLimite).length
+    }
+
+    /**
+     * Compte le nombre de dossiers en autorisation environnementale depuis septembre 2024
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {number}
+     */
+    function compterDossiersAEDepuisSept2024(dossiers) {
+        const dateLimite = new Date('2024-09-01')
+        return dossiers.filter(dossier => 
+            dossier.date_dépôt && 
+            new Date(dossier.date_dépôt) >= dateLimite && 
+            dossier.rattaché_au_régime_ae
+        ).length
+    }
+
+    // Estimations France (statiques, à ajuster si besoin)
     const estimationFrance = 1200
 
     $: dossiersEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
@@ -148,6 +172,8 @@
     $: totalDécisions = compterTotalDécisions(dossiers)
     $: totalContrôles = compterContrôlesDossiersContrôleObligation(dossiers)
     $: nbPetitionnairesDepuisSept2024 = compterPetitionnairesDepuisSept2024(dossiers)
+    $: nbDossiersDepuisSept2024 = compterDossiersDepuisSept2024(dossiers)
+    $: nbDossiersAEDepuisSept2024 = compterDossiersAEDepuisSept2024(dossiers)
     $: pourcentageAvecDecision = dossiersEnPhaseContrôle.length > 0 ? Math.round((dossiersEnPhaseContrôleAvecDécision.length / dossiersEnPhaseContrôle.length) * 100) : 0
     $: pourcentageSansDecision = 100 - pourcentageAvecDecision
 </script>
@@ -163,7 +189,7 @@
             </header>
 
             <section class="fr-mb-4w">
-                <h2 class="fr-mt-2w">Nombre de pétitionnaires depuis septembre 2024</h2>
+                <h2 class="fr-mt-2w">Activité sur Pitchou depuis septembre 2024</h2>
                 <div class="fr-card fr-card--no-arrow">
                     <div class="fr-card__body">
                         <div class="fr-card__content">
@@ -171,7 +197,21 @@
                                 <div class="fr-col-6">
                                     <div class="stat-item total-stat">
                                         <span class="stat-number">{nbPetitionnairesDepuisSept2024}</span>
-                                        <span class="stat-label">Pétitionnaires uniques sur Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
+                                        <span class="stat-label">Pétitionnaires uniques<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
+                                    </div>
+                                </div>
+                                <div class="fr-col-6">
+                                    <div class="stat-item total-stat">
+                                        <span class="stat-number">{nbDossiersDepuisSept2024}</span>
+                                        <span class="stat-label">Dossiers déposés<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                                <div class="fr-col-6">
+                                    <div class="stat-item">
+                                        <span class="stat-number">{nbDossiersAEDepuisSept2024}</span>
+                                        <span class="stat-label">En autorisation environnementale<br><span class="fr-text--xs">(sur Pitchou)</span></span>
                                     </div>
                                 </div>
                                 <div class="fr-col-6">
@@ -181,7 +221,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="fr-text--sm fr-mt-2w">Ce chiffre correspond au nombre de personnes ayant effectivement déposé un dossier sur Pitchou depuis septembre 2024. L'estimation France entière est indicative.</p>
+                            <p class="fr-text--sm fr-mt-2w">
+                                Ces chiffres correspondent à l'activité sur Pitchou depuis septembre 2024. 
+                                L'estimation France entière est indicative et inclut les dossiers en autorisation environnementale (AE).
+                            </p>
                         </div>
                     </div>
                 </div>
