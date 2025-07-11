@@ -103,3 +103,20 @@ export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté ref
 export type RésultatContrôle = "Conforme" | "Non conforme" | "Trop tard" | "En cours" | "Non conforme (Pas d'informations reçues)"
 export type TypesActionSuiteContrôle = "Email" | "Courrier" | "Courrier recommandé avec accusé de réception"
 
+/**
+ * Type pour les statistiques publiques calculées côté backend
+ */
+export interface StatsPubliques {
+    totalDossiers: number
+    dossiersEnPhaseContrôle: number
+    dossiersEnPhaseContrôleAvecDécision: number
+    dossiersEnPhaseContrôleSansDécision: number
+    décisionsAvecPrescriptions: number
+    décisionsSansPrescriptions: number
+    totalDécisions: number
+    totalContrôles: number
+    nbPetitionnairesDepuisSept2024: number
+    nbDossiersDepuisSept2024: number
+    nbDossiersAEDepuisSept2024: number
+}
+

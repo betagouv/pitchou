@@ -16,6 +16,7 @@ import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from 
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
 import { ajouterContrôles, modifierContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
+import { getStatsPubliques } from './database/stats.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -156,6 +157,17 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
 
 fastify.get('/résultats-synchronisation', async function () {
   return getRésultatsSynchronisationDS88444()
+})
+
+
+fastify.get('/api/stats-publiques', async function (_request, reply) {
+  try {
+    const stats = await getStatsPubliques()
+    return stats
+  } catch (error) {
+    console.error('Erreur lors du calcul des statistiques:', error)
+    return reply.code(500).send('Erreur lors du calcul des statistiques')
+  }
 })
 
 

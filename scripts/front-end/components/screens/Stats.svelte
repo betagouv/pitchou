@@ -3,180 +3,33 @@
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
 
-    /** @import {DossierRésumé} from '../../../types/API_Pitchou.ts' */ 
-
-    /** @type {DossierRésumé[]} */
-    export let dossiers = []
+    /** @import {StatsPubliques} from '../../../types/API_Pitchou.ts' */
+    
+    /** @type {StatsPubliques} */
+    export let stats = {
+        totalDossiers: 0,
+        dossiersEnPhaseContrôle: 0,
+        dossiersEnPhaseContrôleAvecDécision: 0,
+        dossiersEnPhaseContrôleSansDécision: 0,
+        décisionsAvecPrescriptions: 0,
+        décisionsSansPrescriptions: 0,
+        totalDécisions: 0,
+        totalContrôles: 0,
+        nbPetitionnairesDepuisSept2024: 0,
+        nbDossiersDepuisSept2024: 0,
+        nbDossiersAEDepuisSept2024: 0
+    }
 
     /** @type {string | undefined} */
     export let email = undefined
 
-    /**
-     * Trouve tous les dossiers en phase contrôle
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {DossierRésumé[]}
-     */
-    function trouverDossiersEnContrôle(dossiers) {
-        return dossiers.filter(dossier => dossier.phase === 'Contrôle')
-    }
-
-    /**
-     * Trouve les dossiers en phase contrôle qui ont au moins une décision administrative
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {DossierRésumé[]}
-     */
-    function trouverDossiersEnContrôleAvecDécision(dossiers) {
-        return dossiers.filter(dossier => 
-            dossier.phase === 'Contrôle' && 
-            dossier.décisionsAdministratives && 
-            dossier.décisionsAdministratives.length > 0
-        )
-    }
-
-    /**
-     * Trouve toutes les décisions administratives avec prescriptions
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterDécisionsAvecPrescriptions(dossiers) {
-        let total = 0
-        for (const dossier of dossiers) {
-            if (dossier.décisionsAdministratives) {
-                for (const décision of dossier.décisionsAdministratives) {
-                    if (décision.prescriptions && décision.prescriptions.length > 0) {
-                        total++
-                    }
-                }
-            }
-        }
-        return total
-    }
-
-    /**
-     * Trouve toutes les décisions administratives sans prescriptions
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterDécisionsSansPrescriptions(dossiers) {
-        let total = 0
-        for (const dossier of dossiers) {
-            if (dossier.décisionsAdministratives) {
-                for (const décision of dossier.décisionsAdministratives) {
-                    if (!décision.prescriptions || décision.prescriptions.length === 0) {
-                        total++
-                    }
-                }
-            }
-        }
-        return total
-    }
-
-    /**
-     * Compte le nombre total de décisions administratives
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterTotalDécisions(dossiers) {
-        let total = 0
-        for (const dossier of dossiers) {
-            if (dossier.décisionsAdministratives) {
-                total += dossier.décisionsAdministratives.length
-            }
-        }
-        return total
-    }
-
-    /**
-     * Trouve les dossiers en phase Contrôle OU les dossiers en phase Obligations terminées
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {DossierRésumé[]}
-     */
-    function trouverDossiersContrôleObligationTerminés(dossiers) {
-        return dossiers.filter(dossier => dossier.phase === 'Contrôle' || dossier.phase === 'Obligations terminées' )
-    }
-
-    /**
-     * Compte le nombre total de contrôles parmi les dossiers en phase contrôle OU obligation terminée depuis -1 an
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterContrôlesDossiersContrôleObligation(dossiers) {
-        const dossiersCibles = trouverDossiersContrôleObligationTerminés(dossiers)
-        let totalContrôles = 0
-        
-        for (const dossier of dossiersCibles) {
-            if (dossier.décisionsAdministratives) {
-                for (const décision of dossier.décisionsAdministratives) {
-                    if (décision.prescriptions) {
-                        for (const prescription of décision.prescriptions) {
-                            if (prescription.contrôles) {
-                                totalContrôles += prescription.contrôles.length
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        return totalContrôles
-    }
-
-    /**
-     * Compte le nombre de pétitionnaires uniques ayant déposé un dossier depuis septembre 2024
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterPetitionnairesDepuisSept2024(dossiers) {
-        const emails = new Set()
-        const dateLimite = new Date('2024-09-01')
-        for (const dossier of dossiers) {
-            if (dossier.date_dépôt && new Date(dossier.date_dépôt) >= dateLimite && dossier.déposant_email) {
-                emails.add(dossier.déposant_email)
-            }
-        }
-        return emails.size
-    }
-
-    /**
-     * Compte le nombre de dossiers déposés depuis septembre 2024
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterDossiersDepuisSept2024(dossiers) {
-        const dateLimite = new Date('2024-09-01')
-        return dossiers.filter(dossier => dossier.date_dépôt && new Date(dossier.date_dépôt) >= dateLimite).length
-    }
-
-    /**
-     * Compte le nombre de dossiers en autorisation environnementale depuis septembre 2024
-     * @param {DossierRésumé[]} dossiers 
-     * @returns {number}
-     */
-    function compterDossiersAEDepuisSept2024(dossiers) {
-        const dateLimite = new Date('2024-09-01')
-        return dossiers.filter(dossier => 
-            dossier.date_dépôt && 
-            new Date(dossier.date_dépôt) >= dateLimite && 
-            dossier.rattaché_au_régime_ae
-        ).length
-    }
-
     // Estimations (statiques, à ajuster si besoin)
     const estimationNbPétitionnairesEnFrance = 1500
 
-    $: dossiersEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
-    $: dossiersEnPhaseContrôleAvecDécision = trouverDossiersEnContrôleAvecDécision(dossiers)
-    $: dossiersEnPhaseContrôleSansDécision = dossiersEnPhaseContrôle.length - dossiersEnPhaseContrôleAvecDécision.length
-    $: décisionsAvecPrescriptions = compterDécisionsAvecPrescriptions(dossiers)
-    $: décisionsSansPrescriptions = compterDécisionsSansPrescriptions(dossiers)
-    $: totalDécisions = compterTotalDécisions(dossiers)
-    $: totalContrôles = compterContrôlesDossiersContrôleObligation(dossiers)
-    $: nbPetitionnairesDepuisSept2024 = compterPetitionnairesDepuisSept2024(dossiers)
-    $: nbDossiersDepuisSept2024 = compterDossiersDepuisSept2024(dossiers)
-    $: nbDossiersAEDepuisSept2024 = compterDossiersAEDepuisSept2024(dossiers)
-    $: pourcentageAvecDecision = dossiersEnPhaseContrôle.length > 0 ? Math.round((dossiersEnPhaseContrôleAvecDécision.length / dossiersEnPhaseContrôle.length) * 100) : 0
+    // Calculs des pourcentages basés sur les statistiques du backend
+    $: pourcentageAvecDecision = stats.dossiersEnPhaseContrôle > 0 ? Math.round((stats.dossiersEnPhaseContrôleAvecDécision / stats.dossiersEnPhaseContrôle) * 100) : 0
     $: pourcentageSansDecision = 100 - pourcentageAvecDecision
-    $: pourcentageAE = nbDossiersDepuisSept2024 > 0 ? Math.round((nbDossiersAEDepuisSept2024 / nbDossiersDepuisSept2024) * 100) : 0
+    $: pourcentageAE = stats.nbDossiersDepuisSept2024 > 0 ? Math.round((stats.nbDossiersAEDepuisSept2024 / stats.nbDossiersDepuisSept2024) * 100) : 0
     $: pourcentageNonAE = 100 - pourcentageAE
 </script>
 
@@ -186,7 +39,7 @@
             <header class="fr-mb-2w">
                 <h1>Pitchou - Statistiques publiques</h1>
                 <p class="fr-text--lg fr-mb-0">
-                    Ces données statistiques sont basées sur <strong>{dossiers.length} dossiers au total</strong> et concernent le déploiement en <strong>Nouvelle-Aquitaine</strong>.
+                    Ces données statistiques sont basées sur <strong>{stats.totalDossiers} dossiers au total</strong> et concernent le déploiement en <strong>Nouvelle-Aquitaine</strong>.
                 </p>
             </header>
 
@@ -198,7 +51,7 @@
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-6">
                                     <div class="stat-item total-stat">
-                                        <span class="stat-number">{nbPetitionnairesDepuisSept2024}</span>
+                                        <span class="stat-number">{stats.nbPetitionnairesDepuisSept2024}</span>
                                         <span class="stat-label">Pétitionnaires dans Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
                                     </div>
                                 </div>
@@ -226,11 +79,11 @@
                             <div class="progress-stats-wrapper">
                                 <div class="progress-labels">
                                     <div class="progress-label progress-label--left">
-                                        <span class="stat-number">{nbDossiersAEDepuisSept2024}</span>
+                                        <span class="stat-number">{stats.nbDossiersAEDepuisSept2024}</span>
                                         <span class="stat-label">En autorisation environnementale<br>{pourcentageAE}%</span>
                                     </div>
                                     <div class="progress-label progress-label--right">
-                                        <span class="stat-number">{nbDossiersDepuisSept2024 - nbDossiersAEDepuisSept2024}</span>
+                                        <span class="stat-number">{stats.nbDossiersDepuisSept2024 - stats.nbDossiersAEDepuisSept2024}</span>
                                         <span class="stat-label">Hors autorisation environnementale<br>{pourcentageNonAE}%</span>
                                     </div>
                                 </div>
@@ -239,7 +92,7 @@
                                     <div style="width: {pourcentageNonAE}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
                                 </div>
                                 <div class="progress-total fr-mt-1w">
-                                    <span class="stat-label">Total dossiers déposés depuis septembre 2024 : <strong>{nbDossiersDepuisSept2024}</strong></span>
+                                    <span class="stat-label">Total dossiers déposés depuis septembre 2024 : <strong>{stats.nbDossiersDepuisSept2024}</strong></span>
                                 </div>
                             </div>
                         </div>
@@ -259,11 +112,11 @@
                             <div class="progress-stats-wrapper">
                                 <div class="progress-labels">
                                     <div class="progress-label progress-label--left">
-                                        <span class="stat-number">{dossiersEnPhaseContrôleAvecDécision.length}</span>
+                                        <span class="stat-number">{stats.dossiersEnPhaseContrôleAvecDécision}</span>
                                         <span class="stat-label">Avec décision<br>{pourcentageAvecDecision}%</span>
                                     </div>
                                     <div class="progress-label progress-label--right">
-                                        <span class="stat-number">{dossiersEnPhaseContrôleSansDécision}</span>
+                                        <span class="stat-number">{stats.dossiersEnPhaseContrôleSansDécision}</span>
                                         <span class="stat-label">Sans décision<br>{pourcentageSansDecision}%</span>
                                     </div>
                                 </div>
@@ -272,7 +125,7 @@
                                     <div style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
                                 </div>
                                 <div class="progress-total fr-mt-1w">
-                                    <span class="stat-label">Total dossiers en phase Contrôle : <strong>{dossiersEnPhaseContrôle.length}</strong></span>
+                                    <span class="stat-label">Total dossiers en phase Contrôle : <strong>{stats.dossiersEnPhaseContrôle}</strong></span>
                                 </div>
                             </div>
                         </div>
@@ -292,19 +145,19 @@
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-4">
                                     <div class="stat-item">
-                                        <span class="stat-number">{décisionsAvecPrescriptions}</span>
+                                        <span class="stat-number">{stats.décisionsAvecPrescriptions}</span>
                                         <span class="stat-label">Avec prescriptions</span>
                                     </div>
                                 </div>
                                 <div class="fr-col-4">
                                     <div class="stat-item">
-                                        <span class="stat-number">{décisionsSansPrescriptions}</span>
+                                        <span class="stat-number">{stats.décisionsSansPrescriptions}</span>
                                         <span class="stat-label">Sans prescriptions</span>
                                     </div>
                                 </div>
                                 <div class="fr-col-4">
                                     <div class="stat-item total-stat">
-                                        <span class="stat-number">{totalDécisions}</span>
+                                        <span class="stat-number">{stats.totalDécisions}</span>
                                         <span class="stat-label">Total</span>
                                     </div>
                                 </div>
@@ -326,7 +179,7 @@
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-4">
                                     <div class="stat-item total-stat">
-                                        <span class="stat-number">{totalContrôles}</span>
+                                        <span class="stat-number">{stats.totalContrôles}</span>
                                         <span class="stat-label">Total contrôles</span>
                                     </div>
                                 </div>
