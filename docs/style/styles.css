@@ -1,0 +1,45 @@
+code {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    padding: 2px 6px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+code:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+code.copied::after {
+    content: "Copié !";
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+
