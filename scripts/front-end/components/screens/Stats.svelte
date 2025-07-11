@@ -86,12 +86,48 @@
         return total
     }
 
+    /**
+     * Trouve les dossiers en phase Contrôle OU les dossiers en phase Obligations terminées
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {DossierRésumé[]}
+     */
+    function trouverDossiersContrôleObligationTerminés(dossiers) {
+        return dossiers.filter(dossier => dossier.phase === 'Contrôle' || dossier.phase === 'Obligations terminées' )
+    }
+
+    /**
+     * Compte le nombre total de contrôles parmi les dossiers en phase contrôle OU obligation terminée depuis -1 an
+     * @param {DossierRésumé[]} dossiers 
+     * @returns {number}
+     */
+    function compterContrôlesDossiersContrôleObligation(dossiers) {
+        const dossiersCibles = trouverDossiersContrôleObligationTerminés(dossiers)
+        let totalContrôles = 0
+        
+        for (const dossier of dossiersCibles) {
+            if (dossier.décisionsAdministratives) {
+                for (const décision of dossier.décisionsAdministratives) {
+                    if (décision.prescriptions) {
+                        for (const prescription of décision.prescriptions) {
+                            if (prescription.contrôles) {
+                                totalContrôles += prescription.contrôles.length
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return totalContrôles
+    }
+
     $: dossiersEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
     $: dossiersEnPhaseContrôleAvecDécision = trouverDossiersEnContrôleAvecDécision(dossiers)
     $: dossiersEnPhaseContrôleSansDécision = dossiersEnPhaseContrôle.length - dossiersEnPhaseContrôleAvecDécision.length
     $: décisionsAvecPrescriptions = compterDécisionsAvecPrescriptions(dossiers)
     $: décisionsSansPrescriptions = compterDécisionsSansPrescriptions(dossiers)
     $: totalDécisions = compterTotalDécisions(dossiers)
+    $: totalContrôles = compterContrôlesDossiersContrôleObligation(dossiers)
 </script>
 
 <Squelette {email} nav={false}>
@@ -164,6 +200,28 @@
                                     <div class="stat-item total-stat">
                                         <span class="stat-number">{totalDécisions}</span>
                                         <span class="stat-label">Total</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="fr-mt-4w">
+                <h2 class="fr-mt-2w">Nombre de contrôles</h2>
+                <div class="fr-card fr-card--no-arrow">
+                    <div class="fr-card__body">
+                        <div class="fr-card__content">
+                            <p class="fr-text--sm fr-mb-2w">
+                                Nombre total de contrôles effectués parmi les dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> OU en phase <TagPhase phase="Obligations terminées" taille="SM"></TagPhase>
+                            </p>
+
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-4">
+                                    <div class="stat-item total-stat">
+                                        <span class="stat-number">{totalContrôles}</span>
+                                        <span class="stat-label">Total contrôles</span>
                                     </div>
                                 </div>
                             </div>
