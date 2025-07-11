@@ -161,8 +161,8 @@
         ).length
     }
 
-    // Estimations France (statiques, à ajuster si besoin)
-    const estimationFrance = 1200
+    // Estimations (statiques, à ajuster si besoin)
+    const estimationNbPétitionnairesEnFrance = 1500
 
     $: dossiersEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
     $: dossiersEnPhaseContrôleAvecDécision = trouverDossiersEnContrôleAvecDécision(dossiers)
@@ -176,6 +176,8 @@
     $: nbDossiersAEDepuisSept2024 = compterDossiersAEDepuisSept2024(dossiers)
     $: pourcentageAvecDecision = dossiersEnPhaseContrôle.length > 0 ? Math.round((dossiersEnPhaseContrôleAvecDécision.length / dossiersEnPhaseContrôle.length) * 100) : 0
     $: pourcentageSansDecision = 100 - pourcentageAvecDecision
+    $: pourcentageAE = nbDossiersDepuisSept2024 > 0 ? Math.round((nbDossiersAEDepuisSept2024 / nbDossiersDepuisSept2024) * 100) : 0
+    $: pourcentageNonAE = 100 - pourcentageAE
 </script>
 
 <Squelette {email} nav={false}>
@@ -197,34 +199,49 @@
                                 <div class="fr-col-6">
                                     <div class="stat-item total-stat">
                                         <span class="stat-number">{nbPetitionnairesDepuisSept2024}</span>
-                                        <span class="stat-label">Pétitionnaires uniques<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
-                                    </div>
-                                </div>
-                                <div class="fr-col-6">
-                                    <div class="stat-item total-stat">
-                                        <span class="stat-number">{nbDossiersDepuisSept2024}</span>
-                                        <span class="stat-label">Dossiers déposés<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-                                <div class="fr-col-6">
-                                    <div class="stat-item">
-                                        <span class="stat-number">{nbDossiersAEDepuisSept2024}</span>
-                                        <span class="stat-label">En autorisation environnementale<br><span class="fr-text--xs">(sur Pitchou)</span></span>
+                                        <span class="stat-label">Pétitionnaires dans Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
                                     </div>
                                 </div>
                                 <div class="fr-col-6">
                                     <div class="stat-item">
-                                        <span class="stat-number">{estimationFrance}</span>
-                                        <span class="stat-label">Estimation France entière<br><span class="fr-text--xs">(référence)</span></span>
+                                        <span class="stat-number">{estimationNbPétitionnairesEnFrance}</span>
+                                        <span class="stat-label">Pétitionnaires en France<br><span class="fr-text--xs">(référence)</span></span>
                                     </div>
                                 </div>
                             </div>
                             <p class="fr-text--sm fr-mt-2w">
                                 Ces chiffres correspondent à l'activité sur Pitchou depuis septembre 2024. 
-                                L'estimation France entière est indicative et inclut les dossiers en autorisation environnementale (AE).
+                                L'estimation France entière est indicative.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="fr-mb-4w">
+                <h2 class="fr-mt-2w">Répartition des dossiers en autorisation environnementale (AE) depuis septembre 2024</h2>
+                <div class="fr-card fr-card--no-arrow">
+                    <div class="fr-card__body">
+                        <div class="fr-card__content">
+                            <div class="progress-stats-wrapper">
+                                <div class="progress-labels">
+                                    <div class="progress-label progress-label--left">
+                                        <span class="stat-number">{nbDossiersAEDepuisSept2024}</span>
+                                        <span class="stat-label">En autorisation environnementale<br>{pourcentageAE}%</span>
+                                    </div>
+                                    <div class="progress-label progress-label--right">
+                                        <span class="stat-number">{nbDossiersDepuisSept2024 - nbDossiersAEDepuisSept2024}</span>
+                                        <span class="stat-label">Hors autorisation environnementale<br>{pourcentageNonAE}%</span>
+                                    </div>
+                                </div>
+                                <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
+                                    <div style="width: {pourcentageAE}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
+                                    <div style="width: {pourcentageNonAE}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
+                                </div>
+                                <div class="progress-total fr-mt-1w">
+                                    <span class="stat-label">Total dossiers déposés depuis septembre 2024 : <strong>{nbDossiersDepuisSept2024}</strong></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
