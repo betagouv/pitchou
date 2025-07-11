@@ -103,7 +103,12 @@ export interface Message{
 }
 
 export interface Traitement{
-    state: 'en_construction' | 'en_instruction' | 'accepte' | 'sans_suite' | 'refuse'
+    event: 'accepte' | 'accepte_automatiquement' | 
+        'classe_sans_suite' | 
+        'depose' | 'depose_correction_instructeur' | 'depose_correction_usager' | 
+        'passe_en_instruction' | 'passe_en_instruction_automatiquement' | 
+        'refuse' | 'refuse_automatiquement' | 
+        'repasse_en_construction' | 'repasse_en_instruction'
     emailAgentTraitant: string | null
     dateTraitement: string // représentant une date
     motivation: string | null

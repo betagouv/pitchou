@@ -73,25 +73,35 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
 }
 
 /**
- * Converti les "state" des "traitements" DS vers les phases Pitchou
- * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
+ * Converti les Traitement.event DS vers les phases Pitchou
+ * Il n'existe pas de manière automatique de d'amener vers l'état "Recevabilité DDEP" depuis DS
  * 
- * @param {API_DS_SCHEMA.Traitement['state']} DSTraitementState
- * @returns {DossierPhase}
+ * undefined signifie qu'on ignore ce traitement
+ * 
+ * @param {API_DS_SCHEMA.Traitement['event']} DSTraitementEvent
+ * @returns {DossierPhase | undefined}
  */
-function traitementPhaseToDossierPhase(DSTraitementState){
-    if(DSTraitementState === 'en_construction')
+function traitementEventToDossierPhase(DSTraitementEvent){
+    if(DSTraitementEvent === 'depose' || DSTraitementEvent === 'repasse_en_construction')
         return "Accompagnement amont"
-    if(DSTraitementState === 'en_instruction')
+
+    if(DSTraitementEvent === 'passe_en_instruction' || DSTraitementEvent === 'passe_en_instruction_automatiquement' || DSTraitementEvent === 'repasse_en_instruction')
         return "Instruction"
-    if(DSTraitementState === 'accepte')
+    
+    if(DSTraitementEvent === 'accepte' || DSTraitementEvent === 'accepte_automatiquement')
         return "Contrôle"
-    if(DSTraitementState === 'sans_suite')
+    
+    if(DSTraitementEvent === 'classe_sans_suite')
         return "Classé sans suite"
-    if(DSTraitementState === 'refuse')
+    
+    if(DSTraitementEvent === 'refuse' || DSTraitementEvent === 'refuse_automatiquement')
         return "Obligations terminées"
 
-    throw `Traitement phase non reconnue: ${DSTraitementState}`
+    if(DSTraitementEvent === 'depose_correction_instructeur' || DSTraitementEvent === 'depose_correction_usager')
+        return undefined
+
+    throw new Error(`Traitement.event non reconnu: ${DSTraitementEvent}`)
+
 }
 
 /**
@@ -104,15 +114,22 @@ export async function dumpDossierTraitements(idToTraitements, databaseConnection
     const évènementsPhaseDossier = [];
     
     for(const [dossierId, apiTraitements] of idToTraitements){
-        for(const {dateTraitement, state, emailAgentTraitant, motivation} of apiTraitements){
-            évènementsPhaseDossier.push({
-                phase: traitementPhaseToDossierPhase(state),
-                horodatage: new Date(dateTraitement),
-                dossier: dossierId,
-                cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
-                DS_emailAgentTraitant: emailAgentTraitant,
-                DS_motivation: motivation
-            })
+        for(const {dateTraitement, event, emailAgentTraitant, motivation} of apiTraitements){
+            const phase = traitementEventToDossierPhase(event);
+
+            if(phase){
+                évènementsPhaseDossier.push({
+                    phase,
+                    horodatage: new Date(dateTraitement),
+                    dossier: dossierId,
+                    cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
+                    DS_emailAgentTraitant: emailAgentTraitant,
+                    DS_motivation: motivation
+                })
+            }
+            else{
+                // ignorer les traitements qui ne correspondent pas à une 
+            }
         }
     };
     
