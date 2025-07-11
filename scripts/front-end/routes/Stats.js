@@ -27,9 +27,9 @@ export default async () => {
      */
     function mapStateToProps(state) {
         const dossiersById = state.dossiersRésumés
-
+        const { email } = mapStateToSqueletteProps(state);
         return {
-            ...mapStateToSqueletteProps(state),
+            email,
             dossiers: [...dossiersById.values()]
         };
     }  
