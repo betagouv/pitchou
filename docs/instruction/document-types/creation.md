@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Document-types
 
 ## Table des matières

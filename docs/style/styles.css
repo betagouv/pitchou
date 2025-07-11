@@ -1,27 +1,45 @@
 code {
-    /* Pour positionner le toast, on le place en absolute, relatif à la balise code
-    * Donc on doit rendre la balise code position: relative */
-    position: relative; 
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    padding: 2px 6px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
 }
 
-.copy-toast {
-    bottom: 50%;
-    left: 50%;
+code:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+code.copied::after {
+    content: "Copié !";
     position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: #333;
-    color: #fff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 12px;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
     z-index: 1000;
     opacity: 0;
+    animation: tooltipFadeIn 0.2s ease forwards;
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(-50%) translateY(0);
-    white-space: nowrap;
 }
 
-.copy-toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-0.25rem);
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
+
+
