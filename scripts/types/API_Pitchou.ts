@@ -10,6 +10,7 @@ import Contrôle from './database/public/Contrôle.ts'
 type DossierPersonnesImpliquées = {
     déposant_nom: string;
     déposant_prénoms: string;
+    déposant_email: string;
     demandeur_personne_physique_nom: string;
     demandeur_personne_physique_prénoms: string;
     demandeur_personne_morale_raison_sociale: string;
@@ -101,4 +102,22 @@ export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté ref
 
 export type RésultatContrôle = "Conforme" | "Non conforme" | "Trop tard" | "En cours" | "Non conforme (Pas d'informations reçues)"
 export type TypesActionSuiteContrôle = "Email" | "Courrier" | "Courrier recommandé avec accusé de réception"
+export interface StatsPubliques {
+    nbDossiersEnPhaseContrôle: number
+    nbDossiersEnPhaseContrôleAvecDécision: number
+    nbDossiersEnPhaseContrôleSansDécision: number
+    nbPétitionnairesDepuisSept2024: number
+    totalContrôles: number
+    totalDossiers: number
+}
+
+export const isStatsPubliques = (stats: any): stats is StatsPubliques => {
+    return stats &&
+        typeof stats.nbDossiersEnPhaseContrôle === 'number' &&
+        typeof stats.nbDossiersEnPhaseContrôleAvecDécision === 'number' &&
+        typeof stats.nbDossiersEnPhaseContrôleSansDécision === 'number' &&
+        typeof stats.nbPétitionnairesDepuisSept2024 === 'number' &&
+        typeof stats.totalContrôles === 'number' &&
+        typeof stats.totalDossiers === 'number';
+}
 

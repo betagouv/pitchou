@@ -16,6 +16,7 @@ import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from 
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
 import { ajouterContrôles, modifierContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
+import { getStatsPubliques } from './database/stats.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -156,6 +157,11 @@ fastify.post('/envoi-email-connexion', async function (request, reply) {
 
 fastify.get('/résultats-synchronisation', async function () {
   return getRésultatsSynchronisationDS88444()
+})
+
+
+fastify.get('/api/stats-publiques', async function () {
+  return getStatsPubliques()
 })
 
 

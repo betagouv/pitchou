@@ -569,6 +569,8 @@ const colonnesDossierRésumé = [
     "déposant.nom as déposant_nom",
     //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "déposant.prénoms as déposant_prénoms",
+    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+    "déposant.email as déposant_email",
 
     // demandeur_personne_physique
     //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
