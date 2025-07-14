@@ -22,6 +22,7 @@ export async function chargerStats() {
     }
 } 
 
+
 /**
  * Vérifie si l'objet fourni respecte la structure attendue de `StatsPubliques`.
  *
@@ -48,19 +49,20 @@ function isStatsPubliques(stats) {
         /** 
          * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
          * 
-         * @type {StatsPubliques}
+         * @type {Required<StatsPubliques>}
          * Cette variable n'est utilisée que pour forcer une erreur TypeScript
          * si une propriété est ajoutée à `StatsPubliques` sans mettre à jour ce type guard.
          */
         let statsOk = {
-            nbDossiersEnPhaseContrôle: stats.nbDossiersEnPhaseContrôle,
-            nbDossiersEnPhaseContrôleAvecDécision: stats.nbDossiersEnPhaseContrôleAvecDécision,
-            nbDossiersEnPhaseContrôleSansDécision: stats.nbDossiersEnPhaseContrôleSansDécision, 
-            nbPétitionnairesDepuisSept2024: stats.nbPétitionnairesDepuisSept2024,
-            totalContrôles: stats.totalContrôles,
-            totalDossiers: stats.totalDossiers
+            nbDossiersEnPhaseContrôle: 0,
+            nbDossiersEnPhaseContrôleAvecDécision: 0,
+            nbDossiersEnPhaseContrôleSansDécision: 0, 
+            nbPétitionnairesDepuisSept2024: 0,
+            totalContrôles: 0,
+            totalDossiers: 0
         };
-        statsOk // pour éviter une erreur typescript que la variable n'est pas utilisée
+        void statsOk // pour éviter une erreur typescript que la variable n'est pas utilisée
+
         return true;
     }
     return false;
