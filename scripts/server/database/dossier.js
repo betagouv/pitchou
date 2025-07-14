@@ -110,11 +110,14 @@ function traitementEventToDossierPhase(DSTraitementEvent){
  * @returns {Promise<any>}
  */
 export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
+    console.log('dumpDossierTraitements', idToTraitements)
+
     /** @type {ÉvènementPhaseDossier[]} */
     const évènementsPhaseDossier = [];
     
     for(const [dossierId, apiTraitements] of idToTraitements){
-        for(const {dateTraitement, event, emailAgentTraitant, motivation} of apiTraitements){
+        for(const {dateTraitement, event, emailAgentTraitant, motivation, state} of apiTraitements){
+            console.log('traitement', dossierId, {dateTraitement, event, emailAgentTraitant, motivation, state})
             const phase = traitementEventToDossierPhase(event);
 
             if(phase){
