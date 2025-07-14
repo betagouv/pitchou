@@ -65,7 +65,7 @@ export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégion>
 
 export type ChampScientifiqueIntervenants = BaseRepetitionChampsDS<BaseChampDS>
 
-export interface DSPieceJustificative{
+export interface DSFile{
     filename: string,
     url: string, 
     contentType: string,
@@ -76,7 +76,7 @@ export interface DSPieceJustificative{
 }
 
 export interface ChampDSPieceJustificative extends BaseChampDS {
-    files: DSPieceJustificative[]
+    files: DSFile[]
 }
 
 
@@ -123,6 +123,7 @@ export interface DossierDS<Champs, Annotations> {
     instructeurs: Instructeur[]
     messages: Message[]
     traitements: Traitement[]
+    attestation: DSFile
     champs: Champs[]
     annotations: Annotations[]
 }

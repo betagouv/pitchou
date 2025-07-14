@@ -1,4 +1,4 @@
-/** @import {DossierDS88444, DSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, DSFile} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {Knex} from 'knex' */
@@ -15,7 +15,7 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
  */
 export default async function téléchargerNouveauxFichiersAP_AM(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
 
-    /** @type {Map<DossierDS88444['number'], DSPieceJustificative[]>} */
+    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
     const candidatsFichiersAP_AM = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
 
     //console.log('candidatsFichiersAP_AM', candidatsFichiersAP_AM)

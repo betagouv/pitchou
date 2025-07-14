@@ -7,7 +7,7 @@ import { makeFichierHash } from '../../scripts/server/database/fichier.js';
 import téléchargerFichierDS from './téléchargerFichierDS.js';
 
 
-/** @import {DossierDS88444, DSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, DSFile} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
 
@@ -35,7 +35,7 @@ const openDocumentTypes = new Map([
 /**
  * Contournement de https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/11175
  * 
- * @param {Pick<DSPieceJustificative, 'contentType' | 'filename'>} contentType 
+ * @param {Pick<DSFile, 'contentType' | 'filename'>} contentType 
  * @return {string}
  */
 function DScontentTypeToActualMediaType({contentType, filename}){
@@ -56,7 +56,7 @@ function DScontentTypeToActualMediaType({contentType, filename}){
  * Cette fonction lance les téléchargements, sauvegade les fichiers en base de données
  * et retourne l'association entre le dossier et les Fichier['id'] correspondants
  * 
- * @param {Map<DossierDS88444['number'], DSPieceJustificative[]>} candidatsFichiers 
+ * @param {Map<DossierDS88444['number'], DSFile[]>} candidatsFichiers 
  * @param {Knex.Transaction | Knex} [transaction]
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
