@@ -10,28 +10,35 @@ import {créerTransaction} from '../database.js'
 export async function getStatsPubliques() {
     const transaction = await créerTransaction({ readOnly: true })
     try {
-        // Récupérer tous les dossiers (stats publiques)
-        const dossiers = await transaction('dossier')
+        // Récupérer tous les dossiers
+        const dossiersP = transaction('dossier')
             .select('id')
 
         // Récupérer les dossiers actuellement en phase contrôle
-        const dossiersEnPhaseContrôle = await transaction('évènement_phase_dossier')
+        const dossiersEnPhaseContrôleP = transaction('évènement_phase_dossier')
             .select('dossier')
             .max('horodatage as latest_horodatage')
             .where('phase', 'Contrôle')
             .groupBy('dossier')
             .orderBy('latest_horodatage', 'desc');
 
+        const contrôlesP = transaction('contrôle').select('id')
+
+        const [dossiers, dossiersEnPhaseContrôle, contrôles] = await Promise.all([
+            dossiersP,
+            dossiersEnPhaseContrôleP,
+            contrôlesP
+        ]);
+
         const dossiersIdsEnPhaseContrôle = dossiersEnPhaseContrôle.map(row => row.dossier);
 
+        // Récupérer les décisions administratives pour les dossiers en phase Contrôle
         const décisionsPourDossierEnPhaseContrôle = await transaction('évènement_phase_dossier as epd')
             .join('décision_administrative as da', 'da.dossier', 'epd.dossier')
             .whereIn('epd.dossier', dossiersIdsEnPhaseContrôle)
             .whereNotNull('da.type')
             .distinct('epd.dossier')
             .select('epd.dossier');
-
-        const contrôles = await transaction('contrôle').select('id')
 
         /** @type {StatsPubliques} */   
         let stats = {
