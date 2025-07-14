@@ -29,7 +29,6 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         // Personnes impliquées
         déposant_nom,
         déposant_prénoms,
-        déposant_email,
         demandeur_personne_physique_nom,
         demandeur_personne_physique_prénoms,
         demandeur_personne_morale_raison_sociale,
@@ -73,7 +72,6 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         // Personnes impliquées
         déposant_nom,
         déposant_prénoms,
-        déposant_email,
         demandeur_personne_physique_nom,
         demandeur_personne_physique_prénoms,
         demandeur_personne_morale_raison_sociale,
@@ -83,8 +81,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         phase: phaseActuelle,
         date_début_phase: dateDébutPhaseActuelle,
         // @ts-ignore
-        prochaine_action_attendue_par,
-        décisionsAdministratives: dossierComplet.décisionsAdministratives
+        prochaine_action_attendue_par
     }
 
     Object.freeze(dossierRésumé);

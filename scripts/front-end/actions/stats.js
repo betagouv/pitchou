@@ -32,7 +32,7 @@ export async function chargerStats() {
  * Si de nouvelles propriétés sont ajoutées à `StatsPubliques`, pensez à mettre à jour ce type guard.
  *
  * @param {any} stats
- * @returns {e is StatsPubliques}
+ * @returns {stats is StatsPubliques}
  * @see {@link StatsPubliques}
  */
 function isStatsPubliques(stats) {
@@ -52,7 +52,7 @@ function isStatsPubliques(stats) {
          * Cette variable n'est utilisée que pour forcer une erreur TypeScript
          * si une propriété est ajoutée à `StatsPubliques` sans mettre à jour ce type guard.
          */
-        const statsOk = {
+        let statsOk = {
             nbDossiersEnPhaseContrôle: stats.nbDossiersEnPhaseContrôle,
             nbDossiersEnPhaseContrôleAvecDécision: stats.nbDossiersEnPhaseContrôleAvecDécision,
             nbDossiersEnPhaseContrôleSansDécision: stats.nbDossiersEnPhaseContrôleSansDécision, 
@@ -60,6 +60,7 @@ function isStatsPubliques(stats) {
             totalContrôles: stats.totalContrôles,
             totalDossiers: stats.totalDossiers
         };
+        statsOk // pour éviter une erreur typescript que la variable n'est pas utilisée
         return true;
     }
     return false;

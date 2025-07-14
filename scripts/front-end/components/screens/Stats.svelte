@@ -1,19 +1,14 @@
 <script>
+    import Loader from '../Loader.svelte';
+
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
     /** @import {ComponentProps} from 'svelte' */
     /** @import {StatsPubliques} from '../../../types/API_Pitchou.ts' */
     
-    /** @type {StatsPubliques} */
-    export let stats = {
-        totalDossiers: 0,
-        nbDossiersEnPhaseContrôle: 0,
-        nbDossiersEnPhaseContrôleAvecDécision: 0,
-        nbDossiersEnPhaseContrôleSansDécision: 0,
-        totalContrôles: 0,
-        nbPétitionnairesDepuisSept2024: 0,
-    }
+    /** @type {Promise<StatsPubliques>} */
+    export let statsP
 
     /** @type {string | undefined} */
     export let email = undefined
@@ -24,104 +19,114 @@
     // Estimations (statiques, à ajuster si besoin)
     const estimationNbPétitionnairesEnFranceParAn = 1500
 
-    $: pourcentageAvecDecision = stats.nbDossiersEnPhaseContrôle > 0 ? Math.round((stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100) : 0
-    $: pourcentageSansDecision = 100 - pourcentageAvecDecision
 </script>
 
 <Squelette {email} nav={false} {erreurs} >
-    <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
-        <article class="fr-col">
-            <header class="fr-mb-2w">
-                <h1>Pitchou - Statistiques publiques</h1>
-                <p class="fr-text--lg fr-mb-0">
-                    Ces données statistiques reposent sur un total de <strong>{stats.totalDossiers} dossiers </strong> enregistrés dans la base de données Pitchou.
-                </p>
-            </header>
+    {#await statsP} 
+        <Loader></Loader>
+    {:then stats}
+        {@const pourcentageAvecDécision = Math.round((stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100)}
+        {@const pourcentageSansDecision = 100 - Math.round((stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100)}
 
-            <section class="fr-mb-4w">
-                <h2 class="fr-mt-2w">Activité sur Pitchou depuis septembre 2024</h2>
-                <div class="fr-card fr-card--no-arrow">
-                    <div class="fr-card__body">
-                        <div class="fr-card__content">
-                            <div class="fr-grid-row fr-grid-row--gutters">
-                                <div class="fr-col-6">
-                                    <div class="stat-item total-stat">
-                                        <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
-                                        <span class="stat-label">Pétitionnaires dans Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
-                                    </div>
-                                </div>
-                                <div class="fr-col-6">
-                                    <div class="stat-item">
-                                        <span class="stat-number">{estimationNbPétitionnairesEnFranceParAn}</span>
-                                        <span class="stat-label">Pétitionnaires en France<br><span class="fr-text--xs">(référence)</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="fr-text--sm fr-mt-2w">
-                                Ces chiffres correspondent à l'activité sur Pitchou depuis septembre 2024. 
-                                L'estimation France entière est indicative.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
+            <article class="fr-col">
+                <header class="fr-mb-2w">
+                    <h1>Pitchou - Statistiques publiques</h1>
+                    <p class="fr-text--lg fr-mb-0">
+                        Ces données statistiques reposent sur un total de <strong>{stats.totalDossiers} dossiers </strong> enregistrés dans la base de données Pitchou.
+                    </p>
+                </header>
 
-            <section>
-                <h2 class="fr-mt-2w">Répartition des dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> avec et sans décision adminsistrative</h2>
-                <div class="fr-card fr-card--no-arrow">
-                    <div class="fr-card__body">
-                        <div class="fr-card__content">
-                            <p class="fr-text--sm fr-mb-2w">
-                                Une <strong>décision administrative</strong> correspond à un arrêté de dérogation, un arrêté de refus, un arrêté modificatif ou tout autre document administratif finalisant l'instruction du dossier.
-                            </p>
-
-                            <div class="progress-stats-wrapper">
-                                <div class="progress-labels">
-                                    <div class="progress-label progress-label--left">
-                                        <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
-                                        <span class="stat-label">Avec décision<br>{pourcentageAvecDecision}%</span>
+                <section class="fr-mb-4w">
+                    <h2 class="fr-mt-2w">Activité sur Pitchou depuis septembre 2024</h2>
+                    <div class="fr-card fr-card--no-arrow">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <div class="fr-grid-row fr-grid-row--gutters">
+                                    <div class="fr-col-6">
+                                        <div class="stat-item total-stat">
+                                            <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
+                                            <span class="stat-label">Pétitionnaires dans Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
+                                        </div>
                                     </div>
-                                    <div class="progress-label progress-label--right">
-                                        <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
-                                        <span class="stat-label">Sans décision<br>{pourcentageSansDecision}%</span>
+                                    <div class="fr-col-6">
+                                        <div class="stat-item">
+                                            <span class="stat-number">{estimationNbPétitionnairesEnFranceParAn}</span>
+                                            <span class="stat-label">Pétitionnaires en France<br><span class="fr-text--xs">(référence)</span></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
-                                    <div style="width: {pourcentageAvecDecision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
-                                    <div style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
-                                </div>
-                                <div class="progress-total fr-mt-1w">
-                                    <span class="stat-label">Total dossiers en phase Contrôle : <strong>{stats.nbDossiersEnPhaseContrôle}</strong></span>
-                                </div>
+                                <p class="fr-text--sm fr-mt-2w">
+                                    Ces chiffres correspondent à l'activité sur Pitchou depuis septembre 2024. 
+                                    L'estimation France entière est indicative.
+                                </p>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section class="fr-mt-4w">
-                <h2 class="fr-mt-2w">Nombre de contrôles dans Pitchou</h2>
-                <div class="fr-card fr-card--no-arrow">
-                    <div class="fr-card__body">
-                        <div class="fr-card__content">
-                            <p class="fr-text--sm fr-mb-2w">
-                                Un contrôle désigne une vérification et une évaluation permettant de s’assurer que les conditions légales et réglementaires encadrant la protection des espèces protégées sont bien respectées.
-                            </p>
+                <section>
+                    <h2 class="fr-mt-2w">Répartition des dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> avec et sans décision adminsistrative</h2>
+                    <div class="fr-card fr-card--no-arrow">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <p class="fr-text--sm fr-mb-2w">
+                                    Une <strong>décision administrative</strong> correspond à un arrêté de dérogation, un arrêté de refus, un arrêté modificatif ou tout autre document administratif finalisant l'instruction du dossier.
+                                </p>
 
-                            <div class="fr-grid-row fr-grid-row--gutters">
-                                <div class="fr-col-4">
-                                    <div class="stat-item total-stat">
-                                        <span class="stat-number">{stats.totalContrôles}</span>
-                                        <span class="stat-label">contrôles</span>
+                                <div class="progress-stats-wrapper">
+                                    <div class="progress-labels">
+                                        <div class="progress-label progress-label--left">
+                                            <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
+                                            <span class="stat-label">Avec décision<br>{pourcentageAvecDécision}%</span>
+                                        </div>
+                                        <div class="progress-label progress-label--right">
+                                            <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
+                                            <span class="stat-label">Sans décision<br>{pourcentageSansDecision}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
+                                        <div style="width: {pourcentageAvecDécision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
+                                        <div style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
+                                    </div>
+                                    <div class="progress-total fr-mt-1w">
+                                        <span class="stat-label">Total dossiers en phase Contrôle : <strong>{stats.nbDossiersEnPhaseContrôle}</strong></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-        </article>
-    </div>
+                </section>
+
+                <section class="fr-mt-4w">
+                    <h2 class="fr-mt-2w">Nombre de contrôles dans Pitchou</h2>
+                    <div class="fr-card fr-card--no-arrow">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <p class="fr-text--sm fr-mb-2w">
+                                    Un contrôle désigne une vérification et une évaluation permettant de s’assurer que les conditions légales et réglementaires encadrant la protection des espèces protégées sont bien respectées.
+                                </p>
+
+                                <div class="fr-grid-row fr-grid-row--gutters">
+                                    <div class="fr-col-4">
+                                        <div class="stat-item total-stat">
+                                            <span class="stat-number">{stats.totalContrôles}</span>
+                                            <span class="stat-label">contrôles</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    {:catch error}
+        <div class="fr-alert fr-alert--error fr-mb-3w">
+            <h3 class="fr-alert__title">Une erreur est survenue lors du chargement des statistiques :</h3>
+            <p>{error.message}</p>
+        </div>
+    {/await}
 </Squelette>
 
 <style lang="scss">

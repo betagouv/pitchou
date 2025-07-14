@@ -16,8 +16,7 @@ export default async () => {
     console.info('route', '/stats')
     
     try {
-        const stats = await chargerStats()
-        console.log({ stats })
+        const statsP = chargerStats()
         
         /**
          * 
@@ -28,7 +27,7 @@ export default async () => {
             const { email, erreurs } = mapStateToSqueletteProps(state);
             return {
                 email,
-                stats,
+                statsP,
                 erreurs
             };
         }  
