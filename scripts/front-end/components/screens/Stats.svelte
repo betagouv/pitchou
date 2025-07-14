@@ -2,7 +2,7 @@
     //@ts-check
     import Squelette from '../Squelette.svelte'
     import TagPhase from '../TagPhase.svelte'
-
+    /** @import {ComponentProps} from 'svelte' */
     /** @import {StatsPubliques} from '../../../types/API_Pitchou.ts' */
     
     /** @type {StatsPubliques} */
@@ -18,6 +18,9 @@
     /** @type {string | undefined} */
     export let email = undefined
 
+    /** @type {ComponentProps<Squelette>['erreurs']} */
+    export let erreurs;
+
     // Estimations (statiques, à ajuster si besoin)
     const estimationNbPétitionnairesEnFrance = 1500
 
@@ -25,7 +28,7 @@
     $: pourcentageSansDecision = 100 - pourcentageAvecDecision
 </script>
 
-<Squelette {email} nav={false}>
+<Squelette {email} nav={false} {erreurs} >
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <article class="fr-col">
             <header class="fr-mb-2w">

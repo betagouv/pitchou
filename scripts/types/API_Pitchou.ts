@@ -102,16 +102,22 @@ export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté ref
 
 export type RésultatContrôle = "Conforme" | "Non conforme" | "Trop tard" | "En cours" | "Non conforme (Pas d'informations reçues)"
 export type TypesActionSuiteContrôle = "Email" | "Courrier" | "Courrier recommandé avec accusé de réception"
-
-/**
- * Type pour les statistiques publiques calculées côté backend
- */
 export interface StatsPubliques {
-    totalDossiers: number
     nbDossiersEnPhaseContrôle: number
     nbDossiersEnPhaseContrôleAvecDécision: number
     nbDossiersEnPhaseContrôleSansDécision: number
-    totalContrôles: number
     nbPétitionnairesDepuisSept2024: number
+    totalContrôles: number
+    totalDossiers: number
+}
+
+export const isStatsPubliques = (stats: any): stats is StatsPubliques => {
+    return stats &&
+        typeof stats.nbDossiersEnPhaseContrôle === 'number' &&
+        typeof stats.nbDossiersEnPhaseContrôleAvecDécision === 'number' &&
+        typeof stats.nbDossiersEnPhaseContrôleSansDécision === 'number' &&
+        typeof stats.nbPétitionnairesDepuisSept2024 === 'number' &&
+        typeof stats.totalContrôles === 'number' &&
+        typeof stats.totalDossiers === 'number';
 }
 
