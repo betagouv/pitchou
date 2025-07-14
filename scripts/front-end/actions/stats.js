@@ -52,7 +52,6 @@ function isStatsPubliques(stats) {
          * Cette variable n'est utilisée que pour forcer une erreur TypeScript
          * si une propriété est ajoutée à `StatsPubliques` sans mettre à jour ce type guard.
          */
-        // @ts-ignore
         const statsOk = {
             nbDossiersEnPhaseContrôle: stats.nbDossiersEnPhaseContrôle,
             nbDossiersEnPhaseContrôleAvecDécision: stats.nbDossiersEnPhaseContrôleAvecDécision,
