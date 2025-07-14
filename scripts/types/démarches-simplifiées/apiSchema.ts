@@ -123,7 +123,7 @@ export interface DossierDS<Champs, Annotations> {
     instructeurs: Instructeur[]
     messages: Message[]
     traitements: Traitement[]
-    attestation: DSFile
+    motivationAttachment: DSFile
     champs: Champs[]
     annotations: Annotations[]
 }

@@ -70,24 +70,24 @@ export async function téléchargerNouveauxFichiersEspècesImpactées(dossiers, 
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} 
  */
-export async function téléchargerNouveauxFichiersAttestations(dossiers, laTransactionDeSynchronisationDS){
+export async function téléchargerNouveauxFichiersMotivation(dossiers, laTransactionDeSynchronisationDS){
 
     /** @type {Map<DossierDS88444['number'], DSFile>} */
-    const candidatsFichiersAttestations = new Map(
-        dossiers.filter(d => !!d.attestation).map(d => [d.number, d.attestation])
+    const candidatsFichiersMotivation = new Map(
+        dossiers.filter(d => !!d.motivationAttachment).map(d => [d.number, d.motivationAttachment])
     )
 
-    // console.log('candidatsFichiersAttestations', candidatsFichiersAttestations)
+    //console.log('candidatsFichiersMotivation', candidatsFichiersMotivation.size)
 
-    if(candidatsFichiersAttestations.size >= 1){
+    if(candidatsFichiersMotivation.size >= 1){
         // ne garder que le premier fichier et ignorer les autres
         /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-        let candidatsFichiersAttestationsArray = new Map(
-            [...candidatsFichiersAttestations].map(([number, descriptionFichier]) => [number, [descriptionFichier]])
+        let candidatsFichiersMotivationPourTéléchargement = new Map(
+            [...candidatsFichiersMotivation].map(([number, descriptionFichier]) => [number, [descriptionFichier]])
         )
 
         return téléchargerNouveauxFichiers(
-            candidatsFichiersAttestationsArray, 
+            candidatsFichiersMotivationPourTéléchargement, 
             laTransactionDeSynchronisationDS
         )
         .then(nouveauxFichiers => {

@@ -1,7 +1,7 @@
 //@ts-check
 
 import parseArgs from 'minimist'
-import {sub, format, formatDistanceToNow} from 'date-fns'
+import {sub, format, formatDistanceToNow, isAfter} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
@@ -19,14 +19,17 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 //import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersAttestations} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
-import { miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
+import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import { ajouterDémarchesAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
+/** @import {default as DécisionAdministrative} from '../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
+
+/** @import {TypeDécisionAdministrative} from '../scripts/types/API_Pitchou.ts' */
 
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444, Annotations88444, Champs88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -95,11 +98,9 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 
 console.info('Nombre de dossiers', dossiersDS.length)
 
-//console.log('démarche', démarche)
-//console.log('3 dossiers', démarche.dossiers.nodes.slice(0, 3))
-//console.log('champs', démarche.dossiers.nodes[0].champs)
-//console.log('un dossier', JSON.stringify(dossiersDS[3], null, 2))
-//console.log(`messages d'un dossier`, JSON.stringify(dossiersDS[3].messages))
+//console.log('3 dossiers', dossiersDS.slice(0, 3))
+//console.log('dossier', dossiersDS.find(d => d.number === 25298686))
+
 
 
 // stocker les dossiers en BDD
@@ -671,10 +672,11 @@ const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
 )
 
 
+//console.log('avec fichier motivation', dossiersDS.filter(d => d.motivationAttachment).map(d => d.number))
 
-/** Télécharger les nouveaux fichiers 'attestations' */
+/** Télécharger les nouveaux fichiers 'motivation' */
 /** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
-const fichiersAttestionsTéléchargésP = téléchargerNouveauxFichiersAttestations(
+const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivation(
     dossiersDS,
     laTransactionDeSynchronisationDS
 )
@@ -762,28 +764,86 @@ if(dossiersDS.length >= 1){
 
 /** Synchronisation des évènements de changement de phase */
 
-/** @type {Map<NonNullable<DatabaseDossier['id_demarches_simplifiées']>, Pick<DossierDS88444, 'traitements' | 'attestation'>>} */
-const évènementsPhaseDossierById_DS = new Map(dossiersDS.map(
-    ({id, traitements, attestation}) => [id, {traitements, attestation}])
+/** @type {Map<NonNullable<DossierDS88444['number']>, DossierDS88444['traitements']>} */
+const traitementsByNumberDS = new Map(dossiersDS.map(
+    ({number, traitements}) => [number, traitements])
 )
 
 
 let traitementsSynchronisés;
 
-/** @type {Map<DatabaseDossier['id'], Pick<DossierDS88444, 'traitements' | 'attestation'>>} */
-const idToTraitementsAttestations = new Map()
-for(const [id_DS, traitements] of évènementsPhaseDossierById_DS){
-    const dossierId = dossierIdByDS_id.get(id_DS)
+/** @type {Map<DatabaseDossier['id'], DossierDS88444['traitements']>} */
+const idToTraitements = new Map()
+
+for(const [number, traitements] of traitementsByNumberDS){
+    const dossierId = dossierIdByDS_number.get(number)
 
     if(!dossierId)
-        throw new Error(`Dossier.id manquant pour dossier DS numéro ${id_DS}`)
+        throw new Error(`Dossier.id manquant pour dossier DS numéro ${number}`)
 
-    idToTraitementsAttestations.set(dossierId, traitements)
+    idToTraitements.set(dossierId, traitements)
 }
 
-if(idToTraitementsAttestations.size >= 1){
-    traitementsSynchronisés = dumpDossierTraitements(idToTraitementsAttestations, laTransactionDeSynchronisationDS)
+if(idToTraitements.size >= 1){
+    traitementsSynchronisés = dumpDossierTraitements(idToTraitements, laTransactionDeSynchronisationDS)
 }
+
+
+/** Synchronisation des décisions administratives */
+/*
+    Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
+    une nouvelle décision administrative qui n'est pas encore en BDD
+*/
+let décisionsAdministrativesSynchronisées = fichiersMotivationTéléchargésP.then(fichiersMotivationTéléchargés => {
+    if(fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1){
+        /** @type {Omit<DécisionAdministrative, 'id'>[]} */
+        const décisionsAdministratives = []
+
+        for(const [numéroDS, fichierMotivationId] of fichiersMotivationTéléchargés){
+            /** @type {TypeDécisionAdministrative} */
+            let type = 'Autre décision';
+
+            const traitements = traitementsByNumberDS.get(numéroDS)
+            if(!traitements){
+                throw new Error(`Traitements manquants pour dossier DS numéro ${numéroDS}`)
+            }
+
+            let dernierTraitement = traitements[0];
+
+            for(const traitement of traitements){
+                if(isAfter(traitement.dateTraitement, dernierTraitement.dateTraitement)){
+                    dernierTraitement = traitement
+                }
+            }
+
+            if(dernierTraitement.state === 'accepte')
+                type = 'Arrêté dérogation'
+
+            if(dernierTraitement.state === 'refuse')
+                type = 'Arrêté refus'
+
+            const dossierId = dossierIdByDS_number.get(numéroDS)
+            if(!dossierId){
+                throw new Error(`Dossier id manquant pour dossier DS numéro ${numéroDS}`)
+            }
+
+            décisionsAdministratives.push({
+                dossier: dossierId,
+                fichier: fichierMotivationId,
+                type,
+                // pas correct, mais approximation sûrement suffisante pour commencer
+                // Les instructeur.rices pourront corriger manuellement a posteriori
+                date_signature: new Date(dernierTraitement.dateTraitement),
+                numéro: null,
+                date_fin_obligations: null
+            })
+        }
+        
+        return ajouterDémarchesAdministratives(décisionsAdministratives, laTransactionDeSynchronisationDS)
+    }
+})
+
+
 
 
 /** Synchronisation des fichiers espèces impactées téléchargés */
@@ -828,6 +888,7 @@ Promise.all([
     groupesInstructeursSynchronisés,
     messagesSynchronisés,
     traitementsSynchronisés,
+    décisionsAdministrativesSynchronisées,
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,

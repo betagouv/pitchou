@@ -21,6 +21,21 @@ const décisionAnnotationDSToDécisionPitchou = {
     "AP Refus" : 'Arrêté refus',
 }
 
+/**
+ * 
+ * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} dems 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
+ */
+export function ajouterDémarchesAdministratives(dems, databaseConnection = directDatabaseConnection){
+    if(!Array.isArray(dems)){
+        dems = [dems]
+    }
+
+    return databaseConnection('décision_administrative')
+        .insert(dems)
+}
+
 
 /**
  * 

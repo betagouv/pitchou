@@ -95,15 +95,15 @@ function traitementPhaseToDossierPhase(DSTraitementState){
 }
 
 /**
- * @param {Map<Dossier['id'], Pick<API_DS_SCHEMA.DossierDS88444, 'traitements' | 'attestation'>>} idToTraitementsAttestations
+ * @param {Map<Dossier['id'], API_DS_SCHEMA.DossierDS88444['traitements']>} idToTraitements
  * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export async function dumpDossierTraitements(idToTraitementsAttestations, databaseConnection = directDatabaseConnection) {
+export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
     /** @type {ÉvènementPhaseDossier[]} */
     const évènementsPhaseDossier = [];
     
-    for(const [dossierId, {traitements, attestation}] of idToTraitementsAttestations){
+    for(const [dossierId, traitements] of idToTraitements){
         for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
             évènementsPhaseDossier.push({
                 phase: traitementPhaseToDossierPhase(state),
