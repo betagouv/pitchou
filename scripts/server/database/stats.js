@@ -25,14 +25,15 @@ export async function getStatsPubliques() {
         .leftJoin('personne', {'personne.id': 'dossier.déposant'})
 
     // Récupérer les phases actuelles des dossiers
-    const phasesDossiers = await transaction('évènement_phase_dossier')
-        .select([
-            'évènement_phase_dossier.dossier',
-            'évènement_phase_dossier.phase',
-            'évènement_phase_dossier.horodatage'
-        ])
-        .whereIn('évènement_phase_dossier.dossier', dossiers.map(d => d.id))
-        .orderBy(['évènement_phase_dossier.dossier', 'évènement_phase_dossier.horodatage'])
+    const phasesDossiers = await transaction
+        .select('dossier', 'phase', 'horodatage')
+        .from('évènement_phase_dossier')
+        .distinctOn('dossier')
+        .orderBy([
+            { column: 'dossier', order: 'asc' },
+            { column: 'horodatage', order: 'desc' }
+        ]);
+
 
     // Récupérer toutes les décisions administratives
     const décisionsAdministratives = await transaction('décision_administrative')
@@ -84,6 +85,7 @@ export async function getStatsPubliques() {
     // Calculer les statistiques
     const dateLimite = new Date('2024-09-01')
 
+     /** @type {StatsPubliques} */   
     let stats = {
         totalDossiers: dossiers.length,
         dossiersEnPhaseContrôle: 0,
@@ -94,10 +96,10 @@ export async function getStatsPubliques() {
         totalDécisions: 0,
         totalContrôles: 0,
         nbPetitionnairesDepuisSept2024: 0,
-        nbDossiersDepuisSept2024: 0,
-        nbDossiersAEDepuisSept2024: 0,
-        emailsPetitionnairesDepuisSept2024: new Set()
     }
+
+    const emailsPetitionnairesDepuisSept2024 = new Set()
+
 
     for (const dossier of dossiers) {
         // Phase actuelle du dossier
@@ -109,14 +111,8 @@ export async function getStatsPubliques() {
 
         // Statistiques depuis septembre 2024
         if (dossier.date_dépôt && new Date(dossier.date_dépôt) >= dateLimite) {
-            stats.nbDossiersDepuisSept2024++
-            
-            if (dossier.rattaché_au_régime_ae) {
-                stats.nbDossiersAEDepuisSept2024++
-            }
-
             if (dossier.déposant_email) {
-                stats.emailsPetitionnairesDepuisSept2024.add(dossier.déposant_email)
+                emailsPetitionnairesDepuisSept2024.add(dossier.déposant_email)
             }
         }
 
@@ -152,10 +148,7 @@ export async function getStatsPubliques() {
             }
         }
     }
+  stats.nbPetitionnairesDepuisSept2024 = emailsPetitionnairesDepuisSept2024.size
 
-    stats.nbPetitionnairesDepuisSept2024 = stats.emailsPetitionnairesDepuisSept2024.size
-    // Pas besoin de renvoyer les emails dans la réponse
-    const { emailsPetitionnairesDepuisSept2024, ...statsFinales } = stats
-
-    return statsFinales
+    return stats
 } 

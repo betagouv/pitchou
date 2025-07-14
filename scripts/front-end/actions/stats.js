@@ -32,8 +32,6 @@ export async function chargerStats() {
             totalDécisions: 0,
             totalContrôles: 0,
             nbPetitionnairesDepuisSept2024: 0,
-            nbDossiersDepuisSept2024: 0,
-            nbDossiersAEDepuisSept2024: 0
         }
     }
 } 

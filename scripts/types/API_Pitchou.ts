@@ -116,7 +116,5 @@ export interface StatsPubliques {
     totalDécisions: number
     totalContrôles: number
     nbPetitionnairesDepuisSept2024: number
-    nbDossiersDepuisSept2024: number
-    nbDossiersAEDepuisSept2024: number
 }
 
