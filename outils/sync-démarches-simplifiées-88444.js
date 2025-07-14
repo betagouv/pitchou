@@ -793,6 +793,8 @@ if(idToTraitements.size >= 1){
 /*
     Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
     une nouvelle décision administrative qui n'est pas encore en BDD
+
+    On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus)
 */
 let décisionsAdministrativesSynchronisées = fichiersMotivationTéléchargésP.then(fichiersMotivationTéléchargés => {
     if(fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1){
