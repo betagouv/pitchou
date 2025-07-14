@@ -22,7 +22,7 @@
     export let erreurs;
 
     // Estimations (statiques, à ajuster si besoin)
-    const estimationNbPétitionnairesEnFrance = 1500
+    const estimationNbPétitionnairesEnFranceParAn = 1500
 
     $: pourcentageAvecDecision = stats.nbDossiersEnPhaseContrôle > 0 ? Math.round((stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100) : 0
     $: pourcentageSansDecision = 100 - pourcentageAvecDecision
@@ -52,7 +52,7 @@
                                 </div>
                                 <div class="fr-col-6">
                                     <div class="stat-item">
-                                        <span class="stat-number">{estimationNbPétitionnairesEnFrance}</span>
+                                        <span class="stat-number">{estimationNbPétitionnairesEnFranceParAn}</span>
                                         <span class="stat-label">Pétitionnaires en France<br><span class="fr-text--xs">(référence)</span></span>
                                     </div>
                                 </div>
