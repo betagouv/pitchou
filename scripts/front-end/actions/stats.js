@@ -31,8 +31,8 @@ export async function chargerStats() {
  *
  * Si de nouvelles propriétés sont ajoutées à `StatsPubliques`, pensez à mettre à jour ce type guard.
  *
- * @param {any} stats - L'objet à vérifier.
- * @returns {boolean} `true` si l'objet est conforme à `StatsPubliques`, sinon `false`.
+ * @param {any} stats
+ * @returns {e is StatsPubliques}
  * @see {@link StatsPubliques}
  */
 function isStatsPubliques(stats) {
