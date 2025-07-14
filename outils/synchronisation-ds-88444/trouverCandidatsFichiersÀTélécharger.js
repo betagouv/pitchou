@@ -1,5 +1,5 @@
 
-/** @import {DossierDS88444, ChampDSPieceJustificative, DSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, ChampDSPieceJustificative, DSFile} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
@@ -9,7 +9,7 @@ const inutile = true;
  * 
  * @param {DossierDS88444[]} dossiers 
  * @param {ChampDescriptor['id']} champDescriptorId
- * @returns {Map<DossierDS88444['number'], DSPieceJustificative[]>}
+ * @returns {Map<DossierDS88444['number'], DSFile[]>}
  */
 export default function trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId){
     /** @type {ReturnType<trouverCandidatsFichiersÀTélécharger>} */
