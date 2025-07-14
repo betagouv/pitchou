@@ -108,13 +108,10 @@ export type TypesActionSuiteContrôle = "Email" | "Courrier" | "Courrier recomma
  */
 export interface StatsPubliques {
     totalDossiers: number
-    dossiersEnPhaseContrôle: number
-    dossiersEnPhaseContrôleAvecDécision: number
-    dossiersEnPhaseContrôleSansDécision: number
-    décisionsAvecPrescriptions: number
-    décisionsSansPrescriptions: number
-    totalDécisions: number
+    nbDossiersEnPhaseContrôle: number
+    nbDossiersEnPhaseContrôleAvecDécision: number
+    nbDossiersEnPhaseContrôleSansDécision: number
     totalContrôles: number
-    nbPetitionnairesDepuisSept2024: number
+    nbPétitionnairesDepuisSept2024: number
 }
 

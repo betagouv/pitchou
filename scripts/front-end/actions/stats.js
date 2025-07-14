@@ -24,14 +24,11 @@ export async function chargerStats() {
         // Retourner des stats par défaut en cas d'erreur
         return {
             totalDossiers: 0,
-            dossiersEnPhaseContrôle: 0,
-            dossiersEnPhaseContrôleAvecDécision: 0,
-            dossiersEnPhaseContrôleSansDécision: 0,
-            décisionsAvecPrescriptions: 0,
-            décisionsSansPrescriptions: 0,
-            totalDécisions: 0,
+            nbDossiersEnPhaseContrôle: 0,
+            nbDossiersEnPhaseContrôleAvecDécision: 0,
+            nbDossiersEnPhaseContrôleSansDécision: 0,
             totalContrôles: 0,
-            nbPetitionnairesDepuisSept2024: 0,
+            nbPétitionnairesDepuisSept2024: 0,
         }
     }
 } 

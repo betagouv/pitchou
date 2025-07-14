@@ -8,14 +8,11 @@
     /** @type {StatsPubliques} */
     export let stats = {
         totalDossiers: 0,
-        dossiersEnPhaseContrôle: 0,
-        dossiersEnPhaseContrôleAvecDécision: 0,
-        dossiersEnPhaseContrôleSansDécision: 0,
-        décisionsAvecPrescriptions: 0,
-        décisionsSansPrescriptions: 0,
-        totalDécisions: 0,
+        nbDossiersEnPhaseContrôle: 0,
+        nbDossiersEnPhaseContrôleAvecDécision: 0,
+        nbDossiersEnPhaseContrôleSansDécision: 0,
         totalContrôles: 0,
-        nbPetitionnairesDepuisSept2024: 0,
+        nbPétitionnairesDepuisSept2024: 0,
     }
 
     /** @type {string | undefined} */
@@ -24,7 +21,7 @@
     // Estimations (statiques, à ajuster si besoin)
     const estimationNbPétitionnairesEnFrance = 1500
 
-    $: pourcentageAvecDecision = stats.dossiersEnPhaseContrôle > 0 ? Math.round((stats.dossiersEnPhaseContrôleAvecDécision / stats.dossiersEnPhaseContrôle) * 100) : 0
+    $: pourcentageAvecDecision = stats.nbDossiersEnPhaseContrôle > 0 ? Math.round((stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100) : 0
     $: pourcentageSansDecision = 100 - pourcentageAvecDecision
 </script>
 
@@ -34,7 +31,7 @@
             <header class="fr-mb-2w">
                 <h1>Pitchou - Statistiques publiques</h1>
                 <p class="fr-text--lg fr-mb-0">
-                    Ces données statistiques sont basées sur <strong>{stats.totalDossiers} dossiers au total</strong> et concernent le déploiement en <strong>Nouvelle-Aquitaine</strong>.
+                    Ces données statistiques reposent sur un total de <strong>{stats.totalDossiers} dossiers </strong> enregistrés dans la base de données Pitchou.
                 </p>
             </header>
 
@@ -46,7 +43,7 @@
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-6">
                                     <div class="stat-item total-stat">
-                                        <span class="stat-number">{stats.nbPetitionnairesDepuisSept2024}</span>
+                                        <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
                                         <span class="stat-label">Pétitionnaires dans Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
                                     </div>
                                 </div>
@@ -78,11 +75,11 @@
                             <div class="progress-stats-wrapper">
                                 <div class="progress-labels">
                                     <div class="progress-label progress-label--left">
-                                        <span class="stat-number">{stats.dossiersEnPhaseContrôleAvecDécision}</span>
+                                        <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
                                         <span class="stat-label">Avec décision<br>{pourcentageAvecDecision}%</span>
                                     </div>
                                     <div class="progress-label progress-label--right">
-                                        <span class="stat-number">{stats.dossiersEnPhaseContrôleSansDécision}</span>
+                                        <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
                                         <span class="stat-label">Sans décision<br>{pourcentageSansDecision}%</span>
                                     </div>
                                 </div>
@@ -91,7 +88,7 @@
                                     <div style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
                                 </div>
                                 <div class="progress-total fr-mt-1w">
-                                    <span class="stat-label">Total dossiers en phase Contrôle : <strong>{stats.dossiersEnPhaseContrôle}</strong></span>
+                                    <span class="stat-label">Total dossiers en phase Contrôle : <strong>{stats.nbDossiersEnPhaseContrôle}</strong></span>
                                 </div>
                             </div>
                         </div>
@@ -100,53 +97,19 @@
             </section>
 
             <section class="fr-mt-4w">
-                <h2 class="fr-mt-2w">Répartition des dossiers avec décision administrative avec et sans prescription</h2>
+                <h2 class="fr-mt-2w">Nombre de contrôles dans Pitchou</h2>
                 <div class="fr-card fr-card--no-arrow">
                     <div class="fr-card__body">
                         <div class="fr-card__content">
                             <p class="fr-text--sm fr-mb-2w">
-                                Les <strong>prescriptions</strong> sont les obligations imposées au bénéficiaire de la dérogation pour compenser les impacts sur les espèces protégées.
-                            </p>
-
-                            <div class="fr-grid-row fr-grid-row--gutters">
-                                <div class="fr-col-4">
-                                    <div class="stat-item">
-                                        <span class="stat-number">{stats.décisionsAvecPrescriptions}</span>
-                                        <span class="stat-label">Avec prescriptions</span>
-                                    </div>
-                                </div>
-                                <div class="fr-col-4">
-                                    <div class="stat-item">
-                                        <span class="stat-number">{stats.décisionsSansPrescriptions}</span>
-                                        <span class="stat-label">Sans prescriptions</span>
-                                    </div>
-                                </div>
-                                <div class="fr-col-4">
-                                    <div class="stat-item total-stat">
-                                        <span class="stat-number">{stats.totalDécisions}</span>
-                                        <span class="stat-label">Total</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="fr-mt-4w">
-                <h2 class="fr-mt-2w">Nombre de contrôles</h2>
-                <div class="fr-card fr-card--no-arrow">
-                    <div class="fr-card__body">
-                        <div class="fr-card__content">
-                            <p class="fr-text--sm fr-mb-2w">
-                                Nombre total de contrôles effectués parmi les dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> OU en phase <TagPhase phase="Obligations terminées" taille="SM"></TagPhase>
+                                Un contrôle désigne une vérification et une évaluation permettant de s’assurer que les conditions légales et réglementaires encadrant la protection des espèces protégées sont bien respectées.
                             </p>
 
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-4">
                                     <div class="stat-item total-stat">
                                         <span class="stat-number">{stats.totalContrôles}</span>
-                                        <span class="stat-label">Total contrôles</span>
+                                        <span class="stat-label">contrôles</span>
                                     </div>
                                 </div>
                             </div>
