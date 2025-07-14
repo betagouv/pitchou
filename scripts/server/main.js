@@ -160,14 +160,8 @@ fastify.get('/résultats-synchronisation', async function () {
 })
 
 
-fastify.get('/api/stats-publiques', async function (_request, reply) {
-  try {
-    const stats = await getStatsPubliques()
-    return stats
-  } catch (error) {
-    console.error('Erreur lors du calcul des statistiques:', error)
-    return reply.code(500).send('Erreur lors du calcul des statistiques')
-  }
+fastify.get('/api/stats-publiques', async function () {
+  return getStatsPubliques()
 })
 
 
