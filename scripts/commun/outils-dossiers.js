@@ -20,6 +20,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         historique_identifiant_demande_onagre,
         historique_date_réception_ddep,
         date_dépôt,
+        décisionsAdministratives,
         
         // Localisation (déjà au bon format)
         communes,
@@ -49,6 +50,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
 
     /** @type {DossierRésumé} */
     const dossierRésumé = {
+        
         // Propriétés simples
         id,
         number_demarches_simplifiées,
@@ -59,6 +61,7 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         commentaire_enjeu,
         rattaché_au_régime_ae,
         historique_identifiant_demande_onagre,
+        décisionsAdministratives,
         
         // Statistiques
         historique_date_réception_ddep,
