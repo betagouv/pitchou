@@ -2,9 +2,12 @@ import {directDatabaseConnection} from '../database.js'
 import {getPrescriptions} from './prescription.js'
 import {getContrôles} from './controle.js'
 
+//@ts-ignore
+/** @import {StatsPubliques} from '../../types/API_Pitchou.ts' */
+
 /**
  * Calcule les statistiques publiques de Pitchou
- * @returns {Promise<Object>} Statistiques calculées
+ * @returns {Promise<StatsPubliques>} Statistiques calculées
  */
 export async function getStatsPubliques() {
     const db = directDatabaseConnection
