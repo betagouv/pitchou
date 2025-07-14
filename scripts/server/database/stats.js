@@ -1,19 +1,20 @@
-import {directDatabaseConnection} from '../database.js'
+import {créerTransaction} from '../database.js'
 import {getPrescriptions} from './prescription.js'
 import {getContrôles} from './controle.js'
+
 
 //@ts-ignore
 /** @import {StatsPubliques} from '../../types/API_Pitchou.ts' */
 
 /**
  * Calcule les statistiques publiques de Pitchou
- * @returns {Promise<StatsPubliques>} Statistiques calculées
+ * @returns {Promise<StatsPubliques>}
  */
 export async function getStatsPubliques() {
-    const db = directDatabaseConnection
+    const transaction = await créerTransaction({ readOnly: true })
 
     // Récupérer tous les dossiers (stats publiques)
-    const dossiers = await db('dossier')
+    const dossiers = await transaction('dossier')
         .select([
             'dossier.id',
             'dossier.date_dépôt',
@@ -24,7 +25,7 @@ export async function getStatsPubliques() {
         .leftJoin('personne', {'personne.id': 'dossier.déposant'})
 
     // Récupérer les phases actuelles des dossiers
-    const phasesDossiers = await db('évènement_phase_dossier')
+    const phasesDossiers = await transaction('évènement_phase_dossier')
         .select([
             'évènement_phase_dossier.dossier',
             'évènement_phase_dossier.phase',
@@ -34,7 +35,7 @@ export async function getStatsPubliques() {
         .orderBy(['évènement_phase_dossier.dossier', 'évènement_phase_dossier.horodatage'])
 
     // Récupérer toutes les décisions administratives
-    const décisionsAdministratives = await db('décision_administrative')
+    const décisionsAdministratives = await transaction('décision_administrative')
         .select([
             'décision_administrative.dossier',
             'décision_administrative.id',
