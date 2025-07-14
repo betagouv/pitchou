@@ -24,10 +24,17 @@ export async function getStatsPubliques() {
 
         const contrôlesP = transaction('contrôle').select('id')
 
-        const [dossiers, dossiersEnPhaseContrôle, contrôles] = await Promise.all([
+        const pétitionnairesDepuisSept2024P = transaction('dossier')
+        .select(['demandeur_personne_morale', 'demandeur_personne_physique'])
+        .where('date_dépôt', '<=', '2024-09-30')
+        .groupBy('demandeur_personne_morale', 'demandeur_personne_physique');
+
+
+        const [dossiers, dossiersEnPhaseContrôle, contrôles,pétitionnairesDepuisSept2024] = await Promise.all([
             dossiersP,
             dossiersEnPhaseContrôleP,
-            contrôlesP
+            contrôlesP,
+            pétitionnairesDepuisSept2024P,
         ]);
 
         const dossiersIdsEnPhaseContrôle = dossiersEnPhaseContrôle.map(row => row.dossier);
@@ -47,7 +54,7 @@ export async function getStatsPubliques() {
             nbDossiersEnPhaseContrôleAvecDécision: décisionsPourDossierEnPhaseContrôle.length,
             nbDossiersEnPhaseContrôleSansDécision: dossiersEnPhaseContrôle.length - décisionsPourDossierEnPhaseContrôle.length,
             totalContrôles: contrôles.length,
-            nbPétitionnairesDepuisSept2024: 0, // A FAIRE
+            nbPétitionnairesDepuisSept2024: pétitionnairesDepuisSept2024.length,
         }
 
         await transaction.commit()

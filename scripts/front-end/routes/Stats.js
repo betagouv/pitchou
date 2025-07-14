@@ -39,7 +39,6 @@ export default async () => {
 
         replaceComponent(StatsComponent, mapStateToProps)
     } catch (error) {
-        console.error('Erreur lors du chargement des stats :', error) 
-        // Afficher quelque chose en cas d'erreur
+        console.error('Erreur lors du chargement des stats :', error)
     }
 }
