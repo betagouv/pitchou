@@ -13,7 +13,7 @@ export async function chargerStats() {
     try {
         const stats = await json(`/api/stats-publiques`)
         if (!isStatsPubliques(stats)) {
-            throw new Error("Réponse invalide reçue du serveur pour la route /api/stats-publiques.");
+            throw new Error(`Réponse invalide reçue du serveur pour la route /api/stats-publiques. Réponse reçue : ${JSON.stringify(stats)}` );
         }
        return /** @type {StatsPubliques} */ (stats)
     } catch (error) {
@@ -34,17 +34,24 @@ export async function chargerStats() {
  *
  * @param {any} stats
  * @returns {stats is StatsPubliques}
- * @see {@link StatsPubliques}
  */
 function isStatsPubliques(stats) {
     if (
-        stats &&
+        Object(stats) === stats  &&
         typeof stats.nbDossiersEnPhaseContrôle === 'number' &&
         typeof stats.nbDossiersEnPhaseContrôleAvecDécision === 'number' &&
         typeof stats.nbDossiersEnPhaseContrôleSansDécision === 'number' &&
         typeof stats.nbPétitionnairesDepuisSept2024 === 'number' &&
         typeof stats.totalContrôles === 'number' &&
-        typeof stats.totalDossiers === 'number'
+        typeof stats.totalDossiers === 'number' &&
+        Object(stats.statsConformité) === stats.statsConformité &&
+        typeof stats.statsConformité.nb_non_conforme === 'number' &&
+        typeof stats.statsConformité.nb_trop_tard === 'number' &&
+        typeof stats.statsConformité.nb_conformite_autre === 'number' &&
+        typeof stats.statsConformité.nb_conforme_apres_1 === 'number' &&
+        typeof stats.statsConformité.nb_conforme_apres_2 === 'number' &&
+        typeof stats.statsConformité.nb_conforme_apres_3 === 'number' &&
+        typeof stats.statsConformité.nb_retour_conformite === 'number'
     ) {
         /** 
          * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
@@ -59,7 +66,16 @@ function isStatsPubliques(stats) {
             nbDossiersEnPhaseContrôleSansDécision: 0, 
             nbPétitionnairesDepuisSept2024: 0,
             totalContrôles: 0,
-            totalDossiers: 0
+            totalDossiers: 0,
+            statsConformité:{
+                nb_conforme_apres_1: 0,
+                nb_conforme_apres_2: 0,
+                nb_conforme_apres_3: 0,
+                nb_conformite_autre: 0,
+                nb_non_conforme: 0,
+                nb_retour_conformite: 0,
+                nb_trop_tard: 0
+            }
         };
         void statsOk // pour éviter une erreur typescript que la variable n'est pas utilisée
 

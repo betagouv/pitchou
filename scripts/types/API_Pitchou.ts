@@ -5,12 +5,12 @@ import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.t
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
 import Prescription from './database/public/Prescription.ts'
 import Contrôle from './database/public/Contrôle.ts'
+import { StatsConformité } from './database/public/Stats.ts'
 
 
 type DossierPersonnesImpliquées = {
     déposant_nom: string;
     déposant_prénoms: string;
-    déposant_email: string;
     demandeur_personne_physique_nom: string;
     demandeur_personne_physique_prénoms: string;
     demandeur_personne_morale_raison_sociale: string;
@@ -109,15 +109,5 @@ export interface StatsPubliques {
     nbPétitionnairesDepuisSept2024: number
     totalContrôles: number
     totalDossiers: number
+    statsConformité: StatsConformité
 }
-
-export const isStatsPubliques = (stats: any): stats is StatsPubliques => {
-    return stats &&
-        typeof stats.nbDossiersEnPhaseContrôle === 'number' &&
-        typeof stats.nbDossiersEnPhaseContrôleAvecDécision === 'number' &&
-        typeof stats.nbDossiersEnPhaseContrôleSansDécision === 'number' &&
-        typeof stats.nbPétitionnairesDepuisSept2024 === 'number' &&
-        typeof stats.totalContrôles === 'number' &&
-        typeof stats.totalDossiers === 'number';
-}
-
