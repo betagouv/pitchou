@@ -174,8 +174,18 @@ function wrapRecupérerDossierComplet(url){
         if(ret.évènementsPhase){
             Object.freeze(ret.évènementsPhase)
         }
+
+        // les dates récupérées du JSON sont des string
+        // ici, on les re-transforme en Dates
         if(ret.décisionsAdministratives){
             ret.décisionsAdministratives = ret.décisionsAdministratives.map(décisionAdministrative => {
+                if(décisionAdministrative.date_signature){
+                    décisionAdministrative.date_signature = new Date(décisionAdministrative.date_signature)
+                }
+                if(décisionAdministrative.date_fin_obligations){
+                    décisionAdministrative.date_fin_obligations = new Date(décisionAdministrative.date_fin_obligations)
+                }
+
                 if(Array.isArray(décisionAdministrative.prescriptions)){
                     for(const p of décisionAdministrative.prescriptions){
                         if(p.date_échéance)
