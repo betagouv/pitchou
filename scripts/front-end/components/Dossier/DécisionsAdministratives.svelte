@@ -3,6 +3,7 @@
     import Prescription from './Prescription.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
+    import {typesDécisionAdministrative} from '../../../commun/décision-administrative.js';
 
     import {formatDateAbsolue} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
@@ -11,6 +12,7 @@
 
     /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
     /** @import Dossier from '../../../types/database/public/Dossier.ts' */
+    /** @import DécisionAdministrative from '../../../types/database/public/DécisionAdministrative.ts' */
     /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
 
     /** @type {Dossier['id']} */
@@ -20,9 +22,9 @@
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
 
-    let {
+    $: ({
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
-    } = décisionAdministrative
+    } = décisionAdministrative)
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
     let prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
@@ -134,17 +136,28 @@
     /** @type {'consulter' | 'modifier'} */
     let vueDécisionAdministrative = 'consulter'
 
-    /** @type {FrontEndDécisionAdministrative | undefined} */
+    /** @type {Partial<DécisionAdministrative>} */
     let décisionAdministrativeEnModification
 
     function modifierDécisionAdministrative(){
+        décisionAdministrativeEnModification = {
+            numéro,
+            type,
+            date_fin_obligations,
+            date_signature
+        }
+        
         vueDécisionAdministrative = 'modifier'
-
-        décisionAdministrativeEnModification = Object.assign({}, décisionAdministrative)
     }
 
     function annulerModification(){
-        décisionAdministrativeEnModification = undefined
+        vueDécisionAdministrative = 'consulter'
+    }
+
+    function sauvegarderDécisionAdministrative(){
+        console.log('sauvegarder', décisionAdministrativeEnModification)
+        décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
+        console.warn(`PPP ajouter l'envoi côté serveur`)
 
         vueDécisionAdministrative = 'consulter'
     }
@@ -265,9 +278,25 @@
     {:else} <!-- vueDécisionAdministrative === 'modifier' -->
         <h4>Modifier décision administrative</h4>
 
+        <div class="fr-input-group" id="input-group-44">
+            <label class="fr-label" for="input-numéro"> Numéro </label>
+            <input class="fr-input" bind:value={décisionAdministrativeEnModification.numéro} aria-describedby="input-numéro-messages" id="input-numéro" type="text">
+            <div class="fr-messages-group" id="input-numéro-messages" aria-live="polite"></div>
+        </div>
+        <div class="fr-select-group">
+            <label class="fr-label" for="select-type"> Type de décision </label>
+            <select bind:value={décisionAdministrativeEnModification.type} class="fr-select" aria-describedby="select-type-messages" id="select-type" name="select-type">
+                <option value="" selected disabled>Sélectionnez une option</option>
+                {#each typesDécisionAdministrative as type}
+                    <option value={type}>{type}</option>   
+                {/each}
+            </select>
+            <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
+            </div>
+        </div>
 
 
-        <button class="fr-btn">Sauvegarder</button>
+        <button class="fr-btn" on:click={sauvegarderDécisionAdministrative}>Sauvegarder</button>
         <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
     {/if}
 
