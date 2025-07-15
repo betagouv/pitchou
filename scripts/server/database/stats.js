@@ -4,7 +4,7 @@ import {créerTransaction} from '../database.js'
 //@ts-ignore
 /** @import {StatsPubliques} from '../../types/API_Pitchou.ts' */
 //@ts-ignore
-/** @import {StatsConformité} from '../../types/database/public/Stats.ts' */
+/** @import {StatsConformité, StatsImpactBiodiversité} from '../../types/database/public/Stats.ts' */
 
 /**
  * Calcule les statistiques publiques de Pitchou
@@ -37,13 +37,16 @@ export async function getStatsPubliques() {
 
         const prescriptionsControleesP = transaction('contrôle').countDistinct('prescription as nb').first();
 
-        const [dossiers, dossiersEnPhaseContrôle, pétitionnairesDepuisSept2024, statsConformité, totalPrescriptionsRow, prescriptionsControleesRow] = await Promise.all([
+        const statsImpactBiodiversitéP = getStatsImpactBiodiversité(transaction);
+
+        const [dossiers, dossiersEnPhaseContrôle, pétitionnairesDepuisSept2024, statsConformité, totalPrescriptionsRow, prescriptionsControleesRow, statsImpactBiodiversité] = await Promise.all([
             dossiersP,
             dossiersEnPhaseContrôleP,
             pétitionnairesDepuisSept2024P,
             statsConformitéP,
             totalPrescriptionsP,
-            prescriptionsControleesP
+            prescriptionsControleesP,
+            statsImpactBiodiversitéP
         ]);
 
         const totalPrescriptions = Number(totalPrescriptionsRow?.total);
@@ -69,7 +72,8 @@ export async function getStatsPubliques() {
             nbPétitionnairesDepuisSept2024: pétitionnairesDepuisSept2024.length,
             totalPrescriptions,
             nbPrescriptionsControlees,
-            statsConformité: statsConformité
+            statsConformité,
+            statsImpactBiodiversité
         }
 
         await transaction.commit()
@@ -140,6 +144,57 @@ async function getStatsConformité(transaction) {
     nb_trop_tard: Number(résultatsRequêteSQL['nb_trop_tard']),
     nb_retour_conformite: Number(résultatsRequêteSQL['nb_retour_conformite']),
   }
+
+  return stats;
+}
+
+/**
+ * Récupère les statistiques d'impact biodiversité pour les prescriptions ayant au moins un contrôle conforme.
+ * @param {knex.Knex.Transaction | knex.Knex} transaction
+ * @returns {Promise<StatsImpactBiodiversité>}
+ */
+async function getStatsImpactBiodiversité(transaction) {
+  const sousRequête = transaction('prescription')
+    .join('contrôle', 'prescription.id', 'contrôle.prescription')
+    .where('contrôle.résultat', 'Conforme')
+    .distinctOn('prescription.id')
+    .select(
+      'prescription.id',
+      'prescription.surface_évitée',
+      'prescription.surface_compensée',
+      'prescription.nids_évités',
+      'prescription.nids_compensés',
+      'prescription.individus_évités',
+      'prescription.individus_compensés'
+    )
+    .orderBy([
+      { column: 'prescription.id', order: 'asc' },
+      { column: 'contrôle.date_contrôle', order: 'desc' },
+    ]);
+
+  const résultat = await transaction
+    .from(sousRequête.as('prescriptions_conformes'))
+    .select([
+      transaction.raw('COUNT(*)::int AS total_prescriptions_conformes'),
+      transaction.raw('SUM(COALESCE(surface_évitée, 0))::float AS total_surface_évitée'),
+      transaction.raw('SUM(COALESCE(surface_compensée, 0))::float AS total_surface_compensée'),
+      transaction.raw('SUM(COALESCE(nids_évités, 0))::int AS total_nids_évités'),
+      transaction.raw('SUM(COALESCE(nids_compensés, 0))::int AS total_nids_compensés'),
+      transaction.raw('SUM(COALESCE(individus_évités, 0))::int AS total_individus_évités'),
+      transaction.raw('SUM(COALESCE(individus_compensés, 0))::int AS total_individus_compensés'),
+    ])
+    .first();
+
+  /** @type StatsImpactBiodiversité */
+  const stats = {
+    total_prescriptions_conformes: Number(résultat.total_prescriptions_conformes),
+    total_surface_évitée: Number(résultat.total_surface_évitée),
+    total_surface_compensée: Number(résultat.total_surface_compensée),
+    total_nids_évités: Number(résultat.total_nids_évités),
+    total_nids_compensés: Number(résultat.total_nids_compensés),
+    total_individus_évités: Number(résultat.total_individus_évités),
+    total_individus_compensés: Number(résultat.total_individus_compensés),
+  };
 
   return stats;
 }

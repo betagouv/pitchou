@@ -36,6 +36,7 @@ export async function chargerStats() {
  * @returns {stats is StatsPubliques}
  */
 function isStatsPubliques(stats) {
+    console.log({ stats })
     if (
         Object(stats) === stats  &&
         typeof stats.nbDossiersEnPhaseContrôle === 'number' &&
@@ -52,8 +53,18 @@ function isStatsPubliques(stats) {
         typeof stats.statsConformité.nb_conforme_apres_2 === 'number' &&
         typeof stats.statsConformité.nb_conforme_apres_3 === 'number' &&
         typeof stats.statsConformité.nb_retour_conformite === 'number'
+        && (
+            typeof stats.statsImpactBiodiversité === 'object' && stats.statsImpactBiodiversité !== null &&
+            typeof stats.statsImpactBiodiversité.total_prescriptions_conformes === 'number' &&
+            typeof stats.statsImpactBiodiversité.total_surface_évitée === 'number' &&
+            typeof stats.statsImpactBiodiversité.total_surface_compensée === 'number' &&
+            typeof stats.statsImpactBiodiversité.total_nids_évités === 'number' &&
+            typeof stats.statsImpactBiodiversité.total_nids_compensés === 'number' &&
+            typeof stats.statsImpactBiodiversité.total_individus_évités === 'number' &&
+            typeof stats.statsImpactBiodiversité.total_individus_compensés === 'number'
+        )
     ) {
-        /** 
+        /**
          * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
          * 
          * @type {Required<StatsPubliques>}
@@ -75,6 +86,15 @@ function isStatsPubliques(stats) {
                 nb_non_conforme: 0,
                 nb_retour_conformite: 0,
                 nb_trop_tard: 0
+            },
+            statsImpactBiodiversité:{
+                total_individus_compensés: 0,
+                total_individus_évités: 0,
+                total_nids_compensés: 0,
+                total_nids_évités: 0,
+                total_prescriptions_conformes: 0,
+                total_surface_compensée: 0,
+                total_surface_évitée: 0
             }
         };
         void statsOk // pour éviter une erreur typescript que la variable n'est pas utilisée

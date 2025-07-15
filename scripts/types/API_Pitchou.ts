@@ -6,6 +6,7 @@ import DécisionAdministrative from './database/public/DécisionAdministrative.t
 import Prescription from './database/public/Prescription.ts'
 import Contrôle from './database/public/Contrôle.ts'
 import { StatsConformité } from './database/public/Stats.ts'
+import { StatsImpactBiodiversité } from './database/public/Stats.ts'
 
 
 type DossierPersonnesImpliquées = {
@@ -111,4 +112,5 @@ export interface StatsPubliques {
     totalPrescriptions: number
     nbPrescriptionsControlees: number
     statsConformité: StatsConformité
+    statsImpactBiodiversité: StatsImpactBiodiversité
 }

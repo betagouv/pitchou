@@ -20,3 +20,29 @@ export interface StatsConformité {
   /** Le nombre de prescriptions avec retour à la conformité après plus d’un contrôle */
   nb_retour_conformite: number;
 }
+
+/**
+ * Statistiques d'impact sur la biodiversité des prescriptions conformes.
+ */
+export interface StatsImpactBiodiversité {
+  /** Le nombre total de prescriptions avec au moins un contrôle conforme */
+  total_prescriptions_conformes: number;
+
+  /** La somme totale des surfaces évitées (en m² ou ha selon unité) */
+  total_surface_évitée: number;
+
+  /** La somme totale des surfaces compensées */
+  total_surface_compensée: number;
+
+  /** Le nombre total de nids évités */
+  total_nids_évités: number;
+
+  /** Le nombre total de nids compensés */
+  total_nids_compensés: number;
+
+  /** Le nombre total d'individus évités */
+  total_individus_évités: number;
+
+  /** Le nombre total d'individus compensés */
+  total_individus_compensés: number;
+}

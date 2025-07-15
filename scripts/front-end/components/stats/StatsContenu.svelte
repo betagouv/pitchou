@@ -124,6 +124,48 @@
     </section>
 
     <StatistiquesConformites statsConformite={stats.statsConformité} totalPrescriptions={stats.totalPrescriptions} />
+    <section class="fr-mt-4w">
+      <h2 class="fr-mt-2w">Impact biodiversité des prescriptions conformes</h2>
+      <div class="fr-card fr-card--no-arrow stat-biodiv-card">
+        <div class="fr-card__body">
+          <div class="fr-card__content">
+            <div class="biodiv-chiffres">
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_prescriptions_conformes}</span>
+                <span class="stat-label">Prescriptions conformes</span>
+              </div>
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_surface_évitée.toLocaleString()} m²</span>
+                <span class="stat-label">Surface évitée</span>
+              </div>
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_surface_compensée.toLocaleString()} m²</span>
+                <span class="stat-label">Surface compensée</span>
+              </div>
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_évités}</span>
+                <span class="stat-label">Nids évités</span>
+              </div>
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_compensés}</span>
+                <span class="stat-label">Nids compensés</span>
+              </div>
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_individus_évités}</span>
+                <span class="stat-label">Individus évités</span>
+              </div>
+              <div class="biodiv-chiffre-item">
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_individus_compensés}</span>
+                <span class="stat-label">Individus compensés</span>
+              </div>
+            </div>
+            <div class="biodiv-note fr-mt-2w fr-text--xs">
+              <em>Ces chiffres agrègent les prescriptions dont le dernier contrôle est "Conforme" et pour lesquelles des valeurs quantitatives ont été renseignées.</em>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </article>
 </div>
 
@@ -219,6 +261,46 @@
     font-size: 0.95rem;
     color: var(--text-mention-grey);
     margin-top: 0.5rem;
+  }
+  .stat-biodiv-card {
+    border: 1.5px solid var(--border-default-grey);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: var(--background-default-grey);
+    max-width: 100vw;
+    margin: 0 -16px 2.5rem -16px;
+    padding: 2.5rem 2rem 2rem 2rem;
+  }
+  .biodiv-chiffres {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 2rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .biodiv-chiffre-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+    margin-bottom: 0.5rem;
+  }
+  .biodiv-chiffre-item .stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-default-info);
+    margin-bottom: 0.25rem;
+  }
+  .biodiv-chiffre-item .stat-label {
+    font-size: 1rem;
+    color: var(--text-mention-grey);
+    margin-top: 0.15rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  .biodiv-note {
+    text-align: center;
+    color: var(--text-mention-grey);
   }
   @media (max-width: 900px) {
     .fr-card,
