@@ -20,7 +20,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
-import { ajouterDémarchesAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
+import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -841,7 +841,7 @@ let décisionsAdministrativesSynchronisées = fichiersMotivationTéléchargésP.
             })
         }
         
-        return ajouterDémarchesAdministratives(décisionsAdministratives, laTransactionDeSynchronisationDS)
+        return ajouterDécisionsAdministratives(décisionsAdministratives, laTransactionDeSynchronisationDS)
     }
 })
 

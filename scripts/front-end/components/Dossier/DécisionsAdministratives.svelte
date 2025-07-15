@@ -7,7 +7,7 @@
 
     import {formatDateAbsolue} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
-    import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../actions/décisionAdministrative.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier, modifierDécisionAdministrative} from '../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../actions/dossier.js'
 
     /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
@@ -22,7 +22,7 @@
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
 
-    $: ({
+    $: ({ id,
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
     } = décisionAdministrative)
 
@@ -139,8 +139,9 @@
     /** @type {Partial<DécisionAdministrative>} */
     let décisionAdministrativeEnModification
 
-    function modifierDécisionAdministrative(){
+    function passerEnVueModifierDécisionAdministrative(){
         décisionAdministrativeEnModification = {
+            id,
             numéro,
             type,
             date_fin_obligations,
@@ -155,11 +156,11 @@
     }
 
     function sauvegarderDécisionAdministrative(){
-        console.log('sauvegarder', décisionAdministrativeEnModification)
+        modifierDécisionAdministrative(décisionAdministrativeEnModification)
         décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
-        console.warn(`PPP ajouter l'envoi côté serveur`)
-
+    
         vueDécisionAdministrative = 'consulter'
+
     }
 
     /** @type {'consulter' | 'modifier'} */
@@ -172,7 +173,7 @@
     {#if vueDécisionAdministrative === 'consulter'}
     <h4>
         {type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}
-        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={modifierDécisionAdministrative}>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={passerEnVueModifierDécisionAdministrative}>
             Modifier
         </button>
     </h4>
@@ -278,11 +279,12 @@
     {:else} <!-- vueDécisionAdministrative === 'modifier' -->
         <h4>Modifier décision administrative</h4>
 
-        <div class="fr-input-group" id="input-group-44">
+        <div class="fr-input-group">
             <label class="fr-label" for="input-numéro"> Numéro </label>
             <input class="fr-input" bind:value={décisionAdministrativeEnModification.numéro} aria-describedby="input-numéro-messages" id="input-numéro" type="text">
             <div class="fr-messages-group" id="input-numéro-messages" aria-live="polite"></div>
         </div>
+
         <div class="fr-select-group">
             <label class="fr-label" for="select-type"> Type de décision </label>
             <select bind:value={décisionAdministrativeEnModification.type} class="fr-select" aria-describedby="select-type-messages" id="select-type" name="select-type">
@@ -295,6 +297,15 @@
             </div>
         </div>
 
+        <div class="fr-input-group">
+            <label class="fr-label" for="input-numéro"> Date de signature de la décision administrative </label>
+            <DateInput bind:date={décisionAdministrativeEnModification.date_signature}></DateInput>
+        </div>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="input-numéro"> Date de fin des obligations </label>
+            <DateInput bind:date={décisionAdministrativeEnModification.date_fin_obligations}></DateInput>
+        </div>
 
         <button class="fr-btn" on:click={sauvegarderDécisionAdministrative}>Sauvegarder</button>
         <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
