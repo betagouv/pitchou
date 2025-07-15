@@ -1,3 +1,4 @@
+import {text} from 'd3-fetch'
 import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} from '@odfjs/odfjs'
 
 import {isValidDate} from '../../commun/typeFormat.js'
@@ -5,6 +6,7 @@ import {ajouterPrescriptionsEtContrôles} from './prescriptions.js'
 
 /** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
 /** @import Contrôle from '../../types/database/public/Contrôle.ts' */
+/** @import DécisionAdministrative from '../../types/database/public/DécisionAdministrative.ts' */
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
@@ -135,4 +137,28 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
     // @ts-ignore
     return ajouterPrescriptionsEtContrôles(candidatsPrescriptions)
         .then(() => candidatsPrescriptions)
+}
+
+/**
+ * 
+ * @param {Partial<DécisionAdministrative>} décisionAdministrative 
+ * @returns {Promise<unknown>}
+ */
+export function modifierDécisionAdministrative(décisionAdministrative){
+    return text('/decision-administrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(décisionAdministrative)
+    })
+}
+
+/**
+ * 
+ * @param {DécisionAdministrative['id']} décisionAdministrativeId 
+ * @returns {Promise<unknown>}
+ */
+export function supprimerDécisionAdministrative(décisionAdministrativeId){
+    return text(`/decision-administrative/${décisionAdministrativeId}`, {
+        method: 'DELETE'
+    })
 }

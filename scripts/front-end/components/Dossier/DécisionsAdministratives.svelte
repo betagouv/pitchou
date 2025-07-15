@@ -3,14 +3,16 @@
     import Prescription from './Prescription.svelte'
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
+    import {typesDécisionAdministrative} from '../../../commun/décision-administrative.js';
 
     import {formatDateAbsolue} from '../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
-    import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../actions/décisionAdministrative.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier, modifierDécisionAdministrative} from '../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../actions/dossier.js'
 
     /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
     /** @import Dossier from '../../../types/database/public/Dossier.ts' */
+    /** @import DécisionAdministrative from '../../../types/database/public/DécisionAdministrative.ts' */
     /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
 
     /** @type {Dossier['id']} */
@@ -20,9 +22,13 @@
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
 
-    let {
+    /** @type {() => Promise<unknown>} */
+    export let supprimerDécisionAdministrative
+
+
+    $: ({ id,
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
-    } = décisionAdministrative
+    } = décisionAdministrative)
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
     let prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
@@ -131,6 +137,35 @@
         }
     }
     
+    /** @type {'consulter' | 'modifier'} */
+    let vueDécisionAdministrative = 'consulter'
+
+    /** @type {Partial<DécisionAdministrative>} */
+    let décisionAdministrativeEnModification
+
+    function passerEnVueModifierDécisionAdministrative(){
+        décisionAdministrativeEnModification = {
+            id,
+            numéro,
+            type,
+            date_fin_obligations,
+            date_signature
+        }
+        
+        vueDécisionAdministrative = 'modifier'
+    }
+
+    function annulerModification(){
+        vueDécisionAdministrative = 'consulter'
+    }
+
+    function sauvegarderDécisionAdministrative(){
+        modifierDécisionAdministrative(décisionAdministrativeEnModification)
+        décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
+    
+        vueDécisionAdministrative = 'consulter'
+
+    }
 
     /** @type {'consulter' | 'modifier'} */
     let vuePrescription = 'consulter'
@@ -138,12 +173,20 @@
 </script>
 
 <section class="décision-administrative">
-    <h4>{type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}</h4>
+
+    {#if vueDécisionAdministrative === 'consulter'}
+    <h4>
+        {type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={passerEnVueModifierDécisionAdministrative}>
+            Modifier
+        </button>
+    </h4>
     <div class="fr-mb-1w">Date de fin des obligations : {date_fin_obligations ? formatDateAbsolue(date_fin_obligations) : NON_RENSEIGNÉ}</div>
-    <div class="fr-mb-1w">Fichier de l'arrêté : 
+    
+    <div class="fr-mb-2w">
         {#if fichier_url}
-            <a class="fr-btn" href={fichier_url}>
-                Télécharger
+            <a class="fr-btn fr-btn--secondary fr-btn--sm" href={fichier_url}>
+                Télécharger le fichier de l'arrếté
             </a>
         {:else}
             (pas de fichier pour le moment)
@@ -153,11 +196,13 @@
     <section class="prescriptions">
         {#if prescriptions.size === 0}
             <h5>Prescriptions</h5>
-            <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
+            <section class="fr-mb-3w">
+                <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
-                Ajouter une prescription
-            </button>
+                <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                    Ajouter une prescription
+                </button>
+            </section>
 
             <section class="fr-mb-4w">
                 <h6>Import d'un fichier de prescriptions</h6>
@@ -234,17 +279,66 @@
         {/if}
         
     </section>
+
+    {:else} <!-- vueDécisionAdministrative === 'modifier' -->
+        <h4>Modifier décision administrative</h4>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="input-numéro"> Numéro </label>
+            <input class="fr-input" bind:value={décisionAdministrativeEnModification.numéro} aria-describedby="input-numéro-messages" id="input-numéro" type="text">
+            <div class="fr-messages-group" id="input-numéro-messages" aria-live="polite"></div>
+        </div>
+
+        <div class="fr-select-group">
+            <label class="fr-label" for="select-type"> Type de décision </label>
+            <select bind:value={décisionAdministrativeEnModification.type} class="fr-select" aria-describedby="select-type-messages" id="select-type" name="select-type">
+                <option value="" selected disabled>Sélectionnez une option</option>
+                {#each typesDécisionAdministrative as type}
+                    <option value={type}>{type}</option>   
+                {/each}
+            </select>
+            <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
+            </div>
+        </div>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="input-numéro"> Date de signature de la décision administrative </label>
+            <DateInput bind:date={décisionAdministrativeEnModification.date_signature}></DateInput>
+        </div>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="input-numéro"> Date de fin des obligations </label>
+            <DateInput bind:date={décisionAdministrativeEnModification.date_fin_obligations}></DateInput>
+        </div>
+
+        <div class="fr-mb-6w">
+            <button class="fr-btn" on:click={sauvegarderDécisionAdministrative}>Sauvegarder</button>
+            <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
+        </div>
+
+        <div>
+            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" on:click={supprimerDécisionAdministrative}>
+                Supprimer cette décision administrative
+            </button>
+        </div>
+    {/if}
+
 </section>
 
 
 <style lang="scss">
     .décision-administrative{
+        h4{
+            margin-bottom: 1rem;
+
+            text-decoration: underline gray 2px;
+        }
+
         h5{
             margin-bottom: 1rem;
         }
 
         margin-bottom: 3rem;
-
 
         table.prescriptions{
             .prescription, thead > tr{
