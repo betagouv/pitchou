@@ -21,7 +21,7 @@
     </header>
 
     <section class="fr-mb-4w">
-      <h2 class="fr-mt-2w">Activité sur Pitchou depuis septembre 2024</h2>
+      <h2 class="fr-mt-2w">Utilisation de Pitchou depuis septembre 2024</h2>
       <div class="fr-card fr-card--no-arrow">
         <div class="fr-card__body">
           <div class="fr-card__content">
@@ -49,7 +49,7 @@
     </section>
 
     <section>
-      <h2 class="fr-mt-2w">Répartition des dossiers en phase <strong>Contrôle</strong> avec et sans décision adminsistrative</h2>
+      <h2 class="fr-mt-2w">Dossiers en phase <strong>Contrôle</strong> : avec ou sans décision administrative</h2>
       <div class="fr-card fr-card--no-arrow">
         <div class="fr-card__body">
           <div class="fr-card__content">
@@ -85,7 +85,7 @@
 
     <!-- Bloc prescriptions contrôlées (barre) -->
     <section class="fr-mt-4w">
-      <h2 class="fr-mt-2w">Prescriptions contrôlées</h2>
+      <h2 class="fr-mt-2w">Prescriptions et contrôles réalisés dans Pitchou</h2>
       <div class="fr-card fr-card--no-arrow stat-prescriptions-card">
         <div class="fr-card__body">
           <div class="fr-card__content">
@@ -103,11 +103,11 @@
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
                   <span class="stat-number">{stats.nbPrescriptionsControlees}</span>
-                  <span class="stat-label">Contrôlées<br>{stats.totalPrescriptions > 0 ? Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
+                  <span class="stat-label">Contrôlées dans Pitchou<br>{stats.totalPrescriptions > 0 ? Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
                   <span class="stat-number">{stats.totalPrescriptions - stats.nbPrescriptionsControlees}</span>
-                  <span class="stat-label">Non contrôlées<br>{stats.totalPrescriptions > 0 ? 100 - Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
+                  <span class="stat-label">Non contrôlées dans Pitchou<br>{stats.totalPrescriptions > 0 ? 100 - Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
                 </div>
               </div>
               <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">

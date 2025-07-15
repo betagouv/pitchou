@@ -13,56 +13,58 @@
   const nbRetourConformite = statsConformite.nb_retour_conformite;
   const nbNonConforme = statsConformite.nb_non_conforme;
   const nbTropTard = statsConformite.nb_trop_tard;
+  const nbAutre = totalPrescriptions - (nbConformiteInitiale+nbRetourConformite+nbNonConforme+nbTropTard);
 
   const pctConformiteInitiale = totalPrescriptions ? Math.round((nbConformiteInitiale/totalPrescriptions)*100) : 0;
   const pctRetourConformite = totalPrescriptions ? Math.round((nbRetourConformite/totalPrescriptions)*100) : 0;
   const pctNonConforme = totalPrescriptions ? Math.round((nbNonConforme/totalPrescriptions)*100) : 0;
   const pctTropTard = totalPrescriptions ? Math.round((nbTropTard/totalPrescriptions)*100) : 0;
 
-  const nbPasEncoreFinalise = totalPrescriptions - (
-    nbConformiteInitiale + nbRetourConformite + nbNonConforme + nbTropTard
-  );
 
 </script>
 
 <section class="fr-mt-4w">
-  <h2 class="fr-mt-2w">Impacts des contrôles de prescription sur la biodiversité</h2>
+  <h2 class="fr-mt-2w">Conformité des prescriptions contrôlées dans Pitchou</h2>
   <div class="fr-card fr-card--no-arrow stat-conformite-card">
     <div class="fr-card__body">
       <div class="fr-card__content">
-        <!-- Chiffres principaux -->
-        <div class="fr-mb-1w fr-grid-row fr-grid-row--gutters chiffres-conformite">
-          <div class="fr-col-3 chiffre-item">
+
+        <div class="chiffres-conformite">
+          <div class="chiffre-item">
             <span class="stat-number" style="color: var(--success-425-625);">{nbConformiteInitiale}</span>
             <span class="stat-label">Conformité initiale</span>
           </div>
-          <div class="fr-col-3 chiffre-item">
+          <div class="chiffre-item">
             <span class="stat-number" style="color: var(--green-emeraude-950-100-active);">{nbRetourConformite}</span>
             <span class="stat-label">Retour à la conformité</span>
           </div>
-          <div class="fr-col-3 chiffre-item">
+          <div class="chiffre-item">
             <span class="stat-number" style="color: var(--red-marianne-main-472);">{nbNonConforme}</span>
             <span class="stat-label">Non conforme</span>
           </div>
-          <div class="fr-col-3 chiffre-item">
+          <div class="chiffre-item">
             <span class="stat-number" style="color: #000;">{nbTropTard}</span>
             <span class="stat-label">Trop tard</span>
           </div>
+          <div class="chiffre-item">
+            <span class="stat-number" style="color: var(--background-contrast-grey);">{nbAutre}</span>
+            <span class="stat-label">Autre</span>
+          </div>
         </div>
-        <!-- Bar chart -->
+
         <div class="fr-progress-bar fr-mt-2w bar-conformite" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden; display: flex;">
           <div style="width: {pctConformiteInitiale}%; background: var(--success-425-625); height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctRetourConformite}%; background: var(--green-emeraude-950-100-active); height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
           <div style={`width: ${pctTropTard}%; background: #000; height: 100%; transition: width 0.5s;`}></div>
         </div>
-        <!-- Légende horizontale -->
-        <div class="fr-mt-3w fr-text--xs fr-text--center legend-horizontal-uiux">
-          <div class="legend-item"><span class="legend-dot" style="background: var(--success-425-625);"></span><span class="legend-label"><strong>Conformité initiale</strong> : prescriptions conformes dès le 1<sup>er</sup> contrôle.</span> <span class="legend-count">{nbConformiteInitiale}</span></div>
-          <div class="legend-item"><span class="legend-dot" style="background: var(--green-emeraude-950-100-active);"></span><span class="legend-label"><strong>Retour à la conformité</strong> : prescriptions ayant eu plus d'un contrôle et dont le dernier contrôle est "Conforme".</span> <span class="legend-count">{nbRetourConformite}</span></div>
-          <div class="legend-item"><span class="legend-dot" style="background: var(--red-marianne-main-472);"></span><span class="legend-label"><strong>Non conforme</strong> : prescriptions dont le dernier contrôle est "Non conforme".</span> <span class="legend-count">{nbNonConforme}</span></div>
-          <div class="legend-item"><span class="legend-dot" style="background: #000;"></span><span class="legend-label"><strong>Trop tard</strong> : prescriptions dont le dernier contrôle a un résultat "Trop tard".</span> <span class="legend-count">{nbTropTard}</span></div>
-          <div class="legend-item"><span class="legend-dot" style="background: var(--background-contrast-grey);"></span><span class="legend-label"><strong>Pas encore finalisé</strong> (manque d’infos)</span> <span class="legend-count">{nbPasEncoreFinalise}</span></div>
+
+        <div class="legend-conformite">
+          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--success-425-625);"></span><span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span>
+          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--green-emeraude-950-100-active);"></span><span><strong>Retour à la conformité</strong> : Prescription validé après au moins 2 contrôles.</span>
+          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--red-marianne-main-472);"></span><span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
+          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: #000;"></span><span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
+          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--background-contrast-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
         </div>
       </div>
     </div>
@@ -111,8 +113,11 @@
     letter-spacing: 0.01em;
   }
   .chiffres-conformite {
-    margin-bottom: 1.5rem;
     text-align: center;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 2rem;
   }
   .chiffre-item {
     display: flex;
@@ -145,31 +150,10 @@
     background: var(--background-alt-grey);
     border-radius: 8px;
   }
-  .legend-horizontal-uiux {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    background: none;
-    border-radius: 0;
-    padding: 1rem 1.5rem 0 1.5rem;
-    max-width: 100vw;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: none;
-    flex-wrap: wrap;
+  .legend-conformite {
+    font-size: small;
   }
-  .legend-horizontal-uiux .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    color: var(--text-default-grey);
-    margin-bottom: 0.5rem;
-  }
-  .legend-horizontal-uiux .legend-dot {
+  .legend-conformite .legend-conformite-dot {
     width: 18px;
     height: 18px;
     border-radius: 50%;
@@ -177,15 +161,6 @@
     margin-right: 0.5rem;
     border: 2px solid var(--border-default-grey);
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  }
-  .legend-horizontal-uiux .legend-label {
-    font-size: 1rem;
-    color: var(--text-default-grey);
-  }
-  .legend-horizontal-uiux .legend-count {
-    font-weight: bold;
-    margin-left: 0.5rem;
-    color: var(--text-default-info);
   }
   @media (max-width: 900px) {
     .stat-conformite-card {
@@ -196,9 +171,6 @@
       flex-direction: column;
       gap: 1.25rem;
       padding: 1rem 0.5rem;
-    }
-    .legend-horizontal-uiux {
-      padding: 0.75rem 0.5rem 0 0.5rem;
     }
     .chiffre-item {
       min-width: 90px;
