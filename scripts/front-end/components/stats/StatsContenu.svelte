@@ -101,7 +101,7 @@
       </div>
     </section>
 
-    <StatistiquesConformites statsConformite={stats.statsConformité} />
+    <StatistiquesConformites statsConformite={stats.statsConformité} totalPrescriptions={stats.totalPrescriptions} />
   </article>
 </div>
 

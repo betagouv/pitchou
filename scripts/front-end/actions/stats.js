@@ -51,7 +51,8 @@ function isStatsPubliques(stats) {
         typeof stats.statsConformité.nb_conforme_apres_1 === 'number' &&
         typeof stats.statsConformité.nb_conforme_apres_2 === 'number' &&
         typeof stats.statsConformité.nb_conforme_apres_3 === 'number' &&
-        typeof stats.statsConformité.nb_retour_conformite === 'number'
+        typeof stats.statsConformité.nb_retour_conformite === 'number' && 
+        typeof stats.totalPrescriptions === 'number'
     ) {
         /** 
          * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
@@ -75,7 +76,8 @@ function isStatsPubliques(stats) {
                 nb_non_conforme: 0,
                 nb_retour_conformite: 0,
                 nb_trop_tard: 0
-            }
+            },
+            totalPrescriptions: 0,
         };
         void statsOk // pour éviter une erreur typescript que la variable n'est pas utilisée
 

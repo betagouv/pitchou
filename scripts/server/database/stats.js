@@ -34,13 +34,18 @@ export async function getStatsPubliques() {
 
         const statsConformitéP = getStatsConformité(transaction)
 
-        const [dossiers, dossiersEnPhaseContrôle, contrôles,pétitionnairesDepuisSept2024, statsConformité] = await Promise.all([
+        const totalPrescriptionsP = transaction('prescription').count('* as total').first();
+
+        const [dossiers, dossiersEnPhaseContrôle, contrôles, pétitionnairesDepuisSept2024, statsConformité, totalPrescriptionsRow] = await Promise.all([
             dossiersP,
             dossiersEnPhaseContrôleP,
             contrôlesP,
             pétitionnairesDepuisSept2024P,
-            statsConformitéP
+            statsConformitéP,
+            totalPrescriptionsP
         ]);
+
+        const totalPrescriptions = Number(totalPrescriptionsRow?.total);
 
         const dossiersIdsEnPhaseContrôle = dossiersEnPhaseContrôle.map(row => row.dossier);
 
@@ -60,7 +65,8 @@ export async function getStatsPubliques() {
             nbDossiersEnPhaseContrôleSansDécision: dossiersEnPhaseContrôle.length - décisionsPourDossierEnPhaseContrôle.length,
             totalContrôles: contrôles.length,
             nbPétitionnairesDepuisSept2024: pétitionnairesDepuisSept2024.length,
-            statsConformité
+            statsConformité,
+            totalPrescriptions
         }
 
         await transaction.commit()

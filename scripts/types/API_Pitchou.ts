@@ -110,4 +110,5 @@ export interface StatsPubliques {
     totalContrôles: number
     totalDossiers: number
     statsConformité: StatsConformité
+    totalPrescriptions: number
 }

@@ -4,17 +4,17 @@
   /** @import {StatsConformité} from '../../../types/database/public/Stats' */
   /** @type {StatsConformité} */
   export let statsConformite;
+  export let totalPrescriptions;
 
   const nbConformiteInitiale = statsConformite.nb_conforme_apres_1;
   const nbRetourConformite = statsConformite.nb_retour_conformite;
   const nbNonConforme = statsConformite.nb_non_conforme;
   const nbTropTard = statsConformite.nb_trop_tard;
   const nbAutre = statsConformite.nb_conformite_autre;
-  const total = nbConformiteInitiale + nbRetourConformite + nbNonConforme + nbTropTard + nbAutre;
-  const pctConformiteInitiale = total ? Math.round((nbConformiteInitiale/total)*100) : 0;
-  const pctRetourConformite = total ? Math.round((nbRetourConformite/total)*100) : 0;
-  const pctNonConforme = total ? Math.round((nbNonConforme/total)*100) : 0;
-  const pctTropTard = total ? Math.round((nbTropTard/total)*100) : 0;
+  const pctConformiteInitiale = totalPrescriptions ? Math.round((nbConformiteInitiale/totalPrescriptions)*100) : 0;
+  const pctRetourConformite = totalPrescriptions ? Math.round((nbRetourConformite/totalPrescriptions)*100) : 0;
+  const pctNonConforme = totalPrescriptions ? Math.round((nbNonConforme/totalPrescriptions)*100) : 0;
+  const pctTropTard = totalPrescriptions ? Math.round((nbTropTard/totalPrescriptions)*100) : 0;
   const pctAutre = 100 - pctConformiteInitiale - pctRetourConformite - pctNonConforme - pctTropTard;
 </script>
 
@@ -23,6 +23,7 @@
   <div class="fr-card fr-card--no-arrow">
     <div class="fr-card__body">
       <div class="fr-card__content">
+        <p class="fr-text--sm fr-mb-1w">totalPrescriptions prescriptions : <strong>{totalPrescriptions}</strong></p>
         <p class="fr-text--sm fr-mb-2w">
           Cette barre représente la répartition des prescriptions selon leur conformité après contrôle.
         </p>
