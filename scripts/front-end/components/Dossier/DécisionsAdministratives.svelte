@@ -131,6 +131,23 @@
         }
     }
     
+    /** @type {'consulter' | 'modifier'} */
+    let vueDécisionAdministrative = 'consulter'
+
+    /** @type {FrontEndDécisionAdministrative | undefined} */
+    let décisionAdministrativeEnModification
+
+    function modifierDécisionAdministrative(){
+        vueDécisionAdministrative = 'modifier'
+
+        décisionAdministrativeEnModification = Object.assign({}, décisionAdministrative)
+    }
+
+    function annulerModification(){
+        décisionAdministrativeEnModification = undefined
+
+        vueDécisionAdministrative = 'consulter'
+    }
 
     /** @type {'consulter' | 'modifier'} */
     let vuePrescription = 'consulter'
@@ -138,12 +155,20 @@
 </script>
 
 <section class="décision-administrative">
-    <h4>{type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}</h4>
+
+    {#if vueDécisionAdministrative === 'consulter'}
+    <h4>
+        {type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={modifierDécisionAdministrative}>
+            Modifier
+        </button>
+    </h4>
     <div class="fr-mb-1w">Date de fin des obligations : {date_fin_obligations ? formatDateAbsolue(date_fin_obligations) : NON_RENSEIGNÉ}</div>
-    <div class="fr-mb-1w">Fichier de l'arrêté : 
+    
+    <div class="fr-mb-2w">
         {#if fichier_url}
-            <a class="fr-btn" href={fichier_url}>
-                Télécharger
+            <a class="fr-btn fr-btn--secondary fr-btn--sm" href={fichier_url}>
+                Télécharger le fichier de l'arrếté
             </a>
         {:else}
             (pas de fichier pour le moment)
@@ -153,11 +178,13 @@
     <section class="prescriptions">
         {#if prescriptions.size === 0}
             <h5>Prescriptions</h5>
-            <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
+            <section class="fr-mb-3w">
+                <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
-                Ajouter une prescription
-            </button>
+                <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                    Ajouter une prescription
+                </button>
+            </section>
 
             <section class="fr-mb-4w">
                 <h6>Import d'un fichier de prescriptions</h6>
@@ -234,11 +261,27 @@
         {/if}
         
     </section>
+
+    {:else} <!-- vueDécisionAdministrative === 'modifier' -->
+        <h4>Modifier décision administrative</h4>
+
+
+
+        <button class="fr-btn">Sauvegarder</button>
+        <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
+    {/if}
+
 </section>
 
 
 <style lang="scss">
     .décision-administrative{
+        h4{
+            margin-bottom: 1rem;
+
+            text-decoration: underline gray 2px;
+        }
+
         h5{
             margin-bottom: 1rem;
         }
