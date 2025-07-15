@@ -107,8 +107,8 @@ export interface StatsPubliques {
     nbDossiersEnPhaseContrôleAvecDécision: number
     nbDossiersEnPhaseContrôleSansDécision: number
     nbPétitionnairesDepuisSept2024: number
-    totalContrôles: number
     totalDossiers: number
-    statsConformité: StatsConformité
     totalPrescriptions: number
+    nbPrescriptionsControlees: number
+    statsConformité: StatsConformité
 }

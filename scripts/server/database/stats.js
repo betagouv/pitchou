@@ -25,7 +25,6 @@ export async function getStatsPubliques() {
             .groupBy('dossier')
             .orderBy('latest_horodatage', 'desc');
 
-        const contrôlesP = transaction('contrôle').select('id')
 
         const pétitionnairesDepuisSept2024P = transaction('dossier')
         .select(['demandeur_personne_morale', 'demandeur_personne_physique'])
@@ -36,16 +35,20 @@ export async function getStatsPubliques() {
 
         const totalPrescriptionsP = transaction('prescription').count('* as total').first();
 
-        const [dossiers, dossiersEnPhaseContrôle, contrôles, pétitionnairesDepuisSept2024, statsConformité, totalPrescriptionsRow] = await Promise.all([
+        const prescriptionsControleesP = transaction('contrôle').countDistinct('prescription as nb').first();
+
+        const [dossiers, dossiersEnPhaseContrôle, pétitionnairesDepuisSept2024, statsConformité, totalPrescriptionsRow, prescriptionsControleesRow] = await Promise.all([
             dossiersP,
             dossiersEnPhaseContrôleP,
-            contrôlesP,
             pétitionnairesDepuisSept2024P,
             statsConformitéP,
-            totalPrescriptionsP
+            totalPrescriptionsP,
+            prescriptionsControleesP
         ]);
 
         const totalPrescriptions = Number(totalPrescriptionsRow?.total);
+        const nbPrescriptionsControlees = Number(prescriptionsControleesRow?.nb);
+    
 
         const dossiersIdsEnPhaseContrôle = dossiersEnPhaseContrôle.map(row => row.dossier);
 
@@ -63,10 +66,10 @@ export async function getStatsPubliques() {
             nbDossiersEnPhaseContrôle: dossiersEnPhaseContrôle.length,
             nbDossiersEnPhaseContrôleAvecDécision: décisionsPourDossierEnPhaseContrôle.length,
             nbDossiersEnPhaseContrôleSansDécision: dossiersEnPhaseContrôle.length - décisionsPourDossierEnPhaseContrôle.length,
-            totalContrôles: contrôles.length,
             nbPétitionnairesDepuisSept2024: pétitionnairesDepuisSept2024.length,
-            statsConformité,
-            totalPrescriptions
+            totalPrescriptions,
+            nbPrescriptionsControlees,
+            statsConformité: statsConformité
         }
 
         await transaction.commit()
@@ -135,7 +138,6 @@ async function getStatsConformité(transaction) {
     nb_conforme_apres_2: Number(résultatsRequêteSQL['nb_conforme_apres_2']),
     nb_conforme_apres_3: Number(résultatsRequêteSQL['nb_conforme_apres_3']),
     nb_trop_tard: Number(résultatsRequêteSQL['nb_trop_tard']),
-    nb_conformite_autre: Number(résultatsRequêteSQL['nb_conformite_autre']),
     nb_retour_conformite: Number(résultatsRequêteSQL['nb_retour_conformite']),
   }
 

@@ -8,9 +8,6 @@ export interface StatsConformité {
   /** Le nombre de prescriptions dont le dernier contrôle est Trop tard */
   nb_trop_tard: number;
 
-  /** Le nombre de prescriptions dont le dernier contrôle est autre que Conforme, Non conforme ou Trop tard */
-  nb_conformite_autre: number;
-
   /** Le nombre de prescriptions conformes après le 1er contrôle */
   nb_conforme_apres_1: number;
 

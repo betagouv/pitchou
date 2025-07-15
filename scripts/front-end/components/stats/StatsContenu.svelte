@@ -53,9 +53,12 @@
       <div class="fr-card fr-card--no-arrow">
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <p class="fr-text--sm fr-mb-2w">
-              Une <strong>décision administrative</strong> correspond à un arrêté de dérogation, un arrêté de refus, un arrêté modificatif ou tout autre document administratif finalisant l'instruction du dossier.
-            </p>
+              <div class="definitions-in-card fr-mb-2w">
+              <div class="definition-block">
+                  <strong>Qu'est-ce qu'une décision administrative&nbsp;?</strong><br>
+                  <span>Une décision administrative correspond à un arrêté de dérogation, un arrêté de refus, un arrêté modificatif ou tout autre document administratif finalisant l'instruction du dossier.</span>
+              </div>
+              </div>
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
@@ -80,20 +83,39 @@
       </div>
     </section>
 
+    <!-- Bloc prescriptions contrôlées (barre) -->
     <section class="fr-mt-4w">
-      <h2 class="fr-mt-2w">Nombre de contrôles dans Pitchou</h2>
-      <div class="fr-card fr-card--no-arrow">
+      <h2 class="fr-mt-2w">Prescriptions contrôlées</h2>
+      <div class="fr-card fr-card--no-arrow stat-prescriptions-card">
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <p class="fr-text--sm fr-mb-2w">
-              Un contrôle désigne une vérification et une évaluation permettant de s’assurer que les conditions légales et réglementaires encadrant la protection des espèces protégées sont bien respectées.
-            </p>
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-4">
-                <div class="stat-item total-stat">
-                  <span class="stat-number">{stats.totalContrôles}</span>
-                  <span class="stat-label">contrôles</span>
+            <div class="definitions-in-card fr-mb-2w">
+              <div class="definition-block">
+                <strong>Qu'est-ce qu'une prescription&nbsp;?</strong><br>
+                <span>Une prescription est une exigence, mesure ou condition imposée par l’autorité administrative (ou parfois recommandée par l’instructeur du dossier) pour encadrer la réalisation d’un projet susceptible d’impacter des espèces protégées. Une prescription est soumise à des <strong>contrôles</strong>.</span>
+              </div>
+              <div class="definition-block">
+                <strong>Qu'est-ce qu'un contrôle&nbsp;?</strong><br>
+                <span>Un contrôle est vérification ou évaluation d’une <strong>prescription</strong>. Il permet de s’assurer que les conditions légales et réglementaires encadrant la protection des espèces protégées sont bien respectées. Un contrôle a deux états : <strong>conforme / non conforme</strong>.</span>
+              </div>
+            </div>
+            <div class="progress-stats-wrapper">
+              <div class="progress-labels">
+                <div class="progress-label progress-label--left">
+                  <span class="stat-number">{stats.nbPrescriptionsControlees}</span>
+                  <span class="stat-label">Contrôlées<br>{stats.totalPrescriptions > 0 ? Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
                 </div>
+                <div class="progress-label progress-label--right">
+                  <span class="stat-number">{stats.totalPrescriptions - stats.nbPrescriptionsControlees}</span>
+                  <span class="stat-label">Non contrôlées<br>{stats.totalPrescriptions > 0 ? 100 - Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
+                </div>
+              </div>
+              <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
+                <div style="width: {stats.totalPrescriptions > 0 ? (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100 : 0}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
+                <div style="width: {stats.totalPrescriptions > 0 ? ((stats.totalPrescriptions - stats.nbPrescriptionsControlees) / stats.totalPrescriptions) * 100 : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
+              </div>
+              <div class="progress-total fr-mt-1w">
+                <span class="stat-label">Total prescriptions : <strong>{stats.totalPrescriptions}</strong></span>
               </div>
             </div>
           </div>
@@ -106,10 +128,15 @@
 </div>
 
 <style lang="scss">
-  .fr-card {
-    border: 1px solid var(--border-default-grey);
-    border-radius: 8px;
-    padding: 1.5rem;
+  .fr-card,
+  .stat-prescriptions-card {
+    border: 1.5px solid var(--border-default-grey);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: var(--background-default-grey);
+    max-width: 100vw;
+    margin: 0 -16px 2.5rem -16px;
+    padding: 2.5rem 2rem 2rem 2rem;
   }
   .stat-item {
     display: flex;
@@ -166,5 +193,38 @@
   .progress-total {
     text-align: center;
     margin-top: 0.5rem;
+  }
+  .bar-prescriptions-ctrl {
+    margin-bottom: 1.5rem;
+  }
+  .definitions,
+  .definitions-in-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .definitions-in-card .definition-block {
+    background-color: var(--background-alt-grey);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid var(--border-default-grey);
+    margin-bottom: 0.75rem;
+  }
+  .definition-block strong {
+    font-weight: bold;
+    color: var(--text-default-info);
+  }
+  .definition-block span {
+    font-size: 0.95rem;
+    color: var(--text-mention-grey);
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 900px) {
+    .fr-card,
+    .stat-prescriptions-card {
+      padding: 1.5rem 0.5rem 1rem 0.5rem;
+      margin: 0 -8px 1.5rem -8px;
+    }
   }
 </style> 
