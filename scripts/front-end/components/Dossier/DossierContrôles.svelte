@@ -16,11 +16,11 @@
      * @param {FrontEndDécisionAdministrative} décisionAdministrative
      */
     function créerFonctionSupprimer(décisionAdministrative){
-        
+
         return function(){
             const index = décisionsAdministratives.indexOf(décisionAdministrative);
-            if (index !== -1) { // only splice array when item is found
-                décisionsAdministratives.splice(index, 1); // 2nd parameter means remove one item only
+            if (index !== -1) { 
+                décisionsAdministratives.splice(index, 1); 
             }
 
             décisionsAdministratives = décisionsAdministratives
