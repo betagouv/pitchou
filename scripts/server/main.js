@@ -14,7 +14,7 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
-import { modifierDécisionAdministrative, ajouterDécisionsAdministratives } from './database/décision_administrative.js'
+import { modifierDécisionAdministrative, ajouterDécisionsAdministratives, supprimerDécisionAdministrative } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
 import { ajouterContrôles, modifierContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
@@ -376,6 +376,19 @@ fastify.post('/decision-administrative', function(request, reply) {
       reply.code(403).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
     })
 })
+
+
+fastify.delete('/decision-administrative/:decisionAdministrativeId', async function(request, reply) {  
+  //@ts-ignore
+  if(!request.params.decisionAdministrativeId){
+    reply.code(400).send(`Paramètre 'decisionAdministrativeId' manquant dans l'URL`)
+    return 
+  }
+
+  // @ts-ignore
+  return supprimerDécisionAdministrative(request.params.decisionAdministrativeId)
+})
+
 
 
 fastify.post('/prescription', function(request, reply) {  

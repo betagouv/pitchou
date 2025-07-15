@@ -22,6 +22,10 @@
     /** @type {FrontEndDécisionAdministrative} */
     export let décisionAdministrative
 
+    /** @type {() => Promise<unknown>} */
+    export let supprimerDécisionAdministrative
+
+
     $: ({ id,
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
     } = décisionAdministrative)
@@ -307,8 +311,16 @@
             <DateInput bind:date={décisionAdministrativeEnModification.date_fin_obligations}></DateInput>
         </div>
 
-        <button class="fr-btn" on:click={sauvegarderDécisionAdministrative}>Sauvegarder</button>
-        <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
+        <div class="fr-mb-6w">
+            <button class="fr-btn" on:click={sauvegarderDécisionAdministrative}>Sauvegarder</button>
+            <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
+        </div>
+
+        <div>
+            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" on:click={supprimerDécisionAdministrative}>
+                Supprimer cette décision administrative
+            </button>
+        </div>
     {/if}
 
 </section>
@@ -327,7 +339,6 @@
         }
 
         margin-bottom: 3rem;
-
 
         table.prescriptions{
             .prescription, thead > tr{

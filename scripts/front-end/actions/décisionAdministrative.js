@@ -151,3 +151,14 @@ export function modifierDécisionAdministrative(décisionAdministrative){
         body: JSON.stringify(décisionAdministrative)
     })
 }
+
+/**
+ * 
+ * @param {DécisionAdministrative['id']} décisionAdministrativeId 
+ * @returns {Promise<unknown>}
+ */
+export function supprimerDécisionAdministrative(décisionAdministrativeId){
+    return text(`/decision-administrative/${décisionAdministrativeId}`, {
+        method: 'DELETE'
+    })
+}

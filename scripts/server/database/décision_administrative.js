@@ -242,4 +242,14 @@ export function modifierDécisionAdministrative(décisionAdministrative, databas
         .where({id: décisionAdministrative.id})
 }
 
-
+/**
+ * 
+ * @param {DécisionAdministrative['id']} id 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
+    return databaseConnection('décision_administrative')
+        .delete()
+        .where({id})
+}
