@@ -11,10 +11,10 @@
     /** @type {Partial<FrontEndPrescription>} */
     export let prescription
 
-    let {
+    $: ({
         id, description, date_échéance, numéro_article,
-        surface_évitée, surface_compensée, individus_évités, individus_compensés, nids_évités, nids_compensés,
-    } = prescription
+        surface_évitée, surface_compensée, individus_évités, individus_compensés, nids_évités, nids_compensés
+    } = prescription)
 
     /** @type {Partial<Contrôle>[]}*/
     $: contrôles = prescription.contrôles ? [...prescription.contrôles] : []
