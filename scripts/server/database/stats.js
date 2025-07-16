@@ -2,9 +2,7 @@ import knex from 'knex';
 import {créerTransaction} from '../database.js'
 
 //@ts-ignore
-/** @import {StatsPubliques} from '../../types/API_Pitchou.ts' */
-//@ts-ignore
-/** @import {StatsConformité, StatsImpactBiodiversité} from '../../types/database/public/Stats.ts' */
+/** @import {StatsPubliques, StatsConformité, StatsImpactBiodiversité} from '../../types/API_Pitchou.ts' */
 
 /**
  * Calcule les statistiques publiques de Pitchou
