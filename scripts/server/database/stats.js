@@ -45,7 +45,7 @@ export async function getStatsPubliques() {
             'individus_compensés',
           ])
           .where('date_échéance', '<=', aujourdhui)
-          .as('p'); // 
+          .as('p');
 
         const contrôleP = transaction
           .select([
@@ -59,7 +59,7 @@ export async function getStatsPubliques() {
 
         const prescriptionsControleesP = transaction.from(contrôleP).countDistinct('prescription as nb').first();
 
-        const statsImpactBiodiversitéP = getStatsImpactBiodiversité(transaction);
+        const statsImpactBiodiversitéP = getStatsImpactBiodiversité(transaction, prescriptionsP);
 
         const statsConformitéP = getStatsConformité(transaction, contrôleP)
 
@@ -178,24 +178,26 @@ async function getStatsConformité(transaction, contrôleP) {
 /**
  * Récupère les statistiques d'impact biodiversité pour les prescriptions ayant au moins un contrôle conforme.
  * @param {knex.Knex.Transaction | knex.Knex} transaction
+ * @param {knex.Knex.QueryBuilder} prescriptionsP
  * @returns {Promise<StatsImpactBiodiversité>}
  */
-async function getStatsImpactBiodiversité(transaction) {
-  const sousRequête = transaction('prescription')
-    .join('contrôle', 'prescription.id', 'contrôle.prescription')
+async function getStatsImpactBiodiversité(transaction, prescriptionsP) {
+  const sousRequête = transaction
+    .from(prescriptionsP.as('p'))
+    .join('contrôle', 'p.id', 'contrôle.prescription')
     .where('contrôle.résultat', 'Conforme')
-    .distinctOn('prescription.id')
+    .distinctOn('p.id')
     .select(
-      'prescription.id',
-      'prescription.surface_évitée',
-      'prescription.surface_compensée',
-      'prescription.nids_évités',
-      'prescription.nids_compensés',
-      'prescription.individus_évités',
-      'prescription.individus_compensés'
+      'p.id',
+      'p.surface_évitée',
+      'p.surface_compensée',
+      'p.nids_évités',
+      'p.nids_compensés',
+      'p.individus_évités',
+      'p.individus_compensés'
     )
     .orderBy([
-      { column: 'prescription.id', order: 'asc' },
+      { column: 'p.id', order: 'asc' },
       { column: 'contrôle.date_contrôle', order: 'desc' },
     ]);
 
