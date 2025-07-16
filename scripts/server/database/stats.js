@@ -61,7 +61,7 @@ export async function getStatsPubliques() {
 
         const statsImpactBiodiversitéP = getStatsImpactBiodiversité(transaction);
 
-        const statsConformitéP = getStatsConformité(transaction)
+        const statsConformitéP = getStatsConformité(transaction, contrôleP)
 
         const [dossiers, dossiersEnPhaseContrôle, pétitionnairesDepuisSept2024, statsConformité, prescriptions, prescriptionsControleesRow, statsImpactBiodiversité] = await Promise.all([
             dossiersP,
@@ -113,15 +113,18 @@ export async function getStatsPubliques() {
  * Récupère les statistiques relatives à la répartition des prescriptions
  * selon la conformité de leur dernier contrôle.
  * @param {knex.Knex.Transaction | knex.Knex} transaction
+ * @param {knex.Knex.QueryBuilder} contrôleP
  * @returns {Promise<StatsConformité>}
  */
-async function getStatsConformité(transaction) {
-  const nbControles = transaction('contrôle')
+async function getStatsConformité(transaction, contrôleP) {
+  const nbControles = transaction
+    .from(contrôleP.as('contrôle'))
     .select('prescription')
     .count('* as nb_contrôles')
     .groupBy('prescription');
 
-  const dernierControle = transaction('contrôle')
+  const dernierControle = transaction
+    .from(contrôleP.as('contrôle'))
     .select('prescription', 'résultat', 'date_contrôle')
     .distinctOn('prescription')
     .orderBy([
