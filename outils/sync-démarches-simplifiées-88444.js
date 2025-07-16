@@ -833,9 +833,7 @@ let décisionsAdministrativesSynchronisées = fichiersMotivationTéléchargésP.
                 dossier: dossierId,
                 fichier: fichierMotivationId,
                 type,
-                // pas correct, mais approximation sûrement suffisante pour commencer
-                // Les instructeur.rices pourront corriger manuellement a posteriori
-                date_signature: new Date(dernierTraitement.dateTraitement),
+                date_signature: null, // pas de remplissage par défaut
                 numéro: null,
                 date_fin_obligations: null
             })
