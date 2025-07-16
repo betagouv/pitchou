@@ -2,7 +2,7 @@
 
   //@ts-check
   
-  /** @import {StatsConformité} from '../../../types/database/public/Stats' */
+  /** @import {StatsConformité} from '../../../types/API_Pitchou' */
   /** @type {StatsConformité} */
   export let statsConformite;
 
