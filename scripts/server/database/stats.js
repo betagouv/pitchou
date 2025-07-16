@@ -1,5 +1,6 @@
 import knex from 'knex';
 import {créerTransaction} from '../database.js'
+import { formatISO, startOfToday } from 'date-fns';
 
 //@ts-ignore
 /** @import {StatsPubliques, StatsConformité, StatsImpactBiodiversité} from '../../types/API_Pitchou.ts' */
@@ -10,7 +11,9 @@ import {créerTransaction} from '../database.js'
  */
 export async function getStatsPubliques() {
     const transaction = await créerTransaction({ readOnly: true })
+    const aujourdhui = formatISO(startOfToday())
     try {
+
         // Récupérer tous les dossiers
         const dossiersP = transaction('dossier')
             .select('id')
@@ -29,25 +32,48 @@ export async function getStatsPubliques() {
         .where('date_dépôt', '<=', '2024-09-30')
         .groupBy('demandeur_personne_morale', 'demandeur_personne_physique');
 
-        const statsConformitéP = getStatsConformité(transaction)
 
-        const totalPrescriptionsP = transaction('prescription').count('* as total').first();
+        /** Les prescriptions qui nous intéressent sont les prescriptions contrôlables, i.e. les prescriptions dont la date d'échéance est dans le passé */
+        const prescriptionsP = transaction('prescription')
+          .select([
+            'id',
+            'surface_évitée',
+            'surface_compensée',
+            'nids_évités',
+            'nids_compensés',
+            'individus_évités',
+            'individus_compensés',
+          ])
+          .where('date_échéance', '<=', aujourdhui)
+          .as('p'); // 
 
-        const prescriptionsControleesP = transaction('contrôle').countDistinct('prescription as nb').first();
+        const contrôleP = transaction
+          .select([
+            'contrôle.prescription',
+            'contrôle.résultat',
+            'contrôle.date_contrôle',
+          ])
+          .from('contrôle')
+          .join(prescriptionsP, 'contrôle.prescription', 'p.id').as('c'); 
+
+
+        const prescriptionsControleesP = transaction.from(contrôleP).countDistinct('prescription as nb').first();
 
         const statsImpactBiodiversitéP = getStatsImpactBiodiversité(transaction);
 
-        const [dossiers, dossiersEnPhaseContrôle, pétitionnairesDepuisSept2024, statsConformité, totalPrescriptionsRow, prescriptionsControleesRow, statsImpactBiodiversité] = await Promise.all([
+        const statsConformitéP = getStatsConformité(transaction)
+
+        const [dossiers, dossiersEnPhaseContrôle, pétitionnairesDepuisSept2024, statsConformité, prescriptions, prescriptionsControleesRow, statsImpactBiodiversité] = await Promise.all([
             dossiersP,
             dossiersEnPhaseContrôleP,
             pétitionnairesDepuisSept2024P,
             statsConformitéP,
-            totalPrescriptionsP,
+            prescriptionsP,
             prescriptionsControleesP,
             statsImpactBiodiversitéP
         ]);
 
-        const totalPrescriptions = Number(totalPrescriptionsRow?.total);
+        const totalPrescriptions = prescriptions.length
         const nbPrescriptionsControlees = Number(prescriptionsControleesRow?.nb);
     
 

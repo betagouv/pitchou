@@ -24,7 +24,7 @@
 </script>
 
 <section class="fr-mt-4w">
-  <h2 class="fr-mt-2w">Conformité des prescriptions contrôlées dans Pitchou</h2>
+  <h2 class="fr-mt-2w">Conformité des prescriptions contrôlables dans Pitchou</h2>
   <div class="fr-card fr-card--no-arrow stat-conformite-card">
     <div class="fr-card__body">
       <div class="fr-card__content">

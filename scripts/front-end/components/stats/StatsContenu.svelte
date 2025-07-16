@@ -115,7 +115,7 @@
                 <div style="width: {stats.totalPrescriptions > 0 ? ((stats.totalPrescriptions - stats.nbPrescriptionsControlees) / stats.totalPrescriptions) * 100 : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
               </div>
               <div class="progress-total fr-mt-1w">
-                <span class="stat-label">Total prescriptions : <strong>{stats.totalPrescriptions}</strong></span>
+                <span class="stat-label">Total prescriptions contrôlables dans Pitchou : <strong>{stats.totalPrescriptions}</strong></span>
               </div>
             </div>
           </div>
