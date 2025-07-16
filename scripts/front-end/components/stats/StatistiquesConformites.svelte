@@ -47,12 +47,12 @@
             <span class="stat-label">Trop tard</span>
           </div>
           <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--background-contrast-grey);">{nbAutre}</span>
+            <span class="stat-number" style="color: var(--text-disabled-grey);">{nbAutre}</span>
             <span class="stat-label">Autre</span>
           </div>
         </div>
 
-        <div class="fr-progress-bar fr-mt-2w bar-conformite" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden; display: flex;">
+        <div class="fr-progress-bar fr-mt-2w bar-conformite" style="height: 1.5rem; background: var(--text-disabled-grey; border-radius: 8px; overflow: hidden; display: flex;">
           <div style="width: {pctConformiteInitiale}%; background: var(--success-425-625); height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctRetourConformite}%; background: var(--green-emeraude-950-100-active); height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
@@ -64,7 +64,7 @@
           <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--green-emeraude-950-100-active);"></span><span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span>
           <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--red-marianne-main-472);"></span><span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
           <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: #000;"></span><span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--background-contrast-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
+          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
         </div>
       </div>
     </div>
