@@ -117,6 +117,7 @@ fastify.get('/saisie-especes', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
 fastify.get('/stats', sendIndexHTMLFile)
+fastify.get('/import-dossier', sendIndexHTMLFile)
 
 
 
