@@ -235,10 +235,11 @@ export interface DossierDemarcheSimplifiee88444 {
   "Déposez ici l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.": ChampDSPieceJustificative;
   "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande": ChampDSPieceJustificative[];
   /**
-   * Cette question permet l'import d'informations dans les annotations pour un dossier en phase accompagnement et instruction (comme des dossiers historiques) car on ne peut pas remplir directement les annotations privées lorsqu'on importe des nouveaux dossiers.
-   * Cette question ne doit jamais s'afficher.
+   * Cette question est là pour des raisons techniques.
+   * La réponse à cette question n'a aucune incidence sur l'instruction de votre dossier.
+   * Cette question sera bientôt supprimée.
    */
-  "Question cachée pour des raisons techniques": string;
+  "NE PAS MODIFIER - Données techniques associées à votre dossier": string;
 }
 
 
