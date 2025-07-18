@@ -2,11 +2,14 @@
   //@ts-check
   
   import Squelette from '../Squelette.svelte'
-  import { getODSTableRawContent } from '@odfjs/odfjs'
+  import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
   /** @import { ComponentProps } from 'svelte' */
 
   /** @type {ComponentProps<Squelette>['email']} */
   export let email = undefined
+
+  /** @type {any[] | undefined} */
+  let dossiersACréer = undefined
 
   /**
    * @param {Event} event
@@ -32,10 +35,13 @@
         if (!rawDataTableauSuivi) {
           throw new TypeError(`Erreur dans la récupération de la page "tableau_suivi". Assurez-vous que cette page existe bien dans votre tableur ods.`)
         }
-      const colonnesTableauSuivi = rawDataTableauSuivi[0]
-      console.log({colonnesTableauSuivi})
+      const lignes = [...sheetRawContentToObjects(rawDataTableauSuivi.filter(isRowNotEmpty)).values()]
+
+      console.log( {lignes })
+      dossiersACréer = lignes
+
       } catch (error) {
-        console.error(`Une erreur est survenue pendant la lecture du fichier: ${error}`)
+        console.error(`Une erreur est survenue pendant la lecture du fichier : ${error}`)
       }
     }
 
@@ -53,4 +59,36 @@
     <input class="fr-upload" aria-describedby="file-upload-messages" type="file" id="file-upload" name="file-upload" accept=".ods" on:change={handleFileChange}>
     <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
   </div>
+
+  <h2>Correspondance Démarche Simplifiée / Fichier import</h2>
+  <ul>
+    <li>Nom du projet => Colonne 'OBJET'</li>
+  </ul>
+
+  {#if dossiersACréer}
+  <h2>Toutes les lignes du tableau</h2>
+    <div class="fr-table" id="table-0-component">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table id="table-0">
+              <caption> Lignes du tableau </caption>
+              <thead>
+                <tr>
+                  <th> Nom du projet (OBJET) </th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each dossiersACréer as dossier}
+                  <tr id="table-0-row-key-1" data-row-key="1">
+                    <td>{dossier['OBJET']}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 </Squelette>
