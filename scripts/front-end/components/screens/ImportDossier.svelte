@@ -63,6 +63,7 @@
   <h2>Correspondance Démarche Simplifiée / Fichier import</h2>
   <ul>
     <li>Nom du projet => Colonne 'OBJET'</li>
+    <li>Commentaires sur les enjeux et la procédure (Annotation privée) => Description avancement dossier avec dates</li>
   </ul>
 
   {#if dossiersACréer}
@@ -76,12 +77,14 @@
               <thead>
                 <tr>
                   <th> Nom du projet (OBJET) </th>
+                  <th> Commentaires sur les enjeux et la procédure </th>
                 </tr>
               </thead>
               <tbody>
                 {#each dossiersACréer as dossier}
                   <tr id="table-0-row-key-1" data-row-key="1">
                     <td>{dossier['OBJET']}</td>
+                    <td>{dossier['Description avancement dossier avec dates']}</td>
                   </tr>
                 {/each}
               </tbody>
