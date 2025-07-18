@@ -2,6 +2,7 @@
   //@ts-check
   
   import Squelette from '../Squelette.svelte'
+  import { getODSTableRawContent } from '@odfjs/odfjs'
   /** @import { ComponentProps } from 'svelte' */
 
   /** @type {ComponentProps<Squelette>['email']} */
@@ -10,14 +11,36 @@
   /**
    * @param {Event} event
   */
-  function handleFileChange(event) {
-  const target = event.target;
-    if (target instanceof HTMLInputElement && target.files) {
-      console.log(target.files);
-    } else {
+  async function handleFileChange(event) {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement && target && target.files && target.files[0])) {
       console.error('Le champ de fichier est introuvable ou ne contient aucun fichier.')
+      return;
     }
+    /** @type {FileList | null} */
+    const files = target instanceof HTMLInputElement && target && target?.files ? target?.files : null
+
+    const file = files && files[0]
+
+    if (file) {
+      try {
+        const fichierImport = await file.arrayBuffer()
+        const rawData = await getODSTableRawContent(fichierImport)
+
+        const rawDataTableauSuivi = rawData.get('tableau_suivi')
+
+        if (!rawDataTableauSuivi) {
+          throw new TypeError(`Erreur dans la récupération de la page "tableau_suivi". Assurez-vous que cette page existe bien dans votre tableur ods.`)
+        }
+      const colonnesTableauSuivi = rawDataTableauSuivi[0]
+      console.log({colonnesTableauSuivi})
+      } catch (error) {
+        console.error(`Une erreur est survenue pendant la lecture du fichier: ${error}`)
+      }
+    }
+
   }
+
 </script>
 
 <Squelette {email} nav={true} >
@@ -29,5 +52,5 @@
     </label>
     <input class="fr-upload" aria-describedby="file-upload-messages" type="file" id="file-upload" name="file-upload" accept=".ods" on:change={handleFileChange}>
     <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
-</div>
+  </div>
 </Squelette>
