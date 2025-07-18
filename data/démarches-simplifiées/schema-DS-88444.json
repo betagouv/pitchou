@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2025-07-18T11:17:25+02:00",
+    "dateDerniereModification": "2025-07-18T15:22:33+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://demarches.numerique.gouv.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMjA3MDQ0",
-        "datePublication": "2025-07-18T11:17:25+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMjA5MzY5",
+        "datePublication": "2025-07-18T15:22:33+02:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
@@ -888,8 +888,8 @@
             {
                 "__typename": "TextareaChampDescriptor",
                 "id": "Q2hhbXAtNTQ2Mzk2MQ==",
-                "label": "Question cachée pour des raisons techniques",
-                "description": "Cette question permet l'import d'informations dans les annotations pour un dossier en phase accompagnement et instruction (comme des dossiers historiques) car on ne peut pas remplir directement les annotations privées lorsqu'on importe des nouveaux dossiers.\r\nCette question ne doit jamais s'afficher.",
+                "label": "NE PAS MODIFIER - Données techniques associées à votre dossier",
+                "description": "Cette question est là pour des raisons techniques. \r\nLa réponse à cette question n'a aucune incidence sur l'instruction de votre dossier.\r\nCette question sera bientôt supprimée.",
                 "required": false
             }
         ],
