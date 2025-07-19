@@ -54,6 +54,7 @@ export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   activité_principale: string | null;
   description: string | null;
   localisation: string;
+  date_dépôt: Date;
   
   régime_autorisation_environnementale_renseigné: boolean;
   régime_autorisation_environnementale: boolean | 'Non renseigné' ;
