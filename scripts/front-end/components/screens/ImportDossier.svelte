@@ -1,135 +1,132 @@
 <script>
+    //@ts-check
     import { text } from 'd3-fetch';
- 
+    import Squelette from '../Squelette.svelte'
+    import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
+    import { formaterDépartementDepuisValeur } from '../../actions/import-dossier.js';
 
-  //@ts-check
-
-/** @typedef {{
-    "Date de sollicitation": Date;
-    ORIGINE: string;
-    OBJET: string;
-    "N° Dossier DEROG": number;
-    ÉCHÉANCE: string;
-    "POUR\nATTRIBUTION": string;
-    OBSERVATIONS: string;
-    PETITIONNAIRE: string;
-    "Catégorie du demandeur": string;
-    "Nom contact – mail": string;
-    "Année de première sollicitation": number;
-    Communes: string;
-    Département: number;
-    Thématique: string;
-    "Procédure associée": string;
-    "Etapes du projet": string;
-    "Stade de l’avis": string;
-    "Description avancement dossier avec dates": string;
-    "Avis SBEP": string;
-    "Date de rendu de l’avis/envoi réponse": Date;
-    "Sollicitation OFB pour avis": string;
-    DEP: string;
-    "Date de dépôt DEP": string;
-    "Saisine CSRPN/CNPN": string;
-    "Date saisine CSRPN/CNPN": string;
-    "Nom de l’expert désigné (pour le CSRPN)": string;
-    "N° de l’avis Onagre ou interne": string;
-    "Avis CSRPN/CNPN": string;
-    "Date avis CSRPN/CNPN": string;
-    "Dérogation accordée": string;
-    "Date AP": string;
-    "Suivis n+1": string;
-    "Suivis n+3": string;
-    "Suivis n+5": string;
-    "A contrôler": string;
-    Contrôles: string;
-    "AnneeANT ?": string;
-    Colonne1: string;
-    Colonne2: string;
-    "Délai de réponse ([U] – [A]": string;
-    "Annee = annee(A)": number;
-    "Column 42": string;
-    "Column 43": string;
-    "Column 44": string;
-    "Column 45": string;
-    "Column 46": string;
-  }} Ligne */
+    /** @import { ComponentProps } from 'svelte' */
+    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
 
-  
-  import Squelette from '../Squelette.svelte'
-  import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
-  /** @import { ComponentProps } from 'svelte' */
-  /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+    /** @typedef {{
+         "Date de sollicitation": Date;
+        ORIGINE: string;
+        OBJET: string;
+        "N° Dossier DEROG": number;
+        ÉCHÉANCE: string;
+        "POUR\nATTRIBUTION": string;
+        OBSERVATIONS: string;
+        PETITIONNAIRE: string;
+        "Catégorie du demandeur": string;
+        "Nom contact – mail": string;
+        "Année de première sollicitation": number;
+        Communes: string;
+        Département: number;
+        Thématique: string;
+        "Procédure associée": string;
+        "Etapes du projet": string;
+        "Stade de l’avis": string;
+        "Description avancement dossier avec dates": string;
+        "Avis SBEP": string;
+        "Date de rendu de l’avis/envoi réponse": Date;
+        "Sollicitation OFB pour avis": string;
+        DEP: string;
+        "Date de dépôt DEP": string;
+        "Saisine CSRPN/CNPN": string;
+        "Date saisine CSRPN/CNPN": string;
+        "Nom de l’expert désigné (pour le CSRPN)": string;
+        "N° de l’avis Onagre ou interne": string;
+        "Avis CSRPN/CNPN": string;
+        "Date avis CSRPN/CNPN": string;
+        "Dérogation accordée": string;
+        "Date AP": string;
+        "Suivis n+1": string;
+        "Suivis n+3": string;
+        "Suivis n+5": string;
+        "A contrôler": string;
+        Contrôles: string;
+        "AnneeANT ?": string;
+        Colonne1: string;
+        Colonne2: string;
+        "Délai de réponse ([U] – [A]": string;
+        "Annee = annee(A)": number;
+        "Column 42": string;
+        "Column 43": string;
+        "Column 44": string;
+        "Column 45": string;
+        "Column 46": string;
+        }} Ligne */
 
-  /** @type {ComponentProps<Squelette>['email']} */
-  export let email = undefined
+    /** @type {ComponentProps<Squelette>['email']} */
+    export let email = undefined
 
-  /** @type {any[] | undefined} */
-  let lignesTableauImport = undefined
+    /** @type {any[] | undefined} */
+    let lignesTableauImport = undefined
 
-  /** @type {Map<any,string>} */
-  let ligneToLienPréremplissage = new Map()
+    /** @type {Map<any,string>} */
+    let ligneToLienPréremplissage = new Map()
 
 
-
-  /**
-   * @param {Event} event
-  */
-  async function handleFileChange(event) {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement && target && target.files && target.files[0])) {
-      console.error('Le champ de fichier est introuvable ou ne contient aucun fichier.')
-      return;
-    }
-    /** @type {FileList | null} */
-    const files = target instanceof HTMLInputElement && target && target?.files ? target?.files : null
-
-    const file = files && files[0]
-
-    if (file) {
-      try {
-        const fichierImport = await file.arrayBuffer()
-        const rawData = await getODSTableRawContent(fichierImport)
-
-        const rawDataTableauSuivi = rawData.get('tableau_suivi')
-
-        if (!rawDataTableauSuivi) {
-          throw new TypeError(`Erreur dans la récupération de la page "tableau_suivi". Assurez-vous que cette page existe bien dans votre tableur ods.`)
+    /**
+     * @param {Event} event
+     */
+    async function handleFileChange(event) {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement && target && target.files && target.files[0])) {
+        console.error('Le champ de fichier est introuvable ou ne contient aucun fichier.')
+        return;
         }
-      const lignes = [...sheetRawContentToObjects(rawDataTableauSuivi.filter(isRowNotEmpty)).values()]
+        /** @type {FileList | null} */
+        const files = target instanceof HTMLInputElement && target && target?.files ? target?.files : null
 
-      console.log( {lignes })
-      lignesTableauImport = lignes
+        const file = files && files[0]
 
-      } catch (error) {
-        console.error(`Une erreur est survenue pendant la lecture du fichier : ${error}`)
-      }
+        if (file) {
+        try {
+            const fichierImport = await file.arrayBuffer()
+            const rawData = await getODSTableRawContent(fichierImport)
+
+            const rawDataTableauSuivi = rawData.get('tableau_suivi')
+
+            if (!rawDataTableauSuivi) {
+            throw new TypeError(`Erreur dans la récupération de la page "tableau_suivi". Assurez-vous que cette page existe bien dans votre tableur ods.`)
+            }
+        const lignes = [...sheetRawContentToObjects(rawDataTableauSuivi.filter(isRowNotEmpty)).values()]
+
+        console.log({ lignes })
+        lignesTableauImport = lignes
+
+        } catch (error) {
+            console.error(`Une erreur est survenue pendant la lecture du fichier : ${error}`)
+        }
+        }
+
     }
+    
 
-  }
+    /**
+     * @param {Ligne} ligne
+     */
+    async function handleOnClickForLigne(ligne) {
+        formaterDépartementDepuisValeur(ligne['Département'])
 
+        /** @type {Partial<DossierDemarcheSimplifiee88444>} */
+        const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION']}), 'Dans quel département se localise majoritairement votre projet ?': formaterDépartementDepuisValeur(ligne['Département'])[0]}
 
-  /**
-  * @param {Ligne} ligne
-  */
-  async function handleOnClickForLigne(ligne) {
-    console.log({ ligne })
-    /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-    const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION']}) }
+        try {
+            const lien = await text('/lien-preremplissage', {
+                method: 'POST',
+                headers: {'content-type':'application/json'},
+                body: JSON.stringify(dossier),
+            })
 
-    try {
-      const lien = await text('/lien-preremplissage', {
-        method: 'POST',
-        headers: {'content-type':'application/json'},
-        body: JSON.stringify(dossier),
-      })
-
-      ligneToLienPréremplissage.set(ligne,lien)
-      ligneToLienPréremplissage = ligneToLienPréremplissage
-    } catch (error) {
-      throw new Error(`Une erreur est survenue lors de la récupération du lien de préremplissage : ${error}`)
+            ligneToLienPréremplissage.set(ligne,lien)
+            ligneToLienPréremplissage = ligneToLienPréremplissage
+        } catch (error) {
+            throw new Error(`Une erreur est survenue lors de la récupération du lien de préremplissage : ${error}`)
+        }
     }
-  }
-
 </script>
 
 <Squelette {email} nav={true} >
