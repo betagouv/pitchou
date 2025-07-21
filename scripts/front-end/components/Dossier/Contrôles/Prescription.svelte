@@ -1,7 +1,6 @@
 <script>
-    import DateInput from '../../common/DateInput.svelte'
+    import FormulaireContrôle from './FormulaireContrôle.svelte'
 
-    import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
     import {ajouterContrôles as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../../actions/contrôle.js'
 
@@ -60,22 +59,9 @@
         rerender()
     }
 
-    /**
-     * 
-     * @param {Event} e
-     */
-    async function formSubmit(e){
-        e.preventDefault()
-
+    async function onValiderContrôle(){
         if(contrôleEnCours){
             contrôles.push(contrôleEnCours)
-
-            if(contrôleEnCours.date_action_suite_contrôle){
-                Object.defineProperty(contrôleEnCours.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
-            }
-            if(contrôleEnCours.date_prochaine_échéance){
-                Object.defineProperty(contrôleEnCours.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
-            }
 
             const [contrôleId] =  await envoyerContrôle(contrôleEnCours)
             if(!contrôleId){
@@ -88,7 +74,6 @@
 
         rerender()
     }
-
 
     /** 
      * @param {Contrôle} contrôle
@@ -150,61 +135,14 @@
             </button>
 
             {#if contrôleEnCours}
-                <form on:submit={formSubmit}>
-                    <div class="fr-input-group">
-                        <label class="fr-label" for="text-input">
-                            Résultat
-                        </label>
-                        <input class="fr-input" list="résultats-contrôle" bind:value={contrôleEnCours.résultat}>
-                        <datalist id="résultats-contrôle">
-                            {#each résultatsContrôle as résultatContrôle}
-                                <option>{résultatContrôle}</option>
-                            {/each}
-                        </datalist>
-                    </div>
-
-                    <div class="fr-input-group">
-                        <label class="fr-label" for="text-input">
-                            Commentaire libre
-                        </label>
-                        <textarea class="fr-input" bind:value={contrôleEnCours.commentaire}></textarea>
-                    </div>
-
-
-                    <div class="fr-input-group">
-                        <label class="fr-label" for="text-input">
-                            Action suite au contrôle
-                        </label>
-                        <input class="fr-input" list="type-actions" bind:value={contrôleEnCours.type_action_suite_contrôle}>
-                        <datalist id="type-actions">
-                            {#each typesActionSuiteContrôle as typeActionSuiteContrôle}
-                                <option>{typeActionSuiteContrôle}</option>
-                            {/each}
-                        </datalist>
-                    </div>
-
-                    <div class="fr-input-group">
-                        <label class="fr-label" for="text-input">
-                            Date de l'action suite au contrôle
-                        </label>
-                        <DateInput bind:date={contrôleEnCours.date_action_suite_contrôle}></DateInput>
-                    </div>
-
-                    <div class="fr-input-group">
-                        <label class="fr-label" for="text-input">
-                            Date prochaine échéance
-                        </label>
-                        <DateInput bind:date={contrôleEnCours.date_prochaine_échéance}></DateInput>
-                    </div>
-
-                    <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-                        Finir le contrôle
-                    </button>
-
-                    <button type="button" class="fr-btn fr-btn--secondary" on:click={() => contrôleEnCours = undefined}>
-                        Fermer le contrôle sans sauvegarder
-                    </button>
-                </form>
+                <FormulaireContrôle contrôle={contrôleEnCours} onValider={onValiderContrôle}></FormulaireContrôle>
+                <button
+                    type="button"
+                    class="fr-btn fr-btn--secondary"
+                    on:click={() => (contrôleEnCours = undefined)}
+                >
+                    Fermer le contrôle sans sauvegarder
+                </button>
             {/if}
 
             {#each contrôles as contrôle}
