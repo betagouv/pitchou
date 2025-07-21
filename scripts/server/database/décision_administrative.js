@@ -27,7 +27,7 @@ const décisionAnnotationDSToDécisionPitchou = {
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
  */
-export function ajouterDémarchesAdministratives(dems, databaseConnection = directDatabaseConnection){
+export function ajouterDécisionsAdministratives(dems, databaseConnection = directDatabaseConnection){
     if(!Array.isArray(dems)){
         dems = [dems]
     }
@@ -228,4 +228,28 @@ export function getDécisionsAdministratives(cap_dossier, databaseConnection = d
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
+}
+
+/**
+ * 
+ * @param {Partial<DécisionAdministrative>} décisionAdministrative 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export function modifierDécisionAdministrative(décisionAdministrative, databaseConnection = directDatabaseConnection){
+    return databaseConnection('décision_administrative')
+        .update(décisionAdministrative)
+        .where({id: décisionAdministrative.id})
+}
+
+/**
+ * 
+ * @param {DécisionAdministrative['id']} id 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
+    return databaseConnection('décision_administrative')
+        .delete()
+        .where({id})
 }
