@@ -2,7 +2,7 @@
     import FormulaireContrôle from './FormulaireContrôle.svelte'
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
-    import {ajouterContrôles as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
+    import {ajouterContrôle as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
 
     /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
@@ -62,10 +62,11 @@
         if(contrôleEnCours){
             contrôles.add(contrôleEnCours)
 
-            const [contrôleId] = await envoyerContrôle(contrôleEnCours)
+            const contrôleId = await envoyerContrôle(contrôleEnCours)
             if(!contrôleId){
                 throw new Error(`contrôleId absent de la valeur de retour de 'envoyerContrôle'`)
             }
+
             contrôleEnCours.id = contrôleId
 
             contrôleEnCours = undefined;
