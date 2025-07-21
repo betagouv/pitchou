@@ -264,7 +264,7 @@
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
     let instructeursSélectionnés = new Set(filtresSélectionnés.instructeurs ?
         filtresSélectionnés.instructeurs :
-        [email]
+        instructeursOptions
     )
 
     tousLesFiltres.set('instructeurs', dossier => {
