@@ -114,13 +114,19 @@
         const dossier = { 
           'Nom du projet': ligne['OBJET'], 
           // Début Données Supplémentaires
-          'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION'], 'historique_dossier': ligne['Description avancement dossier avec dates']}), 
+          'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({
+            'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 
+            'suivi_par': ligne['POUR\nATTRIBUTION'], 
+            'historique_dossier': ligne['Description avancement dossier avec dates'],
+            'numero_avis_onagre_ou_interne': ligne['N° de l’avis Onagre ou interne'],
+          }), 
           // Fin Données Supplémentaires
           'Dans quel département se localise majoritairement votre projet ?': formaterDépartementDepuisValeur(ligne['Département'])[0], 
           'Le projet se situe au niveau…': 'd\'un ou plusieurs départements', 
           'Département(s) où se situe le projet': formaterDépartementDepuisValeur(ligne['Département']), 
           'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']), 
-          "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ligne['Procédure associée']==='Autorisation environnementale' ? 'Oui' : 'Non'}
+          "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ligne['Procédure associée']==='Autorisation environnementale' ? 'Oui' : 'Non'
+        }
 
         try {
             const lien = await text('/lien-preremplissage', {
