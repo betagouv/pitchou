@@ -113,9 +113,9 @@
         /** @type {Partial<DossierDemarcheSimplifiee88444>} */
         const dossier = { 
           'Nom du projet': ligne['OBJET'], 
-          // Début Question secrète
-          'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION']}), 
-          // Fin Question secrète
+          // Début Données Supplémentaires
+          'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION'], 'historique_dossier': ligne['Description avancement dossier avec dates']}), 
+          // Fin Données Supplémentaires
           'Dans quel département se localise majoritairement votre projet ?': formaterDépartementDepuisValeur(ligne['Département'])[0], 
           'Le projet se situe au niveau…': 'd\'un ou plusieurs départements', 
           'Département(s) où se situe le projet': formaterDépartementDepuisValeur(ligne['Département']), 
