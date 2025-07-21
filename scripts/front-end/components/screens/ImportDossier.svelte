@@ -41,21 +41,6 @@
         "Date avis CSRPN/CNPN": string;
         "Dérogation accordée": string;
         "Date AP": string;
-        "Suivis n+1": string;
-        "Suivis n+3": string;
-        "Suivis n+5": string;
-        "A contrôler": string;
-        Contrôles: string;
-        "AnneeANT ?": string;
-        Colonne1: string;
-        Colonne2: string;
-        "Délai de réponse ([U] – [A]": string;
-        "Annee = annee(A)": number;
-        "Column 42": string;
-        "Column 43": string;
-        "Column 44": string;
-        "Column 45": string;
-        "Column 46": string;
         }} Ligne */
 
     /** @type {ComponentProps<Squelette>['email']} */
