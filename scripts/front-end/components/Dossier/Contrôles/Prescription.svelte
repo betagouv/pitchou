@@ -146,19 +146,35 @@
             </button>
 
             {#if contrôleEnCours}
-                <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}></FormulaireContrôle>
-                <button
-                    type="button"
-                    class="fr-btn fr-btn--secondary"
-                    on:click={() => (contrôleEnCours = undefined)}
-                >
-                    Fermer le contrôle sans sauvegarder
-                </button>
+                <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}>
+                    <button slot="bouton-valider" type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                        Finir le contrôle
+                    </button>
+                    <button
+                        slot="bouton-annuler"
+                        type="button"
+                        class="fr-btn fr-btn--secondary"
+                        on:click={() => (contrôleEnCours = undefined)}
+                    >
+                        Fermer le contrôle sans sauvegarder
+                    </button>
+                </FormulaireContrôle>
             {/if}
 
             {#each contrôles as contrôle}
                 {#if contrôle === contrôleEnModification}
-                    <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}></FormulaireContrôle>
+                    <h6>Modification du contrôle</h6>
+
+                    <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}>
+                        <button
+                            slot="bouton-annuler"
+                            type="button"
+                            class="fr-btn fr-btn--secondary"
+                            on:click={() => (contrôleEnModification = undefined)}
+                        >
+                            Annuler
+                        </button>
+                    </FormulaireContrôle>
                 {:else}
                     <section class="contrôle">
                         <h6>

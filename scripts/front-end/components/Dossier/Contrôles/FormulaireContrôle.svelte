@@ -89,8 +89,14 @@
         ></DateInput>
     </div>
 
-    <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-        Enregistrer
-    </button>
+    <slot name="bouton-valider">
+        <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+            Enregistrer
+        </button>
+    </slot>
+
+    <slot name="bouton-annuler" />
+
+    <slot name="bouton-supprimer"/>
 
 </form>
