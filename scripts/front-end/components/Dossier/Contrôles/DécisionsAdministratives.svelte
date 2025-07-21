@@ -3,10 +3,11 @@
     import Prescription from './Prescription.svelte'
 
     import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
+    import {typesDécisionAdministrative} from '../../../../commun/décision-administrative.js';
 
     import {formatDateAbsolue} from '../../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
-    import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../../actions/décisionAdministrative.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier, modifierDécisionAdministrative} from '../../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../../actions/dossier.js'
 
     /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
