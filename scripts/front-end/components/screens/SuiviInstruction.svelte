@@ -294,6 +294,9 @@
 		filtrerDossiers()
 	}
 
+    $: instructeursNonSélectionnés = instructeursOptions.difference(instructeursSélectionnés)
+
+
 
     const AUCUNE_ACTIVITÉ_PRINCIPALE = '(aucune activité principale)'
     // @ts-ignore
@@ -423,11 +426,26 @@
                 <section class="filtres-actifs fr-mb-1w">
                     <div class="fr-mb-1w">
                         <span>Dossiers suivis par&nbsp;:</span>
-                        {#each [...instructeursSélectionnés] as instructeur}
-                            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                                {instructeur}
-                            </span>
-                        {/each}
+                        {#if instructeursNonSélectionnés.size === 0}
+                            <strong>Toustes</strong>
+                        {:else if instructeursNonSélectionnés.size === 1 && instructeursNonSélectionnés.has(AUCUN_INSTRUCTEUR)}
+                            <strong>Au moins un.e instructeur.rice</strong>
+                        {:else if instructeursNonSélectionnés.size <= 2}
+                            <strong>Toustes sauf</strong>
+                            {#each [...instructeursNonSélectionnés] as instructeur}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {instructeur}
+                                    {#if instructeur === email}(moi){/if}
+                                </span>
+                            {/each}
+                        {:else}
+                            {#each [...instructeursSélectionnés] as instructeur}
+                                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                                    {instructeur}
+                                    {#if instructeur === email}(moi){/if}
+                                </span>
+                            {/each}
+                        {/if}
                     </div>
 
                     <div class="fr-mb-1w">
