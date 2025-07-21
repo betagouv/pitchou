@@ -2,7 +2,7 @@
     import FormulaireContrôle from './FormulaireContrôle.svelte'
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
-    import {ajouterContrôles as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../../actions/contrôle.js'
+    import {ajouterContrôles as envoyerContrôle, modifierContrôle} from '../../../actions/contrôle.js'
 
     /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
@@ -25,7 +25,6 @@
             ({date_contrôle: dc1}, {date_contrôle: dc2}) => (dc2?.getTime() || 0) - (dc1?.getTime() || 0)
         )
     }
-
 
     let contrôlesOuverts = false
 
@@ -59,11 +58,11 @@
         rerender()
     }
 
-    async function onValiderContrôle(){
+    async function créerContrôle(){
         if(contrôleEnCours){
             contrôles.push(contrôleEnCours)
 
-            const [contrôleId] =  await envoyerContrôle(contrôleEnCours)
+            const [contrôleId] = await envoyerContrôle(contrôleEnCours)
             if(!contrôleId){
                 throw new Error(`contrôleId absent de la valeur de retour de 'envoyerContrôle'`)
             }
@@ -75,12 +74,24 @@
         rerender()
     }
 
+    /** @type {Partial<Contrôle> | undefined}*/
+    let contrôleEnModification;
+
     /** 
-     * @param {Contrôle} contrôle
+     * @param {Partial<Contrôle>} contrôle
      */
-    function passerContrôleEnVueModification(contrôle) {
-        console.warn(`passerContrôleEnVueModification pas implémentée`, contrôle)
+    function passerContrôleEnModification(contrôle) {
+        contrôleEnModification = contrôle
     }
+
+    async function validerModificationsContrôle(){
+        if(!contrôleEnModification)
+            throw new TypeError(`pas de contrôle en modificaion`)
+            
+        await modifierContrôle(contrôleEnModification)
+        contrôleEnModification = undefined
+    }
+
 </script>
 
 <section class="prescription-consultée">
@@ -135,7 +146,7 @@
             </button>
 
             {#if contrôleEnCours}
-                <FormulaireContrôle contrôle={contrôleEnCours} onValider={onValiderContrôle}></FormulaireContrôle>
+                <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}></FormulaireContrôle>
                 <button
                     type="button"
                     class="fr-btn fr-btn--secondary"
@@ -146,24 +157,28 @@
             {/if}
 
             {#each contrôles as contrôle}
-                <section class="contrôle">
-                    <h6>
-                        Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
-                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
-                            on:click={() => passerContrôleEnVueModification(contrôle)}>
-                            Modifier
-                        </button>
-                    </h6>
-                    <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
-                    <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
-                    <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
-                    <strong>Date action suite au contrôle&nbsp;:</strong> 
-                        <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
-                    <br>
-                    <strong>Date prochaine échéance&nbsp;:</strong> 
-                        <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
-                    <br>
-                </section>
+                {#if contrôle === contrôleEnModification}
+                    <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}></FormulaireContrôle>
+                {:else}
+                    <section class="contrôle">
+                        <h6>
+                            Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
+                            <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
+                                on:click={() => passerContrôleEnModification(contrôle)}>
+                                Modifier
+                            </button>
+                        </h6>
+                        <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
+                        <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
+                        <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
+                        <strong>Date action suite au contrôle&nbsp;:</strong> 
+                            <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
+                        <br>
+                        <strong>Date prochaine échéance&nbsp;:</strong> 
+                            <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
+                        <br>
+                    </section>
+                {/if}
             {/each}
         </section>
 

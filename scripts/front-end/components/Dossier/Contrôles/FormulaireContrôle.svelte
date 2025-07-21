@@ -90,7 +90,7 @@
     </div>
 
     <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-        Finir le contrôle
+        Enregistrer
     </button>
 
 </form>
