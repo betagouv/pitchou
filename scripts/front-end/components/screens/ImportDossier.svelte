@@ -3,6 +3,57 @@
  
 
   //@ts-check
+
+/** @typedef {{
+    "Date de sollicitation": Date;
+    ORIGINE: string;
+    OBJET: string;
+    "N° Dossier DEROG": number;
+    ÉCHÉANCE: string;
+    "POUR\nATTRIBUTION": string;
+    OBSERVATIONS: string;
+    PETITIONNAIRE: string;
+    "Catégorie du demandeur": string;
+    "Nom contact – mail": string;
+    "Année de première sollicitation": number;
+    Communes: string;
+    Département: number;
+    Thématique: string;
+    "Procédure associée": string;
+    "Etapes du projet": string;
+    "Stade de l’avis": string;
+    "Description avancement dossier avec dates": string;
+    "Avis SBEP": string;
+    "Date de rendu de l’avis/envoi réponse": Date;
+    "Sollicitation OFB pour avis": string;
+    DEP: string;
+    "Date de dépôt DEP": string;
+    "Saisine CSRPN/CNPN": string;
+    "Date saisine CSRPN/CNPN": string;
+    "Nom de l’expert désigné (pour le CSRPN)": string;
+    "N° de l’avis Onagre ou interne": string;
+    "Avis CSRPN/CNPN": string;
+    "Date avis CSRPN/CNPN": string;
+    "Dérogation accordée": string;
+    "Date AP": string;
+    "Suivis n+1": string;
+    "Suivis n+3": string;
+    "Suivis n+5": string;
+    "A contrôler": string;
+    Contrôles: string;
+    "AnneeANT ?": string;
+    Colonne1: string;
+    Colonne2: string;
+    "Délai de réponse ([U] – [A]": string;
+    "Annee = annee(A)": number;
+    "Column 42": string;
+    "Column 43": string;
+    "Column 44": string;
+    "Column 45": string;
+    "Column 46": string;
+  }} Ligne */
+
+
   
   import Squelette from '../Squelette.svelte'
   import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
@@ -58,12 +109,12 @@
 
 
   /**
-  * @param {any} ligne
+  * @param {Ligne} ligne
   */
   async function handleOnClickForLigne(ligne) {
 
     /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-    const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': ligne['Description avancement dossier avec dates']}) }
+    const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': ligne['Description avancement dossier avec dates'], 'date_dépôt': ligne['Date de sollicitation']}) }
 
     try {
       const lien = await text('/lien-preremplissage', {
