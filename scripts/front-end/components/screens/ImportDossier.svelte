@@ -110,7 +110,7 @@
     async function handleOnClickForLigne(ligne) {
 
         const donnéesLocalisations = await générerDonnéesLocalisations(ligne)
-
+        console.log(ligne)
         /** @type {Partial<DossierDemarcheSimplifiee88444>} */
         const dossier = { 
           'Nom du projet': ligne['OBJET'], 
@@ -128,7 +128,8 @@
           // 'Le projet se situe au niveau…': ligne['Communes'].trim().length>=1 ?'d\'une ou plusieurs communes' : 'd\'un ou plusieurs départements', 
           'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'], 
           'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']), 
-          "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ligne['Procédure associée']==='Autorisation environnementale' ? 'Oui' : 'Non'
+          "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
+          'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase()==='déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined
         }
         console.log({dossier})
         try {
