@@ -1,7 +1,72 @@
 //@ts-check
 
+//@ts-ignore
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-/** @import { GeoAPIDépartement }  from '../../types/GeoAPI' */
+//@ts-ignore
+/** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
+
+/**
+ * 
+ * @param {string} nomCommune 
+ * @returns {Promise<[GeoAPICommune] | null>}
+ * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
+ */
+async function getCommuneData(nomCommune) {
+    const response = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren&format=json&geometry=centre`);
+    const data = await response.json();
+
+    if (!data.length) {
+        console.error(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
+        return null
+    }
+
+    const commune = data[0];
+
+    return [{
+        nom: commune.nom,
+        code: commune.code,
+        codeDepartement: commune.codeDepartement,
+        codeEpci: commune.codeEpci,
+        codeRegion: commune.codeRegion,
+        codesPostaux: commune.codesPostaux,
+        population: commune.population,
+        siren: commune.siren
+    }];
+}
+
+
+/**
+ * 
+ * @param {{Communes: string | undefined, Département: number | string}} ligne 
+ * @returns { Promise<Partial<Pick<DossierDemarcheSimplifiee88444,
+ *                  "Commune(s) où se situe le projet" | 
+ *                  "Département(s) où se situe le projet" |
+ *                  "Le projet se situe au niveau…"
+ *           >>>}
+ */
+export async function générerDonnéesLocalisations(ligne) {
+    const valeursCommunes = ligne['Communes']
+        ?.trim()
+        .replace(/"/g, '') // supprime les guillemets
+        .toLowerCase()     // passe tout en minuscules
+        .replace(/\b\w/g, c => c.toUpperCase()); // majuscule en début de mot
+
+    const communes = await getCommuneData(valeursCommunes ?? '')
+
+    if (communes) {
+        return ({
+            "Commune(s) où se situe le projet": communes,
+            "Département(s) où se situe le projet": undefined,
+            "Le projet se situe au niveau…": "d'une ou plusieurs communes",
+        })
+    } else {
+        return ({
+            "Commune(s) où se situe le projet": undefined,
+            "Département(s) où se situe le projet": formaterDépartementDepuisValeur(ligne['Département']),
+            "Le projet se situe au niveau…": 'd\'un ou plusieurs départements'
+        })
+    }
+}
 
 const départementsParCode = {
     21: "Côte-d'Or",
