@@ -50,26 +50,34 @@ interface FonctionsUtilitaires {
  **/
 export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   nom: string | null;
-  commentaire_instruction: string;
-  date_début_consultation_public: Date | null;
   demandeur: string;
-  enjeu_politique: boolean;
-  enjeu_écologique: boolean;
-  localisation: string;
   activité_principale: string | null;
   description: string | null;
+  localisation: string;
+  date_dépôt: Date;
+  
   régime_autorisation_environnementale_renseigné: boolean;
   régime_autorisation_environnementale: boolean | 'Non renseigné' ;
+  
+  scientifique: DonneesScientifiques;
+
   justification_absence_autre_solution_satisfaisante: string | null;
-  mesures_erc_prévues: boolean | 'Non renseigné';
-  mesures_erc_prévues_renseigné: boolean;
   motif_dérogation: string | null;
   justification_motif_dérogation: string | null;
-  identifiant_onagre: string | null;
-  identifiant_pitchou: number;
   liste_espèces_par_impact: EspeceParImpact[] | undefined;
+  mesures_erc_prévues: boolean | 'Non renseigné';
+  mesures_erc_prévues_renseigné: boolean;
+
   date_début_intervention: Date | null;
   date_fin_intervention: Date | null;
   durée_intervention: number | null;
-  scientifique: DonneesScientifiques;
+
+  date_début_consultation_public: Date | null;
+
+  identifiant_onagre: string | null;
+  identifiant_pitchou: number;
+
+  commentaire_instruction: string;
+  enjeu_politique: boolean;
+  enjeu_écologique: boolean;
 }
