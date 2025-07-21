@@ -3,7 +3,7 @@
     import { text } from 'd3-fetch';
     import Squelette from '../Squelette.svelte'
     import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
-    import { formaterDépartementDepuisValeur } from '../../actions/import-dossier.js';
+    import { formaterDépartementDepuisValeur, convertirThématiqueEnActivitéPrincipale } from '../../actions/import-dossier.js';
 
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
@@ -103,7 +103,6 @@
         }
 
     }
-    
 
     /**
      * @param {Ligne} ligne
@@ -112,7 +111,7 @@
         formaterDépartementDepuisValeur(ligne['Département'])
 
         /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-        const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION']}), 'Dans quel département se localise majoritairement votre projet ?': formaterDépartementDepuisValeur(ligne['Département'])[0], 'Le projet se situe au niveau…': 'd\'un ou plusieurs départements', 'Département(s) où se situe le projet': formaterDépartementDepuisValeur(ligne['Département'])}
+        const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION']}), 'Dans quel département se localise majoritairement votre projet ?': formaterDépartementDepuisValeur(ligne['Département'])[0], 'Le projet se situe au niveau…': 'd\'un ou plusieurs départements', 'Département(s) où se situe le projet': formaterDépartementDepuisValeur(ligne['Département']), 'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique'])}
 
         try {
             const lien = await text('/lien-preremplissage', {

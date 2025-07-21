@@ -1,10 +1,7 @@
 //@ts-check
 
-/**
- * @typedef {Object} GeoAPIDépartement
- * @property {string} code
- * @property {string} nom
- */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import { GeoAPIDépartement }  from '../../types/GeoAPI' */
 
 const départementsParCode = {
     21: "Côte-d'Or",
@@ -60,3 +57,62 @@ export function formaterDépartementDepuisValeur(valeur) {
         nom: `Côte-d'Or`
     }];
 } 
+
+/**
+ * @typedef {"Autres" |
+ *   "Autres EnR" |
+ *   "Avis sur document d’urbanisme" |
+ *   "Bâti (espèces anthropophiles)" |
+ *   "Carrières" |
+ *   "Dommages liés aux EP" |
+ *   "Dessertes forestières" |
+ *   "Éolien" |
+ *   "Infrastructures linéaires" |
+ *   "Inventaires, recherche scientifique" |
+ *   "Manifestations sportives et culturelles" |
+ *   "Naturalisation" |
+ *   "Ouvrages cours d’eau" |
+ *   "PPV" |
+ *   "Projet agricole" |
+ *   "Projet d’aménagement" |
+ *   "Restauration" |
+ *   "Transport de spécimens"} ThématiquesOptions
+ */
+
+
+/**
+ * @type {Record<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>}
+ */
+const correspondanceThématiqueVersActivitéPrincipale = {
+    "Autres": "Autre",
+    "Autres EnR": "Production énergie renouvelable - Autres",
+    "Avis sur document d’urbanisme": "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
+    "Bâti (espèces anthropophiles)": "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+    "Carrières": "Carrières",
+    "Dommages liés aux EP": "Dommages aux biens et activités",
+    "Dessertes forestières": "Exploitation forestière",
+    "Éolien": "Production énergie renouvelable - Éolien",
+    "Infrastructures linéaires": "Infrastructures de transport routières",
+    "Inventaires, recherche scientifique": "Demande à caractère scientifique",
+    "Manifestations sportives et culturelles": "Événementiel avec ou sans aménagement temporaire",
+    "Naturalisation": "Restauration écologique",
+    "Ouvrages cours d’eau": "Projets liés à la gestion de l’eau",
+    "PPV": "Péril animalier",
+    "Projet agricole": "Installations agricoles",
+    "Projet d’aménagement": "ZAC",
+    "Restauration": "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+    "Transport de spécimens": "Conservation des espèces"
+}
+
+    /**
+     * 
+     * @param {string} valeur
+     * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
+     */
+    export function convertirThématiqueEnActivitéPrincipale(valeur) {
+    if (valeur in correspondanceThématiqueVersActivitéPrincipale) {
+        // @ts-ignore
+        return correspondanceThématiqueVersActivitéPrincipale[valeur];
+    }
+    return 'Autre';
+    }
