@@ -446,6 +446,13 @@
                                 </span>
                             {/each}
                         {/if}
+
+                        {#if instructeursSélectionnés.size !== 1 || !instructeursSélectionnés.has(email) }
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-todo-line"
+                                on:click={() => filtrerParInstructeurs(new Set([email]))}>
+                                Suivi par moi
+                            </button>
+                        {/if}
                     </div>
 
                     <div class="fr-mb-1w">
