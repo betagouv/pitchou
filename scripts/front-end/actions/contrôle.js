@@ -19,16 +19,17 @@ export const typesActionSuiteContrôle = new Set([
 
 /**
  * 
- * @param {Partial<Contrôle>} contrôle 
- * @returns {Promise<Contrôle['id']>}
+ * @param {Partial<Contrôle> | Partial<Contrôle>[]} contrôles 
+ * @returns {Promise<Contrôle['id'][]>}
  */
-export function ajouterContrôle(contrôle){
+export function ajouterContrôles(contrôles){
     //@ts-ignore
     return json('/contrôle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contrôle)
+        body: JSON.stringify(contrôles)
     })
+
 }
 
 /**

@@ -3,7 +3,7 @@
 
     import toJSONPerserveDate from '../../../commun/DateToJSON.js';
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
-    import {ajouterContrôle as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../actions/contrôle.js'
+    import {ajouterContrôles as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../actions/contrôle.js'
 
     /** @import {FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../types/database/public/Contrôle.ts' */
@@ -77,13 +77,25 @@
                 Object.defineProperty(contrôleEnCours.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
             }
 
-            await envoyerContrôle(contrôleEnCours)
+            const [contrôleId] =  await envoyerContrôle(contrôleEnCours)
+            if(!contrôleId){
+                throw new Error(`contrôleId absent de la valeur de retour de 'envoyerContrôle'`)
+            }
+            contrôleEnCours.id = contrôleId
+
             contrôleEnCours = undefined;
         }
 
         rerender()
     }
 
+
+    /** 
+     * @param {Contrôle} contrôle
+     */
+    function passerContrôleEnVueModification(contrôle) {
+        console.warn(`passerContrôleEnVueModification pas implémentée`, contrôle)
+    }
 </script>
 
 <section class="prescription-consultée">
@@ -197,7 +209,13 @@
 
             {#each contrôles as contrôle}
                 <section class="contrôle">
-                    <h6>Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time></h6>
+                    <h6>
+                        Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
+                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
+                            on:click={() => passerContrôleEnVueModification(contrôle)}>
+                            Modifier
+                        </button>
+                    </h6>
                     <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
                     <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
                     <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>

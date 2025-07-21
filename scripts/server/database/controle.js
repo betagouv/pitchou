@@ -22,13 +22,15 @@ export function getContrôles(prescriptionIds, databaseConnection = directDataba
 
 /**
  * 
- * @param {Partial<Contrôle> | Partial<Contrôle>[]} contrôle 
+ * @param {Partial<Contrôle> | Partial<Contrôle>[]} contrôles 
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function ajouterContrôles(contrôle, databaseConnection = directDatabaseConnection){
+export function ajouterContrôles(contrôles, databaseConnection = directDatabaseConnection){
     return databaseConnection('contrôle')
-        .insert(contrôle)
+        .insert(contrôles)
+        .returning(['id'])
+        .then(contrôles => contrôles.map(c => c.id))
 }
 
 
