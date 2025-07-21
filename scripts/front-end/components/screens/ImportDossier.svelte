@@ -112,9 +112,9 @@
   * @param {Ligne} ligne
   */
   async function handleOnClickForLigne(ligne) {
-
+    console.log({ ligne })
     /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-    const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': ligne['Description avancement dossier avec dates'], 'date_dépôt': ligne['Date de sollicitation']}) }
+    const dossier = { 'Nom du projet': ligne['OBJET'], 'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({'commentaire': ligne['Description avancement dossier avec dates'], 'date_dépôt': ligne['Date de sollicitation'], 'suivi_par': ligne['POUR\nATTRIBUTION']}) }
 
     try {
       const lien = await text('/lien-preremplissage', {
