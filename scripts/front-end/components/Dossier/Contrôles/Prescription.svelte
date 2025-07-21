@@ -1,12 +1,12 @@
 <script>
-    import DateInput from '../common/DateInput.svelte'
+    import DateInput from '../../common/DateInput.svelte'
 
-    import toJSONPerserveDate from '../../../commun/DateToJSON.js';
-    import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
-    import {ajouterContrôles as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../actions/contrôle.js'
+    import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
+    import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
+    import {ajouterContrôles as envoyerContrôle, résultatsContrôle, typesActionSuiteContrôle} from '../../../actions/contrôle.js'
 
-    /** @import {FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
-    /** @import Contrôle from '../../../types/database/public/Contrôle.ts' */
+    /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
+    /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
 
     /** @type {Partial<FrontEndPrescription>} */
     export let prescription
