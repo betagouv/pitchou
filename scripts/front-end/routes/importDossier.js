@@ -12,9 +12,7 @@ import ImportDossier from '../components/screens/ImportDossier.svelte';
 /** @import {ComponentProps} from 'svelte' */
 
 
-export default async () => {
-    console.info('route', '/import-dossier')
-    
+export default async () => {    
     try {
         
         /**

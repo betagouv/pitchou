@@ -21,7 +21,7 @@ page('/saisie-especes', SaisieEspèces)
 page('/preremplissage-derogation', PreremplissageDerogation)
 page('/tmp/stats', TmpStats)
 page('/stats', Stats)
-page('/import-dossier', ImportDossier)
+page('/import-dossier-historiques/bourgogne-franche-comte', ImportDossier)
 
 
 init()
