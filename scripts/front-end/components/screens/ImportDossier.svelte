@@ -157,12 +157,6 @@
     <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
   </div>
 
-  <h2>Correspondance Démarche Simplifiée / Fichier import</h2>
-  <ul>
-    <li>Nom du projet => Colonne 'OBJET'</li>
-    <li>Commentaires sur les enjeux et la procédure (Annotation privée) => Description avancement dossier avec dates</li>
-  </ul>
-
   {#if lignesTableauImport}
   <h2>Toutes les lignes du tableau</h2>
     <div class="fr-table" id="table-0-component">
