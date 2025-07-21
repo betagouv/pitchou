@@ -2,7 +2,7 @@
     import FormulaireContrôle from './FormulaireContrôle.svelte'
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
-    import {ajouterContrôles as envoyerContrôle, modifierContrôle} from '../../../actions/contrôle.js'
+    import {ajouterContrôles as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
 
     /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
@@ -15,15 +15,15 @@
         surface_évitée, surface_compensée, individus_évités, individus_compensés, nids_évités, nids_compensés
     } = prescription)
 
-    /** @type {Partial<Contrôle>[]}*/
-    $: contrôles = prescription.contrôles ? [...prescription.contrôles] : []
+    /** @type {Set<Partial<Contrôle>>}*/
+    $: contrôles = prescription.contrôles ? new Set([...prescription.contrôles]) : new Set()
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     function rerender(){
-        contrôles = contrôles.toSorted(
+        contrôles = new Set([...contrôles].toSorted(
             ({date_contrôle: dc1}, {date_contrôle: dc2}) => (dc2?.getTime() || 0) - (dc1?.getTime() || 0)
-        )
+        ))
     }
 
     let contrôlesOuverts = false
@@ -60,7 +60,7 @@
 
     async function créerContrôle(){
         if(contrôleEnCours){
-            contrôles.push(contrôleEnCours)
+            contrôles.add(contrôleEnCours)
 
             const [contrôleId] = await envoyerContrôle(contrôleEnCours)
             if(!contrôleId){
@@ -90,6 +90,23 @@
             
         await modifierContrôle(contrôleEnModification)
         contrôleEnModification = undefined
+    }
+
+    async function supprimerContrôleEnModification(){
+        if(!contrôleEnModification)
+            throw new TypeError(`pas de contrôle en modificaion`)
+
+        contrôles.delete(contrôleEnModification)
+        rerender()
+
+        const id = contrôleEnModification.id
+        contrôleEnModification = undefined
+
+        if(!id){
+            throw new TypeError(`il manque un id au contrôle en modificaion`)
+        }
+        
+        await supprimerContrôle(id)
     }
 
 </script>
@@ -139,7 +156,7 @@
 
     {#if contrôlesOuverts}
         <section class="contrôles">
-            <h6>{#if contrôles.length === 1}1 contrôle{:else}{contrôles.length} contrôles {/if}</h6>
+            <h6>{#if contrôles.size === 1}1 contrôle{:else}{contrôles.size} contrôles {/if}</h6>
 
             <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterContrôle}>
                 Ajouter un contrôle
@@ -174,6 +191,17 @@
                         >
                             Annuler
                         </button>
+
+                        <div slot="bouton-supprimer" class="bouton-supprimer">
+                            <button
+                                
+                                type="button"
+                                class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
+                                on:click={supprimerContrôleEnModification}
+                            >
+                                Supprimer
+                            </button>
+                        </div>
                     </FormulaireContrôle>
                 {:else}
                     <section class="contrôle">
@@ -243,6 +271,10 @@
     section.contrôles{
         section.contrôle{
             margin-bottom: 0.5rem;
+        }
+
+        .bouton-supprimer{
+            margin-top: 2rem;
         }
     }
     

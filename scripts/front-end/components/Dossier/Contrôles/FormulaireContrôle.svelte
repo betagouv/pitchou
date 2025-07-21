@@ -100,3 +100,13 @@
     <slot name="bouton-supprimer"/>
 
 </form>
+
+
+<style lang="scss">
+    form{
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
+
+
+</style>

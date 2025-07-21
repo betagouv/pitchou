@@ -48,7 +48,7 @@ export function modifierContrôle(contrôle){
 /**
  * 
  * @param {Contrôle['id']} id
- * @returns {Promise<any>}
+ * @returns {Promise<unknown>}
  */
 export function supprimerContrôle(id){
     return text(`/contrôle/${id}`, {method: 'DELETE'})

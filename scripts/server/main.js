@@ -16,7 +16,7 @@ import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from 
 
 import { modifierDécisionAdministrative, ajouterDécisionsAdministratives, supprimerDécisionAdministrative } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
-import { ajouterContrôles, modifierContrôle } from './database/controle.js'
+import { ajouterContrôles, modifierContrôle, supprimerContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
 import { getStatsPubliques } from './database/stats.js'
 
@@ -462,6 +462,17 @@ fastify.post('/contrôle', function(request, reply) {
     })
 })
 
+
+fastify.delete('/contrôle/:contrôleId', async function(request, reply) {  
+  //@ts-ignore
+  if(!request.params.contrôleId){
+    reply.code(400).send(`Paramètre 'contrôleId' manquant dans l'URL`)
+    return 
+  }
+
+  // @ts-ignore
+  return supprimerContrôle(request.params.contrôleId)
+})
 
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
