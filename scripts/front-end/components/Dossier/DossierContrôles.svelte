@@ -1,6 +1,6 @@
 <script>
     //@ts-check
-    import DécisionsAdministratives from './DécisionsAdministratives.svelte'
+    import DécisionsAdministratives from './Contrôles/DécisionsAdministratives.svelte'
 
     import {supprimerDécisionAdministrative} from '../../actions/décisionAdministrative.js'
 

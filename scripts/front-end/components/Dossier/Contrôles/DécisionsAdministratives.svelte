@@ -1,19 +1,19 @@
 <script>    
-    import DateInput from '../common/DateInput.svelte'
+    import DateInput from '../../common/DateInput.svelte'
     import Prescription from './Prescription.svelte'
 
-    import toJSONPerserveDate from '../../../commun/DateToJSON.js';
-    import {typesDécisionAdministrative} from '../../../commun/décision-administrative.js';
+    import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
+    import {typesDécisionAdministrative} from '../../../../commun/décision-administrative.js';
 
-    import {formatDateAbsolue} from '../../affichageDossier.js'
-    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../actions/prescriptions.js'
-    import {créerPrescriptionContrôlesÀPartirDeFichier, modifierDécisionAdministrative} from '../../actions/décisionAdministrative.js'
-    import {refreshDossierComplet} from '../../actions/dossier.js'
+    import {formatDateAbsolue} from '../../../affichageDossier.js'
+    import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier, modifierDécisionAdministrative} from '../../../actions/décisionAdministrative.js'
+    import {refreshDossierComplet} from '../../../actions/dossier.js'
 
-    /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../types/API_Pitchou.ts' */
-    /** @import Dossier from '../../../types/database/public/Dossier.ts' */
-    /** @import DécisionAdministrative from '../../../types/database/public/DécisionAdministrative.ts' */
-    /** @import PrescriptionType from '../../../types/database/public/Prescription.ts' */
+    /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
+    /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
+    /** @import PrescriptionType from '../../../../types/database/public/Prescription.ts' */
+    /** @import DécisionAdministrative from '../../../../types/database/public/DécisionAdministrative.ts' */
 
     /** @type {Dossier['id']} */
     export let dossierId
