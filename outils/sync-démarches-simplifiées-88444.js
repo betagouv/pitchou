@@ -23,6 +23,7 @@ import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFi
 import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 
+
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
@@ -187,6 +188,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     /** @type {DossierDemarcheSimplifiee88444['Nom du projet']} */ 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
+
+    // DEBUT - Vérifier qu'il n'y a pas de doublon de création de dossier
+    // const dossierAvecCeNomDeProjet = knex('dossier').select('id').where('nom',nom)
+    // console.log({dossierAvecCeNomDeProjet})
+    // FIN - Vérifier qu'il n'y a pas de doublon de création de dossier
+
     /** @type {DossierDemarcheSimplifiee88444['Description synthétique du projet']} */ 
     const description = champById.get(pitchouKeyToChampDS.get('Description synthétique du projet'))?.stringValue
     /** @type {DossierDemarcheSimplifiee88444['Activité principale']} */ 
