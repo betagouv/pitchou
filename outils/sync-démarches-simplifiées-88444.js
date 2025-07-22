@@ -21,8 +21,6 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
-import { déchiffrerDonnéesSupplémentairesDossiers } from '../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -177,23 +175,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
     for(const champ of champs){
         champById.set(champ.id, champ)
     }
-    // DEBUT - Vérifier que le déchiffrage fonctionne bien
-    const données_supplémentaires_champ = champById.get(pitchouKeyToChampDS.get('NE PAS MODIFIER - Données techniques associées à votre dossier'))
-    const données_supplémentaires = données_supplémentaires_champ?.stringValue;
-    if (données_supplémentaires && données_supplémentaires!=='') {
-        console.log(données_supplémentaires)
-        void déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires).then((value) => console.log(value))
-    }
-    // FIN - Vérifier que le déchiffrage fonctionne bien
 
     /** @type {DossierDemarcheSimplifiee88444['Nom du projet']} */ 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
-
-    // DEBUT - Vérifier qu'il n'y a pas de doublon de création de dossier
-    // const dossierAvecCeNomDeProjet = knex('dossier').select('id').where('nom',nom)
-    // console.log({dossierAvecCeNomDeProjet})
-    // FIN - Vérifier qu'il n'y a pas de doublon de création de dossier
-
     /** @type {DossierDemarcheSimplifiee88444['Description synthétique du projet']} */ 
     const description = champById.get(pitchouKeyToChampDS.get('Description synthétique du projet'))?.stringValue
     /** @type {DossierDemarcheSimplifiee88444['Activité principale']} */ 
