@@ -1,9 +1,9 @@
 <script>    
     import DateInput from '../../common/DateInput.svelte'
     import Prescription from './Prescription.svelte'
+    import FormulaireDécisionAdministrative from './FormulaireDécisionAdministrative.svelte'
 
     import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
-    import {typesDécisionAdministrative} from '../../../../commun/décision-administrative.js';
 
     import {formatDateAbsolue} from '../../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
@@ -136,11 +136,9 @@
                 })
         }
     }
-    
-    /** @type {'consulter' | 'modifier'} */
-    let vueDécisionAdministrative = 'consulter'
 
-    /** @type {Partial<DécisionAdministrative>} */
+
+    /** @type {Partial<DécisionAdministrative> | undefined} */
     let décisionAdministrativeEnModification
 
     function passerEnVueModifierDécisionAdministrative(){
@@ -151,20 +149,21 @@
             date_fin_obligations,
             date_signature
         }
-        
-        vueDécisionAdministrative = 'modifier'
     }
 
     function annulerModification(){
-        vueDécisionAdministrative = 'consulter'
+        décisionAdministrativeEnModification = undefined
     }
 
     function sauvegarderDécisionAdministrative(){
+        if(!décisionAdministrativeEnModification){
+            throw new TypeError(`décisionAdministrativeEnModification est undefined dans sauvegarderDécisionAdministrative`)
+        }
+
         modifierDécisionAdministrative(décisionAdministrativeEnModification)
         décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
     
-        vueDécisionAdministrative = 'consulter'
-
+        décisionAdministrativeEnModification = undefined
     }
 
     /** @type {'consulter' | 'modifier'} */
@@ -174,7 +173,7 @@
 
 <section class="décision-administrative">
 
-    {#if vueDécisionAdministrative === 'consulter'}
+    {#if !décisionAdministrativeEnModification}
     <h4>
         {type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}
         <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={passerEnVueModifierDécisionAdministrative}>
@@ -280,47 +279,19 @@
         
     </section>
 
-    {:else} <!-- vueDécisionAdministrative === 'modifier' -->
+    {:else} <!-- there is a décisionAdministrativeEnModification -->
         <h4>Modifier décision administrative</h4>
 
-        <div class="fr-input-group">
-            <label class="fr-label" for="input-numéro"> Numéro </label>
-            <input class="fr-input" bind:value={décisionAdministrativeEnModification.numéro} aria-describedby="input-numéro-messages" id="input-numéro" type="text">
-            <div class="fr-messages-group" id="input-numéro-messages" aria-live="polite"></div>
-        </div>
-
-        <div class="fr-select-group">
-            <label class="fr-label" for="select-type"> Type de décision </label>
-            <select bind:value={décisionAdministrativeEnModification.type} class="fr-select" aria-describedby="select-type-messages" id="select-type" name="select-type">
-                <option value="" selected disabled>Sélectionnez une option</option>
-                {#each typesDécisionAdministrative as type}
-                    <option value={type}>{type}</option>   
-                {/each}
-            </select>
-            <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
-            </div>
-        </div>
-
-        <div class="fr-input-group">
-            <label class="fr-label" for="input-numéro"> Date de signature de la décision administrative </label>
-            <DateInput bind:date={décisionAdministrativeEnModification.date_signature}></DateInput>
-        </div>
-
-        <div class="fr-input-group">
-            <label class="fr-label" for="input-numéro"> Date de fin des obligations </label>
-            <DateInput bind:date={décisionAdministrativeEnModification.date_fin_obligations}></DateInput>
-        </div>
-
-        <div class="fr-mb-6w">
-            <button class="fr-btn" on:click={sauvegarderDécisionAdministrative}>Sauvegarder</button>
-            <button class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
-        </div>
-
-        <div>
-            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" on:click={supprimerDécisionAdministrative}>
+        <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnModification || {}} onValider={sauvegarderDécisionAdministrative}>
+            
+            <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
+            <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
+        
+            <button slot="bouton-supprimer" type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" on:click={supprimerDécisionAdministrative}>
                 Supprimer cette décision administrative
             </button>
-        </div>
+        
+        </FormulaireDécisionAdministrative>
     {/if}
 
 </section>
