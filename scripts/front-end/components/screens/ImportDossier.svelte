@@ -3,7 +3,7 @@
     import { text } from 'd3-fetch';
     import Squelette from '../Squelette.svelte'
     import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
-    import { formaterDépartementDepuisValeur, convertirThématiqueEnActivitéPrincipale, générerDonnéesLocalisations } from '../../actions/import-dossier.js';
+    import { convertirThématiqueEnActivitéPrincipale, générerDonnéesLocalisations } from '../../actions/import-dossier.js';
 
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
@@ -107,7 +107,7 @@
             'numero_avis_onagre_ou_interne': ligne['N° de l’avis Onagre ou interne'],
           }), 
           // Fin Données Supplémentaires
-          'Dans quel département se localise majoritairement votre projet ?': formaterDépartementDepuisValeur(ligne['Département'])[0], 
+          'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'], 
           "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
           'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'], 
           // 'Le projet se situe au niveau…': ligne['Communes'].trim().length>=1 ?'d\'une ou plusieurs communes' : 'd\'un ou plusieurs départements', 

@@ -34,15 +34,40 @@ async function getCommuneData(nomCommune) {
     }];
 }
 
+/**
+ * 
+ * @param {string} code 
+ * @returns {Promise<GeoAPIDépartement | null>}
+ * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
+ */
+async function getDépartementData(code) {
+    const response = await fetch(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
+    const département = await response.json();
+
+    if (!département) {
+        console.error(`Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`);
+        return null
+    }
+
+    return (
+        {
+            code: département.code,
+            nom: département.nom
+        }
+    )
+}
+
 
 /**
  * 
  * @param {{Communes: string | undefined, Département: number | string}} ligne 
- * @returns { Promise<Partial<Pick<DossierDemarcheSimplifiee88444,
+ * @returns { Promise<
+ *              Partial<Pick<DossierDemarcheSimplifiee88444,
  *                  "Commune(s) où se situe le projet" | 
  *                  "Département(s) où se situe le projet" |
  *                  "Le projet se situe au niveau…"
- *           >>>}
+ *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
+ *           >}
  */
 export async function générerDonnéesLocalisations(ligne) {
     const valeursCommunes = ligne['Communes']
@@ -53,62 +78,48 @@ export async function générerDonnéesLocalisations(ligne) {
 
     const communes = await getCommuneData(valeursCommunes ?? '')
 
+    const départements = await formaterDépartementDepuisValeur(ligne['Département'])
+
     if (communes) {
         return ({
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
             "Le projet se situe au niveau…": "d'une ou plusieurs communes",
+            "Dans quel département se localise majoritairement votre projet ?": départements[0],
         })
     } else {
         return ({
             "Commune(s) où se situe le projet": undefined,
-            "Département(s) où se situe le projet": formaterDépartementDepuisValeur(ligne['Département']),
-            "Le projet se situe au niveau…": 'd\'un ou plusieurs départements'
+            "Département(s) où se situe le projet": départements,
+            "Le projet se situe au niveau…": 'd\'un ou plusieurs départements',
+            "Dans quel département se localise majoritairement votre projet ?": départements[0]
         })
     }
 }
 
-const départementsParCode = {
-    21: "Côte-d'Or",
-    25: "Doubs",
-    39: "Jura",
-    58: "Nièvre",
-    70: "Haute-Saône",
-    71: "Saône-et-Loire",
-    89: "Yonne",
-    90: "Territoire de Belfort",
-};
-
 /**
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
  * @param {string | number} valeur
- * @returns {[GeoAPIDépartement, ...GeoAPIDépartement]}
+ * @returns {Promise<[GeoAPIDépartement, ...GeoAPIDépartement]>}
  */
-export function formaterDépartementDepuisValeur(valeur) {
-    const départementValides = Object.keys(départementsParCode).map((dep) => dep.toString());
-
-    if (typeof valeur === 'number' && [21,25,39,58,70,71,89,90].includes(valeur)) {
-        /** @type {keyof typeof départementsParCode} */
-        // @ts-ignore
-        const code = valeur;
-        return [{
-            code: code.toString(),
-            nom: départementsParCode[code]
-        }];
+async function formaterDépartementDepuisValeur(valeur) {
+    /** @type {string[]} */
+    let codes = []
+    if (typeof valeur === 'number') {
+        codes = [valeur.toString()];
     }
     if (typeof valeur === 'string') {
         const blocs = valeur.split('-');
-        /** @type {GeoAPIDépartement[]} */
-        const départements = [];
         for (const bloc of blocs) {
-            if (départementValides.includes(bloc)) {
-                /** @type {keyof typeof départementsParCode} */
-                // @ts-ignore
-                const code = bloc;
-                départements.push({
-                    code: code.toString(),
-                    nom: départementsParCode[code]
-                });
+            codes.push(bloc)
+        }
+
+        /** @type {GeoAPIDépartement[]} */
+        let départements = []
+        for (const code of codes) {
+            const département = await getDépartementData(code)
+            if (département) {
+                départements.push(département)
             }
         }
         if (départements.length >= 1) {
@@ -121,7 +132,7 @@ export function formaterDépartementDepuisValeur(valeur) {
         code: '21',
         nom: `Côte-d'Or`
     }];
-} 
+}
 
 /**
  * @typedef {"Autres" |
@@ -169,15 +180,15 @@ const correspondanceThématiqueVersActivitéPrincipale = {
     "Transport de spécimens": "Conservation des espèces"
 }
 
-    /**
-     * 
-     * @param {string} valeur
-     * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
-     */
-    export function convertirThématiqueEnActivitéPrincipale(valeur) {
+/**
+ * 
+ * @param {string} valeur
+ * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
+ */
+export function convertirThématiqueEnActivitéPrincipale(valeur) {
     if (valeur in correspondanceThématiqueVersActivitéPrincipale) {
         // @ts-ignore
         return correspondanceThématiqueVersActivitéPrincipale[valeur];
     }
     return 'Autre';
-    }
+}
