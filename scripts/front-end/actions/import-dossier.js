@@ -298,6 +298,7 @@ export async function créerDossierDepuisLigne(ligne) {
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
-        'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined
+        'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined,
+        'Le demandeur est…': ligne['Catégorie du demandeur'].toLowerCase() === 'particulier' ? 'une personne physique' : 'une personne morale',
     };
 }
