@@ -220,8 +220,13 @@
                                             <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL Bretagne. -->
                                             {#if String(ligne["Département"] ?? "")
                                                 .split("-")
-                                                .some(dep => dep.trim() && !["21","25","39","58","70","71","89","90"].includes(dep.trim()))}
-                                                <span class="fr-badge fr-badge--error">{ligne["Département"]}</span>
+                                                .some((dep) => dep.trim() && !["21", "25", "39", "58", "70", "71", "89", "90"].includes(dep.trim()))}
+                                                <span
+                                                    class="fr-badge fr-badge--error"
+                                                    >{ligne[
+                                                        "Département"
+                                                    ]}</span
+                                                >
                                             {:else}
                                                 {ligne["Département"]}
                                             {/if}

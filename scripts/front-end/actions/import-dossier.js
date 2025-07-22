@@ -288,6 +288,8 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  */
 export async function créerDossierDepuisLigne(ligne) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
+    const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
+
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
 
@@ -299,6 +301,143 @@ export async function créerDossierDepuisLigne(ligne) {
         'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
         'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined,
-        'Le demandeur est…': ligne['Catégorie du demandeur'].toLowerCase() === 'particulier' ? 'une personne physique' : 'une personne morale',
+        'Le demandeur est…': donnéesDemandeurs["Le demandeur est…"],
+        'Adresse mail de contact': donnéesDemandeurs['Adresse mail de contact'],
+        'Nom du représentant': donnéesDemandeurs['Nom du représentant'],
+        'Prénom du représentant': donnéesDemandeurs['Prénom du représentant']
     };
+}
+
+// - - - - - - - - - - Extraire informations du demandeur - - - - - - - - - - //
+
+/**
+ * Extrait les informations du demandeur à partir d'une ligne d'import.
+ *
+ * - Si la catégorie du demandeur est "particulier", le type est "une personne physique" et seul le mail est renseigné.
+ * - Sinon, le type est "une personne morale" et on tente d'extraire le nom et prénom du représentant à partir du champ "Nom contact – mail".
+ * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
+ *
+ * @param {Ligne} ligne Ligne d'import contenant les informations du demandeur
+ * @returns {Pick<DossierDemarcheSimplifiee88444,"Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact">}
+ *   Objet contenant le type de demandeur, le nom/prénom du représentant (si applicable), et l'adresse mail de contact.
+ */
+function générerDonnéesDemandeurs(ligne) {
+    const typeDemandeur = ligne['Catégorie du demandeur'].toLowerCase() === 'particulier' ? 'une personne physique' : 'une personne morale'
+
+    const nomContactMailValeur = ligne['Nom contact – mail']
+
+    const mail = extrairePremierMail(nomContactMailValeur) || "";
+
+    /**@type {Partial<{prénom: string | undefined, nom: string | undefined}> | undefined | null} */
+    let prénomNom = extraireNom(nomContactMailValeur)
+
+    // Si pas de nom, on essaie de récupérer le nom et le prénom avec le mail
+    if (!prénomNom && mail) {
+        prénomNom = extraireNomDunMail(nomContactMailValeur)
+    }
+
+    if (typeDemandeur === 'une personne morale') {
+        return (
+            {
+                "Le demandeur est…": typeDemandeur,
+                "Nom du représentant": prénomNom?.nom ?? '',
+                "Prénom du représentant": prénomNom?.prénom ?? '',
+                "Adresse mail de contact": mail,
+            }
+        )
+    } else {
+        return (
+            {
+                "Le demandeur est…": typeDemandeur,
+                "Adresse mail de contact": mail,
+                "Nom du représentant": '',
+                "Prénom du représentant": '',
+            }
+        )
+    }
+
+}
+
+/**
+ * Tente d'extraire un prénom et un nom à partir d'une chaîne de texte.
+ *
+ * @param {string} text Chaîne contenant potentiellement un nom complet
+ * @returns {Partial<{prénom: string, nom: string}> | null} Un objet {prénom, nom} si trouvé, sinon null
+ *
+ * @example
+ *   extraireNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
+ */
+function extraireNom(text) {
+    const nameRegex =
+        /([A-ZÉÈÀÇ][a-zéèàçëïîüö-]+)[\s\-]+([A-ZÉÈÀÇ][a-zéèàçëïîüö-]+)/g;
+    const match = nameRegex.exec(text);
+    if (match) {
+        return { prénom: match[1], nom: match[2] };
+    }
+    return null;
+}
+
+/**
+ * Extrait la première adresse mail trouvée dans une chaîne de texte.
+ *
+ * @param {string} text Chaîne contenant potentiellement une ou plusieurs adresses mail
+ * @returns {string|null} La première adresse mail trouvée, ou null si aucune
+ *
+ * @example
+ *   extrairePremierMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
+ */
+function extrairePremierMail(text) {
+    const mailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
+    const résultat = text.match(mailRegex)
+
+    return résultat && résultat?.length ? résultat[0] : null
+}
+
+/**
+ * Tente d'extraire un prénom et un nom à partir d'une adresse mail.
+ *
+ * @param {string} mail Adresse mail ou chaîne contenant une adresse mail
+ * @returns {Partial<{prénom: string, nom: string}>} Un objet {prénom, nom} si possible, sinon des chaînes vides
+ *
+ * @example
+ *   extraireNomDunMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
+ */
+function extraireNomDunMail(mail) {
+    if (!mail.includes('@')) return { prénom: '', nom: '' };
+
+    const localPart = mail.split('@')[0];
+
+    // Séparateurs fréquents
+    const parts = localPart.split(/[._\-]/).filter(Boolean);
+
+
+    if (parts.length === 2) {
+        const [a, b] = parts;
+
+        // On fait l'hypothèse que la première partie est le prénom.
+        return {
+            prénom: capitalize(a),
+            nom: capitalize(b)
+        }
+    }
+
+
+    return {
+        prénom: '',
+        nom: ''
+    };
+}
+
+/**
+ * Met une majuscule à la première lettre d'une chaîne, le reste en minuscules.
+ *
+ * @param {string} str Chaîne à capitaliser
+ * @returns {string} Chaîne capitalisée
+ *
+ * @example
+ *   capitalize("jean") // "Jean"
+ */
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
