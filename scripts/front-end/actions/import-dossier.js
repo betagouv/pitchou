@@ -5,6 +5,7 @@
 //@ts-ignore
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
 
+
 /**
  * 
  * @param {string} nomCommune 
@@ -69,7 +70,7 @@ async function getDépartementData(code) {
  *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
  *           >}
  */
-export async function générerDonnéesLocalisations(ligne) {
+async function générerDonnéesLocalisations(ligne) {
     const valeursCommunes = ligne['Communes']
         ?.trim()
         .replace(/"/g, '') // supprime les guillemets
@@ -185,10 +186,83 @@ const correspondanceThématiqueVersActivitéPrincipale = {
  * @param {string} valeur
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
-export function convertirThématiqueEnActivitéPrincipale(valeur) {
+function convertirThématiqueEnActivitéPrincipale(valeur) {
     if (valeur in correspondanceThématiqueVersActivitéPrincipale) {
         // @ts-ignore
         return correspondanceThématiqueVersActivitéPrincipale[valeur];
     }
     return 'Autre';
+}
+
+/** Ce type doit être le même que le type Ligne dans `scripts/front-end/components/screens/ImportDossier.svelte`
+ * @typedef {{
+ * "Date de sollicitation": Date;
+ * ORIGINE: string;
+ * OBJET: string;
+ * "N° Dossier DEROG": number;
+ * ÉCHÉANCE: string;
+ * "POUR\nATTRIBUTION": string;
+ * OBSERVATIONS: string;
+ * PETITIONNAIRE: string;
+ * "Catégorie du demandeur": string;
+ * "Nom contact – mail": string;
+ * "Année de première sollicitation": number;
+ * Communes: string;
+ * Département: number | string;
+ * Thématique: string;
+ * "Procédure associée": string;
+ * "Etapes du projet": string;
+ * "Stade de l’avis": string;
+ * "Description avancement dossier avec dates": string;
+ * "Avis SBEP": string;
+ * "Date de rendu de l’avis/envoi réponse": Date;
+ * "Sollicitation OFB pour avis": string;
+ * DEP: string;
+ * "Date de dépôt DEP": string;
+ * "Saisine CSRPN/CNPN": string;
+ * "Date saisine CSRPN/CNPN": string;
+ * "Nom de l’expert désigné (pour le CSRPN)": string;
+ * "N° de l’avis Onagre ou interne": string;
+ * "Avis CSRPN/CNPN": string;
+ * "Date avis CSRPN/CNPN": string;
+ * "Dérogation accordée": string;
+ * "Date AP": string;
+ * }} Ligne;
+ */
+
+/**
+ * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
+ * @param {Ligne} ligne
+ * @returns {string} Données supplémentaires sérialisées
+ */
+export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+  return JSON.stringify({
+    'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'],
+    'date_dépôt': ligne['Date de sollicitation'],
+    'suivi_par': ligne['POUR\nATTRIBUTION'],
+    'historique_dossier': ligne['Description avancement dossier avec dates'],
+    'numero_avis_onagre_ou_interne': ligne['N° de l’avis Onagre ou interne'],
+  });
+}
+
+/**
+ * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
+ * @param {Ligne} ligne
+ * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
+ */
+export async function créerDossierDepuisLigne(ligne) {
+  const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
+  return {
+    'Nom du projet': ligne['OBJET'],
+    // Début Données Supplémentaires
+    'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
+    // Fin Données Supplémentaires
+    'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
+    "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
+    'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
+    'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
+    'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
+    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
+    'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase()==='déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined
+  };
 }

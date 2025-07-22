@@ -3,7 +3,7 @@
     import { text } from 'd3-fetch';
     import Squelette from '../Squelette.svelte'
     import { getODSTableRawContent,  sheetRawContentToObjects, isRowNotEmpty } from '@odfjs/odfjs'
-    import { convertirThématiqueEnActivitéPrincipale, générerDonnéesLocalisations } from '../../actions/import-dossier.js';
+    import { créerDossierDepuisLigne } from '../../actions/import-dossier.js';
 
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
@@ -93,29 +93,9 @@
      * @param {Ligne} ligne
      */
     async function handleOnClickForLigne(ligne) {
-
-        const donnéesLocalisations = await générerDonnéesLocalisations(ligne)
         console.log(ligne)
         /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-        const dossier = { 
-          'Nom du projet': ligne['OBJET'], 
-          // Début Données Supplémentaires
-          'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify({
-            'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'], 'date_dépôt': ligne['Date de sollicitation'], 
-            'suivi_par': ligne['POUR\nATTRIBUTION'], 
-            'historique_dossier': ligne['Description avancement dossier avec dates'],
-            'numero_avis_onagre_ou_interne': ligne['N° de l’avis Onagre ou interne'],
-          }), 
-          // Fin Données Supplémentaires
-          'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'], 
-          "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
-          'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'], 
-          // 'Le projet se situe au niveau…': ligne['Communes'].trim().length>=1 ?'d\'une ou plusieurs communes' : 'd\'un ou plusieurs départements', 
-          'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'], 
-          'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']), 
-          "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
-          'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase()==='déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined
-        }
+        const dossier = await créerDossierDepuisLigne(ligne)
         console.log({dossier})
         try {
             const lien = await text('/lien-preremplissage', {

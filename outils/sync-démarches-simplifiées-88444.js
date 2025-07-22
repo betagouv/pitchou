@@ -176,6 +176,9 @@ const dossiersPourSynchronisation = dossiersDS.map((
         champById.set(champ.id, champ)
     }
 
+    const données_supplémentaires = champById.get(pitchouKeyToChampDS.get('NE PAS MODIFIER - Données techniques associées à votre dossier'))
+    console.log({données_supplémentaires})
+
     /** @type {DossierDemarcheSimplifiee88444['Nom du projet']} */ 
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
     /** @type {DossierDemarcheSimplifiee88444['Description synthétique du projet']} */ 
