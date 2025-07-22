@@ -38,6 +38,14 @@
 
 <form on:submit={formSubmit}>
     <div class="fr-input-group">
+        <label class="fr-label" for="text-input">
+            Date du contrôle
+        </label>
+        <DateInput bind:date={contrôle.date_contrôle}></DateInput>
+    </div>
+
+
+    <div class="fr-input-group">
         <label class="fr-label" for="text-input"> Résultat </label>
         <input
             class="fr-input"
@@ -77,16 +85,14 @@
         <label class="fr-label" for="text-input">
             Date de l'action suite au contrôle
         </label>
-        <DateInput bind:date={contrôle.date_action_suite_contrôle}
-        ></DateInput>
+        <DateInput bind:date={contrôle.date_action_suite_contrôle}></DateInput>
     </div>
 
     <div class="fr-input-group">
         <label class="fr-label" for="text-input">
             Date prochaine échéance
         </label>
-        <DateInput bind:date={contrôle.date_prochaine_échéance}
-        ></DateInput>
+        <DateInput bind:date={contrôle.date_prochaine_échéance}></DateInput>
     </div>
 
     <slot name="bouton-valider">
