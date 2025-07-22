@@ -1,12 +1,14 @@
 import {directDatabaseConnection} from '../database.js'
 
+import {ajouterFichier, supprimerFichier} from './fichier.js'
+
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
 /** @import {default as CapDossier} from '../../../scripts/types/database/public/CapDossier.ts' */
 /** @import {default as DécisionAdministrative} from '../../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {FrontEndDécisionAdministrative, TypeDécisionAdministrative} from '../../../scripts/types/API_Pitchou.ts' */
+/** @import {DécisionAdministrativePourTransfer, FrontEndDécisionAdministrative, TypeDécisionAdministrative} from '../../../scripts/types/API_Pitchou.ts' */
 /** @import {DécisionAdministrativeAnnotation88444} from '../../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 /** @import {knex, Knex} from 'knex' */
@@ -23,17 +25,17 @@ const décisionAnnotationDSToDécisionPitchou = {
 
 /**
  * 
- * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} dems 
+ * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions 
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
  */
-export function ajouterDécisionsAdministratives(dems, databaseConnection = directDatabaseConnection){
-    if(!Array.isArray(dems)){
-        dems = [dems]
+export function ajouterDécisionsAdministratives(décisions, databaseConnection = directDatabaseConnection){
+    if(!Array.isArray(décisions)){
+        décisions = [décisions]
     }
 
     return databaseConnection('décision_administrative')
-        .insert(dems)
+        .insert(décisions)
 }
 
 
@@ -232,14 +234,66 @@ export function getDécisionsAdministratives(cap_dossier, databaseConnection = d
 
 /**
  * 
- * @param {Partial<DécisionAdministrative>} décisionAdministrative 
+ * @param {DécisionAdministrativePourTransfer} décisionAdministrative 
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function modifierDécisionAdministrative(décisionAdministrative, databaseConnection = directDatabaseConnection){
-    return databaseConnection('décision_administrative')
-        .update(décisionAdministrative)
-        .where({id: décisionAdministrative.id})
+export async function modifierDécisionAdministrative(décisionAdministrative, databaseConnection = directDatabaseConnection){
+    const {id, numéro, type, date_signature, date_fin_obligations, dossier} = décisionAdministrative
+
+    if(!id){
+        throw new TypeError(`id manquant dans la décision administrative ${décisionAdministrative.numéro}, ${décisionAdministrative.date_signature}, ${décisionAdministrative.type}`)
+    }
+
+    /** @type {Partial<DécisionAdministrative>} */
+    const décisionAdministrativeBDD = {
+        id, numéro, type, date_signature, date_fin_obligations, dossier
+    }
+
+
+    /** @type {Promise<any>} */
+    let décisionAdministrativePrêteP = Promise.resolve();
+
+    /** @type {Promise<Fichier['id'] | undefined>} */
+    let fichierIdPrécédentP = Promise.resolve(undefined);
+
+
+
+    if(décisionAdministrative.fichier_base64){
+        const {nom, media_type, contenuBase64} = décisionAdministrative.fichier_base64
+
+        const contenu = Buffer.from(contenuBase64, 'base64')
+
+        /** @type {Partial<Fichier>} */
+        const fichierBDD = {
+            nom,
+            media_type,
+            contenu
+        }
+
+        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, databaseConnection).then(fichier => {
+            décisionAdministrativeBDD.fichier = fichier.id
+        })
+
+        fichierIdPrécédentP = databaseConnection('décision_administrative')
+            .select(['fichier'])
+            .where({id})
+            .then(décisions => décisions[0].fichier)
+    }
+
+
+    await décisionAdministrativePrêteP
+    const décisionAdministrativeÀJourP = databaseConnection('décision_administrative')
+        .update(décisionAdministrativeBDD)
+        .where({id: décisionAdministrativeBDD.id})
+
+    return Promise.all([fichierIdPrécédentP, décisionAdministrativeÀJourP])
+        .then(([fichierIdPrécédent]) => {
+            if(fichierIdPrécédent){
+                return supprimerFichier(fichierIdPrécédent, databaseConnection)
+            }
+        })
+
 }
 
 /**

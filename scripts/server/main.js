@@ -9,7 +9,8 @@ import fastifyMultipart from '@fastify/multipart'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
-  getRésultatsSynchronisationDS88444} from './database.js'
+  getRésultatsSynchronisationDS88444,
+  créerTransaction} from './database.js'
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
@@ -36,7 +37,7 @@ import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.jso
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, FrontEndPrescription} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
 
 
 
@@ -354,26 +355,30 @@ fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler
 fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichierRouteHandler)
 
 
-fastify.post('/decision-administrative', function(request, reply) {  
-  /** @type { Partial<DécisionAdministrative> } */
+fastify.post('/decision-administrative', async function(request, reply) {  
+  /** @type { DécisionAdministrativePourTransfer } */
   // @ts-ignore
   const décisionData = request.body
 
   let ret;
 
+  const transaction = await créerTransaction()
+
   if(décisionData.id){
-    ret = modifierDécisionAdministrative(décisionData)
+    ret = modifierDécisionAdministrative(décisionData, transaction)
   }
   else{
-    // @ts-ignore
-    ret = ajouterDécisionsAdministratives(décisionData)
+    ret = ajouterDécisionsAdministratives(décisionData, transaction)
   }
 
-  return ret.then((/** @type {DécisionAdministrative['id'] | undefined} */ décisionId) => {
-      reply.send(décisionId)
+  return ret
+    .then(id => transaction.commit().then(() => id))
+    .then((/** @type {DécisionAdministrative['id'] | undefined} */ décisionId) => {
+        reply.send(décisionId)
     })
+    .catch((/** @type {any} */ err) => {transaction.rollback(); throw err})
     .catch((/** @type {any} */ err) => {
-      reply.code(403).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
+        reply.code(500).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
     })
 })
 
@@ -409,7 +414,7 @@ fastify.post('/prescription', function(request, reply) {
       reply.send(prescriptionId)
     })
     .catch((/** @type {any} */ err) => {
-      reply.code(403).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
+      reply.code(500).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
     })
 })
 
@@ -458,7 +463,7 @@ fastify.post('/contrôle', function(request, reply) {
       reply.send(contrôleId)
     })
     .catch((/** @type {any} */ err) => {
-      reply.code(403).send(`Erreur lors de l'ajout/modification de contrôle. ${err}`)
+      reply.code(500).send(`Erreur lors de l'ajout/modification de contrôle. ${err}`)
     })
 })
 

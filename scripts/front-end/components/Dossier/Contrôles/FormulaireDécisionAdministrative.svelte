@@ -4,19 +4,23 @@
     import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
     import {typesDécisionAdministrative} from '../../../../commun/décision-administrative.js'
 
-    /** @import DécisionAdministrative from '../../../../types/database/public/DécisionAdministrative.js' */
+    /** @import {DécisionAdministrativePourTransfer} from '../../../../types/API_Pitchou.js' */
 
-    /** @type {Partial<DécisionAdministrative>} */
+    /** @type {DécisionAdministrativePourTransfer} */
     export let décisionAdministrative
 
-    /** @type {(décision: DécisionAdministrative | Partial<DécisionAdministrative>) => any} */
+    /** @type {(décision: DécisionAdministrativePourTransfer) => any} */
     export let onValider
+
+    /** @type {FileList | undefined}*/
+    let fichiers
 
     /**
      * 
      * @param {Event} e
      */
     async function formSubmit(e){
+        console.log('submit', fichiers)
         e.preventDefault()
 
         if(décisionAdministrative.date_signature){
@@ -26,12 +30,54 @@
             Object.defineProperty(décisionAdministrative.date_fin_obligations, 'toJSON', {value: toJSONPerserveDate})
         }
 
+        if(fichiers && fichiers.length >= 1){
+            const fichier = fichiers[0]
+            console.log('fichier', fichier)
+
+            const nom = fichier.name
+            const media_type = fichier.type
+
+            const contenuBase64P = new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.addEventListener(
+                    "load",
+                    () => {resolve(reader.result)},
+                    false
+                );
+                reader.addEventListener('error', reject)
+                reader.readAsDataURL(fichier);
+            }) 
+
+            let contenuBase64 = await contenuBase64P
+            
+            // retirer le prefix de la dataURL pour ne garder que le contenu en base64
+            const dataURLPrefix = `data:${media_type};base64,`
+            contenuBase64 = contenuBase64.slice(dataURLPrefix.length)
+
+            décisionAdministrative.fichier_base64 = {
+                nom,
+                media_type, 
+                contenuBase64,
+            }
+        }
+
         onValider(décisionAdministrative)
     }
 
 </script>
 
 <form on:submit={formSubmit}>
+    <div class="fr-upload-group">
+        <label class="fr-label" for="upload-fichier-décision">Fichier de la décision administrative 
+            <span class="fr-hint-text">Indication : 
+                Taille maximale&nbsp;: 100 Mo. 
+                Formats supportés&nbsp;: pdf</span>
+        </label>
+        <input accept=".pdf" bind:files={fichiers} class="fr-upload" aria-describedby="upload-fichier-décision-messages" type="file" id="upload-fichier-décision" name="upload">
+        <div class="fr-messages-group" id="upload-fichier-décision-messages" aria-live="polite">
+        </div>
+    </div>
+
     <div class="fr-input-group">
         <label class="fr-label" for="input-numéro"> Numéro </label>
         <input class="fr-input" bind:value={décisionAdministrative.numéro} aria-describedby="input-numéro-messages" id="input-numéro" type="text">
