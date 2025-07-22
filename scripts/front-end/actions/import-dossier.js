@@ -232,16 +232,30 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
+ * Retourne undefined si toutes les valeurs sont vides ou undefined.
  * @param {Ligne} ligne
- * @returns {string} Données supplémentaires sérialisées
+ * @returns {string|undefined} Données supplémentaires sérialisées ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+  const commentaire = 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '');
+  const date_dépôt = ligne['Date de sollicitation'];
+  const suivi_par = ligne['POUR\nATTRIBUTION'];
+  const historique_dossier = ligne['Description avancement dossier avec dates'];
+  const numero_avis_onagre_ou_interne = ligne['N° de l’avis Onagre ou interne'];
+
+  // Vérifie si toutes les valeurs sont vides ou undefined
+  const toutesVides =
+    [commentaire, date_dépôt, suivi_par, historique_dossier, numero_avis_onagre_ou_interne]
+      .every(val => val === undefined || val === 'Description avancement dossier avec dates : \nObservations : ' || val === '');
+
+  if (toutesVides) return undefined;
+
   return JSON.stringify({
-    'commentaire': 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates'] + '\nObservations : ' + ligne['OBSERVATIONS'],
-    'date_dépôt': ligne['Date de sollicitation'],
-    'suivi_par': ligne['POUR\nATTRIBUTION'],
-    'historique_dossier': ligne['Description avancement dossier avec dates'],
-    'numero_avis_onagre_ou_interne': ligne['N° de l’avis Onagre ou interne'],
+    'commentaire': commentaire,
+    'date_dépôt': date_dépôt,
+    'suivi_par': suivi_par,
+    'historique_dossier': historique_dossier,
+    'numero_avis_onagre_ou_interne': numero_avis_onagre_ou_interne,
   });
 }
 
@@ -253,10 +267,9 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 export async function créerDossierDepuisLigne(ligne) {
   const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
   return {
-    'Nom du projet': ligne['OBJET'],
-    // Début Données Supplémentaires
     'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
-    // Fin Données Supplémentaires
+    
+    'Nom du projet': ligne['OBJET'],
     'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
     "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
     'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
