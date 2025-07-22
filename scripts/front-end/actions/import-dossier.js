@@ -237,26 +237,48 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * @returns {string|undefined} Données supplémentaires sérialisées ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-  const commentaire = 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '');
-  const date_dépôt = ligne['Date de sollicitation'];
-  const suivi_par = ligne['POUR\nATTRIBUTION'];
-  const historique_dossier = ligne['Description avancement dossier avec dates'];
-  const numero_avis_onagre_ou_interne = ligne['N° de l’avis Onagre ou interne'];
+    const commentaire = 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '');
+    const date_dépôt = ligne['Date de sollicitation'];
+    const suivi_par = ligne['POUR\nATTRIBUTION'];
+    const historique_dossier = ligne['Description avancement dossier avec dates'];
+    const numero_avis_onagre_ou_interne = ligne['N° de l’avis Onagre ou interne'];
+    const stade_avis = ligne['Stade de l’avis']
+    const dep = ligne['DEP']
+    const date_de_depot_dep = ligne['Date de dépôt DEP']
+    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
+    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+    const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
+    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
+    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
+    const derogation_accordee = ligne['Dérogation accordée']
+    const date_ap = ligne['Date AP']
 
-  // Vérifie si toutes les valeurs sont vides ou undefined
-  const toutesVides =
-    [ligne['OBSERVATIONS'], ligne['Description avancement dossier avec dates'], date_dépôt, suivi_par, historique_dossier, numero_avis_onagre_ou_interne]
-      .every(val => val === undefined || val === '');
 
-  if (toutesVides) return undefined;
 
-  return JSON.stringify({
-    'commentaire': commentaire,
-    'date_dépôt': date_dépôt,
-    'suivi_par': suivi_par,
-    'historique_dossier': historique_dossier,
-    'numero_avis_onagre_ou_interne': numero_avis_onagre_ou_interne,
-  });
+    // Vérifie si toutes les valeurs sont vides ou undefined
+    const toutesVides =
+        [ligne['OBSERVATIONS'], ligne['Description avancement dossier avec dates'], date_dépôt, suivi_par, historique_dossier, numero_avis_onagre_ou_interne, dep, stade_avis, date_de_depot_dep, saisine_csrpn_cnpn, date_saisine_csrpn_cnpn, nom_expert_csrpn, avis_csrpn_cnpn, date_avis_csrpn_cnpn, derogation_accordee, date_ap]
+            .every(val => val === undefined || val === '');
+
+    if (toutesVides) return undefined;
+
+    return JSON.stringify({
+        'commentaire': commentaire,
+        'date_dépôt': date_dépôt,
+        'suivi_par': suivi_par,
+        'historique_dossier': historique_dossier,
+        'numero_avis_onagre_ou_interne': numero_avis_onagre_ou_interne,
+        'stade_avis': stade_avis,
+        'DEP': dep,
+        'date_de_depot_dep': date_de_depot_dep,
+        'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
+        'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
+        'nom_expert_csrpn': nom_expert_csrpn,
+        'avis_csrpn_cnpn': avis_csrpn_cnpn,
+        'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
+        'derogation_accordee': derogation_accordee,
+        'date_ap': date_ap
+    });
 }
 
 /**
@@ -265,17 +287,17 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
 export async function créerDossierDepuisLigne(ligne) {
-  const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
-  return {
-    'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
+    const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
+    return {
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
 
-    'Nom du projet': ligne['OBJET'],
-    'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
-    "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
-    'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
-    'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
-    'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
-    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
-    'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase()==='déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined
-  };
+        'Nom du projet': ligne['OBJET'],
+        'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
+        "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
+        'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
+        'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
+        'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
+        'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ['Autorisation loi sur l\'eau'] : undefined
+    };
 }
