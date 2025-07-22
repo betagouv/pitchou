@@ -9,6 +9,7 @@
     } from "@odfjs/odfjs";
     import { créerDossierDepuisLigne } from "../../actions/import-dossier.js";
 
+    /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
@@ -55,6 +56,19 @@
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = new Map();
 
+    /** @type {DossierRésumé[]} */
+    export let dossiers = [];
+
+    /**
+     * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
+     * La recherche s'effectue en comparant le nom du projet (champ 'nom' de la table 'dossier').
+     * @param {Ligne} ligne
+     * @returns {boolean}
+     */
+    function ligneDossierEnBDD(ligne) {
+        return dossiers.some((dossier) => dossier.nom === ligne["OBJET"]);
+    }
+
     /**
      * @param {Event} event
      */
@@ -99,7 +113,6 @@
                     ).values(),
                 ];
 
-                console.log({ lignes });
                 lignesTableauImport = lignes;
             } catch (error) {
                 console.error(
@@ -107,17 +120,18 @@
                 );
             }
         }
-
     }
 
     /**
      * @param {Ligne} ligne
      */
     async function handleCréerLienPréRemplissage(ligne) {
-        console.log(ligne);
         /** @type {Partial<DossierDemarcheSimplifiee88444>} */
         const dossier = await créerDossierDepuisLigne(ligne);
-        console.log({ dossier });
+        console.log(
+            { dossier },
+            "après avoir cliqué sur Préparer préremplissage",
+        );
         try {
             const lien = await text("/lien-preremplissage", {
                 method: "POST",
@@ -139,13 +153,25 @@
      * @param {string} url
      */
     function handleClickCréerDossier(url) {
-        console.log('Redirection vers :', url);
-        window.open(url, '_blank');
+        console.log("Redirection vers :", url);
+        window.open(url, "_blank");
     }
 </script>
 
 <Squelette {email} nav={true}>
     <h1>Import de dossier</h1>
+    <div class="fr-notice fr-notice--warning">
+        <div class="fr-container">
+            <div class="fr-notice__body">
+                <p>
+                    <span class="fr-notice__title"
+                        >Attention : vous devez appartenir au groupe des
+                        instructeur·ices DREAL Bretagne.</span
+                    >
+                </p>
+            </div>
+        </div>
+    </div>
     <div class="fr-upload-group">
         <label class="fr-label" for="file-upload">
             Ajouter un fichier
@@ -195,8 +221,24 @@
                                             ]}</td
                                         >
                                         <td>
+                                            {#if ligneDossierEnBDD(ligne)}<p
+                                                    class="fr-badge fr-badge--success"
+                                                >
+                                                    En base de données
+                                                </p>{/if}
                                             {#if ligneToLienPréremplissage.get(ligne)}
-                                                <button class='fr-btn' type='button' on:click={() => handleClickCréerDossier( ligneToLienPréremplissage.get(ligne) ?? '')}>Créer dossier</button>
+                                                <button
+                                                    class="fr-btn"
+                                                    type="button"
+                                                    on:click={() =>
+                                                        handleClickCréerDossier(
+                                                            ligneToLienPréremplissage.get(
+                                                                ligne,
+                                                            ) ?? "",
+                                                        )}
+                                                >
+                                                    Créer dossier
+                                                </button>
                                             {:else}
                                                 <button
                                                     type="button"
