@@ -245,8 +245,8 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
   // Vérifie si toutes les valeurs sont vides ou undefined
   const toutesVides =
-    [commentaire, date_dépôt, suivi_par, historique_dossier, numero_avis_onagre_ou_interne]
-      .every(val => val === undefined || val === 'Description avancement dossier avec dates : \nObservations : ' || val === '');
+    [ligne['OBSERVATIONS'], ligne['Description avancement dossier avec dates'], date_dépôt, suivi_par, historique_dossier, numero_avis_onagre_ou_interne]
+      .every(val => val === undefined || val === '');
 
   if (toutesVides) return undefined;
 
@@ -268,7 +268,7 @@ export async function créerDossierDepuisLigne(ligne) {
   const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
   return {
     'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
-    
+
     'Nom du projet': ligne['OBJET'],
     'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
     "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
