@@ -1,6 +1,7 @@
 //@ts-check
 
 import { json } from "d3-fetch";
+import memoize from 'just-memoize'
 
 //@ts-ignore
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
@@ -48,6 +49,10 @@ async function getDépartementData(code) {
         }
     )
 }
+
+const memoizedGetDépartementData = memoize(getDépartementData)
+
+export { memoizedGetDépartementData as getDépartementData }
 
 
 /**
@@ -362,9 +367,8 @@ function extraireNom(text) {
     const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
 
     const match = nameRegex.exec(text);
-        console.log({text,match})
+
     if (match) {
-        console.log("prenom", match[1])
         return { prénom: match[1], nom: match[2] };
     }
     return null;
