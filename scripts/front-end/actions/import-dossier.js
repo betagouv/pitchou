@@ -68,9 +68,10 @@ async function générerDonnéesLocalisations(ligne) {
         .toLowerCase()     // passe tout en minuscules
         .replace(/\b\w/g, c => c.toUpperCase()); // majuscule en début de mot
 
-    const communes = await getCommuneData(valeursCommunes ?? '')
+    const communesP = getCommuneData(valeursCommunes ?? '')
+    const départementsP = formaterDépartementDepuisValeur(ligne['Département'])
 
-    const départements = await formaterDépartementDepuisValeur(ligne['Département'])
+    const [communes, départements] = await Promise.all([communesP, départementsP])
 
     if (communes) {
         return ({
