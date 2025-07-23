@@ -1,5 +1,7 @@
 //@ts-check
 
+import { json } from "d3-fetch";
+
 //@ts-ignore
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 //@ts-ignore
@@ -13,26 +15,15 @@
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 async function getCommuneData(nomCommune) {
-    const response = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren&format=json&geometry=centre`);
-    const data = await response.json();
+    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren&format=json&geometry=centre`);
 
-    if (!data.length) {
-        console.error(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
-        return null
+    
+    if (!Array.isArray(commune) || commune.length === 0) {
+            console.error(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
+            return null;
     }
-
-    const commune = data[0];
-
-    return [{
-        nom: commune.nom,
-        code: commune.code,
-        codeDepartement: commune.codeDepartement,
-        codeEpci: commune.codeEpci,
-        codeRegion: commune.codeRegion,
-        codesPostaux: commune.codesPostaux,
-        population: commune.population,
-        siren: commune.siren
-    }];
+    //@ts-ignore
+    return commune
 }
 
 /**
