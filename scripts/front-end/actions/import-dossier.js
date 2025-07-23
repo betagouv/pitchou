@@ -227,10 +227,30 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  */
 
 /**
+ * @typedef {{
+ *   commentaire: string,
+ *   date_dépôt: Date | undefined,
+ *   suivi_par: string | undefined,
+ *   historique_dossier: string | undefined,
+ *   numero_avis_onagre_ou_interne: string | undefined,
+ *   stade_avis: string | undefined,
+ *   DEP: string | undefined,
+ *   date_de_depot_dep: string | undefined,
+ *   saisine_csrpn_cnpn: string | undefined,
+ *   date_saisine_csrpn_cnpn: string | undefined,
+ *   nom_expert_csrpn: string | undefined,
+ *   avis_csrpn_cnpn: string | undefined,
+ *   date_avis_csrpn_cnpn: string | undefined,
+ *   derogation_accordee: string | undefined,
+ *   date_ap: string | undefined
+ * }} DonneesSupplementaires
+ */
+
+/**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * Retourne undefined si toutes les valeurs sont vides ou undefined.
  * @param {Ligne} ligne
- * @returns {string|undefined} Données supplémentaires sérialisées ou undefined
+ * @returns {DonneesSupplementaires|undefined} Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const commentaire = 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '');
@@ -249,16 +269,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const derogation_accordee = ligne['Dérogation accordée']
     const date_ap = ligne['Date AP']
 
-
-
-    // Vérifie si toutes les valeurs sont vides ou undefined
-    const toutesVides =
-        [ligne['OBSERVATIONS'], ligne['Description avancement dossier avec dates'], date_dépôt, suivi_par, historique_dossier, numero_avis_onagre_ou_interne, dep, stade_avis, date_de_depot_dep, saisine_csrpn_cnpn, date_saisine_csrpn_cnpn, nom_expert_csrpn, avis_csrpn_cnpn, date_avis_csrpn_cnpn, derogation_accordee, date_ap]
-            .every(val => val === undefined || val === '');
-
-    if (toutesVides) return undefined;
-
-    return JSON.stringify({
+    const donnéesSupplémentaires = {
         'commentaire': commentaire,
         'date_dépôt': date_dépôt,
         'suivi_par': suivi_par,
@@ -274,7 +285,9 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
         'derogation_accordee': derogation_accordee,
         'date_ap': date_ap
-    });
+    }
+
+    return donnéesSupplémentaires;
 }
 
 /**
@@ -287,7 +300,7 @@ export async function créerDossierDepuisLigne(ligne) {
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
 
     return {
-        'NE PAS MODIFIER - Données techniques associées à votre dossier': créerDonnéesSupplémentairesDepuisLigne(ligne),
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
         'Nom du projet': ligne['OBJET'],
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
