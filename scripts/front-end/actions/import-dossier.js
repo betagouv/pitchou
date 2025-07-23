@@ -12,7 +12,7 @@ import memoize from 'just-memoize'
 /**
  * 
  * @param {string} nomCommune 
- * @returns {Promise<[GeoAPICommune] | null>}
+ * @returns {Promise<GeoAPICommune | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 async function getCommuneData(nomCommune) {
@@ -24,7 +24,7 @@ async function getCommuneData(nomCommune) {
         return null;
     }
     //@ts-ignore
-    return commune
+    return commune[0]
 }
 
 /**
@@ -54,6 +54,30 @@ const memoizedGetDépartementData = memoize(getDépartementData)
 
 export { memoizedGetDépartementData as getDépartementData }
 
+/**
+ * Extrait un tableau de noms de communes à partir d'une chaîne de caractères.
+ * La chaîne peut contenir des noms séparés par des virgules (`,`), des slashes (`/`), ou un mélange des deux.
+ * Exemples de valeur en entrée : 
+ * - Arthonnay, Mélisey, Quincerot, Rugny, Thorey, Trichey et Villon
+ * - Argenteuil-sur-Armancon / Moulins-en-Tonnerrois
+ * - Mélisey
+ * 
+ * On n'inclut pas le séparateur "-" car beaucoup de villes contiennent des "-"
+ *
+ * @param {string} valeur - La chaîne contenant une ou plusieurs communes séparées.
+ * @returns {string[]} Un tableau contenant les noms des communes nettoyés.
+ */
+function extraireCommunes(valeur) {
+    if (typeof valeur !== 'string') return [];
+
+    // Utilise une expression régulière pour séparer sur ',' ou '/'
+    const communes = valeur.split(/[\/,]/);
+
+    // Nettoie les espaces superflus et filtre les éléments vides
+    return communes.map(c => c.trim()).filter(c => c.length > 0);
+}
+
+
 
 /**
  * 
@@ -67,18 +91,20 @@ export { memoizedGetDépartementData as getDépartementData }
  *           >}
  */
 async function générerDonnéesLocalisations(ligne) {
-    const valeursCommunes = ligne['Communes']
-        ?.trim()
-        .replace(/"/g, '') // supprime les guillemets
-        .toLowerCase()     // passe tout en minuscules
-        .replace(/\b\w/g, c => c.toUpperCase()); // majuscule en début de mot
+    const valeursCommunes = extraireCommunes(ligne['Communes'] ?? '');
 
-    const communesP = getCommuneData(valeursCommunes ?? '')
-    const départementsP = formaterDépartementDepuisValeur(ligne['Département'])
+    const communesP = valeursCommunes.map((com) => getCommuneData(com));
+    const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
 
-    const [communes, départements] = await Promise.all([communesP, départementsP])
+    const [départements, communesResult] = await Promise.all([
+        départementsP,
+        Promise.all(communesP),
+    ]);
 
-    if (communes) {
+    const communes = communesResult.filter((commune) => commune !== null);
+
+
+    if (communes.length >= 1) {
         return ({
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
@@ -98,7 +124,7 @@ async function générerDonnéesLocalisations(ligne) {
 /**
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
  * @param {string | number} valeur
- * @returns {Promise<[GeoAPIDépartement, ...GeoAPIDépartement]>}
+ * @returns {Promise<GeoAPIDépartement[]>}
  */
 async function formaterDépartementDepuisValeur(valeur) {
     /** @type {string[]} */
