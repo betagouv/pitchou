@@ -398,7 +398,7 @@ function extraireNomDunMail(mail) {
     const localPart = mail.split('@')[0];
 
     // Séparateurs fréquents
-    const parts = localPart.split(/[._\-]/).filter(Boolean);
+    const parts = localPart.split(/[._\-]/).filter(s => s.length >= 1)
 
 
     if (parts.length === 2) {
