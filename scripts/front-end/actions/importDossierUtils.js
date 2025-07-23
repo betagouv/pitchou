@@ -42,12 +42,10 @@ async function getDépartementData(code) {
         return null
     }
 
-    return (
-        {
+    return {
             code: département.code,
             nom: département.nom
         }
-    )
 }
 
 const memoizedGetDépartementData = memoize(getDépartementData)

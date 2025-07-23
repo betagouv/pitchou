@@ -217,23 +217,19 @@ function générerDonnéesDemandeurs(ligne) {
     }
 
     if (typeDemandeur === 'une personne morale') {
-        return (
-            {
-                "Le demandeur est…": typeDemandeur,
-                "Nom du représentant": prénomNom?.nom ?? '',
-                "Prénom du représentant": prénomNom?.prénom ?? '',
-                "Adresse mail de contact": mail,
-            }
-        )
+        return {
+            "Le demandeur est…": typeDemandeur,
+            "Nom du représentant": prénomNom?.nom ?? '',
+            "Prénom du représentant": prénomNom?.prénom ?? '',
+            "Adresse mail de contact": mail,
+        }
     } else {
-        return (
-            {
-                "Le demandeur est…": typeDemandeur,
-                "Adresse mail de contact": mail,
-                "Nom du représentant": '',
-                "Prénom du représentant": '',
-            }
-        )
+        return {
+            "Le demandeur est…": typeDemandeur,
+            "Adresse mail de contact": mail,
+            "Nom du représentant": '',
+            "Prénom du représentant": '',
+        }
     }
 
 }
@@ -264,18 +260,18 @@ async function générerDonnéesLocalisations(ligne) {
 
 
     if (communes.length >= 1) {
-        return ({
+        return {
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
             "Le projet se situe au niveau…": "d'une ou plusieurs communes",
             "Dans quel département se localise majoritairement votre projet ?": départements[0],
-        })
+        }
     } else {
-        return ({
+        return {
             "Commune(s) où se situe le projet": undefined,
             "Département(s) où se situe le projet": départements,
             "Le projet se situe au niveau…": "d'un ou plusieurs départements",
             "Dans quel département se localise majoritairement votre projet ?": départements[0]
-        })
+        }
     }
 }
