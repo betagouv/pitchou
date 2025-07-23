@@ -147,15 +147,6 @@
             );
         }
     }
-
-    /**
-     * Gère le clic sur "Créer dossier" log, et ouvre l'URL dans un nouvel onglet.
-     * @param {string} url
-     */
-    function handleClickCréerDossier(url) {
-        console.log("Redirection vers :", url);
-        window.open(url, "_blank");
-    }
 </script>
 
 <Squelette {email} nav={true}>
@@ -243,18 +234,9 @@
                                                     En base de données
                                                 </p>{/if}
                                             {#if ligneToLienPréremplissage.get(ligne)}
-                                                <button
-                                                    class="fr-btn"
-                                                    type="button"
-                                                    on:click={() =>
-                                                        handleClickCréerDossier(
-                                                            ligneToLienPréremplissage.get(
+                                                <a id="link-1" href={ligneToLienPréremplissage.get(
                                                                 ligne,
-                                                            ) ?? "",
-                                                        )}
-                                                >
-                                                    Créer dossier
-                                                </button>
+                                                            )} target="_blank" class="fr-btn">Créer dossier</a>
                                             {:else}
                                                 <button
                                                     type="button"
