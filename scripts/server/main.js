@@ -15,7 +15,7 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
-import { modifierDécisionAdministrative, ajouterDécisionsAdministratives, supprimerDécisionAdministrative, ajouterDécisionAdministrativeAvecFichier } from './database/décision_administrative.js'
+import { modifierDécisionAdministrative, supprimerDécisionAdministrative, ajouterDécisionAdministrativeAvecFichier } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
 import { ajouterContrôles, modifierContrôle, supprimerContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
