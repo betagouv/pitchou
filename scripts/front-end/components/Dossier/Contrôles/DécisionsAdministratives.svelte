@@ -164,6 +164,8 @@
         décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
     
         décisionAdministrativeEnModification = undefined
+
+        refreshDossierComplet(dossierId)
     }
 
     /** @type {'consulter' | 'modifier'} */
