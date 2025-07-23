@@ -17,10 +17,10 @@ import { json } from "d3-fetch";
 async function getCommuneData(nomCommune) {
     const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren&format=json&geometry=centre`);
 
-    
+
     if (!Array.isArray(commune) || commune.length === 0) {
-            console.error(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
-            return null;
+        console.error(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
+        return null;
     }
     //@ts-ignore
     return commune
@@ -109,7 +109,7 @@ async function formaterDépartementDepuisValeur(valeur) {
 
 
         const départementsP = codes.map((code) => getDépartementData(code))
-        const départements = (await Promise.all(départementsP)).filter((dep) => dep!==null)
+        const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
 
         if (départements.length >= 1) {
             // On force le cast car la logique garantit un tableau non vide
@@ -146,28 +146,29 @@ async function formaterDépartementDepuisValeur(valeur) {
 
 
 /**
- * @type {Record<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>}
+ * @type {Map<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>}
  */
-const correspondanceThématiqueVersActivitéPrincipale = {
-    "Autres": "Autre",
-    "Autres EnR": "Production énergie renouvelable - Autres",
-    "Avis sur document d’urbanisme": "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
-    "Bâti (espèces anthropophiles)": "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
-    "Carrières": "Carrières",
-    "Dommages liés aux EP": "Dommages aux biens et activités",
-    "Dessertes forestières": "Exploitation forestière",
-    "Éolien": "Production énergie renouvelable - Éolien",
-    "Infrastructures linéaires": "Infrastructures de transport routières",
-    "Inventaires, recherche scientifique": "Demande à caractère scientifique",
-    "Manifestations sportives et culturelles": "Événementiel avec ou sans aménagement temporaire",
-    "Naturalisation": "Restauration écologique",
-    "Ouvrages cours d’eau": "Projets liés à la gestion de l’eau",
-    "PPV": "Péril animalier",
-    "Projet agricole": "Installations agricoles",
-    "Projet d’aménagement": "ZAC",
-    "Restauration": "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
-    "Transport de spécimens": "Conservation des espèces"
-}
+const correspondanceThématiqueVersActivitéPrincipale = new Map([
+    ["Autres", "Autre"],
+    ["Autres EnR", "Production énergie renouvelable - Autres"],
+    ["Avis sur document d’urbanisme", "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)"],
+    ["Bâti (espèces anthropophiles)", "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art"],
+    ["Carrières", "Carrières"],
+    ["Dommages liés aux EP", "Dommages aux biens et activités"],
+    ["Dessertes forestières", "Exploitation forestière"],
+    ["Éolien", "Production énergie renouvelable - Éolien"],
+    ["Infrastructures linéaires", "Infrastructures de transport routières"],
+    ["Inventaires, recherche scientifique", "Demande à caractère scientifique"],
+    ["Manifestations sportives et culturelles", "Événementiel avec ou sans aménagement temporaire"],
+    ["Naturalisation", "Restauration écologique"],
+    ["Ouvrages cours d’eau", "Projets liés à la gestion de l’eau"],
+    ["PPV", "Péril animalier"],
+    ["Projet agricole", "Installations agricoles"],
+    ["Projet d’aménagement", "ZAC"],
+    ["Restauration", "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art"],
+    ["Transport de spécimens", "Conservation des espèces"]
+]);
+
 
 /**
  * 
@@ -175,12 +176,13 @@ const correspondanceThématiqueVersActivitéPrincipale = {
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
 function convertirThématiqueEnActivitéPrincipale(valeur) {
-    if (valeur in correspondanceThématiqueVersActivitéPrincipale) {
-        // @ts-ignore
-        return correspondanceThématiqueVersActivitéPrincipale[valeur];
+    const activité = correspondanceThématiqueVersActivitéPrincipale.get(    /** @type {ThématiquesOptions} */(valeur))
+    if (activité) {
+        return activité
     }
     return 'Autre';
 }
+
 
 /** Ce type doit être le même que le type Ligne dans `scripts/front-end/components/screens/ImportDossier.svelte`
  * @typedef {{
