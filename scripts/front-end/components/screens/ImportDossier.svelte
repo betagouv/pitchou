@@ -50,7 +50,7 @@
     /** @type {ComponentProps<Squelette>['email']} */
     export let email = undefined;
 
-    /** @type {any[] | undefined} */
+    /** @type {Ligne[] | undefined} */
     let lignesTableauImport = undefined;
 
     /** @type {Map<any,string>} */
