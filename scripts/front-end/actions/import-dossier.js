@@ -102,6 +102,7 @@ async function formaterDépartementDepuisValeur(valeur) {
     }
     if (typeof valeur === 'string') {
         const blocs = valeur.split('-');
+        // Cela permet de récupérer les valeurs comme "21-78"
         for (const bloc of blocs) {
             codes.push(bloc)
         }
