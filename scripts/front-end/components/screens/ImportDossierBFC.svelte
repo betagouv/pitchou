@@ -7,7 +7,7 @@
         sheetRawContentToObjects,
         isRowNotEmpty,
     } from "@odfjs/odfjs";
-    import { créerDossierDepuisLigne } from "../../actions/import-dossier.js";
+    import { créerDossierDepuisLigne } from "../../actions/importDossierBFC.js";
 
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
