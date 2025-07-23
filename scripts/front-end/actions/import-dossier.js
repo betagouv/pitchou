@@ -107,14 +107,10 @@ async function formaterDépartementDepuisValeur(valeur) {
             codes.push(bloc)
         }
 
-        /** @type {GeoAPIDépartement[]} */
-        let départements = []
-        for (const code of codes) {
-            const département = await getDépartementData(code)
-            if (département) {
-                départements.push(département)
-            }
-        }
+
+        const départementsP = codes.map((code) => getDépartementData(code))
+        const départements = (await Promise.all(départementsP)).filter((dep) => dep!==null)
+
         if (départements.length >= 1) {
             // On force le cast car la logique garantit un tableau non vide
             return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
