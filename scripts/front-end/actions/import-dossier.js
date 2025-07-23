@@ -358,10 +358,12 @@ function générerDonnéesDemandeurs(ligne) {
  *   extraireNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
  */
 function extraireNom(text) {
-    const nameRegex =
-        /([A-ZÉÈÀÇ][a-zéèàçëïîüö-]+)[\s\-]+([A-ZÉÈÀÇ][a-zéèàçëïîüö-]+)/g;
+    const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
+
     const match = nameRegex.exec(text);
+        console.log({text,match})
     if (match) {
+        console.log("prenom", match[1])
         return { prénom: match[1], nom: match[2] };
     }
     return null;
