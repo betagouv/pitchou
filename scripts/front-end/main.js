@@ -27,5 +27,5 @@ page('/import-dossier-historiques/bourgogne-franche-comte', ImportDossier)
 init()
     .then(() => page.start())
     .catch(error => {
-        console.error(error)
+        console.error(`Erreur à l'initialisation`, error)
     })
