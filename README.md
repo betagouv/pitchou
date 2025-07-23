@@ -27,42 +27,6 @@ Les données de la base de données sont sauvegarder dans un volume dans le repo
 http://localhost:2648/
 http://localhost:2648/saisie-especes
 
-### Documentation Jekyll
-
-Le projet inclut une documentation statique générée avec Jekyll dans le dossier `docs/`.
-
-#### Prérequis
-
-- Ruby (version 3.2+ recommandée)
-- Bundler (`gem install bundler`)
-- Jekyll Instructions d’installation officielles : https://jekyllrb.com/docs/installation/
-
-#### Déployer la documentation en local
-
-1. **Installer les dépendances Ruby** :
-   ```bash
-   cd docs
-   bundle install
-   ```
-
-2. **Lancer le serveur Jekyll** :
-   ```bash
-   bundle exec jekyll serve --livereload
-   ```
-
-3. **Ouvrir la documentation dans le navigateur :** :
-   - http://localhost:4000
-
-Si la page s'affiche sans style, ajoutez le front matter suivant en haut de votre fichier `.md`
-````
----
-layout: default
----
-````
-
-
-
-
 ### Créer une migration
 
 exécuter `knex migrate:make <nom de la migration>`

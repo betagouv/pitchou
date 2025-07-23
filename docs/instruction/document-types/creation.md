@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # Document-types
 
 ## Table des matières
@@ -78,7 +74,12 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{date_début_consultation_public}</code></th>
                             <td> date</td>
-                            <td> Date de début de la consultation du public ou enquête publique.</td>
+                            <td> Date de début de la consultation du public ou enquête publique</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{date_dépôt}</code></th>
+                            <td> date</td>
+                            <td> Date de dépôt du dossier</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
