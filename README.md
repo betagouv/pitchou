@@ -62,6 +62,29 @@ Pour se connecter au serveur postgres depuis un container : ce container doit ê
 URL pour pgadmin en dev : 
 `http://localhost:5050/`
 
+### Visualiser la documentation en local avec Jekyll
+
+La documentation (dossier `docs/`) est déployée en production sur GitHub Pages, qui utilise Jekyll pour transformer les fichiers `.md` en site web statique.
+
+Pour visualiser la documentation **en local** (avant de pousser sur GitHub), vous pouvez utiliser Docker pour lancer un serveur Jekyll identique à celui de GitHub Pages.
+
+Construire l'image Docker Jekyll
+   ```sh
+   cd docs
+   docker build -t mon-jekyll .
+   cd ..
+   ```
+
+Lancer le serveur Jekyll en local
+
+   Toujours depuis la racine du projet :
+   ```sh
+   docker run --rm -p 4000:4000 -v "$PWD/docs":/srv/jekyll -e PAGES_REPO_NWO="dev" mon-jekyll
+   ```
+Le site sera accessible à l'adresse : 
+[http://localhost:4000/](http://localhost:4000/)
+
+
 
 ## En prod
 
