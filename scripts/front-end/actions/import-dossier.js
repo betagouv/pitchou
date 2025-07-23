@@ -377,7 +377,8 @@ function extraireNom(text) {
  *   extrairePremierMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
  */
 function extrairePremierMail(text) {
-    const mailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
+    // Source Regex Mail : https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
+    const mailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     const résultat = text.match(mailRegex)
 
     return résultat && résultat?.length ? résultat[0] : null
