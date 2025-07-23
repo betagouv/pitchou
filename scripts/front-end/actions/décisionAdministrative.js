@@ -4,7 +4,7 @@ import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} 
 import {isValidDate} from '../../commun/typeFormat.js'
 import {ajouterPrescriptionsEtContrôles} from './prescriptions.js'
 
-/** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
+/** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle, DécisionAdministrativePourTransfer} from '../../types/API_Pitchou.ts' */
 /** @import Contrôle from '../../types/database/public/Contrôle.ts' */
 /** @import DécisionAdministrative from '../../types/database/public/DécisionAdministrative.ts' */
 
@@ -141,10 +141,10 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
 
 /**
  * 
- * @param {Partial<DécisionAdministrative>} décisionAdministrative 
+ * @param {DécisionAdministrativePourTransfer} décisionAdministrative 
  * @returns {Promise<unknown>}
  */
-export function modifierDécisionAdministrative(décisionAdministrative){
+export function créerModifierDécisionAdministrative(décisionAdministrative){
     return text('/decision-administrative', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

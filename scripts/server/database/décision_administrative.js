@@ -25,6 +25,44 @@ const décisionAnnotationDSToDécisionPitchou = {
 
 /**
  * 
+ * @param {DécisionAdministrativePourTransfer} décision 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Fichier['id']>}
+ */
+export async function ajouterDécisionAdministrativeAvecFichier(décision, databaseConnection = directDatabaseConnection){
+    const {id, numéro, type, date_signature, date_fin_obligations, dossier} = décision
+
+    /** @type {Partial<DécisionAdministrative>} */
+    const décisionAdministrativeBDD = {
+        id, numéro, type, date_signature, date_fin_obligations, dossier
+    }
+
+    if(décision.fichier_base64){
+        const {nom, media_type, contenuBase64} = décision.fichier_base64
+
+        const contenu = Buffer.from(contenuBase64, 'base64')
+
+        /** @type {Partial<Fichier>} */
+        const fichierBDD = {
+            nom,
+            media_type,
+            contenu
+        }
+
+        await ajouterFichier(fichierBDD, databaseConnection).then(fichier => {
+            décisionAdministrativeBDD.fichier = fichier.id
+        })
+    }
+
+    return databaseConnection('décision_administrative')
+        .insert(décisionAdministrativeBDD)
+        .returning(['id'])
+        .then(d => d[0].id)
+}
+
+
+/**
+ * 
  * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions 
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}

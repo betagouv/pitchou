@@ -7,13 +7,12 @@
 
     import {formatDateAbsolue} from '../../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
-    import {créerPrescriptionContrôlesÀPartirDeFichier, modifierDécisionAdministrative} from '../../../actions/décisionAdministrative.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier, créerModifierDécisionAdministrative} from '../../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../../actions/dossier.js'
 
-    /** @import {FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
+    /** @import {DécisionAdministrativePourTransfer, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
     /** @import PrescriptionType from '../../../../types/database/public/Prescription.ts' */
-    /** @import DécisionAdministrative from '../../../../types/database/public/DécisionAdministrative.ts' */
 
     /** @type {Dossier['id']} */
     export let dossierId
@@ -138,7 +137,7 @@
     }
 
 
-    /** @type {Partial<DécisionAdministrative> | undefined} */
+    /** @type {DécisionAdministrativePourTransfer | undefined} */
     let décisionAdministrativeEnModification
 
     function passerEnVueModifierDécisionAdministrative(){
@@ -160,7 +159,7 @@
             throw new TypeError(`décisionAdministrativeEnModification est undefined dans sauvegarderDécisionAdministrative`)
         }
 
-        modifierDécisionAdministrative(décisionAdministrativeEnModification)
+        créerModifierDécisionAdministrative(décisionAdministrativeEnModification)
         décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
     
         décisionAdministrativeEnModification = undefined
