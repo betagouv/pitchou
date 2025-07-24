@@ -98,8 +98,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const commentaire_libre = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
 
 
-    // TODO : Modifier ce champ pour qu'il colle à la base de données
-    const prochaine_action_attendue_par = ligne['Stade de l’avis']
 
 
     const dep = ligne['DEP']
@@ -119,7 +117,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         'suivi_par': ligne['POUR\nATTRIBUTION'],
         'historique_dossier': ligne['Description avancement dossier avec dates'],
         'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
-        'prochaine_action_attendue_par': prochaine_action_attendue_par,
+        'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
         'DEP': dep,
         'date_de_depot_dep': date_de_depot_dep,
         'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
@@ -212,11 +210,11 @@ function générerDonnéesDemandeurs(ligne) {
  * 
  * @param {{Communes: string | undefined, Département: number | string}} ligne 
  * @returns { Promise<
- *              Partial<Pick<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444,
+ *              Partial<Pick<DossierDemarcheSimplifiee88444,
  *                  "Commune(s) où se situe le projet" | 
  *                  "Département(s) où se situe le projet" |
  *                  "Le projet se situe au niveau…"
- *              >> & Pick<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
+ *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
  *           >}
  */
 async function générerDonnéesLocalisations(ligne) {
@@ -248,4 +246,27 @@ async function générerDonnéesLocalisations(ligne) {
             "Dans quel département se localise majoritairement votre projet ?": départements[0]
         }
     }
+}
+
+
+/**
+ * Cette fonction permet de remplir le champ "prochaine_action_attendue_par" en base de données
+ * @param {Ligne} ligne 
+ * @returns {string}
+ */
+function générerProchaineActionAttenduePar(ligne) {
+    const valeur = ligne['Stade de l’avis'].trim();
+
+    if (valeur === 'En attente d’éléments pétitionnaire') {
+        return 'Pétitionnaire'
+
+    } else if (valeur === 'En attente avis CSRPN/CNPN') {
+
+        return 'CNPN/CSRPN'
+    } else if (valeur === 'Clos') {
+        return 'Personne'
+    }
+
+    // Par défaut, on considère que la prochaine action attendue est celle de l'instruteur.i.ce
+    return 'Instructeur'
 }
