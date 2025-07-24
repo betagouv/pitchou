@@ -2,6 +2,8 @@
 
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
+/** @import Dossier from "../../types/database/public/Dossier" */
+
 /**
  * @typedef {"Autres" |
  *   "Autres EnR" |
@@ -101,7 +103,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 
 /**
  * @typedef {{
- *   commentaire: string,
+ *   commentaire_enjeu: Dossier['commentaire_enjeu'],
  *   date_dépôt: Date | undefined,
  *   suivi_par: string | undefined,
  *   historique_dossier: string | undefined,
@@ -126,7 +128,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * @returns {DonneesSupplementaires|undefined} Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const commentaire = 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '');
+
     const date_dépôt = ligne['Date de sollicitation'];
     const suivi_par = ligne['POUR\nATTRIBUTION'];
     const historique_dossier = ligne['Description avancement dossier avec dates'];
@@ -143,7 +145,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const date_ap = ligne['Date AP']
 
     const donnéesSupplémentaires = {
-        'commentaire': commentaire,
+        'commentaire_enjeu': 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? ''),
         'date_dépôt': date_dépôt,
         'suivi_par': suivi_par,
         'historique_dossier': historique_dossier,
