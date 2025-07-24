@@ -102,9 +102,12 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  */
 
 /**
+ * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
+ * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
+ * données propres à Pitchou comme le suivi des dossiers
  * @typedef {{
  *   commentaire_enjeu: Dossier['commentaire_enjeu'],
- *   date_dépôt: Date | undefined,
+ *   date_dépôt: Dossier['date_dépôt'],
  *   suivi_par: string | undefined,
  *   historique_dossier: string | undefined,
  *   numero_avis_onagre_ou_interne: string | undefined,
@@ -118,18 +121,17 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  *   date_avis_csrpn_cnpn: string | undefined,
  *   derogation_accordee: string | undefined,
  *   date_ap: string | undefined
- * }} DonneesSupplementaires
+ * }} DonnéesSupplementaires
  */
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
- * Retourne undefined si toutes les valeurs sont vides ou undefined.
  * @param {Ligne} ligne
- * @returns {DonneesSupplementaires|undefined} Données supplémentaires ou undefined
+ * @returns { DonnéesSupplementaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+    const commentaire_enjeu = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
 
-    const date_dépôt = ligne['Date de sollicitation'];
     const suivi_par = ligne['POUR\nATTRIBUTION'];
     const historique_dossier = ligne['Description avancement dossier avec dates'];
     const numero_avis_onagre_ou_interne = ligne['N° de l’avis Onagre ou interne'];
@@ -145,8 +147,8 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const date_ap = ligne['Date AP']
 
     const donnéesSupplémentaires = {
-        'commentaire_enjeu': 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? ''),
-        'date_dépôt': date_dépôt,
+        'commentaire_enjeu': commentaire_enjeu,
+        'date_dépôt': ligne['Date de sollicitation'],
         'suivi_par': suivi_par,
         'historique_dossier': historique_dossier,
         'numero_avis_onagre_ou_interne': numero_avis_onagre_ou_interne,
