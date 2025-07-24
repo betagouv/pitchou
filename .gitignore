@@ -13,3 +13,10 @@ data/sources_especes/*
 pgdata/
 
 .env
+
+# Jekyll generated files
+docs/_site/
+docs/.jekyll-cache/
+docs/.bundle/
+docs/Gemfile.lock
+docs/vendor/
