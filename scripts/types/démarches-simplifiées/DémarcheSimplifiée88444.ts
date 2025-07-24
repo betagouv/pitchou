@@ -64,7 +64,9 @@ export interface DossierDemarcheSimplifiee88444 {
     | "UTN (Unité Touristique Nouvelle)"
     | "ZAC"
     | "Autre";
-  "Urbanisation - Votre demande concerne :": "Destruction de nids d'Hirondelles" | "Autre";
+  "Restauration, démolition de bâtiments, ouvrages d'art - Votre demande concerne :":
+    | "Destruction de nids d'Hirondelles"
+    | "Autre";
   "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
   "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
   /**
@@ -98,6 +100,7 @@ export interface DossierDemarcheSimplifiee88444 {
   "Numéro de téléphone de contact": string;
   "Adresse mail de contact": string;
   "Description synthétique du projet": string;
+  "Nombre de nids d'Hirondelles détruits": number;
   "Le projet se situe au niveau…":
     | "d'une ou plusieurs communes"
     | "d'un ou plusieurs départements"
@@ -231,6 +234,12 @@ export interface DossierDemarcheSimplifiee88444 {
    */
   "Déposez ici l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.": ChampDSPieceJustificative;
   "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande": ChampDSPieceJustificative[];
+  /**
+   * Cette question est là pour des raisons techniques.
+   * La réponse à cette question n'a aucune incidence sur l'instruction de votre dossier.
+   * Cette question sera bientôt supprimée.
+   */
+  "NE PAS MODIFIER - Données techniques associées à votre dossier": string;
 }
 
 

@@ -26,6 +26,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -117,14 +118,23 @@ fastify.get('/saisie-especes', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
 fastify.get('/stats', sendIndexHTMLFile)
+fastify.get('/import-dossier-historique/bourgogne-franche-comte', sendIndexHTMLFile)
 
 
 
 fastify.post('/lien-preremplissage', async function (request) {
   /** @type {Partial<DossierDemarcheSimplifiee88444>} */
   // @ts-ignore
-  const donnéesPreRemplissage = request.body
+  let donnéesPreRemplissage = request.body
 
+  const donnéesSupplémentairesDossiers = donnéesPreRemplissage['NE PAS MODIFIER - Données techniques associées à votre dossier']
+  
+  // Les données supplémentaires concernent les données des annotations privées, les données de suivi des instructeur.i.ces...
+  // Ces données ne peuvent pas être pré-remplies directement, on va donc les chiffrer pour les utiliser plus tard.
+  if (donnéesSupplémentairesDossiers) {
+    donnéesPreRemplissage['NE PAS MODIFIER - Données techniques associées à votre dossier'] = await chiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentairesDossiers)
+  }
+  
   return demanderLienPréremplissage(donnéesPreRemplissage, schema88444)
     // @ts-ignore
     .then(({dossier_url}) => dossier_url)
