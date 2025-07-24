@@ -73,7 +73,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * @typedef {{
  *   commentaire_libre: Dossier['commentaire_libre'],
  *   date_dépôt: Dossier['date_dépôt'],
- *   suivi_par: string | undefined,
+ *   personne_mail: string | undefined,
  *   historique_dossier: string | undefined,
  *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
  *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
@@ -97,13 +97,11 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const commentaire_libre = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
 
-
-
-
     const dep = ligne['DEP']
     const date_de_depot_dep = ligne['Date de dépôt DEP']
     const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
     const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+
     const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
     const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
     const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
@@ -114,19 +112,25 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     return {
         'commentaire_libre': commentaire_libre,
         'date_dépôt': ligne['Date de sollicitation'],
-        'suivi_par': ligne['POUR\nATTRIBUTION'],
-        'historique_dossier': ligne['Description avancement dossier avec dates'],
         'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
         'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
+
+        // Champs pour la table arête_personne_suit_dossier
+        'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
+
+        // Infos utiles historiques dossier
+        'historique_dossier': ligne['Description avancement dossier avec dates'],
         'DEP': dep,
         'date_de_depot_dep': date_de_depot_dep,
+        'derogation_accordee': derogation_accordee,
+        'date_ap': date_ap,
+
+        // Infos utiles saisines CSRPN/CNPN
         'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
         'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
         'nom_expert_csrpn': nom_expert_csrpn,
         'avis_csrpn_cnpn': avis_csrpn_cnpn,
         'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
-        'derogation_accordee': derogation_accordee,
-        'date_ap': date_ap
     }
 }
 
