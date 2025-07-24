@@ -5,8 +5,10 @@
     import DécisionsAdministratives from './Contrôles/DécisionsAdministratives.svelte'
     import FormulaireDécisionAdministrative from './Contrôles/FormulaireDécisionAdministrative.svelte'
 
-    import {supprimerDécisionAdministrative, créerModifierDécisionAdministrative} from '../../actions/décisionAdministrative.js'
+    import {supprimerDécisionAdministrative} from '../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../actions/dossier.js'
+
+    import store from '../../store.js'
 
 
     /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
@@ -38,9 +40,9 @@
 
     const phase = dossier.évènementsPhase.at(-1)?.phase || 'Accompagnement amont'
 
-    const classes = clsx([
+    $: classes = clsx([
         'fr-btn', 'fr-btn--icon-left', 'fr-icon-add-line',
-        phase === 'Accompagnement amont' || phase === 'Étude recevabilité DDEP' ? 'fr-btn--secondary' : undefined
+        décisionsAdministratives.length >= 1 || phase === 'Accompagnement amont' || phase === 'Étude recevabilité DDEP' ? 'fr-btn--secondary' : undefined
     ])
 
     /** @type {DécisionAdministrativePourTransfer | undefined} */
@@ -53,13 +55,19 @@
     }
 
     function sauvegarderDécisionAdministrative(){
+        const modifierDécisionAdministrativeDansDossier = store.state.capabilities.modifierDécisionAdministrativeDansDossier
+
+        if(!modifierDécisionAdministrativeDansDossier){
+            throw new Error(`Pas les droits suffisants pour créer une décision administrative`)
+        }
+
         if(!décisionAdministrativeEnCréation){
             throw new TypeError(`décisionAdministrativeEnCréation est undefined dans sauvegarderDécisionAdministrative`)
         }
         
         //@ts-ignore
         décisionsAdministratives.push(décisionAdministrativeEnCréation)
-        créerModifierDécisionAdministrative(décisionAdministrativeEnCréation)
+        modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnCréation) 
         décisionAdministrativeEnCréation = undefined;
         refreshDossierComplet(dossier.id)
     }
@@ -75,16 +83,6 @@
 
     {#if décisionsAdministratives.length === 0}
         <p>Il n'y a pas de décisions administrative à contrôler concernant ce dossier</p>
-        
-        {#if décisionAdministrativeEnCréation}
-            <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnCréation} onValider={sauvegarderDécisionAdministrative}>
-                <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
-                <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerCréation}>Annuler</button>
-            </FormulaireDécisionAdministrative>
-        {:else}
-            <button on:click={commencerCréationDécisionAdministrative} class={classes}>Rajouter une décision administrative</button>
-        {/if}
-
     {:else}
         {#each décisionsAdministratives as décisionAdministrative}
             <DécisionsAdministratives 
@@ -93,6 +91,15 @@
                 supprimerDécisionAdministrative={créerFonctionSupprimer(décisionAdministrative)}
             ></DécisionsAdministratives>
         {/each}
+    {/if}
+
+    {#if décisionAdministrativeEnCréation}
+        <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnCréation} onValider={sauvegarderDécisionAdministrative}>
+            <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
+            <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerCréation}>Annuler</button>
+        </FormulaireDécisionAdministrative>
+    {:else}
+        <button on:click={commencerCréationDécisionAdministrative} class={classes}>Rajouter une décision administrative</button>
     {/if}
 </div>
 

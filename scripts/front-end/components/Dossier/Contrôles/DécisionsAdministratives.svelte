@@ -7,8 +7,11 @@
 
     import {formatDateAbsolue} from '../../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
-    import {créerPrescriptionContrôlesÀPartirDeFichier, créerModifierDécisionAdministrative} from '../../../actions/décisionAdministrative.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../../actions/dossier.js'
+
+    import store from '../../../store.js'
+
 
     /** @import {DécisionAdministrativePourTransfer, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
@@ -26,7 +29,7 @@
 
 
     $: ({ id,
-        numéro, type, date_signature, date_fin_obligations, fichier_url, 
+        numéro, type, date_signature, date_fin_obligations, fichier_url
     } = décisionAdministrative)
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
@@ -143,6 +146,7 @@
     function passerEnVueModifierDécisionAdministrative(){
         décisionAdministrativeEnModification = {
             id,
+            dossier: dossierId,
             numéro,
             type,
             date_fin_obligations,
@@ -155,11 +159,17 @@
     }
 
     function sauvegarderDécisionAdministrative(){
+        const modifierDécisionAdministrativeDansDossier = store.state.capabilities.modifierDécisionAdministrativeDansDossier
+
+        if(!modifierDécisionAdministrativeDansDossier){
+            throw new Error(`Pas les droits suffisants pour modifier une décision administrative`)
+        }
+
         if(!décisionAdministrativeEnModification){
             throw new TypeError(`décisionAdministrativeEnModification est undefined dans sauvegarderDécisionAdministrative`)
         }
 
-        créerModifierDécisionAdministrative(décisionAdministrativeEnModification)
+        modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnModification)
         décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
     
         décisionAdministrativeEnModification = undefined

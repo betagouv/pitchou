@@ -210,6 +210,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.remplirAnnotations){
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`
   }
+  if(capBundle.modifierDécisionAdministrativeDansDossier){
+    ret.modifierDécisionAdministrativeDansDossier = `/decision-administrative?cap=${capBundle.modifierDécisionAdministrativeDansDossier}`
+  }
   if(capBundle.identité){
     ret.identité = capBundle.identité
   }
@@ -356,13 +359,35 @@ fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichi
 
 
 fastify.post('/decision-administrative', async function(request, reply) {  
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+  
   /** @type { DécisionAdministrativePourTransfer } */
   // @ts-ignore
   const décisionData = request.body
 
+  if(!décisionData.dossier){
+    reply.code(400).send(`Le 'dossier' est absent des données de décision administrative`)
+    return 
+  }
+
+
   let ret;
 
   const transaction = await créerTransaction()
+
+  const dossiersAccessibles = await dossiersAccessibleViaCap(décisionData.dossier, cap, transaction)
+  if(!dossiersAccessibles.has(décisionData.dossier)){
+    reply.code(400).send(`La capability ${cap} ne permet pas d'avoir accès au dossier ${décisionData.dossier}`)
+    transaction.rollback()
+    return;
+  }
+
 
   if(décisionData.id){
     ret = modifierDécisionAdministrative(décisionData, transaction)

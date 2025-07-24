@@ -139,18 +139,6 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
         .then(() => candidatsPrescriptions)
 }
 
-/**
- * 
- * @param {DécisionAdministrativePourTransfer} décisionAdministrative 
- * @returns {Promise<unknown>}
- */
-export function créerModifierDécisionAdministrative(décisionAdministrative){
-    return text('/decision-administrative', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(décisionAdministrative)
-    })
-}
 
 /**
  * 
