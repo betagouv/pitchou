@@ -139,7 +139,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 export async function créerDossierDepuisLigne(ligne) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
-
+    console.log(ligne['Procédure associée'])
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
@@ -149,7 +149,7 @@ export async function créerDossierDepuisLigne(ligne) {
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
-        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['autorisation environnementale', 'déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
         'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ["Autorisation loi sur l'eau"] : undefined,
         'Le demandeur est…': donnéesDemandeurs["Le demandeur est…"],
         'Adresse mail de contact': donnéesDemandeurs['Adresse mail de contact'],
