@@ -34,18 +34,14 @@ export async function getCommuneData(nomCommune) {
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 async function getDépartementData(code) {
-    const response = await fetch(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
-    const département = await response.json();
+    const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
         console.error(`Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`);
         return null
     }
-
-    return {
-            code: département.code,
-            nom: département.nom
-        }
+    //@ts-ignore
+    return département
 }
 
 const memoizedGetDépartementData = memoize(getDépartementData)
