@@ -64,9 +64,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
     return 'Autre';
 }
 
-
-/** Ce type doit être le même que le type Ligne dans `scripts/front-end/components/screens/ImportDossier.svelte`
- * @typedef {{
+/** @typedef {{
  * "Date de sollicitation": Date;
  * ORIGINE: string;
  * OBJET: string;

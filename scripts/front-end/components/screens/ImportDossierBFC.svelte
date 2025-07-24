@@ -12,40 +12,7 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-
-    /** @typedef {{
-         "Date de sollicitation": Date;
-        ORIGINE: string;
-        OBJET: string;
-        "N° Dossier DEROG": number;
-        ÉCHÉANCE: string;
-        "POUR\nATTRIBUTION": string;
-        OBSERVATIONS: string;
-        PETITIONNAIRE: string;
-        "Catégorie du demandeur": string;
-        "Nom contact – mail": string;
-        "Année de première sollicitation": number;
-        Communes: string;
-        Département: number | string;
-        Thématique: string;
-        "Procédure associée": string;
-        "Etapes du projet": string;
-        "Stade de l’avis": string;
-        "Description avancement dossier avec dates": string;
-        "Avis SBEP": string;
-        "Date de rendu de l’avis/envoi réponse": Date;
-        "Sollicitation OFB pour avis": string;
-        DEP: string;
-        "Date de dépôt DEP": string;
-        "Saisine CSRPN/CNPN": string;
-        "Date saisine CSRPN/CNPN": string;
-        "Nom de l’expert désigné (pour le CSRPN)": string;
-        "N° de l’avis Onagre ou interne": string;
-        "Avis CSRPN/CNPN": string;
-        "Date avis CSRPN/CNPN": string;
-        "Dérogation accordée": string;
-        "Date AP": string;
-        }} Ligne */
+    /** @import { Ligne } from "../../actions/importDossierBFC.js" */
 
     /** @type {ComponentProps<Squelette>['email']} */
     export let email = undefined;
