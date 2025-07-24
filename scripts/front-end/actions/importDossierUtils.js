@@ -55,7 +55,7 @@ export async function getCommuneData(nomCommune) {
 
 
     if (!Array.isArray(commune) || commune.length === 0) {
-        console.error(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
+        console.warn(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
         return null;
     }
     //@ts-ignore
@@ -72,7 +72,7 @@ async function getDépartementData(code) {
     const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
-        console.error(`Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`);
+        console.warn(`Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`);
         return null
     }
     //@ts-ignore
