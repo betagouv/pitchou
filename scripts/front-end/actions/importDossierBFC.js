@@ -110,8 +110,8 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  *   date_dépôt: Dossier['date_dépôt'],
  *   suivi_par: string | undefined,
  *   historique_dossier: string | undefined,
- *   numero_avis_onagre_ou_interne: string | undefined,
- *   stade_avis: string | undefined,
+ *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
+ *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
  *   DEP: string | undefined,
  *   date_de_depot_dep: string | undefined,
  *   saisine_csrpn_cnpn: string | undefined,
@@ -121,21 +121,22 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  *   date_avis_csrpn_cnpn: string | undefined,
  *   derogation_accordee: string | undefined,
  *   date_ap: string | undefined
- * }} DonnéesSupplementaires
+ * }} DonnéesSupplémentaires
  */
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {Ligne} ligne
- * @returns { DonnéesSupplementaires } Données supplémentaires ou undefined
+ * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const commentaire_enjeu = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
 
-    const suivi_par = ligne['POUR\nATTRIBUTION'];
-    const historique_dossier = ligne['Description avancement dossier avec dates'];
-    const numero_avis_onagre_ou_interne = ligne['N° de l’avis Onagre ou interne'];
-    const stade_avis = ligne['Stade de l’avis']
+
+    // TODO : Modifier ce champ pour qu'il colle à la base de données
+    const prochaine_action_attendue_par = ligne['Stade de l’avis']
+
+
     const dep = ligne['DEP']
     const date_de_depot_dep = ligne['Date de dépôt DEP']
     const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
@@ -146,13 +147,14 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const derogation_accordee = ligne['Dérogation accordée']
     const date_ap = ligne['Date AP']
 
-    const donnéesSupplémentaires = {
+
+    return {
         'commentaire_enjeu': commentaire_enjeu,
         'date_dépôt': ligne['Date de sollicitation'],
-        'suivi_par': suivi_par,
-        'historique_dossier': historique_dossier,
-        'numero_avis_onagre_ou_interne': numero_avis_onagre_ou_interne,
-        'stade_avis': stade_avis,
+        'suivi_par': ligne['POUR\nATTRIBUTION'],
+        'historique_dossier': ligne['Description avancement dossier avec dates'],
+        'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
+        'prochaine_action_attendue_par': prochaine_action_attendue_par,
         'DEP': dep,
         'date_de_depot_dep': date_de_depot_dep,
         'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
@@ -163,8 +165,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         'derogation_accordee': derogation_accordee,
         'date_ap': date_ap
     }
-
-    return donnéesSupplémentaires;
 }
 
 /**
