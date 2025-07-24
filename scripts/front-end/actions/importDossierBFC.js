@@ -3,8 +3,8 @@
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 /** @import Dossier from "../../types/database/public/Dossier" */
-/** @import {Ligne} from "./importDossierUtils" */
-/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import { Ligne } from "./importDossierUtils" */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
 /**
  * @typedef {"Autres" |
@@ -29,7 +29,7 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
 
 
 /**
- * @type {Map<ThématiquesOptions, import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444['Activité principale']>}
+ * @type {Map<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>}
  */
 const correspondanceThématiqueVersActivitéPrincipale = new Map([
     ["Autres", "Autre"],
@@ -56,7 +56,7 @@ const correspondanceThématiqueVersActivitéPrincipale = new Map([
 /**
  * 
  * @param {string} valeur
- * @returns {import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444['Activité principale']}
+ * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
 function convertirThématiqueEnActivitéPrincipale(valeur) {
     const activité = correspondanceThématiqueVersActivitéPrincipale.get(    /** @type {ThématiquesOptions} */(valeur))
@@ -157,7 +157,8 @@ export async function créerDossierDepuisLigne(ligne) {
         'Le demandeur est…': donnéesDemandeurs["Le demandeur est…"],
         'Adresse mail de contact': donnéesDemandeurs['Adresse mail de contact'],
         'Nom du représentant': donnéesDemandeurs['Nom du représentant'],
-        'Prénom du représentant': donnéesDemandeurs['Prénom du représentant']
+        'Prénom du représentant': donnéesDemandeurs['Prénom du représentant'],
+        'Qualité du représentant': donnéesDemandeurs['Qualité du représentant'],
     };
 }
 
@@ -169,7 +170,7 @@ export async function créerDossierDepuisLigne(ligne) {
  * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
  *
  * @param {Ligne} ligne Ligne d'import contenant les informations du demandeur
- * @returns {Pick<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444,"Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact">}
+ * @returns {Pick<DossierDemarcheSimplifiee88444, "Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact" | 'Qualité du représentant'>}
  *   Objet contenant le type de demandeur, le nom/prénom du représentant (si applicable), et l'adresse mail de contact.
  */
 function générerDonnéesDemandeurs(ligne) {
@@ -193,6 +194,7 @@ function générerDonnéesDemandeurs(ligne) {
             "Nom du représentant": prénomNom?.nom ?? '',
             "Prénom du représentant": prénomNom?.prénom ?? '',
             "Adresse mail de contact": mail,
+            "Qualité du représentant": ligne['PETITIONNAIRE']
         }
     } else {
         return {
@@ -200,6 +202,7 @@ function générerDonnéesDemandeurs(ligne) {
             "Adresse mail de contact": mail,
             "Nom du représentant": '',
             "Prénom du représentant": '',
+            "Qualité du représentant": '',
         }
     }
 
