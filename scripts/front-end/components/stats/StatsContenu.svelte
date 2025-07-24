@@ -236,10 +236,6 @@
     text-align: center;
     margin-top: 0.5rem;
   }
-  .bar-prescriptions-ctrl {
-    margin-bottom: 1.5rem;
-  }
-  .definitions,
   .definitions-in-card {
     display: flex;
     flex-direction: column;
