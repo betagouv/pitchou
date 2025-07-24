@@ -8,6 +8,7 @@ import SaisieEspèces from './routes/SaisieEspèces.js';
 import PreremplissageDerogation from './routes/PreremplissageDerogation.js';
 import TmpStats from './routes/TmpStats.js';
 import ImportDossierBFC from './routes/importDossierBFC.js';
+import ImportDossierHistorique from './routes/importDossierHistorique.js';
 
 import { init } from './actions/main.js';
 import Stats from './routes/Stats.js';
@@ -21,7 +22,8 @@ page('/saisie-especes', SaisieEspèces)
 page('/preremplissage-derogation', PreremplissageDerogation)
 page('/tmp/stats', TmpStats)
 page('/stats', Stats)
-page('/import-dossier-historiques/bourgogne-franche-comte', ImportDossierBFC)
+page('/import-dossier-historique/bourgogne-franche-comte', ImportDossierBFC)
+page('/import-dossier-historique',ImportDossierHistorique)
 
 
 init()

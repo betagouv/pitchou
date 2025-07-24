@@ -118,7 +118,7 @@ fastify.get('/saisie-especes', sendIndexHTMLFile)
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
 fastify.get('/stats', sendIndexHTMLFile)
-fastify.get('/import-dossier-historiques/bourgogne-franche-comte', sendIndexHTMLFile)
+fastify.get('/import-dossier-historique/bourgogne-franche-comte', sendIndexHTMLFile)
 
 
 
