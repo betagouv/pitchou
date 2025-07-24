@@ -4,6 +4,7 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
 
 /** @import Dossier from "../../types/database/public/Dossier" */
 /** @import {Ligne} from "./importDossierUtils" */
+/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
 /**
  * @typedef {"Autres" |
@@ -134,17 +135,19 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {Ligne} ligne
- * @returns {Promise<Partial<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444>>}
+ * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
 export async function créerDossierDepuisLigne(ligne) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
-    console.log(ligne['Procédure associée'])
+
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
         'Nom du projet': ligne['OBJET'],
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
+        'Avez-vous réalisé un état des lieux écologique complet ?': true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.
+
         "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
