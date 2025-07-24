@@ -12,7 +12,7 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-    /** @import { Ligne } from "../../actions/importDossierBFC.js" */
+    /** @import { Ligne } from "../../actions/importDossierUtils.js" */
 
     /** @type {ComponentProps<Squelette>['email']} */
     export let email = undefined;
