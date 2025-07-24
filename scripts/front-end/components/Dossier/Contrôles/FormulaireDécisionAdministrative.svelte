@@ -20,7 +20,7 @@
      * @param {Event} e
      */
     async function formSubmit(e){
-        console.log('submit', fichiers)
+        //console.log('submit', fichiers)
         e.preventDefault()
 
         if(décisionAdministrative.date_signature){
@@ -32,7 +32,6 @@
 
         if(fichiers && fichiers.length >= 1){
             const fichier = fichiers[0]
-            console.log('fichier', fichier)
 
             const nom = fichier.name
             const media_type = fichier.type
