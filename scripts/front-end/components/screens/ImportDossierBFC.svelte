@@ -124,7 +124,7 @@
                 <p>
                     <span class="fr-notice__title"
                         >Attention : vous devez appartenir au groupe des
-                        instructeur·ices DREAL Bretagne.</span
+                        instructeur·ices DREAL BFC.</span
                     >
                 </p>
             </div>
@@ -175,7 +175,7 @@
                                     <tr id="table-0-row-key-1" data-row-key="1">
                                         <td>{ligne["OBJET"]}</td>
                                         <td>
-                                            <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL Bretagne. -->
+                                            <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. -->
                                             {#if String(ligne["Département"] ?? "")
                                                 .split("-")
                                                 .some((dep) => dep.trim() && !["21", "25", "39", "58", "70", "71", "89", "90"].includes(dep.trim()))}
