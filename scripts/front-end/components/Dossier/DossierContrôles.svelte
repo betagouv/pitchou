@@ -5,10 +5,7 @@
     import DécisionsAdministratives from './Contrôles/DécisionsAdministratives.svelte'
     import FormulaireDécisionAdministrative from './Contrôles/FormulaireDécisionAdministrative.svelte'
 
-    import {supprimerDécisionAdministrative} from '../../actions/décisionAdministrative.js'
-    import {refreshDossierComplet} from '../../actions/dossier.js'
-
-    import store from '../../store.js'
+    import {sauvegardeNouvelleDécisionAdministrative, supprimerDécisionAdministrative} from '../../actions/décisionAdministrative.js'
 
 
     /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
@@ -54,22 +51,15 @@
         }
     }
 
-    function sauvegarderDécisionAdministrative(){
-        const modifierDécisionAdministrativeDansDossier = store.state.capabilities.modifierDécisionAdministrativeDansDossier
-
-        if(!modifierDécisionAdministrativeDansDossier){
-            throw new Error(`Pas les droits suffisants pour créer une décision administrative`)
-        }
-
+    function onValider(){
         if(!décisionAdministrativeEnCréation){
-            throw new TypeError(`décisionAdministrativeEnCréation est undefined dans sauvegarderDécisionAdministrative`)
+            throw new TypeError(`décisionAdministrativeEnCréation est undefined dans DossierContrôles -> onValider`)
         }
-        
+
         //@ts-ignore
         décisionsAdministratives.push(décisionAdministrativeEnCréation)
-        modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnCréation) 
+        sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation) 
         décisionAdministrativeEnCréation = undefined;
-        refreshDossierComplet(dossier.id)
     }
 
     function annulerCréation() {
@@ -94,7 +84,7 @@
     {/if}
 
     {#if décisionAdministrativeEnCréation}
-        <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnCréation} onValider={sauvegarderDécisionAdministrative}>
+        <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnCréation} onValider={onValider}>
             <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
             <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerCréation}>Annuler</button>
         </FormulaireDécisionAdministrative>
