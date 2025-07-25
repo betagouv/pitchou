@@ -109,9 +109,10 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     const listerÉvènementsPhaseDossierP = listerDossiersP
     const listerMessagesP = listerDossiersP
     const modifierDossierP = listerDossiersP
+    const modifierDécisionAdministrativeDansDossierP = listerDossiersP
 
-    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, identitéP])
-        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, identité]) => {
+    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, identitéP])
+        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, identité]) => {
             /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
             const ret = {
                 remplirAnnotations: undefined, 
@@ -121,7 +122,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
                 listerÉvènementsPhaseDossier,
                 listerMessages, 
                 modifierDossier, 
-                identité
+                identité,
+                modifierDécisionAdministrativeDansDossier
             }
 
             if(remplirAnnotations && remplirAnnotations.cap)

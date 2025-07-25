@@ -9,12 +9,13 @@ import fastifyMultipart from '@fastify/multipart'
 
 import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
-  getRésultatsSynchronisationDS88444} from './database.js'
+  getRésultatsSynchronisationDS88444,
+  créerTransaction} from './database.js'
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
 import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
 
-import { modifierDécisionAdministrative, ajouterDécisionsAdministratives, supprimerDécisionAdministrative } from './database/décision_administrative.js'
+import { modifierDécisionAdministrative, supprimerDécisionAdministrative, ajouterDécisionAdministrativeAvecFichier } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
 import { ajouterContrôles, modifierContrôle, supprimerContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
@@ -37,7 +38,7 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifi�
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, FrontEndPrescription} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
 
 
 
@@ -219,6 +220,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.remplirAnnotations){
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`
   }
+  if(capBundle.modifierDécisionAdministrativeDansDossier){
+    ret.modifierDécisionAdministrativeDansDossier = `/decision-administrative?cap=${capBundle.modifierDécisionAdministrativeDansDossier}`
+  }
   if(capBundle.identité){
     ret.identité = capBundle.identité
   }
@@ -364,26 +368,52 @@ fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler
 fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichierRouteHandler)
 
 
-fastify.post('/decision-administrative', function(request, reply) {  
-  /** @type { Partial<DécisionAdministrative> } */
+fastify.post('/decision-administrative', async function(request, reply) {  
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+  
+  /** @type { DécisionAdministrativePourTransfer } */
   // @ts-ignore
   const décisionData = request.body
 
+  if(!décisionData.dossier){
+    reply.code(400).send(`Le 'dossier' est absent des données de décision administrative`)
+    return 
+  }
+
+
   let ret;
 
-  if(décisionData.id){
-    ret = modifierDécisionAdministrative(décisionData)
-  }
-  else{
-    // @ts-ignore
-    ret = ajouterDécisionsAdministratives(décisionData)
+  const transaction = await créerTransaction()
+
+  const dossiersAccessibles = await dossiersAccessibleViaCap(décisionData.dossier, cap, transaction)
+  if(!dossiersAccessibles.has(décisionData.dossier)){
+    reply.code(400).send(`La capability ${cap} ne permet pas d'avoir accès au dossier ${décisionData.dossier}`)
+    transaction.rollback()
+    return;
   }
 
-  return ret.then((/** @type {DécisionAdministrative['id'] | undefined} */ décisionId) => {
-      reply.send(décisionId)
+
+  if(décisionData.id){
+    ret = modifierDécisionAdministrative(décisionData, transaction)
+  }
+  else{
+    ret = ajouterDécisionAdministrativeAvecFichier(décisionData, transaction)
+  }
+
+  return ret
+    .then(id => transaction.commit().then(() => id))
+    .then((/** @type {DécisionAdministrative['id'] | undefined} */ décisionId) => {
+        reply.send(décisionId)
     })
+    .catch((/** @type {any} */ err) => {transaction.rollback(); throw err})
     .catch((/** @type {any} */ err) => {
-      reply.code(403).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
+        reply.code(500).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
     })
 })
 
@@ -419,7 +449,7 @@ fastify.post('/prescription', function(request, reply) {
       reply.send(prescriptionId)
     })
     .catch((/** @type {any} */ err) => {
-      reply.code(403).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
+      reply.code(500).send(`Erreur lors de l'ajout/modification de prescription. ${err}`)
     })
 })
 
@@ -468,7 +498,7 @@ fastify.post('/contrôle', function(request, reply) {
       reply.send(contrôleId)
     })
     .catch((/** @type {any} */ err) => {
-      reply.code(403).send(`Erreur lors de l'ajout/modification de contrôle. ${err}`)
+      reply.code(500).send(`Erreur lors de l'ajout/modification de contrôle. ${err}`)
     })
 })
 

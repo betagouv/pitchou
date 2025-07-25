@@ -3,8 +3,10 @@ import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} 
 
 import {isValidDate} from '../../commun/typeFormat.js'
 import {ajouterPrescriptionsEtContrôles} from './prescriptions.js'
+import {refreshDossierComplet} from './dossier.js'
+import store from '../store.js'
 
-/** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
+/** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle, DécisionAdministrativePourTransfer} from '../../types/API_Pitchou.ts' */
 /** @import Contrôle from '../../types/database/public/Contrôle.ts' */
 /** @import DécisionAdministrative from '../../types/database/public/DécisionAdministrative.ts' */
 
@@ -139,18 +141,6 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
         .then(() => candidatsPrescriptions)
 }
 
-/**
- * 
- * @param {Partial<DécisionAdministrative>} décisionAdministrative 
- * @returns {Promise<unknown>}
- */
-export function modifierDécisionAdministrative(décisionAdministrative){
-    return text('/decision-administrative', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(décisionAdministrative)
-    })
-}
 
 /**
  * 
@@ -161,4 +151,24 @@ export function supprimerDécisionAdministrative(décisionAdministrativeId){
     return text(`/decision-administrative/${décisionAdministrativeId}`, {
         method: 'DELETE'
     })
+}
+
+/**
+ * 
+ * @param {DécisionAdministrativePourTransfer} décisionAdministrativeEnCréation 
+ */
+export function sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation){
+    const modifierDécisionAdministrativeDansDossier = store.state.capabilities.modifierDécisionAdministrativeDansDossier
+
+    if(!modifierDécisionAdministrativeDansDossier){
+        throw new Error(`Pas les droits suffisants pour créer une décision administrative`)
+    }
+
+    modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnCréation) 
+
+    if(!décisionAdministrativeEnCréation.dossier){
+        throw new TypeError(`décisionAdministrativeEnCréation.dossier manquant dans sauvegardeNouvelleDécisionAdministrative`)
+    }
+
+    refreshDossierComplet(décisionAdministrativeEnCréation.dossier)
 }

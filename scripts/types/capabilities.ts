@@ -1,4 +1,4 @@
-import { DossierComplet, DossierRésumé } from "../types/API_Pitchou.ts"
+import { DossierComplet, DossierRésumé, DécisionAdministrativePourTransfer } from "../types/API_Pitchou.ts"
 import Personne from "./database/public/Personne.ts"
 import Message from "./database/public/Message.ts"
 
@@ -10,6 +10,7 @@ export interface PitchouInstructeurCapabilities{
     listerÉvènementsPhaseDossier: () => Promise<any[]>
     modifierDossier: (dossierId: DossierRésumé['id'], dossier: Partial<DossierComplet>) => Promise<void> 
     remplirAnnotations: (annotations: any) => Promise<void>
+    modifierDécisionAdministrativeDansDossier: (décisionAdministrative: DécisionAdministrativePourTransfer) => Promise<void> 
 }
 
 export interface IdentitéInstructeurPitchou{

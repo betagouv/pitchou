@@ -1,6 +1,6 @@
 //@ts-check
 
-import {json} from 'd3-fetch'
+import {json, text} from 'd3-fetch'
 
 /** @import {StringValues} from '../../types/tools.d.ts' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
@@ -219,6 +219,22 @@ function wrapRecupérerDossierComplet(url){
 
 /**
  * 
+ * @param {string | undefined} url 
+ * @returns {((body: any) => Promise<any>) | undefined}
+ */
+function wrapModifierDécisionAdministrative(url){
+    if(!url)
+        return undefined
+
+    return (/** @type {any} */ args) => text(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(args)
+    })
+}
+
+/**
+ * 
  * @param {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} capURLs 
  * @returns {Partial<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}}
  */
@@ -232,6 +248,7 @@ export default function(capURLs){
         listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
+        modifierDécisionAdministrativeDansDossier: wrapModifierDécisionAdministrative(capURLs.modifierDécisionAdministrativeDansDossier),
         identité: capURLs.identité
     }
 

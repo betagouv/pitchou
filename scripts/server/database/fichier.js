@@ -68,3 +68,13 @@ export function getFichier(fichierId, databaseConnection = directDatabaseConnect
         .where('id', fichierId)
         .first()
 }
+
+/**
+ * @param {Fichier['id']} id 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ */
+export function supprimerFichier(id, databaseConnection = directDatabaseConnection){
+    return databaseConnection('fichier')
+        .delete()
+        .where({id})
+}

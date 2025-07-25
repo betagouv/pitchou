@@ -82,6 +82,11 @@ export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fic
     & { fichier_url: string | undefined }
     & { prescriptions: FrontEndPrescription[] | undefined }
 
+
+export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdministrative, 'fichier'> 
+    & { fichier_base64: {contenuBase64: string, nom: string, media_type: string} }>
+
+
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un 
