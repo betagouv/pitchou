@@ -107,7 +107,18 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const commentaire_enjeu = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
+    // Formatter commentaire_enjeu
+    const description = ligne['Description avancement dossier avec dates']
+        ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
+        : '';
+    const observations = ligne['OBSERVATIONS']
+        ? 'Observations : ' + ligne['OBSERVATIONS']
+        : '';
+    const commentaire_enjeu = [description, observations]
+        .filter(value => value?.trim())
+        .join('\n');
+
+
 
     const dep = ligne['DEP']
     const date_de_depot_dep = ligne['Date de dépôt DEP']
