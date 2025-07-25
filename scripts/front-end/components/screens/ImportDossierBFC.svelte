@@ -12,12 +12,12 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-    /** @import { Ligne } from "../../actions/importDossierBFC.js" */
+    /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
 
     /** @type {ComponentProps<Squelette>['email']} */
     export let email = undefined;
 
-    /** @type {Ligne[] | undefined} */
+    /** @type {LigneDossierBFC[] | undefined} */
     let lignesTableauImport = undefined;
 
     /** @type {Map<any,string>} */
@@ -29,11 +29,11 @@
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
      * La recherche s'effectue en comparant le nom du projet (champ 'nom' de la table 'dossier').
-     * @param {Ligne} ligne
+     * @param {LigneDossierBFC} LigneDossierBFC
      * @returns {boolean}
      */
-    function ligneDossierEnBDD(ligne) {
-        return dossiers.some((dossier) => dossier.nom === ligne["OBJET"]);
+    function ligneDossierEnBDD(LigneDossierBFC) {
+        return dossiers.some((dossier) => dossier.nom === LigneDossierBFC["OBJET"]);
     }
 
     /**
@@ -90,11 +90,11 @@
     }
 
     /**
-     * @param {Ligne} ligne
+     * @param {LigneDossierBFC} LigneDossierBFC
      */
-    async function handleCréerLienPréRemplissage(ligne) {
+    async function handleCréerLienPréRemplissage(LigneDossierBFC) {
         /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-        const dossier = await créerDossierDepuisLigne(ligne);
+        const dossier = await créerDossierDepuisLigne(LigneDossierBFC);
         console.log(
             { dossier },
             "après avoir cliqué sur Préparer préremplissage",
@@ -106,7 +106,7 @@
                 body: JSON.stringify(dossier),
             });
 
-            ligneToLienPréremplissage.set(ligne, lien);
+            ligneToLienPréremplissage.set(LigneDossierBFC, lien);
             ligneToLienPréremplissage = ligneToLienPréremplissage;
         } catch (error) {
             throw new Error(
@@ -171,38 +171,38 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each lignesTableauImport as ligne}
+                                {#each lignesTableauImport as LigneDossierBFC}
                                     <tr id="table-0-row-key-1" data-row-key="1">
-                                        <td>{ligne["OBJET"]}</td>
+                                        <td>{LigneDossierBFC["OBJET"]}</td>
                                         <td>
                                             <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. -->
-                                            {#if String(ligne["Département"] ?? "")
+                                            {#if String(LigneDossierBFC["Département"] ?? "")
                                                 .split("-")
                                                 .some((dep) => dep.trim() && !["21", "25", "39", "58", "70", "71", "89", "90"].includes(dep.trim()))}
                                                 <span
                                                     class="fr-badge fr-badge--error"
-                                                    >{ligne[
+                                                    >{LigneDossierBFC[
                                                         "Département"
                                                     ]}</span
                                                 >
                                             {:else}
-                                                {ligne["Département"]}
+                                                {LigneDossierBFC["Département"]}
                                             {/if}
                                         </td>
                                         <td
-                                            >{ligne[
+                                            >{LigneDossierBFC[
                                                 "Description avancement dossier avec dates"
                                             ]}</td
                                         >
                                         <td>
-                                            {#if ligneDossierEnBDD(ligne)}<p
+                                            {#if ligneDossierEnBDD(LigneDossierBFC)}<p
                                                     class="fr-badge fr-badge--success"
                                                 >
                                                     En base de données
                                                 </p>{/if}
-                                            {#if ligneToLienPréremplissage.get(ligne)}
+                                            {#if ligneToLienPréremplissage.get(LigneDossierBFC)}
                                                 <a id="link-1" href={ligneToLienPréremplissage.get(
-                                                                ligne,
+                                                                LigneDossierBFC,
                                                             )} target="_blank" class="fr-btn">Créer dossier</a>
                                             {:else}
                                                 <button
@@ -210,7 +210,7 @@
                                                     class="fr-btn fr-btn--secondary"
                                                     on:click={() =>
                                                         handleCréerLienPréRemplissage(
-                                                            ligne,
+                                                            LigneDossierBFC,
                                                         )}
                                                     >Préparer préremplissage</button
                                                 >

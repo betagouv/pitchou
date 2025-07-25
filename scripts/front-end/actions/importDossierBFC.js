@@ -38,7 +38,7 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
  * "Date avis CSRPN/CNPN": string;
  * "Dérogation accordée": string;
  * "Date AP": string;
- * }} Ligne;
+ * }} LigneDossierBFC;
  */
 
 /**
@@ -129,7 +129,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 =======
 >>>>>>> eca6bd7 (Remplissage du commentaire_enjeu pour les nouveaux imports)
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
- * @param {Ligne} ligne
+ * @param {LigneDossierBFC} ligne
  * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
@@ -174,7 +174,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
- * @param {Ligne} ligne
+ * @param {LigneDossierBFC} ligne
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
 export async function créerDossierDepuisLigne(ligne) {
@@ -209,7 +209,7 @@ export async function créerDossierDepuisLigne(ligne) {
  * - Sinon, le type est "une personne morale" et on tente d'extraire le nom et prénom du représentant à partir du champ "Nom contact – mail".
  * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
  *
- * @param {Ligne} ligne Ligne d'import contenant les informations du demandeur
+ * @param {LigneDossierBFC} ligne Ligne d'import contenant les informations du demandeur
  * @returns {Pick<DossierDemarcheSimplifiee88444, "Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact" | 'Qualité du représentant'>}
  *   Objet contenant le type de demandeur, le nom/prénom du représentant (si applicable), et l'adresse mail de contact.
  */
@@ -293,7 +293,7 @@ async function générerDonnéesLocalisations(ligne) {
 
 /**
  * Cette fonction permet de remplir le champ "prochaine_action_attendue_par" en base de données
- * @param {Ligne} ligne 
+ * @param {LigneDossierBFC} ligne 
  * @returns {string}
  */
 function générerProchaineActionAttenduePar(ligne) {
