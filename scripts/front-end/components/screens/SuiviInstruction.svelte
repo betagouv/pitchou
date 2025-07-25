@@ -383,6 +383,14 @@
         }
     }
 
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelSuitDossier(id) {
+        
+    }
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
@@ -588,9 +596,9 @@
                                         {/if}
 
                                         {#if dossierIdsSuivisParInstructeurActuel.has(id)}
-                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+                                            <button on:click={() => instructeurActuelCesseDeSuivreDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
                                         {:else}
-                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left">Suivre</button>
+                                            <button on:click={() => instructeurActuelSuitDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
                                         {/if}
 
                                     </td>
