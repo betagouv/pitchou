@@ -521,7 +521,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
  * Pour savoir si le dossier est créé ou modifié.
  * S'il est créé, alors on récupère les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
  */
-const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id));
+const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const numberDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.number_demarches_simplifiées));
 dossiersPourSynchronisation.map(async (dossier) => {
 
