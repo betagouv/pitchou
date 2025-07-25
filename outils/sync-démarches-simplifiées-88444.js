@@ -524,24 +524,28 @@ const dossiersPourSynchronisation = dossiersDS.map((
 const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id));
 const idsDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.id_demarches_simplifiées));
 dossiersPourSynchronisation.map(async (dossier) => {
-    const dossierDS = dossiersDS.find((d) => d.id === dossier.id_demarches_simplifiées )
-    if (!dossierDS) {
+
+    /**
+     * Si le dossier existe en base de données, c'est qu'il est en train d'être modifiée, on ne veut donc rien écraser.
+     * S'il n'existe pas en base de données, c'est qu'il est créé.
+     * On veut donc utiliser les données supplémentaires pour remplir les champs qui ne sont pas remplis à partir du formulaire DS.
+     */
+    if (!dossier.id_demarches_simplifiées || idsDSDossiersExistantsEnBDD.has(dossier.id_demarches_simplifiées)) {
         return;
     }
-    const données_supplémentaires = dossierDS.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
+    const dossierDS = dossiersDS.find((d) => d.id === dossier.id_demarches_simplifiées )
+
+    const données_supplémentaires = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
     if (données_supplémentaires === undefined) {
         return;
     }
-    /**
-     * Si le dossier a des données supplémentaires, c'est probablement un dossier historique à importer.
-     * S'il n'existe pas en base de données, c'est qu'il est en train d'être créé pour la première fois.
-     * Dans ces conditions, on souhaite récupérer les données supplémentaires pour remplir les champs qui ne sont pas remplis à partir du formulaire DS.
-     */
-    if (données_supplémentaires && dossier.id_demarches_simplifiées && !idsDSDossiersExistantsEnBDD.has(dossier.id_demarches_simplifiées)) {
-        /** @type {DonnéesSupplémentaires} */
-        const données_supplémentaires_déchiffrées = JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires))
-        dossier.commentaire_enjeu = données_supplémentaires_déchiffrées.commentaire_enjeu
-    }
+
+    /** @type {DonnéesSupplémentaires} */
+    const données_supplémentaires_déchiffrées = JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires))
+    dossier.commentaire_enjeu = données_supplémentaires_déchiffrées.commentaire_enjeu
+    console.log({dossier})
+
+
 })
 
 /*
