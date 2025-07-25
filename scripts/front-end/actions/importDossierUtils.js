@@ -8,41 +8,31 @@ import memoize from 'just-memoize'
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 //@ts-ignore
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
+/** @import Dossier from "../../types/database/public/Dossier" */
 
-/** @typedef {{
- * "Date de sollicitation": Date;
- * ORIGINE: string;
- * OBJET: string;
- * "N° Dossier DEROG": number;
- * ÉCHÉANCE: string;
- * "POUR\nATTRIBUTION": string;
- * OBSERVATIONS: string;
- * PETITIONNAIRE: string;
- * "Catégorie du demandeur": string;
- * "Nom contact – mail": string;
- * "Année de première sollicitation": number;
- * Communes: string;
- * Département: number | string;
- * Thématique: string;
- * "Procédure associée": string;
- * "Etapes du projet": string;
- * "Stade de l’avis": string;
- * "Description avancement dossier avec dates": string;
- * "Avis SBEP": string;
- * "Date de rendu de l’avis/envoi réponse": Date;
- * "Sollicitation OFB pour avis": string;
- * DEP: string;
- * "Date de dépôt DEP": string;
- * "Saisine CSRPN/CNPN": string;
- * "Date saisine CSRPN/CNPN": string;
- * "Nom de l’expert désigné (pour le CSRPN)": string;
- * "N° de l’avis Onagre ou interne": string;
- * "Avis CSRPN/CNPN": string;
- * "Date avis CSRPN/CNPN": string;
- * "Dérogation accordée": string;
- * "Date AP": string;
- * }} Ligne;
+/**
+ * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
+ * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
+ * données propres à Pitchou comme le suivi des dossiers
+ * @typedef {{
+ *   commentaire_enjeu: Dossier['commentaire_enjeu'],
+ *   date_dépôt: Dossier['date_dépôt'],
+ *   personne_mail: string | undefined,
+ *   historique_dossier: string | undefined,
+ *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
+ *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
+ *   DEP: string | undefined,
+ *   date_de_depot_dep: string | undefined,
+ *   saisine_csrpn_cnpn: string | undefined,
+ *   date_saisine_csrpn_cnpn: string | undefined,
+ *   nom_expert_csrpn: string | undefined,
+ *   avis_csrpn_cnpn: string | undefined,
+ *   date_avis_csrpn_cnpn: string | undefined,
+ *   derogation_accordee: string | undefined,
+ *   date_ap: string | undefined
+ * }} DonnéesSupplémentaires
  */
+
 
 /**
  * 
