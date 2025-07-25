@@ -8,6 +8,7 @@ import memoize from 'just-memoize'
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 //@ts-ignore
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
+//@ts-ignore
 /** @import Dossier from "../../types/database/public/Dossier" */
 
 /**
