@@ -517,12 +517,12 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
 /**
  * POUR IMPORT DOSSIERS HISTORIQUES
- * Récupérer les id_demarches_simplifiées déjà présents en base
+ * Récupérer les number_demarches_simplifiés déjà présents en base
  * Pour savoir si le dossier est créé ou modifié.
  * S'il est créé, alors on récupère les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
  */
 const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id));
-const idsDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.id_demarches_simplifiées));
+const numberDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.number_demarches_simplifiées));
 dossiersPourSynchronisation.map(async (dossier) => {
 
     /**
@@ -530,10 +530,10 @@ dossiersPourSynchronisation.map(async (dossier) => {
      * S'il n'existe pas en base de données, c'est qu'il est créé.
      * On veut donc utiliser les données supplémentaires pour remplir les champs qui ne sont pas remplis à partir du formulaire DS.
      */
-    if (!dossier.id_demarches_simplifiées || idsDSDossiersExistantsEnBDD.has(dossier.id_demarches_simplifiées)) {
+    if (!dossier.number_demarches_simplifiées || numberDSDossiersExistantsEnBDD.has(dossier.number_demarches_simplifiées)) {
         return;
     }
-    const dossierDS = dossiersDS.find((d) => d.id === dossier.id_demarches_simplifiées )
+    const dossierDS = dossiersDS.find((d) => d.id === dossier.number_demarches_simplifiées )
 
     const données_supplémentaires = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
     if (données_supplémentaires === undefined) {
