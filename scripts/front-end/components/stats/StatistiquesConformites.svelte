@@ -81,37 +81,6 @@
     margin: 0 -16px 2.5rem -16px;
     padding: 2.5rem 2rem 2rem 2rem;
   }
-  .definitions {
-    display: flex;
-    flex-direction: row;
-    gap: 2.5rem;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    background: var(--background-alt-grey);
-    border-radius: 8px;
-    padding: 1.25rem 1rem;
-    font-size: 1rem;
-    color: var(--text-default-grey);
-  }
-  .definition-block {
-    flex: 1 1 0;
-    min-width: 0;
-    margin-right: 1.5rem;
-  }
-  .definition-block:last-child {
-    margin-right: 0;
-  }
-  .synthese-prescriptions {
-    color: var(--text-default-info);
-    background: none;
-    border-radius: 0;
-    padding: 0.75rem 1rem 0.5rem 1rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 1.1rem;
-    letter-spacing: 0.01em;
-  }
   .chiffres-conformite {
     text-align: center;
     display: flex;
@@ -166,11 +135,6 @@
     .stat-conformite-card {
       padding: 1.5rem 0.5rem 1rem 0.5rem;
       margin: 0 -8px 1.5rem -8px;
-    }
-    .definitions {
-      flex-direction: column;
-      gap: 1.25rem;
-      padding: 1rem 0.5rem;
     }
     .chiffre-item {
       min-width: 90px;
