@@ -542,6 +542,7 @@ dossiersPourSynchronisation.forEach(async (dossier) => {
 
     /** @type {DonnéesSupplémentaires} */
     const données_supplémentaires_déchiffrées = JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires))
+    // Ces données seront utilisées plus tard pour remplir des champs en base de données
     console.log("Il y'a des données supplémentaires dans le dossier DS n°" + dossier.number_demarches_simplifiées + " : ", {données_supplémentaires_déchiffrées})
 
 
