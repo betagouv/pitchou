@@ -336,10 +336,12 @@ function générerProchaineActionAttenduePar(ligne) {
 
     if (valeur === 'En attente d’éléments pétitionnaire') {
         return 'Pétitionnaire'
-
     } else if (valeur === 'En attente avis CSRPN/CNPN') {
-
         return 'CNPN/CSRPN'
+    } else if (valeur === "En cours d’examen par DBIO") {
+        return 'Autre administration'
+    } else if (valeur === "En attente signature") {
+        return 'Autre administration'
     } else if (valeur === 'Clos') {
         return 'Personne'
     }
