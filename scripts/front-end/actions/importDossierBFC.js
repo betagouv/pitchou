@@ -180,6 +180,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 export async function créerDossierDepuisLigne(ligne) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
+    const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
 
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
@@ -192,8 +193,8 @@ export async function créerDossierDepuisLigne(ligne) {
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
-        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
-        'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ["Autorisation loi sur l'eau"] : undefined,
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": donnéesAutorisationEnvironnementale["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"],
+        'À quelle procédure le projet est-il soumis ?': donnéesAutorisationEnvironnementale['À quelle procédure le projet est-il soumis ?'],
         'Le demandeur est…': donnéesDemandeurs["Le demandeur est…"],
         'Adresse mail de contact': donnéesDemandeurs['Adresse mail de contact'],
         'Nom du représentant': donnéesDemandeurs['Nom du représentant'],
@@ -246,6 +247,32 @@ function générerDonnéesDemandeurs(ligne) {
         }
     }
 
+}
+
+/**
+ * @param {LigneDossierBFC} ligne
+ * @returns {Pick<DossierDemarcheSimplifiee88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
+ */
+function générerDonnéesAutorisationEnvironnementale(ligne) {
+    const procedure_associée = ligne['Procédure associée'].toLowerCase();
+
+    if (procedure_associée === 'déclaration loi sur eau') {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation loi sur l'eau"]
+        };
+    } else if (procedure_associée === "autorisation environnementale") {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE", "Autorisation loi sur l'eau"]
+        };
+    }
+
+    // Cas par défaut si aucune condition n'est remplie
+    return {
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Non',
+        "À quelle procédure le projet est-il soumis ?": []
+    };
 }
 
 /**
