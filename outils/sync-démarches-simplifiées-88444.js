@@ -523,7 +523,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
  */
 const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const numberDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.number_demarches_simplifiées));
-dossiersPourSynchronisation.map(async (dossier) => {
+dossiersPourSynchronisation.forEach(async (dossier) => {
 
     /**
      * Si le dossier existe en base de données, c'est qu'il est en train d'être modifiée, on ne veut donc rien écraser.
