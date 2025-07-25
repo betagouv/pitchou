@@ -588,9 +588,9 @@
                                         {/if}
 
                                         {#if dossierIdsSuivisParInstructeurActuel.has(id)}
-                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left">Ne plus suivre</button>
+                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
                                         {:else}
-                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Suivre</button>
+                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left">Suivre</button>
                                         {/if}
 
                                     </td>
