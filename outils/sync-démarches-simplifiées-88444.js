@@ -21,6 +21,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
+import { déchiffrerDonnéesSupplémentairesDossiers } from '../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -36,7 +37,7 @@ import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDe
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-
+/** @import {DonnéesSupplémentaires} from '../scripts/front-end/actions/importDossierUtils.js' */
 // récups les données de DS
 
 const DEMARCHE_SIMPLIFIEE_API_TOKEN = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN
@@ -512,6 +513,41 @@ const dossiersPourSynchronisation = dossiersDS.map((
     
 })
 
+
+
+/**
+ * POUR IMPORT DOSSIERS HISTORIQUES
+ * Récupérer les number_demarches_simplifiés déjà présents en base
+ * Pour savoir si le dossier est créé ou modifié.
+ * S'il est créé, alors on récupère les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
+ */
+const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
+const numberDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.number_demarches_simplifiées));
+dossiersPourSynchronisation.forEach(async (dossier) => {
+
+    /**
+     * Si le dossier existe en base de données, c'est qu'il est en train d'être modifiée, on ne veut donc rien écraser.
+     * S'il n'existe pas en base de données, c'est qu'il est créé.
+     * On veut donc utiliser les données supplémentaires pour remplir les champs qui ne sont pas remplis à partir du formulaire DS.
+     */
+    if (!dossier.number_demarches_simplifiées || numberDSDossiersExistantsEnBDD.has(dossier.number_demarches_simplifiées)) {
+        return;
+    }
+    const dossierDS = dossiersDS.find((d) => d.id === dossier.number_demarches_simplifiées )
+
+    const données_supplémentaires = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
+    if (données_supplémentaires === undefined) {
+        return;
+    }
+
+    /** @type {DonnéesSupplémentaires} */
+    const données_supplémentaires_déchiffrées = JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires))
+    // Ces données seront utilisées plus tard pour remplir des champs en base de données
+    console.log("Il y'a des données supplémentaires dans le dossier DS n°" + dossier.number_demarches_simplifiées + " : ", {données_supplémentaires_déchiffrées})
+
+
+})
+
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
 */
@@ -628,7 +664,6 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
-
     return {
         //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
         déposant: getPersonneId(déposant) || null,
@@ -638,7 +673,6 @@ const dossiers = dossiersPourSynchronisation.map(dossier => {
         ...autresPropriétés,
     }
 })
-
 
 /** Télécharger les nouveaux fichiers espèces impactées */
 /** @type {ChampDescriptor['id'] | undefined} */
