@@ -32,7 +32,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
 
     const {
         nom,
-        commentaire_enjeu,
+        commentaire_libre,
         date_consultation_public,
         description,
         date_dépôt,
@@ -66,7 +66,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
     
     return {
         nom,
-        commentaire_instruction: commentaire_enjeu?.trim() ?? '',
+        commentaire_instruction: commentaire_libre?.trim() ?? '',
         date_début_consultation_public: date_consultation_public,
         description,
         date_dépôt,
