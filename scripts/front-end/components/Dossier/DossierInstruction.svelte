@@ -91,13 +91,7 @@
     </section>
 
     <section>
-        <h2>Annotations privées</h2>
-        <a class="fr-btn fr-btn--secondary fr-mb-8w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
-
-
-        <h2>Phase et action attendue</h2>
-        
-        <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
+        <form class="fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
@@ -109,6 +103,8 @@
                 <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
             </div>
             {/if}
+
+            <h2>Phase et action attendue</h2>
             <div class="fr-input-group">
                 <label class="fr-label" for="phase">
                     Phase du dossier
@@ -134,7 +130,9 @@
             <button class="fr-btn" type="submit">Mettre à jour</button>
         </form>
 
-        
+            <h2>Annotations privées</h2>
+            <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+
     </section>
 
 </section>
