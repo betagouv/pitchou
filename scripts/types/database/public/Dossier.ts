@@ -14,6 +14,7 @@ export default interface Dossier {
 
   id_demarches_simplifiées: string | null;
 
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
   espèces_protégées_concernées: string | null;
@@ -119,6 +120,7 @@ export interface DossierInitializer {
 
   id_demarches_simplifiées?: string | null;
 
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
   espèces_protégées_concernées?: string | null;
@@ -223,6 +225,7 @@ export interface DossierMutator {
 
   id_demarches_simplifiées?: string | null;
 
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt?: Date;
 
   espèces_protégées_concernées?: string | null;
