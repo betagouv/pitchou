@@ -71,6 +71,15 @@
         afficherMessageSucces = false
     }
 
+    /**
+     * 
+     * @param {Event} e
+     */
+    function handleOnChange (e) {
+        mettreAJourDossier(e)
+        retirerAlert()
+    }
+
 
 </script>
 
@@ -96,9 +105,7 @@
     </section>
 
     <section>
-        <form class="fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
-            <button class="fr-btn" type="submit">Mettre à jour le dossier</button>
-
+        <form class="fr-mb-4w" on:change={handleOnChange}>
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
@@ -137,7 +144,7 @@
             <h2> Commentaire </h2>
             <div class="fr-input-group" id="input-group-commentaitre-libre">
                 <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
-                <textarea class="fr-input" style="resize: vertical;" aria-describedby="input-commentaire-libre-messages" id="input-15" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
+                <textarea  on:click={retirerAlert} class="fr-input" style="resize: vertical;" aria-describedby="input-commentaire-libre-messages" id="input-15" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
                 <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
                 </div>
             </div>
