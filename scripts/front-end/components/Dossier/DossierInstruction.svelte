@@ -105,7 +105,7 @@
     </section>
 
     <section>
-        <form class="fr-mb-4w" on:change={handleOnChange} on:input={retirerAlert}>
+        <form class="fr-mb-4w" on:input={handleOnChange} on:input={retirerAlert}>
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
@@ -117,7 +117,7 @@
                     <p>Le dossier a bien été mis à jour.</p>
                 </div>
             {/if}
-            
+
             <h2> Commentaire </h2>
             <div class="fr-input-group" id="input-group-commentaitre-libre">
                 <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
