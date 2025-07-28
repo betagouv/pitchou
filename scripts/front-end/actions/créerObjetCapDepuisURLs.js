@@ -231,6 +231,32 @@ function wrapModifierDécisionAdministrative(url){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(args)
     })
+
+
+
+/**
+ * 
+ * @param {string | undefined} url 
+ * @returns {PitchouInstructeurCapabilities['changerRelationSuivi'] | undefined}
+ */
+function wrapChangerRelationSuivi(url){
+    if(!url)
+        return undefined
+
+    return function changerRelationSuivi(direction, personneEmail, dossierId){
+
+        return text(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                direction,
+                personneEmail,
+                dossierId
+            })
+        })
+        .then(() => undefined)
+
+    }
 }
 
 /**
@@ -244,6 +270,7 @@ export default function(capURLs){
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
         recupérerDossierComplet: wrapRecupérerDossierComplet(capURLs.recupérerDossierComplet),
         listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
+        changerRelationSuivi: wrapChangerRelationSuivi(capURLs.changerRelationSuivi),
         listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),
         listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),

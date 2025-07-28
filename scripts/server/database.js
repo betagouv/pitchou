@@ -106,19 +106,21 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     // de la capability que pour lister les dossiers
     const recupérerDossierCompletP = listerDossiersP
     const listerRelationSuiviP = listerDossiersP
+    const changerRelationSuiviP = listerDossiersP
     const listerÉvènementsPhaseDossierP = listerDossiersP
     const listerMessagesP = listerDossiersP
     const modifierDossierP = listerDossiersP
     const modifierDécisionAdministrativeDansDossierP = listerDossiersP
 
-    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, identitéP])
-        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, identité]) => {
+    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, changerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, identitéP])
+        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, changerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, identité]) => {
             /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
             const ret = {
                 remplirAnnotations: undefined, 
                 listerDossiers,
                 recupérerDossierComplet,
                 listerRelationSuivi,
+                changerRelationSuivi,
                 listerÉvènementsPhaseDossier,
                 listerMessages, 
                 modifierDossier, 
