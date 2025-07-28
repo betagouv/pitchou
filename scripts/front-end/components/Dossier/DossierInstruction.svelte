@@ -117,6 +117,14 @@
                     <p>Le dossier a bien été mis à jour.</p>
                 </div>
             {/if}
+            
+            <h2> Commentaire </h2>
+            <div class="fr-input-group" id="input-group-commentaitre-libre">
+                <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
+                <textarea  on:click={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
+                <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
+                </div>
+            </div>
 
             <h2>Phase et action attendue</h2>
             <div class="fr-input-group">
@@ -139,14 +147,6 @@
                         <option value={acteur}>{acteur}</option>
                     {/each}
                 </select>
-            </div>
-
-            <h2> Commentaire </h2>
-            <div class="fr-input-group" id="input-group-commentaitre-libre">
-                <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
-                <textarea  on:click={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
-                <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
-                </div>
             </div>
         </form>
 
