@@ -16,11 +16,15 @@
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
+    /** @import {PitchouState} from '../../store.js' */
 
     /** @type {DossierComplet} */
     export let dossier
 
     $: console.info('Dossier complet', dossier)
+
+    /** @type {PitchouState['relationSuivis']} */
+    export let relationSuivis
 
 
     const EXTENSION_ATTENDUE = '.ods'
@@ -64,7 +68,7 @@
 <Squelette {email} {résultatsSynchronisationDS88444}>
     <div class="fr-grid-row fr-mt-2w">
         <div class="fr-col">
-            <EnteteDossier {dossier}></EnteteDossier>
+            <EnteteDossier {dossier} {relationSuivis} {email}></EnteteDossier>
             
             <div class="fr-tabs">
                 <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
