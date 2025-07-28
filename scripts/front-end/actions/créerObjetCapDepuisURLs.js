@@ -232,7 +232,7 @@ function wrapModifierDécisionAdministrative(url){
         body: JSON.stringify(args)
     })
 
-
+}
 
 /**
  * 
