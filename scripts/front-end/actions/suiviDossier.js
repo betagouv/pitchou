@@ -19,6 +19,12 @@ export function instructeurSuitDossier(instructeurEmail, dossierId){
         throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`)
     }
 
+    const relationsSuivi = store.state.relationSuivis || new Map()
+    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new Set()
+    dossiersSuivisParInstructeur.add(dossierId)
+    relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur)
+    store.mutations.setRelationSuivis(relationsSuivi)
+
     return modifierRelationSuivi("suivre", instructeurEmail, dossierId)
 }
 
@@ -33,6 +39,12 @@ export function instructeurLaisseDossier(instructeurEmail, dossierId){
     if(!modifierRelationSuivi){
         throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`)
     }
+
+    const relationsSuivi = store.state.relationSuivis || new Map()
+    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new Set()
+    dossiersSuivisParInstructeur.delete(dossierId)
+    relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur)
+    store.mutations.setRelationSuivis(relationsSuivi)
 
     return modifierRelationSuivi("laisser", instructeurEmail, dossierId)
 }
