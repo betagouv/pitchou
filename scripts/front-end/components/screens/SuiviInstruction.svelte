@@ -14,6 +14,7 @@
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
+    import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
     
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
@@ -389,8 +390,18 @@
      * @param {Dossier['id']} id
      */
     function instructeurActuelSuitDossier(id) {
-        
+        return instructeurSuitDossier(email, id)
     }
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelLaisseDossier(id) {
+        return instructeurLaisseDossier(email, id)
+    }
+
+    
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
@@ -596,7 +607,7 @@
                                         {/if}
 
                                         {#if dossierIdsSuivisParInstructeurActuel.has(id)}
-                                            <button on:click={() => instructeurActuelCesseDeSuivreDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+                                            <button on:click={() => instructeurActuelLaisseDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
                                         {:else}
                                             <button on:click={() => instructeurActuelSuitDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
                                         {/if}

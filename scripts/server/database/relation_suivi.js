@@ -20,7 +20,7 @@ const inutile = true;
  */
 export function trouverRelationPersonneDepuisCap(cap, personneEmail, dossierId, databaseConnection = directDatabaseConnection){
     return databaseConnection('cap_dossier')
-        .select(['dossier.id as dossier_id', 'personne.id as personne_id'])
+        .select(['arête_groupe_instructeurs__dossier.dossier as dossier_id', 'personne.id as personne_id'])
         .leftJoin(
             'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.cap_dossier': 'cap_dossier.cap'}
@@ -36,7 +36,7 @@ export function trouverRelationPersonneDepuisCap(cap, personneEmail, dossierId, 
         .where({
             'cap_dossier.cap': cap,
             'personne.email': personneEmail, 
-            'dossier.id': dossierId
+            'arête_groupe_instructeurs__dossier.dossier': dossierId
         })
 }
 

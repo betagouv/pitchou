@@ -7,7 +7,7 @@ export interface PitchouInstructeurCapabilities{
     listerDossiers: () => Promise<DossierRésumé[]>
     recupérerDossierComplet: (dossierId: DossierComplet['id']) => Promise<DossierComplet>
     listerRelationSuivi: () => Promise<{personneEmail: Personne['email'], dossiersSuivisIds: Dossier['id'][]}[]>
-    changerRelationSuivi: (direction: 'suivre' | 'laisser', personneEmail: NonNullable<Personne['email']>, dossierId: Dossier['id']) => Promise<void>
+    modifierRelationSuivi: (direction: 'suivre' | 'laisser', personneEmail: NonNullable<Personne['email']>, dossierId: Dossier['id']) => Promise<void>
     listerMessages: (dossierId: DossierRésumé['id']) => Promise<Message[]>
     listerÉvènementsPhaseDossier: () => Promise<any[]>
     modifierDossier: (dossierId: Dossier['id'], dossier: Partial<DossierComplet>) => Promise<void> 

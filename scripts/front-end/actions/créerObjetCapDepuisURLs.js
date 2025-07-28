@@ -237,13 +237,13 @@ function wrapModifierDécisionAdministrative(url){
 /**
  * 
  * @param {string | undefined} url 
- * @returns {PitchouInstructeurCapabilities['changerRelationSuivi'] | undefined}
+ * @returns {PitchouInstructeurCapabilities['modifierRelationSuivi'] | undefined}
  */
-function wrapChangerRelationSuivi(url){
+function wrapModifierRelationSuivi(url){
     if(!url)
         return undefined
 
-    return function changerRelationSuivi(direction, personneEmail, dossierId){
+    return function modifierRelationSuivi(direction, personneEmail, dossierId){
 
         return text(url, {
             method: 'POST',
@@ -270,7 +270,7 @@ export default function(capURLs){
         listerDossiers: wrapGETUrl(capURLs.listerDossiers),
         recupérerDossierComplet: wrapRecupérerDossierComplet(capURLs.recupérerDossierComplet),
         listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
-        changerRelationSuivi: wrapChangerRelationSuivi(capURLs.changerRelationSuivi),
+        modifierRelationSuivi: wrapModifierRelationSuivi(capURLs.modifierRelationSuivi),
         listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),
         listerMessages: wrapListerMessages(capURLs.listerMessages),
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),

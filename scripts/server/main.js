@@ -28,7 +28,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-import {trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
+import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -209,8 +209,8 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.listerRelationSuivi){
     ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
   }
-  if(capBundle.changerRelationSuivi){
-    ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.changerRelationSuivi}`
+  if(capBundle.modifierRelationSuivi){
+    ret.modifierRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.modifierRelationSuivi}`
   }
   if(capBundle.listerÉvènementsPhaseDossier){
     ret.listerÉvènementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerÉvènementsPhaseDossier}`
@@ -597,7 +597,7 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
     return 
   }
 
-  /** @typedef {Parameters<PitchouInstructeurCapabilities['changerRelationSuivi']>} ChangerSuiviParams */
+  /** @typedef {Parameters<PitchouInstructeurCapabilities['modifierRelationSuivi']>} ChangerSuiviParams */
 
   /** @type { {direction: ChangerSuiviParams[0], personneEmail: ChangerSuiviParams[1], dossierId: ChangerSuiviParams[2]} } */
   // @ts-ignore
@@ -619,6 +619,7 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
   if(!personne){
       reply.code(400).send(`Pas de personne avec l'adresse email ${personneEmail}`)
       transaction.rollback()
+      return;
   }
 
   const personneId = personne.id
@@ -644,7 +645,6 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
       .catch((/** @type {any} */ err) => {
           reply.code(500).send(`Erreur lors du changement de suivi du dossier ${dossierId} par ${personneEmail}. ${err}`)
       })
-  })
 })
 
 
