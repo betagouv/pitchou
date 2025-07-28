@@ -73,11 +73,7 @@
      * @param {DossierRésumé[]} dossiers 
      */
     function trouverDossiersDeMoinsDe3Ans(dossiers){
-        return dossiers.filter(d => {
-            const dateDépôt = new Date(d.historique_date_réception_ddep || d.date_dépôt)
-
-            return isBefore(sub(aujourdhui, {years: 3}), dateDépôt)
-        })
+        return dossiers.filter(d => isBefore(sub(aujourdhui, {years: 3}), d.date_dépôt))
     }
 
     $: dossiersEnAccompagnementDeMoinsDe3Ans = trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement)

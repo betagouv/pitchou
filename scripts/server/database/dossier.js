@@ -377,7 +377,6 @@ const colonnesDossierComplet = [
     "commentaire_libre",
     "historique_identifiant_demande_onagre",
 
-    "historique_date_réception_ddep",
     'date_consultation_public',
 
     "mesures_erc_prévues",
@@ -592,7 +591,6 @@ const colonnesDossierRésumé = [
 
     "historique_identifiant_demande_onagre",
 
-    "historique_date_réception_ddep",
 ]
 
 
