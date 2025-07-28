@@ -105,7 +105,7 @@
     </section>
 
     <section>
-        <form class="fr-mb-4w" on:change={handleOnChange}>
+        <form class="fr-mb-4w" on:change={handleOnChange} on:input={retirerAlert}>
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
