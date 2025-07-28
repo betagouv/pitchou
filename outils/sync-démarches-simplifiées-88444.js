@@ -400,7 +400,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
-    const commentaire_enjeu = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires sur les enjeux et la procédure")).stringValue
+    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires sur les enjeux et la procédure")).stringValue
 
     const historique_date_réception_ddep = annotationById.get(pitchouKeyToAnnotationDS.get("Date de réception DDEP")).date
         
@@ -495,7 +495,7 @@ const dossiersPourSynchronisation = dossiersDS.map((
 
         enjeu_écologique,
         enjeu_politique,
-        commentaire_enjeu,
+        commentaire_libre,
         
         historique_date_réception_ddep,
         historique_date_envoi_dernière_contribution,

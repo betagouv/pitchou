@@ -66,14 +66,14 @@
                 {/if}
             </div>
             <div>
-                {#if dossier.commentaire_enjeu && dossier.commentaire_enjeu.trim().length >= 1}
+                {#if dossier.commentaire_libre && dossier.commentaire_libre.trim().length >= 1}
                     <BoutonModale id={`dsfr-modale-${dossier.id}`}>
                         <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
 
                         <h1 slot="titre-modale" id="fr-modal-title-modal-1" class="fr-modal__title">Commentaire enjeux et procédure</h1>
 
                         <div class="contenu-modale" slot="contenu-modale">
-                            {dossier.commentaire_enjeu}
+                            {dossier.commentaire_libre}
                         </div>
                     </BoutonModale>
                 {/if}

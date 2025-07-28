@@ -42,7 +42,7 @@ export default interface Dossier {
 
   enjeu_politique: boolean | null;
 
-  commentaire_enjeu: string | null;
+  commentaire_libre: string | null;
 
   historique_date_réception_ddep: Date | null;
 
@@ -147,7 +147,7 @@ export interface DossierInitializer {
 
   enjeu_politique?: boolean | null;
 
-  commentaire_enjeu?: string | null;
+  commentaire_libre?: string | null;
 
   historique_date_réception_ddep?: Date | null;
 
@@ -251,7 +251,7 @@ export interface DossierMutator {
 
   enjeu_politique?: boolean | null;
 
-  commentaire_enjeu?: string | null;
+  commentaire_libre?: string | null;
 
   historique_date_réception_ddep?: Date | null;
 

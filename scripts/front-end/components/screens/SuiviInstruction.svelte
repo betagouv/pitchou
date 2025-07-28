@@ -556,13 +556,13 @@
                             {@const { id, nom, 
                                 communes, départements, régions,
                                 activité_principale, rattaché_au_régime_ae,
-                                enjeu_politique, enjeu_écologique, commentaire_enjeu,
+                                enjeu_politique, enjeu_écologique, commentaire_libre,
                                 phase, prochaine_action_attendue_par } = dossier}
                                 <tr>
                                     <td>
                                         <a class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
 
-                                        {#if commentaire_enjeu && commentaire_enjeu.trim().length >= 1}
+                                        {#if commentaire_libre && commentaire_libre.trim().length >= 1}
                                             <BoutonModale id={`dsfr-modale-${id}`}>
                                                 <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
                         
@@ -578,7 +578,7 @@
                                                 </header>
                         
                                                 <div class="contenu-modale" slot="contenu-modale">
-                                                    {commentaire_enjeu}
+                                                    {commentaire_libre}
                                                 </div>
                                             </BoutonModale>
                                         {/if}

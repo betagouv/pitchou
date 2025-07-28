@@ -374,7 +374,7 @@ const colonnesDossierComplet = [
 
     "enjeu_écologique",
     "enjeu_politique",
-    "commentaire_enjeu",
+    "commentaire_libre",
     "historique_identifiant_demande_onagre",
 
     "historique_date_réception_ddep",
@@ -588,7 +588,7 @@ const colonnesDossierRésumé = [
     "enjeu_écologique",
     "enjeu_politique",
 
-    "commentaire_enjeu",
+    "commentaire_libre",
 
     "historique_identifiant_demande_onagre",
 

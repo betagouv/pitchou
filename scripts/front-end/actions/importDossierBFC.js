@@ -71,7 +71,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
  * données propres à Pitchou comme le suivi des dossiers
  * @typedef {{
- *   commentaire_enjeu: Dossier['commentaire_enjeu'],
+ *   commentaire_libre: Dossier['commentaire_libre'],
  *   date_dépôt: Dossier['date_dépôt'],
  *   suivi_par: string | undefined,
  *   historique_dossier: string | undefined,
@@ -95,7 +95,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const commentaire_enjeu = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
+    const commentaire_libre = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
 
 
     // TODO : Modifier ce champ pour qu'il colle à la base de données
@@ -114,7 +114,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
 
     return {
-        'commentaire_enjeu': commentaire_enjeu,
+        'commentaire_libre': commentaire_libre,
         'date_dépôt': ligne['Date de sollicitation'],
         'suivi_par': ligne['POUR\nATTRIBUTION'],
         'historique_dossier': ligne['Description avancement dossier avec dates'],
