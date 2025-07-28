@@ -1,5 +1,4 @@
 import {directDatabaseConnection} from '../database.js'
-import {getPersonneByEmail} from './personne.js';
 
 /** @import {Knex} from 'knex' */
 /** @import CapDossier from '../../types/database/public/CapDossier.ts' */
