@@ -144,7 +144,7 @@
             <h2> Commentaire </h2>
             <div class="fr-input-group" id="input-group-commentaitre-libre">
                 <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
-                <textarea  on:click={retirerAlert} class="fr-input" style="resize: vertical;" aria-describedby="input-commentaire-libre-messages" id="input-15" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
+                <textarea  on:click={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-15" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
                 <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
                 </div>
             </div>
@@ -186,6 +186,10 @@
             }
         }
 
+    }
+
+    .resize-vertical {
+        resize: vertical
     }
 
 </style>
