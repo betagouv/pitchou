@@ -45,8 +45,6 @@ export default interface Dossier {
 
   commentaire_libre: string | null;
 
-  historique_date_réception_ddep: Date | null;
-
   historique_date_envoi_dernière_contribution: Date | null;
 
   historique_identifiant_demande_onagre: string | null;
@@ -151,8 +149,6 @@ export interface DossierInitializer {
 
   commentaire_libre?: string | null;
 
-  historique_date_réception_ddep?: Date | null;
-
   historique_date_envoi_dernière_contribution?: Date | null;
 
   historique_identifiant_demande_onagre?: string | null;
@@ -255,8 +251,6 @@ export interface DossierMutator {
   enjeu_politique?: boolean | null;
 
   commentaire_libre?: string | null;
-
-  historique_date_réception_ddep?: Date | null;
 
   historique_date_envoi_dernière_contribution?: Date | null;
 
