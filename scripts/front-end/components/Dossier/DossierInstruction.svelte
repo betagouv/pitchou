@@ -13,7 +13,7 @@
     const {number_demarches_simplifiées: numdos} = dossier
 
     $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
-    
+
     /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par' | 'commentaire_libre'> & {phase: DossierPhase}} */
     let dossierParams = {
         phase: phaseActuelle,
@@ -48,6 +48,10 @@
                     DS_motivation: null
                 }
             ]
+        }
+
+        if (dossier.commentaire_libre !== dossierParams.commentaire_libre) {
+            modifs.commentaire_libre = dossierParams.commentaire_libre
         }
         
         if(dossier.prochaine_action_attendue_par !== dossierParams.prochaine_action_attendue_par){
@@ -93,6 +97,8 @@
 
     <section>
         <form class="fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
+            <button class="fr-btn" type="submit">Mettre à jour le dossier</button>
+
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
@@ -100,9 +106,9 @@
                 </div>
             {/if}
             {#if afficherMessageSucces}
-            <div class="fr-alert fr-alert--success fr-mb-3w">
-                <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
-            </div>
+                <div class="fr-alert fr-alert--success fr-mb-3w">
+                    <p>Le dossier a bien été mis à jour.</p>
+                </div>
             {/if}
 
             <h2>Phase et action attendue</h2>
@@ -110,7 +116,6 @@
                 <label class="fr-label" for="phase">
                     Phase du dossier
                 </label>
-        
                 <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
                     {#each [...phases] as phase}
                         <option value={phase}>{phase}</option>
@@ -128,16 +133,15 @@
                     {/each}
                 </select>
             </div>
-            <button class="fr-btn" type="submit">Mettre à jour</button>
-        </form>
 
-        <h2> Commentaire </h2>
-        <div class="fr-input-group" id="input-group-commentaitre-libre">
-            <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
-            <textarea class="fr-input" style="resize: vertical;" aria-describedby="input-commentaire-libre-messages" id="input-15" value={dossierParams["commentaire_libre"]} rows={8}></textarea>
-            <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
+            <h2> Commentaire </h2>
+            <div class="fr-input-group" id="input-group-commentaitre-libre">
+                <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
+                <textarea class="fr-input" style="resize: vertical;" aria-describedby="input-commentaire-libre-messages" id="input-15" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
+                <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
+                </div>
             </div>
-        </div>
+        </form>
 
         <h2>Annotations privées</h2>
         <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
