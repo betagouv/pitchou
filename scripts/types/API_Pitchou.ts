@@ -92,7 +92,7 @@ export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdminist
  * notamment le contenu du fichier espèces impactées s'il y en a un 
  */
 export type DossierComplet = Omit<Dossier, 
-    'communes' | 'départements' | 'régions' | 'activité_principale'>
+    'communes' | 'départements' | 'régions' | 'activité_principale' | 'espèces_protégées_concernées'>
     & DossierLocalisation
     & DossierPersonnesImpliquées
     & DossierActivitéPrincipale
