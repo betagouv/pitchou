@@ -14,10 +14,11 @@
 
     $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
     
-    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
+    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par' | 'commentaire_libre'> & {phase: DossierPhase}} */
     let dossierParams = {
         phase: phaseActuelle,
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
+        commentaire_libre: dossier.commentaire_libre
     }
 
     $: dossierParams.phase = phaseActuelle
@@ -130,8 +131,16 @@
             <button class="fr-btn" type="submit">Mettre à jour</button>
         </form>
 
-            <h2>Annotations privées</h2>
-            <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+        <h2> Commentaire </h2>
+        <div class="fr-input-group" id="input-group-commentaitre-libre">
+            <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
+            <textarea class="fr-input" style="resize: vertical;" aria-describedby="input-commentaire-libre-messages" id="input-15" value={dossierParams["commentaire_libre"]} rows={8}></textarea>
+            <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
+            </div>
+        </div>
+
+        <h2>Annotations privées</h2>
+        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
     </section>
 
