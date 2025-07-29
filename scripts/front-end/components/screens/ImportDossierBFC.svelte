@@ -189,7 +189,7 @@
                                                 {LigneDossierBFC["Département"]}
                                             {/if}
                                         </td>
-                                        <td
+                                        <td class="commentaire"
                                             >{LigneDossierBFC[
                                                 "Description avancement dossier avec dates"
                                             ]}</td
@@ -228,10 +228,15 @@
 </Squelette>
 
 <style lang="scss">
+
+    .commentaire {
+        white-space: pre;
+        min-width: 30rem;
+    }
     .tableau-dossier-a-creer {
         th,
         td:not(:last-of-type) {
-            max-width: 15rem;
+            max-width: 13rem;
             max-height: 2rem;
             overflow: auto;
         }
