@@ -16,7 +16,7 @@ import memoize from 'just-memoize'
  * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
  * données propres à Pitchou comme le suivi des dossiers
  * @typedef {{
- *   commentaire_enjeu: Dossier['commentaire_enjeu'],
+ *   commentaire_libre: Dossier['commentaire_libre'],
  *   date_dépôt: Dossier['date_dépôt'],
  *   personne_mail: string | undefined,
  *   historique_dossier: string | undefined,

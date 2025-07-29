@@ -5,6 +5,7 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
 
 /** @import { DonnéesSupplémentaires } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import Dossier from '../../types/database/public/Dossier.ts' */
 
 /** @typedef {{
  * "Date de sollicitation": Date;
@@ -102,7 +103,6 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 }
 
 /**
-<<<<<<< HEAD
  * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
  * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
  * données propres à Pitchou comme le suivi des dossiers
@@ -126,14 +126,22 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  */
 
 /**
-=======
->>>>>>> eca6bd7 (Remplissage du commentaire_enjeu pour les nouveaux imports)
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierBFC} ligne
  * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const commentaire_libre = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
+    const description = ligne['Description avancement dossier avec dates']
+        ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
+        : '';
+    const observations = ligne['OBSERVATIONS']
+        ? 'Observations : ' + ligne['OBSERVATIONS']
+        : '';
+    const commentaire_libre = [description, observations]
+        .filter(value => value?.trim())
+        .join('\n');
+
+
 
     const dep = ligne['DEP']
     const date_de_depot_dep = ligne['Date de dépôt DEP']
