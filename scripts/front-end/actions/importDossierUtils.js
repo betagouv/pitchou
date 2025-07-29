@@ -43,7 +43,7 @@ import memoize from 'just-memoize'
  */
 
 export async function getCommuneData(nomCommune) {
-const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
+    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
         console.warn(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
@@ -117,21 +117,21 @@ export async function formaterDépartementDepuisValeur(valeur) {
         for (const bloc of blocs) {
             codes.push(bloc)
         }
-
-
-        const départementsP = codes.map((code) => getDépartementData(code))
-        const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
-
-        if (départements.length >= 1) {
-            // On force le cast car la logique garantit un tableau non vide
-            return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
-        }
     }
-    // Par défaut, on retourne le département Côte-d'Or
-    return [{
-        code: '21',
-        nom: `Côte-d'Or`
-    }];
+
+    const départementsP = codes.map((code) => getDépartementData(code))
+    const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
+
+    if (départements.length >= 1) {
+        // On force le cast car la logique garantit un tableau non vide
+        return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
+    } else {
+        // Par défaut, on retourne le département Côte-d'Or
+        return [{
+            code: '21',
+            nom: `Côte-d'Or`
+        }];
+    } 
 }
 
 
