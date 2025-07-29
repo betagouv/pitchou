@@ -2,10 +2,12 @@
 
 import {directDatabaseConnection} from '../database.js'
 
-//@ts-ignore
+/** @import {Knex} from 'knex' */
 /** @import {default as Personne, PersonneInitializer} from '../../types/database/public/Personne.ts' */
-//@ts-ignore
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
+
+//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
+const inutile = true;
 
 /**
  * @param {PersonneInitializer} personne
@@ -40,11 +42,12 @@ export function getPersonneByCode(code_accès) {
 /**
  *
  * @param {Personne['email']} email
+ * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Personne> | Promise<undefined>}
  */
-export function getPersonneByEmail(email) {
-    return directDatabaseConnection('personne')
-    .select()
+export function getPersonneByEmail(email, databaseConnection = directDatabaseConnection) {
+    return databaseConnection('personne')
+    .select('*')
     .where({ email })
     .first()
 }

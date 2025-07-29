@@ -59,6 +59,10 @@ export function dumpEntreprises(entreprises){
 
 
 /**
+ * La table cap_écriture_annotation contient un instructeur_id qui est l'identifiant de l'instructeur
+ * dans démarches-simplifiées
+ * Cette fonction part de la capability d'écriture d'une annotation privée et retourne l'identifiant 
+ * d'instructeur (pour l'utiliser lors des appels API DS pour indiquer qui modifie une annotation privée)
  * 
  * @param {CapÉcritureAnnotation['cap']} cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
@@ -106,19 +110,21 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     // de la capability que pour lister les dossiers
     const recupérerDossierCompletP = listerDossiersP
     const listerRelationSuiviP = listerDossiersP
+    const modifierRelationSuiviP = listerDossiersP
     const listerÉvènementsPhaseDossierP = listerDossiersP
     const listerMessagesP = listerDossiersP
     const modifierDossierP = listerDossiersP
     const modifierDécisionAdministrativeDansDossierP = listerDossiersP
 
-    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, identitéP])
-        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, identité]) => {
+    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, identitéP])
+        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, identité]) => {
             /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
             const ret = {
                 remplirAnnotations: undefined, 
                 listerDossiers,
                 recupérerDossierComplet,
                 listerRelationSuivi,
+                modifierRelationSuivi,
                 listerÉvènementsPhaseDossier,
                 listerMessages, 
                 modifierDossier, 

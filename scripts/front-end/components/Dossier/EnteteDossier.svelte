@@ -1,15 +1,48 @@
 <script>
-    /** @import {DossierComplet} from '../../../types/API_Pitchou' */
 
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
     import {afficherString} from '../../affichageValeurs.js'
     import TagPhase from '../TagPhase.svelte'
     import BoutonModale from '../DSFR/BoutonModale.svelte'
+    import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
+    
+    /** @import {ComponentProps} from 'svelte' */
+    /** @import Squelette from '../Squelette.svelte' */
+
+    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
+    /** @import {PitchouState} from '../../store.js' */
+    /** @import Dossier from '../../../types/database/public/Dossier.ts' */
+
 
     /** @type {DossierComplet} */
     export let dossier
 
+    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
+    export let email
+
+    /** @type {PitchouState['relationSuivis']} */
+    export let relationSuivis
+
     let phase = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
+
+    $: dossiersSuiviParInstructeurActuel = relationSuivis && relationSuivis.get(email)
+    $: dossierActuelSuiviParInstructeurActuel = dossiersSuiviParInstructeurActuel && dossiersSuiviParInstructeurActuel.has(dossier.id)
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelSuitDossier(id) {
+        return instructeurSuitDossier(email, id)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelLaisseDossier(id) {
+        return instructeurLaisseDossier(email, id)
+    }
 
 </script>
 
@@ -85,6 +118,16 @@
                 <span class="fr-icon-pantone-fill" aria-hidden="true"></span>
                 Autorisation environnementale
             </div>
+        {/if}
+
+        {#if typeof dossierActuelSuiviParInstructeurActuel === 'boolean'}
+
+            {#if dossierActuelSuiviParInstructeurActuel}
+                <button on:click={() => instructeurActuelLaisseDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+            {:else}
+                <button on:click={() => instructeurActuelSuitDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
+            {/if}
+
         {/if}
 
         <!--

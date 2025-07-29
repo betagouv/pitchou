@@ -15,8 +15,7 @@ import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
 
-export function chargerDossiers(){
-
+export function chargerRelationSuivi(){
     if(store.state.capabilities?.listerRelationSuivi){
         store.state.capabilities?.listerRelationSuivi()
             .then(relationSuivisBDD => {
@@ -33,6 +32,12 @@ export function chargerDossiers(){
                 store.mutations.setRelationSuivis(relationSuivis)
             })
     }
+}
+
+
+export function chargerDossiers(){
+
+    chargerRelationSuivi()
 
     if(store.state.capabilities?.listerDossiers){
         return store.state.capabilities?.listerDossiers()

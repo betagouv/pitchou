@@ -8,7 +8,9 @@ import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
+import {chargerRelationSuivi} from '../actions/main.js'
 
+/** @import {ComponentProps} from 'svelte' */
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
@@ -27,8 +29,9 @@ export default async ({params: {dossierId}}) => {
     // en attente de https://github.com/betagouv/pitchou/issues/154
     const messagesP = chargerMessagesDossier(id)
     const dossierP = getDossierComplet(id)
+    const relationSuiviP = chargerRelationSuivi()
 
-    const [dossier] = await Promise.all([dossierP, messagesP])
+    const [dossier] = await Promise.all([dossierP, messagesP, relationSuiviP])
 
 
     // TODO: expliquer que le dossier n'existe pas ?
@@ -37,7 +40,7 @@ export default async ({params: {dossierId}}) => {
     /**
      * 
      * @param {PitchouState} state
-     * @returns 
+     * @returns {ComponentProps<Dossier>}
      */
     function mapStateToProps(state){
         const dossier = state.dossiersComplets.get(id)
@@ -45,11 +48,14 @@ export default async ({params: {dossierId}}) => {
         if(!dossier) throw new TypeError(`Dossier avec id '${id}' manquant dans le store`)
 
         const messages = state.messagesParDossierId.get(id)
+        const relationSuivis = state.relationSuivis
 
+        // @ts-ignore
         return {
             ...mapStateToSqueletteProps(state),
             dossier,
-            messages
+            messages,
+            relationSuivis
         }
     }
     

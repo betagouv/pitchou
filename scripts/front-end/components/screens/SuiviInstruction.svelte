@@ -14,11 +14,13 @@
     import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
+    import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
     
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
+    /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
@@ -70,6 +72,9 @@
     //$: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
     //$: dossierNonSel = [...dossiersNonSélectionnés][0]
     //$: dossierNonSel && console.log('dossier non sélectionné', dossierNonSel, dossierNonSel.activité_principale, dossierNonSel.phase, dossierNonSel.prochaine_action_attendue_par)
+
+    /** @type {Set<Dossier['id']>} */
+    $: dossierIdsSuivisParInstructeurActuel = relationSuivis?.get(email) || new Set()
 
 
     const trisActivitéPrincipale = [
@@ -379,6 +384,24 @@
         }
     }
 
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelSuitDossier(id) {
+        return instructeurSuitDossier(email, id)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelLaisseDossier(id) {
+        return instructeurLaisseDossier(email, id)
+    }
+
+    
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
@@ -582,6 +605,13 @@
                                                 </div>
                                             </BoutonModale>
                                         {/if}
+
+                                        {#if dossierIdsSuivisParInstructeurActuel.has(id)}
+                                            <button on:click={() => instructeurActuelLaisseDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+                                        {:else}
+                                            <button on:click={() => instructeurActuelSuitDossier(id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
+                                        {/if}
+
                                     </td>
                                     <td>{formatLocalisation({communes, départements, régions})}</td>
                                     <td>{activité_principale || ''}</td>

@@ -13,7 +13,7 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
   créerTransaction} from './database.js'
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
-import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap } from './database/personne.js'
+import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap, getPersonneByEmail } from './database/personne.js'
 
 import { modifierDécisionAdministrative, supprimerDécisionAdministrative, ajouterDécisionAdministrativeAvecFichier } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
@@ -28,6 +28,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
+import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 
 
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -207,6 +208,9 @@ fastify.get('/caps', async function (request, reply) {
   }
   if(capBundle.listerRelationSuivi){
     ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`
+  }
+  if(capBundle.modifierRelationSuivi){
+    ret.modifierRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.modifierRelationSuivi}`
   }
   if(capBundle.listerÉvènementsPhaseDossier){
     ret.listerÉvènementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerÉvènementsPhaseDossier}`
@@ -581,6 +585,66 @@ fastify.get('/dossiers/relation-suivis', async function(request, reply) {
   } 
 
   return relationSuivis
+})
+
+
+fastify.post('/dossiers/relation-suivis', async function(request, reply) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  if(!cap){
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+    return 
+  }
+
+  /** @typedef {Parameters<PitchouInstructeurCapabilities['modifierRelationSuivi']>} ChangerSuiviParams */
+
+  /** @type { {direction: ChangerSuiviParams[0], personneEmail: ChangerSuiviParams[1], dossierId: ChangerSuiviParams[2]} } */
+  // @ts-ignore
+  const {direction, personneEmail, dossierId} = request.body
+
+  const transaction = await créerTransaction()
+
+  const relationsSuiviViaCap = await trouverRelationPersonneDepuisCap(cap, personneEmail, dossierId, transaction)
+  console.log('relationsSuiviViaCap', relationsSuiviViaCap.length, relationsSuiviViaCap)
+
+  if(relationsSuiviViaCap.length === 0){
+    reply.code(403).send(`La capability ${cap} ne permet pas de modifier la relation de suivi entre instructeur.rice ${personneEmail} et dossier ${dossierId}`)
+    transaction.rollback()
+    return;
+  }
+
+  const personne = await getPersonneByEmail(personneEmail, transaction)
+
+  if(!personne){
+      reply.code(400).send(`Pas de personne avec l'adresse email ${personneEmail}`)
+      transaction.rollback()
+      return;
+  }
+
+  const personneId = personne.id
+
+  let ret;
+
+  if(direction === 'suivre'){
+    ret = instructeurSuitDossier(personneId, dossierId, transaction)
+  }
+  else{
+    if(direction !== 'laisser'){
+      reply.code(500).send(`Erreur lors du changement de suivi du dossier. Direction ${direction} non reconnue.`)
+      return
+    }
+
+    ret = instructeurLaisseDossier(personneId, dossierId, transaction)
+  }
+
+  return ret
+      .then(() => transaction.commit())
+      .then(() => reply.send())
+      .catch((/** @type {any} */ err) => {transaction.rollback(); throw err})
+      .catch((/** @type {any} */ err) => {
+          reply.code(500).send(`Erreur lors du changement de suivi du dossier ${dossierId} par ${personneEmail}. ${err}`)
+      })
 })
 
 
