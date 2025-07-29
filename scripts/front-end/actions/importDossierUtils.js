@@ -36,13 +36,16 @@ import memoize from 'just-memoize'
 
 
 /**
- * 
- * @param {string} nomCommune 
- * @returns {Promise<GeoAPICommune | null>}
+ * Récupérer toutes les données de la commune et les données de son département
+ * @param {string} nomCommune - Nom de la commune
+ * @returns {Promise<{
+ *   {GeoAPICommune & { departement: GeoAPIDépartement }}
+ * } | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
+
 export async function getCommuneData(nomCommune) {
-    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren&format=json&geometry=centre`);
+    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
 
     if (!Array.isArray(commune) || commune.length === 0) {

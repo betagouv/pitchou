@@ -313,7 +313,7 @@ async function générerDonnéesLocalisations(ligne) {
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
             "Le projet se situe au niveau…": "d'une ou plusieurs communes",
-            "Dans quel département se localise majoritairement votre projet ?": départements[0],
+            "Dans quel département se localise majoritairement votre projet ?": communes[0].departement,
         }
     } else {
         return {
