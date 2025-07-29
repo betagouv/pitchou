@@ -3,7 +3,7 @@
     import {formatLocalisation, formatPorteurDeProjet} from '../../affichageDossier.js'
     import {afficherString} from '../../affichageValeurs.js'
     import TagPhase from '../TagPhase.svelte'
-    import BoutonModale from '../DSFR/BoutonModale.svelte'
+
     import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
     
     /** @import {ComponentProps} from 'svelte' */
@@ -14,6 +14,7 @@
     /** @import Dossier from '../../../types/database/public/Dossier.ts' */
 
 
+    
     /** @type {DossierComplet} */
     export let dossier
 
@@ -96,19 +97,6 @@
                             Enjeu écologique
                         </div>
                     {/if}
-                {/if}
-            </div>
-            <div>
-                {#if dossier.commentaire_libre && dossier.commentaire_libre.trim().length >= 1}
-                    <BoutonModale id={`dsfr-modale-${dossier.id}`}>
-                        <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
-
-                        <h1 slot="titre-modale" id="fr-modal-title-modal-1" class="fr-modal__title">Commentaire enjeux et procédure</h1>
-
-                        <div class="contenu-modale" slot="contenu-modale">
-                            {dossier.commentaire_libre}
-                        </div>
-                    </BoutonModale>
                 {/if}
             </div>
         </div>
