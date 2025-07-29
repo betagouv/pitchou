@@ -59,6 +59,10 @@ export function dumpEntreprises(entreprises){
 
 
 /**
+ * La table cap_écriture_annotation contient un instructeur_id qui est l'identifiant de l'instructeur
+ * dans démarches-simplifiées
+ * Cette fonction part de la capability d'écriture d'une annotation privée et retourne l'identifiant 
+ * d'instructeur (pour l'utiliser lors des appels API DS pour indiquer qui modifie une annotation privée)
  * 
  * @param {CapÉcritureAnnotation['cap']} cap 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
