@@ -25,7 +25,8 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
         if (![
             'Commune(s) où se situe le projet',
             'Département(s) où se situe le projet',
-            'Région(s) où se situe le projet'
+            'Région(s) où se situe le projet',
+            'À quelle procédure le projet est-il soumis ?'
         // @ts-ignore
         ].includes(champ)
         ) {
@@ -38,6 +39,11 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
         }
+    }
+
+    if (Array.isArray(dossierPartiel["À quelle procédure le projet est-il soumis ?"]) && dossierPartiel["À quelle procédure le projet est-il soumis ?"].length >= 1) {
+            objetPréremplissage[`champ_${démarcheDossierLabelToId.get("À quelle procédure le projet est-il soumis ?")}`] = 
+                dossierPartiel["À quelle procédure le projet est-il soumis ?"]
     }
 
     if (dossierPartiel['Numéro de SIRET']) {
@@ -77,8 +83,8 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
                         [communeChampRépété]: [codePostal, codeInsee]
                     }))
         }
-    }
-
+    }   
+    
     return objetPréremplissage
 }
 
