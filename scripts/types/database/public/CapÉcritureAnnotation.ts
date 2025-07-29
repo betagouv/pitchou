@@ -8,6 +8,7 @@ export type CapCritureAnnotationCap = string & { __brand: 'public.cap_écriture_
 export default interface CapCritureAnnotation {
   cap: CapCritureAnnotationCap;
 
+  /** Identifiant de l'instructeur.rice dans Démarches Simplifiées. Utile pour faire référence à l'instructeur.rice dans les appels API */
   instructeur_id: string;
 }
 
@@ -16,6 +17,7 @@ export interface CapCritureAnnotationInitializer {
   /** Default value: gen_random_uuid() */
   cap?: CapCritureAnnotationCap;
 
+  /** Identifiant de l'instructeur.rice dans Démarches Simplifiées. Utile pour faire référence à l'instructeur.rice dans les appels API */
   instructeur_id: string;
 }
 
@@ -23,5 +25,6 @@ export interface CapCritureAnnotationInitializer {
 export interface CapCritureAnnotationMutator {
   cap?: CapCritureAnnotationCap;
 
+  /** Identifiant de l'instructeur.rice dans Démarches Simplifiées. Utile pour faire référence à l'instructeur.rice dans les appels API */
   instructeur_id?: string;
 }
