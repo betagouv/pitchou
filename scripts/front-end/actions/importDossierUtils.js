@@ -38,9 +38,7 @@ import memoize from 'just-memoize'
 /**
  * Récupérer toutes les données de la commune et les données de son département
  * @param {string} nomCommune - Nom de la commune
- * @returns {Promise<{
- *   {GeoAPICommune & { departement: GeoAPIDépartement }}
- * } | null>}
+ * @returns {Promise< GeoAPICommune & { departement: GeoAPIDépartement } | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 
