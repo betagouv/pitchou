@@ -43,8 +43,7 @@ import memoize from 'just-memoize'
  */
 
 export async function getCommuneData(nomCommune) {
-    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
-
+const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
         console.warn(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
