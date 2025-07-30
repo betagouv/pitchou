@@ -144,12 +144,12 @@
             {/if}
 
             {#if contrôlesOuverts}
-            <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
+            <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-survey-line" 
                 on:click={() => fermerContrôles()}>
                 Fermer contrôles
             </button>
             {:else}
-            <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
+            <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-survey-line" 
                 on:click={() => ouvrirContrôles()}>
                 Ouvrir contrôles
             </button>
