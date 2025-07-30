@@ -3,7 +3,7 @@
 
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
-    import { chargerActivitésMéthodesTransports as chargerActivitésMéthodesTransports } from '../../actions/dossier.js';
+    import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js';
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
