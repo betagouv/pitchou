@@ -28,7 +28,7 @@ details{
             padding: 0.2em 0.4em;
             margin-left: 0.5em;
 
-            content: "Déplier ⮞";
+            content: "Déplier 🢂";
             white-space: pre;
             font-size: 0.8rem;
             color: var(--border-action-high-blue-france);
@@ -38,7 +38,7 @@ details{
 
     &[open]{
         summary::after{
-            content: "Replier ⮟";
+            content: "Replier 🢃";
         }
     }
 }
