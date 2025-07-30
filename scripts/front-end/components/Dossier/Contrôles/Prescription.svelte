@@ -1,5 +1,6 @@
 <script>
     import FormulaireContrôle from './FormulaireContrôle.svelte'
+    import DéplierReplier from '../../common/DéplierReplier.svelte'
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
     import {ajouterContrôle as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
@@ -113,122 +114,123 @@
 </script>
 
 <section class="prescription-consultée">
-    <h6>
-        {description} 
-        {#if numéro_article}
-        - 
-        <small><strong>Numéro article&nbsp;:&nbsp;</strong>
-            {numéro_article}
-        </small>
-        {/if}
-    </h6>
-    <p></p>
-    <p><strong>Date d'échéance&nbsp;:</strong>
-        {#if date_échéance}
-            <time datetime={date_échéance?.toISOString()}>{formatDateRelative(date_échéance)}</time>
-        {:else}
-            {NON_RENSEIGNÉ}
-        {/if}
-    </p>
-    {#if surface_évitée || surface_compensée || 
-        individus_évités || surface_compensée || 
-        nids_évités || nids_compensés}
-        <p class="impacts-quantifiés">
-            {#if surface_évitée}<span><strong>Surface évitée&nbsp;:</strong> {surface_évitée}m²</span>{/if}
-            {#if surface_compensée}<span><strong>Surface compensée&nbsp;:</strong> {surface_compensée}m²</span>{/if}
-            {#if individus_évités}<span><strong>Individus évités&nbsp;:</strong> {individus_évités}</span>{/if}
-            {#if individus_compensés}<span><strong>Individus compensés&nbsp;:</strong> {individus_compensés}</span>{/if}
-            {#if nids_évités}<span><strong>Nids évités&nbsp;:</strong> {nids_évités}</span>{/if}
-            {#if nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {nids_compensés}</span>{/if}
-        </p>
-    {/if}
+    <DéplierReplier>
+        <h6 slot="summary">
+            {description} 
+        </h6>
+        <section slot="content">
+            {#if numéro_article}
+            <p><strong>Numéro article&nbsp;:&nbsp;</strong>{numéro_article}</p>
+            {/if}
+            <p><strong>Date d'échéance&nbsp;:</strong>
+                {#if date_échéance}
+                    <time datetime={date_échéance?.toISOString()}>{formatDateRelative(date_échéance)}</time>
+                {:else}
+                    {NON_RENSEIGNÉ}
+                {/if}
+            </p>
 
-    {#if contrôlesOuverts}
-    <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
-        on:click={() => fermerContrôles()}>
-        Fermer contrôles
-    </button>
-    {:else}
-    <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
-        on:click={() => ouvrirContrôles()}>
-        Ouvrir contrôles
-    </button>
-    {/if}
-
-    {#if contrôlesOuverts}
-        <section class="contrôles">
-            <h6>{#if contrôles.size === 1}1 contrôle{:else}{contrôles.size} contrôles {/if}</h6>
-
-            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterContrôle}>
-                Ajouter un contrôle
-            </button>
-
-            {#if contrôleEnCours}
-                <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}>
-                    <button slot="bouton-valider" type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-                        Finir le contrôle
-                    </button>
-                    <button
-                        slot="bouton-annuler"
-                        type="button"
-                        class="fr-btn fr-btn--secondary"
-                        on:click={() => (contrôleEnCours = undefined)}
-                    >
-                        Fermer le contrôle sans sauvegarder
-                    </button>
-                </FormulaireContrôle>
+            {#if surface_évitée || surface_compensée || 
+                individus_évités || surface_compensée || 
+                nids_évités || nids_compensés}
+                <p class="impacts-quantifiés">
+                    {#if surface_évitée}<span><strong>Surface évitée&nbsp;:</strong> {surface_évitée}m²</span>{/if}
+                    {#if surface_compensée}<span><strong>Surface compensée&nbsp;:</strong> {surface_compensée}m²</span>{/if}
+                    {#if individus_évités}<span><strong>Individus évités&nbsp;:</strong> {individus_évités}</span>{/if}
+                    {#if individus_compensés}<span><strong>Individus compensés&nbsp;:</strong> {individus_compensés}</span>{/if}
+                    {#if nids_évités}<span><strong>Nids évités&nbsp;:</strong> {nids_évités}</span>{/if}
+                    {#if nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {nids_compensés}</span>{/if}
+                </p>
             {/if}
 
-            {#each contrôles as contrôle}
-                {#if contrôle === contrôleEnModification}
-                    <h6>Modification du contrôle</h6>
+            {#if contrôlesOuverts}
+            <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
+                on:click={() => fermerContrôles()}>
+                Fermer contrôles
+            </button>
+            {:else}
+            <button class="contrôles fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-survey-line" 
+                on:click={() => ouvrirContrôles()}>
+                Ouvrir contrôles
+            </button>
+            {/if}
 
-                    <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}>
-                        <button
-                            slot="bouton-annuler"
-                            type="button"
-                            class="fr-btn fr-btn--secondary"
-                            on:click={() => (contrôleEnModification = undefined)}
-                        >
-                            Annuler
-                        </button>
+            {#if contrôlesOuverts}
+                <section class="contrôles">
+                    <h6>{#if contrôles.size === 1}1 contrôle{:else}{contrôles.size} contrôles {/if}</h6>
 
-                        <div slot="bouton-supprimer" class="bouton-supprimer">
+                    <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterContrôle}>
+                        Ajouter un contrôle
+                    </button>
+
+                    {#if contrôleEnCours}
+                        <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}>
+                            <button slot="bouton-valider" type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                                Finir le contrôle
+                            </button>
                             <button
-                                
+                                slot="bouton-annuler"
                                 type="button"
-                                class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
-                                on:click={supprimerContrôleEnModification}
+                                class="fr-btn fr-btn--secondary"
+                                on:click={() => (contrôleEnCours = undefined)}
                             >
-                                Supprimer
+                                Fermer le contrôle sans sauvegarder
                             </button>
-                        </div>
-                    </FormulaireContrôle>
-                {:else}
-                    <section class="contrôle">
-                        <h6>
-                            Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
-                            <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
-                                on:click={() => passerContrôleEnModification(contrôle)}>
-                                Modifier
-                            </button>
-                        </h6>
-                        <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
-                        <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
-                        <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
-                        <strong>Date action suite au contrôle&nbsp;:</strong> 
-                            <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
-                        <br>
-                        <strong>Date prochaine échéance&nbsp;:</strong> 
-                            <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
-                        <br>
-                    </section>
-                {/if}
-            {/each}
+                        </FormulaireContrôle>
+                    {/if}
+
+                    {#each contrôles as contrôle}
+                        {#if contrôle === contrôleEnModification}
+                            <h6>Modification du contrôle</h6>
+
+                            <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}>
+                                <button
+                                    slot="bouton-annuler"
+                                    type="button"
+                                    class="fr-btn fr-btn--secondary"
+                                    on:click={() => (contrôleEnModification = undefined)}
+                                >
+                                    Annuler
+                                </button>
+
+                                <div slot="bouton-supprimer" class="bouton-supprimer">
+                                    <button
+                                        
+                                        type="button"
+                                        class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
+                                        on:click={supprimerContrôleEnModification}
+                                    >
+                                        Supprimer
+                                    </button>
+                                </div>
+                            </FormulaireContrôle>
+                        {:else}
+                            <section class="contrôle">
+                                <h6>
+                                    Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
+                                    <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
+                                        on:click={() => passerContrôleEnModification(contrôle)}>
+                                        Modifier
+                                    </button>
+                                </h6>
+                                <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
+                                <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
+                                <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
+                                <strong>Date action suite au contrôle&nbsp;:</strong> 
+                                    <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
+                                <br>
+                                <strong>Date prochaine échéance&nbsp;:</strong> 
+                                    <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
+                                <br>
+                            </section>
+                        {/if}
+                    {/each}
+                </section>
+
+            {/if}
         </section>
-
-    {/if}
-
+    </DéplierReplier>
+    
 </section>
 
 <style lang="scss">
