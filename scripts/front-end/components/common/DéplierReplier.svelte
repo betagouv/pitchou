@@ -1,5 +1,13 @@
 <script>
 
+/**
+ * Composant utilisé pour un usage un peu similaire à l'accordéon du DSFR...
+ * https://www.systeme-de-design.gouv.fr/version-courante/fr/composants/accordeon
+ * 
+ * ...mais quand celui-ci est trop balourd et qu'on préfère un details/summary pus léger visuellement 
+ * et standard
+ */
+
 /** @type {boolean}*/
 export let open = false
 
