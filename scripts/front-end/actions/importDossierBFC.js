@@ -2,9 +2,45 @@
 
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
-/** @import Dossier from "../../types/database/public/Dossier" */
-/** @import {Ligne} from "./importDossierUtils" */
-/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+
+/** @import { DonnéesSupplémentaires } from "./importDossierUtils" */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import Dossier from '../../types/database/public/Dossier.ts' */
+
+/** @typedef {{
+ * "Date de sollicitation": Date;
+ * ORIGINE: string;
+ * OBJET: string;
+ * "N° Dossier DEROG": number;
+ * ÉCHÉANCE: string;
+ * "POUR\nATTRIBUTION": string;
+ * OBSERVATIONS: string;
+ * PETITIONNAIRE: string;
+ * "Catégorie du demandeur": string;
+ * "Nom contact – mail": string;
+ * "Année de première sollicitation": number;
+ * Communes: string;
+ * Département: number | string;
+ * Thématique: string;
+ * "Procédure associée": string;
+ * "Etapes du projet": string;
+ * "Stade de l’avis": string;
+ * "Description avancement dossier avec dates": string;
+ * "Avis SBEP": string;
+ * "Date de rendu de l’avis/envoi réponse": Date;
+ * "Sollicitation OFB pour avis": string;
+ * DEP: string;
+ * "Date de dépôt DEP": string;
+ * "Saisine CSRPN/CNPN": string;
+ * "Date saisine CSRPN/CNPN": string;
+ * "Nom de l’expert désigné (pour le CSRPN)": string;
+ * "N° de l’avis Onagre ou interne": string;
+ * "Avis CSRPN/CNPN": string;
+ * "Date avis CSRPN/CNPN": string;
+ * "Dérogation accordée": string;
+ * "Date AP": string;
+ * }} LigneDossierBFC;
+ */
 
 /**
  * @typedef {"Autres" |
@@ -29,7 +65,7 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
 
 
 /**
- * @type {Map<ThématiquesOptions, import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444['Activité principale']>}
+ * @type {Map<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>}
  */
 const correspondanceThématiqueVersActivitéPrincipale = new Map([
     ["Autres", "Autre"],
@@ -56,7 +92,7 @@ const correspondanceThématiqueVersActivitéPrincipale = new Map([
 /**
  * 
  * @param {string} valeur
- * @returns {import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444['Activité principale']}
+ * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
 function convertirThématiqueEnActivitéPrincipale(valeur) {
     const activité = correspondanceThématiqueVersActivitéPrincipale.get(    /** @type {ThématiquesOptions} */(valeur))
@@ -73,7 +109,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
  * @typedef {{
  *   commentaire_libre: Dossier['commentaire_libre'],
  *   date_dépôt: Dossier['date_dépôt'],
- *   suivi_par: string | undefined,
+ *   personne_mail: string | undefined,
  *   historique_dossier: string | undefined,
  *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
  *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
@@ -91,21 +127,27 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
- * @param {Ligne} ligne
+ * @param {LigneDossierBFC} ligne
  * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const commentaire_libre = (ligne['OBSERVATIONS'] || ligne['Description avancement dossier avec dates']) ? 'Description avancement dossier avec dates : ' + (ligne['Description avancement dossier avec dates'] ?? '') + '\nObservations : ' + (ligne['OBSERVATIONS'] ?? '') : ''
+    const description = ligne['Description avancement dossier avec dates']
+        ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
+        : '';
+    const observations = ligne['OBSERVATIONS']
+        ? 'Observations : ' + ligne['OBSERVATIONS']
+        : '';
+    const commentaire_libre = [description, observations]
+        .filter(value => value?.trim())
+        .join('\n');
 
-
-    // TODO : Modifier ce champ pour qu'il colle à la base de données
-    const prochaine_action_attendue_par = ligne['Stade de l’avis']
 
 
     const dep = ligne['DEP']
     const date_de_depot_dep = ligne['Date de dépôt DEP']
     const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
     const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+
     const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
     const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
     const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
@@ -116,30 +158,37 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     return {
         'commentaire_libre': commentaire_libre,
         'date_dépôt': ligne['Date de sollicitation'],
-        'suivi_par': ligne['POUR\nATTRIBUTION'],
-        'historique_dossier': ligne['Description avancement dossier avec dates'],
         'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
-        'prochaine_action_attendue_par': prochaine_action_attendue_par,
+        'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
+
+        // Champs pour la table arête_personne_suit_dossier
+        'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
+
+        // Infos utiles historiques dossier
+        'historique_dossier': ligne['Description avancement dossier avec dates'],
         'DEP': dep,
         'date_de_depot_dep': date_de_depot_dep,
+        'derogation_accordee': derogation_accordee,
+        'date_ap': date_ap,
+
+        // Infos utiles saisines CSRPN/CNPN
         'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
         'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
         'nom_expert_csrpn': nom_expert_csrpn,
         'avis_csrpn_cnpn': avis_csrpn_cnpn,
         'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
-        'derogation_accordee': derogation_accordee,
-        'date_ap': date_ap
     }
 }
 
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
- * @param {Ligne} ligne
+ * @param {LigneDossierBFC} ligne
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
 export async function créerDossierDepuisLigne(ligne) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
+    const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
 
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
@@ -152,12 +201,13 @@ export async function créerDossierDepuisLigne(ligne) {
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
-        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": ['déclaration loi sur eau'].includes(ligne['Procédure associée'].toLowerCase()) ? 'Oui' : 'Non',
-        'À quelle procédure le projet est-il soumis ?': ligne['Procédure associée'].toLowerCase() === 'déclaration loi sur eau' ? ["Autorisation loi sur l'eau"] : undefined,
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": donnéesAutorisationEnvironnementale["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"],
+        'À quelle procédure le projet est-il soumis ?': donnéesAutorisationEnvironnementale['À quelle procédure le projet est-il soumis ?'],
         'Le demandeur est…': donnéesDemandeurs["Le demandeur est…"],
         'Adresse mail de contact': donnéesDemandeurs['Adresse mail de contact'],
         'Nom du représentant': donnéesDemandeurs['Nom du représentant'],
-        'Prénom du représentant': donnéesDemandeurs['Prénom du représentant']
+        'Prénom du représentant': donnéesDemandeurs['Prénom du représentant'],
+        'Qualité du représentant': donnéesDemandeurs['Qualité du représentant'],
     };
 }
 
@@ -168,8 +218,8 @@ export async function créerDossierDepuisLigne(ligne) {
  * - Sinon, le type est "une personne morale" et on tente d'extraire le nom et prénom du représentant à partir du champ "Nom contact – mail".
  * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
  *
- * @param {Ligne} ligne Ligne d'import contenant les informations du demandeur
- * @returns {Pick<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444,"Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact">}
+ * @param {LigneDossierBFC} ligne Ligne d'import contenant les informations du demandeur
+ * @returns {Pick<DossierDemarcheSimplifiee88444, "Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact" | 'Qualité du représentant'>}
  *   Objet contenant le type de demandeur, le nom/prénom du représentant (si applicable), et l'adresse mail de contact.
  */
 function générerDonnéesDemandeurs(ligne) {
@@ -193,6 +243,7 @@ function générerDonnéesDemandeurs(ligne) {
             "Nom du représentant": prénomNom?.nom ?? '',
             "Prénom du représentant": prénomNom?.prénom ?? '',
             "Adresse mail de contact": mail,
+            "Qualité du représentant": ligne['PETITIONNAIRE']
         }
     } else {
         return {
@@ -200,20 +251,47 @@ function générerDonnéesDemandeurs(ligne) {
             "Adresse mail de contact": mail,
             "Nom du représentant": '',
             "Prénom du représentant": '',
+            "Qualité du représentant": '',
         }
     }
 
 }
 
 /**
+ * @param {LigneDossierBFC} ligne
+ * @returns {Pick<DossierDemarcheSimplifiee88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
+ */
+function générerDonnéesAutorisationEnvironnementale(ligne) {
+    const procedure_associée = ligne['Procédure associée'].toLowerCase();
+
+    if (procedure_associée === 'déclaration loi sur eau') {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation loi sur l'eau"]
+        };
+    } else if (procedure_associée === "autorisation environnementale") {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE", "Autorisation loi sur l'eau"]
+        };
+    }
+
+    // Cas par défaut si aucune condition n'est remplie
+    return {
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Non',
+        "À quelle procédure le projet est-il soumis ?": []
+    };
+}
+
+/**
  * 
  * @param {{Communes: string | undefined, Département: number | string}} ligne 
  * @returns { Promise<
- *              Partial<Pick<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444,
+ *              Partial<Pick<DossierDemarcheSimplifiee88444,
  *                  "Commune(s) où se situe le projet" | 
  *                  "Département(s) où se situe le projet" |
  *                  "Le projet se situe au niveau…"
- *              >> & Pick<import("../../types/démarches-simplifiées/DémarcheSimplifiée88444").DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
+ *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
  *           >}
  */
 async function générerDonnéesLocalisations(ligne) {
@@ -235,7 +313,7 @@ async function générerDonnéesLocalisations(ligne) {
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
             "Le projet se situe au niveau…": "d'une ou plusieurs communes",
-            "Dans quel département se localise majoritairement votre projet ?": départements[0],
+            "Dans quel département se localise majoritairement votre projet ?": communes[0].departement,
         }
     } else {
         return {
@@ -245,4 +323,29 @@ async function générerDonnéesLocalisations(ligne) {
             "Dans quel département se localise majoritairement votre projet ?": départements[0]
         }
     }
+}
+
+
+/**
+ * Cette fonction permet de remplir le champ "prochaine_action_attendue_par" en base de données
+ * @param {LigneDossierBFC} ligne 
+ * @returns {string}
+ */
+function générerProchaineActionAttenduePar(ligne) {
+    const valeur = ligne['Stade de l’avis'].trim();
+
+    if (valeur === 'En attente d’éléments pétitionnaire') {
+        return 'Pétitionnaire'
+    } else if (valeur === 'En attente avis CSRPN/CNPN') {
+        return 'CNPN/CSRPN'
+    } else if (valeur === "En cours d’examen par DBIO") {
+        return 'Autre administration'
+    } else if (valeur === "En attente signature") {
+        return 'Autre administration'
+    } else if (valeur === 'Clos') {
+        return 'Personne'
+    }
+
+    // Par défaut, on considère que la prochaine action attendue est celle de l'instruteur.i.ce
+    return 'Instructeur'
 }

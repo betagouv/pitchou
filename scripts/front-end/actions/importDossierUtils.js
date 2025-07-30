@@ -8,51 +8,42 @@ import memoize from 'just-memoize'
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 //@ts-ignore
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-
-/** @typedef {{
- * "Date de sollicitation": Date;
- * ORIGINE: string;
- * OBJET: string;
- * "N° Dossier DEROG": number;
- * ÉCHÉANCE: string;
- * "POUR\nATTRIBUTION": string;
- * OBSERVATIONS: string;
- * PETITIONNAIRE: string;
- * "Catégorie du demandeur": string;
- * "Nom contact – mail": string;
- * "Année de première sollicitation": number;
- * Communes: string;
- * Département: number | string;
- * Thématique: string;
- * "Procédure associée": string;
- * "Etapes du projet": string;
- * "Stade de l’avis": string;
- * "Description avancement dossier avec dates": string;
- * "Avis SBEP": string;
- * "Date de rendu de l’avis/envoi réponse": Date;
- * "Sollicitation OFB pour avis": string;
- * DEP: string;
- * "Date de dépôt DEP": string;
- * "Saisine CSRPN/CNPN": string;
- * "Date saisine CSRPN/CNPN": string;
- * "Nom de l’expert désigné (pour le CSRPN)": string;
- * "N° de l’avis Onagre ou interne": string;
- * "Avis CSRPN/CNPN": string;
- * "Date avis CSRPN/CNPN": string;
- * "Dérogation accordée": string;
- * "Date AP": string;
- * }} Ligne;
- */
+//@ts-ignore
+/** @import Dossier from "../../types/database/public/Dossier" */
 
 /**
- * 
- * @param {string} nomCommune 
- * @returns {Promise<GeoAPICommune | null>}
+ * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
+ * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
+ * données propres à Pitchou comme le suivi des dossiers
+ * @typedef {{
+ *   commentaire_libre: Dossier['commentaire_libre'],
+ *   date_dépôt: Dossier['date_dépôt'],
+ *   personne_mail: string | undefined,
+ *   historique_dossier: string | undefined,
+ *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
+ *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
+ *   DEP: string | undefined,
+ *   date_de_depot_dep: string | undefined,
+ *   saisine_csrpn_cnpn: string | undefined,
+ *   date_saisine_csrpn_cnpn: string | undefined,
+ *   nom_expert_csrpn: string | undefined,
+ *   avis_csrpn_cnpn: string | undefined,
+ *   date_avis_csrpn_cnpn: string | undefined,
+ *   derogation_accordee: string | undefined,
+ *   date_ap: string | undefined
+ * }} DonnéesSupplémentaires
+ */
+
+
+/**
+ * Récupérer toutes les données de la commune et les données de son département
+ * @param {string} nomCommune - Nom de la commune
+ * @returns {Promise< GeoAPICommune & { departement: GeoAPIDépartement } | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
-export async function getCommuneData(nomCommune) {
-    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren&format=json&geometry=centre`);
 
+export async function getCommuneData(nomCommune) {
+    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
         console.warn(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
@@ -126,21 +117,21 @@ export async function formaterDépartementDepuisValeur(valeur) {
         for (const bloc of blocs) {
             codes.push(bloc)
         }
-
-
-        const départementsP = codes.map((code) => getDépartementData(code))
-        const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
-
-        if (départements.length >= 1) {
-            // On force le cast car la logique garantit un tableau non vide
-            return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
-        }
     }
-    // Par défaut, on retourne le département Côte-d'Or
-    return [{
-        code: '21',
-        nom: `Côte-d'Or`
-    }];
+
+    const départementsP = codes.map((code) => getDépartementData(code))
+    const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
+
+    if (départements.length >= 1) {
+        // On force le cast car la logique garantit un tableau non vide
+        return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
+    } else {
+        // Par défaut, on retourne le département Côte-d'Or
+        return [{
+            code: '21',
+            nom: `Côte-d'Or`
+        }];
+    } 
 }
 
 
