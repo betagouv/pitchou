@@ -75,7 +75,7 @@
      * 
      * @param {Event} e
      */
-    function handleOnChange (e) {
+    function handleModifierChamp (e) {
         mettreAJourDossier(e)
         retirerAlert()
     }
@@ -105,7 +105,7 @@
     </section>
 
     <section>
-        <form class="fr-mb-4w" on:input={handleOnChange} on:focus={retirerAlert}>
+        <form class="fr-mb-4w" on:input={handleModifierChamp} on:focus={retirerAlert}>
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
