@@ -68,8 +68,7 @@
 </script>
 
 <div class="row">
-    <h2>Contrôles</h2>
-    <h3>Décisions administratives</h3>
+    <h2>Décisions administratives</h2>
 
     {#if décisionsAdministratives.length === 0}
         <p>Il n'y a pas de décisions administrative à contrôler concernant ce dossier</p>
