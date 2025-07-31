@@ -5,7 +5,7 @@
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou' */    
+    /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
     
     /** @type {DossierComplet} */
     export let dossier
@@ -14,35 +14,26 @@
 
     $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
 
-    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par' | 'commentaire_libre'> & {phase: DossierPhase}} */
-    let dossierParams = {
-        phase: phaseActuelle,
-        prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
-        commentaire_libre: dossier.commentaire_libre
-    }
 
-    $: dossierParams.phase = phaseActuelle
+    $: phase = phaseActuelle
+    let commentaire_libre = dossier.commentaire_libre
+    let prochaine_action_attendue_par = dossier.prochaine_action_attendue_par
 
 
     let messageErreur = "" 
     let afficherMessageSucces = false
 
-    /**
-     * 
-     * @param {Event} e
-     */
-    const mettreAJourDossier = (e) => {
-        e.preventDefault()
 
+    $: {
         /** @type {Partial<DossierComplet>} */
         const modifs = {}
 
-        if(phaseActuelle !== dossierParams.phase){
+        if(phaseActuelle !== phase){
             modifs.évènementsPhase = [
                 {
                     dossier: dossier.id,
                     horodatage: new Date(),
-                    phase: dossierParams.phase,
+                    phase: phase,
                     cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
                     DS_emailAgentTraitant: null,
                     DS_motivation: null
@@ -50,34 +41,29 @@
             ]
         }
 
-        if (dossier.commentaire_libre !== dossierParams.commentaire_libre) {
-            modifs.commentaire_libre = dossierParams.commentaire_libre
+        if (dossier.commentaire_libre !== commentaire_libre?.trim()) {
+            modifs.commentaire_libre = commentaire_libre?.trim()
         }
         
-        if(dossier.prochaine_action_attendue_par !== dossierParams.prochaine_action_attendue_par){
-            modifs.prochaine_action_attendue_par = dossierParams.prochaine_action_attendue_par
+        if(dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par){
+            modifs.prochaine_action_attendue_par = prochaine_action_attendue_par
         }
 
-        modifierDossier(dossier, modifs)
-            .then(() => afficherMessageSucces = true)
-            .catch((error) => {
-                console.info(error)
-                messageErreur = "Quelque chose s'est mal passé du côté serveur."
-            })
+        if (Object.keys(modifs).length>=1){
+
+
+            modifierDossier(dossier, modifs)
+                .then(() => afficherMessageSucces = true)
+                .catch((error) => {
+                    console.info(error)
+                    messageErreur = "Quelque chose s'est mal passé du côté serveur."
+                })
+        }
     }
 
     const retirerAlert = () => { 
         messageErreur = ""
         afficherMessageSucces = false
-    }
-
-    /**
-     * 
-     * @param {Event} e
-     */
-    function handleModifierChamp (e) {
-        mettreAJourDossier(e)
-        retirerAlert()
     }
 
 
@@ -119,7 +105,7 @@
 
         <div class="fr-input-group" id="input-group-commentaitre-libre">
             <strong><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong>
-            <textarea on:focusout={handleModifierChamp}  on:focus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
+            <textarea on:focus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={commentaire_libre} rows={8}></textarea>
             <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
             </div>
         </div>
@@ -128,7 +114,7 @@
             <label class="fr-label" for="phase">
                 <strong>Phase du dossier</strong>
             </label>
-            <select on:input={handleModifierChamp} on:focus={retirerAlert} bind:value={dossierParams["phase"]} class="fr-select" id="phase">
+            <select on:focus={retirerAlert} bind:value={phase} class="fr-select" id="phase">
                 {#each [...phases] as phase}
                     <option value={phase}>{phase}</option>
                 {/each}
@@ -139,7 +125,7 @@
                 <strong>Prochaine action attendue de</strong>
             </label>
     
-            <select on:input={handleModifierChamp} on:focus={retirerAlert} bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
+            <select on:focus={retirerAlert} bind:value={prochaine_action_attendue_par} class="fr-select" id="prochaine_action_attendue_par">
                 {#each [...prochaineActionAttenduePar] as acteur}
                     <option value={acteur}>{acteur}</option>
                 {/each}
