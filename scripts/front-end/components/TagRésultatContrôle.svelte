@@ -7,7 +7,7 @@
     /** @import { RésultatContrôle } from '../../types/API_Pitchou.ts' */
 	
 
-    /** @type {RésultatContrôle} */
+    /** @type {RésultatContrôle | string} */
     export let résultatContrôle
 
     // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
@@ -42,6 +42,7 @@
     $: allClasses = [
         'fr-tag',
         tailleToClass.get(taille),
+        // @ts-ignore
         résultatToClass.get(résultatContrôle),
         ...classes
     ]
@@ -71,12 +72,9 @@
 
 
 <style lang="scss">
-    $couleur-phase-accompagnement-amont: var(--artwork-minor-yellow-tournesol);
-    $couleur-phase-étude-recevabilité: var(--background-action-high-orange-terre-battue);
-    $couleur-phase-instruction: var(--background-flat-blue-cumulus);
-    $couleur-phase-contrôle: var(--background-flat-pink-tuile);
-    $couleur-phase-classé-sans-suite: var(--background-flat-green-menthe);
-    $couleur-phase-obligations-terminées: var(--background-flat-purple-glycine);
+    $couleur-résultat-contrôle-conforme: var(--background-flat-success);
+    $couleur-résultat-contrôle-non-conforme: var(--background-flat-error);
+    $couleur-résultat-contrôle-autre: var(--background-flat-beige-gris-galet);
 
     p{
         white-space: nowrap;
@@ -89,58 +87,27 @@
             background-image: none;
         }
 
-        &.phase--accompagnement-amont{
-            background-color: $couleur-phase-accompagnement-amont;
-            color: var(--text-inverted-yellow-tournesol);
+        &.résultat--conforme{
+            background-color: $couleur-résultat-contrôle-conforme;
+            color: var(--text-inverted-success);
 
             &::after{
-                color: $couleur-phase-accompagnement-amont;
+                color: $couleur-résultat-contrôle-conforme;
             }
         }
-        &.phase--étude-recevabilité{
-            background-color: $couleur-phase-étude-recevabilité;
-            color: var(--text-inverted-orange-terre-battue);
+        &.résultat--non-conforme,
+        &.résultat--non-conforme-pas-information{
+            background-color: $couleur-résultat-contrôle-non-conforme;
+            color: var(--text-inverted-error);
             
             &::after{
-                color: $couleur-phase-étude-recevabilité;
-            }
-        }
-        &.phase--instruction{
-            background-color: $couleur-phase-instruction;
-            color: var(--text-inverted-blue-cumulus);
-            
-            &::after{
-                color: $couleur-phase-instruction;
-            }
-        }
-        &.phase--contrôle{
-            background-color: $couleur-phase-contrôle;
-            color: var(--text-inverted-pink-tuile);
-            
-            &::after{
-                color: $couleur-phase-contrôle;
-            }
-        }
-        &.phase--classé-sans-suite{
-            background-color: $couleur-phase-classé-sans-suite;
-            color: var(--text-inverted-green-menthe);
-            
-            &::after{
-                color: $couleur-phase-classé-sans-suite;
-            }
-        }
-        &.phase--obligations-terminées{
-            background-color: $couleur-phase-obligations-terminées;
-            color: var(--text-inverted-purple-glycine);
-            
-            &::after{
-                color: $couleur-phase-obligations-terminées;
+                color: $couleur-résultat-contrôle-non-conforme;
             }
         }
     }
 
     button.fr-tag[aria-pressed="false"]{
-        &.phase--accompagnement-amont{
+        /*&.phase--accompagnement-amont{
             color: $couleur-phase-accompagnement-amont;
             border: 1px solid $couleur-phase-accompagnement-amont;
         }
@@ -163,6 +130,6 @@
         &.phase--obligations-terminées{
             color: $couleur-phase-obligations-terminées;
             border: 1px solid $couleur-phase-obligations-terminées;
-        }
+        }*/
     }
 </style>
