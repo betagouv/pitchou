@@ -1,11 +1,11 @@
 <script>
     //@ts-check
-
+    import debounce from "just-debounce-it";
     import TagPhase from '../TagPhase.svelte'
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
 
-    /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou' */    
+    /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
     
     /** @type {DossierComplet} */
     export let dossier
@@ -13,52 +13,61 @@
     const {number_demarches_simplifiées: numdos} = dossier
 
     $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
-    
-    /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
-    let dossierParams = {
-        phase: phaseActuelle,
-        prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
-    }
 
-    $: dossierParams.phase = phaseActuelle
+
+    $: phase = phaseActuelle
+    let commentaire_libre = dossier.commentaire_libre
+    let prochaine_action_attendue_par = dossier.prochaine_action_attendue_par
 
 
     let messageErreur = "" 
     let afficherMessageSucces = false
 
-    /**
-     * 
-     * @param {Event} e
-     */
-    const mettreAJourDossier = (e) => {
-        e.preventDefault()
 
+    /** @type {((modifs: Partial<DossierComplet>) => void)} */
+    const modifierChamp = (modifs) => {
+        modifierDossier(dossier, modifs)
+            .then(() => afficherMessageSucces = true)
+            .catch((error) => {
+                console.info(error)
+                messageErreur = "Quelque chose s'est mal passé du côté serveur."
+        })
+    }
+
+    const modifierChampAvecDebounce = debounce(modifierChamp, 1000)
+
+    $: {
         /** @type {Partial<DossierComplet>} */
         const modifs = {}
 
-        if(phaseActuelle !== dossierParams.phase){
+        if(phaseActuelle !== phase){
             modifs.évènementsPhase = [
                 {
                     dossier: dossier.id,
                     horodatage: new Date(),
-                    phase: dossierParams.phase,
+                    phase: phase,
                     cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
                     DS_emailAgentTraitant: null,
                     DS_motivation: null
                 }
             ]
         }
+
+        if (dossier.commentaire_libre !== commentaire_libre?.trim()) {
+            modifs.commentaire_libre = commentaire_libre?.trim()
+        }
         
-        if(dossier.prochaine_action_attendue_par !== dossierParams.prochaine_action_attendue_par){
-            modifs.prochaine_action_attendue_par = dossierParams.prochaine_action_attendue_par
+        if(dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par){
+            modifs.prochaine_action_attendue_par = prochaine_action_attendue_par
         }
 
-        modifierDossier(dossier, modifs)
-            .then(() => afficherMessageSucces = true)
-            .catch((error) => {
-                console.info(error)
-                messageErreur = "Quelque chose s'est mal passé du côté serveur."
-            })
+        if (Object.keys(modifs).length>=1){
+            if (modifs.commentaire_libre) {
+                modifierChampAvecDebounce(modifs)
+            } else {
+                modifierChamp(modifs)
+            }
+        }
     }
 
     const retirerAlert = () => { 
@@ -91,50 +100,50 @@
     </section>
 
     <section>
-        <h2>Annotations privées</h2>
-        <a class="fr-btn fr-btn--secondary fr-mb-8w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
-
-
-        <h2>Phase et action attendue</h2>
-        
-        <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
-            {#if messageErreur}
-                <div class="fr-alert fr-alert--error fr-mb-3w">
-                    <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
-                    <p>{messageErreur}</p>
-                </div>
-            {/if}
-            {#if afficherMessageSucces}
+        {#if messageErreur}
+            <div class="fr-alert fr-alert--error fr-mb-3w">
+                <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
+                <p>{messageErreur}</p>
+            </div>
+        {/if}
+        {#if afficherMessageSucces}
             <div class="fr-alert fr-alert--success fr-mb-3w">
-                <p>La phase et de qui est attendu la prochaine action ont été mises à jour !</p>
+                <p>Le dossier a bien été mis à jour.</p>
             </div>
-            {/if}
-            <div class="fr-input-group">
-                <label class="fr-label" for="phase">
-                    Phase du dossier
-                </label>
-        
-                <select bind:value={dossierParams["phase"]} class="fr-select" id="phase">
-                    {#each [...phases] as phase}
-                        <option value={phase}>{phase}</option>
-                    {/each}
-                </select>
-            </div>
-            <div class="fr-input-group">
-                <label class="fr-label" for="prochaine_action_attendue_par">
-                    Prochaine action attendue de&nbsp;:
-                </label>
-        
-                <select bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
-                    {#each [...prochaineActionAttenduePar] as acteur}
-                        <option value={acteur}>{acteur}</option>
-                    {/each}
-                </select>
-            </div>
-            <button class="fr-btn" type="submit">Mettre à jour</button>
-        </form>
+        {/if}
 
-        
+        <div class="fr-input-group" id="input-group-commentaitre-libre">
+            <strong><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong>
+            <textarea on:focus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={commentaire_libre} rows={8}></textarea>
+            <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
+            </div>
+        </div>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="phase">
+                <strong>Phase du dossier</strong>
+            </label>
+            <select on:focus={retirerAlert} bind:value={phase} class="fr-select" id="phase">
+                {#each [...phases] as phase}
+                    <option value={phase}>{phase}</option>
+                {/each}
+            </select>
+        </div>
+        <div class="fr-input-group">
+            <label class="fr-label" for="prochaine_action_attendue_par">
+                <strong>Prochaine action attendue de</strong>
+            </label>
+    
+            <select on:focus={retirerAlert} bind:value={prochaine_action_attendue_par} class="fr-select" id="prochaine_action_attendue_par">
+                {#each [...prochaineActionAttenduePar] as acteur}
+                    <option value={acteur}>{acteur}</option>
+                {/each}
+            </select>
+        </div>
+
+
+        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+
     </section>
 
 </section>
@@ -168,6 +177,10 @@
             }
         }
 
+    }
+
+    .resize-vertical {
+        resize: vertical
     }
 
 </style>
