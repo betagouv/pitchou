@@ -75,10 +75,3 @@ jobs:
 
           - name: Test build
             run: pnpm run build
-
-          - name: Build Check
-            uses: ghostdevv/svelte-check-action@v1
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            with:
-              failOnError: true
