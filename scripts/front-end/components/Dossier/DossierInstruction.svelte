@@ -117,18 +117,16 @@
             </div>
         {/if}
 
-        <h2> Commentaire </h2>
         <div class="fr-input-group" id="input-group-commentaitre-libre">
-            <label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label>
+            <strong><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong>
             <textarea on:focusout={handleModifierChamp}  on:focus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={dossierParams["commentaire_libre"]} rows={8}></textarea>
             <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
             </div>
         </div>
 
-        <h2>Phase et action attendue</h2>
         <div class="fr-input-group">
             <label class="fr-label" for="phase">
-                Phase du dossier
+                <strong>Phase du dossier</strong>
             </label>
             <select on:input={handleModifierChamp} on:focus={retirerAlert} bind:value={dossierParams["phase"]} class="fr-select" id="phase">
                 {#each [...phases] as phase}
@@ -138,7 +136,7 @@
         </div>
         <div class="fr-input-group">
             <label class="fr-label" for="prochaine_action_attendue_par">
-                Prochaine action attendue de&nbsp;:
+                <strong>Prochaine action attendue de</strong>
             </label>
     
             <select on:input={handleModifierChamp} on:focus={retirerAlert} bind:value={dossierParams["prochaine_action_attendue_par"]} class="fr-select" id="prochaine_action_attendue_par">
@@ -149,8 +147,7 @@
         </div>
 
 
-        <h2>Annotations privées</h2>
-        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
     </section>
 
