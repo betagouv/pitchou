@@ -117,7 +117,13 @@
 <section class="prescription-consultée">
     <DéplierReplier>
         <h6 slot="summary">
-            {description} 
+            {#if description}
+                {description}
+            {:else if numéro_article}
+                Numéro article&nbsp;:&nbsp;{numéro_article}
+            {:else}
+                (Prescription non renseignée)
+            {/if}
         </h6>
         <section slot="content">
             {#if numéro_article}
