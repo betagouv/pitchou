@@ -52,7 +52,7 @@ jobs:
           with:
             # filterChanges: false
             failOnError: true
-    build:
+  build:
       name: Test npm run build
       runs-on: ubuntu-latest
       steps:
