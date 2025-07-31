@@ -12,7 +12,6 @@
     import DossierGénérationDocuments from '../Dossier/DossierGénérationDocuments.svelte'
     import {MediaTypeError} from '../../../commun/errors.js';
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js';
-    import page from 'page';
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
@@ -71,7 +70,8 @@
      */
     function naviguerVersOnglet(onglet) {
         const url = `/dossier/${dossier.id}/${onglet}`
-        page(url)
+        // Changer l'URL sans recharger la page
+        history.pushState(null, '', url)
     }
 
     /**
