@@ -19,8 +19,9 @@ import {chargerRelationSuivi} from '../actions/main.js'
  * @param {Object} ctx
  * @param {Object} ctx.params
  * @param {string} ctx.params.dossierId
+ * @param {string} [ctx.params.onglet]
  */
-export default async ({params: {dossierId}}) => {
+export default async ({params: {dossierId, onglet}}) => {
     /** @type {DossierId} */
     // @ts-ignore
     const id = Number(dossierId)
@@ -36,7 +37,7 @@ export default async ({params: {dossierId}}) => {
 
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
-        
+
     /**
      * 
      * @param {PitchouState} state
@@ -50,12 +51,17 @@ export default async ({params: {dossierId}}) => {
         const messages = state.messagesParDossierId.get(id)
         const relationSuivis = state.relationSuivis
 
+        const ongletActif = onglet && ['instruction', 'projet', 'echanges', 'avis', 'controles', 'generation-document'].includes(onglet)
+            ? (onglet)
+            : ("instruction");
+
         // @ts-ignore
         return {
             ...mapStateToSqueletteProps(state),
             dossier,
             messages,
-            relationSuivis
+            relationSuivis,
+            ongletActif,
         }
     }
     

@@ -16,6 +16,7 @@ import Stats from './routes/Stats.js';
 page('/', Accueil)
 
 page('/dossier/:dossierId', Dossier)
+page('/dossier/:dossierId/:onglet', Dossier)
 
 page('/saisie-especes', SaisieEspèces)
 page('/preremplissage-derogation', PreremplissageDerogation)
