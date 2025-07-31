@@ -1,6 +1,6 @@
 <script>
     //@ts-check
-
+    import debounce from "just-debounce-it";
     import TagPhase from '../TagPhase.svelte'
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
@@ -23,6 +23,18 @@
     let messageErreur = "" 
     let afficherMessageSucces = false
 
+
+    /** @type {((modifs: Partial<DossierComplet>) => void)} */
+    const modifierChamp = (modifs) => {
+        modifierDossier(dossier, modifs)
+            .then(() => afficherMessageSucces = true)
+            .catch((error) => {
+                console.info(error)
+                messageErreur = "Quelque chose s'est mal passé du côté serveur."
+        })
+    }
+
+    const modifierChampAvecDebounce = debounce(modifierChamp, 1000)
 
     $: {
         /** @type {Partial<DossierComplet>} */
@@ -50,14 +62,11 @@
         }
 
         if (Object.keys(modifs).length>=1){
-
-
-            modifierDossier(dossier, modifs)
-                .then(() => afficherMessageSucces = true)
-                .catch((error) => {
-                    console.info(error)
-                    messageErreur = "Quelque chose s'est mal passé du côté serveur."
-                })
+            if (modifs.commentaire_libre) {
+                modifierChampAvecDebounce(modifs)
+            } else {
+                modifierChamp(modifs)
+            }
         }
     }
 
