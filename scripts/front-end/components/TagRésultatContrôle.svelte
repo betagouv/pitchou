@@ -3,7 +3,6 @@
   
     import clsx from 'clsx'
 
-	/** @import { MouseEventHandler } from 'svelte/elements' */
     /** @import { RésultatContrôle } from '../../types/API_Pitchou.ts' */
 	
 
