@@ -254,59 +254,8 @@ fastify.get('/dossiers', async function (request, reply) {
 
 // Cette fonction ne peut pas être async parce que ça donne l'impression à fastify
 // qu'elle répond 2 fois
-fastify.get('/dossier/:dossierId', function(request, reply) {
-  // console.log(`fastify.get('/dossier/:dossierId'`)
-  const accept = request.headers.accept
-
-  if(accept !== 'application/json'){
-    sendIndexHTMLFile(request, reply)
-  }
-  else{
-    // accept === 'application/json'
-    // @ts-ignore
-    const { cap } = request.query
-
-    if(!cap){
-      reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-      return 
-    }
-    
-    //@ts-ignore
-    if(!request.params.dossierId){
-      reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
-      return 
-    }
-
-    /** @type {DossierComplet['id']} */
-    //@ts-ignore
-    const dossierId = Number(request.params.dossierId)
-
-    /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']> | Promise<undefined>} */
-    // @ts-ignore
-    const dossierP = getDossierComplet(dossierId, cap)
-
-    return dossierP.then(dossier =>{
-      if(!dossier){
-        reply.code(403).send(`Aucun dossier trouvé avec id '${dossierId}'`)
-      }
-      else{
-        if(dossier.espècesImpactées && dossier.espècesImpactées.contenu){
-          // change le Buffer en string base64 avant le transfert en JSON
-          // @ts-ignore
-          dossier.espècesImpactées.contenu = dossier.espècesImpactées.contenu.toString('base64')
-        }
-        
-        return dossier
-      }
-    })
-  }
-
-})
-
-// Cette fonction ne peut pas être async parce que ça donne l'impression à fastify
-// qu'elle répond 2 fois
-fastify.get('/dossier/:dossierId/:onglet', function(request, reply) {
-  // console.log(`fastify.get('/dossier/:dossierId'`)
+fastify.get('/dossier/:dossierId/:onglet?', function(request, reply) {
+  // console.log(`fastify.get('/dossier/:dossierId/:onglet'`)
   const accept = request.headers.accept
 
   if(accept !== 'application/json'){
