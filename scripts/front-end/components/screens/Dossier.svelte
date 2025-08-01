@@ -69,7 +69,7 @@
      * @param {string} onglet 
      */
     function naviguerVersOnglet(onglet) {
-        const url = `/dossier/${dossier.id}/${onglet}`
+        const url = `/dossier/${dossier.id}#${onglet}`
         // Changer l'URL sans recharger la page
         history.pushState(null, '', url)
     }

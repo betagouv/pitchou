@@ -19,14 +19,14 @@ import {chargerRelationSuivi} from '../actions/main.js'
  * @param {Object} ctx
  * @param {Object} ctx.params
  * @param {string} ctx.params.dossierId
- * @param {string} [ctx.params.onglet]
+ * @param {string} [ctx.hash]
  */
-export default async ({params: {dossierId, onglet}}) => {
+export default async ({params: {dossierId}, hash: onglet}) => {
     /** @type {DossierId} */
     // @ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    
+
     // en attente de https://github.com/betagouv/pitchou/issues/154
     const messagesP = chargerMessagesDossier(id)
     const dossierP = getDossierComplet(id)
@@ -54,6 +54,8 @@ export default async ({params: {dossierId, onglet}}) => {
         const ongletActif = onglet && ['instruction', 'projet', 'echanges', 'avis', 'controles', 'generation-document'].includes(onglet)
             ? (onglet)
             : ("instruction");
+
+        console.log({onglet})    
 
         // @ts-ignore
         return {

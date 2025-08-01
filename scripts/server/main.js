@@ -254,8 +254,8 @@ fastify.get('/dossiers', async function (request, reply) {
 
 // Cette fonction ne peut pas être async parce que ça donne l'impression à fastify
 // qu'elle répond 2 fois
-fastify.get('/dossier/:dossierId/:onglet?', function(request, reply) {
-  // console.log(`fastify.get('/dossier/:dossierId/:onglet'`)
+fastify.get('/dossier/:dossierId', function(request, reply) {
+  // console.log(`fastify.get('/dossier/:dossierId'`)
   const accept = request.headers.accept
 
   if(accept !== 'application/json'){
