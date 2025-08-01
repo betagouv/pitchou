@@ -10,10 +10,25 @@ import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
 import {chargerRelationSuivi} from '../actions/main.js'
 
+//@ts-ignore
 /** @import {ComponentProps} from 'svelte' */
-
+//@ts-ignore
 /** @import {PitchouState} from '../store.js' */
+//@ts-ignore
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
+
+/**
+ * @typedef {'instruction' | 'projet' | 'avis' | 'controles' | 'generation-document' | 'echanges'} Onglet
+ */
+
+/**
+ * Typeguard pour valider qu'une chaîne est un onglet valide
+ * @param {string} onglet 
+ * @returns {onglet is Onglet}
+ */
+function isOngletValide(onglet) {
+    return ['instruction', 'projet', 'echanges', 'avis', 'controles', 'generation-document'].includes(onglet)
+}
 
 /**
  * @param {Object} ctx
@@ -51,9 +66,10 @@ export default async ({params: {dossierId}, hash: onglet}) => {
         const messages = state.messagesParDossierId.get(id)
         const relationSuivis = state.relationSuivis
 
-        const ongletActif = onglet && ['instruction', 'projet', 'echanges', 'avis', 'controles', 'generation-document'].includes(onglet)
-            ? (onglet)
-            : ("instruction");  
+        /** @type {Onglet} */
+        const ongletActifInitial = onglet && isOngletValide(onglet)
+            ? onglet
+            : "instruction";  
 
         // @ts-ignore
         return {
@@ -61,7 +77,7 @@ export default async ({params: {dossierId}, hash: onglet}) => {
             dossier,
             messages,
             relationSuivis,
-            ongletActif,
+            ongletActifInitial,
         }
     }
     
