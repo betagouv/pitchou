@@ -200,7 +200,10 @@
     $: prochainesActionsAttenduesParNonSélectionnés = prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés)
 
 
-    let texteÀChercher = ''
+    let texteÀChercher = filtresSélectionnés.texte
+    if(texteÀChercher){
+        filtrerParTexte(texteÀChercher)
+    }
 
     /**
      * @param {string} _texteÀChercher
@@ -337,7 +340,8 @@
         phases: phasesSélectionnées,
         'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,
         instructeurs: instructeursSélectionnés,
-        activitésPrincipales: activitésPrincipalesSélectionnées
+        activitésPrincipales: activitésPrincipalesSélectionnées,
+        texte: texteÀChercher
     })
 
     // filtrage avec les filtres initiaux
