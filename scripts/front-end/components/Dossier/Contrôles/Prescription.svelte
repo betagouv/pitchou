@@ -1,6 +1,7 @@
 <script>
     import FormulaireContrôle from './FormulaireContrôle.svelte'
     import DéplierReplier from '../../common/DéplierReplier.svelte'
+    import TagRésultatContrôle from '../../TagRésultatContrôle.svelte'
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
     import {ajouterContrôle as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
@@ -116,7 +117,13 @@
 <section class="prescription-consultée">
     <DéplierReplier>
         <h6 slot="summary">
-            {description} 
+            {#if description}
+                {description}
+            {:else if numéro_article}
+                Numéro article&nbsp;:&nbsp;{numéro_article}
+            {:else}
+                (Prescription non renseignée)
+            {/if}
         </h6>
         <section slot="content">
             {#if numéro_article}
@@ -176,6 +183,7 @@
                             >
                                 Fermer le contrôle sans sauvegarder
                             </button>
+
                         </FormulaireContrôle>
                     {/if}
 
@@ -204,16 +212,17 @@
                                     </button>
                                 </div>
                             </FormulaireContrôle>
+
                         {:else}
                             <section class="contrôle">
                                 <h6>
                                     Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
+                                    <TagRésultatContrôle résultatContrôle={contrôle.résultat || NON_RENSEIGNÉ}></TagRésultatContrôle>
                                     <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
                                         on:click={() => passerContrôleEnModification(contrôle)}>
                                         Modifier
                                     </button>
                                 </h6>
-                                <strong>Résultat&nbsp;:</strong> {contrôle.résultat}<br>
                                 <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
                                 <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
                                 <strong>Date action suite au contrôle&nbsp;:</strong> 
@@ -226,11 +235,9 @@
                         {/if}
                     {/each}
                 </section>
-
             {/if}
         </section>
     </DéplierReplier>
-    
 </section>
 
 <style lang="scss">
