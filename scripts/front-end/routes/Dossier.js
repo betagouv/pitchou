@@ -53,9 +53,7 @@ export default async ({params: {dossierId}, hash: onglet}) => {
 
         const ongletActif = onglet && ['instruction', 'projet', 'echanges', 'avis', 'controles', 'generation-document'].includes(onglet)
             ? (onglet)
-            : ("instruction");
-
-        console.log({onglet})    
+            : ("instruction");  
 
         // @ts-ignore
         return {
