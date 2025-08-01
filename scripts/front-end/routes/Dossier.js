@@ -10,22 +10,38 @@ import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
 import {chargerRelationSuivi} from '../actions/main.js'
 
+//@ts-ignore
 /** @import {ComponentProps} from 'svelte' */
-
+//@ts-ignore
 /** @import {PitchouState} from '../store.js' */
+//@ts-ignore
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
+
+/**
+ * @typedef {'instruction' | 'projet' | 'avis' | 'controles' | 'generation-document' | 'echanges'} Onglet
+ */
+
+/**
+ * Typeguard pour valider qu'une chaîne est un onglet valide
+ * @param {string} onglet 
+ * @returns {onglet is Onglet}
+ */
+function isOngletValide(onglet) {
+    return ['instruction', 'projet', 'echanges', 'avis', 'controles', 'generation-document'].includes(onglet)
+}
 
 /**
  * @param {Object} ctx
  * @param {Object} ctx.params
  * @param {string} ctx.params.dossierId
+ * @param {string} [ctx.hash]
  */
-export default async ({params: {dossierId}}) => {
+export default async ({params: {dossierId}, hash: onglet}) => {
     /** @type {DossierId} */
     // @ts-ignore
     const id = Number(dossierId)
     const { state } = store
-    
+
     // en attente de https://github.com/betagouv/pitchou/issues/154
     const messagesP = chargerMessagesDossier(id)
     const dossierP = getDossierComplet(id)
@@ -36,7 +52,7 @@ export default async ({params: {dossierId}}) => {
 
     // TODO: expliquer que le dossier n'existe pas ?
     if (!dossier) return page('/')
-        
+
     /**
      * 
      * @param {PitchouState} state
@@ -50,12 +66,18 @@ export default async ({params: {dossierId}}) => {
         const messages = state.messagesParDossierId.get(id)
         const relationSuivis = state.relationSuivis
 
+        /** @type {Onglet} */
+        const ongletActifInitial = onglet && isOngletValide(onglet)
+            ? onglet
+            : "instruction";  
+
         // @ts-ignore
         return {
             ...mapStateToSqueletteProps(state),
             dossier,
             messages,
-            relationSuivis
+            relationSuivis,
+            ongletActifInitial,
         }
     }
     
