@@ -14,3 +14,10 @@ export type FiltresLocalStorage = {
     instructeurs: NonNullable<Personne['email']>[]
     activitésPrincipales: NonNullable<Dossier['activité_principale']>[]
 }
+
+export type TriLocalStorage = TriTableau['id']
+
+export type TriFiltreLocalStorage = Partial<{
+    tri: TriLocalStorage
+    filtres: Partial<FiltresLocalStorage>
+}>
