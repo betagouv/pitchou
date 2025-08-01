@@ -75,6 +75,7 @@ function mapStateToPropsSuiviInstruction(state){
                     'prochaine action attendue de': filtres['prochaine action attendue de'] ? [...filtres['prochaine action attendue de']] : undefined,
                     instructeurs: filtres.instructeurs ? [...filtres.instructeurs] : undefined,
                     activitésPrincipales: filtres.activitésPrincipales ? [...filtres.activitésPrincipales] : undefined,
+                    texte: filtres.texte ?? undefined
                 }
             }
 
