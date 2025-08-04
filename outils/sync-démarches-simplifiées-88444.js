@@ -5,7 +5,7 @@ import {sub, format, formatDistanceToNow, isAfter} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur, synchroniserDossiersAvisExpert} from '../scripts/server/database/dossier.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur, synchroniserAvisExpert} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
@@ -489,7 +489,7 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 /** Synchronisation de avis_expert */
 let synchroniserDossiersAvisExpertP
 if (dossiersDS.length>=1) {
-    synchroniserDossiersAvisExpertP = synchroniserDossiersAvisExpert(dossiersDS, laTransactionDeSynchronisationDS)
+    synchroniserDossiersAvisExpertP = synchroniserAvisExpert(dossiersDS, laTransactionDeSynchronisationDS)
 }
 
 

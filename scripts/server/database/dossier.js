@@ -478,7 +478,7 @@ export async function synchroniserDossierAvisExpert(dossierDS, databaseConnectio
  * @param {DossierDS88444[]} dossiersDS 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserDossiersAvisExpert(dossiersDS, databaseConnection = directDatabaseConnection) {
+export async function synchroniserAvisExpert(dossiersDS, databaseConnection = directDatabaseConnection) {
     try {
         // Exécute les synchronisations individuellement pour chaque dossier
         const lignesAInserer = await Promise.all(
