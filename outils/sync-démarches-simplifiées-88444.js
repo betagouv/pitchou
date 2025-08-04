@@ -932,7 +932,7 @@ const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_
 })
 
 
-/** Synchronisation de avis_expert */
+/** Synchronisation de la table avis_expert */
 let synchroniserDossiersAvisExpertP
 if (dossiersDS.length>=1) {
     synchroniserDossiersAvisExpertP = fichiersAvisCSRPN_CNPN.then(fichiersAvisCSRPN_CNPN_Téléchargés => {
