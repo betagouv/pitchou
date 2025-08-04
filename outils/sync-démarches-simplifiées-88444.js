@@ -5,7 +5,7 @@ import {sub, format, formatDistanceToNow, isAfter} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur, synchroniserDossiersAvisExpert} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
@@ -114,7 +114,7 @@ const pitchouKeyToChampDS = new Map(schema88444.revision.champDescriptors.map(
 
 /** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
 //@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
-const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescriptors.map(
+export const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescriptors.map(
     ({label, id}) => [label, id])
 )
 
@@ -918,6 +918,13 @@ const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_
 })
 
 
+/** Synchronisation de avis_expert */
+let synchroniserDossiersAvisExpertP
+if (dossiersDS.length>=1) {
+    synchroniserDossiersAvisExpertP = synchroniserDossiersAvisExpert(dossiersDS, laTransactionDeSynchronisationDS)
+}
+
+
 
 /** Fin de l'outil de synchronisation - fermeture */
 
@@ -929,7 +936,8 @@ Promise.all([
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
-    fichiersAP_AMSynchronisés
+    fichiersAP_AMSynchronisés,
+    synchroniserDossiersAvisExpertP
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
