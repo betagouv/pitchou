@@ -418,9 +418,10 @@ const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
  * @param {DossierDS88444} dossierDS 
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
+export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection = directDatabaseConnection) {
     const idPitchouDuDossier = (await databaseConnection('dossier').select('id').where('number_demarches_simplifiées', dossierDS.number).first()).id
     /** @type {(Pick<AvisExpert, "dossier" | "expert" | "avis" | "date_avis"> & Partial<Pick<AvisExpert, "date_saisine">>)[]} */
     let lignes_à_insérer = []
@@ -434,8 +435,9 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
 
     const fichiersAvisCSRPN_CNPN = fichiersAvisCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
     const fichiersSaisinesCSRPN_CNPN = fichiersSaisinesCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
+    const fichiersAvisConformeMinistre = fichiersAvisConformeMinistreTéléchargés?.get(Number(dossierDS.number))
 
-    if (!fichiersAvisCSRPN_CNPN || fichiersAvisCSRPN_CNPN.length===0) {
+    if (fichiersAvisCSRPN_CNPN?.length===0 || fichiersAvisConformeMinistre?.length===0) {
         // S'il n'y a aucun fichier avis expert, alors on ne veut pas ajouter cette nouvelle ligne dans la table.
         return [];
     } else {
@@ -443,7 +445,7 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
         /** @type {"CSRPN" | "CNPN" | null} */
         const expert_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ? "CSRPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ? "CSRPN" : null
         const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
-        const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN[0]
+        const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>= 1 ? fichiersAvisCSRPN_CNPN[0] : null
         const fichier_saisine_csrpn_cnpn = fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length >= 1 ? fichiersSaisinesCSRPN_CNPN[0] : null
 
         let date_avis_cnpn_csprn
@@ -465,16 +467,19 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
         }
 
         // Récupérer l'avis conforme, s'il existe, du Ministre.
-        /** @type {Omit<AvisExpert, "avis_fichier" | "saisine_fichier" | "date_saisine" | "id">  | undefined} */
-        let ligne_ministre
-        const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre")).date
+        const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre"))?.date
+        const fichier_avis_ministre = fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length >= 1 ? fichiersAvisConformeMinistre[0] : null
         if (date_avis_ministre) {
-            console.log("ligne_ministe date : ", date_avis_ministre)
-            ligne_ministre = {
+            console.log("ligne_ministre date : ", date_avis_ministre)
+            /** @type {Omit<AvisExpert, "id">} */
+            const ligne_ministre = {
                 dossier: idPitchouDuDossier,
                 date_avis: date_avis_ministre,
                 expert: 'Ministre',
                 avis: 'Conforme',
+                avis_fichier: fichier_avis_ministre,
+                saisine_fichier: null,
+                date_saisine: null
             } 
             lignes_à_insérer.push(ligne_ministre)
         }
@@ -488,16 +493,18 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
  * @param {DossierDS88444[]} dossiersDS 
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
+export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection = directDatabaseConnection) {
     try {
 
         console.log("fichiersAvisCSRPN_CNPN_Téléchargés", fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size)
         console.log("fichiersSaisinesCSRPN_CNPN_Téléchargés", fichiersSaisinesCSRPN_CNPN_Téléchargés && fichiersSaisinesCSRPN_CNPN_Téléchargés.size)
+        console.log("fichiersAvisConformeMinistreTéléchargés", fichiersAvisConformeMinistreTéléchargés && fichiersAvisConformeMinistreTéléchargés.size)
 
         const lignesAInsérer = await Promise.all(
-            dossiersDS.map((dossierDS) => synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, databaseConnection))
+            dossiersDS.map((dossierDS) => synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection))
         );
 
         const lignesFlat = lignesAInsérer.flat();

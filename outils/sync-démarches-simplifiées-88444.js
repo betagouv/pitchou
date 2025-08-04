@@ -337,6 +337,21 @@ const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
     laTransactionDeSynchronisationDS
 )
 
+/** Télécharger les nouveaux fichiers des avis conformes ministres */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierAvisConformeMinistreAnnotationId = pitchouKeyToAnnotationDS.get('Avis conforme Ministre')
+
+if(!fichierAvisConformeMinistreAnnotationId){
+    throw new Error('fichierAvisConformeMinistreAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
+const fichiersAvisConformeMinistre = téléchargerNouveauxFichiersFromChampId(
+    dossiersDS, 
+    fichierAvisConformeMinistreAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
+
 /**
  * Synchronisation des dossiers
  */
@@ -520,15 +535,17 @@ let synchroniserDossiersAvisExpertP;
 if (dossiersDS.length >= 1) {
     synchroniserDossiersAvisExpertP = Promise.all([
         fichiersAvisCSRPN_CNPN,
-        fichiersSaisinesCSRPN_CNPN
-    ]).then(([fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés]) => {
-        // On ne synchronise que s'il y'a des nouveaux fichiers à télécharger
-        if (fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size >= 1) {
+        fichiersSaisinesCSRPN_CNPN,
+        fichiersAvisConformeMinistre
+    ]).then(([fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés]) => {
+        // On ne synchronise que s'il y'a des nouveaux fichiers d'avis d'expert à télécharger
+        if (fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size >= 1 || fichiersAvisConformeMinistreTéléchargés && fichiersAvisConformeMinistreTéléchargés.size >=1) {
             console.log("Des nouveaux avis d'experts doivent être synchronisés.")
             return synchroniserAvisExpert(
                 dossiersDS,
                 fichiersAvisCSRPN_CNPN_Téléchargés,
                 fichiersSaisinesCSRPN_CNPN_Téléchargés,
+                fichiersAvisConformeMinistreTéléchargés,
                 laTransactionDeSynchronisationDS
             );
         }
