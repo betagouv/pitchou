@@ -18,11 +18,21 @@ import showLoginByEmail from './montrerPageDAccueil.js';
 /** @import {PitchouState} from '../store.js' */
 /** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {FiltresLocalStorage, TriTableau} from '../../types/interfaceUtilisateur.ts' */
+/** @import {FiltresLocalStorage, TriTableau, TriFiltreLocalStorage} from '../../types/interfaceUtilisateur.ts' */
 
 const TRI_FILTRE_CLEF_LOCALSTORAGE = 'tri-filtres-tableau-suivi'
 
-let trisFiltresSélectionnés = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE)
+
+let _trisFiltresSélectionnés = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE)
+
+if(typeof _trisFiltresSélectionnés === 'string'){
+    console.warn(`string du localStorage non comprise en tant que filtre/tri`, _trisFiltresSélectionnés)
+    _trisFiltresSélectionnés = undefined
+}
+
+/** @type {TriFiltreLocalStorage | undefined} */
+let trisFiltresSélectionnés = _trisFiltresSélectionnés
+
 
 /**
  * 
@@ -49,9 +59,7 @@ function mapStateToPropsSuiviInstruction(state){
         /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
         //@ts-expect-error TS ne sait pas que les activités principales possibles proviennent du schema
         activitésPrincipales: activitésPrincipalesChamp?.options,
-        // @ts-ignore
         triIdSélectionné: trisFiltresSélectionnés?.tri,
-        // @ts-ignore
         filtresSélectionnés: trisFiltresSélectionnés?.filtres,
         /**
          * 
@@ -59,6 +67,7 @@ function mapStateToPropsSuiviInstruction(state){
          * @param {Partial<FiltresLocalStorage>} filtres 
          */
         rememberTriFiltres(tri, filtres){
+            /** @type {TriFiltreLocalStorage} */
             const nouveauxTrisFiltresSélectionnés = {
                 tri: tri.id,
                 filtres: {
@@ -66,6 +75,7 @@ function mapStateToPropsSuiviInstruction(state){
                     'prochaine action attendue de': filtres['prochaine action attendue de'] ? [...filtres['prochaine action attendue de']] : undefined,
                     instructeurs: filtres.instructeurs ? [...filtres.instructeurs] : undefined,
                     activitésPrincipales: filtres.activitésPrincipales ? [...filtres.activitésPrincipales] : undefined,
+                    texte: filtres.texte ?? undefined
                 }
             }
 

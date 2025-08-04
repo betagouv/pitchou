@@ -13,4 +13,12 @@ export type FiltresLocalStorage = {
     'prochaine action attendue de': DossierProchaineActionAttenduePar[]
     instructeurs: NonNullable<Personne['email']>[]
     activitésPrincipales: NonNullable<Dossier['activité_principale']>[]
+    texte: string
 }
+
+export type TriLocalStorage = TriTableau['id']
+
+export type TriFiltreLocalStorage = Partial<{
+    tri: TriLocalStorage
+    filtres: Partial<FiltresLocalStorage>
+}>
