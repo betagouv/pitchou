@@ -416,11 +416,11 @@ const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
 
 /**
  * @param {DossierDS88444} dossierDS 
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserDossierAvisExpert(dossierDS, databaseConnection = directDatabaseConnection) {
+export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
     const idPitchouDuDossier = (await databaseConnection('dossier').select('id').where('number_demarches_simplifiées', dossierDS.number).first()).id
-
     /** @type {(Pick<AvisExpert, "dossier" | "expert" | "avis" | "date_avis"> & Partial<Pick<AvisExpert, "date_saisine">>)[]} */
     let lignes_à_insérer = []
 
@@ -428,51 +428,53 @@ export async function synchroniserDossierAvisExpert(dossierDS, databaseConnectio
     /** @type {Map<string | undefined, any>} */
     const annotationById = new Map()
     for(const annotation of dossierDS.annotations){
-        annotationById.set(annotation.id, annotation)
+                annotationById.set(annotation.id, annotation)
     }
 
-    // Récupérer l'avis, s'il existe, émis soit par le CNPN, soit par le CSRPN (jamais les deux).
-    /** @type {"CSRPN" | "CNPN" | null} */
-    const expert_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")).date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN")).date ? "CSRPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN")).date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN")).date ? "CSRPN" : null
-    const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection).stringValue
+    const fichiersAvisCSRPN_CNPN = fichiersAvisCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
 
+    if (!fichiersAvisCSRPN_CNPN || fichiersAvisCSRPN_CNPN.length===0) {
+        // Si l'avis n'a pas de fichier lié, alors on ne veut pas l'ajouter.
+        return [];
+    } else {
+        // Récupérer l'avis, s'il existe, émis soit par le CNPN, soit par le CSRPN (jamais les deux).
+        /** @type {"CSRPN" | "CNPN" | null} */
+        const expert_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ? "CSRPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ? "CSRPN" : null
+        const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
+        const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN[0]
 
-    // let fichier_avis_csrpn_cnpn
-    // if (fichiersAvisExpertTéléchargés) {
-    //     fichier_avis_csrpn_cnpn = 
-    // }
+        let date_avis_cnpn_csprn
+        let date_saisine_cnpn_csrpn
+        if (expert_cnpn_csrpn === "CNPN") {
+            date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ?? undefined
+            date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ?? undefined
+        } else if (expert_cnpn_csrpn) {
+            date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ?? undefined
+            date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ?? undefined
+        }
 
-    let date_avis_cnpn_csprn
-    let date_saisine_cnpn_csrpn
-    if (expert_cnpn_csrpn === "CNPN") {
-        date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")).date ?? undefined
-        date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN")).date ?? undefined
-    } else if (expert_cnpn_csrpn) {
-        date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN")).date ?? undefined
-        date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN")).date ?? undefined
-    }
+        /** @type {Omit<AvisExpert, "saisine_fichier" | "id">} */
+        const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn }
 
-    /** @type {Omit<AvisExpert, "avis_fichier" | "saisine_fichier" | "id">} */
-    const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn }
+        // Si au moins un des champs CSRPN/CNPN est rempli, alors on ajoute la ligne en base de données.
+        if (avis_csrpn_cnpn.trim()!=='' || date_avis_cnpn_csprn!==undefined || date_saisine_cnpn_csrpn!==undefined ) {
+            lignes_à_insérer.push(ligne_cnpn_csrpn)
+        }
 
-    // Si au moins un des champs CSRPN/CNPN est rempli, alors on ajoute la ligne en base de données.
-    if (avis_csrpn_cnpn.trim()!=='' || date_avis_cnpn_csprn!==undefined || date_saisine_cnpn_csrpn!==undefined ) {
-        lignes_à_insérer.push(ligne_cnpn_csrpn)
-    }
-
-    // Récupérer l'avis conforme, s'il existe, du Ministre.
-    /** @type {Omit<AvisExpert, "avis_fichier" | "saisine_fichier" | "date_saisine" | "id">  | undefined} */
-    let ligne_ministre
-    const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre")).date
-    if (date_avis_ministre) {
-        console.log("ligne_ministe date : ", date_avis_ministre)
-        ligne_ministre = {
-            dossier: idPitchouDuDossier,
-            date_avis: date_avis_ministre,
-            expert: 'Ministre',
-            avis: 'Conforme',
-        } 
-        lignes_à_insérer.push(ligne_ministre)
+        // Récupérer l'avis conforme, s'il existe, du Ministre.
+        /** @type {Omit<AvisExpert, "avis_fichier" | "saisine_fichier" | "date_saisine" | "id">  | undefined} */
+        let ligne_ministre
+        const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre")).date
+        if (date_avis_ministre) {
+            console.log("ligne_ministe date : ", date_avis_ministre)
+            ligne_ministre = {
+                dossier: idPitchouDuDossier,
+                date_avis: date_avis_ministre,
+                expert: 'Ministre',
+                avis: 'Conforme',
+            } 
+            lignes_à_insérer.push(ligne_ministre)
+        }
     }
     
     
@@ -489,20 +491,16 @@ export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_
 
         console.log("fichiersAvisCSRPN_CNPN_Téléchargés", fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size)
 
-        // Exécute les synchronisations individuellement pour chaque dossier
-        const lignesAInserer = await Promise.all(
-            dossiersDS.map((dossierDS) => synchroniserDossierAvisExpert(dossierDS, databaseConnection))
+        const lignesAInsérer = await Promise.all(
+            dossiersDS.map((dossierDS) => synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, databaseConnection))
         );
 
-        // Aplatit les tableaux potentiellement imbriqués (si chaque appel retourne un tableau)
-        const lignesFlat = lignesAInserer.flat();
+        const lignesFlat = lignesAInsérer.flat();
 
         if (lignesFlat.length === 0) return;
 
         await databaseConnection('avis_expert')
             .insert(lignesFlat)
-            // .onConflict(['dossier', 'expert'])
-            // .merge()
         
         return lignesFlat;
     } catch (e) {
