@@ -322,6 +322,21 @@ const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
     laTransactionDeSynchronisationDS
 )
 
+/** Télécharger les nouveaux fichiers des saisines d'experts (CNPN/CSRPN) */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierSaisineExpertAnnotationId = pitchouKeyToAnnotationDS.get("Saisine de l'instructeur")
+
+if(!fichierSaisineExpertAnnotationId){
+    throw new Error('fichierSaisineExpertAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
+const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
+    dossiersDS, 
+    fichierSaisineExpertAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
+
 /**
  * Synchronisation des dossiers
  */
@@ -500,14 +515,24 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 })
 
 
-/** Synchronisation de avis_expert */
-let synchroniserDossiersAvisExpertP
-if (dossiersDS.length>=1) {
-    synchroniserDossiersAvisExpertP = fichiersAvisCSRPN_CNPN.then(fichiersAvisCSRPN_CNPN_Téléchargés => {
-        console.log("fichiersAvisCSRPN_CNPN_Téléchargés", fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size, fichiersAvisCSRPN_CNPN_Téléchargés)
-        return synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, laTransactionDeSynchronisationDS)
-    })
-
+/** Synchronisation de la table avis_expert */
+let synchroniserDossiersAvisExpertP;
+if (dossiersDS.length >= 1) {
+    synchroniserDossiersAvisExpertP = Promise.all([
+        fichiersAvisCSRPN_CNPN,
+        fichiersSaisinesCSRPN_CNPN
+    ]).then(([fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés]) => {
+        // On ne synchronise que s'il y'a des nouveaux fichiers à télécharger
+        if (fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size >= 1) {
+            console.log("Des nouveaux avis d'experts doivent être synchronisés.")
+            return synchroniserAvisExpert(
+                dossiersDS,
+                fichiersAvisCSRPN_CNPN_Téléchargés,
+                fichiersSaisinesCSRPN_CNPN_Téléchargés,
+                laTransactionDeSynchronisationDS
+            );
+        }
+    });
 }
 
 

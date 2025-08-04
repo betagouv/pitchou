@@ -417,9 +417,10 @@ const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
 /**
  * @param {DossierDS88444} dossierDS 
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
+export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
     const idPitchouDuDossier = (await databaseConnection('dossier').select('id').where('number_demarches_simplifiées', dossierDS.number).first()).id
     /** @type {(Pick<AvisExpert, "dossier" | "expert" | "avis" | "date_avis"> & Partial<Pick<AvisExpert, "date_saisine">>)[]} */
     let lignes_à_insérer = []
@@ -432,9 +433,10 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
     }
 
     const fichiersAvisCSRPN_CNPN = fichiersAvisCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
+    const fichiersSaisinesCSRPN_CNPN = fichiersSaisinesCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
 
     if (!fichiersAvisCSRPN_CNPN || fichiersAvisCSRPN_CNPN.length===0) {
-        // Si l'avis n'a pas de fichier lié, alors on ne veut pas l'ajouter.
+        // S'il n'y a aucun fichier avis expert, alors on ne veut pas ajouter cette nouvelle ligne dans la table.
         return [];
     } else {
         // Récupérer l'avis, s'il existe, émis soit par le CNPN, soit par le CSRPN (jamais les deux).
@@ -442,6 +444,7 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
         const expert_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ? "CSRPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ? "CSRPN" : null
         const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
         const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN[0]
+        const fichier_saisine_csrpn_cnpn = fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length >= 1 ? fichiersSaisinesCSRPN_CNPN[0] : null
 
         let date_avis_cnpn_csprn
         let date_saisine_cnpn_csrpn
@@ -453,8 +456,8 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
             date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ?? undefined
         }
 
-        /** @type {Omit<AvisExpert, "saisine_fichier" | "id">} */
-        const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn }
+        /** @type {Omit<AvisExpert, "id">} */
+        const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn, saisine_fichier: fichier_saisine_csrpn_cnpn }
 
         // Si au moins un des champs CSRPN/CNPN est rempli, alors on ajoute la ligne en base de données.
         if (avis_csrpn_cnpn.trim()!=='' || date_avis_cnpn_csprn!==undefined || date_saisine_cnpn_csrpn!==undefined ) {
@@ -484,15 +487,17 @@ export async function synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN
 /**
  * @param {DossierDS88444[]} dossiersDS 
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
+export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, databaseConnection = directDatabaseConnection) {
     try {
 
         console.log("fichiersAvisCSRPN_CNPN_Téléchargés", fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size)
+        console.log("fichiersSaisinesCSRPN_CNPN_Téléchargés", fichiersSaisinesCSRPN_CNPN_Téléchargés && fichiersSaisinesCSRPN_CNPN_Téléchargés.size)
 
         const lignesAInsérer = await Promise.all(
-            dossiersDS.map((dossierDS) => synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, databaseConnection))
+            dossiersDS.map((dossierDS) => synchroniserDossierAvisExpert(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, databaseConnection))
         );
 
         const lignesFlat = lignesAInsérer.flat();
