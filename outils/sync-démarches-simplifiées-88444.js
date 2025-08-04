@@ -19,7 +19,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 //import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 import { ajouterDécisionsAdministratives } from '../scripts/server/database/décision_administrative.js'
 
 import { getDossiersPourSynchronisation } from './synchronisation-ds-88444/getDossiersPourSynchronisation.js'
@@ -307,6 +307,20 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
     laTransactionDeSynchronisationDS
 )
 
+/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierAvisExpertAnnotationId = pitchouKeyToAnnotationDS.get('Avis CSRPN/CNPN')
+
+if(!fichierAvisExpertAnnotationId){
+    throw new Error('fichierAvisExpertAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
+const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
+    dossiersDS, 
+    fichierAvisExpertAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
 
 /**
  * Synchronisation des dossiers
@@ -489,7 +503,11 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 /** Synchronisation de avis_expert */
 let synchroniserDossiersAvisExpertP
 if (dossiersDS.length>=1) {
-    synchroniserDossiersAvisExpertP = synchroniserAvisExpert(dossiersDS, laTransactionDeSynchronisationDS)
+    synchroniserDossiersAvisExpertP = fichiersAvisCSRPN_CNPN.then(fichiersAvisCSRPN_CNPN_Téléchargés => {
+        console.log("fichiersAvisCSRPN_CNPN_Téléchargés", fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size, fichiersAvisCSRPN_CNPN_Téléchargés)
+        return synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, laTransactionDeSynchronisationDS)
+    })
+
 }
 
 
