@@ -92,6 +92,11 @@ Les balises ont des types qui peuvent être :
                             <td> Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{département_principale}</code></th>
+                            <td> texte</td>
+                            <td> Code du département principale du dossier (<code>33</code>, <code>2B</code>, etc.)</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{description}</code></th>
                             <td> texte</td>
                             <td> Description du projet fournie par le pétitionnaire</td>
@@ -135,6 +140,11 @@ Les balises ont des types qui peuvent être :
                             <th scope="row"> <code>{liste_espèces_par_impact}</code></th>
                             <td> <strong>liste</strong></td>
                             <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{liste_départements}</code></th>
+                            <td> <strong>liste de textes </strong></td>
+                            <td> Code des codes de départements dossier</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{localisation}</code></th>
