@@ -354,6 +354,8 @@ const colonnesDossierComplet = [
     "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+    "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
 
     // annotations privées
     /*
@@ -449,7 +451,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
         throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
     }
 
-    /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string}>} */
+    /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string, demandeur_personne_morale_adresse?: string}>} */
     const dossierP = transaction('dossier')
         .select(colonnesDossierComplet)
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
@@ -485,6 +487,9 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
     return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
         .then(([dossier, évènementsPhaseDossier, décisionsAdministratives, prescriptions, contrôles]) => {
+            dossier.demandeur_adresse = dossier.demandeur_personne_morale_adresse || ''
+            delete dossier.demandeur_personne_morale_adresse;
+
             dossier.évènementsPhase = évènementsPhaseDossier
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){

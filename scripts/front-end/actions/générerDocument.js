@@ -85,7 +85,12 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         date_début_intervention,
         date_fin_intervention,
         durée_intervention,
-        demandeur: formatPorteurDeProjet(dossier),
+        demandeur: {
+            adresse: dossier.demandeur_adresse
+            toString(){
+                return formatPorteurDeProjet(dossier)
+            }
+        },
         localisation: formatLocalisation(dossier),
         régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
         régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné' : rattaché_au_régime_ae,
