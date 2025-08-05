@@ -94,25 +94,3 @@ export async function téléchargerNouveauxFichiersMotivation(dossiers, laTransa
         })
     }
 }
-
-/**
- * 
- * @param {DossierDS88444[]} dossiers 
- * @param {ChampDescriptor['id']} champDescriptorId
- * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} 
- */
-export async function téléchargerNouveauxFichiersAvisExperts(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
-
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const candidatsFichiersAP_AM = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
-
-    //console.log('candidatsFichiersAP_AM', candidatsFichiersAP_AM)
-
-    if(candidatsFichiersAP_AM.size >= 1){
-        return téléchargerNouveauxFichiers(
-            candidatsFichiersAP_AM, 
-            laTransactionDeSynchronisationDS
-        )
-    }
-}
