@@ -1,3 +1,5 @@
+import {DossierComplet} from './API_Pitchou'
+
 
 /**
  * Type pour une espèce dans une liste d'espèces
@@ -56,6 +58,9 @@ export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   localisation: string;
   date_dépôt: Date;
   
+  département_principale: string | undefined
+  liste_départements: string[] | undefined
+
   régime_autorisation_environnementale_renseigné: boolean;
   régime_autorisation_environnementale: boolean | 'Non renseigné' ;
   
