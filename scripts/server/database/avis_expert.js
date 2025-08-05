@@ -8,7 +8,6 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {DossierDS88444, Annotations88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
 
-
 const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
 
 /**
@@ -23,22 +22,17 @@ async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_
     /** @type {(Pick<AvisExpert, "dossier" | "expert" | "avis" | "date_avis"> & Partial<Pick<AvisExpert, "date_saisine">>)[]} */
     let lignes_à_insérer = []
 
-    /** @type {Map<string | undefined, Annotations88444>} */
     /** @type {Map<string | undefined, any>} */
     const annotationById = new Map()
     for(const annotation of dossierDS.annotations){
-                annotationById.set(annotation.id, annotation)
+         annotationById.set(annotation.id, annotation)
     }
 
     const fichiersAvisCSRPN_CNPN = fichiersAvisCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
     const fichiersSaisinesCSRPN_CNPN = fichiersSaisinesCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
     const fichiersAvisConformeMinistre = fichiersAvisConformeMinistreTéléchargés?.get(Number(dossierDS.number))
 
-    if (fichiersAvisCSRPN_CNPN?.length===0 || fichiersAvisConformeMinistre?.length===0) {
-        // S'il n'y a aucun fichier avis expert, alors on ne veut pas ajouter cette nouvelle ligne dans la table.
-        return [];
-    } else {
-        // Récupérer l'avis, s'il existe, émis soit par le CNPN, soit par le CSRPN (jamais les deux).
+    if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>=1) {
         /** @type {"CSRPN" | "CNPN" | null} */
         const expert_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ? "CSRPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ? "CSRPN" : null
         const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
@@ -54,22 +48,17 @@ async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_
             date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ?? undefined
             date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ?? undefined
         }
-
         /** @type {Omit<AvisExpert, "id">} */
         const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn, saisine_fichier: fichier_saisine_csrpn_cnpn }
-
-        // Si au moins un des champs CSRPN/CNPN est rempli, alors on ajoute la ligne en base de données.
-        if (avis_csrpn_cnpn.trim()!=='' || date_avis_cnpn_csprn!==undefined || date_saisine_cnpn_csrpn!==undefined ) {
-            lignes_à_insérer.push(ligne_cnpn_csrpn)
-        }
-
-        // Récupérer l'avis conforme, s'il existe, du Ministre.
+        lignes_à_insérer.push(ligne_cnpn_csrpn)
+    }
+    
+    if (fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length>=1) {
         const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre"))?.date
         const fichier_avis_ministre = fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length >= 1 ? fichiersAvisConformeMinistre[0] : null
-        if (date_avis_ministre) {
-            console.log("ligne_ministre date : ", date_avis_ministre)
-            /** @type {Omit<AvisExpert, "id">} */
-            const ligne_ministre = {
+
+        /** @type {Omit<AvisExpert, "id">} */
+        const ligne_ministre = {
                 dossier: idPitchouDuDossier,
                 date_avis: date_avis_ministre,
                 expert: 'Ministre',
@@ -78,11 +67,10 @@ async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_
                 saisine_fichier: null,
                 date_saisine: null
             } 
-            lignes_à_insérer.push(ligne_ministre)
-        }
-    }
-    
-    
+
+        lignes_à_insérer.push(ligne_ministre)
+    } 
+
     return lignes_à_insérer
 }
 
