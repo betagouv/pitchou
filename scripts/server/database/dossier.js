@@ -28,6 +28,10 @@ import {getContrôles} from './controle.js';
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 //@ts-ignore
 /** @import {PickNonNullable} from '../../types/tools.d.ts' */
+//@ts-ignore
+/** @import {DossierInitializer, DossierMutator} from '../../types/database/public/Dossier.ts' */
+//@ts-ignore
+/** @import {DossierPourSynchronisation} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 
 
 /**
@@ -137,7 +141,7 @@ export async function getDossierMessages(dossierId, databaseConnection = directD
 }
 
 
-/** @type {(keyof Dossier)[]} */
+/** @type {(keyof Pick<Dossier, "nom" | 'historique_nom_porteur' | 'historique_localisation' | 'ddep_nécessaire'>)[]} */
 const varcharKeys = [
     'nom',
     'historique_nom_porteur',
@@ -148,12 +152,12 @@ const varcharKeys = [
 
 /**
  *
- * @param {Partial<Dossier>[]} dossiers
+ * @param {DossierPourSynchronisation<DossierInitializer>[]} dossiersAInitialiser
+ * @param {DossierPourSynchronisation<DossierMutator>[]} dossiersAModifier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<any>}
  */
-export function dumpDossiers(dossiers, databaseConnection = directDatabaseConnection){
-    for(const d of dossiers){
+export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseConnection = directDatabaseConnection){
+    for(const d of [...dossiersAInitialiser, ...dossiersAModifier]){
         for(const k of varcharKeys){
             if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
@@ -166,24 +170,41 @@ export function dumpDossiers(dossiers, databaseConnection = directDatabaseConnec
         }
     }
 
-    let colonnesÀfusionner = new Set();
 
-    for(const d of dossiers){
-        colonnesÀfusionner = new Set([...colonnesÀfusionner, ...Object.keys(d)])
+    /**@type {any[]} */
+    let updatePromises = []
+    
+
+    if (dossiersAModifier.length>=1) {
+        updatePromises = dossiersAModifier.map(dossierAModifier => 
+        databaseConnection('dossier')
+            .where('id_demarches_simplifiées', dossierAModifier.id_demarches_simplifiées)
+            .update(dossierAModifier)
+            .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
+        )
     }
 
-    const colonnesÀNePasFusionner = ['id', 'phase', 'prochaine_action_attendue_par']
-    for(const colonne of colonnesÀNePasFusionner){
-        colonnesÀfusionner.delete(colonne)
-    }
+    let insertPromise
 
-    //console.log('colonnesÀfusionner', colonnesÀfusionner)
-
-    return databaseConnection('dossier')
-        .insert(dossiers)
+    if (dossiersAInitialiser.length >= 1) {
+        insertPromise = databaseConnection('dossier')
+        .insert(dossiersAInitialiser)
         .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
-        .onConflict('number_demarches_simplifiées')
-        .merge([...colonnesÀfusionner])
+    }
+
+    return Promise.all([insertPromise, ...updatePromises])
+        .then(results => {
+            const allResults = []
+            for (const result of results) {
+                if (Array.isArray(result)) {
+                    allResults.push(...result)
+                } else {
+                    allResults.push(result)
+                }
+            }
+            return allResults
+        })
+        
 }
 
 /**

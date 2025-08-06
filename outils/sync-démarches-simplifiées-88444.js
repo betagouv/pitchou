@@ -21,8 +21,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
-import { déchiffrerDonnéesSupplémentairesDossiers } from '../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-import { remplirChampsCommunsPourSynchro } from './synchronisation-ds-88444/remplirChampsCommunsPourSynchro.js'
+
+import { getDossiersPourSynchronisation } from './synchronisation-ds-88444/getDossiersPourSynchronisation.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -36,9 +36,11 @@ import { remplirChampsCommunsPourSynchro } from './synchronisation-ds-88444/remp
 /** @import {Message} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DécisionAdministrativeAnnotation88444} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DécisionAdministrativeAnnotation88444, DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DonnéesSupplémentaires} from '../scripts/front-end/actions/importDossierUtils.js' */
+/** @import {DossierInitializer, DossierMutator} from '../scripts/types/database/public/Dossier.ts' */
+
+
 // récups les données de DS
 
 const DEMARCHE_SIMPLIFIEE_API_TOKEN = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN
@@ -127,46 +129,10 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 /** @type {Map<DatabaseDossier['number_demarches_simplifiées'], DécisionAdministrativeAnnotation88444>} */
 const donnéesDécisionAdministrativeParNuméroDossier = new Map();
 
+const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
+const numberDSDossiersDéjàExistantsEnBDD = new Set(dossiersDéjàExistantsEnBDD.map(d => d.number_demarches_simplifiées));
 
-
-
-const dossiersPourSynchronisation = remplirChampsCommunsPourSynchro(dossiersDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)
-
-
-
-/**
- * POUR IMPORT DOSSIERS HISTORIQUES
- * Récupérer les number_demarches_simplifiés déjà présents en base
- * Pour savoir si le dossier est créé ou modifié.
- * S'il est créé, alors on récupère les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
- */
-const dossiersExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
-const numberDSDossiersExistantsEnBDD = new Set(dossiersExistantsEnBDD.map(d => d.number_demarches_simplifiées));
-dossiersPourSynchronisation.forEach(async (dossier) => {
-
-    /**
-     * Si le dossier existe en base de données, c'est qu'il est en train d'être modifiée, on ne veut donc rien écraser.
-     * S'il n'existe pas en base de données, c'est qu'il est créé.
-     * On veut donc utiliser les données supplémentaires pour remplir les champs qui ne sont pas remplis à partir du formulaire DS.
-     */
-    if (!dossier.number_demarches_simplifiées || numberDSDossiersExistantsEnBDD.has(dossier.number_demarches_simplifiées)) {
-        return;
-    }
-
-    const dossierDS = dossiersDS.find((d) => d.number === Number(dossier.number_demarches_simplifiées))
-
-    const données_supplémentaires = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
-    if (données_supplémentaires === undefined) {
-        return;
-    }
-
-    /** @type {DonnéesSupplémentaires} */
-    const données_supplémentaires_déchiffrées = JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires))
-    // Ces données seront utilisées plus tard pour remplir des champs en base de données
-    console.log("Il y'a des données supplémentaires dans le dossier DS n°" + dossier.number_demarches_simplifiées + " : ", { données_supplémentaires_déchiffrées })
-
-
-})
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -181,6 +147,8 @@ for(const personne of allPersonnesCurrentlyInDatabase){
         personneByEmail.set(personne.email, personne)
     }
 }
+
+const dossiersPourSynchronisation = [...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro]
 
 /** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
 const personnesInDossiersAvecEmail = new Map()
@@ -275,9 +243,29 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {Partial<DatabaseDossier>[]} */
-// @ts-ignore
-const dossiers = dossiersPourSynchronisation.map(dossier => {
+/** @type {DossierPourSynchronisation<DossierInitializer>[]} */
+//@ts-ignore
+const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
+    const { 
+        déposant,
+        /** demandeur_personne_physique, */
+        demandeur_personne_morale, 
+        ...autresPropriétés
+    } = dossier
+
+    return {
+        //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
+        déposant: getPersonneId(déposant) || null,
+        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
+        demandeur_personne_morale: 
+            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
+        ...autresPropriétés,
+    }
+})
+
+/** @type {DossierPourSynchronisation<DossierMutator>[]} */
+//@ts-ignore
+const dossiersAModifier = dossiersAModifierPourSynchro.map(dossier => {
     const { 
         déposant,
         /** demandeur_personne_physique, */
@@ -342,8 +330,8 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
  * Synchronisation des dossiers
  */
 let dossiersSynchronisés
-if(dossiers.length >= 1){
-    dossiersSynchronisés = dumpDossiers(dossiers)
+if(dossiersAInitialiser.length >= 1 || dossiersAModifierPourSynchro.length >= 1){
+    dossiersSynchronisés = dumpDossiers(dossiersAInitialiser, dossiersAModifier)
 }
 
 const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
@@ -517,17 +505,15 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 
 
 /** Synchronisation des fichiers AP/AM téléchargés */
-
-
 const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
     if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
-        //checkMemory()
-        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
-        //console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés)
 
+        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
+
+        const dossiers = [...dossiersAInitialiser, ...dossiersAModifier]
         return miseÀJourDécisionsAdministrativesDepuisDS88444(
             fichiersAP_AMTéléchargés,
-            // @ts-ignore
+            //@ts-ignore //TODO enlever ce ts-ignore
             dossiers,
             dossierIdByDS_number,
             donnéesDécisionAdministrativeParNuméroDossier,
