@@ -20,7 +20,7 @@
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
- * @returns {Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">}
+ * @returns {Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique"> | Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">}
  */
 export function remplirChampsCommunsPourSynchro(
     dossierDS,

@@ -17,7 +17,7 @@ import { remplirChampsCommunsPourSynchro } from './remplirChampsCommunsPourSynch
  * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }} 
  */
-function getDossiersAInitialiserDossiersAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD) {
+function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD) {
     /** @type {DossierDS88444[]} */
     let dossiersDSAInitialiser = []
     /** @type {DossierDS88444[]} */
@@ -78,7 +78,7 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">[], dossiersAModifierPourSynchro: Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">[] }>} 
  */
 export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier) {
-    const { dossiersDSAInitialiser, dossiersDSAModifier } = getDossiersAInitialiserDossiersAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
+    const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
     const dossiersAInitialiserPourSynchro = await Promise.all(dossiersDSAInitialiser.map(async (dossier) => remplirChampsPourInitialisation(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)))
 
