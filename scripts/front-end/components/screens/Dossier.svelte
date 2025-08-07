@@ -83,8 +83,8 @@
      * @property {PitchouState['relationSuivis']} relationSuivis
      * @property {Onglet} ongletActifInitial
      * @property {any} messages
-     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
-     * @property {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
+     * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
      */
 
     /** @type {Props} */

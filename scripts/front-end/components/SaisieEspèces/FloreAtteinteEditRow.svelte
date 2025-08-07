@@ -6,18 +6,6 @@
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
-
-    
-    
-    
-    
-
-    
-
-    
-
-    
-
     
     /**
      * @typedef {Object} Props
@@ -52,14 +40,15 @@
     /** @param {EspèceProtégée} esp */
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
-    const dupliquerLigne = () => onDupliquerLigne(
+    const dupliquerLigne = $derived(onDupliquerLigne && (() =>  espèce && onDupliquerLigne(
         { 
             espèce,
             activité,
             nombreIndividus,
             surfaceHabitatDétruit
         },
-    )
+    )))
+    
     let onSupprimerClick = $derived(onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce)))
 </script>
 

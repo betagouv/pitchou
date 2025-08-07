@@ -1,11 +1,5 @@
 <script>
     
-
-    
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {() => string} textToCopy
@@ -23,7 +17,7 @@
     } = $props();
 
     /** @type {HTMLButtonElement} */
-    let copyButton = $state()
+    let copyButton
 
     function onClick(){
         copyButton.classList.add("animate");

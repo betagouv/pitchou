@@ -11,7 +11,7 @@
     /**
      * @typedef {Object} Props
      * @property {SchemaDémarcheSimplifiée} schemaDS88444
-     * @property {any} email
+     * @property {string} [email]
      */
 
     /** @type {Props} */

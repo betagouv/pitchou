@@ -22,7 +22,7 @@ export default async () => {
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<TmpStats>}
+     * @returns {ComponentProps<typeof TmpStats>}
      */
     function mapStateToProps(state){
         const dossiersById = state.dossiersRésumés

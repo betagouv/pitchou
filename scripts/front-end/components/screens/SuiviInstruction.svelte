@@ -28,7 +28,7 @@
 
     /**
      * @typedef {Object} Props
-     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
+     * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
      * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
      * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
      * @property {DossierRésumé[]} [dossiers]
