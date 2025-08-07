@@ -30,7 +30,7 @@ export function replaceComponent(newComponent, newMapStateToProps) {
   currentMapStateToProps = newMapStateToProps;
   
   const props = $state(currentMapStateToProps(store.state))
-  currentComponent = props;
+  currentProps = props;
 
   currentComponent = mount(newComponent, {
     target: svelteTarget,
