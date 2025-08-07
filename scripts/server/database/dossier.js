@@ -170,11 +170,9 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
         }
     }
 
-
-    /**@type {any[]} */
+    /**@type {knex.Knex.QueryBuilder<any, any>[]} */
     let updatePromises = []
     
-
     if (dossiersAModifier.length>=1) {
         updatePromises = dossiersAModifier.map(dossierAModifier => 
         databaseConnection('dossier')
@@ -184,6 +182,7 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
         )
     }
 
+    /**@type {knex.Knex.QueryBuilder<any, any> | undefined} */
     let insertPromise
 
     if (dossiersAInitialiser.length >= 1) {
@@ -193,17 +192,7 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
     }
 
     return Promise.all([insertPromise, ...updatePromises])
-        .then(results => {
-            const allResults = []
-            for (const result of results) {
-                if (Array.isArray(result)) {
-                    allResults.push(...result)
-                } else {
-                    allResults.push(result)
-                }
-            }
-            return allResults
-        })
+    .then(results => results.flat())
         
 }
 
