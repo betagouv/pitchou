@@ -3,11 +3,17 @@
   //@ts-check
   
   /** @import {StatsConformité} from '../../../types/API_Pitchou' */
-  /** @type {StatsConformité} */
-  export let statsConformite;
+  
 
-  /** @type {number} */
-  export let totalPrescriptions;
+  
+  /**
+   * @typedef {Object} Props
+   * @property {StatsConformité} statsConformite
+   * @property {number} totalPrescriptions
+   */
+
+  /** @type {Props} */
+  let { statsConformite, totalPrescriptions } = $props();
 
   const nbConformiteInitiale = statsConformite.nb_conforme_apres_1;
   const nbRetourConformite = statsConformite.nb_retour_conformite;

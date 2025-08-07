@@ -17,23 +17,29 @@
     /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
     /** @import PrescriptionType from '../../../../types/database/public/Prescription.ts' */
 
-    /** @type {Dossier['id']} */
-    export let dossierId
+    
 
 
-    /** @type {FrontEndDécisionAdministrative} */
-    export let décisionAdministrative
+    
 
-    /** @type {() => Promise<unknown>} */
-    export let supprimerDécisionAdministrative
+    
+    /**
+     * @typedef {Object} Props
+     * @property {Dossier['id']} dossierId
+     * @property {FrontEndDécisionAdministrative} décisionAdministrative
+     * @property {() => Promise<unknown>} supprimerDécisionAdministrative
+     */
+
+    /** @type {Props} */
+    let { dossierId, décisionAdministrative = $bindable(), supprimerDécisionAdministrative } = $props();
 
 
-    $: ({ id,
+    let { id,
         numéro, type, date_signature, date_fin_obligations, fichier_url
-    } = décisionAdministrative)
+    } = $derived(décisionAdministrative)
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
-    let prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
+    let prescriptions = $state(décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set())
     //$: console.log('prescriptions', prescriptions)
 
 
@@ -141,7 +147,7 @@
 
 
     /** @type {DécisionAdministrativePourTransfer | undefined} */
-    let décisionAdministrativeEnModification
+    let décisionAdministrativeEnModification = $state()
 
     function passerEnVueModifierDécisionAdministrative(){
         décisionAdministrativeEnModification = {
@@ -178,7 +184,7 @@
     }
 
     /** @type {'consulter' | 'modifier'} */
-    let vuePrescription = 'consulter'
+    let vuePrescription = $state('consulter')
 
 </script>
 
@@ -187,7 +193,7 @@
     {#if !décisionAdministrativeEnModification}
     <h4>
         {type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}
-        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={passerEnVueModifierDécisionAdministrative}>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" onclick={passerEnVueModifierDécisionAdministrative}>
             Modifier
         </button>
     </h4>
@@ -209,7 +215,7 @@
             <section class="fr-mb-3w">
                 <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-                <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
                     Ajouter une prescription
                 </button>
             </section>
@@ -222,7 +228,7 @@
                         Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles sont toutes optionnelles)
                         <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : .ods</span>
                     </label>
-                    <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                    <input oninput={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
                 </div>
             </section>
         {:else}
@@ -233,7 +239,7 @@
                     <Prescription {prescription}></Prescription>
                 {/each}
 
-                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" onclick={() => vuePrescription = 'modifier'}>
                     Modifier les prescriptions
                 </button>
             {:else}
@@ -254,7 +260,7 @@
                     </thead>
                     <tbody>
                         {#each prescriptions as prescription}
-                            <tr class="prescription" on:focusout={(e) => {
+                            <tr class="prescription" onfocusout={(e) => {
                                 //@ts-ignore
                                 if (!e.target?.classList.contains('bouton-supprimer')) {
                                     savePrescription(prescription)
@@ -271,18 +277,18 @@
                                 <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                                <td><button class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
+                                <td><button class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" onclick={() => supprimerPrescription(prescription)}>Supprimer</button></td>
                             </tr>
                         {/each}
                         <tr><td colspan="9" class="fr-pt-1w">
-                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
                                 Ajouter une prescription
                             </button>
                         </td></tr>
                     </tbody>
                 </table>
 
-                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" on:click={() => vuePrescription = 'consulter'}>
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" onclick={() => vuePrescription = 'consulter'}>
                     Modification terminées
                 </button>
             {/if}
@@ -295,10 +301,13 @@
 
         <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnModification || {}} onValider={sauvegarderDécisionAdministrative}>
             
-            <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
-            <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
+            <!-- @migration-task: migrate this slot by hand, `bouton-valider` is an invalid identifier -->
+    <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
+            <!-- @migration-task: migrate this slot by hand, `bouton-annuler` is an invalid identifier -->
+    <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" onclick={annulerModification}>Annuler</button>
         
-            <button slot="bouton-supprimer" type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" on:click={supprimerDécisionAdministrative}>
+            <!-- @migration-task: migrate this slot by hand, `bouton-supprimer` is an invalid identifier -->
+    <button slot="bouton-supprimer" type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" onclick={supprimerDécisionAdministrative}>
                 Supprimer cette décision administrative
             </button>
         

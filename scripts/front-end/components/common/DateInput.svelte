@@ -1,18 +1,30 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import { format, parse } from "date-fns";
 
-    export let YYYYMMDD = "yyyy-MM-dd";
-    /** @type {Date | null | undefined} */
-    export let date = undefined
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string} [YYYYMMDD]
+     * @property {Date | null | undefined} [date]
+     */
+
+    /** @type {Props} */
+    let { YYYYMMDD = "yyyy-MM-dd", date = $bindable(undefined) } = $props();
 
     /** @type {string | null | undefined} */
-    let internal;
+    let internal = $state();
 
     const input = (/** @type {Date | null | undefined} */ x) => (internal = x && format(x, YYYYMMDD));
     const output = (/** @type {string | null | undefined} */ x) => (date = typeof x === 'string' ? parse(x, YYYYMMDD, new Date()) : undefined);
 
-    $: input(date);
-    $: output(internal);
+    run(() => {
+        input(date);
+    });
+    run(() => {
+        output(internal);
+    });
 </script>
 
 <input type="date" class="fr-input" bind:value={internal} />

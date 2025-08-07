@@ -1,26 +1,34 @@
 <script>
+    import { preventDefault } from 'svelte/legacy';
+
     import Squelette from '../Squelette.svelte'
     import Loader from '../Loader.svelte'
 
     /** @import {ComponentProps} from 'svelte' */
 
-    /** @type {Set<string>} */
-    export let authorizedEmailDomains
+    
 
-    /** @type {(email: string) => Promise<unknown>}  */
-    export let envoiEmailConnexion
+    
 
-    /** @type {ComponentProps<Squelette>['erreurs']} */
-    export let erreurs;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {Set<string>} authorizedEmailDomains
+     * @property {(email: string) => Promise<unknown>} envoiEmailConnexion
+     * @property {ComponentProps<Squelette>['erreurs']} erreurs
+     */
+
+    /** @type {Props} */
+    let { authorizedEmailDomains, envoiEmailConnexion, erreurs } = $props();
 
 
     /** @type {string} */
-    let email;
+    let email = $state();
 
     /**
      * @type {Promise<unknown>}
      */
-    let emailInProgress;
+    let emailInProgress = $state();
 
     function onSubmit(){
         emailInProgress = envoiEmailConnexion(email)
@@ -47,7 +55,7 @@
 
     <div class="fr-grid-row fr-pb-6w fr-grid-row--center">
         <div class="fr-col-6">
-            <form on:submit|preventDefault={onSubmit}>
+            <form onsubmit={preventDefault(onSubmit)}>
                 <label class="fr-label" for="email">Adresse email</label>
                 <input class="fr-input" autocomplete="email" type="email" id="email" bind:value={email}>
                 <button class="fr-btn">Obtenir un lien de connexion par email</button> 
@@ -58,7 +66,7 @@
                 {/if}
             </form>
             {#if emailInProgress}
-                <!-- svelte-ignore empty-block -->
+                <!-- svelte-ignore block_empty -->
                 {#await emailInProgress}
                 {:then}
                     ✅ 📧 Vous devriez avoir reçu un email avec votre lien de connexion

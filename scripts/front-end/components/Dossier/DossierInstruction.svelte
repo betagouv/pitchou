@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     //@ts-check
     import debounce from "just-debounce-it";
     import TagPhase from '../TagPhase.svelte'
@@ -7,21 +9,27 @@
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
     
-    /** @type {DossierComplet} */
-    export let dossier
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     */
+
+    /** @type {Props} */
+    let { dossier } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
+    let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
 
 
-    $: phase = phaseActuelle
-    let commentaire_libre = dossier.commentaire_libre
-    let prochaine_action_attendue_par = dossier.prochaine_action_attendue_par
+    let phase = $derived(phaseActuelle)
+    let commentaire_libre = $state(dossier.commentaire_libre)
+    let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
 
 
-    let messageErreur = "" 
-    let afficherMessageSucces = false
+    let messageErreur = $state("") 
+    let afficherMessageSucces = $state(false)
 
 
     /** @type {((modifs: Partial<DossierComplet>) => void)} */
@@ -36,7 +44,7 @@
 
     const modifierChampAvecDebounce = debounce(modifierChamp, 1000)
 
-    $: {
+    run(() => {
         /** @type {Partial<DossierComplet>} */
         const modifs = {}
 
@@ -68,7 +76,7 @@
                 modifierChamp(modifs)
             }
         }
-    }
+    });
 
     const retirerAlert = () => { 
         messageErreur = ""
@@ -114,7 +122,7 @@
 
         <div class="fr-input-group" id="input-group-commentaitre-libre">
             <strong><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong>
-            <textarea on:focus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={commentaire_libre} rows={8}></textarea>
+            <textarea onfocus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={commentaire_libre} rows={8}></textarea>
             <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
             </div>
         </div>
@@ -123,7 +131,7 @@
             <label class="fr-label" for="phase">
                 <strong>Phase du dossier</strong>
             </label>
-            <select on:focus={retirerAlert} bind:value={phase} class="fr-select" id="phase">
+            <select onfocus={retirerAlert} bind:value={phase} class="fr-select" id="phase">
                 {#each [...phases] as phase}
                     <option value={phase}>{phase}</option>
                 {/each}
@@ -134,7 +142,7 @@
                 <strong>Prochaine action attendue de</strong>
             </label>
     
-            <select on:focus={retirerAlert} bind:value={prochaine_action_attendue_par} class="fr-select" id="prochaine_action_attendue_par">
+            <select onfocus={retirerAlert} bind:value={prochaine_action_attendue_par} class="fr-select" id="prochaine_action_attendue_par">
                 {#each [...prochaineActionAttenduePar] as acteur}
                     <option value={acteur}>{acteur}</option>
                 {/each}

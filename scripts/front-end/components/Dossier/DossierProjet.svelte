@@ -10,8 +10,7 @@
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
     /** @type {DossierComplet} */
-    // @ts-ignore
-    export let dossier;
+    
 
     const { number_demarches_simplifiées: numdos } = dossier;
 
@@ -31,18 +30,25 @@
         return dossier.espècesImpactées?.nom || "fichier";
     }
 
-    /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
-    export let espècesImpactées;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {any} dossier
+     * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
+     */
+
+    /** @type {Props} */
+    let { dossier, espècesImpactées } = $props();
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
-    $: espècesImpactéesParActivité =
-        espècesImpactées && promesseRéférentiels
+    let espècesImpactéesParActivité =
+        $derived(espècesImpactées && promesseRéférentiels
             ? Promise.all([espècesImpactées, promesseRéférentiels])
                 .then(([value, { activitésNomenclaturePitchou }]) =>
                     créerEspècesGroupéesParImpact(value, activitésNomenclaturePitchou)
                 )
-            : undefined;
+            : undefined);
 
         
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */

@@ -7,7 +7,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import ImportDossierBFC from '../components/screens/ImportDossierBFC.svelte';
 import { chargerDossiers, secretFromURL } from '../actions/main.js';
-
+import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -41,10 +41,10 @@ export default async () => {
             await chargerDossiers()
                 .catch(err => console.error({ err }))
 
-            const StatsComponent = new ImportDossierBFC({
-                target: svelteTarget,
-                props: mapStateToProps(store.state)
-            });
+            const StatsComponent = mount(ImportDossierBFC, {
+                            target: svelteTarget,
+                            props: mapStateToProps(store.state)
+                        });
 
             replaceComponent(StatsComponent, mapStateToProps)
         } else {

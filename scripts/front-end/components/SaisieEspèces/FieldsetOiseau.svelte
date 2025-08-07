@@ -15,20 +15,32 @@
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
 
-    /** @type {OiseauAtteint[]} */
-    export let oiseauxAtteints
+    
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesOiseau
+    
 
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes
+    
 
-    /** @type {MéthodeMenançante[]} */
-    export let méthodesMenaçantes
+    
 
-    /** @type {TransportMenançant[]} */
-    export let transportMenaçants
+    
+    /**
+     * @typedef {Object} Props
+     * @property {OiseauAtteint[]} oiseauxAtteints
+     * @property {EspèceProtégée[]} espècesProtégéesOiseau
+     * @property {ActivitéMenançante[]} activitésMenaçantes
+     * @property {MéthodeMenançante[]} méthodesMenaçantes
+     * @property {TransportMenançant[]} transportMenaçants
+     */
+
+    /** @type {Props} */
+    let {
+        oiseauxAtteints = $bindable(),
+        espècesProtégéesOiseau,
+        activitésMenaçantes,
+        méthodesMenaçantes,
+        transportMenaçants
+    } = $props();
 
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesOiseau)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesOiseau)
@@ -40,7 +52,7 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     /** @type {TriTableau | undefined} */
-    let triSélectionné = undefined
+    let triSélectionné = $state(undefined)
 
     function rerender() {
         oiseauxAtteints = oiseauxAtteints

@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     //@ts-check
 
     import Squelette from '../Squelette.svelte'
@@ -19,20 +21,14 @@
     /** @import {PitchouState} from '../../store.js' */
     /** @import {Onglet} from '../../routes/Dossier.js' */
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
 
-    $: console.info('Dossier complet', dossier)
 
-    /** @type {PitchouState['relationSuivis']} */
-    export let relationSuivis
+    
 
-    /** @type {Onglet} */
-    export let ongletActifInitial
+    
 
-    $: ongletActif = ongletActifInitial
 
-    $:console.log(ongletActif, "yeah")
 
     /**
      * @param {Onglet} nouvelOnglet 
@@ -76,18 +72,41 @@
     }
 
 
-    /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
-    $: espècesImpactées = getEspècesImpactés(dossier)
  
-    export let messages
 
-    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
-    export let email;
+    
 
-    /** @type {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} */
-    export let résultatsSynchronisationDS88444;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {PitchouState['relationSuivis']} relationSuivis
+     * @property {Onglet} ongletActifInitial
+     * @property {any} messages
+     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
+     * @property {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     */
+
+    /** @type {Props} */
+    let {
+        dossier,
+        relationSuivis,
+        ongletActifInitial,
+        messages,
+        email,
+        résultatsSynchronisationDS88444
+    } = $props();
 
 
+    run(() => {
+        console.info('Dossier complet', dossier)
+    });
+    let ongletActif = $derived(ongletActifInitial)
+    run(() => {
+        console.log(ongletActif, "yeah")
+    });
+    /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
+    let espècesImpactées = $derived(getEspècesImpactés(dossier))
 </script>
 
 <Squelette {email} {résultatsSynchronisationDS88444}>
@@ -106,7 +125,7 @@
                         tabindex={ongletActif === 'instruction'  ? 0 : -1} 
                         role="tab" 
                         aria-selected={ongletActif === 'instruction' }
-                        on:click={() => handleTabClick('instruction')}
+                        onclick={() => handleTabClick('instruction')}
                     >
                         Instruction
                     </button>
@@ -120,7 +139,7 @@
                         tabindex={ongletActif === 'projet'  ? 0 : -1} 
                         role="tab" 
                         aria-selected={ongletActif === 'projet' }
-                        on:click={() => handleTabClick('projet')}
+                        onclick={() => handleTabClick('projet')}
                     >
                         Projet
                     </button>
@@ -134,7 +153,7 @@
                         tabindex={ongletActif === 'echanges' ? 0 : -1} 
                         role="tab" 
                         aria-selected={ongletActif === 'echanges'}
-                        on:click={() => handleTabClick('echanges')}
+                        onclick={() => handleTabClick('echanges')}
                     >
                         Échanges
                     </button>
@@ -148,7 +167,7 @@
                         tabindex={ongletActif === 'avis' ? 0 : -1} 
                         role="tab" 
                         aria-selected={ongletActif === 'avis'}
-                        on:click={() => handleTabClick('avis')}
+                        onclick={() => handleTabClick('avis')}
                     >
                         Avis
                     </button>
@@ -162,7 +181,7 @@
                         tabindex={ongletActif === 'controles' ? 0 : -1} 
                         role="tab" 
                         aria-selected={ongletActif === 'controles'}
-                        on:click={() => handleTabClick('controles')}
+                        onclick={() => handleTabClick('controles')}
                     >
                         Contrôles
                     </button>
@@ -176,7 +195,7 @@
                         tabindex={ongletActif === 'generation-document' ? 0 : -1} 
                         role="tab" 
                         aria-selected={ongletActif === 'generation-document'}
-                        on:click={() => handleTabClick('generation-document')}
+                        onclick={() => handleTabClick('generation-document')}
                     >
                         Génération document
                     </button>

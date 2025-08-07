@@ -7,6 +7,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import Stats from '../components/screens/Stats.svelte';
 import { chargerStats } from '../actions/stats.js';
+import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -32,10 +33,10 @@ export default async () => {
             };
         }  
         
-        const StatsComponent = new Stats({
-            target: svelteTarget,
-            props: mapStateToProps(store.state)
-        });
+        const StatsComponent = mount(Stats, {
+                    target: svelteTarget,
+                    props: mapStateToProps(store.state)
+                });
 
         replaceComponent(StatsComponent, mapStateToProps)
     } catch (error) {

@@ -12,7 +12,7 @@ import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
 import { chargerListeEspècesProtégées, chargerActivitésMéthodesTransports } from '../actions/activitésMéthodesTransports.js';
-
+import { mount } from "svelte";
 
 /** @import {ComponentProps} from 'svelte' */
 
@@ -102,10 +102,10 @@ export default async () => {
     }
 
 
-    const saisieEspèces = new SaisieEspèces({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
+    const saisieEspèces = mount(SaisieEspèces, {
+            target: svelteTarget,
+            props: mapStateToProps(store.state)
+        });
 
     replaceComponent(saisieEspèces, mapStateToProps)
 }

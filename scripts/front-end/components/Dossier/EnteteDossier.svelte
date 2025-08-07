@@ -15,19 +15,25 @@
 
 
     
-    /** @type {DossierComplet} */
-    export let dossier
+    
 
-    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
-    export let email
+    
 
-    /** @type {PitchouState['relationSuivis']} */
-    export let relationSuivis
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
+     * @property {PitchouState['relationSuivis']} relationSuivis
+     */
+
+    /** @type {Props} */
+    let { dossier, email, relationSuivis } = $props();
 
     let phase = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
 
-    $: dossiersSuiviParInstructeurActuel = relationSuivis && relationSuivis.get(email)
-    $: dossierActuelSuiviParInstructeurActuel = dossiersSuiviParInstructeurActuel && dossiersSuiviParInstructeurActuel.has(dossier.id)
+    let dossiersSuiviParInstructeurActuel = $derived(relationSuivis && relationSuivis.get(email))
+    let dossierActuelSuiviParInstructeurActuel = $derived(dossiersSuiviParInstructeurActuel && dossiersSuiviParInstructeurActuel.has(dossier.id))
 
     /**
      * 
@@ -111,9 +117,9 @@
         {#if typeof dossierActuelSuiviParInstructeurActuel === 'boolean'}
 
             {#if dossierActuelSuiviParInstructeurActuel}
-                <button on:click={() => instructeurActuelLaisseDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+                <button onclick={() => instructeurActuelLaisseDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
             {:else}
-                <button on:click={() => instructeurActuelSuitDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
+                <button onclick={() => instructeurActuelSuitDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
             {/if}
 
         {/if}

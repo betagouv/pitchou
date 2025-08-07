@@ -1,17 +1,25 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import clsx from 'clsx'
 
-    /** @type { 'info' | 'succès' | 'avertissement' | 'erreur' } */
-    export let style = 'info';
+    
 
-    /** @type { number } */
-    export let quantité
+    
 
-    /** @type { string } */
-    export let alt;
+    
+    /**
+     * @typedef {Object} Props
+     * @property { 'info' | 'succès' | 'avertissement' | 'erreur' } [style]
+     * @property { number } quantité
+     * @property { string } alt
+     */
 
-    $: quantitéAjustée = quantité
-    $: {
+    /** @type {Props} */
+    let { style = 'info', quantité, alt } = $props();
+
+    let quantitéAjustée = $derived(quantité)
+    run(() => {
         if(quantitéAjustée < 0){
             quantitéAjustée = 0
         }
@@ -23,14 +31,14 @@
 
         // arrondir à la demie-valeur la plus proche
         quantitéAjustée = Math.round(quantitéAjustée*2)/2
-    }
+    });
     
-    $: baseClasses = [
+    let baseClasses = $derived([
         'trait',
         style
-    ]
+    ])
     
-    $: traitsClasses = [...Array(Math.ceil(quantitéAjustée))].map((_, i) => {
+    let traitsClasses = $derived([...Array(Math.ceil(quantitéAjustée))].map((_, i) => {
         if(quantitéAjustée - i >= 1){
             return baseClasses
         }
@@ -40,7 +48,7 @@
                 'moitié'
             ]
         }
-    })
+    }))
 
 </script>
 

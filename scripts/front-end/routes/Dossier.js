@@ -9,6 +9,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
 import {chargerRelationSuivi} from '../actions/main.js'
+import { mount } from "svelte";
 
 //@ts-ignore
 /** @import {ComponentProps} from 'svelte' */
@@ -81,10 +82,10 @@ export default async ({params: {dossierId}, hash: onglet}) => {
         }
     }
     
-    const pageDossier = new Dossier({
-        target: svelteTarget,
-        props: mapStateToProps(state),
-    });
+    const pageDossier = mount(Dossier, {
+            target: svelteTarget,
+            props: mapStateToProps(state),
+        });
 
     replaceComponent(pageDossier, mapStateToProps)
 }
