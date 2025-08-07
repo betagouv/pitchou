@@ -53,8 +53,6 @@ function render(state) {
     }
 
     Object.assign(currentProps, props)
-
-    console.log('render, after Object.assign', currentProps)
   }
 
 }
