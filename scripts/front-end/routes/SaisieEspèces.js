@@ -2,7 +2,7 @@
 
 import { json } from 'd3-fetch';
 
-import { replaceComponent } from '../routeComponentLifeCycle.js'
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import store from '../store.js'
 import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';

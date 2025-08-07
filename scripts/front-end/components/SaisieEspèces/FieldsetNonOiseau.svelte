@@ -14,15 +14,7 @@
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    
 
-    
-
-    
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
@@ -162,9 +154,14 @@
                     </thead>
 
                     <tbody>
-                        {#each faunesNonOiseauxAtteintes as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit}}
+                        {#each faunesNonOiseauxAtteintes as fauneNonOiseauAtteinte}
                         <FauneNonOiseauAtteinteEditRow
-                            bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:surfaceHabitatDétruit
+                            bind:espèce={fauneNonOiseauAtteinte.espèce} 
+                            bind:activité={fauneNonOiseauAtteinte.activité}
+                            bind:méthode={fauneNonOiseauAtteinte.méthode}
+                            bind:transport={fauneNonOiseauAtteinte.transport}
+                            bind:nombreIndividus={fauneNonOiseauAtteinte.nombreIndividus}
+                            bind:surfaceHabitatDétruit={fauneNonOiseauAtteinte.surfaceHabitatDétruit}
                             {espècesProtégéesFauneNonOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                             {onSupprimerLigne}
                             {onDupliquerLigne}

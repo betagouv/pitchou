@@ -165,9 +165,16 @@
                     </thead>
                     <tbody>
 
-                        {#each oiseauxAtteints as {espèce, activité, méthode, transport, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit}}
+                        {#each oiseauxAtteints as oiseauAtteint}
                             <OiseauAtteintEditRow
-                                bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:nombreNids bind:nombreOeufs bind:surfaceHabitatDétruit
+                                bind:espèce={oiseauAtteint.espèce} 
+                                bind:activité={oiseauAtteint.activité} 
+                                bind:méthode={oiseauAtteint.méthode} 
+                                bind:transport={oiseauAtteint.transport} 
+                                bind:nombreIndividus={oiseauAtteint.nombreIndividus} 
+                                bind:nombreNids={oiseauAtteint.nombreNids} 
+                                bind:nombreOeufs={oiseauAtteint.nombreOeufs} 
+                                bind:surfaceHabitatDétruit={oiseauAtteint.surfaceHabitatDétruit}
                                 {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                                 {onSupprimerLigne}
                                 {onDupliquerLigne}

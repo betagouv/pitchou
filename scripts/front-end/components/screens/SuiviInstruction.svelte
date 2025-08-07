@@ -26,22 +26,6 @@
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
     /**
      * @typedef {Object} Props
      * @property {NonNullable<ComponentProps<Squelette>['email']>} email
@@ -62,11 +46,17 @@
         résultatsSynchronisationDS88444,
         dossiers = [],
         relationSuivis,
-        activitésPrincipales = undefined,
+        activitésPrincipales = [],
         triIdSélectionné = undefined,
         filtresSélectionnés = {},
         rememberTriFiltres
     } = $props();
+
+    console.log('activitésPrincipales 1', activitésPrincipales)
+    console.log('rememberTriFiltres 1', typeof rememberTriFiltres)
+
+    $effect(() => {console.log('activitésPrincipales 2', activitésPrincipales)})
+    $effect(() => {console.log('rememberTriFiltres 2', typeof rememberTriFiltres)})
 
     let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
         // démarrer avec tous les ids
@@ -354,7 +344,7 @@
 
     let activitésPrincipalesNonSélectionnées = $derived(activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées))
 
-    run(() => {
+    $effect(() => {
         rememberTriFiltres(triSélectionné, {
             phases: phasesSélectionnées,
             'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,

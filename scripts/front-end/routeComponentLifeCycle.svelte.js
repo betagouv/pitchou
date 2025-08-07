@@ -1,13 +1,16 @@
 //@ts-check
 
-import { SvelteComponent } from "svelte";
+import { mount, unmount } from "svelte";
 import store from "./store.js";
+import {svelteTarget} from "./config.js";
 
 /** @typedef {import("./store.js").PitchouState} PitchouState */
 /** @typedef {(state: PitchouState) => any} MapStateToPropsFunction */
 
 /** @type {SvelteComponent} */
 let currentComponent;
+/** @type {any} */
+let currentProps;
 /** @type {MapStateToPropsFunction} */
 let currentMapStateToProps = (_) => {};
 
@@ -17,16 +20,24 @@ let currentMapStateToProps = (_) => {};
  * @param {MapStateToPropsFunction} newMapStateToProps 
  */
 export function replaceComponent(newComponent, newMapStateToProps) {
+  console.log('replaceComponent newMapStateToProps', newMapStateToProps)
+
   if (!newMapStateToProps) {
     throw new Error("Missing _mapStateToProps in replaceComponent");
   }
 
-  if (currentComponent) currentComponent.$destroy();
-
-  currentComponent = newComponent;
-  document.documentElement.scrollTo(0, 0) 
-
+  if (currentComponent) unmount(currentComponent)
   currentMapStateToProps = newMapStateToProps;
+  
+  const props = $state(currentMapStateToProps(store.state))
+  currentComponent = props;
+
+  currentComponent = mount(newComponent, {
+    target: svelteTarget,
+    props: currentProps
+  });
+
+  document.documentElement.scrollTo(0, 0) 
 }
 
 /**
@@ -35,10 +46,19 @@ export function replaceComponent(newComponent, newMapStateToProps) {
  */
 function render(state) {
   const props = currentMapStateToProps(state);
-  // @ts-ignore
+  
   if (props) {
-    currentComponent.$set(props);
+    for(const key of Object.keys(currentProps)){
+      delete currentProps[key]
+    }
+
+    Object.assign(currentProps, props)
+
+    console.log('render, after Object.assign', currentProps)
   }
+
 }
 
 store.subscribe(render);
+
+

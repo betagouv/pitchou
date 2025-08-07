@@ -14,10 +14,6 @@
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
     
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {FloreAtteinte[]} floresAtteintes
@@ -131,9 +127,12 @@
                     </thead>
 
                     <tbody>
-                        {#each floresAtteintes as {espèce, activité, nombreIndividus, surfaceHabitatDétruit}}
+                        {#each floresAtteintes as floreAtteinte}
                             <FloreAtteinteEditRow
-                                bind:espèce bind:activité bind:nombreIndividus bind:surfaceHabitatDétruit
+                                bind:espèce={floreAtteinte.espèce} 
+                                bind:activité={floreAtteinte.activité}
+                                bind:nombreIndividus={floreAtteinte.nombreIndividus}
+                                bind:surfaceHabitatDétruit={floreAtteinte.surfaceHabitatDétruit}
                                 {espècesProtégéesFlore} {activitésMenaçantes}
                                 {onSupprimerLigne}
                                 {onDupliquerLigne}
