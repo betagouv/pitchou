@@ -1,13 +1,10 @@
 //@ts-check
 
 import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
-import store from '../store.js'
-import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import Stats from '../components/screens/Stats.svelte';
 import { chargerStats } from '../actions/stats.js';
-import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -32,13 +29,8 @@ export default async () => {
                 erreurs
             };
         }  
-        
-        const StatsComponent = mount(Stats, {
-                    target: svelteTarget,
-                    props: mapStateToProps(store.state)
-                });
 
-        replaceComponent(StatsComponent, mapStateToProps)
+        replaceComponent(Stats, mapStateToProps)
     } catch (error) {
         console.error('Erreur lors du chargement des stats :', error)
     }

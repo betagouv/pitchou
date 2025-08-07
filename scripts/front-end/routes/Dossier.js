@@ -3,13 +3,10 @@
 import page from 'page'
 
 import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
-import store from '../store.js'
-import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
 import {chargerRelationSuivi} from '../actions/main.js'
-import { mount } from "svelte";
 
 //@ts-ignore
 /** @import {ComponentProps} from 'svelte' */
@@ -41,7 +38,6 @@ export default async ({params: {dossierId}, hash: onglet}) => {
     /** @type {DossierId} */
     // @ts-ignore
     const id = Number(dossierId)
-    const { state } = store
 
     // en attente de https://github.com/betagouv/pitchou/issues/154
     const messagesP = chargerMessagesDossier(id)
@@ -81,11 +77,6 @@ export default async ({params: {dossierId}, hash: onglet}) => {
             ongletActifInitial,
         }
     }
-    
-    const pageDossier = mount(Dossier, {
-            target: svelteTarget,
-            props: mapStateToProps(state),
-        });
 
-    replaceComponent(pageDossier, mapStateToProps)
+    replaceComponent(Dossier, mapStateToProps)
 }

@@ -2,13 +2,11 @@
 
 import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import store from '../store.js'
-import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import TmpStats from '../components/screens/TmpStats.svelte';
 
 import { chargerDossiers } from '../actions/main.js';
-import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -34,12 +32,7 @@ export default async () => {
             dossiers: [...dossiersById.values()]
         }
     }    
-    
-    const suiviInstructeur = mount(TmpStats, {
-            target: svelteTarget,
-            props: mapStateToProps(store.state)
-        });
 
-    replaceComponent(suiviInstructeur, mapStateToProps)
+    replaceComponent(TmpStats, mapStateToProps)
 
 }
