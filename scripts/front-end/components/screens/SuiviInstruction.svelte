@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import { onMount } from 'svelte';
     //@ts-check
     import Squelette from '../Squelette.svelte'
@@ -22,33 +24,49 @@
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
-    export let email;
     
-    /** @type {ComponentProps<Squelette>['erreurs']} */
-    export let erreurs;
+    
+    
 
-    /** @type {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} */
-    export let résultatsSynchronisationDS88444;
+    
 
-    /** @type {DossierRésumé[]} */
-    export let dossiers = []
+    
 
-    /** @type {PitchouState['relationSuivis']} */
-    export let relationSuivis
+    
 
-    /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
-    export let activitésPrincipales = undefined
+    
 
-    /** @type {TriTableau['id'] | undefined} */
-    export let triIdSélectionné = undefined;
+    
 
-    /** @type {Partial<FiltresLocalStorage>} */
-    export let filtresSélectionnés = {};
+    
 
-    export let rememberTriFiltres;
+    /**
+     * @typedef {Object} Props
+     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
+     * @property {ComponentProps<Squelette>['erreurs']} erreurs
+     * @property {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     * @property {DossierRésumé[]} [dossiers]
+     * @property {PitchouState['relationSuivis']} relationSuivis
+     * @property {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} [activitésPrincipales]
+     * @property {TriTableau['id'] | undefined} [triIdSélectionné]
+     * @property {Partial<FiltresLocalStorage>} [filtresSélectionnés]
+     * @property {any} rememberTriFiltres
+     */
 
-    $: dossiersIdSuivisParAucunInstructeur = relationSuivis && (() => {
+    /** @type {Props} */
+    let {
+        email,
+        erreurs,
+        résultatsSynchronisationDS88444,
+        dossiers = [],
+        relationSuivis,
+        activitésPrincipales = undefined,
+        triIdSélectionné = undefined,
+        filtresSélectionnés = {},
+        rememberTriFiltres
+    } = $props();
+
+    let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
         // démarrer avec tous les ids
         const dossierIdsSansSuivi = new Set(dossiers.map(d => d.id))
 
@@ -60,10 +78,10 @@
         }
 
         return dossierIdsSansSuivi
-    })()
+    })())
 
     /** @type {DossierRésumé[]} */
-    let dossiersSelectionnés = []
+    let dossiersSelectionnés = $state([])
     //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
 
     //$: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
@@ -107,7 +125,7 @@
 
     // Cette ligne doit être tolérante à ce que triIdSélectionné soit undefined ou n'importe quoi
     /** @type {TriTableau | undefined} */
-    let triSélectionné = tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0]
+    let triSélectionné = $state(tris.find(t => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0])
 
 
     /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
@@ -132,13 +150,13 @@
     const phaseOptions = new Set([...phases])
 
     /** @type {Set<DossierPhase>} */
-    let phasesSélectionnées = filtresSélectionnés.phases ? 
+    let phasesSélectionnées = $state(filtresSélectionnés.phases ? 
         new Set(filtresSélectionnés.phases) :
         new Set([
             'Accompagnement amont',
             'Étude recevabilité DDEP',
             'Instruction'
-        ])
+        ]))
 
     /**
      *
@@ -169,9 +187,9 @@
 
     /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
     // @ts-ignore
-    let prochainesActionsAttenduesParSélectionnés = filtresSélectionnés['prochaine action attendue de'] ?
+    let prochainesActionsAttenduesParSélectionnés = $state(filtresSélectionnés['prochaine action attendue de'] ?
         new Set(filtresSélectionnés['prochaine action attendue de']) :
-        new Set(prochainesActionsAttenduesParOptions)
+        new Set(prochainesActionsAttenduesParOptions))
 
     tousLesFiltres.set("prochaine action attendue de", dossier => {
         if (!dossier.prochaine_action_attendue_par || !prochainesActionsAttenduesParOptions.has(dossier.prochaine_action_attendue_par)) {
@@ -192,10 +210,10 @@
         filtrerDossiers()
     }
 
-    $: prochainesActionsAttenduesParNonSélectionnés = prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés)
+    let prochainesActionsAttenduesParNonSélectionnés = $derived(prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés))
 
 
-    let texteÀChercher = ''
+    let texteÀChercher = $state('')
 
     /**
      * @param {string} _texteÀChercher
@@ -262,10 +280,10 @@
     const instructeursOptions = new Set([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    let instructeursSélectionnés = new Set(filtresSélectionnés.instructeurs ?
+    let instructeursSélectionnés = $state(new Set(filtresSélectionnés.instructeurs ?
         filtresSélectionnés.instructeurs :
         [email]
-    )
+    ))
 
     tousLesFiltres.set('instructeurs', dossier => {
         if(!relationSuivis)
@@ -301,10 +319,10 @@
 
     /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
     // @ts-ignore
-    let activitésPrincipalesSélectionnées = new Set(filtresSélectionnés.activitésPrincipales ?
+    let activitésPrincipalesSélectionnées = $state(new Set(filtresSélectionnés.activitésPrincipales ?
         filtresSélectionnés.activitésPrincipales :
         activitésPrincipalesOptions
-    )
+    ))
 
     tousLesFiltres.set('activité principale', dossier => {
         if(!dossier.activité_principale || !activitésPrincipalesOptions.has(dossier.activité_principale))
@@ -323,14 +341,16 @@
 		filtrerDossiers()
     }
 
-    $: activitésPrincipalesNonSélectionnées = activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées)
+    let activitésPrincipalesNonSélectionnées = $derived(activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées))
 
-    $: rememberTriFiltres(triSélectionné, {
-        phases: phasesSélectionnées,
-        'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,
-        instructeurs: instructeursSélectionnés,
-        activitésPrincipales: activitésPrincipalesSélectionnées
-    })
+    run(() => {
+        rememberTriFiltres(triSélectionné, {
+            phases: phasesSélectionnées,
+            'prochaine action attendue de': prochainesActionsAttenduesParSélectionnés,
+            instructeurs: instructeursSélectionnés,
+            activitésPrincipales: activitésPrincipalesSélectionnées
+        })
+    });
 
     // filtrage avec les filtres initiaux
     onMount(async () => {
@@ -344,14 +364,14 @@
     const NOMBRE_DOSSIERS_PAR_PAGE = 20
 
     /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
-    let selectionneursPage;
+    let selectionneursPage = $state();
     /** @type {SelectionneurPage | undefined} */
-    let pageActuelle;
+    let pageActuelle = $state();
     /** @type {typeof dossiersSelectionnés} */
-    let dossiersAffichés;
+    let dossiersAffichés = $state();
 
 
-    $: {
+    run(() => {
         if(dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
             const nombreDePages = Math.ceil(dossiersSelectionnés.length/NOMBRE_DOSSIERS_PAR_PAGE)
 
@@ -374,7 +394,7 @@
             selectionneursPage = undefined
             pageActuelle = undefined
         }
-    }
+    });
 
 </script>
 
@@ -473,7 +493,7 @@
                     {#if texteÀChercher}
                         <div class="fr-mb-1w">
                             <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
-                            <button on:click={onSupprimerFiltreTexte}>✖</button>
+                            <button onclick={onSupprimerFiltreTexte}>✖</button>
                         </div>
                     {/if}
                 </section>
@@ -539,9 +559,11 @@
 
                                         {#if commentaire_enjeu && commentaire_enjeu.trim().length >= 1}
                                             <BoutonModale id={`dsfr-modale-${id}`}>
-                                                <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
+                                                <!-- @migration-task: migrate this slot by hand, `contenu-bouton` is an invalid identifier -->
+    <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
                         
-                                                <header class="titre-modale" slot="titre-modale">
+                                                <!-- @migration-task: migrate this slot by hand, `titre-modale` is an invalid identifier -->
+    <header class="titre-modale" slot="titre-modale">
                                                     <h1 class="fr-modal__title">
                                                         Commentaire dossier {nom}
                                                     </h1>
@@ -552,7 +574,8 @@
                                                     </h2>
                                                 </header>
                         
-                                                <div class="contenu-modale" slot="contenu-modale">
+                                                <!-- @migration-task: migrate this slot by hand, `contenu-modale` is an invalid identifier -->
+    <div class="contenu-modale" slot="contenu-modale">
                                                     {commentaire_enjeu}
                                                 </div>
                                             </BoutonModale>

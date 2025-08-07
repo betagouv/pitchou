@@ -5,18 +5,24 @@
 
     /** @import {DossierRésumé} from '../../types/API_Pitchou.js' */
 
-    /** @type { DossierRésumé } */
-    export let dossier;
+    
+    /**
+     * @typedef {Object} Props
+     * @property { DossierRésumé } dossier
+     */
 
-    $: débutPhaseActuelle = getDébutPhaseActuelle(dossier)
-    $: monthDiff = differenceInMonths(new Date(), débutPhaseActuelle.dateDébut)
+    /** @type {Props} */
+    let { dossier } = $props();
+
+    let débutPhaseActuelle = $derived(getDébutPhaseActuelle(dossier))
+    let monthDiff = $derived(differenceInMonths(new Date(), débutPhaseActuelle.dateDébut))
     //$: console.log('monthDiff', monthDiff)
     // le +1, c'est pour avoir un délai pessimiste
-    $: weekDiff = differenceInWeeks(new Date(), addMonths(débutPhaseActuelle.dateDébut, monthDiff)) + 1
+    let weekDiff = $derived(differenceInWeeks(new Date(), addMonths(débutPhaseActuelle.dateDébut, monthDiff)) + 1)
     // $: console.log('weekDiff', weekDiff)
 
-    $: quantité = monthDiff + (weekDiff/4)
-    $: alt = `depuis ${format(débutPhaseActuelle.dateDébut, 'yyyy-MM-dd')} - ~${monthDiff} mois`
+    let quantité = $derived(monthDiff + (weekDiff/4))
+    let alt = $derived(`depuis ${format(débutPhaseActuelle.dateDébut, 'yyyy-MM-dd')} - ~${monthDiff} mois`)
 
 
 </script>

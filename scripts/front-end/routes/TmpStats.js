@@ -8,6 +8,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import TmpStats from '../components/screens/TmpStats.svelte';
 
 import { chargerDossiers } from '../actions/main.js';
+import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -34,10 +35,10 @@ export default async () => {
         }
     }    
     
-    const suiviInstructeur = new TmpStats({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
+    const suiviInstructeur = mount(TmpStats, {
+            target: svelteTarget,
+            props: mapStateToProps(store.state)
+        });
 
     replaceComponent(suiviInstructeur, mapStateToProps)
 

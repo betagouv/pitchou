@@ -12,7 +12,7 @@ import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 
 import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
 import showLoginByEmail from './montrerPageDAccueil.js';
-
+import { mount } from "svelte";
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
@@ -80,7 +80,7 @@ function mapStateToPropsSuiviInstruction(state){
 export default async () => {
     console.info('route', '/')
 
-    replaceComponent(new SqueletteContenuVide({target: svelteTarget}), () => {})
+    replaceComponent(mount(SqueletteContenuVide, {target: svelteTarget}), () => {})
 
     /**
      * 
@@ -131,10 +131,10 @@ export default async () => {
                 }
             })
         
-        const suiviInstructeur = new SuiviInstruction({
-            target: svelteTarget,
-            props: mapStateToPropsSuiviInstruction(store.state)
-        });
+        const suiviInstructeur = mount(SuiviInstruction, {
+                    target: svelteTarget,
+                    props: mapStateToPropsSuiviInstruction(store.state)
+                });
 
         replaceComponent(suiviInstructeur, mapStateToPropsSuiviInstruction)
 

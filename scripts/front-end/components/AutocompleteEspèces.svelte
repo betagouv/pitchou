@@ -4,15 +4,28 @@
 
 	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
 
-	/** @type {EspèceProtégée[]} */
-	export let espèces;
-	/** @type {EspèceProtégée | undefined} */
-	export let selectedItem = undefined;
-	/** @type {function | undefined}*/
-	export let onChange = undefined
-	export let htmlClass
-	export let labelFunction
-	export let keywordsFunction
+	
+	
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {EspèceProtégée[]} espèces
+	 * @property {EspèceProtégée | undefined} [selectedItem]
+	 * @property {function | undefined} [onChange]
+	 * @property {any} htmlClass
+	 * @property {any} labelFunction
+	 * @property {any} keywordsFunction
+	 */
+
+	/** @type {Props} */
+	let {
+		espèces,
+		selectedItem = $bindable(undefined),
+		onChange = undefined,
+		htmlClass,
+		labelFunction,
+		keywordsFunction
+	} = $props();
 
 	/**
 	 * 

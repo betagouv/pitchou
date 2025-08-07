@@ -14,20 +14,32 @@
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    /** @type {FauneNonOiseauAtteinte[]} */
-    export let faunesNonOiseauxAtteintes
+    
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesFauneNonOiseau
+    
 
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes
+    
 
-    /** @type {MéthodeMenançante[]} */
-    export let méthodesMenaçantes
+    
 
-    /** @type {TransportMenançant[]} */
-    export let transportMenaçants
+    
+    /**
+     * @typedef {Object} Props
+     * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
+     * @property {EspèceProtégée[]} espècesProtégéesFauneNonOiseau
+     * @property {ActivitéMenançante[]} activitésMenaçantes
+     * @property {MéthodeMenançante[]} méthodesMenaçantes
+     * @property {TransportMenançant[]} transportMenaçants
+     */
+
+    /** @type {Props} */
+    let {
+        faunesNonOiseauxAtteintes = $bindable(),
+        espècesProtégéesFauneNonOiseau,
+        activitésMenaçantes,
+        méthodesMenaçantes,
+        transportMenaçants
+    } = $props();
 
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
@@ -39,7 +51,7 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     /** @type {TriTableau | undefined} */
-    let triSélectionné = undefined
+    let triSélectionné = $state(undefined)
 
     function rerender() {
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes

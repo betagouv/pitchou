@@ -1,18 +1,29 @@
 <script>
-    /** @type {() => string} */
-    export let textToCopy
+    
 
-    /** @type {string} */
-    export let initialLabel = "Copier dans le presse-papier"
+    
 
-    /** @type {string} */
-    export let labelAfterCopy = "Copié dans le presse-papier !"
+    
 
-    /** @type {string} */
-    export let classname
+    
+    /**
+     * @typedef {Object} Props
+     * @property {() => string} textToCopy
+     * @property {string} [initialLabel]
+     * @property {string} [labelAfterCopy]
+     * @property {string} classname
+     */
+
+    /** @type {Props} */
+    let {
+        textToCopy,
+        initialLabel = "Copier dans le presse-papier",
+        labelAfterCopy = "Copié dans le presse-papier !",
+        classname
+    } = $props();
 
     /** @type {HTMLButtonElement} */
-    let copyButton
+    let copyButton = $state()
 
     function onClick(){
         copyButton.classList.add("animate");
@@ -35,7 +46,7 @@
 <button 
     class={classname} 
     bind:this={copyButton} 
-    on:click={onClick}
+    onclick={onClick}
 >
     {initialLabel}
 </button>

@@ -4,10 +4,16 @@
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
 
-    export let décisionsAdministratives = dossier.décisionsAdministratives || []
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {any} [décisionsAdministratives]
+     */
+
+    /** @type {Props} */
+    let { dossier, décisionsAdministratives = dossier.décisionsAdministratives || [] } = $props();
 </script>
 
 <div class="row">

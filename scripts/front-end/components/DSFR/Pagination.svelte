@@ -21,25 +21,33 @@
 
     /** @typedef {() => void} SelectionneurPage */
 
-    /** @type {[undefined, ...rest: SelectionneurPage[]]} */
-    export let selectionneursPage;
+    
 
-    $: selectionnerPremièrePage = selectionneursPage[1]
-    $: selectionnerDernièrePage = selectionneursPage.at(-1)
 
-    $: numéroDernièrePage = selectionneursPage.length - 1
 
-    /** @type {SelectionneurPage | undefined} */
-    export let pageActuelle;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {[undefined, ...rest: SelectionneurPage[]]} selectionneursPage
+     * @property {SelectionneurPage | undefined} pageActuelle
+     */
 
-    $: numéroPageSelectionné = selectionneursPage.indexOf(pageActuelle)
+    /** @type {Props} */
+    let { selectionneursPage, pageActuelle } = $props();
 
-    $: selectionnerPagePrécédente = selectionneursPage[numéroPageSelectionné - 1]
-    $: selectionnerPageSuivante = selectionneursPage[numéroPageSelectionné + 1]
 
+
+
+
+    let selectionnerPremièrePage = $derived(selectionneursPage[1])
+    let selectionnerDernièrePage = $derived(selectionneursPage.at(-1))
+    let numéroDernièrePage = $derived(selectionneursPage.length - 1)
+    let numéroPageSelectionné = $derived(selectionneursPage.indexOf(pageActuelle))
+    let selectionnerPagePrécédente = $derived(selectionneursPage[numéroPageSelectionné - 1])
+    let selectionnerPageSuivante = $derived(selectionneursPage[numéroPageSelectionné + 1])
     // Toujours afficher la première, la dernière, la page actuelle, deux avant et deux après
 
-    $: listeNumérosPage = [...new Set([
+    let listeNumérosPage = $derived([...new Set([
         1,
 
         numéroPageSelectionné - 2,
@@ -49,9 +57,7 @@
         numéroPageSelectionné + 2,
 
         numéroDernièrePage
-    ])].filter(n => !!selectionneursPage[n])
-
-
+    ])].filter(n => !!selectionneursPage[n]))
 </script>
 
 <nav class="fr-pagination" aria-label="Pagination">
@@ -60,7 +66,7 @@
             <button
                 class="fr-pagination__link fr-pagination__link--first"
                 disabled={pageActuelle === selectionnerPremièrePage}
-                on:click={selectionnerPremièrePage}
+                onclick={selectionnerPremièrePage}
                 role="link"
             >
                 Première page
@@ -70,7 +76,7 @@
             <button
                 class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
                 disabled={pageActuelle === selectionnerPremièrePage}
-                on:click={selectionnerPagePrécédente}
+                onclick={selectionnerPagePrécédente}
                 role="link"
             >
                 Page précédente
@@ -88,7 +94,7 @@
                     class={clsx(['fr-pagination__link', 'fr-displayed-lg'])} 
                     aria-current={pageActuelle === selectionneursPage[numéroPage] ? "page" : undefined}
                     title={`Page ${numéroPage}`}
-                    on:click={selectionneursPage[numéroPage]}
+                    onclick={selectionneursPage[numéroPage]}
                 >
                     {numéroPage}
                 </button>
@@ -104,7 +110,7 @@
             <button
                 class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
                 disabled={pageActuelle === selectionnerDernièrePage}
-                on:click={selectionnerPageSuivante}
+                onclick={selectionnerPageSuivante}
                 role="link"
             >
                 Page suivante
@@ -114,7 +120,7 @@
             <button
                 class="fr-pagination__link fr-pagination__link--last"
                 disabled={pageActuelle === selectionnerDernièrePage}
-                on:click={selectionnerDernièrePage}
+                onclick={selectionnerDernièrePage}
                 role="link"
             >
                 Dernière page

@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     //@ts-check
 
     import TagPhase from '../TagPhase.svelte'
@@ -7,24 +9,32 @@
 
     /** @import {DossierComplet, DossierPhase} from '../../../types/API_Pitchou' */    
     
-    /** @type {DossierComplet} */
-    export let dossier
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     */
+
+    /** @type {Props} */
+    let { dossier } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    $: phaseActuelle = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
+    let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
     
     /** @type {Pick<DossierComplet, 'prochaine_action_attendue_par'> & {phase: DossierPhase}} */
-    let dossierParams = {
+    let dossierParams = $state({
         phase: phaseActuelle,
         prochaine_action_attendue_par: dossier.prochaine_action_attendue_par,
-    }
+    })
 
-    $: dossierParams.phase = phaseActuelle
+    run(() => {
+        dossierParams.phase = phaseActuelle
+    });
 
 
-    let messageErreur = "" 
-    let afficherMessageSucces = false
+    let messageErreur = $state("") 
+    let afficherMessageSucces = $state(false)
 
     /**
      * 
@@ -97,7 +107,7 @@
 
         <h2>Phase et action attendue</h2>
         
-        <form class=" fr-mb-4w" on:submit={mettreAJourDossier} on:change={retirerAlert}>
+        <form class=" fr-mb-4w" onsubmit={mettreAJourDossier} onchange={retirerAlert}>
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-mb-3w">
                     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>

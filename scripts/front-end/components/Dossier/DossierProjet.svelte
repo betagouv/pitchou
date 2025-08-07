@@ -9,8 +9,7 @@
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
     /** @type {DossierComplet} */
-    // @ts-ignore
-    export let dossier;
+    
 
     const { number_demarches_simplifiées: numdos } = dossier;
 
@@ -30,16 +29,22 @@
         return dossier.espècesImpactées?.nom || "fichier";
     }
 
-    /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
-    export let espècesImpactées;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {any} dossier
+     * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
+     */
+
+    /** @type {Props} */
+    let { dossier, espècesImpactées } = $props();
 
     /** @type {ReturnType<créerEspècesGroupéesParImpact> | undefined} */
-    let espècesImpactéesParActivité;
+    let espècesImpactéesParActivité = $derived(espècesImpactées &&
+        espècesImpactées.then(créerEspècesGroupéesParImpact));
 
     // @ts-ignore
-    $: espècesImpactéesParActivité =
-        espècesImpactées &&
-        espècesImpactées.then(créerEspècesGroupéesParImpact);
+    
 
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore

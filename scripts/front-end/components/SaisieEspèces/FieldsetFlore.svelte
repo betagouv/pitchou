@@ -13,14 +13,20 @@
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    /** @type {FloreAtteinte[]} */
-    export let floresAtteintes
+    
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesFlore
+    
 
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes
+    
+    /**
+     * @typedef {Object} Props
+     * @property {FloreAtteinte[]} floresAtteintes
+     * @property {EspèceProtégée[]} espècesProtégéesFlore
+     * @property {ActivitéMenançante[]} activitésMenaçantes
+     */
+
+    /** @type {Props} */
+    let { floresAtteintes = $bindable(), espècesProtégéesFlore, activitésMenaçantes } = $props();
 
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFlore)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFlore)
@@ -32,7 +38,7 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     /** @type {TriTableau | undefined}*/
-    let triSélectionné = undefined
+    let triSélectionné = $state(undefined)
 
     function rerender() {
         floresAtteintes = floresAtteintes

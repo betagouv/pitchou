@@ -1,13 +1,19 @@
 <script>
     //@ts-check
 
-    /** @type {string} */
-    export let titre
+    
 
-    /** @type {function}*/
-    export let mettreÀJourTexteRecherche
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string} titre
+     * @property {function} mettreÀJourTexteRecherche
+     */
 
-    let valeur = ""
+    /** @type {Props} */
+    let { titre, mettreÀJourTexteRecherche } = $props();
+
+    let valeur = $state("")
     
     /**
      * 
@@ -20,7 +26,7 @@
     }
 </script>
 
-<form on:submit={onMettreÀJourValeurSélectionnée} role="search"> 
+<form onsubmit={onMettreÀJourValeurSélectionnée} role="search"> 
     <div class="form-recherche">
         <label class="sr-only" for="recherche-texte">{titre}</label>
         <input type="text" name="recherche-texte" id="recherche-texte" placeholder="{titre}" class="fr-input" bind:value={valeur} />

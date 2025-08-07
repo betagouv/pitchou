@@ -7,37 +7,55 @@
     
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
-    /** @type {EspèceProtégée | undefined} */
-    export let espèce = undefined
-    /** @type {ActivitéMenançante | undefined} */
-    export let activité = undefined
-    /** @type {MéthodeMenançante | undefined} */
-    export let méthode = undefined
-    /** @type {TransportMenançant | undefined} */
-    export let transport = undefined 
-    /** @type {string | undefined} */
-    export let nombreIndividus = undefined 
-    /** @type {number | undefined} */
-    export let surfaceHabitatDétruit = undefined 
+    
+    
+    
+    
+    
+    
 
-    /** @type {undefined | ((f: FauneNonOiseauAtteinte) => void)} */
-    export let onDupliquerLigne = undefined
+    
 
-    /** @type {undefined | ((e: EspèceProtégée) => void)} */
-    export let onSupprimerLigne = undefined
-    $: onSupprimerClick = onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce))
+    
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesFauneNonOiseau = []
+    
 
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes = []
+    
 
-    /** @type {MéthodeMenançante[]} */
-    export let méthodesMenaçantes
+    
 
-    /** @type {TransportMenançant[]} */
-    export let transportMenaçants
+    
+    /**
+     * @typedef {Object} Props
+     * @property {EspèceProtégée | undefined} [espèce]
+     * @property {ActivitéMenançante | undefined} [activité]
+     * @property {MéthodeMenançante | undefined} [méthode]
+     * @property {TransportMenançant | undefined} [transport]
+     * @property {string | undefined} [nombreIndividus]
+     * @property {number | undefined} [surfaceHabitatDétruit]
+     * @property {undefined | ((f: FauneNonOiseauAtteinte) => void)} [onDupliquerLigne]
+     * @property {undefined | ((e: EspèceProtégée) => void)} [onSupprimerLigne]
+     * @property {EspèceProtégée[]} [espècesProtégéesFauneNonOiseau]
+     * @property {ActivitéMenançante[]} [activitésMenaçantes]
+     * @property {MéthodeMenançante[]} méthodesMenaçantes
+     * @property {TransportMenançant[]} transportMenaçants
+     */
+
+    /** @type {Props} */
+    let {
+        espèce = $bindable(undefined),
+        activité = $bindable(undefined),
+        méthode = $bindable(undefined),
+        transport = $bindable(undefined),
+        nombreIndividus = $bindable(undefined),
+        surfaceHabitatDétruit = $bindable(undefined),
+        onDupliquerLigne = undefined,
+        onSupprimerLigne = undefined,
+        espècesProtégéesFauneNonOiseau = [],
+        activitésMenaçantes = [],
+        méthodesMenaçantes,
+        transportMenaçants
+    } = $props();
 
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
@@ -58,6 +76,7 @@
             surfaceHabitatDétruit
         },
     )
+    let onSupprimerClick = $derived(onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce)))
 </script>
 
 <tr>
@@ -116,7 +135,7 @@
 
     {#if onDupliquerLigne}
     <td class="icon-cell">
-        <button type="button" on:click={dupliquerLigne}>
+        <button type="button" onclick={dupliquerLigne}>
             <CopyFileIcon />
         </button>
     </td>
@@ -124,7 +143,7 @@
 
     {#if onSupprimerClick}
     <td>
-        <button type="button" on:click={onSupprimerClick}>❌</button>
+        <button type="button" onclick={onSupprimerClick}>❌</button>
     </td>
     {/if}
 </tr>

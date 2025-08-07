@@ -6,8 +6,14 @@
     import TagPhase from '../TagPhase.svelte'
     import BoutonModale from '../DSFR/BoutonModale.svelte'
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     */
+
+    /** @type {Props} */
+    let { dossier } = $props();
 
     let phase = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
 
@@ -68,11 +74,14 @@
             <div>
                 {#if dossier.commentaire_enjeu && dossier.commentaire_enjeu.trim().length >= 1}
                     <BoutonModale id={`dsfr-modale-${dossier.id}`}>
-                        <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
+                        <!-- @migration-task: migrate this slot by hand, `contenu-bouton` is an invalid identifier -->
+    <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
 
-                        <h1 slot="titre-modale" id="fr-modal-title-modal-1" class="fr-modal__title">Commentaire enjeux et procédure</h1>
+                        <!-- @migration-task: migrate this slot by hand, `titre-modale` is an invalid identifier -->
+    <h1 slot="titre-modale" id="fr-modal-title-modal-1" class="fr-modal__title">Commentaire enjeux et procédure</h1>
 
-                        <div class="contenu-modale" slot="contenu-modale">
+                        <!-- @migration-task: migrate this slot by hand, `contenu-modale` is an invalid identifier -->
+    <div class="contenu-modale" slot="contenu-modale">
                             {dossier.commentaire_enjeu}
                         </div>
                     </BoutonModale>

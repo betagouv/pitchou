@@ -10,16 +10,22 @@
     /** @import {FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
     /** @import Prescription from '../../../types/database/public/Prescription.ts' */
 
-    /** @type {FrontEndDécisionAdministrative} */
-    export let décisionAdministrative
+    
+    /**
+     * @typedef {Object} Props
+     * @property {FrontEndDécisionAdministrative} décisionAdministrative
+     */
+
+    /** @type {Props} */
+    let { décisionAdministrative } = $props();
 
     let {
         numéro, type, date_signature, date_fin_obligations, fichier_url, 
         prescriptions: _prescriptions
-    } = décisionAdministrative
+    } = $state(décisionAdministrative)
 
     /** @type {Set<Partial<Prescription>>}*/
-    $: prescriptions = _prescriptions ? new Set(_prescriptions) : new Set()
+    let prescriptions = $derived(_prescriptions ? new Set(_prescriptions) : new Set())
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
@@ -180,7 +186,7 @@
         {#if prescriptions.size === 0}
             <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
                 Ajouter une prescription
             </button>
 
@@ -192,7 +198,7 @@
                         Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles sont toutes optionnelles)
                         <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : .ods</span>
                     </label>
-                    <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                    <input oninput={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
                 </div>
             </section>
         {:else}
@@ -213,7 +219,7 @@
                 </thead>
                 <tbody>
                     {#each prescriptions as prescription}
-                    <tr class="prescription" on:focusout={(e) => {
+                    <tr class="prescription" onfocusout={(e) => {
                         //@ts-ignore
                         if (!e.target?.classList.contains('bouton-supprimer')) {
                             savePrescription(prescription)
@@ -230,12 +236,12 @@
                         <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                         <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                         <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                        <td><button class="bouton-supprimer" type="button" on:click={() => supprimerPrescription(prescription)}>❌</button></td>
+                        <td><button class="bouton-supprimer" type="button" onclick={() => supprimerPrescription(prescription)}>❌</button></td>
                     </tr>
                     {/each}
                     <tr>
                         <td colspan=5>
-                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
                                 Ajouter une prescription
                             </button>
                         </td>

@@ -7,6 +7,7 @@ import { replaceComponent } from '../routeComponentLifeCycle.js'
 import {envoiEmailConnexion} from '../serveur.js'
 import { authorizedEmailDomains } from '../../commun/constantes.js';
 import { svelteTarget } from '../config.js'
+import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -27,10 +28,10 @@ export default function showLoginByEmail(){
         }
     }
 
-    const loginViaEmail = new LoginViaEmail({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
+    const loginViaEmail = mount(LoginViaEmail, {
+            target: svelteTarget,
+            props: mapStateToProps(store.state)
+        });
 
     replaceComponent(loginViaEmail, mapStateToProps)
 }

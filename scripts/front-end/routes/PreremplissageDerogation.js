@@ -6,6 +6,7 @@ import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import PreremplissageDerogation from '../components/screens/PreremplissageDerogation.svelte'
+import { mount } from "svelte";
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
@@ -27,10 +28,10 @@ export default () => {
         }
     }   
     
-    const preremplissageDerogation = new PreremplissageDerogation({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
+    const preremplissageDerogation = mount(PreremplissageDerogation, {
+            target: svelteTarget,
+            props: mapStateToProps(store.state)
+        });
 
     replaceComponent(preremplissageDerogation, mapStateToProps)
 

@@ -8,7 +8,7 @@ import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
-
+import { mount } from "svelte";
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {DossierId} from '../../types/database/public/Dossier.ts' */
@@ -53,10 +53,10 @@ export default async ({params: {dossierId}}) => {
         }
     }
     
-    const pageDossier = new Dossier({
-        target: svelteTarget,
-        props: mapStateToProps(state),
-    });
+    const pageDossier = mount(Dossier, {
+            target: svelteTarget,
+            props: mapStateToProps(state),
+        });
 
     replaceComponent(pageDossier, mapStateToProps)
 }

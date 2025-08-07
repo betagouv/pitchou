@@ -17,8 +17,7 @@
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
 
     console.info('Dossier complet', dossier)
 
@@ -48,17 +47,29 @@
     }
 
 
-    /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
-    $: espècesImpactées = getEspècesImpactés(dossier)
  
-    export let messages
 
-    /** @type {NonNullable<ComponentProps<Squelette>['email']>} */
-    export let email;
-
-    /** @type {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} */
-    export let résultatsSynchronisationDS88444;
     
+
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {any} messages
+     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
+     * @property {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     */
+
+    /** @type {Props} */
+    let {
+        dossier,
+        messages,
+        email,
+        résultatsSynchronisationDS88444
+    } = $props();
+    
+    /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
+    let espècesImpactées = $derived(getEspècesImpactés(dossier))
 </script>
 
 <Squelette {email} {résultatsSynchronisationDS88444}>

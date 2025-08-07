@@ -9,29 +9,35 @@
 
 
     /** @type {FileList | undefined} */
-    let templateFiles;
-    $: template = templateFiles && templateFiles[0]
+    let templateFiles = $state();
+    let template = $derived(templateFiles && templateFiles[0])
 
     /** @type {Error | undefined}*/
-    let erreurGénérationDocument;
+    let erreurGénérationDocument = $state();
 
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
 
-    /** @type {Promise<DescriptionMenacesEspèces> | undefined} */
-    export let espècesImpactées;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
+     */
+
+    /** @type {Props} */
+    let { dossier, espècesImpactées } = $props();
 
     /** @type {Blob | undefined} */
-    let documentGénéré;
+    let documentGénéré = $state();
     /** @type {string | undefined} */
-    $: urlDocumentGénéré = documentGénéré && URL.createObjectURL(documentGénéré);
+    let urlDocumentGénéré = $derived(documentGénéré && URL.createObjectURL(documentGénéré));
     /** @type {string | undefined} */
-    let nomDocumentGénéré
+    let nomDocumentGénéré = $state()
 
     /** @type {Promise<string> | undefined} */
-    $: texteDocumentGénéré = documentGénéré && documentGénéré.arrayBuffer()
-        .then(getOdtTextContent)
+    let texteDocumentGénéré = $derived(documentGénéré && documentGénéré.arrayBuffer()
+        .then(getOdtTextContent))
 
 
 
@@ -93,7 +99,7 @@
         </div>
     {/if}
 
-    <form on:submit={generateDoc}>
+    <form onsubmit={generateDoc}>
         <div class="fr-upload-group">
             <label class="fr-label" for="file-upload">Ajouter un document-type
                 <!--
