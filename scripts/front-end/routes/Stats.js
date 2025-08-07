@@ -19,7 +19,7 @@ export default async () => {
         /**
          * 
          * @param {PitchouState} state 
-         * @returns {ComponentProps<Stats>}
+         * @returns {ComponentProps<typeof Stats>}
          */
         function mapStateToProps(state) {
             const { email, erreurs } = mapStateToSqueletteProps(state);

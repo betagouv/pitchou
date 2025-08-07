@@ -2,12 +2,6 @@
     //@ts-check
 
     
-
-    
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {Set<string>} options
@@ -58,7 +52,7 @@
 
     let open = $state(false);
 
-    /** @type {HTMLElement} */
+    /** @type {HTMLElement | undefined} */
     let details = $state();
 
     /**
@@ -66,7 +60,7 @@
      */
     function detailsOnClick(e){
         // @ts-ignore
-        if(!details.contains(e.target)){
+        if(!details?.contains(e.target)){
             open = false
         }
     }

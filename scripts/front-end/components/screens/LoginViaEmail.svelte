@@ -7,15 +7,11 @@
     /** @import {ComponentProps} from 'svelte' */
 
     
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {Set<string>} authorizedEmailDomains
      * @property {(email: string) => Promise<unknown>} envoiEmailConnexion
-     * @property {ComponentProps<Squelette>['erreurs']} erreurs
+     * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
      */
 
     /** @type {Props} */
@@ -23,10 +19,10 @@
 
 
     /** @type {string} */
-    let email = $state();
+    let email = $state("");
 
     /**
-     * @type {Promise<unknown>}
+     * @type {Promise<unknown> | undefined}
      */
     let emailInProgress = $state();
 

@@ -15,7 +15,7 @@
      */
 
     /** @type {Props} */
-    let { schemaDS88444, email } = $props();
+    let { schemaDS88444, email = undefined } = $props();
 
     /** @type {Partial<DossierDemarcheSimplifiee88444>} */
     let nouveauDossierPartiel = $state({})

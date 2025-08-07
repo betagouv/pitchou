@@ -56,7 +56,7 @@ export default async () => {
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<SaisieEspèces>}
+     * @returns {ComponentProps<typeof SaisieEspèces>}
      */
     function mapStateToProps(state){
         const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(

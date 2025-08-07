@@ -17,7 +17,7 @@ export default async () => {
         /**
          * 
          * @param {PitchouState} state 
-         * @returns {ComponentProps<ImportDossierBFC>}
+         * @returns {ComponentProps<typeof ImportDossierBFC>}
          */
         function mapStateToProps(state) {
             const dossiersById = state.dossiersRésumés

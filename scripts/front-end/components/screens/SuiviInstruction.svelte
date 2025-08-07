@@ -29,8 +29,8 @@
     /**
      * @typedef {Object} Props
      * @property {NonNullable<ComponentProps<Squelette>['email']>} email
-     * @property {ComponentProps<Squelette>['erreurs']} erreurs
-     * @property {ComponentProps<Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
+     * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
      * @property {DossierRésumé[]} [dossiers]
      * @property {PitchouState['relationSuivis']} relationSuivis
      * @property {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} [activitésPrincipales]
@@ -370,7 +370,7 @@
     /** @type {SelectionneurPage | undefined} */
     let pageActuelle = $state();
     /** @type {typeof dossiersSelectionnés} */
-    let dossiersAffichés = $state();
+    let dossiersAffichés = $state([]);
 
 
     run(() => {

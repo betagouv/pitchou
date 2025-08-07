@@ -6,17 +6,13 @@
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {StatsPubliques} from '../../../types/API_Pitchou.ts' */
-    
-    
-
-    
 
     
     /**
      * @typedef {Object} Props
      * @property {Promise<StatsPubliques>} statsP
      * @property {string | undefined} [email]
-     * @property {ComponentProps<Squelette>['erreurs']} erreurs
+     * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
      */
 
     /** @type {Props} */

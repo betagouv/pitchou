@@ -23,7 +23,7 @@
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
-     * @property {NonNullable<ComponentProps<Squelette>['email']>} email
+     * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
      * @property {PitchouState['relationSuivis']} relationSuivis
      */
 

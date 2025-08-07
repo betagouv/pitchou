@@ -53,7 +53,7 @@ export default async ({params: {dossierId}, hash: onglet}) => {
     /**
      * 
      * @param {PitchouState} state
-     * @returns {ComponentProps<Dossier>}
+     * @returns {ComponentProps<typeof Dossier>}
      */
     function mapStateToProps(state){
         const dossier = state.dossiersComplets.get(id)

@@ -12,7 +12,7 @@ export default () => {
     /**
      * 
      * @param {PitchouState} state
-     * @returns {ComponentProps<PreremplissageDerogation>}
+     * @returns {ComponentProps<typeof PreremplissageDerogation>}
      */
     function mapStateToProps(state){
         if(!state.schemaDS88444){

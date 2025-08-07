@@ -25,7 +25,7 @@
     
     /**
      * @typedef {Object} Props
-     * @property {ComponentProps<Squelette>['email']} [email]
+     * @property {ComponentProps<typeof Squelette>['email']} [email]
      * @property {DossierRésumé[]} [dossiers]
      */
 

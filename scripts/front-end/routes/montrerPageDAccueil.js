@@ -15,7 +15,7 @@ export default function showLoginByEmail(){
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<LoginViaEmail>}
+     * @returns {ComponentProps<typeof LoginViaEmail>}
      */
     function mapStateToProps(state){
         return {
