@@ -148,7 +148,8 @@ for(const personne of allPersonnesCurrentlyInDatabase){
     }
 }
 
-const dossiersPourSynchronisation = [...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro]
+/** @type {readonly (Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique"> | Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">)[] } */
+const dossiersPourSynchronisation = Object.freeze([...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro])
 
 /** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
 const personnesInDossiersAvecEmail = new Map()

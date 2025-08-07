@@ -11,12 +11,14 @@
 /** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
 //@ts-ignore
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
+//@ts-ignore
+/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 
 /**
  * Renvoie le dossier rempli des champs communs aux dossiers DS à initialiser et aux dossiers DS à modifier pour la synchronisation.
  * @param {DossierDS88444} dossierDS
- * @param {Map<string, string>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<string, string>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
+ * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">}
  */

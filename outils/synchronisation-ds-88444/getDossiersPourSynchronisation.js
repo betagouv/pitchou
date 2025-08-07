@@ -1,9 +1,12 @@
-// @ts-ignore
 /** @import {DossierDS88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 /** @import  {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
+/** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 
+import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { remplirChampsCommunsPourSynchro } from './remplirChampsCommunsPourSynchro.js'
 
@@ -11,7 +14,7 @@ import { remplirChampsCommunsPourSynchro } from './remplirChampsCommunsPourSynch
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
  * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarches Simplifiées du dossier n'existe pas déjà en base de données.
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<string>} numberDSDossiersDéjàExistantsEnBDD
+ * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }} 
  */
 function getDossiersAInitialiserDossiersAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD) {
@@ -28,9 +31,10 @@ function getDossiersAInitialiserDossiersAModifier(dossiersDS, numberDSDossiersD�
         }
     })
 
-    if (dossiersDSAModifier.length + dossiersDSAInitialiser.length !== dossiersDS.length) {
-        throw new Error(`Une erreur est survenue lors de la séparation des dossiers DS en dossiers DS à initialiser (${dossiersDSAInitialiser.length} dossiers à modifier) et en dossiers DS à modifier (${dossiersDSAModifier.length} dossiers à modifier) `)
-    }
+    assert.deepEqual(
+    dossiersDSAModifier.length + dossiersDSAInitialiser.length, 
+    dossiersDS.length, 
+    `Une erreur est survenue lors de la séparation des dossiers DS en dossiers DS à initialiser (${dossiersDSAInitialiser.length} dossiers à modifier) et en dossiers DS à modifier (${dossiersDSAModifier.length} dossiers à modifier)`)
 
     return { dossiersDSAInitialiser, dossiersDSAModifier }
 }
@@ -38,8 +42,8 @@ function getDossiersAInitialiserDossiersAModifier(dossiersDS, numberDSDossiersD�
 /**
  * Renvoyer le dossier rempli des champs obligatoires pour l'initialisation d'un nouveau dossier
  * @param {DossierDS88444} dossierDS
- * @param {Map<string, string>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<string, string>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
+ * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Promise<Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">>}
  */
@@ -68,8 +72,8 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
 /**
  * @param {DossierDS88444[]} dossiersDS
  * @param {Set<string>} numberDSDossiersDéjàExistantsEnBDD
- * @param {Map<string, string>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<string, string>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
+ * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">[], dossiersAModifierPourSynchro: Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">[] }>} 
  */
