@@ -18,11 +18,6 @@
     /** @import PrescriptionType from '../../../../types/database/public/Prescription.ts' */
 
     
-
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {Dossier['id']} dossierId
@@ -88,7 +83,7 @@
             if(pendingPrescriptionIdEntry){
                 pendingPrescriptionIdEntry.updateAfterRecievingId = true
             } else {
-                /** @type {Promise<Prescription['id'] | undefined>} */
+                /** @type {Promise<PrescriptionType['id'] | undefined>} */
                 const prescriptionIdP = ajouterPrescriptionBaseDeDonnées(prescription)
 
                 const newPendingPrescriptionIdEntry = {

@@ -8,25 +8,6 @@
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
     
-    
-    
-    
-    
-    
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {EspèceProtégée | undefined} [espèce]
@@ -86,7 +67,7 @@
             })
         }
     })
-    let onSupprimerClick = $derived(onSupprimerLigne && espèce && (() => onSupprimerLigne(espèce)))
+    let onSupprimerClick = $derived(onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce)))
 </script>
 
 <tr>

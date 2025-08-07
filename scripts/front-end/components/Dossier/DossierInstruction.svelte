@@ -104,6 +104,7 @@
                 <strong>Dépôt dossier</strong>
                 -
                 <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
+            </li>
         </ol>
     </section>
 

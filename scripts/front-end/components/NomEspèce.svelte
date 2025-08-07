@@ -4,13 +4,13 @@
 	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
 
     
-  /**
-   * @typedef {Object} Props
-   * @property {EspèceProtégée} espèce
-   */
+    /**
+     * @typedef {Object} Props
+     * @property {EspèceProtégée} espèce
+     */
 
-  /** @type {Props} */
-  let { espèce } = $props();
+    /** @type {Props} */
+    let { espèce } = $props();
 
     let [premierNomVernaculaire, ...autresNomsVernaculaires] = [...espèce.nomsVernaculaires]
     let [premierNomScientifique, ...autresNomsScientifiques] = [...espèce.nomsScientifiques]
@@ -22,7 +22,7 @@
         title = autresNomsVernaculaires.join(', ')
 
         if(autresNomsScientifiques.length >= 1){
-            title = title + ' | ' + autresNomsScientifiques.join(', ')
+            title += ' | ' + autresNomsScientifiques.join(', ')
         }
     }
     else{

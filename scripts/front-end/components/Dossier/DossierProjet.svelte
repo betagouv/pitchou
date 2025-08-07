@@ -9,7 +9,14 @@
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
-    /** @type {DossierComplet} */
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
+     */
+
+    /** @type {Props} */
+    let { dossier, espècesImpactées } = $props();
     
 
     const { number_demarches_simplifiées: numdos } = dossier;
@@ -31,14 +38,7 @@
     }
 
     
-    /**
-     * @typedef {Object} Props
-     * @property {any} dossier
-     * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
-     */
 
-    /** @type {Props} */
-    let { dossier, espècesImpactées } = $props();
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
 

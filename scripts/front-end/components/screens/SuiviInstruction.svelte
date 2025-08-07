@@ -52,12 +52,6 @@
         rememberTriFiltres
     } = $props();
 
-    console.log('activitésPrincipales 1', activitésPrincipales)
-    console.log('rememberTriFiltres 1', typeof rememberTriFiltres)
-
-    $effect(() => {console.log('activitésPrincipales 2', activitésPrincipales)})
-    $effect(() => {console.log('rememberTriFiltres 2', typeof rememberTriFiltres)})
-
     let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
         // démarrer avec tous les ids
         const dossierIdsSansSuivi = new Set(dossiers.map(d => d.id))
@@ -209,9 +203,12 @@
 
 
     let texteÀChercher = $state(filtresSélectionnés.texte)
-    if(texteÀChercher){
-        filtrerParTexte(texteÀChercher)
-    }
+    $effect(() => {
+        if(texteÀChercher){
+            filtrerParTexte(texteÀChercher)
+        }
+    })
+
 
     /**
      * @param {string} _texteÀChercher
