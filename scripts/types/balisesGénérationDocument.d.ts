@@ -54,6 +54,7 @@ export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   nom: string | null;
   demandeur: {
     adresse: string
+    nom: string
     toString: () => string
   }
   activité_principale: string | null;

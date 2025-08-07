@@ -86,7 +86,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         date_fin_intervention,
         durée_intervention,
         demandeur: {
-            adresse: dossier.demandeur_adresse
+            adresse: dossier.demandeur_adresse,
+            nom: dossier.demandeur_personne_morale_raison_sociale || `${dossier.demandeur_personne_physique_prénoms} ${dossier.demandeur_personne_physique_nom}`,
             toString(){
                 return formatPorteurDeProjet(dossier)
             }
