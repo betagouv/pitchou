@@ -203,7 +203,7 @@
 
 
     let texteÀChercher = $state(filtresSélectionnés.texte)
-    $effect(() => {
+    run(() => {
         if(texteÀChercher){
             filtrerParTexte(texteÀChercher)
         }
