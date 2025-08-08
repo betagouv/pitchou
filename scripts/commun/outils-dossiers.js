@@ -18,7 +18,6 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         commentaire_libre,
         rattaché_au_régime_ae,
         historique_identifiant_demande_onagre,
-        historique_date_réception_ddep,
         date_dépôt,
         décisionsAdministratives,
         
@@ -64,7 +63,6 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
         décisionsAdministratives,
         
         // Statistiques
-        historique_date_réception_ddep,
         date_dépôt,
         
         // Localisation
