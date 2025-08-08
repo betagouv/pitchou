@@ -2,8 +2,14 @@
   //@ts-check
   /** @import {StatsPubliques} from '../../../types/API_Pitchou' */
   import StatistiquesConformites from '../stats/StatistiquesConformites.svelte';
-  /** @type {StatsPubliques} */
-  export let stats
+  
+  /**
+   * @typedef {Object} Props
+   * @property {StatsPubliques} stats
+   */
+
+  /** @type {Props} */
+  let { stats } = $props();
 
   const estimationNbPétitionnairesEnFranceParAn = 1500;
 

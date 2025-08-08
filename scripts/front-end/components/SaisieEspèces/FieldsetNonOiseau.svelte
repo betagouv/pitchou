@@ -14,20 +14,24 @@
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    /** @type {FauneNonOiseauAtteinte[]} */
-    export let faunesNonOiseauxAtteintes
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesFauneNonOiseau
+    /**
+     * @typedef {Object} Props
+     * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
+     * @property {EspèceProtégée[]} espècesProtégéesFauneNonOiseau
+     * @property {ActivitéMenançante[]} activitésMenaçantes
+     * @property {MéthodeMenançante[]} méthodesMenaçantes
+     * @property {TransportMenançant[]} transportMenaçants
+     */
 
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes
-
-    /** @type {MéthodeMenançante[]} */
-    export let méthodesMenaçantes
-
-    /** @type {TransportMenançant[]} */
-    export let transportMenaçants
+    /** @type {Props} */
+    let {
+        faunesNonOiseauxAtteintes = $bindable(),
+        espècesProtégéesFauneNonOiseau,
+        activitésMenaçantes,
+        méthodesMenaçantes,
+        transportMenaçants
+    } = $props();
 
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
@@ -39,7 +43,7 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     /** @type {TriTableau | undefined} */
-    let triSélectionné = undefined
+    let triSélectionné = $state(undefined)
 
     function rerender() {
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
@@ -150,9 +154,14 @@
                     </thead>
 
                     <tbody>
-                        {#each faunesNonOiseauxAtteintes as {espèce, activité, méthode, transport, nombreIndividus, surfaceHabitatDétruit}}
+                        {#each faunesNonOiseauxAtteintes as fauneNonOiseauAtteinte}
                         <FauneNonOiseauAtteinteEditRow
-                            bind:espèce bind:activité bind:méthode bind:transport bind:nombreIndividus bind:surfaceHabitatDétruit
+                            bind:espèce={fauneNonOiseauAtteinte.espèce} 
+                            bind:activité={fauneNonOiseauAtteinte.activité}
+                            bind:méthode={fauneNonOiseauAtteinte.méthode}
+                            bind:transport={fauneNonOiseauAtteinte.transport}
+                            bind:nombreIndividus={fauneNonOiseauAtteinte.nombreIndividus}
+                            bind:surfaceHabitatDétruit={fauneNonOiseauAtteinte.surfaceHabitatDétruit}
                             {espècesProtégéesFauneNonOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                             {onSupprimerLigne}
                             {onDupliquerLigne}

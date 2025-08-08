@@ -11,11 +11,17 @@
     /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
     /** @import {DécisionAdministrativePourTransfer} from '../../../types/API_Pitchou.ts' */
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     */
+
+    /** @type {Props} */
+    let { dossier } = $props();
 
     /** @type {FrontEndDécisionAdministrative[]} */
-    $: décisionsAdministratives = dossier.décisionsAdministratives || []
+    let décisionsAdministratives = $derived(dossier.décisionsAdministratives || [])
 
     /**
      * 
@@ -37,13 +43,13 @@
 
     const phase = dossier.évènementsPhase.at(-1)?.phase || 'Accompagnement amont'
 
-    $: classes = clsx([
+    let classes = $derived(clsx([
         'fr-btn', 'fr-btn--icon-left', 'fr-icon-add-line',
         décisionsAdministratives.length >= 1 || phase === 'Accompagnement amont' || phase === 'Étude recevabilité DDEP' ? 'fr-btn--secondary' : undefined
-    ])
+    ]))
 
     /** @type {DécisionAdministrativePourTransfer | undefined} */
-    let décisionAdministrativeEnCréation
+    let décisionAdministrativeEnCréation = $state()
 
     function commencerCréationDécisionAdministrative(){
         décisionAdministrativeEnCréation = {
@@ -84,11 +90,13 @@
 
     {#if décisionAdministrativeEnCréation}
         <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnCréation} onValider={onValider}>
-            <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
-            <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerCréation}>Annuler</button>
+            <!-- @migration-task: migrate this slot by hand, `bouton-valider` is an invalid identifier -->
+    <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
+            <!-- @migration-task: migrate this slot by hand, `bouton-annuler` is an invalid identifier -->
+    <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" onclick={annulerCréation}>Annuler</button>
         </FormulaireDécisionAdministrative>
     {:else}
-        <button on:click={commencerCréationDécisionAdministrative} class={classes}>Rajouter une décision administrative</button>
+        <button onclick={commencerCréationDécisionAdministrative} class={classes}>Rajouter une décision administrative</button>
     {/if}
 </div>
 

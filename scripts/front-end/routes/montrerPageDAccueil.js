@@ -2,11 +2,9 @@
 
 import LoginViaEmail from '../components/screens/LoginViaEmail.svelte';
 
-import store from '../store.js'
-import { replaceComponent } from '../routeComponentLifeCycle.js'
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import {envoiEmailConnexion} from '../serveur.js'
 import { authorizedEmailDomains } from '../../commun/constantes.js';
-import { svelteTarget } from '../config.js'
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
@@ -17,7 +15,7 @@ export default function showLoginByEmail(){
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<LoginViaEmail>}
+     * @returns {ComponentProps<typeof LoginViaEmail>}
      */
     function mapStateToProps(state){
         return {
@@ -27,10 +25,5 @@ export default function showLoginByEmail(){
         }
     }
 
-    const loginViaEmail = new LoginViaEmail({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
-
-    replaceComponent(loginViaEmail, mapStateToProps)
+    replaceComponent(LoginViaEmail, mapStateToProps)
 }

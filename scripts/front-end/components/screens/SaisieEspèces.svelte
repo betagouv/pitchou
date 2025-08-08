@@ -19,35 +19,52 @@
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
     /** @import { NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
-    /** @type {string | undefined} */
-    export let email = undefined
-
-    /** @type {ParClassification<EspèceProtégée[]>} */
-    export let espècesProtégéesParClassification;
-
-    /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-    export let activitesParClassificationEtreVivant
-
-    /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
-    export let méthodesParClassificationEtreVivant
     
-    /** @type {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} */
-    export let transportsParClassificationEtreVivant
 
-    /** @type {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} */
-    export let importDescriptionMenacesEspècesFromOds
+    
 
-    /** @type {Map<NomGroupeEspèces, EspèceProtégée[]>} */
-    export let groupesEspèces
+    
 
-    /** @type {OiseauAtteint[]}*/
-    export let oiseauxAtteints
+    
+    
+    
 
-    /** @type {FauneNonOiseauAtteinte[]} */
-    export let faunesNonOiseauxAtteintes
+    
 
-    /** @type {FloreAtteinte[]}*/
-    export let floresAtteintes
+    
+
+    
+
+    
+
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string | undefined} [email]
+     * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
+     * @property {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activitesParClassificationEtreVivant
+     * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
+     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} importDescriptionMenacesEspècesFromOds
+     * @property {Map<NomGroupeEspèces, EspèceProtégée[]>} groupesEspèces
+     * @property {OiseauAtteint[]} oiseauxAtteints
+     * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
+     * @property {FloreAtteinte[]} floresAtteintes
+     */
+
+    /** @type {Props} */
+    let {
+        email = undefined,
+        espècesProtégéesParClassification,
+        activitesParClassificationEtreVivant,
+        méthodesParClassificationEtreVivant,
+        transportsParClassificationEtreVivant,
+        importDescriptionMenacesEspècesFromOds,
+        groupesEspèces,
+        oiseauxAtteints = $bindable(),
+        faunesNonOiseauxAtteintes = $bindable(),
+        floresAtteintes = $bindable()
+    } = $props();
 
     function rerender(){
         oiseauxAtteints = oiseauxAtteints 
@@ -147,9 +164,9 @@
      * Aide saisie par texte
      */
 
-    let texteEspèces = '';
+    let texteEspèces = $state('');
 
-    $: nomVersEspèceClassif = créerNomVersEspèceClassif(espècesProtégéesParClassification)
+    let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification))
 
     /**
      * 
@@ -170,57 +187,57 @@
     }
 
     /** @type {Set<EspèceProtégée> | undefined} */
-    $: espècesÀPréremplirParTexte = chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces))
+    let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
 
     /**
      * Aide saisie par groupe
      */
     /** @type {string} */
-    let nomGroupChoisi = '';
+    let nomGroupChoisi = $state('');
 
     /** @type {EspèceProtégée[] | undefined} */
-    $: groupeChoisi = groupesEspèces.get(nomGroupChoisi)
-    $: espècesÀPréremplirParGroupe = groupeChoisi || []
+    let groupeChoisi = $derived(groupesEspèces.get(nomGroupChoisi))
+    let espècesÀPréremplirParGroupe = $derived(groupeChoisi || [])
 
     /** @type {EspèceProtégée[]} */
-    $: espècesÀPréremplir = [...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe]
+    let espècesÀPréremplir = $derived([...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe])
 
-    $: oiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau'))
-    $: fauneNonOiseauxÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau'))
-    $: floreÀPréremplir = new Set(espècesÀPréremplir.filter(e => e.classification === 'flore'))
+    let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau')))
+    let floreÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'flore')))
 
     /** @type {ActivitéMenançante | undefined} */
-    let activitéOiseauPréremplie;
+    let activitéOiseauPréremplie = $state();
     /** @type {MéthodeMenançante | undefined} */
-    let méthodeOiseauPréremplie;
+    let méthodeOiseauPréremplie = $state();
     /** @type {TransportMenançant | undefined} */
-    let transportOiseauPrérempli;
+    let transportOiseauPrérempli = $state();
     /** @type {string | undefined} */
-    let nombreIndividusOiseauPrérempli;
+    let nombreIndividusOiseauPrérempli = $state();
     /** @type {number | undefined} */
-    let nombreNidsOiseauPrérempli;
+    let nombreNidsOiseauPrérempli = $state();
     /** @type {number | undefined} */
-    let nombreOeufsOiseauPrérempli
+    let nombreOeufsOiseauPrérempli = $state()
     /** @type {number | undefined} */
-    let surfaceHabitatDétruitOiseauPrérempli
+    let surfaceHabitatDétruitOiseauPrérempli = $state()
 
     /** @type {ActivitéMenançante | undefined} */
-    let activitéFauneNonOiseauPréremplie;
+    let activitéFauneNonOiseauPréremplie = $state();
     /** @type {MéthodeMenançante | undefined} */
-    let méthodeFauneNonOiseauPréremplie;
+    let méthodeFauneNonOiseauPréremplie = $state();
     /** @type {TransportMenançant | undefined} */
-    let transportFauneNonOiseauPréremplie;
+    let transportFauneNonOiseauPréremplie = $state();
     /** @type {string | undefined} */
-    let nombreIndividusFauneNonOiseauPréremplie;
+    let nombreIndividusFauneNonOiseauPréremplie = $state();
     /** @type {number | undefined} */
-    let surfaceHabitatDétruitFauneNonOiseauPréremplie;
+    let surfaceHabitatDétruitFauneNonOiseauPréremplie = $state();
 
     /** @type {ActivitéMenançante | undefined} */
-    let activitéFlorePréremplie;
+    let activitéFlorePréremplie = $state();
     /** @type {string | undefined} */
-    let nombreIndividusFlorePrérempli;
+    let nombreIndividusFlorePrérempli = $state();
     /** @type {number | undefined} */
-    let surfaceHabitatDétruitFlorePrérempli;
+    let surfaceHabitatDétruitFlorePrérempli = $state();
 
     function préremplirFormulaire(){
         for(const espèce of oiseauxÀPréremplir){
@@ -277,7 +294,7 @@
                         <label class="fr-label" for="file-upload">Importer un fichier d'espèces
                             <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
                         </label>
-                        <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                        <input oninput={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
                     </div>
                 </section>
 
@@ -419,7 +436,7 @@
                     {/if}
                     
                     {#if oiseauxÀPréremplir.size >= 1 || fauneNonOiseauxÀPréremplir.size >= 1 || floreÀPréremplir.size >= 1}
-                    <button on:click={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
+                    <button onclick={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     {/if}
                 </details>
             </div>

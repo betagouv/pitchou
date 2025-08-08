@@ -14,12 +14,18 @@
 
     /** @import {DossierRésumé} from '../../../types/API_Pitchou.ts' */ 
 
-    /** @type {DossierRésumé[]} */
-    export let dossiers = []
+    
 
 
-    /** @type {string | undefined} */
-    export let email = undefined
+    
+   /**
+    * @typedef {Object} Props
+    * @property {DossierRésumé[]} [dossiers]
+    * @property {string | undefined} [email]
+    */
+
+   /** @type {Props} */
+   let { dossiers = [], email = undefined } = $props();
 
    const aujourdhui = new Date()
 
@@ -31,7 +37,7 @@
         return dossiers.filter(dossier => dossier.phase === 'Contrôle')
     }
 
-    $: dossierEnPhaseContrôle = trouverDossiersEnContrôle(dossiers)
+    let dossierEnPhaseContrôle = $derived(trouverDossiersEnContrôle(dossiers))
 
     /**
      * 
@@ -51,11 +57,11 @@
     }
 
 
-    $: dossierAvecAPDepuisAnneeEnCours = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(aujourdhui))
+    let dossierAvecAPDepuisAnneeEnCours = $derived(trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(aujourdhui)))
 
-    $: annéeDernière = sub(aujourdhui, {years: 1})
+    let annéeDernière = $derived(sub(aujourdhui, {years: 1}))
     
-    $: dossierAvecAPAnneePrecedente = trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(annéeDernière), endOfYear(annéeDernière))
+    let dossierAvecAPAnneePrecedente = $derived(trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(annéeDernière), endOfYear(annéeDernière)))
     
 
     /**
@@ -66,7 +72,7 @@
         return dossiers.filter(dossier => dossier.phase === 'Accompagnement amont')
     }
 
-    $: dossiersEnAccompagnement = trouverDossiersEnAccompagnement(dossiers)
+    let dossiersEnAccompagnement = $derived(trouverDossiersEnAccompagnement(dossiers))
     
     /**
      * 
@@ -80,7 +86,7 @@
         })
     }
 
-    $: dossiersEnAccompagnementDeMoinsDe3Ans = trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement)
+    let dossiersEnAccompagnementDeMoinsDe3Ans = $derived(trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement))
 
     /**
      * 
@@ -90,7 +96,7 @@
         return dossiers.filter(d => d.activité_principale !== 'Demande à caractère scientifique')
     }
 
-    $: dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans = trouverDossiersNonScientifiques(dossiersEnAccompagnementDeMoinsDe3Ans)
+    let dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans = $derived(trouverDossiersNonScientifiques(dossiersEnAccompagnementDeMoinsDe3Ans))
 </script>
 
 <Squelette nav={false} {email}>

@@ -13,14 +13,16 @@
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    /** @type {FloreAtteinte[]} */
-    export let floresAtteintes
+    
+    /**
+     * @typedef {Object} Props
+     * @property {FloreAtteinte[]} floresAtteintes
+     * @property {EspèceProtégée[]} espècesProtégéesFlore
+     * @property {ActivitéMenançante[]} activitésMenaçantes
+     */
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesFlore
-
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes
+    /** @type {Props} */
+    let { floresAtteintes = $bindable(), espècesProtégéesFlore, activitésMenaçantes } = $props();
 
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFlore)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFlore)
@@ -32,7 +34,7 @@
     const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
 
     /** @type {TriTableau | undefined}*/
-    let triSélectionné = undefined
+    let triSélectionné = $state(undefined)
 
     function rerender() {
         floresAtteintes = floresAtteintes
@@ -125,9 +127,12 @@
                     </thead>
 
                     <tbody>
-                        {#each floresAtteintes as {espèce, activité, nombreIndividus, surfaceHabitatDétruit}}
+                        {#each floresAtteintes as floreAtteinte}
                             <FloreAtteinteEditRow
-                                bind:espèce bind:activité bind:nombreIndividus bind:surfaceHabitatDétruit
+                                bind:espèce={floreAtteinte.espèce} 
+                                bind:activité={floreAtteinte.activité}
+                                bind:nombreIndividus={floreAtteinte.nombreIndividus}
+                                bind:surfaceHabitatDétruit={floreAtteinte.surfaceHabitatDétruit}
                                 {espècesProtégéesFlore} {activitésMenaçantes}
                                 {onSupprimerLigne}
                                 {onDupliquerLigne}

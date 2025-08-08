@@ -13,6 +13,8 @@ const inutile = true;
  * @param {Dossier['id']} dossierId 
  */
 export function instructeurSuitDossier(instructeurEmail, dossierId){
+    console.log('instructeurSuitDossier', dossierId)
+
     const modifierRelationSuivi = store.state.capabilities.modifierRelationSuivi
 
     if(!modifierRelationSuivi){

@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (contenu-bouton to contenu_bouton) making the component unusable -->
 <script>
     export let id;
 

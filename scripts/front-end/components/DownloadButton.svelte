@@ -1,15 +1,26 @@
 <script>
-    /** @type {string} */
-    export let label = "Télécharger"
+    
 
-    /** @type {() => string} */
-    export let makeFilename
+    
 
-    /** @type {string} */
-    export let classname = "fr-btn fr-btn--lg"
+    
 
-    /** @type {() => Blob | Promise<Blob>} */
-    export let makeFileContentBlob
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string} [label]
+     * @property {() => string} makeFilename
+     * @property {string} [classname]
+     * @property {() => Blob | Promise<Blob>} makeFileContentBlob
+     */
+
+    /** @type {Props} */
+    let {
+        label = "Télécharger",
+        makeFilename,
+        classname = "fr-btn fr-btn--lg",
+        makeFileContentBlob
+    } = $props();
 
     async function onClick(){
         const link = document.createElement("a");
@@ -22,6 +33,6 @@
 
 </script>
 
-<button class={classname} on:click={onClick}>
+<button class={classname} onclick={onClick}>
     {label}
 </button>
