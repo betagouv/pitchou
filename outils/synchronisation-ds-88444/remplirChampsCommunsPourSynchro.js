@@ -181,7 +181,7 @@ export function remplirChampsCommunsPourSynchro(
             demandeur_personne_morale = {
                 siret,
                 raison_sociale: raisonSociale,
-                adresse: `${streetAddress} ${postalCode} ${cityName}`
+                adresse: `${streetAddress}\n${postalCode} ${cityName}`
             }
         }
     }
