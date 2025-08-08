@@ -1,7 +1,5 @@
 <script>
-
-
-    //import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
+    import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js';
 
