@@ -50,6 +50,9 @@
         rememberTriFiltres
     } = $props();
 
+    $inspect('dossiers', dossiers)
+    $inspect('filtresSélectionnés', filtresSélectionnés)
+
     let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
         // démarrer avec tous les ids
         const dossierIdsSansSuivi = new Set(dossiers.map(d => d.id))
@@ -66,7 +69,8 @@
 
     /** @type {DossierRésumé[]} */
     let dossiersSelectionnés = $state([])
-    //$: console.log('dossiersSelectionnés', dossiersSelectionnés)
+
+    $inspect('dossiersSelectionnés', dossiersSelectionnés)
 
     //$: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
     //$: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
@@ -145,12 +149,16 @@
             'Instruction'
         ]))
 
+    $inspect(phasesSélectionnées)
+
     /**
      *
      * @param {DossierPhase} phase
      */
     function makeTagPhaseOnClick(phase){
         return () => {
+            console.log('click on phase', phase)
+
             if(phasesSélectionnées.has(phase)){
                 phasesSélectionnées.delete(phase)
             }
@@ -158,7 +166,7 @@
                 phasesSélectionnées.add(phase)
             }
 
-            phasesSélectionnées = phasesSélectionnées; // re-render
+            //phasesSélectionnées = phasesSélectionnées; // re-render
 
             filtrerDossiers()
         }
@@ -201,11 +209,6 @@
 
 
     let texteÀChercher = $state(filtresSélectionnés.texte)
-    onMount(() => {
-        if(texteÀChercher){
-            filtrerParTexte(texteÀChercher)
-        }
-    })
 
 
     /**
@@ -349,10 +352,6 @@
         })
     });
 
-    // filtrage avec les filtres initiaux
-    onMount(async () => {
-        filtrerDossiers()
-	});
 
     
     // Pagination du tableau de suivi
@@ -360,38 +359,58 @@
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 20
 
+    // numéro de page qui correspond à celui affiché, donc commençant à 1
+    /** @type {number} */
+    let numéroPageSelectionnée = $state(1)
+
     /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
-    let selectionneursPage = $state();
-    /** @type {SelectionneurPage | undefined} */
-    let pageActuelle = $state();
-    /** @type {typeof dossiersSelectionnés} */
-    let dossiersAffichés = $state([]);
+    let selectionneursPage = $derived.by(() => {
+        console.log('selectionneursPage $derived.by')
 
-
-    onMount(() => {
         if(dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
             const nombreDePages = Math.ceil(dossiersSelectionnés.length/NOMBRE_DOSSIERS_PAR_PAGE)
 
-            selectionneursPage = [
+            return [
                 undefined,
-                ...Array(nombreDePages).fill(undefined).map((_, i) => function page(){
-                    dossiersAffichés = dossiersSelectionnés.slice(NOMBRE_DOSSIERS_PAR_PAGE*i, NOMBRE_DOSSIERS_PAR_PAGE*(i+1))
-                    // nerdisme JS : la page est représentée par la function qui la représente
-                    // et on va chercher son nom ("page") qui représente une function distincte
-                    // pour chaque tour du map
-                    pageActuelle = page
+                ...[...Array(nombreDePages).keys()].map(i => () => {
+                    console.log('sélection de la page', i+1)
+                    numéroPageSelectionnée = i+1
                 })
             ]
-
-            // Sélectionner la première page
-            selectionneursPage[1]()
         }
-        else{
-            dossiersAffichés = dossiersSelectionnés
-            selectionneursPage = undefined
-            pageActuelle = undefined
-        }
+        
+        return undefined
     });
+
+    $effect(() => {
+        if(selectionneursPage)
+            numéroPageSelectionnée = 1
+    })
+
+    /** @type {typeof dossiersSelectionnés} */
+    let dossiersAffichés = $derived.by(() => {
+        if(!selectionneursPage)
+            return dossiersSelectionnés
+        else{
+            return dossiersSelectionnés.slice(
+                NOMBRE_DOSSIERS_PAR_PAGE*(numéroPageSelectionnée-1),
+                NOMBRE_DOSSIERS_PAR_PAGE*numéroPageSelectionnée
+            )
+        }
+    })
+
+    $inspect('dossiersAffichés', dossiersAffichés)
+
+
+    // filtrage avec les filtres initiaux
+    onMount(async () => {
+        filtrerDossiers()
+
+        /*if(texteÀChercher){
+            filtrerParTexte(texteÀChercher)
+        }*/
+	});
+
 
 
     /**
@@ -655,7 +674,7 @@
                     </table>
 
                     {#if selectionneursPage}
-                    <Pagination {selectionneursPage} {pageActuelle}></Pagination>
+                    <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}></Pagination>
                     {/if}
                 </div>
             {:else}

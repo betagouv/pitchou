@@ -22,10 +22,6 @@
     /** @typedef {() => void} SelectionneurPage */
 
     
-
-
-
-    
     /**
      * @typedef {Object} Props
      * @property {[undefined, ...rest: SelectionneurPage[]]} selectionneursPage
@@ -34,9 +30,6 @@
 
     /** @type {Props} */
     let { selectionneursPage, pageActuelle } = $props();
-
-
-
 
 
     let selectionnerPremièrePage = $derived(selectionneursPage[1])
