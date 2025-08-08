@@ -13,16 +13,13 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} 
  */
-export async function téléchargerNouveauxFichiersAP_AM(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
-
+export async function téléchargerNouveauxFichiersFromChampId(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
     /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const candidatsFichiersAP_AM = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
+    const candidatsFichiers = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
 
-    //console.log('candidatsFichiersAP_AM', candidatsFichiersAP_AM)
-
-    if(candidatsFichiersAP_AM.size >= 1){
+    if(candidatsFichiers.size >= 1){
         return téléchargerNouveauxFichiers(
-            candidatsFichiersAP_AM, 
+            candidatsFichiers, 
             laTransactionDeSynchronisationDS
         )
     }
