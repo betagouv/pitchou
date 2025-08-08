@@ -1,8 +1,6 @@
 <script>
-    import { run } from 'svelte/legacy';
-
     import { onMount } from 'svelte';
-    //@ts-check
+    
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
@@ -203,7 +201,7 @@
 
 
     let texteÀChercher = $state(filtresSélectionnés.texte)
-    run(() => {
+    onMount(() => {
         if(texteÀChercher){
             filtrerParTexte(texteÀChercher)
         }
@@ -370,7 +368,7 @@
     let dossiersAffichés = $state([]);
 
 
-    run(() => {
+    onMount(() => {
         if(dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
             const nombreDePages = Math.ceil(dossiersSelectionnés.length/NOMBRE_DOSSIERS_PAR_PAGE)
 
