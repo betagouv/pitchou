@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { SvelteSet, SvelteMap } from 'svelte/reactivity';
     
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
@@ -56,7 +57,7 @@
 
     let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
         // démarrer avec tous les ids
-        const dossierIdsSansSuivi = new Set(dossiers.map(d => d.id))
+        const dossierIdsSansSuivi = new SvelteSet(dossiers.map(d => d.id))
 
         // retirer les ids suivis par au moins un.e instructeur.rice
         for(const dossierIds of relationSuivis.values()){
@@ -78,7 +79,7 @@
     })
 
     /** @type {Set<Dossier['id']>} */
-    let dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis.get(email) || new Set())
+    let dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) || new SvelteSet())
 
     $inspect('dossierIdsSuivisParInstructeurActuel', dossierIdsSuivisParInstructeurActuel)
 
@@ -122,7 +123,7 @@
 
 
     /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
-    const tousLesFiltres = new Map()
+    const tousLesFiltres = new SvelteMap()
 
     function filtrerDossiers(){
 		let nouveauxDossiersSélectionnés = dossiers;
@@ -140,12 +141,12 @@
 
 
     /** @type {Set<DossierPhase>}*/
-    const phaseOptions = new Set([...phases])
+    const phaseOptions = new SvelteSet([...phases])
 
     /** @type {Set<DossierPhase>} */
     let phasesSélectionnées = $state(filtresSélectionnés.phases ? 
-        new Set(filtresSélectionnés.phases) :
-        new Set([
+        new SvelteSet(filtresSélectionnés.phases) :
+        new SvelteSet([
             'Accompagnement amont',
             'Étude recevabilité DDEP',
             'Instruction'
@@ -180,13 +181,13 @@
 
 
     const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = '(vide)'
-    const prochainesActionsAttenduesParOptions = new Set([...prochaineActionAttenduePar, PROCHAINE_ACTION_ATTENDUE_PAR_VIDE])
+    const prochainesActionsAttenduesParOptions = new SvelteSet([...prochaineActionAttenduePar, PROCHAINE_ACTION_ATTENDUE_PAR_VIDE])
 
     /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
     // @ts-ignore
     let prochainesActionsAttenduesParSélectionnés = $state(filtresSélectionnés['prochaine action attendue de'] ?
-        new Set(filtresSélectionnés['prochaine action attendue de']) :
-        new Set(prochainesActionsAttenduesParOptions))
+        new SvelteSet(filtresSélectionnés['prochaine action attendue de']) :
+        new SvelteSet(prochainesActionsAttenduesParOptions))
 
     tousLesFiltres.set("prochaine action attendue de", dossier => {
         if (!dossier.prochaine_action_attendue_par || !prochainesActionsAttenduesParOptions.has(dossier.prochaine_action_attendue_par)) {
@@ -202,7 +203,7 @@
      * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} _prochainesActionsAttenduesParSélectionnés
      */
     function filtrerParProchainesActionsAttenduesPar(_prochainesActionsAttenduesParSélectionnés) {
-        prochainesActionsAttenduesParSélectionnés = new Set(_prochainesActionsAttenduesParSélectionnés)
+        prochainesActionsAttenduesParSélectionnés = new SvelteSet(_prochainesActionsAttenduesParSélectionnés)
         
         filtrerDossiers()
     }
@@ -279,10 +280,10 @@
     const instructeurEmailOptions = (relationSuivis && Array.from(relationSuivis.keys()).sort()) || []
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    const instructeursOptions = new Set([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
+    const instructeursOptions = new SvelteSet([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-    let instructeursSélectionnés = $state(new Set(filtresSélectionnés.instructeurs ?
+    let instructeursSélectionnés = $state(new SvelteSet(filtresSélectionnés.instructeurs ?
         filtresSélectionnés.instructeurs :
         instructeursOptions
     ))
@@ -309,7 +310,7 @@
      * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
 	function filtrerParInstructeurs(_instructeursSélectionnées){
-        instructeursSélectionnés = new Set(_instructeursSélectionnées)
+        instructeursSélectionnés = new SvelteSet(_instructeursSélectionnées)
 
 		filtrerDossiers()
 	}
@@ -320,11 +321,11 @@
 
     const AUCUNE_ACTIVITÉ_PRINCIPALE = '(aucune activité principale)'
     // @ts-ignore
-    const activitésPrincipalesOptions = new Set([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales])
+    const activitésPrincipalesOptions = new SvelteSet([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales])
 
     /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
     // @ts-ignore
-    let activitésPrincipalesSélectionnées = $state(new Set(filtresSélectionnés.activitésPrincipales ?
+    let activitésPrincipalesSélectionnées = $state(new SvelteSet(filtresSélectionnés.activitésPrincipales ?
         filtresSélectionnés.activitésPrincipales :
         activitésPrincipalesOptions
     ))
