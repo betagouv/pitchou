@@ -7,13 +7,17 @@ import Prescription from './database/public/Prescription.ts'
 import Contrôle from './database/public/Contrôle.ts'
 
 
-type DossierPersonnesImpliquées = {
+type DossierPersonnesImpliquéesRésumé = {
     déposant_nom: string;
     déposant_prénoms: string;
     demandeur_personne_physique_nom: string;
     demandeur_personne_physique_prénoms: string;
     demandeur_personne_morale_raison_sociale: string;
-    demandeur_personne_morale_siret: string;
+    demandeur_personne_morale_siret: string
+}
+
+type DossierPersonnesImpliquéesComplet =  DossierPersonnesImpliquéesRésumé & {
+    demandeur_adresse: string
 }
 
 /**
@@ -69,7 +73,7 @@ export type DossierRésumé = Pick<Dossier,
     'historique_identifiant_demande_onagre'> 
     & {phase: DossierPhase, date_début_phase: Date}
     & DossierLocalisation
-    & DossierPersonnesImpliquées
+    & DossierPersonnesImpliquéesRésumé
     & DossierActivitéPrincipale
     & DonnéesDossierPourStats
 
@@ -94,7 +98,7 @@ export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdminist
 export type DossierComplet = Omit<Dossier, 
     'communes' | 'départements' | 'régions' | 'activité_principale'>
     & DossierLocalisation
-    & DossierPersonnesImpliquées
+    & DossierPersonnesImpliquéesComplet
     & DossierActivitéPrincipale
     & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }

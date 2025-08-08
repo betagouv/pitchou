@@ -1,20 +1,14 @@
+/** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces  } from '../../types/especes.ts' */
+/** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
+/** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
+/** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.js' */
+
 import {format} from 'date-fns'
 import {fr} from 'date-fns/locale';
 
 import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
 import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
 
-
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import { CodeActivitéPitchou, CodeActivitéStandard  } from '../../types/especes.d.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {BalisesGénérationDocument} from '../../types/balisesGénérationDocument.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DescriptionMenacesEspèces, ActivitéMenançante} from '../../../types/especes.d.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {EspècesParActivité} from './créerEspècesGroupéesParImpact.js' */
 
 /**
  * @param {DossierComplet} dossier
@@ -36,6 +30,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         date_consultation_public,
         description,
         date_dépôt,
+        départements,
         enjeu_écologique,
         enjeu_politique,
         justification_absence_autre_solution_satisfaisante,
@@ -70,6 +65,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         date_début_consultation_public: date_consultation_public,
         description,
         date_dépôt,
+        département_principale: Array.isArray(départements) ? départements[0] : undefined,
+        liste_départements: départements || undefined,
         enjeu_écologique: !!enjeu_écologique,
         enjeu_politique: !!enjeu_politique,
         justification_absence_autre_solution_satisfaisante,
@@ -82,7 +79,13 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         date_début_intervention,
         date_fin_intervention,
         durée_intervention,
-        demandeur: formatPorteurDeProjet(dossier),
+        demandeur: {
+            adresse: dossier.demandeur_adresse,
+            nom: dossier.demandeur_personne_morale_raison_sociale || `${dossier.demandeur_personne_physique_prénoms} ${dossier.demandeur_personne_physique_nom}`,
+            toString(){
+                return formatPorteurDeProjet(dossier)
+            }
+        },
         localisation: formatLocalisation(dossier),
         régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
         régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné' : rattaché_au_régime_ae,
