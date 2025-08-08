@@ -210,17 +210,16 @@
 
     let texteÀChercher = $state(filtresSélectionnés.texte)
 
-
     /**
      * @param {string} _texteÀChercher
      */
-    function filtrerParTexte(_texteÀChercher) {
-        const texteÀChercherSansEspace = _texteÀChercher.trim()
+    function ajouterFiltreTexte(_texteÀChercher) {
+        texteÀChercher = _texteÀChercher.trim()
 
         // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
         // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur
         // les nombres avec une fonction séparée.
-        if (texteÀChercherSansEspace.match(/\d[\dA-Za-z\-]*/)) {
+        if (texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
             tousLesFiltres.set('texte', dossier => {
                 const {
                     id,
@@ -231,14 +230,14 @@
                 } = dossier
                 const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
 
-                return String(id) === texteÀChercherSansEspace ||
-                    départements?.includes(texteÀChercherSansEspace) ||
-                    communesCodes?.includes(texteÀChercherSansEspace) ||
-                    number_demarches_simplifiées === texteÀChercherSansEspace ||
-                    historique_identifiant_demande_onagre === texteÀChercherSansEspace
+                return String(id) === texteÀChercher ||
+                    départements?.includes(texteÀChercher || '') ||
+                    communesCodes?.includes(texteÀChercher || '') ||
+                    number_demarches_simplifiées === texteÀChercher ||
+                    historique_identifiant_demande_onagre === texteÀChercher
             })
         } else {
-            const texteSansAccents = retirerAccents(texteÀChercherSansEspace)
+            const texteSansAccents = retirerAccents(texteÀChercher)
             // Pour chercher les communes qui contiennent des tirets avec lunr,
             // on a besoin de passer la chaîne de caractères entre "".
             const aRechercher = texteSansAccents.match(/(\w-)+/) ?
@@ -250,8 +249,13 @@
                 return dossiersIdCorrespondantsÀTexte.has(dossier.id)
             })
         }
+    }
 
-        texteÀChercher = texteÀChercherSansEspace;
+    /**
+     * @param {string} _texteÀChercher
+     */
+    function filtrerParTexte(_texteÀChercher){
+        ajouterFiltreTexte(_texteÀChercher)
 
         filtrerDossiers()
     }
@@ -403,12 +407,12 @@
 
 
     // filtrage avec les filtres initiaux
-    onMount(async () => {
-        filtrerDossiers()
+    onMount(async () => {        
+        if(texteÀChercher){
+            ajouterFiltreTexte(texteÀChercher)
+        }
 
-        /*if(texteÀChercher){
-            filtrerParTexte(texteÀChercher)
-        }*/
+        filtrerDossiers()
 	});
 
 
