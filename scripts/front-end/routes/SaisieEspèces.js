@@ -9,7 +9,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
-import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
+import { testfail, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
 import { chargerListeEspècesProtégées, chargerActivitésMéthodesTransports } from '../actions/activitésMéthodesTransports.js';
 
@@ -76,7 +76,7 @@ export default async () => {
          * @returns 
          */
         function importDescriptionMenacesEspècesFromOds(odsArrayBuffer){
-            return importDescriptionMenacesEspècesFromOdsArrayBuffer(
+            return testfail(
                 odsArrayBuffer, 
                 espèceByCD_REF, 
                 activitesParClassificationEtreVivant, 

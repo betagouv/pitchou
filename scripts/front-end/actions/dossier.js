@@ -2,7 +2,7 @@
 
 import store from "../store"
 
-import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
+import { testfail } from '../../commun/outils-espèces.js';
 import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées } from './activitésMéthodesTransports.js';
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
@@ -108,7 +108,7 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans
 
-    return importDescriptionMenacesEspècesFromOdsArrayBuffer(
+    return testfail(
         fichierArrayBuffer,
         espèceByCD_REF,
         activités,
