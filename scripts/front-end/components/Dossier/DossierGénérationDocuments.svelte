@@ -75,7 +75,7 @@
 
 		const templateAB = await template.arrayBuffer()
         try{
-            //const documentArrayBuffer = await fillOdtTemplate(templateAB, balises)
+            const documentArrayBuffer = await fillOdtTemplate(templateAB, balises)
             documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
 
             const [part1, part2] = template.name.split('.')
