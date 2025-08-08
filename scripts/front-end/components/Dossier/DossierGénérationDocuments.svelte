@@ -1,7 +1,7 @@
 <script>
 
 
-    import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
+    //import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js';
 
@@ -79,7 +79,7 @@
 
 		const templateAB = await template.arrayBuffer()
         try{
-            const documentArrayBuffer = await fillOdtTemplate(templateAB, balises)
+            //const documentArrayBuffer = await fillOdtTemplate(templateAB, balises)
             documentGénéré = new Blob([documentArrayBuffer], {type: template.type});
 
             const [part1, part2] = template.name.split('.')

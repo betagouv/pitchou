@@ -50,8 +50,9 @@
         rememberTriFiltres
     } = $props();
 
-    $inspect('dossiers', dossiers)
-    $inspect('filtresSélectionnés', filtresSélectionnés)
+    //$inspect('dossiers', dossiers)
+    //$inspect('filtresSélectionnés', filtresSélectionnés)
+    $inspect('relationSuivis', relationSuivis)
 
     let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
         // démarrer avec tous les ids
@@ -70,15 +71,16 @@
     /** @type {DossierRésumé[]} */
     let dossiersSelectionnés = $state([])
 
-    $inspect('dossiersSelectionnés', dossiersSelectionnés)
+    //$inspect('dossiersSelectionnés', dossiersSelectionnés)
 
-    //$: dossiersNonSélectionnés = (new Set(dossiers)).difference(new Set(dossiersSelectionnés))
-    //$: console.log('dossiersNonSélectionnés', dossiersNonSélectionnés)
-    //$: dossierNonSel = [...dossiersNonSélectionnés][0]
-    //$: dossierNonSel && console.log('dossier non sélectionné', dossierNonSel, dossierNonSel.activité_principale, dossierNonSel.phase, dossierNonSel.prochaine_action_attendue_par)
+    $effect(() => {
+        console.log('relationSuivis effect', relationSuivis)
+    })
 
     /** @type {Set<Dossier['id']>} */
-    let dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) || new Set())
+    let dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis.get(email) || new Set())
+
+    $inspect('dossierIdsSuivisParInstructeurActuel', dossierIdsSuivisParInstructeurActuel)
 
 
     const trisActivitéPrincipale = [
@@ -149,7 +151,7 @@
             'Instruction'
         ]))
 
-    $inspect(phasesSélectionnées)
+    //$inspect(phasesSélectionnées)
 
     /**
      *
@@ -403,7 +405,7 @@
         }
     })
 
-    $inspect('dossiersAffichés', dossiersAffichés)
+    //$inspect('dossiersAffichés', dossiersAffichés)
 
 
     // filtrage avec les filtres initiaux
@@ -620,10 +622,10 @@
                                         {#if commentaire_libre && commentaire_libre.trim().length >= 1}
                                             <BoutonModale id={`dsfr-modale-${id}`}>
                                                 <!-- @migration-task: migrate this slot by hand, `contenu-bouton` is an invalid identifier -->
-    <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
+                                                <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
                         
                                                 <!-- @migration-task: migrate this slot by hand, `titre-modale` is an invalid identifier -->
-    <header class="titre-modale" slot="titre-modale">
+                                                <header class="titre-modale" slot="titre-modale">
                                                     <h1 class="fr-modal__title">
                                                         Commentaire dossier {nom}
                                                     </h1>
@@ -635,7 +637,7 @@
                                                 </header>
                         
                                                 <!-- @migration-task: migrate this slot by hand, `contenu-modale` is an invalid identifier -->
-    <div class="contenu-modale" slot="contenu-modale">
+                                                <div class="contenu-modale" slot="contenu-modale">
                                                     {commentaire_libre}
                                                 </div>
                                             </BoutonModale>
