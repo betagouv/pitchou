@@ -20,7 +20,7 @@ const inutile = true;
  * @param {FrontEndDécisionAdministrative} décisionAdministrative 
  * @returns {Promise<FrontEndPrescription[]>}
  */
-export async function testfail(fichierPrescriptionContrôleAB, décisionAdministrative){
+export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPrescriptionContrôleAB, décisionAdministrative){
     const rawData = await getODSTableRawContent(fichierPrescriptionContrôleAB)
     const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0]
 
