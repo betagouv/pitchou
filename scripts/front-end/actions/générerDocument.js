@@ -1,20 +1,14 @@
+/** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces  } from '../../types/especes.ts' */
+/** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
+/** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
+/** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.js' */
+
 import {format} from 'date-fns'
 import {fr} from 'date-fns/locale';
 
 import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
 import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
 
-
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import { CodeActivitéPitchou, CodeActivitéStandard  } from '../../types/especes.d.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {BalisesGénérationDocument} from '../../types/balisesGénérationDocument.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DescriptionMenacesEspèces, ActivitéMenançante} from '../../../types/especes.d.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DossierComplet} from '../../types/API_Pitchou.d.ts' */
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {EspècesParActivité} from './créerEspècesGroupéesParImpact.js' */
 
 /**
  * @param {DossierComplet} dossier
