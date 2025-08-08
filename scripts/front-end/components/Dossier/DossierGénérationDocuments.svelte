@@ -18,8 +18,6 @@
 
 
     
-
-    
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
