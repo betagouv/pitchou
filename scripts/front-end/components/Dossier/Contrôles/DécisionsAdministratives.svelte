@@ -7,7 +7,7 @@
 
     import {formatDateAbsolue} from '../../../affichageDossier.js'
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
-    import {testfail} from '../../../actions/décisionAdministrative.js'
+    import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../../actions/dossier.js'
 
     import store from '../../../store.js'
@@ -130,7 +130,7 @@
 
         if(file){
             const importPrescriptionFileAB = await file.arrayBuffer()
-            testfail(importPrescriptionFileAB, décisionAdministrative)
+            créerPrescriptionContrôlesÀPartirDeFichier(importPrescriptionFileAB, décisionAdministrative)
                 .then(nouvellesPrescriptions => {
                     prescriptions = new Set(nouvellesPrescriptions)
 
