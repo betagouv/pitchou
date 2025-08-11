@@ -5,12 +5,7 @@
 import knex from 'knex';
 import { pitchouKeyToAnnotationDS } from '../../../outils/sync-démarches-simplifiées-88444.js';
 import {directDatabaseConnection} from '../database.js'
-
-/**
- * On utilise un id brut pour récupérer la valeur du champ Avis Csrpn Cnpn
- * car il existe trois champs avec ce même intitulé
- */
-const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
+import assert from 'node:assert';
 
 /**
  * @param {DossierDS88444} dossierDS 
@@ -49,6 +44,14 @@ async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_
         } else if (champDateAvisCSRPN || champDateSaisineCSRPN) {
             expert_cnpn_csrpn = "CSRPN"
         }
+
+        /**
+         * On doit passer par un filter pour le champ Avis CSRPN/CNPN
+         * car il existe trois champs avec ce label dans les Annotations Privées
+         */
+        const champs_avis_csrpn_cnpn = dossierDS.annotations.filter((annotation) => annotation.label === "Avis CSRPN/CNPN")
+        assert(champs_avis_csrpn_cnpn.length === 3, `Le nombre de champs dans les Annotations Privées avec le label "Avis CSRPN/CNPN" est incorrect : ${champs_avis_csrpn_cnpn.length} au lieu de 3. `)
+        const id_champ_avis_csrpn_cnpn_selection = champs_avis_csrpn_cnpn[1].id
 
         const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
         const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>= 1 ? fichiersAvisCSRPN_CNPN[0] : null
