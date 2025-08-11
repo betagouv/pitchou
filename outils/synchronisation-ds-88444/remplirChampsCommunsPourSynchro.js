@@ -376,7 +376,6 @@ export function remplirChampsCommunsPourSynchro(
         enjeu_politique,
         commentaire_libre,
 
-        historique_date_réception_ddep,
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
         historique_date_saisine_csrpn,
