@@ -32,9 +32,9 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, idDSDossiersDéjàExis
     })
 
     assert.deepEqual(
-    dossiersDSAModifier.length + dossiersDSAInitialiser.length, 
-    dossiersDS.length, 
-    `Une erreur est survenue lors de la séparation des dossiers DS en dossiers DS à initialiser (${dossiersDSAInitialiser.length} dossiers à modifier) et en dossiers DS à modifier (${dossiersDSAModifier.length} dossiers à modifier)`)
+        dossiersDSAModifier.length + dossiersDSAInitialiser.length,
+        dossiersDS.length,
+        `Une erreur est survenue lors de la séparation des dossiers DS en dossiers DS à initialiser (${dossiersDSAInitialiser.length} dossiers à modifier) et en dossiers DS à modifier (${dossiersDSAModifier.length} dossiers à modifier)`)
 
     return { dossiersDSAInitialiser, dossiersDSAModifier }
 }
@@ -48,25 +48,31 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, idDSDossiersDéjàExis
  * @returns {Promise<Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">>}
  */
 async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier) {
-    const données_supplémentaires = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
+    const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
 
     /**
      * POUR IMPORT DOSSIERS HISTORIQUES
      * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
-    /** @type {DonnéesSupplémentaires} */
-    const données_supplémentaires_déchiffrées = données_supplémentaires ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires)) : undefined
+    /** @type {DonnéesSupplémentaires | undefined} */
+    let données_supplémentaires
+    try {
+        données_supplémentaires = données_supplémentaires_à_déchiffrer ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer)) : undefined
 
-    if (données_supplémentaires_déchiffrées) {
-        // Ces données seront utilisées plus tard pour remplir des champs en base de données
-        console.log("Il y'a des données supplémentaires dans le dossier DS n°" + dossierDS.number + " : ", { données_supplémentaires_déchiffrées })
+        if (données_supplémentaires) {
+            // Ces données seront utilisées plus tard pour remplir des champs en base de données
+            console.log("Il y'a des données supplémentaires dans le dossier avec pour identifiant DS " + dossierDS.id + " : ", { données_supplémentaires })
+        }
+    } catch (erreur) {
+        console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
     }
 
     return {
         ...remplirChampsCommunsPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier),
-        date_dépôt: données_supplémentaires_déchiffrées?.date_dépôt ?? dossierDS.dateDepot
+        date_dépôt: données_supplémentaires?.date_dépôt ?? dossierDS.dateDepot
     }
 }
+
 
 
 /**
