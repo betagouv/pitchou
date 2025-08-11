@@ -178,7 +178,7 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
         databaseConnection('dossier')
             .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
             .update(dossierAModifier)
-            .returning(['id', 'number_demarches_simplifiées'])
+            .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
         )
     }
 
