@@ -296,24 +296,6 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
   "Avis conforme Ministre": ChampDSPieceJustificative;
   "Date de début de la consultation du public ou enquête publique": Date;
   "Date de fin de la consultation du public ou enquête publique": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  Décision: "AP dérogation" | "AP modificatif" | "AP Refus";
-  "Date de signature de l'AP": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Référence de l'AP": string;
-  "Date de l'AM": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Référence de l'AM": string;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "AP/AM": ChampDSPieceJustificative;
   "Dépôt GeoMCE effectué ?": "Oui" | "Non" | "Partiel";
   "Date dépôt GeoMCE": Date;
   "Id projet GeoMCE": string;

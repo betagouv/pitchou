@@ -7,7 +7,7 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2025-07-18T15:22:33+02:00",
+    "dateDerniereModification": "2025-08-11T10:41:03+02:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
@@ -15,8 +15,8 @@
     "demarcheURL": "https://demarches.numerique.gouv.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMjA5MzY5",
-        "datePublication": "2025-07-18T15:22:33+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMjA5Mzcw",
+        "datePublication": "2025-08-11T10:41:03+02:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
@@ -1127,62 +1127,6 @@
                 "label": "Date de fin de la consultation du public ou enquête publique",
                 "description": "",
                 "required": false
-            },
-            {
-                "__typename": "HeaderSectionChampDescriptor",
-                "id": "Q2hhbXAtNDI2MDQ4OA==",
-                "label": "Décision",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "DropDownListChampDescriptor",
-                "id": "Q2hhbXAtNDE0MTk1Ng==",
-                "label": "Décision",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false,
-                "options": [
-                    "AP dérogation",
-                    "AP modificatif",
-                    "AP Refus"
-                ],
-                "otherOption": false
-            },
-            {
-                "__typename": "DateChampDescriptor",
-                "id": "Q2hhbXAtNDE0MTk1Mg==",
-                "label": "Date de signature de l'AP",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDE0MTk1Mw==",
-                "label": "Référence de l'AP",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false
-            },
-            {
-                "__typename": "DateChampDescriptor",
-                "id": "Q2hhbXAtNDE0MTk1NA==",
-                "label": "Date de l'AM",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDE0MTk1NQ==",
-                "label": "Référence de l'AM",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false
-            },
-            {
-                "__typename": "PieceJustificativeChampDescriptor",
-                "id": "Q2hhbXAtNDE0ODk0Nw==",
-                "label": "AP/AM",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false,
-                "fileTemplate": null
             },
             {
                 "__typename": "HeaderSectionChampDescriptor",
