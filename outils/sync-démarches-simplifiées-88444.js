@@ -538,7 +538,8 @@ if (dossiersDS.length >= 1) {
         fichiersAvisConformeMinistre
     ]).then(([fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés]) => {
         // On ne synchronise que s'il y'a des nouveaux fichiers d'avis d'expert à télécharger
-        if (fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size >= 1 || fichiersAvisConformeMinistreTéléchargés && fichiersAvisConformeMinistreTéléchargés.size >=1) {
+        if ((fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size >= 1)
+             || (fichiersAvisConformeMinistreTéléchargés && fichiersAvisConformeMinistreTéléchargés.size >=1)) {
             console.log("Des nouveaux avis d'experts doivent être synchronisés.")
             return synchroniserAvisExpert(
                 dossiersDS,

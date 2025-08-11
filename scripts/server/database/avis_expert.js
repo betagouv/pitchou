@@ -34,7 +34,19 @@ async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_
 
     if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>=1) {
         /** @type {"CSRPN" | "CNPN" | null} */
-        const expert_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ? "CSRPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ? "CNPN" : annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ? "CSRPN" : null
+        let expert_cnpn_csrpn = null
+        
+        const champDateAvisCNPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date
+        const champDateAvisCSRPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date
+        const champDateSaisineCNPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date
+        const champDateSaisineCSRPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date
+
+        if (champDateAvisCNPN || champDateSaisineCNPN) {
+            expert_cnpn_csrpn = "CNPN"
+        } else if (champDateAvisCSRPN || champDateSaisineCSRPN) {
+            expert_cnpn_csrpn = "CSRPN"
+        }
+
         const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
         const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>= 1 ? fichiersAvisCSRPN_CNPN[0] : null
         const fichier_saisine_csrpn_cnpn = fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length >= 1 ? fichiersSaisinesCSRPN_CNPN[0] : null
