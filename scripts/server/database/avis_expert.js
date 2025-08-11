@@ -1,12 +1,10 @@
+/** @import {default as Fichier, FichierId} from '../../types/database/public/Fichier.ts' */
+/** @import AvisExpert, {AvisExpertInitializer} from '../../types/database/public/AvisExpert.ts' */
+/** @import {DossierDS88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
+
 import knex from 'knex';
 import { pitchouKeyToAnnotationDS } from '../../../outils/sync-démarches-simplifiées-88444.js';
 import {directDatabaseConnection} from '../database.js'
-
-/** @import {default as Fichier, FichierId} from '../../types/database/public/Fichier.ts' */
-//@ts-ignore
-/** @import AvisExpert from '../../types/database/public/AvisExpert.ts' */
-//@ts-ignore
-/** @import {DossierDS88444, Annotations88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
 
 const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
 
@@ -16,6 +14,7 @@ const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<AvisExpertInitializer[]>}
  */
 async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection = directDatabaseConnection) {
     const idPitchouDuDossier = (await databaseConnection('dossier').select('id').where('number_demarches_simplifiées', dossierDS.number).first()).id
