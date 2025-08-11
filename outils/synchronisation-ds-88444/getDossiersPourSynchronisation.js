@@ -14,17 +14,17 @@ import { remplirChampsCommunsPourSynchro } from './remplirChampsCommunsPourSynch
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
  * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarches Simplifiées du dossier n'existe pas déjà en base de données.
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<Dossier['id_demarches_simplifiées']>} idDSDossiersDéjàExistantsEnBDD
+ * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }} 
  */
-function splitDossiersEnAInitialiserAModifier(dossiersDS, idDSDossiersDéjàExistantsEnBDD) {
+function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD) {
     /** @type {DossierDS88444[]} */
     let dossiersDSAInitialiser = []
     /** @type {DossierDS88444[]} */
     let dossiersDSAModifier = []
 
     dossiersDS.forEach((dossier) => {
-        if (idDSDossiersDéjàExistantsEnBDD.has(String(dossier.id))) {
+        if (numberDSDossiersDéjàExistantsEnBDD.has(String(dossier.number))) {
             dossiersDSAModifier.push(dossier)
         } else {
             dossiersDSAInitialiser.push(dossier)
@@ -77,14 +77,14 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
 
 /**
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<Dossier['id_demarches_simplifiées']>} idDSDossiersDéjàExistantsEnBDD
+ * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">[], dossiersAModifierPourSynchro: Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">[] }>} 
  */
-export async function getDossiersPourSynchronisation(dossiersDS, idDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier) {
-    const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, idDSDossiersDéjàExistantsEnBDD)
+export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier) {
+    const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
     const dossiersAInitialiserPourSynchro = await Promise.all(dossiersDSAInitialiser.map(async (dossier) => remplirChampsPourInitialisation(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)))
 
