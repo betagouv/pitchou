@@ -19,14 +19,12 @@
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique"> | Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">}
  */
 export function remplirChampsCommunsPourSynchro(
     dossierDS,
     pitchouKeyToChampDS,
-    pitchouKeyToAnnotationDS,
-    donnéesDécisionAdministrativeParNuméroDossier
+    pitchouKeyToAnnotationDS
 ) {
     const {
         id: id_demarches_simplifiées,
@@ -319,26 +317,9 @@ export function remplirChampsCommunsPourSynchro(
         annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")).date :
         undefined
 
-
-
     const avis_csrpn_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Avis CSRPN/CNPN")).stringValue
 
     const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
-
-
-    const décision = annotationById.get(pitchouKeyToAnnotationDS.get("Décision")).stringValue
-    const date_signature_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Date de signature de l'AP")).date
-    const référence_arrêté_préfectoral = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AP")).stringValue
-    const date_signature_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Date de l'AM")).date
-    const référence_arrêté_ministériel = annotationById.get(pitchouKeyToAnnotationDS.get("Référence de l'AM")).stringValue
-
-    donnéesDécisionAdministrativeParNuméroDossier.set(number_demarches_simplifiées, {
-        décision: décision || undefined,
-        date_signature_arrêté_préfectoral: date_signature_arrêté_préfectoral ? new Date(date_signature_arrêté_préfectoral) : undefined,
-        référence_arrêté_préfectoral: référence_arrêté_préfectoral || undefined,
-        date_signature_arrêté_ministériel: date_signature_arrêté_ministériel ? new Date(date_signature_arrêté_ministériel) : undefined,
-        référence_arrêté_ministériel: référence_arrêté_ministériel || undefined,
-    })
 
     return {
         // méta-données

@@ -34,11 +34,6 @@ const annotations = {
     'Date avis CNPN': new Date('2024-07-12'),
     'Date avis CSRPN': new Date('2024-08-13'),
     'Date de début de la consultation du public ou enquête publique': new Date('2024-09-14'),
-    'Décision': 'AP dérogation',
-    "Date de signature de l'AP": new Date('2024-10-15'),
-    "Référence de l'AP": 'AP3256',
-    "Date de l'AM": new Date('2024-11-16'),
-    "Référence de l'AM": 'AM9874',
 }
 
 

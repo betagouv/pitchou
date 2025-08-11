@@ -19,8 +19,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 //import checkMemory from '../scripts/server/checkMemory.js'
 
 import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersAP_AM, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
-import { ajouterDécisionsAdministratives, miseÀJourDécisionsAdministrativesDepuisDS88444 } from '../scripts/server/database/décision_administrative.js'
+import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import { ajouterDécisionsAdministratives } from '../scripts/server/database/décision_administrative.js'
 
 import { getDossiersPourSynchronisation } from './synchronisation-ds-88444/getDossiersPourSynchronisation.js'
 
@@ -36,7 +36,7 @@ import { getDossiersPourSynchronisation } from './synchronisation-ds-88444/getDo
 /** @import {Message} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DécisionAdministrativeAnnotation88444, DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../scripts/types/database/public/Dossier.ts' */
 
@@ -126,13 +126,10 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 
 
 
-/** @type {Map<DatabaseDossier['number_demarches_simplifiées'], DécisionAdministrativeAnnotation88444>} */
-const donnéesDécisionAdministrativeParNuméroDossier = new Map();
-
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const numberDSDossiersDéjàExistantsEnBDD = new Set(dossiersDéjàExistantsEnBDD.map(d => d.number_demarches_simplifiées));
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -297,22 +294,6 @@ if(!fichierEspècesImpactéeChampId){
 const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
     dossiersDS, 
     fichierEspècesImpactéeChampId, 
-    laTransactionDeSynchronisationDS
-)
-
-
-/** Télécharger les nouveaux arrêtés préfectoraux et ministériels depuis les annotations privées */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAP_AMAnnotationId = pitchouKeyToAnnotationDS.get('AP/AM')
-
-if(!fichierAP_AMAnnotationId){
-    throw new Error('fichierAP_AMAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAP_AMTéléchargésP = téléchargerNouveauxFichiersAP_AM(
-    dossiersDS, 
-    fichierAP_AMAnnotationId, 
     laTransactionDeSynchronisationDS
 )
 
@@ -505,25 +486,6 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 })
 
 
-/** Synchronisation des fichiers AP/AM téléchargés */
-const fichiersAP_AMSynchronisés = fichiersAP_AMTéléchargésP.then(fichiersAP_AMTéléchargés => {
-    if(fichiersAP_AMTéléchargés && fichiersAP_AMTéléchargés.size >= 1){
-
-        console.log('fichiersAP_AMTéléchargés', fichiersAP_AMTéléchargés.size)
-
-        const dossiers = [...dossiersAInitialiser, ...dossiersAModifier]
-        return miseÀJourDécisionsAdministrativesDepuisDS88444(
-            fichiersAP_AMTéléchargés,
-            //@ts-ignore
-            dossiers,
-            dossierIdByDS_number,
-            donnéesDécisionAdministrativeParNuméroDossier,
-            laTransactionDeSynchronisationDS
-        )
-    }
-})
-
-
 
 /** Fin de l'outil de synchronisation - fermeture */
 
@@ -534,8 +496,7 @@ Promise.all([
     décisionsAdministrativesSynchronisées,
     synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
-    fichiersEspècesImpactéesSynchronisés,
-    fichiersAP_AMSynchronisés
+    fichiersEspècesImpactéesSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')

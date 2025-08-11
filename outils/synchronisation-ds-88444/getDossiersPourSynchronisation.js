@@ -1,6 +1,6 @@
 /** @import {DossierDS88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-/** @import  {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import  {DossierPourSynchronisation} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
@@ -44,10 +44,9 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjà
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Promise<Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">>}
  */
-async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier) {
+async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
 
     /**
@@ -68,7 +67,7 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
     }
 
     return {
-        ...remplirChampsCommunsPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier),
+        ...remplirChampsCommunsPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
         date_dépôt: données_supplémentaires?.date_dépôt ?? dossierDS.dateDepot
     }
 }
@@ -80,15 +79,14 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
  * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @param {Map<string | null, DécisionAdministrativeAnnotation88444>} donnéesDécisionAdministrativeParNuméroDossier - Map pour stocker les données de décision administrative
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">[], dossiersAModifierPourSynchro: Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">[] }>} 
  */
-export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier) {
+export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
-    const dossiersAInitialiserPourSynchro = await Promise.all(dossiersDSAInitialiser.map(async (dossier) => remplirChampsPourInitialisation(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)))
+    const dossiersAInitialiserPourSynchro = await Promise.all(dossiersDSAInitialiser.map(async (dossier) => remplirChampsPourInitialisation(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)))
 
-    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossier) => remplirChampsCommunsPourSynchro(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier))
+    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossier) => remplirChampsCommunsPourSynchro(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS))
 
     return {
         dossiersAInitialiserPourSynchro,

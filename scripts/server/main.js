@@ -685,9 +685,7 @@ fastify.post('/remplir-annotations', async (request, reply) => {
         'Date avis CNPN', 
         'Date avis CSRPN',
         "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP",
-        "Date de début de la consultation du public ou enquête publique",
-        "Date de signature de l'AP",
-        "Date de l'AM"
+        "Date de début de la consultation du public ou enquête publique"
       ]
 
       for(const k of dateKeys){
