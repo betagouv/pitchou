@@ -115,7 +115,7 @@ export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_
             .insert(lignesFlat)
         
         return lignesFlat;
-    } catch (e) {
-        console.error('Une erreur est survenue lors de la synchronisation de avis_expert:', e);
+    } catch (erreur) {
+        throw new Error(`Une erreur est survenue lors de la synchronisation de avis_expert : ${erreur}`);
     }
 }
