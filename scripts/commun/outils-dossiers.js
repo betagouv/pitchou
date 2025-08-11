@@ -1,3 +1,5 @@
+
+//@ts-ignore
 /** @import {DossierComplet, DossierPhase, DossierRésumé} from '../types/API_Pitchou.ts' */
 
 /**
