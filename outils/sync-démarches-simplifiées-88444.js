@@ -5,7 +5,7 @@ import {sub, format, formatDistanceToNow, isAfter} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, synchroniserSuiviDossier, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
@@ -373,15 +373,11 @@ if(messagesÀMettreEnBDDAvecDossierId.size >= 1){
 }
 
 
-/** Synchronisation suivi dossier et dossier dans groupeInstructeur */
+/** Synchronisation dossier dans groupeInstructeur */
 
-let synchronisationSuiviDossier;
 let synchronisationDossierDansGroupeInstructeur;
 
 if(dossiersDS.length >= 1){
-    /** Synchronisation de l'information des dossiers suivis */
-    synchronisationSuiviDossier = synchroniserSuiviDossier(dossiersDS, laTransactionDeSynchronisationDS);
-
     /** Synchronisation de l'information de quel dossier appartient à quel groupe_instructeurs */
     synchronisationDossierDansGroupeInstructeur = synchroniserDossierDansGroupeInstructeur(dossiersDS, laTransactionDeSynchronisationDS);
 }
@@ -494,7 +490,6 @@ Promise.all([
     messagesSynchronisés,
     traitementsSynchronisés,
     décisionsAdministrativesSynchronisées,
-    synchronisationSuiviDossier,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés
 ])
