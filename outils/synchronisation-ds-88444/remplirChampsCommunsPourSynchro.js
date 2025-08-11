@@ -39,19 +39,6 @@ export function remplirChampsCommunsPourSynchro(
      */
     const number_demarches_simplifiées = String(number)
 
-    /*
-        Déposant 
- 
-        Le déposant est la personne qui dépose le dossier sur DS
-        Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique 
-        qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose 
-        le dossier
-        Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur
- 
-        Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" 
-        (qui est différent de notre "demandeur")
- 
-    */
     /** @type {PersonneInitializer} */
     let déposant;
     {
