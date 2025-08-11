@@ -176,7 +176,7 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
     if (dossiersAModifier.length>=1) {
         updatePromises = dossiersAModifier.map(dossierAModifier => 
         databaseConnection('dossier')
-            .where('id_demarches_simplifiées', dossierAModifier.id_demarches_simplifiées)
+            .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
             .update(dossierAModifier)
             .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
         )

@@ -130,9 +130,9 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 const donnéesDécisionAdministrativeParNuméroDossier = new Map();
 
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
-const idDSDossiersDéjàExistantsEnBDD = new Set(dossiersDéjàExistantsEnBDD.map(d => d.id_demarches_simplifiées));
+const numberDSDossiersDéjàExistantsEnBDD = new Set(dossiersDéjàExistantsEnBDD.map(d => d.number_demarches_simplifiées));
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await getDossiersPourSynchronisation(dossiersDS, idDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, donnéesDécisionAdministrativeParNuméroDossier)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
