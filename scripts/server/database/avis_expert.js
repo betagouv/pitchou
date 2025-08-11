@@ -6,6 +6,10 @@ import knex from 'knex';
 import { pitchouKeyToAnnotationDS } from '../../../outils/sync-démarches-simplifiées-88444.js';
 import {directDatabaseConnection} from '../database.js'
 
+/**
+ * On utilise un id brut pour récupérer la valeur du champ Avis Csrpn Cnpn
+ * car il existe trois champs avec ce même intitulé
+ */
 const id_champ_avis_csrpn_cnpn_selection = "Q2hhbXAtNDI0ODQzMA=="
 
 /**
