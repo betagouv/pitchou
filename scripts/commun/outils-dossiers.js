@@ -1,5 +1,3 @@
-
-//@ts-expect-error https://github.com/microsoft/TypeScript/issues/60908
 /** @import {DossierComplet, DossierPhase, DossierRésumé} from '../types/API_Pitchou.ts' */
 
 /**
