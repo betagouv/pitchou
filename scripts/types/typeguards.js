@@ -1,11 +1,12 @@
+/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
 import { isValidDateString } from '../commun/typeFormat.js'
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../types/especes.d.ts' */
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
-/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
+
+
 
 /** 
  * 
@@ -90,10 +91,7 @@ function isDossierRésumé(x) {
   if (!phaseValid || !actionValid) return false;
 
   // DonnéesDossierPourStats
-  const statsValid = (
-      (x.historique_date_réception_ddep === null || isValidDateString(x.historique_date_réception_ddep))
-      && isValidDateString(x.date_dépôt)
-  );
+  const statsValid = isValidDateString(x.date_dépôt)
 
   return statsValid;
 };
