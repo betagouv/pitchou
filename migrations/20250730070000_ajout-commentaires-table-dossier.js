@@ -34,14 +34,7 @@ export function up(knex) {
 
         // Personnes impliquées
         table.integer('déposant')
-            .comment(`Le déposant est la personne qui dépose le dossier sur DS
-        Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique 
-        qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose 
-        le dossier
-        Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur
- 
-        Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" 
-        (qui est différent de notre "demandeur")`)
+            .comment(`Le déposant est la personne qui dépose le dossier sur DS. Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose le dossier. Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur. Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" (qui est différent de notre "demandeur")`)
             .alter({ alterNullable: false, alterType: false });
 
         table.integer('demandeur_personne_physique')
@@ -70,7 +63,7 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.string('ddep_nécessaire')
-            .comment(`Indique si une demande de dérogation est nécessaire pour ce dossier`)
+            .comment(`Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer).`)
             .alter({ alterNullable: false, alterType: false });
 
         table.boolean('enjeu_politique')
@@ -78,7 +71,7 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.string('commentaire_libre')
-            .comment(`Commentaires libres sur le dossier remplis par l'instructeurice`)
+            .comment(`Commentaires de l'instructeur.i.ce sur le dossier.`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('historique_date_réception_ddep')
@@ -102,11 +95,11 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_avis_csrpn')
-            .comment(`Date de l'avis du CSRPN`)
+            .comment(`Date de l’avis officiel émis par le CSRPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_avis_cnpn')
-            .comment(`Date de l'avis du CNPN`)
+            .comment(`Date de l’avis officiel émis par le CNPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.string('avis_csrpn_cnpn')
@@ -126,11 +119,11 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.string('prochaine_action_attendue_par')
-            .comment(`Indique qui doit effectuer la prochaine action (Instructeur, pétitionnaire, expert...)`)
+            .comment(`Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...)`)
             .alter({ alterNullable: false, alterType: false });
 
         table.string('activité_principale')
-            .comment(`Activité principale relative au dossier (Aménagements fonciers (AFAF, remembrement), Transport hydrocarbures, Destruction de nids d'Hirondelles...)`)
+            .comment(`Catégorie normalisée décrivant le secteur ou le type d’activité à l’origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d’énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l’eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l’intervention.`)
             .alter({ alterNullable: false, alterType: false });
 
         table.uuid('espèces_impactées')
@@ -154,15 +147,15 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.json('scientifique_type_demande')
-            .comment(`Type de demande scientifique`)
+            .comment(`Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Ce champ correspond à la liste des opérations envisagées dans le cadre de la demande de dérogation espèces protégées, choisies parmi des catégories prédéfinies (par ex. capture et relâcher immédiat sur place avec ou sans marquage, prélèvement de matériel biologique, autres cas spécifiques). Plusieurs types peuvent être sélectionnés pour une même demande.`)
             .alter({ alterNullable: false, alterType: false });
 
         table.text('scientifique_description_protocole_suivi')
-            .comment(`Description du protocole de suivi scientifique`)
+            .comment(`Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Description du protocole scientifique prévu (ex. capture et relâcher immédiat avec ou sans marquage, prélèvement de matériel biologique, autres cas).`)
             .alter({ alterNullable: false, alterType: false });
 
         table.json('scientifique_mode_capture')
-            .comment(`Modes de capture utilisés`)
+            .comment(`Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Modes de capture utilisés`)
             .alter({ alterNullable: false, alterType: false });
 
         table.text('scientifique_modalités_source_lumineuses')
