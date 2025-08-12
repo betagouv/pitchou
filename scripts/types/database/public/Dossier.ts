@@ -16,7 +16,7 @@ export default interface Dossier {
   /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
   id_demarches_simplifiées: string | null;
 
-  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
+  /** Date de première sollicitation du groupe instructeurice par le pétitionnaire */
   date_dépôt: Date;
 
   /** Liste des espèces protégées concernées par le dossier */
@@ -61,6 +61,7 @@ export default interface Dossier {
   /** Commentaires de l'instructeur.i.ce sur le dossier. */
   commentaire_libre: string | null;
 
+  /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution: Date | null;
 
   /** Identifiant de la demande dans ONAGRE */
@@ -72,10 +73,10 @@ export default interface Dossier {
   /** Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn: Date | null;
 
-  /** Date de l’avis officiel émis par le CSRPN */
+  /** Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn: Date | null;
 
-  /** Date de l’avis officiel émis par le CNPN */
+  /** Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn: Date | null;
 
   /** Avis du CSRPN ou du CNPN */
@@ -93,7 +94,7 @@ export default interface Dossier {
   /** Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...) */
   prochaine_action_attendue_par: string | null;
 
-  /** Catégorie normalisée décrivant le secteur ou le type d’activité à l’origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d’énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l’eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l’intervention. */
+  /** Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention. */
   activité_principale: string | null;
 
   /** Référence vers le fichier des espèces impactées */
@@ -159,7 +160,7 @@ export interface DossierInitializer {
   /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
   id_demarches_simplifiées?: string | null;
 
-  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
+  /** Date de première sollicitation du groupe instructeurice par le pétitionnaire */
   date_dépôt: Date;
 
   /** Liste des espèces protégées concernées par le dossier */
@@ -204,6 +205,7 @@ export interface DossierInitializer {
   /** Commentaires de l'instructeur.i.ce sur le dossier. */
   commentaire_libre?: string | null;
 
+  /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
 
   /** Identifiant de la demande dans ONAGRE */
@@ -215,10 +217,10 @@ export interface DossierInitializer {
   /** Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn?: Date | null;
 
-  /** Date de l’avis officiel émis par le CSRPN */
+  /** Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn?: Date | null;
 
-  /** Date de l’avis officiel émis par le CNPN */
+  /** Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn?: Date | null;
 
   /** Avis du CSRPN ou du CNPN */
@@ -236,7 +238,7 @@ export interface DossierInitializer {
   /** Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...) */
   prochaine_action_attendue_par?: string | null;
 
-  /** Catégorie normalisée décrivant le secteur ou le type d’activité à l’origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d’énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l’eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l’intervention. */
+  /** Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention. */
   activité_principale?: string | null;
 
   /** Référence vers le fichier des espèces impactées */
@@ -302,7 +304,7 @@ export interface DossierMutator {
   /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
   id_demarches_simplifiées?: string | null;
 
-  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
+  /** Date de première sollicitation du groupe instructeurice par le pétitionnaire */
   date_dépôt?: Date;
 
   /** Liste des espèces protégées concernées par le dossier */
@@ -347,6 +349,7 @@ export interface DossierMutator {
   /** Commentaires de l'instructeur.i.ce sur le dossier. */
   commentaire_libre?: string | null;
 
+  /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
 
   /** Identifiant de la demande dans ONAGRE */
@@ -358,10 +361,10 @@ export interface DossierMutator {
   /** Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn?: Date | null;
 
-  /** Date de l’avis officiel émis par le CSRPN */
+  /** Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn?: Date | null;
 
-  /** Date de l’avis officiel émis par le CNPN */
+  /** Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn?: Date | null;
 
   /** Avis du CSRPN ou du CNPN */
@@ -379,7 +382,7 @@ export interface DossierMutator {
   /** Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...) */
   prochaine_action_attendue_par?: string | null;
 
-  /** Catégorie normalisée décrivant le secteur ou le type d’activité à l’origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d’énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l’eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l’intervention. */
+  /** Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention. */
   activité_principale?: string | null;
 
   /** Référence vers le fichier des espèces impactées */

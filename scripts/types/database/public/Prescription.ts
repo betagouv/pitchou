@@ -8,82 +8,108 @@ export type PrescriptionId = string & { __brand: 'public.prescription' };
 
 /** Represents the table public.prescription */
 export default interface Prescription {
+  /** Identifiant unique de la prescription généré automatiquement */
   id: PrescriptionId;
 
+  /** Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter. */
   décision_administrative: DCisionAdministrativeId;
 
+  /** Date limite à laquelle la prescription doit être respectée. Les contrôles de cette prescription s'effectuent dès lors que la date d'échéance est dépassée. */
   date_échéance: Date | null;
 
+  /** Numéro de l'article de la prescription. Permet d'identifier et de référencer précisément la prescription dans le cadre de la décision administrative. */
   numéro_article: string | null;
 
+  /** Description détaillée de la prescription. Explique précisément ce qui doit être fait, comment et dans quelles conditions pour respecter l'obligation imposée. */
   description: string | null;
 
-  /** en m² */
+  /** Surface en m² qui a été évitée grâce aux mesures de protection mises en place. */
   surface_évitée: number | null;
 
-  /** en m² */
+  /** Surface en m² qui a été compensée pour atténuer les impacts du projet. */
   surface_compensée: number | null;
 
+  /** Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été évités grâce aux mesures de protection mises en place. */
   nids_évités: number | null;
 
+  /** Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été compensés pour atténuer les impacts du projet. */
   nids_compensés: number | null;
 
+  /** Nombre d'individus qui ont été évités grâce aux mesures de protection mises en place. */
   individus_évités: number | null;
 
+  /** Nombre d'individus qui ont été compensés pour atténuer les impacts du projet. */
   individus_compensés: number | null;
 }
 
 /** Represents the initializer for the table public.prescription */
 export interface PrescriptionInitializer {
-  /** Default value: gen_random_uuid() */
-  id?: PrescriptionId;
+  /** Identifiant unique de la prescription généré automatiquement */
+  id: PrescriptionId;
 
+  /** Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter. */
   décision_administrative: DCisionAdministrativeId;
 
+  /** Date limite à laquelle la prescription doit être respectée. Les contrôles de cette prescription s'effectuent dès lors que la date d'échéance est dépassée. */
   date_échéance?: Date | null;
 
+  /** Numéro de l'article de la prescription. Permet d'identifier et de référencer précisément la prescription dans le cadre de la décision administrative. */
   numéro_article?: string | null;
 
+  /** Description détaillée de la prescription. Explique précisément ce qui doit être fait, comment et dans quelles conditions pour respecter l'obligation imposée. */
   description?: string | null;
 
-  /** en m² */
+  /** Surface en m² qui a été évitée grâce aux mesures de protection mises en place. */
   surface_évitée?: number | null;
 
-  /** en m² */
+  /** Surface en m² qui a été compensée pour atténuer les impacts du projet. */
   surface_compensée?: number | null;
 
+  /** Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été évités grâce aux mesures de protection mises en place. */
   nids_évités?: number | null;
 
+  /** Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été compensés pour atténuer les impacts du projet. */
   nids_compensés?: number | null;
 
+  /** Nombre d'individus qui ont été évités grâce aux mesures de protection mises en place. */
   individus_évités?: number | null;
 
+  /** Nombre d'individus qui ont été compensés pour atténuer les impacts du projet. */
   individus_compensés?: number | null;
 }
 
 /** Represents the mutator for the table public.prescription */
 export interface PrescriptionMutator {
+  /** Identifiant unique de la prescription généré automatiquement */
   id?: PrescriptionId;
 
+  /** Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter. */
   décision_administrative?: DCisionAdministrativeId;
 
+  /** Date limite à laquelle la prescription doit être respectée. Les contrôles de cette prescription s'effectuent dès lors que la date d'échéance est dépassée. */
   date_échéance?: Date | null;
 
+  /** Numéro de l'article de la prescription. Permet d'identifier et de référencer précisément la prescription dans le cadre de la décision administrative. */
   numéro_article?: string | null;
 
+  /** Description détaillée de la prescription. Explique précisément ce qui doit être fait, comment et dans quelles conditions pour respecter l'obligation imposée. */
   description?: string | null;
 
-  /** en m² */
+  /** Surface en m² qui a été évitée grâce aux mesures de protection mises en place. */
   surface_évitée?: number | null;
 
-  /** en m² */
+  /** Surface en m² qui a été compensée pour atténuer les impacts du projet. */
   surface_compensée?: number | null;
 
+  /** Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été évités grâce aux mesures de protection mises en place. */
   nids_évités?: number | null;
 
+  /** Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été compensés pour atténuer les impacts du projet. */
   nids_compensés?: number | null;
 
+  /** Nombre d'individus qui ont été évités grâce aux mesures de protection mises en place. */
   individus_évités?: number | null;
 
+  /** Nombre d'individus qui ont été compensés pour atténuer les impacts du projet. */
   individus_compensés?: number | null;
 }

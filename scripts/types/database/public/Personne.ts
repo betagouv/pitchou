@@ -6,40 +6,54 @@ export type PersonneId = number & { __brand: 'public.personne' };
 
 /** Represents the table public.personne */
 export default interface Personne {
+  /** Identifiant unique auto-incrémenté de la personne */
   id: PersonneId;
 
+  /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
   nom: string | null;
 
+  /** Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille. */
   prénoms: string | null;
 
+  /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
   email: string | null;
 
+  /** Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système. */
   code_accès: string | null;
 }
 
 /** Represents the initializer for the table public.personne */
 export interface PersonneInitializer {
-  /** Default value: nextval('personne_id_seq'::regclass) */
-  id?: PersonneId;
+  /** Identifiant unique auto-incrémenté de la personne */
+  id: PersonneId;
 
+  /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
   nom?: string | null;
 
+  /** Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille. */
   prénoms?: string | null;
 
+  /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
   email?: string | null;
 
+  /** Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système. */
   code_accès?: string | null;
 }
 
 /** Represents the mutator for the table public.personne */
 export interface PersonneMutator {
+  /** Identifiant unique auto-incrémenté de la personne */
   id?: PersonneId;
 
+  /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
   nom?: string | null;
 
+  /** Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille. */
   prénoms?: string | null;
 
+  /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
   email?: string | null;
 
+  /** Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système. */
   code_accès?: string | null;
 }

@@ -13,7 +13,7 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.dateTime('date_dépôt')
-            .comment(`Date de première sollicitation du groupe instructeurice par le pétitionnaire`)
+            .comment(`Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces.`)
             .alter({ alterNullable: false, alterType: false });
 
         table.string('espèces_protégées_concernées')
@@ -91,11 +91,11 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_avis_csrpn')
-            .comment(`Date de l’avis officiel émis par le CSRPN`)
+            .comment(`Date de l'avis officiel émis par le CSRPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_avis_cnpn')
-            .comment(`Date de l’avis officiel émis par le CNPN`)
+            .comment(`Date de l'avis officiel émis par le CNPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.string('avis_csrpn_cnpn')
@@ -119,7 +119,7 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.string('activité_principale')
-            .comment(`Catégorie normalisée décrivant le secteur ou le type d’activité à l’origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d’énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l’eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l’intervention.`)
+            .comment(`Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention.`)
             .alter({ alterNullable: false, alterType: false });
 
         table.uuid('espèces_impactées')
@@ -193,6 +193,153 @@ export function up(knex) {
         table.boolean('mesures_erc_prévues')
             .comment(`Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues`)
             .alter({ alterNullable: false, alterType: false });
+    }).then(() => {
+        // Ajout des commentaires pour la table contrôle
+        return knex.schema.alterTable('contrôle', (table) => {
+            table.uuid('id')
+                .comment(`Identifiant unique du contrôle généré automatiquement`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.uuid('prescription')
+                .comment(`Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.datetime('date_contrôle')
+                .comment(`Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('résultat')
+                .comment(`Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.text('commentaire')
+                .comment(`Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('type_action_suite_contrôle')
+                .comment(`Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : contrôle terrain, mail à envoyer au porteur de projet...`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.date('date_action_suite_contrôle')
+                .comment(`Date à laquelle l'action suite au contrôle a été effectuée. Permet de tracer le délai entre le contrôle et la mise en œuvre des mesures correctives ou coercitives.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.date('date_prochaine_échéance')
+                .comment(`Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi et de s'assurer que les contrôles sont effectués selon la fréquence prévue dans la prescription.`)
+                .alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Ajout des commentaires pour la table groupe_instructeurs
+        return knex.schema.alterTable('groupe_instructeurs', (table) => {
+            table.uuid('id')
+                .comment(`Identifiant unique du groupe d'instructeurs généré automatiquement`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('nom')
+                .comment(`Nom du groupe d'instructeurs. Permet d'identifier et de catégoriser les équipes d'instruction selon leur spécialité, leur territoire ou leur organisation.`)
+                .alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Ajout des commentaires pour la table personne
+        return knex.schema.alterTable('personne', (table) => {
+            table.increments('id')
+                .comment(`Identifiant unique auto-incrémenté de la personne`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('nom')
+                .comment(`Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('prénoms')
+                .comment(`Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('email')
+                .comment(`Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('code_accès')
+                .comment(`Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système.`)
+                .alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Ajout des commentaires pour la table décision_administrative
+        return knex.schema.alterTable('décision_administrative', (table) => {
+            table.uuid('id')
+                .comment(`Identifiant unique de la décision administrative généré automatiquement`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('dossier')
+                .comment(`Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.).`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('numéro')
+                .comment(`Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('type')
+                .comment(`Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision...`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.date('date_signature')
+                .comment(`Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.date('date_fin_obligations')
+                .comment(`Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.uuid('fichier')
+                .comment(`Référence vers le fichier contenant la décision administrative.`)
+                .alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Ajout des commentaires pour la table prescription
+        return knex.schema.alterTable('prescription', (table) => {
+            table.uuid('id')
+                .comment(`Identifiant unique de la prescription généré automatiquement`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.uuid('décision_administrative')
+                .comment(`Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.date('date_échéance')
+                .comment(`Date limite à laquelle la prescription doit être respectée. Les contrôles de cette prescription s'effectuent dès lors que la date d'échéance est dépassée.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.string('numéro_article')
+                .comment(`Numéro de l'article de la prescription. Permet d'identifier et de référencer précisément la prescription dans le cadre de la décision administrative.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.text('description')
+                .comment(`Description détaillée de la prescription. Explique précisément ce qui doit être fait, comment et dans quelles conditions pour respecter l'obligation imposée.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('surface_évitée')
+                .comment(`Surface en m² qui a été évitée grâce aux mesures de protection mises en place.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('surface_compensée')
+                .comment(`Surface en m² qui a été compensée pour atténuer les impacts du projet.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('nids_évités')
+                .comment(`Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été évités grâce aux mesures de protection mises en place.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('nids_compensés')
+                .comment(`Dans le contexte d'un dossier qui impacte une espèce qui est un oiseau. Nombre de nids qui ont été compensés pour atténuer les impacts du projet.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('individus_évités')
+                .comment(`Nombre d'individus qui ont été évités grâce aux mesures de protection mises en place.`)
+                .alter({ alterNullable: false, alterType: false });
+
+            table.integer('individus_compensés')
+                .comment(`Nombre d'individus qui ont été compensés pour atténuer les impacts du projet.`)
+                .alter({ alterNullable: false, alterType: false });
+        });
     });
 };
 
@@ -250,5 +397,58 @@ export function down(knex) {
         table.string('motif_dérogation').comment(``).alter({ alterNullable: false, alterType: false });
         table.text('justification_motif_dérogation').comment(``).alter({ alterNullable: false, alterType: false });
         table.boolean('mesures_erc_prévues').comment(``).alter({ alterNullable: false, alterType: false });
+    }).then(() => {
+        // Suppression des commentaires ajoutés pour la table contrôle
+        return knex.schema.alterTable('contrôle', (table) => {
+            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
+            table.uuid('prescription').comment(``).alter({ alterNullable: false, alterType: false });
+            table.datetime('date_contrôle').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('résultat').comment(``).alter({ alterNullable: false, alterType: false });
+            table.text('commentaire').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('type_action_suite_contrôle').comment(``).alter({ alterNullable: false, alterType: false });
+            table.date('date_action_suite_contrôle').comment(``).alter({ alterNullable: false, alterType: false });
+            table.date('date_prochaine_échéance').comment(``).alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Suppression des commentaires ajoutés pour la table groupe_instructeurs
+        return knex.schema.alterTable('groupe_instructeurs', (table) => {
+            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('nom').comment(``).alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Suppression des commentaires ajoutés pour la table personne
+        return knex.schema.alterTable('personne', (table) => {
+            table.increments('id').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('nom').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('prénoms').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('email').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('code_accès').comment(``).alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Suppression des commentaires ajoutés pour la table décision_administrative
+        return knex.schema.alterTable('décision_administrative', (table) => {
+            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('dossier').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('numéro').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('type').comment(``).alter({ alterNullable: false, alterType: false });
+            table.date('date_signature').comment(``).alter({ alterNullable: false, alterType: false });
+            table.date('date_fin_obligations').comment(``).alter({ alterNullable: false, alterType: false });
+            table.uuid('fichier').comment(``).alter({ alterNullable: false, alterType: false });
+        });
+    }).then(() => {
+        // Suppression des commentaires ajoutés pour la table prescription
+        return knex.schema.alterTable('prescription', (table) => {
+            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
+            table.uuid('décision_administrative').comment(``).alter({ alterNullable: false, alterType: false });
+            table.date('date_échéance').comment(``).alter({ alterNullable: false, alterType: false });
+            table.string('numéro_article').comment(``).alter({ alterNullable: false, alterType: false });
+            table.text('description').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('surface_évitée').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('surface_compensée').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('nids_évités').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('nids_compensés').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('individus_évités').comment(``).alter({ alterNullable: false, alterType: false });
+            table.integer('individus_compensés').comment(``).alter({ alterNullable: false, alterType: false });
+        });
     });
 };
