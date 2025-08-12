@@ -14,6 +14,7 @@ export default interface Dossier {
 
   id_demarches_simplifiées: string | null;
 
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
   espèces_protégées_concernées: string | null;
@@ -43,8 +44,6 @@ export default interface Dossier {
   enjeu_politique: boolean | null;
 
   commentaire_libre: string | null;
-
-  historique_date_réception_ddep: Date | null;
 
   historique_date_envoi_dernière_contribution: Date | null;
 
@@ -119,6 +118,7 @@ export interface DossierInitializer {
 
   id_demarches_simplifiées?: string | null;
 
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
   espèces_protégées_concernées?: string | null;
@@ -148,8 +148,6 @@ export interface DossierInitializer {
   enjeu_politique?: boolean | null;
 
   commentaire_libre?: string | null;
-
-  historique_date_réception_ddep?: Date | null;
 
   historique_date_envoi_dernière_contribution?: Date | null;
 
@@ -223,6 +221,7 @@ export interface DossierMutator {
 
   id_demarches_simplifiées?: string | null;
 
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt?: Date;
 
   espèces_protégées_concernées?: string | null;
@@ -252,8 +251,6 @@ export interface DossierMutator {
   enjeu_politique?: boolean | null;
 
   commentaire_libre?: string | null;
-
-  historique_date_réception_ddep?: Date | null;
 
   historique_date_envoi_dernière_contribution?: Date | null;
 
