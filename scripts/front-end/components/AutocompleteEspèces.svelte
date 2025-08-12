@@ -1,11 +1,9 @@
 <script>
 	//@ts-check
-	import AutoComplete from "simple-svelte-autocomplete"
+	import AutoComplete from "./common/AutoComplete.svelte"
 
 	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
 
-	
-	
 	
 	/**
 	 * @typedef {Object} Props
@@ -47,8 +45,8 @@
 	items={espèces}
 	{labelFunction}
 	{keywordsFunction}
-	maxItemsToShowInList=12
-	cleanUserText=false
+	maxItemsToShowInList={12}
+	cleanUserText={false}
 	{beforeChange}
 	class={htmlClass}
 	hideArrow={true}
