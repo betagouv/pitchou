@@ -90,10 +90,7 @@ function isDossierRésumé(x) {
   if (!phaseValid || !actionValid) return false;
 
   // DonnéesDossierPourStats
-  const statsValid = (
-      (x.historique_date_réception_ddep === null || isValidDateString(x.historique_date_réception_ddep))
-      && isValidDateString(x.date_dépôt)
-  );
+  const statsValid = isValidDateString(x.date_dépôt)
 
   return statsValid;
 };
