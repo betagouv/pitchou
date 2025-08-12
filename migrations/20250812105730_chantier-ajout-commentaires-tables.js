@@ -74,10 +74,6 @@ export function up(knex) {
             .comment(`Commentaires de l'instructeur.i.ce sur le dossier.`)
             .alter({ alterNullable: false, alterType: false });
 
-        table.date('historique_date_réception_ddep')
-            .comment(`Date de réception de la DDEP dans les Annotations Privées`)
-            .alter({ alterNullable: false, alterType: false });
-
         table.date('historique_date_envoi_dernière_contribution')
             .comment(`Date d'envoi de la dernière contribution`)
             .alter({ alterNullable: false, alterType: false });
@@ -224,7 +220,6 @@ export function down(knex) {
         table.string('ddep_nécessaire').comment(``).alter({ alterNullable: false, alterType: false });
         table.boolean('enjeu_politique').comment(``).alter({ alterNullable: false, alterType: false });
         table.string('commentaire_libre').comment(``).alter({ alterNullable: false, alterType: false });
-        table.date('historique_date_réception_ddep').comment(``).alter({ alterNullable: false, alterType: false });
         table.date('historique_date_envoi_dernière_contribution').comment(``).alter({ alterNullable: false, alterType: false });
         table.string('historique_identifiant_demande_onagre').comment(``).alter({ alterNullable: false, alterType: false });
         table.date('historique_date_saisine_csrpn').comment(``).alter({ alterNullable: false, alterType: false });
