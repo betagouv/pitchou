@@ -1,25 +1,17 @@
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 
 //@ts-ignore
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, Message, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-//@ts-ignore
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-//@ts-ignore
-/** @import {DossierPourSynchronisation, DécisionAdministrativeAnnotation88444} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-//@ts-ignore
-/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
-//@ts-ignore
-/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
-//@ts-ignore
-/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-//@ts-ignore
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
 
 /**
  * Renvoie le dossier rempli des champs communs aux dossiers DS à initialiser et aux dossiers DS à modifier pour la synchronisation.
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique"> | Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">}
+ * @returns {DossierMutator} //TODO: être plus précis sur le type
  */
 export function remplirChampsCommunsPourSynchro(
     dossierDS,
@@ -29,7 +21,6 @@ export function remplirChampsCommunsPourSynchro(
     const {
         id: id_demarches_simplifiées,
         number,
-        demandeur,
         champs,
         annotations
     } = dossierDS
@@ -39,16 +30,6 @@ export function remplirChampsCommunsPourSynchro(
      */
     const number_demarches_simplifiées = String(number)
 
-    /** @type {PersonneInitializer} */
-    let déposant;
-    {
-        const { prenom: prénoms, nom, email } = demandeur
-        déposant = {
-            prénoms,
-            nom,
-            email: email === '' ? undefined : email
-        }
-    }
 
     /** 
      * Champs 
@@ -140,35 +121,6 @@ export function remplirChampsCommunsPourSynchro(
     // se rabattre sur le champ du département principal s'il est présent
     if (champDépartementPrincipal && champDépartementPrincipal.departement && (!départements || départements.length === 0)) {
         départements = [champDépartementPrincipal.departement.code]
-    }
-
-
-    /*
-        Demandeur
-     
-        Personne physique ou morale qui formule la demande de dérogation espèces protégées
-    */
-
-    /** @type {PersonneInitializer | undefined} */
-    /** let demandeur_personne_physique = undefined; */
-    /** @type {Entreprise | undefined} */
-    let demandeur_personne_morale = undefined
-
-    const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
-    if (SIRETChamp) {
-        const etablissement = SIRETChamp.etablissement
-        if (etablissement) {
-            const { siret, address = {}, entreprise = {} } = etablissement
-            const { streetAddress, postalCode, cityName } = address
-            const { raisonSociale } = entreprise
-
-
-            demandeur_personne_morale = {
-                siret,
-                raison_sociale: raisonSociale,
-                adresse: `${streetAddress}\n${postalCode} ${cityName}`
-            }
-        }
     }
 
     /** Régime AE */
@@ -311,11 +263,9 @@ export function remplirChampsCommunsPourSynchro(
         id_demarches_simplifiées,
         number_demarches_simplifiées,
 
-        // demandeur/déposant
         // demandeur_personne_physique,
-        demandeur_personne_morale,
-        déposant,
-        //représentant,
+        // demandeur_personne_morale,
+        // déposant,
 
         // champs
         nom,
@@ -341,9 +291,13 @@ export function remplirChampsCommunsPourSynchro(
         // mesurse ERC prévues
         mesures_erc_prévues,
 
-        // données dossier scientifique
+        /** 
+         * Les données de dossier scientifique 
+         */
+        //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
         scientifique_type_demande: scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined,
         scientifique_description_protocole_suivi,
+        //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
         scientifique_mode_capture,
         scientifique_modalités_source_lumineuses,
         scientifique_modalités_marquage,
@@ -370,6 +324,5 @@ export function remplirChampsCommunsPourSynchro(
         avis_csrpn_cnpn,
 
         date_consultation_public,
-
     }
 }
