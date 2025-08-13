@@ -13,7 +13,7 @@ const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @returns {DossierMutator} //TODO: être plus précis sur le type
  */
-export function remplirChampsCommunsPourSynchro(
+export function makeChampsCommunsPourSynchro(
     dossierDS,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS
