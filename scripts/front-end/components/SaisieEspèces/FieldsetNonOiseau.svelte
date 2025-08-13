@@ -1,13 +1,13 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js"
+    import { makeEspèceToKeywords, makeEspèceToLabel, espèceLabel} from "../../espèceFieldset.js"
     import {
         trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "../common/HomeMadeAutocomplete.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 
@@ -40,7 +40,7 @@
     const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
 
     /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
+    const autocompleteLabelFunction = esp => espèceLabel(esp)
 
     /** @type {TriTableau | undefined} */
     let triSélectionné = $state(undefined)

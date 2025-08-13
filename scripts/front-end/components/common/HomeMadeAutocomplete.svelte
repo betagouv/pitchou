@@ -4,32 +4,42 @@
     /**
      * faire un <input>
      * - [x] qui liste les trucs pertinents quand on écrit
-     * - [ ] mettre la vraie liste des espèces
-     *  - [ ] max 12 éléments affichés
+     * - [x] mettre la vraie liste des espèces
+     *  - [x] max 12 éléments affichés
      */
 
     /**
      * @typedef {Object} Props
      * @property {EspèceProtégée[]} espèces
-     * @property {EspèceProtégée | undefined} [selectedItem]
+     * @property {EspèceProtégée | undefined} [espèceSélectionnée]
      * @property {function | undefined} [onChange]
-     * @property {any} htmlClass
-     * @property {any} labelFunction
-     * @property {any} keywordsFunction
      */
 
 	/** @type {Props} */
 
-    let {espèces} = $props()
+    let {
+        espèces,
+        onChange,
+        espèceSélectionnée = $bindable(undefined)
+    } = $props()
 
-    let text = $state('')
+    $inspect('espèceSélectionnée', espèceSélectionnée)
+
+    let text = $state(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : '')
+
+    $inspect('text', text)
 
     let focus = $state(false);
 
     let onfocus = () => {focus = true}
-    let onblur = () => {focus = false}
+    let onblur = () => {
+        setTimeout(
+            () => {focus = false}, 
+            500
+        )
+    }
 
-    let élémentsPertinents = $derived.by(() => {
+    let espècesPertinentes = $derived.by(() => {
         if(!focus)
             return []
 
@@ -42,18 +52,40 @@
             .slice(0, 12)
     })
 
-    $inspect('text', text)
-    $inspect('élémentsPertinents', élémentsPertinents)
+    /**
+     * 
+     * @param {EspèceProtégée} espèce
+     */
+    function selectionnerEspèce(espèce){
+        if(onChange){
+            onChange(espèce)
+        }
+     
+        text = ''
+        espèceSélectionnée = espèce
+    }
+
+    /**
+     * 
+     * @param {EspèceProtégée} espèce
+     * @returns {string}
+     */
+    function espèceLabel(espèce){
+        return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
+    }
+
+    //$inspect('text', text)
+    //$inspect('espècesPertinentes', espècesPertinentes)
 
 </script>
 
-<div class="autocomplete-container">
+<div class="autocomplete-container" title={text}>
     <input bind:value={text} type="search" {onfocus} {onblur} class="fr-input">
 
-    {#if élémentsPertinents.length >= 1}
+    {#if espècesPertinentes.length >= 1}
     <ol>
-        {#each élémentsPertinents as el}
-            <li>{el}</li>
+        {#each espècesPertinentes as espèce}
+            <li onclick={() => selectionnerEspèce(espèce)}>{espèceLabel(espèce)}</li>
         {/each}
     </ol>
     {/if}

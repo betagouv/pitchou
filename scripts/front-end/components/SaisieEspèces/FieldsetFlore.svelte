@@ -6,7 +6,7 @@
         trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
      } from "../../triEspèces.js"
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "../common/HomeMadeAutocomplete.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 

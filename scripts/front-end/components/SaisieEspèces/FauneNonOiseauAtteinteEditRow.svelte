@@ -2,7 +2,7 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "../common/HomeMadeAutocomplete.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */

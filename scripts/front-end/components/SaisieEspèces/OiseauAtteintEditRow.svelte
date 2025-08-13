@@ -2,7 +2,7 @@
     // @ts-check
 
     import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "../common/HomeMadeAutocomplete.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
@@ -44,15 +44,6 @@
         transportMenaçants
     } = $props();
 
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesOiseau)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesOiseau)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
-
     const dupliquerLigne = onDupliquerLigne && (() => {
         if(espèce){
             onDupliquerLigne({
@@ -74,11 +65,8 @@
     {#if espècesProtégéesOiseau.length >= 1}
     <td>
         <AutocompleteEspeces 
-            bind:selectedItem={espèce} 
-            espèces={espècesProtégéesOiseau} 
-            htmlClass="fr-input"
-            labelFunction={autocompleteLabelFunction}
-            keywordsFunction={autocompleteKeywordsFunction}
+            bind:espèceSélectionnée={espèce} 
+            espèces={espècesProtégéesOiseau}
         />
     </td>
     {/if}
