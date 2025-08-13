@@ -3,6 +3,8 @@
     // https://github.com/eikaramba/simple-svelte-autocomplete
     // and https://pastebin.com/jeYaWzCx
 
+	const debug = true
+
 	/*
    * Simple example with snippet
 
@@ -53,163 +55,83 @@
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} [items] - the list of items  the user can select from
-	 * @property {boolean|function} [searchFunction] - function to use to get all items (alternative to providing items)
-	 * @property {any} [labelFieldName] - field of each item that's used for the labels in the list
-	 * @property {any} [keywordsFieldName]
-	 * @property {any} [valueFieldName]
+	 * @property {false|function} [searchFunction] - function to use to get all items (alternative to providing items)
 	 * @property {any} [labelFunction]
 	 * @property {any} [keywordsFunction]
 	 * @property {any} [valueFunction]
-	 * @property {any} [keywordsCleanFunction]
-	 * @property {any} [textCleanFunction]
 	 * @property {any} [beforeChange] - events
 	 * @property {any} [onChange]
-	 * @property {any} [onFocus]
-	 * @property {any} [onBlur]
-	 * @property {any} [onCreate]
-	 * @property {boolean} [selectFirstIfEmpty] - Behaviour properties
-	 * @property {number} [minCharactersToSearch]
-	 * @property {number} [maxItemsToShowInList]
-	 * @property {boolean} [multiple]
 	 * @property {boolean} [create]
-	 * @property {boolean} [ignoreAccents] - ignores the accents when matching items
-	 * @property {boolean} [matchAllKeywords] - all the input keywords should be matched in the item keywords
-	 * @property {boolean} [sortByMatchedKeywords] - sorts the items by the number of matchink keywords
-	 * @property {any} [itemFilterFunction] - allow users to use a custom item filter function
-	 * @property {any} [itemSortFunction] - allow users to use a custom item sort function
-	 * @property {boolean} [lock] - do not allow re-selection after initial selection
-	 * @property {number} [delay] - delay to wait after a keypress to search for new items
-	 * @property {boolean} [localFiltering] - true to perform local filtering of items, even if searchFunction is provided
-	 * @property {boolean} [localSorting] - true to perform local sortying of items
-	 * @property {boolean} [cleanUserText] - true to clean the user entered text (removes spaces)
-	 * @property {boolean} [lowercaseKeywords] - true to lowercase the keywords derived from each item (lowercase)
-	 * @property {boolean} [closeOnBlur] - true to close the dropdown when the component loses focus
-	 * @property {boolean} [orderableSelection] - true to allow selection reordering by drag and drop, needs multiple to true
-	 * @property {boolean} [hideArrow] - option to hide the dropdown arrow
-	 * @property {boolean} [showClear] - option to show clear selection button
-	 * @property {string} [clearText] - text to use for clear
-	 * @property {boolean} [showLoadingIndicator] - option to show loading indicator when the async function is executed
-	 * @property {string} [noResultsText] - text displayed when no items match the input text
-	 * @property {string} [loadingText] - text displayed when async data is being loaded
-	 * @property {string} [moreItemsText] - text displayed when the user text matches a lot of items and we can not display them all in the dropdown
+	 * @property {any} [onCreate]
 	 * @property {string} [createText] - text displayed when async data is being loaded
+	 * @property {boolean} [ignoreAccents] - ignores the accents when matching items
+	 * @property {boolean} [cleanUserText] - true to clean the user entered text (removes spaces)
+	 * @property {boolean} [hideArrow] - option to hide the dropdown arrow
 	 * @property {any} [placeholder] - the text displayed when no option is selected
+	 * @property {number} [maxItemsToShowInList] 
 	 * @property {any} [className] - apply a className to the control
 	 * @property {any} [inputClassName] - apply a className to the input control
-	 * @property {any} [inputId] - apply a id to the input control
-	 * @property {any} [name] - generate an HTML input with this name
-	 * @property {any} [selectName] - generate a <select> tag that holds the value
-	 * @property {any} [selectId] - apply a id to the <select>
 	 * @property {any} [title] - add the title to the HTML input
 	 * @property {any} [html5autocomplete] - enable the html5 autocompletion to the HTML input
 	 * @property {string} [autocompleteOffValue] - enable the html5 autocompletion value
 	 * @property {any} [readonly] - make the input readonly
 	 * @property {any} [dropdownClassName] - apply a className to the dropdown div
 	 * @property {boolean} [disabled] - adds the disabled tag to the HTML input
-	 * @property {boolean} [noInputStyles] - remove the autocomplete-input class of the input
 	 * @property {any} [required] - adds the required attribute to the HTML input
-	 * @property {boolean} [debug]
 	 * @property {number} [tabindex] - set standard to 0: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex
 	 * @property {any} [selectedItem] - selected item state
 	 * @property {any} [value]
-	 * @property {any} [highlightedItem]
-	 * @property {any} [text]
 	 */
 
-	/** @type {Props & { [key: string]: any }} */
+	/** @type {Props} */
 	let {
 		items = $bindable([]),
 		searchFunction = false,
-		labelFieldName = undefined,
-		keywordsFieldName = labelFieldName,
-		valueFieldName = undefined,
-		labelFunction = function (item) {
+		labelFunction = function (/** @type {{ [x: string]: any; } | null | undefined} */ item) {
 			if (item === undefined || item === null) {
 				return '';
 			}
-			return labelFieldName ? item[labelFieldName] : item;
+			return item;
 		},
-		keywordsFunction = function (item) {
+		keywordsFunction = function (/** @type {{ [x: string]: any; } | null | undefined} */ item) {
 			if (item === undefined || item === null) {
 				return '';
 			}
-			return keywordsFieldName ? item[keywordsFieldName] : labelFunction(item);
+			return labelFunction(item);
 		},
-		valueFunction = function (item, forceSingle = false) {
+		valueFunction = function (/** @type {any[] | null | undefined} */ item, forceSingle = false) {
 			if (item === undefined || item === null) {
 				return item;
 			}
-			if (!multiple || forceSingle) {
-				return valueFieldName ? item[valueFieldName] : item;
+			if (forceSingle) {
+				return item;
 			} else {
-				return item.map((i) => (valueFieldName ? i[valueFieldName] : i));
+				return item.map((i) => (i));
 			}
-		},
-		keywordsCleanFunction = function (keywords) {
-			return keywords;
-		},
-		textCleanFunction = function (userEnteredText) {
-			return userEnteredText;
 		},
 		beforeChange = function (oldSelectedItem, newSelectedItem) {
 			return true;
 		},
 		onChange = function (newSelectedItem) {},
-		onFocus = function () {},
-		onBlur = function () {},
-		onCreate = function (text) {
-			if (debug) {
-				console.log('onCreate: ' + text);
-			}
-		},
-		selectFirstIfEmpty = false,
-		minCharactersToSearch = 1,
-		maxItemsToShowInList = 0,
-		multiple = false,
-		create = false,
 		ignoreAccents = true,
-		matchAllKeywords = true,
-		sortByMatchedKeywords = false,
-		itemFilterFunction = undefined,
-		itemSortFunction = undefined,
-		lock = false,
-		delay = 0,
-		localFiltering = true,
-		localSorting = true,
 		cleanUserText = true,
-		lowercaseKeywords = true,
-		closeOnBlur = false,
-		orderableSelection = false,
 		hideArrow = false,
-		showClear = false,
-		clearText = '&#10006;',
-		showLoadingIndicator = false,
-		noResultsText = 'No results found',
-		loadingText = 'Loading results...',
-		moreItemsText = 'items not shown',
-		createText = 'Not found, add anyway?',
+		maxItemsToShowInList = 0,
 		placeholder = undefined,
 		className = undefined,
 		inputClassName = undefined,
-		inputId = 'randominputid-' + Math.floor(Math.random() * 1000),
-		name = undefined,
-		selectName = undefined,
-		selectId = 'randomselectid-' + Math.floor(Math.random() * 1000),
 		title = undefined,
 		html5autocomplete = undefined,
 		autocompleteOffValue = 'off',
 		readonly = undefined,
 		dropdownClassName = undefined,
 		disabled = false,
-		noInputStyles = false,
 		required = null,
-		debug = false,
 		tabindex = 0,
-		selectedItem = $bindable(multiple ? [] : undefined),
+		selectedItem = $bindable(undefined),
 		value = $bindable(undefined),
-		text = $bindable(undefined),
-		onClear = () => {},
 
+		create = true,
 		// Snippets
 		tagSlot = undefined,
 		dropdownHeaderSlot = undefined,
@@ -218,14 +140,42 @@
 		loadingSlot = undefined,
 		createSlot = undefined,
 		noResultsSlot = undefined,
-
-		...rest
 	} = $props();
+
+
+	// leftover du composant initial
+	const lowercaseKeywords = true;
+	const localFiltering = true
+	
+	const multiple = false
+	const showClear = true
+	const lock = false
+	const closeOnBlur = true
+
+	const id = (/** @type {any} */ x) => x
+	const textCleanFunction = id
+
+	const inputId = 'randominputid-' + Math.floor(Math.random() * 1000);
+	const selectName = undefined;
+	const selectId = 'randomselectid-' + Math.floor(Math.random() * 1000);
+
+	const minCharactersToSearch = 1
+	
+
+
+	/** @type {string | undefined} */
+	let text = $state(undefined)
+
+
+
 
 	let filteredTextLength = $state(0);
 
 	// view model
 	let filteredListItems = $state();
+	/**
+     * @type {any[]}
+     */
 	let listItems = [];
 
 	// requests/responses counters
@@ -233,6 +183,9 @@
 	let lastResponseId = 0;
 
 	// other state
+	/**
+     * @type {string | number | NodeJS.Timeout | undefined}
+     */
 	let inputDelayTimeout;
 
 	let setPositionOnNextUpdate = $state(false);
@@ -248,6 +201,10 @@
 
 	// --- Functions ---
 
+	/**
+     * @param {(x: any) => any} theFunction
+     * @param {string} argument
+     */
 	function safeFunction(theFunction, argument) {
 		if (typeof theFunction !== 'function') {
 			console.error('Not a function: ' + theFunction + ', argument: ' + argument);
@@ -264,6 +221,10 @@
 		return result;
 	}
 
+	/**
+     * @param {(x: any) => any} theFunction
+     * @param {string} argument
+     */
 	function safeStringFunction(theFunction, argument) {
 		let result = safeFunction(theFunction, argument);
 		if (result === undefined || result === null) {
@@ -275,16 +236,23 @@
 		return result;
 	}
 
+	/**
+     * @param {string} item
+     */
 	function safeLabelFunction(item) {
 		// console.log('labelFunction: ' + labelFunction);
 		// console.log('safeLabelFunction, item: ' + item);
 		return safeStringFunction(labelFunction, item);
 	}
 
+
+	/**
+     * @param {string} item
+     */
 	function safeKeywordsFunction(item) {
 		// console.log("safeKeywordsFunction");
 		const keywords = safeStringFunction(keywordsFunction, item);
-		let result = safeStringFunction(keywordsCleanFunction, keywords);
+		let result = safeStringFunction(x => x, keywords);
 		result = lowercaseKeywords ? result.toLowerCase().trim() : result;
 		if (ignoreAccents) {
 			result = removeAccents(result);
@@ -297,13 +265,6 @@
 	}
 
 	function prepareListItems() {
-		let timerId;
-		if (debug) {
-			timerId = `Autocomplete prepare list ${inputId ? `(id: ${inputId})` : ''}`;
-			console.time(timerId);
-			console.log('Prepare items to search');
-			console.log('items: ' + JSON.stringify(items));
-		}
 
 		if (!Array.isArray(items)) {
 			console.warn('Autocomplete items / search function did not return array but', items);
@@ -314,7 +275,7 @@
 		listItems = new Array(length);
 
 		if (length > 0) {
-			items.forEach((item, i) => {
+			items.forEach((/** @type {any} */ item, /** @type {number} */ i) => {
 				const listItem = getListItem(item);
 				if (listItem === undefined) {
 					console.log('Undefined item for: ', item);
@@ -323,13 +284,11 @@
 			});
 		}
 		filteredListItems = listItems;
-
-		if (debug) {
-			console.log(listItems.length + ' items to search');
-			console.timeEnd(timerId);
-		}
 	}
 
+	/**
+     * @param {string} item
+     */
 	function getListItem(item) {
 		return {
 			// keywords representation of the item
@@ -363,15 +322,6 @@
 		if (selectedItem) onSelectedItemChanged();
 	});
 
-	const highlightedItem = $derived(
-		filteredListItems &&
-			highlightIndex &&
-			highlightIndex >= 0 &&
-			highlightIndex < filteredListItems.length
-			? filteredListItems[highlightIndex].item
-			: null
-	);
-
 	let showList = $derived(opened && ((items && items.length > 0) || filteredTextLength > 0));
 
 	let hasSelection = $derived(
@@ -382,6 +332,9 @@
 
 	let locked = $derived(lock && hasSelection);
 
+	/**
+     * @param {string | null | undefined} userEnteredText
+     */
 	function prepareUserEnteredText(userEnteredText) {
 		if (userEnteredText === undefined || userEnteredText === null) {
 			return '';
@@ -401,6 +354,10 @@
 		return textTrimmed;
 	}
 
+	/**
+     * @param {{ keywords: any; }} listItem
+     * @param {any[]} searchWords
+     */
 	function numberOfMatches(listItem, searchWords) {
 		if (!listItem) {
 			return 0;
@@ -495,6 +452,7 @@
 
 			// searchFunction is a regular function
 			else {
+				// @ts-ignore
 				let result = await searchFunction(textFiltered, maxItemsToShowInList);
 
 				// If a response to a newer request has been received
@@ -602,6 +560,9 @@
 		return listItem;
 	}
 
+	/**
+     * @param {{ item: any; }} listItem
+     */
 	function selectListItem(listItem) {
 		if (debug) {
 			console.log('selectListItem', listItem);
@@ -888,7 +849,7 @@
 			console.log('onFocus');
 		}
 
-		onFocus();
+		//onFocus();
 
 		resetListToAllItemsAndOpen();
 	}
@@ -902,7 +863,7 @@
 			close();
 		}
 
-		onBlur();
+		//onBlur();
 	}
 
 	function resetListToAllItemsAndOpen() {
@@ -988,7 +949,7 @@
 		opened = false;
 		loading = false;
 
-		if (!text && selectFirstIfEmpty) {
+		if (!text) {
 			highlightIndex = 0;
 			selectItem();
 		}
@@ -1018,15 +979,19 @@
 
 		text = '';
 		selectedItem = multiple ? [] : undefined;
-		onClear();
+		//onClear();
 
 		setTimeout(() => {
 			input.focus();
 		}, 500);
 	}
 
-	export function highlightFilter(keywords, field) {
-		return (item) => {
+	/**
+     * @param {string | any[]} keywords
+     * @param {string} field
+     */
+	 export function highlightFilter(keywords, field) {
+		return (/** @type {{ [x: string]: any; }} */ item) => {
 			let label = item[field];
 
 			const newItem = Object.assign({ highlighted: undefined }, item);
@@ -1083,6 +1048,9 @@
 		};
 	}
 
+	/**
+     * @param {string} str
+     */
 	function removeAccents(str) {
 		return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 	}
@@ -1098,51 +1066,6 @@
 		} else {
 			return unproxyListItem === unproxySelectedItem;
 		}
-	}
-
-	let draggingOver = $state(false);
-
-	function dragstart(event, index) {
-		if (orderableSelection) {
-			event.dataTransfer.setData('source', index);
-		}
-	}
-
-	function dragover(event, index) {
-		if (orderableSelection) {
-			event.preventDefault();
-			draggingOver = index;
-		}
-	}
-
-	function dragleave(event, index) {
-		if (orderableSelection) {
-			draggingOver = false;
-		}
-	}
-
-	function drop(event, index) {
-		if (orderableSelection) {
-			event.preventDefault();
-			draggingOver = false;
-			let from = parseInt(event.dataTransfer.getData('source'));
-			let to = index;
-			if (from != to) {
-				moveSelectedItem(from, to);
-			}
-		}
-	}
-
-	function moveSelectedItem(from, to) {
-		let newSelection = [...selectedItem];
-		if (from < to) {
-			newSelection.splice(to + 1, 0, newSelection[from]);
-			newSelection.splice(from, 1);
-		} else {
-			newSelection.splice(to, 0, newSelection[from]);
-			newSelection.splice(from + 1, 1);
-		}
-		selectedItem = newSelection;
 	}
 
 	function setScrollAwareListPosition() {
@@ -1166,7 +1089,7 @@
 	class:hide-arrow={hideArrow || !items.length}
 	class:is-multiple={multiple}
 	class:show-clear={clearable}
-	class:is-loading={showLoadingIndicator && loading}
+	class:is-loading={loading}
 >
 	{#if multiple}
 		<select name={selectName} id={selectId} multiple>
@@ -1192,14 +1115,8 @@
 		{#if multiple && hasSelection}
 			{#each selectedItem as tagItem, i (valueFunction(tagItem, true))}
 				<div
-					draggable={true}
 					animate:flip={{ duration: 200 }}
 					transition:fade={{ duration: 200 }}
-					ondragstart={(event) => dragstart(event, i)}
-					ondragover={(event) => dragover(event, i)}
-					ondragleave={(event) => dragleave(event, i)}
-					ondrop={(event) => drop(event, i)}
-					class:is-active={draggingOver === i}
 				>
 					<!-- <slot name="tag" label={safeLabelFunction(tagItem)} item={tagItem} {unselectItem}>
             <div class="tags has-addons">
@@ -1236,9 +1153,7 @@
 		{/if}
 		<input
 			type="text"
-			class="{inputClassName ? inputClassName : ''} {noInputStyles
-				? ''
-				: 'input autocomplete-input'}"
+			class="{inputClassName ? inputClassName : ''} {'input autocomplete-input'}"
 			id={inputId ? inputId : ''}
 			autocomplete={html5autocomplete ? 'on' : autocompleteOffValue}
 			{placeholder}
@@ -1256,9 +1171,6 @@
 			onkeydown={onKeyDown}
 			onclick={onInputClick}
 			onkeypress={onKeyPress}
-			ondragover={(event) => dragover(event, selectedItem.length - 1)}
-			ondrop={(event) => drop(event, selectedItem.length - 1)}
-			{...rest}
 		/>
 		{#if clearable}
 			<span
@@ -1266,7 +1178,7 @@
 				onkeypress={(e) => {
 					e.key == 'Enter' && clear();
 				}}
-				class="autocomplete-clear-button">{@html clearText}</span
+				class="autocomplete-clear-button">&#10006;</span
 			>
 		{/if}
 	</div>
@@ -1331,22 +1243,18 @@
 			{@render dropdownFooterSlot?.({ nbItems: filteredListItems.length, maxItemsToShowInList })}
 			{#if !dropdownFooterSlot}
 				{#if maxItemsToShowInList > 0 && filteredListItems.length > maxItemsToShowInList}
-					{#if moreItemsText}
-						<div class="autocomplete-list-item-no-results">
-							...{filteredListItems.length - maxItemsToShowInList}
-							{moreItemsText}
-						</div>
-					{/if}
+					<div class="autocomplete-list-item-no-results">
+						...{filteredListItems.length - maxItemsToShowInList}
+						éléments non montrés
+					</div>
 				{/if}
 			{/if}
-		{:else if loading && loadingText}
+		{:else if loading}
 			<div class="autocomplete-list-item-loading">
 				<!-- <slot name="loading" {loadingText}>{loadingText}</slot> -->
 
-				{@render loadingSlot?.({ loadingText })}
-				{#if !loadingSlot}
-					{loadingText}
-				{/if}
+				{@render loadingSlot?.('Chargement')}
+				{#if !loadingSlot}Chargement{/if}
 			</div>
 		{:else if create}
 			<div
@@ -1358,10 +1266,8 @@
 			>
 				<!-- <slot name="create" {createText}>{createText}</slot> -->
 
-				{@render createSlot?.({ createText })}
-				{#if !createSlot}
-					{createText}
-				{/if}
+				{@render createSlot?.('Non trouvé. Le créer ?')}
+				{#if !createSlot} Non trouvé. Le créer ? {/if}
 			</div>
 		{:else if noResultsText}
 			<div class="autocomplete-list-item-no-results">
