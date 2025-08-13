@@ -72,6 +72,7 @@
     "page": "^1.11.6",
     "pg": "^8.11.5",
     "pino-pretty": "^11.2.2",
-    "remember": "github:DavidBruant/remember#v1.0.2"
+    "remember": "github:DavidBruant/remember#v1.0.2",
+    "svelecte": "^5.3.0"
   }
 }

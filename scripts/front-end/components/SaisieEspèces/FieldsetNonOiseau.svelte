@@ -36,6 +36,8 @@
     const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
     const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
 
+    console.log('espècesToLabel', espècesToLabel)
+
     /** @param {EspèceProtégée} esp */
     const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
 

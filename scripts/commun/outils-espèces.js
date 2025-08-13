@@ -1,4 +1,6 @@
 //@ts-check
+import {SvelteSet} from 'svelte/reactivity'
+
 import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from '@odfjs/odfjs'
 
 /** @import {
@@ -78,11 +80,11 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
     return {
         CD_REF,
         //@ts-ignore trusting data generation
-        CD_TYPE_STATUTS: new Set(CD_TYPE_STATUTS.split(',')), 
+        CD_TYPE_STATUTS: new SvelteSet(CD_TYPE_STATUTS.split(',')), 
         //@ts-ignore trusting data generation
         classification,
-        nomsScientifiques: new Set(nomsScientifiques.split(',')),
-        nomsVernaculaires: new Set(nomsVernaculaires.split(',')), 
+        nomsScientifiques: new SvelteSet(nomsScientifiques.split(',')),
+        nomsVernaculaires: new SvelteSet(nomsVernaculaires.split(',')), 
     }
 }
 

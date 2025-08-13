@@ -1,8 +1,9 @@
 <script>
 	//@ts-check
-	import AutoComplete from "./common/AutoComplete.svelte"
-
+  	import Svelecte from 'svelecte';
 	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
+
+	import {espèceLabel} from '../espèceFieldset.js'
 
 	
 	/**
@@ -25,6 +26,15 @@
 		keywordsFunction
 	} = $props();
 
+
+	function optionFun(item){
+		console.log('optionFun item', item)
+		const ret = espèceLabel(item);
+		console.log('ret', ret)
+		return ret
+
+	}
+
 	/**
 	 * 
 	 * @param {EspèceProtégée} _
@@ -40,19 +50,24 @@
 	}
 </script>
 
-<AutoComplete 
-	bind:selectedItem={selectedItem}
-	items={espèces}
-	{labelFunction}
-	{keywordsFunction}
-	maxItemsToShowInList={12}
-	cleanUserText={false}
-	{beforeChange}
-	class={htmlClass}
-	hideArrow={true}
-	ignoreAccents={false}
+
+
+{#snippet option(/** @type {any} */ item)}
+<div>
+  {optionFun(item)}
+</div>
+{/snippet}
+
+<Svelecte 
+	bind:value={selectedItem}
+	valueAsObject={true}
+	options={espèces}
+	labelField="nomsVernaculaires"
+	{onChange}
+	className={htmlClass}
+	{option}
 >
-</AutoComplete>
+</Svelecte>
 
 <style lang="scss">
 	:global(.autocomplete-list.hidden){
