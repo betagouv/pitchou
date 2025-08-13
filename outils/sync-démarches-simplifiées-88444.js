@@ -241,12 +241,11 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {DossierPourSynchronisation<DossierInitializer>[]} */
-//@ts-ignore
+/** @type {DossierInitializer[]} */
 const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
     const { 
         déposant,
-        /** demandeur_personne_physique, */
+        demandeur_personne_physique,
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
@@ -261,12 +260,11 @@ const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
     }
 })
 
-/** @type {DossierPourSynchronisation<DossierMutator>[]} */
-//@ts-ignore
+/** @type {DossierMutator[]} */
 const dossiersAModifier = dossiersAModifierPourSynchro.map(dossier => {
     const { 
         déposant,
-        /** demandeur_personne_physique, */
+        demandeur_personne_physique,
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
