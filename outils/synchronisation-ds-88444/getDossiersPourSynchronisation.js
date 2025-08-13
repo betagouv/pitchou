@@ -1,6 +1,8 @@
-/** @import {DossierDS88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-/** @import  {DossierPourSynchronisation} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
+/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
+/** @import  {DossierPourSynchronisation, DonnéesPersonnesEntreprises} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
@@ -9,6 +11,87 @@
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { remplirChampsCommunsPourSynchro } from './remplirChampsCommunsPourSynchro.js'
+
+/**
+ * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
+ * @param {DossierDS88444} dossierDS
+ * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @returns {DonnéesPersonnesEntreprises}
+ */
+function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
+    const {
+        demandeur,
+        champs,
+    } = dossierDS
+
+    /** 
+     * Champs 
+     */
+    /** @type {Map<string | undefined, Champs88444>} */
+    /** @type {Map<string | undefined, any>} */
+    const champById = new Map()
+    for (const champ of champs) {
+        champById.set(champ.id, champ)
+    }
+
+    /*
+    Déposant 
+ 
+    Le déposant est la personne qui dépose le dossier sur DS
+    Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique 
+    qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose 
+    le dossier
+    Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur
+ 
+    Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" 
+    (qui est différent de notre "demandeur")
+ 
+    */
+    /** @type {PersonneInitializer} */
+    let déposant;
+    {
+        const { prenom: prénoms, nom, email } = demandeur
+        déposant = {
+            prénoms,
+            nom,
+            email: email === '' ? undefined : email
+        }
+    }
+
+    /*
+    Demandeur
+ 
+    Personne physique ou morale qui formule la demande de dérogation espèces protégées
+    */
+    /** @type {PersonneInitializer | undefined} */
+    /** let demandeur_personne_physique = undefined; */
+    /** @type {Entreprise | undefined} */
+    let demandeur_personne_morale = undefined
+
+    const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
+    if (SIRETChamp) {
+        const etablissement = SIRETChamp.etablissement
+        if (etablissement) {
+            const { siret, address = {}, entreprise = {} } = etablissement
+            const { streetAddress, postalCode, cityName } = address
+            const { raisonSociale } = entreprise
+
+
+            demandeur_personne_morale = {
+                siret,
+                raison_sociale: raisonSociale,
+                adresse: `${streetAddress}\n${postalCode} ${cityName}`
+            }
+        }
+    }
+
+    return {
+        déposant,
+        demandeur_personne_morale,
+        demandeur_personne_physique: undefined,
+    }
+
+}
 
 /**
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
@@ -44,7 +127,7 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjà
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Promise<Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">>}
+ * @returns {Promise<DossierInitializer>}
  */
 async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
@@ -79,14 +162,34 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
  * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Promise<{ dossiersAInitialiserPourSynchro: Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique">[], dossiersAModifierPourSynchro: Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">[] }>} 
+ * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierPourSynchronisation<DossierInitializer>[], dossiersAModifierPourSynchro: DossierPourSynchronisation<DossierMutator>[] }>} 
  */
 export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
-    const dossiersAInitialiserPourSynchro = await Promise.all(dossiersDSAInitialiser.map(async (dossier) => remplirChampsPourInitialisation(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)))
+    /** @type {Array<DossierPourSynchronisation<DossierInitializer>>} */
+    const dossiersAInitialiserPourSynchro = await Promise.all(
+        dossiersDSAInitialiser.map(async (dossierDS) => ({
+            ...(await remplirChampsPourInitialisation(
+                dossierDS,
+                pitchouKeyToChampDS,
+                pitchouKeyToAnnotationDS
+            )),
+            ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+        }))
+    );
 
-    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossier) => remplirChampsCommunsPourSynchro(dossier, pitchouKeyToChampDS, pitchouKeyToAnnotationDS))
+    /** @type {Array<DossierPourSynchronisation<DossierMutator>>} */
+    const dossiersAModifierPourSynchro = await Promise.all(
+        dossiersDSAModifier.map(async (dossierDS) => ({
+            ...(await remplirChampsCommunsPourSynchro(
+                dossierDS,
+                pitchouKeyToChampDS,
+                pitchouKeyToAnnotationDS
+            )),
+            ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+        }))
+    );
 
     return {
         dossiersAInitialiserPourSynchro,
