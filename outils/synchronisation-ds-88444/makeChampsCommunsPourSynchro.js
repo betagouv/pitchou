@@ -1,6 +1,6 @@
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
+/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 
 //@ts-ignore
@@ -11,7 +11,47 @@ const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {DossierMutator} //TODO: être plus précis sur le type
+ * @returns {Pick<DossierInitializer | DossierMutator, 
+ *   | "id_demarches_simplifiées"
+ *   | "number_demarches_simplifiées"
+ *   | "nom"
+ *   | "description"
+ *   | "activité_principale"
+ *   | "date_début_intervention"
+ *   | "date_fin_intervention"
+ *   | "durée_intervention"
+ *   | "justification_absence_autre_solution_satisfaisante"
+ *   | "motif_dérogation"
+ *   | "justification_motif_dérogation"
+ *   | "communes"
+ *   | "départements"
+ *   | "régions"
+ *   | "rattaché_au_régime_ae"
+ *   | "mesures_erc_prévues"
+ *   | "scientifique_type_demande"
+ *   | "scientifique_description_protocole_suivi"
+ *   | "scientifique_mode_capture"
+ *   | "scientifique_modalités_source_lumineuses"
+ *   | "scientifique_modalités_marquage"
+ *   | "scientifique_modalités_transport"
+ *   | "scientifique_périmètre_intervention"
+ *   | "scientifique_intervenants"
+ *   | "scientifique_précisions_autres_intervenants"
+ *   | "historique_nom_porteur"
+ *   | "historique_localisation"
+ *   | "ddep_nécessaire"
+ *   | "enjeu_écologique"
+ *   | "enjeu_politique"
+ *   | "commentaire_libre"
+ *   | "historique_date_envoi_dernière_contribution"
+ *   | "historique_identifiant_demande_onagre"
+ *   | "historique_date_saisine_csrpn"
+ *   | "historique_date_saisine_cnpn"
+ *   | "date_avis_csrpn"
+ *   | "date_avis_cnpn"
+ *   | "avis_csrpn_cnpn"
+ *   | "date_consultation_public"
+ * >}
  */
 export function makeChampsCommunsPourSynchro(
     dossierDS,
