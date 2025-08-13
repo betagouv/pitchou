@@ -11,16 +11,22 @@ export type DCisionAdministrativeId = string & { __brand: 'public.décision_admi
 export default interface DCisionAdministrative {
   id: DCisionAdministrativeId;
 
+  /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
   dossier: DossierId;
 
+  /** Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs. */
   numéro: string | null;
 
+  /** Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision... */
   type: string | null;
 
+  /** Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire. */
   date_signature: Date | null;
 
+  /** Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées. */
   date_fin_obligations: Date | null;
 
+  /** Référence vers le fichier contenant la décision administrative. */
   fichier: FichierId | null;
 }
 
@@ -29,16 +35,22 @@ export interface DCisionAdministrativeInitializer {
   /** Default value: gen_random_uuid() */
   id?: DCisionAdministrativeId;
 
+  /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
   dossier: DossierId;
 
+  /** Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs. */
   numéro?: string | null;
 
+  /** Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision... */
   type?: string | null;
 
+  /** Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire. */
   date_signature?: Date | null;
 
+  /** Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées. */
   date_fin_obligations?: Date | null;
 
+  /** Référence vers le fichier contenant la décision administrative. */
   fichier?: FichierId | null;
 }
 
@@ -46,15 +58,21 @@ export interface DCisionAdministrativeInitializer {
 export interface DCisionAdministrativeMutator {
   id?: DCisionAdministrativeId;
 
+  /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
   dossier?: DossierId;
 
+  /** Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs. */
   numéro?: string | null;
 
+  /** Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision... */
   type?: string | null;
 
+  /** Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire. */
   date_signature?: Date | null;
 
+  /** Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées. */
   date_fin_obligations?: Date | null;
 
+  /** Référence vers le fichier contenant la décision administrative. */
   fichier?: FichierId | null;
 }
