@@ -9,7 +9,6 @@ export type DCisionAdministrativeId = string & { __brand: 'public.décision_admi
 
 /** Represents the table public.décision_administrative */
 export default interface DCisionAdministrative {
-  /** Identifiant unique de la décision administrative généré automatiquement */
   id: DCisionAdministrativeId;
 
   /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
@@ -33,8 +32,8 @@ export default interface DCisionAdministrative {
 
 /** Represents the initializer for the table public.décision_administrative */
 export interface DCisionAdministrativeInitializer {
-  /** Identifiant unique de la décision administrative généré automatiquement */
-  id: DCisionAdministrativeId;
+  /** Default value: gen_random_uuid() */
+  id?: DCisionAdministrativeId;
 
   /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
   dossier: DossierId;
@@ -57,7 +56,6 @@ export interface DCisionAdministrativeInitializer {
 
 /** Represents the mutator for the table public.décision_administrative */
 export interface DCisionAdministrativeMutator {
-  /** Identifiant unique de la décision administrative généré automatiquement */
   id?: DCisionAdministrativeId;
 
   /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */

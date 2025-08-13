@@ -8,7 +8,6 @@ export type ContrLeId = string & { __brand: 'public.contrôle' };
 
 /** Represents the table public.contrôle */
 export default interface ContrLe {
-  /** Identifiant unique du contrôle généré automatiquement */
   id: ContrLeId;
 
   /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
@@ -35,8 +34,8 @@ export default interface ContrLe {
 
 /** Represents the initializer for the table public.contrôle */
 export interface ContrLeInitializer {
-  /** Identifiant unique du contrôle généré automatiquement */
-  id: ContrLeId;
+  /** Default value: gen_random_uuid() */
+  id?: ContrLeId;
 
   /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
   prescription: PrescriptionId;
@@ -62,7 +61,6 @@ export interface ContrLeInitializer {
 
 /** Represents the mutator for the table public.contrôle */
 export interface ContrLeMutator {
-  /** Identifiant unique du contrôle généré automatiquement */
   id?: ContrLeId;
 
   /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */

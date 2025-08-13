@@ -8,7 +8,6 @@ export type PrescriptionId = string & { __brand: 'public.prescription' };
 
 /** Represents the table public.prescription */
 export default interface Prescription {
-  /** Identifiant unique de la prescription généré automatiquement */
   id: PrescriptionId;
 
   /** Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter. */
@@ -44,8 +43,8 @@ export default interface Prescription {
 
 /** Represents the initializer for the table public.prescription */
 export interface PrescriptionInitializer {
-  /** Identifiant unique de la prescription généré automatiquement */
-  id: PrescriptionId;
+  /** Default value: gen_random_uuid() */
+  id?: PrescriptionId;
 
   /** Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter. */
   décision_administrative: DCisionAdministrativeId;
@@ -80,7 +79,6 @@ export interface PrescriptionInitializer {
 
 /** Represents the mutator for the table public.prescription */
 export interface PrescriptionMutator {
-  /** Identifiant unique de la prescription généré automatiquement */
   id?: PrescriptionId;
 
   /** Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter. */

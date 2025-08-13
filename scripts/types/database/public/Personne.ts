@@ -6,7 +6,6 @@ export type PersonneId = number & { __brand: 'public.personne' };
 
 /** Represents the table public.personne */
 export default interface Personne {
-  /** Identifiant unique auto-incrémenté de la personne */
   id: PersonneId;
 
   /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
@@ -24,8 +23,8 @@ export default interface Personne {
 
 /** Represents the initializer for the table public.personne */
 export interface PersonneInitializer {
-  /** Identifiant unique auto-incrémenté de la personne */
-  id: PersonneId;
+  /** Default value: nextval('personne_id_seq'::regclass) */
+  id?: PersonneId;
 
   /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
   nom?: string | null;
@@ -42,7 +41,6 @@ export interface PersonneInitializer {
 
 /** Represents the mutator for the table public.personne */
 export interface PersonneMutator {
-  /** Identifiant unique auto-incrémenté de la personne */
   id?: PersonneId;
 
   /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */

@@ -6,27 +6,22 @@ export type GroupeInstructeursId = string & { __brand: 'public.groupe_instructeu
 
 /** Represents the table public.groupe_instructeurs */
 export default interface GroupeInstructeurs {
-  /** Identifiant unique du groupe d'instructeurs généré automatiquement */
   id: GroupeInstructeursId;
 
-  /** Nom du groupe d'instructeurs. Permet d'identifier et de catégoriser les équipes d'instruction selon leur spécialité, leur territoire ou leur organisation. */
   nom: string;
 }
 
 /** Represents the initializer for the table public.groupe_instructeurs */
 export interface GroupeInstructeursInitializer {
-  /** Identifiant unique du groupe d'instructeurs généré automatiquement */
-  id: GroupeInstructeursId;
+  /** Default value: gen_random_uuid() */
+  id?: GroupeInstructeursId;
 
-  /** Nom du groupe d'instructeurs. Permet d'identifier et de catégoriser les équipes d'instruction selon leur spécialité, leur territoire ou leur organisation. */
   nom: string;
 }
 
 /** Represents the mutator for the table public.groupe_instructeurs */
 export interface GroupeInstructeursMutator {
-  /** Identifiant unique du groupe d'instructeurs généré automatiquement */
   id?: GroupeInstructeursId;
 
-  /** Nom du groupe d'instructeurs. Permet d'identifier et de catégoriser les équipes d'instruction selon leur spécialité, leur territoire ou leur organisation. */
   nom?: string;
 }

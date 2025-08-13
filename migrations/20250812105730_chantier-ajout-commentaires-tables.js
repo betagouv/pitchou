@@ -4,9 +4,6 @@
  */
 export function up(knex) {
     return knex.schema.alterTable('dossier', (table) => {
-        table.increments('id')
-            .comment(`Identifiant unique auto-incrémenté du dossier`)
-            .alter({ alterNullable: false, alterType: false });
 
         table.string('id_demarches_simplifiées')
             .comment(`Identifiant unique du dossier dans la plateforme Démarches Simplifiées`)
@@ -196,9 +193,6 @@ export function up(knex) {
     }).then(() => {
         // Ajout des commentaires pour la table contrôle
         return knex.schema.alterTable('contrôle', (table) => {
-            table.uuid('id')
-                .comment(`Identifiant unique du contrôle généré automatiquement`)
-                .alter({ alterNullable: false, alterType: false });
 
             table.uuid('prescription')
                 .comment(`Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre.`)
@@ -229,22 +223,8 @@ export function up(knex) {
                 .alter({ alterNullable: false, alterType: false });
         });
     }).then(() => {
-        // Ajout des commentaires pour la table groupe_instructeurs
-        return knex.schema.alterTable('groupe_instructeurs', (table) => {
-            table.uuid('id')
-                .comment(`Identifiant unique du groupe d'instructeurs généré automatiquement`)
-                .alter({ alterNullable: false, alterType: false });
-
-            table.string('nom')
-                .comment(`Nom du groupe d'instructeurs. Permet d'identifier et de catégoriser les équipes d'instruction selon leur spécialité, leur territoire ou leur organisation.`)
-                .alter({ alterNullable: false, alterType: false });
-        });
-    }).then(() => {
         // Ajout des commentaires pour la table personne
         return knex.schema.alterTable('personne', (table) => {
-            table.increments('id')
-                .comment(`Identifiant unique auto-incrémenté de la personne`)
-                .alter({ alterNullable: false, alterType: false });
 
             table.string('nom')
                 .comment(`Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système.`)
@@ -265,9 +245,6 @@ export function up(knex) {
     }).then(() => {
         // Ajout des commentaires pour la table décision_administrative
         return knex.schema.alterTable('décision_administrative', (table) => {
-            table.uuid('id')
-                .comment(`Identifiant unique de la décision administrative généré automatiquement`)
-                .alter({ alterNullable: false, alterType: false });
 
             table.integer('dossier')
                 .comment(`Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.).`)
@@ -296,9 +273,6 @@ export function up(knex) {
     }).then(() => {
         // Ajout des commentaires pour la table prescription
         return knex.schema.alterTable('prescription', (table) => {
-            table.uuid('id')
-                .comment(`Identifiant unique de la prescription généré automatiquement`)
-                .alter({ alterNullable: false, alterType: false });
 
             table.uuid('décision_administrative')
                 .comment(`Référence vers la décision administrative associée à cette prescription. Une décision administrative peut contenir plusieurs prescriptions détaillant les obligations spécifiques à respecter.`)
@@ -350,7 +324,6 @@ export function up(knex) {
 export function down(knex) {
     return knex.schema.alterTable('dossier', (table) => {
         // Suppression de tous les commentaires ajoutés
-        table.increments('id').comment(``).alter({ alterNullable: false, alterType: false });
         table.string('id_demarches_simplifiées').comment(``).alter({ alterNullable: false, alterType: false });
         table.dateTime('date_dépôt').comment(``).alter({ alterNullable: false, alterType: false });
         table.string('espèces_protégées_concernées').comment(``).alter({ alterNullable: false, alterType: false });
@@ -400,7 +373,6 @@ export function down(knex) {
     }).then(() => {
         // Suppression des commentaires ajoutés pour la table contrôle
         return knex.schema.alterTable('contrôle', (table) => {
-            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
             table.uuid('prescription').comment(``).alter({ alterNullable: false, alterType: false });
             table.datetime('date_contrôle').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('résultat').comment(``).alter({ alterNullable: false, alterType: false });
@@ -410,15 +382,8 @@ export function down(knex) {
             table.date('date_prochaine_échéance').comment(``).alter({ alterNullable: false, alterType: false });
         });
     }).then(() => {
-        // Suppression des commentaires ajoutés pour la table groupe_instructeurs
-        return knex.schema.alterTable('groupe_instructeurs', (table) => {
-            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
-            table.string('nom').comment(``).alter({ alterNullable: false, alterType: false });
-        });
-    }).then(() => {
         // Suppression des commentaires ajoutés pour la table personne
         return knex.schema.alterTable('personne', (table) => {
-            table.increments('id').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('nom').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('prénoms').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('email').comment(``).alter({ alterNullable: false, alterType: false });
@@ -427,7 +392,6 @@ export function down(knex) {
     }).then(() => {
         // Suppression des commentaires ajoutés pour la table décision_administrative
         return knex.schema.alterTable('décision_administrative', (table) => {
-            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
             table.integer('dossier').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('numéro').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('type').comment(``).alter({ alterNullable: false, alterType: false });
@@ -438,7 +402,6 @@ export function down(knex) {
     }).then(() => {
         // Suppression des commentaires ajoutés pour la table prescription
         return knex.schema.alterTable('prescription', (table) => {
-            table.uuid('id').comment(``).alter({ alterNullable: false, alterType: false });
             table.uuid('décision_administrative').comment(``).alter({ alterNullable: false, alterType: false });
             table.date('date_échéance').comment(``).alter({ alterNullable: false, alterType: false });
             table.string('numéro_article').comment(``).alter({ alterNullable: false, alterType: false });

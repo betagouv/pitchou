@@ -10,13 +10,12 @@ export type DossierId = number & { __brand: 'public.dossier' };
 
 /** Represents the table public.dossier */
 export default interface Dossier {
-  /** Identifiant unique auto-incrémenté du dossier */
   id: DossierId;
 
   /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
   id_demarches_simplifiées: string | null;
 
-  /** Date de première sollicitation du groupe instructeurice par le pétitionnaire */
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
   /** Liste des espèces protégées concernées par le dossier */
@@ -154,13 +153,13 @@ export default interface Dossier {
 
 /** Represents the initializer for the table public.dossier */
 export interface DossierInitializer {
-  /** Identifiant unique auto-incrémenté du dossier */
-  id: DossierId;
+  /** Default value: nextval('dossier_id_seq'::regclass) */
+  id?: DossierId;
 
   /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
   id_demarches_simplifiées?: string | null;
 
-  /** Date de première sollicitation du groupe instructeurice par le pétitionnaire */
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
   /** Liste des espèces protégées concernées par le dossier */
@@ -298,13 +297,12 @@ export interface DossierInitializer {
 
 /** Represents the mutator for the table public.dossier */
 export interface DossierMutator {
-  /** Identifiant unique auto-incrémenté du dossier */
   id?: DossierId;
 
   /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
   id_demarches_simplifiées?: string | null;
 
-  /** Date de première sollicitation du groupe instructeurice par le pétitionnaire */
+  /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt?: Date;
 
   /** Liste des espèces protégées concernées par le dossier */
