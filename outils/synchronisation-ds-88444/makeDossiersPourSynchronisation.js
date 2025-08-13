@@ -10,7 +10,7 @@
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-import { remplirChampsCommunsPourSynchro } from './remplirChampsCommunsPourSynchro.js'
+import { makeChampsCommunsPourSynchro } from './makeChampsCommunsPourSynchro.js'
 
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
@@ -129,7 +129,7 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjà
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @returns {Promise<DossierInitializer>}
  */
-async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
+async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
 
     /**
@@ -150,7 +150,7 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
     }
 
     return {
-        ...remplirChampsCommunsPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
+        ...makeChampsCommunsPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
         date_dépôt: données_supplémentaires?.date_dépôt ?? dossierDS.dateDepot
     }
 }
@@ -158,19 +158,22 @@ async function remplirChampsPourInitialisation(dossierDS, pitchouKeyToChampDS, p
 
 
 /**
+ * Récupère les données brutes des dossiers depuis Démarches Simplifiées
+ * puis les transforme au format attendu par l'application
+ * afin de permettre leur insertion ou mise à jour en base de données.
  * @param {DossierDS88444[]} dossiersDS
  * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierPourSynchronisation<DossierInitializer>[], dossiersAModifierPourSynchro: DossierPourSynchronisation<DossierMutator>[] }>} 
  */
-export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
     /** @type {Array<DossierPourSynchronisation<DossierInitializer>>} */
     const dossiersAInitialiserPourSynchro = await Promise.all(
         dossiersDSAInitialiser.map(async (dossierDS) => ({
-            ...(await remplirChampsPourInitialisation(
+            ...(await makeChampsDossierPourInitialisation(
                 dossierDS,
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
@@ -182,7 +185,7 @@ export async function getDossiersPourSynchronisation(dossiersDS, numberDSDossier
     /** @type {Array<DossierPourSynchronisation<DossierMutator>>} */
     const dossiersAModifierPourSynchro = await Promise.all(
         dossiersDSAModifier.map(async (dossierDS) => ({
-            ...(await remplirChampsCommunsPourSynchro(
+            ...(await makeChampsCommunsPourSynchro(
                 dossierDS,
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
