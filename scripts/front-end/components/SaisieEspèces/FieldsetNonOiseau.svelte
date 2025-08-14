@@ -1,13 +1,12 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js"
     import {
         trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "./HomeMadeAutocomplete.svelte"
     import FauneNonOiseauAtteinteEditRow from "./FauneNonOiseauAtteinteEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 
@@ -33,15 +32,6 @@
         transportMenaçants
     } = $props();
 
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFauneNonOiseau)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesFauneNonOiseau)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
-
     /** @type {TriTableau | undefined} */
     let triSélectionné = $state(undefined)
 
@@ -49,15 +39,19 @@
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
     }
 
-    /** @param {EspèceProtégée} fauneNonOiseau */
-    function ajouterFauneNonOiseau(fauneNonOiseau) {
-        faunesNonOiseauxAtteintes.push({
-            espèce: fauneNonOiseau,
-        })
-        triSélectionné = undefined
+    /** @type {EspèceProtégée | undefined} */
+    let espèceRechercheSélectionnée = $state(undefined)
 
-        rerender()
-    }
+    $effect(() => {
+        if(espèceRechercheSélectionnée){
+            faunesNonOiseauxAtteintes.push({
+                espèce: espèceRechercheSélectionnée
+            })
+            triSélectionné = undefined
+            espèceRechercheSélectionnée = undefined
+        }
+        
+    })
 
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
@@ -172,10 +166,7 @@
                             <td>
                                 <AutocompleteEspeces
                                     espèces={espècesProtégéesFauneNonOiseau}
-                                    onChange={ajouterFauneNonOiseau}
-                                    htmlClass="fr-input search"
-                                    labelFunction={autocompleteLabelFunction}
-                                    keywordsFunction={autocompleteKeywordsFunction}
+                                    bind:espèceSélectionnée={espèceRechercheSélectionnée}
                                 />
                             </td>
                             <td>

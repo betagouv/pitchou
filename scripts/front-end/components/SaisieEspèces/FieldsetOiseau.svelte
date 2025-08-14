@@ -1,27 +1,17 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel } from "../../espèceFieldset.js"
     import {
         trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "./HomeMadeAutocomplete.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
-
-
-    
-
-    
-
-    
-
-    
 
     
     /**
@@ -42,15 +32,6 @@
         transportMenaçants
     } = $props();
 
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesOiseau)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesOiseau)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
-
     /** @type {TriTableau | undefined} */
     let triSélectionné = $state(undefined)
 
@@ -58,15 +39,19 @@
         oiseauxAtteints = oiseauxAtteints
     }
 
-    /** @param {EspèceProtégée} oiseau */
-    function ajouterOiseau(oiseau) {
-        oiseauxAtteints.push({
-            espèce: oiseau,
-        })
-        triSélectionné = undefined
+    /** @type {EspèceProtégée | undefined} */
+    let espèceRechercheSélectionnée = $state(undefined)
 
-        rerender()
-    }
+    $effect(() => {
+        if(espèceRechercheSélectionnée){
+            oiseauxAtteints.push({
+                espèce: espèceRechercheSélectionnée
+            })
+            triSélectionné = undefined
+            espèceRechercheSélectionnée = undefined
+        }
+        
+    })
 
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
@@ -185,10 +170,7 @@
                             <td>
                                 <AutocompleteEspeces
                                     espèces={espècesProtégéesOiseau}
-                                    onChange={ajouterOiseau}
-                                    htmlClass="fr-input search"
-                                    labelFunction={autocompleteLabelFunction}
-                                    keywordsFunction={autocompleteKeywordsFunction}
+                                    bind:espèceSélectionnée={espèceRechercheSélectionnée}
                                 />
                             </td>
                             <td>
