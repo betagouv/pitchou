@@ -20,8 +20,6 @@ import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
  * - Ce couplage complique l’utilisation directe de `DossierMutator` ou `DossierInitializer`.
  * 
  * TODO :
- * - Résoudre cette dépendance afin d'utiliser directement `DossierMutator` ou 
- *   `DossierInitializer` sans wrapper spécifique.
  * - Suivi due l'issue : @see {@link https://github.com/betagouv/pitchou/issues/312}
  */
 export type DossierPourSynchronisation<
