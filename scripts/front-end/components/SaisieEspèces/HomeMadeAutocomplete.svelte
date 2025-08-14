@@ -1,12 +1,7 @@
 <script>
 	/** @import {EspèceProtégée} from '../../../types/especes' */
 
-    /**
-     * faire un <input>
-     * - [x] qui liste les trucs pertinents quand on écrit
-     * - [x] mettre la vraie liste des espèces
-     *  - [x] max 12 éléments affichés
-     */
+    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings'
 
     /**
      * @typedef {Object} Props
@@ -16,8 +11,10 @@
      */
 
 
-    throw `PPP brancher les autres trucs que les oiseaux à ce composant`
-    // et supprimer les imports et les composants intermédiaires
+    /**
+     * il y a 1000 opportunités d'optimizations en temps 
+     * (notamment des memoization). Une autre fois
+     */
 
 	/** @type {Props} */
 
@@ -52,7 +49,25 @@
         
 
         return espèces
-            .filter(e => [...e.nomsScientifiques, ...e.nomsVernaculaires].join(' ').toLowerCase().includes(text.toLowerCase()))
+            .filter(({nomsScientifiques, nomsVernaculaires}) => {
+                const textParts = text.trim().split(' ').map(normalizeTexteEspèce).filter(x => x.length >= 1)
+
+                return textParts.every((/** @type {string} */ part) => {
+                    for(let nom of nomsScientifiques){
+                        nom = normalizeNomEspèce(nom)
+                        if(nom.includes(part)){
+                            return true
+                        }
+                    }
+
+                    for(let nom of nomsVernaculaires){
+                        nom = normalizeNomEspèce(nom)
+                        if(nom.includes(part)){
+                            return true
+                        }
+                    }
+                })
+            })
             .slice(0, 12)
     })
 

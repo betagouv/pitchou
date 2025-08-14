@@ -1,7 +1,7 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
+    import { fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "./HomeMadeAutocomplete.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     

@@ -1,7 +1,6 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
     import {
         trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
@@ -24,15 +23,6 @@
     /** @type {Props} */
     let { floresAtteintes = $bindable(), espècesProtégéesFlore, activitésMenaçantes } = $props();
 
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFlore)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesFlore)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
-
     /** @type {TriTableau | undefined}*/
     let triSélectionné = $state(undefined)
 
@@ -40,15 +30,19 @@
         floresAtteintes = floresAtteintes
     }
 
-    /** @param {EspèceProtégée} flore */
-    function ajouterFlore(flore) {
-        floresAtteintes.push({
-            espèce: flore,
-        })
-        triSélectionné = undefined
+    /** @type {EspèceProtégée | undefined} */
+    let espèceRechercheSélectionnée = $state(undefined)
 
-        rerender()
-    }
+    $effect(() => {
+        if(espèceRechercheSélectionnée){
+            floresAtteintes.push({
+                espèce: espèceRechercheSélectionnée
+            })
+            triSélectionné = undefined
+            espèceRechercheSélectionnée = undefined
+        }
+        
+    })
 
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
@@ -143,10 +137,7 @@
                             <td>
                                 <AutocompleteEspeces
                                     espèces={espècesProtégéesFlore}
-                                    onChange={ajouterFlore}
-                                    htmlClass="fr-input search"
-                                    labelFunction={autocompleteLabelFunction}
-                                    keywordsFunction={autocompleteKeywordsFunction}
+                                    bind:espèceSélectionnée={espèceRechercheSélectionnée}
                                 />
                             </td>
                             <td>
