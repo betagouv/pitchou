@@ -170,29 +170,32 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
-    /** @type {Array<DossierPourSynchronisation<DossierInitializer>>} */
-    const dossiersAInitialiserPourSynchro = await Promise.all(
-        dossiersDSAInitialiser.map(async (dossierDS) => ({
-            ...(await makeChampsDossierPourInitialisation(
+    /** @type {Promise<DossierPourSynchronisation<DossierInitializer>>[]} */
+    const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
+            const champsDossierPourInitP = makeChampsDossierPourInitialisation(
                 dossierDS,
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
-            )),
-            ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
-        }))
-    );
+            )
+            return champsDossierPourInitP.then(champsDossierPourInit => ({
+                ...champsDossierPourInit,
+                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
+            }))
+        })
 
-    /** @type {Array<DossierPourSynchronisation<DossierMutator>>} */
-    const dossiersAModifierPourSynchro = await Promise.all(
-        dossiersDSAModifier.map(async (dossierDS) => ({
-            ...(await makeChampsCommunsPourSynchro(
+
+    /** @type {DossierPourSynchronisation<DossierMutator>[]} */
+    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => ({
+            ...(makeChampsCommunsPourSynchro(
                 dossierDS,
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
             )),
             ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
         }))
-    );
+
+
+    const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP)
 
     return {
         dossiersAInitialiserPourSynchro,
