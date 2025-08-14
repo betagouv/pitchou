@@ -1,5 +1,5 @@
 <script>
-	/** @import {EspèceProtégée} from '../../../types/especes.d.ts' */
+	/** @import {EspèceProtégée} from '../../../types/especes' */
 
     /**
      * faire un <input>
@@ -14,6 +14,10 @@
      * @property {EspèceProtégée | undefined} [espèceSélectionnée]
      * @property {function | undefined} [onChange]
      */
+
+
+    throw `PPP brancher les autres trucs que les oiseaux à ce composant`
+    // et supprimer les imports et les composants intermédiaires
 
 	/** @type {Props} */
 
