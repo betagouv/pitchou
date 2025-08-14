@@ -32,6 +32,10 @@ import {getContrôles} from './controle.js';
 /** @import {DossierInitializer, DossierMutator} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {DossierPourSynchronisation} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+//@ts-ignore
+/** @import AvisExpert from '../../types/database/public/AvisExpert.ts' */
+//@ts-ignore
+/** @import {DossierDS88444, Annotations88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
 
 
 /**
