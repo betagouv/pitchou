@@ -22,7 +22,7 @@ import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' 
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 import { ajouterDécisionsAdministratives } from '../scripts/server/database/décision_administrative.js'
 
-import { getDossiersPourSynchronisation } from './synchronisation-ds-88444/getDossiersPourSynchronisation.js'
+import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -129,7 +129,7 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const numberDSDossiersDéjàExistantsEnBDD = new Set(dossiersDéjàExistantsEnBDD.map(d => d.number_demarches_simplifiées));
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await getDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -241,12 +241,11 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {DossierPourSynchronisation<DossierInitializer>[]} */
-//@ts-ignore
+/** @type {DossierInitializer[]} */
 const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
     const { 
         déposant,
-        /** demandeur_personne_physique, */
+        demandeur_personne_physique,
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
@@ -261,12 +260,11 @@ const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
     }
 })
 
-/** @type {DossierPourSynchronisation<DossierMutator>[]} */
-//@ts-ignore
+/** @type {DossierMutator[]} */
 const dossiersAModifier = dossiersAModifierPourSynchro.map(dossier => {
     const { 
         déposant,
-        /** demandeur_personne_physique, */
+        demandeur_personne_physique, // demandeur_personne_physiqu est toujours "undefined". Suivi de l'issue: https://github.com/betagouv/pitchou/issues/262
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier
