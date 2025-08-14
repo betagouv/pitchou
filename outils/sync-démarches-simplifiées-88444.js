@@ -263,7 +263,7 @@ const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
 const dossiersAModifier = dossiersAModifierPourSynchro.map(dossier => {
     const { 
         déposant,
-        demandeur_personne_physique,
+        demandeur_personne_physique, // demandeur_personne_physiqu est toujours "undefined". Suivi de l'issue: https://github.com/betagouv/pitchou/issues/262
         demandeur_personne_morale, 
         ...autresPropriétés
     } = dossier

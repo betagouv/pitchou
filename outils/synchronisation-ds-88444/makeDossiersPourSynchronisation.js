@@ -10,7 +10,7 @@
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-import { makeChampsCommunsPourSynchro } from './makeChampsCommunsPourSynchro.js'
+import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
 
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
@@ -150,7 +150,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     }
 
     return {
-        ...makeChampsCommunsPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
+        ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
         date_dépôt: données_supplémentaires?.date_dépôt ?? dossierDS.dateDepot
     }
 }
@@ -186,7 +186,7 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
     /** @type {DossierPourSynchronisation<DossierMutator>[]} */
     const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => ({
-            ...(makeChampsCommunsPourSynchro(
+            ...(makeColonnesCommunesDossierPourSynchro(
                 dossierDS,
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
