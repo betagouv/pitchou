@@ -99,12 +99,14 @@
 </script>
 
 <div class="autocomplete-container" title={text}>
-    <input bind:value={text} type="search" {onfocus} {onblur} class="fr-input">
+    <input bind:value={text} {onfocus} {onblur} class="fr-input">
 
     {#if espècesPertinentes.length >= 1}
     <ol>
         {#each espècesPertinentes as espèce}
-            <li onclick={() => selectionnerEspèce(espèce)}>{espèceLabel(espèce)}</li>
+            <li><button onclick={() => selectionnerEspèce(espèce)}>
+                {espèceLabel(espèce)}
+            </button></li>
         {/each}
     </ol>
     {/if}
@@ -126,14 +128,19 @@
 
             li{
                 width: 100%;
-                padding: 0.3rem;
-                margin-bottom: 2px;
 
                 background-color: var(--background-contrast-grey);
-                cursor: pointer;
 
                 &::marker{
                     content: none;
+                }
+
+                button{
+                    width: 100%;
+                    height: 100%;
+                    padding: 0.3rem;
+
+                    text-align: left;
                 }
             }
         }
