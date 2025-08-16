@@ -30,20 +30,23 @@
 
     $inspect('text', text)
 
-    let focus = $state(false);
+    let openChoices = $state(false);
 
-    let onfocus = () => {focus = true}
+    /** @type {ReturnType<setTimeout> | undefined} */
+    let timeout;
+
+    let onfocus = () => {
+        clearTimeout(timeout)
+        openChoices = true
+    }
     let onblur = () => {
-        setTimeout(
-            () => {focus = false}, 
-            500
+        timeout = setTimeout(
+            () => {openChoices = false}, 
+            400
         )
     }
 
     let espècesPertinentes = $derived.by(() => {
-        if(!focus)
-            return []
-
         if(text.trim().length === 0)
             return []
         
@@ -101,10 +104,10 @@
 <div class="autocomplete-container" title={text}>
     <input bind:value={text} {onfocus} {onblur} class="fr-input">
 
-    {#if espècesPertinentes.length >= 1}
+    {#if openChoices && espècesPertinentes.length >= 1}
     <ol>
         {#each espècesPertinentes as espèce}
-            <li><button onclick={() => selectionnerEspèce(espèce)}>
+            <li><button onclick={() => selectionnerEspèce(espèce)} {onfocus} {onblur}>
                 {espèceLabel(espèce)}
             </button></li>
         {/each}
