@@ -6,7 +6,7 @@
         grouperParActivité,
         grouperParMéthode,
      } from "../../triEspèces.js"
-    import AutocompleteEspeces from "./HomeMadeAutocomplete.svelte"
+    import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 
