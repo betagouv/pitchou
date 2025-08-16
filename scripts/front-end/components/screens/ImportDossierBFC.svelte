@@ -1,5 +1,6 @@
 <script>
     //@ts-check
+    import {SvelteMap} from 'svelte/reactivity'
     import { text } from "d3-fetch";
     import Squelette from "../Squelette.svelte";
     import {
@@ -20,7 +21,7 @@
     let lignesTableauImport = $state(undefined);
 
     /** @type {Map<any,string>} */
-    let ligneToLienPréremplissage = $state(new Map());
+    let ligneToLienPréremplissage = $state(new SvelteMap());
 
     
     /**
