@@ -1,56 +1,48 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel, fourchettesIndividus } from "../../espèceFieldset.js";
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import { fourchettesIndividus } from "../../espèceFieldset.js";
+    import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
     
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
-    /** @type {EspèceProtégée | undefined} */
-    export let espèce = undefined
-    /** @type {ActivitéMenançante | undefined} */
-    export let activité = undefined
-    /** @type {MéthodeMenançante | undefined} */
-    export let méthode = undefined
-    /** @type {TransportMenançant | undefined} */
-    export let transport = undefined 
-    /** @type {string | undefined} */
-    export let nombreIndividus = undefined 
-    /** @type {number | undefined} */
-    export let nombreOeufs = undefined 
-    /** @type {number | undefined} */
-    export let nombreNids = undefined 
-    /** @type {number | undefined} */
-    export let surfaceHabitatDétruit = undefined 
+    
+    /**
+     * @typedef {Object} Props
+     * @property {EspèceProtégée | undefined} [espèce]
+     * @property {ActivitéMenançante | undefined} [activité]
+     * @property {MéthodeMenançante | undefined} [méthode]
+     * @property {TransportMenançant | undefined} [transport]
+     * @property {string | undefined} [nombreIndividus]
+     * @property {number | undefined} [nombreOeufs]
+     * @property {number | undefined} [nombreNids]
+     * @property {number | undefined} [surfaceHabitatDétruit]
+     * @property {undefined | ((f: OiseauAtteint) => void)} [onDupliquerLigne]
+     * @property {undefined | ((e: EspèceProtégée) => void)} [onSupprimerLigne]
+     * @property {EspèceProtégée[]} [espècesProtégéesOiseau]
+     * @property {ActivitéMenançante[]} [activitésMenaçantes]
+     * @property {MéthodeMenançante[]} méthodesMenaçantes
+     * @property {TransportMenançant[]} transportMenaçants
+     */
 
-    /** @type {undefined | ((f: OiseauAtteint) => void)} */
-    export let onDupliquerLigne = undefined
-
-    /** @type {undefined | ((e: EspèceProtégée) => void)} */
-    export let onSupprimerLigne = undefined
-    $: onSupprimerClick = onSupprimerLigne && espèce && (() => onSupprimerLigne(espèce))
-
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesOiseau = []
-
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes = []
-
-    /** @type {MéthodeMenançante[]} */
-    export let méthodesMenaçantes
-
-    /** @type {TransportMenançant[]} */
-    export let transportMenaçants
-
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesOiseau)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesOiseau)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
+    /** @type {Props} */
+    let {
+        espèce = $bindable(undefined),
+        activité = $bindable(undefined),
+        méthode = $bindable(undefined),
+        transport = $bindable(undefined),
+        nombreIndividus = $bindable(undefined),
+        nombreOeufs = $bindable(undefined),
+        nombreNids = $bindable(undefined),
+        surfaceHabitatDétruit = $bindable(undefined),
+        onDupliquerLigne = undefined,
+        onSupprimerLigne = undefined,
+        espècesProtégéesOiseau = [],
+        activitésMenaçantes = [],
+        méthodesMenaçantes,
+        transportMenaçants
+    } = $props();
 
     const dupliquerLigne = onDupliquerLigne && (() => {
         if(espèce){
@@ -66,17 +58,15 @@
             })
         }
     })
+    let onSupprimerClick = $derived(onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce)))
 </script>
 
 <tr>
     {#if espècesProtégéesOiseau.length >= 1}
     <td>
         <AutocompleteEspeces 
-            bind:selectedItem={espèce} 
-            espèces={espècesProtégéesOiseau} 
-            htmlClass="fr-input"
-            labelFunction={autocompleteLabelFunction}
-            keywordsFunction={autocompleteKeywordsFunction}
+            bind:espèceSélectionnée={espèce} 
+            espèces={espècesProtégéesOiseau}
         />
     </td>
     {/if}
@@ -133,7 +123,7 @@
 
     {#if onDupliquerLigne}
     <td class="icon-cell">
-        <button type="button" on:click={dupliquerLigne}>
+        <button type="button" onclick={dupliquerLigne}>
             <CopyFileIcon />
         </button>
     </td>
@@ -141,7 +131,7 @@
 
     {#if onSupprimerClick}
     <td>
-        <button type="button" on:click={onSupprimerClick}>❌</button>
+        <button type="button" onclick={onSupprimerClick}>❌</button>
     </td>
     {/if}
 </tr>

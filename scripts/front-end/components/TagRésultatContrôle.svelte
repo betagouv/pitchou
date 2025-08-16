@@ -6,16 +6,22 @@
     /** @import { RésultatContrôle } from '../../types/API_Pitchou.ts' */
 	
 
-    /** @type {RésultatContrôle | string} */
-    export let résultatContrôle
+    
 
     // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-    /** @type {'SM' | 'MD'} */
-    export let taille = 'SM'
+    
 
-    /** @type {string[]} */
-    export let classes = []
+    
+  /**
+   * @typedef {Object} Props
+   * @property {RésultatContrôle | string} résultatContrôle
+   * @property {'SM' | 'MD'} [taille]
+   * @property {string[]} [classes]
+   */
+
+  /** @type {Props} */
+  let { résultatContrôle, taille = 'SM', classes = [] } = $props();
 
     /** @type {Map<RésultatContrôle, string>} */
     const résultatToClass = new Map([
@@ -32,13 +38,13 @@
         ['MD', 'fr-tag--md']
     ])
 
-    $: allClasses = [
+    let allClasses = $derived([
         'fr-tag',
         tailleToClass.get(taille),
         // @ts-ignore
         résultatToClass.get(résultatContrôle) || 'résultat--autre',
         ...classes
-    ]
+    ])
 
 
 

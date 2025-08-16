@@ -4,11 +4,17 @@
 
     /** @import  { TriTableau } from '../../types/interfaceUtilisateur.ts' */
 
-    /** @type {TriTableau[]} */
-    export let tris
+    
 
-    /** @type {TriTableau | undefined} */
-    export let triSélectionné = undefined
+    
+    /**
+     * @typedef {Object} Props
+     * @property {TriTableau[]} tris
+     * @property {TriTableau | undefined} [triSélectionné]
+     */
+
+    /** @type {Props} */
+    let { tris, triSélectionné = $bindable(undefined) } = $props();
 
     /** @type {(tri: TriTableau) => void} */
     const sélectionnerTri = (tri) => { 
@@ -23,7 +29,7 @@
             <button 
                 class={clsx(['fr-pt-1v', 'fr-pb-1v', {"sélectionné": triSélectionné === tri}])} 
                 type="button" 
-                on:click={() => { sélectionnerTri(tri) }}
+                onclick={() => { sélectionnerTri(tri) }}
             >
                 {tri["nom"]}
 

@@ -3,20 +3,26 @@
   
 	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
 
-    /** @type {EspèceProtégée} */
-    export let espèce
+    
+    /**
+     * @typedef {Object} Props
+     * @property {EspèceProtégée} espèce
+     */
+
+    /** @type {Props} */
+    let { espèce } = $props();
 
     let [premierNomVernaculaire, ...autresNomsVernaculaires] = [...espèce.nomsVernaculaires]
     let [premierNomScientifique, ...autresNomsScientifiques] = [...espèce.nomsScientifiques]
 
     /** @type {string | undefined} */
-    let title;
+    let title = $state();
 
     if(autresNomsVernaculaires.length >= 1){
         title = autresNomsVernaculaires.join(', ')
 
         if(autresNomsScientifiques.length >= 1){
-            title = title + ' | ' + autresNomsScientifiques.join(', ')
+            title += ' | ' + autresNomsScientifiques.join(', ')
         }
     }
     else{

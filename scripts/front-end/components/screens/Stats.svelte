@@ -6,15 +6,17 @@
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {StatsPubliques} from '../../../types/API_Pitchou.ts' */
+
     
-    /** @type {Promise<StatsPubliques>} */
-    export let statsP
+    /**
+     * @typedef {Object} Props
+     * @property {Promise<StatsPubliques>} statsP
+     * @property {string | undefined} [email]
+     * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
+     */
 
-    /** @type {string | undefined} */
-    export let email = undefined
-
-    /** @type {ComponentProps<Squelette>['erreurs']} */
-    export let erreurs;
+    /** @type {Props} */
+    let { statsP, email = undefined, erreurs } = $props();
 </script>
 
 <Squelette {email} nav={false} {erreurs} >

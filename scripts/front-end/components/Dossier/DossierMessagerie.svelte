@@ -6,17 +6,23 @@
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {default as Message} from '../../../types/database/public/Message.ts' */
 
-    /** @type {DossierComplet} */
-    export let dossier
-    /** @type {Partial<Message>[]}*/
-    export let messages = []
+    
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     * @property {Partial<Message>[]} [messages]
+     */
+
+    /** @type {Props} */
+    let { dossier, messages = [] } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
-    $: messagesTriés = messages.toSorted(
+    let messagesTriés = $derived(messages.toSorted(
         // @ts-ignore
         ({date: date1}, {date: date2}) => ( (new Date(date2)).getTime() - (new Date(date1)).getTime())
-    )
+    ))
 
 </script>
 

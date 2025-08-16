@@ -6,7 +6,7 @@
 /**
  * 
  * @param {PitchouState} state
- * @returns {ComponentProps<Squelette>}
+ * @returns {Omit<ComponentProps<typeof Squelette>, 'children'>}
 */
 export const mapStateToSqueletteProps = (state) => {
     return {

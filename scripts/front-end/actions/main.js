@@ -3,6 +3,7 @@
 import {json} from 'd3-fetch'
 import remember, {forget} from 'remember'
 import page from 'page'
+import {SvelteMap, SvelteSet} from 'svelte/reactivity'
 
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
@@ -23,10 +24,10 @@ export function chargerRelationSuivi(){
                     throw new TypeError("On attendait un tableau de relation suivis ici !")
                 }
 
-                const relationSuivis = new Map()
+                const relationSuivis = new SvelteMap()
 
                 for(const {personneEmail, dossiersSuivisIds} of relationSuivisBDD){
-                    relationSuivis.set(personneEmail, new Set(dossiersSuivisIds))
+                    relationSuivis.set(personneEmail, new SvelteSet(dossiersSuivisIds))
                 }
 
                 store.mutations.setRelationSuivis(relationSuivis)

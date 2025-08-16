@@ -3,8 +3,14 @@
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
 
-    /** @type {DossierComplet} */
-    export let dossier
+    
+    /**
+     * @typedef {Object} Props
+     * @property {DossierComplet} dossier
+     */
+
+    /** @type {Props} */
+    let { dossier } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 

@@ -2,9 +2,7 @@
 
 import { json } from 'd3-fetch';
 
-import { replaceComponent } from '../routeComponentLifeCycle.js'
-import store from '../store.js'
-import { svelteTarget } from '../config.js'
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
@@ -12,7 +10,6 @@ import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
 import { getURL } from '../getLinkURL.js';
 import { chargerListeEspècesProtégées, chargerActivitésMéthodesTransports } from '../actions/activitésMéthodesTransports.js';
-
 
 /** @import {ComponentProps} from 'svelte' */
 
@@ -59,7 +56,7 @@ export default async () => {
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<SaisieEspèces>}
+     * @returns {ComponentProps<typeof SaisieEspèces>}
      */
     function mapStateToProps(state){
         const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(
@@ -101,11 +98,5 @@ export default async () => {
         }
     }
 
-
-    const saisieEspèces = new SaisieEspèces({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
-
-    replaceComponent(saisieEspèces, mapStateToProps)
+    replaceComponent(SaisieEspèces, mapStateToProps)
 }
