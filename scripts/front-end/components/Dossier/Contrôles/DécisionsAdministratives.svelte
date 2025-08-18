@@ -1,4 +1,5 @@
-<script>    
+<script>
+    import {SvelteSet, SvelteMap} from 'svelte/reactivity'
     import DateInput from '../../common/DateInput.svelte'
     import Prescription from './Prescription.svelte'
     import FormulaireDécisionAdministrative from './FormulaireDécisionAdministrative.svelte'
@@ -36,15 +37,11 @@
     } = $derived(décisionAdministrative)
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
-    let prescriptions = $state(décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set())
+    let prescriptions = $state(décisionAdministrative.prescriptions ? new SvelteSet(décisionAdministrative.prescriptions) : new SvelteSet())
     //$: console.log('prescriptions', prescriptions)
 
 
     const NON_RENSEIGNÉ = '(non renseigné)'
-
-    function rerender(){
-        prescriptions = prescriptions
-    }
 
     function ajouterPrescription(){
         /** @type {Partial<PrescriptionType>} */
@@ -63,11 +60,11 @@
 
         prescriptions.add(nouvellePrescription)
 
-        rerender()
+        vuePrescription = 'modifier'
     }
 
-    /** @type {WeakMap<Partial<PrescriptionType>, {prescriptionIdP: Promise<PrescriptionType['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
-    const prescriptionToPendingIdAndLatestData = new WeakMap()
+    /** @type {Map<Partial<PrescriptionType>, {prescriptionIdP: Promise<PrescriptionType['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
+    const prescriptionToPendingIdAndLatestData = new SvelteMap()
 
     /**
      * 
@@ -119,8 +116,6 @@
         }
 
         prescriptions.delete(prescription)
-
-        rerender()
     }
 
     /**
@@ -286,7 +281,7 @@
                 </table>
 
                 <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" onclick={() => vuePrescription = 'consulter'}>
-                    Modification terminées
+                    Modifications terminées
                 </button>
             {/if}
         {/if}
@@ -348,12 +343,6 @@
                 &>:nth-child(n+4){
                     width: 6rem;
                 }
-
-                input{
-                    padding-right: 0.4rem;
-                    padding-left: 0.5rem;
-                }
-
             }
         }
     }

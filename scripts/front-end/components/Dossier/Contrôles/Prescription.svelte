@@ -181,20 +181,20 @@
 
                         {#if contrôleEnCours}
                             <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}>
-                                <!-- @migration-task: migrate this slot by hand, `bouton-valider` is an invalid identifier -->
-    <button slot="bouton-valider" type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-                                    Finir le contrôle
-                                </button>
-                                <!-- @migration-task: migrate this slot by hand, `bouton-annuler` is an invalid identifier -->
-    <button
-                                    slot="bouton-annuler"
-                                    type="button"
-                                    class="fr-btn fr-btn--secondary"
-                                    onclick={() => (contrôleEnCours = undefined)}
-                                >
-                                    Fermer le contrôle sans sauvegarder
-                                </button>
-
+                                {#snippet boutonValider()}
+                                    <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                                        Finir le contrôle
+                                    </button>
+                                {/snippet}
+                                {#snippet boutonAnnuler()}
+                                    <button
+                                        type="button"
+                                        class="fr-btn fr-btn--secondary"
+                                        onclick={() => (contrôleEnCours = undefined)}
+                                    >
+                                        Fermer le contrôle sans sauvegarder
+                                    </button>
+                                {/snippet}
                             </FormulaireContrôle>
                         {/if}
 
@@ -203,27 +203,22 @@
                                 <h6>Modification du contrôle</h6>
 
                                 <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}>
-                                    <!-- @migration-task: migrate this slot by hand, `bouton-annuler` is an invalid identifier -->
-    <button
-                                        slot="bouton-annuler"
-                                        type="button"
-                                        class="fr-btn fr-btn--secondary"
-                                        onclick={() => (contrôleEnModification = undefined)}
-                                    >
-                                        Annuler
-                                    </button>
-
-                                    <!-- @migration-task: migrate this slot by hand, `bouton-supprimer` is an invalid identifier -->
-    <div slot="bouton-supprimer" class="bouton-supprimer">
-                                        <button
-                                            
-                                            type="button"
-                                            class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
-                                            onclick={supprimerContrôleEnModification}
-                                        >
-                                            Supprimer
+                                    {#snippet boutonAnnuler()}
+                                        <button type="button" class="fr-btn fr-btn--secondary" onclick={() => (contrôleEnModification = undefined)}>
+                                            Annuler
                                         </button>
-                                    </div>
+                                    {/snippet}
+                                    {#snippet boutonSupprimer()}
+                                        <div class="bouton-supprimer">
+                                            <button
+                                                type="button"
+                                                class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
+                                                onclick={supprimerContrôleEnModification}
+                                            >
+                                                Supprimer
+                                            </button>
+                                        </div>
+                                    {/snippet}
                                 </FormulaireContrôle>
 
                             {:else}

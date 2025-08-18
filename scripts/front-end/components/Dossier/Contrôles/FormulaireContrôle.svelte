@@ -5,15 +5,27 @@
     import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
     import {résultatsContrôle, typesActionSuiteContrôle} from '../../../actions/contrôle.js'
 
-
+    /** @import {Snippet} from 'svelte' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
 
+    /**
+     * @typedef {Object} Props
+     * @property {Contrôle | Partial<Contrôle>} contrôle
+     * @property {(contrôle: Contrôle | Partial<Contrôle>) => Promise<any>} onValider
+     * @property {Snippet} [boutonValider]
+     * @property {Snippet} [boutonAnnuler]
+     * @property {Snippet} [boutonSupprimer]
+     */
 
-    /** @type {Contrôle | Partial<Contrôle>} */
-    export let contrôle
+    /** @type {Props} */
+    let { 
+        contrôle,
+        onValider,
+        boutonValider,
+        boutonAnnuler,
+        boutonSupprimer
+     } = $props();
 
-    /** @type {(contrôle: Contrôle | Partial<Contrôle>) => Promise<any>} */
-    export let onValider
 
     /**
      * 
@@ -37,7 +49,7 @@
 
 
 
-<form on:submit={formSubmit}>
+<form onsubmit={formSubmit}>
     <div class="fr-input-group">
         <label class="fr-label" for="text-input">
             Date du contrôle
@@ -96,15 +108,21 @@
         <DateInput bind:date={contrôle.date_prochaine_échéance}></DateInput>
     </div>
 
-    <slot name="bouton-valider">
-        <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-            Enregistrer
-        </button>
-    </slot>
+    <div class="fr-mb-6w">
+        {#if boutonValider}
+            {@render boutonValider()}
+        {:else}
+            <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                Enregistrer
+            </button>
+        {/if}
 
-    <slot name="bouton-annuler" />
+        {@render boutonAnnuler?.()}
+    </div>
 
-    <slot name="bouton-supprimer"/>
+    {#if boutonSupprimer}
+        {@render boutonSupprimer()}
+    {/if}
 
 </form>
 
@@ -114,6 +132,5 @@
         margin-top: 1rem;
         margin-bottom: 2rem;
     }
-
 
 </style>
