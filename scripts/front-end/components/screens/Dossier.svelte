@@ -1,8 +1,4 @@
 <script>
-    import { run } from 'svelte/legacy';
-
-    //@ts-check
-
     import Squelette from '../Squelette.svelte'
     import EnteteDossier from '../Dossier/EnteteDossier.svelte'
 
@@ -20,15 +16,6 @@
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {Onglet} from '../../routes/Dossier.js' */
-
-    
-
-
-    
-
-    
-
-
 
     /**
      * @param {Onglet} nouvelOnglet 
@@ -71,11 +58,6 @@
         return espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
     }
 
-
- 
-
-    
-
     
     /**
      * @typedef {Object} Props
@@ -98,13 +80,10 @@
     } = $props();
 
 
-    run(() => {
-        console.info('Dossier complet', dossier)
-    });
+    $inspect('Dossier complet', dossier)
+    
     let ongletActif = $derived(ongletActifInitial)
-    run(() => {
-        console.log(ongletActif, "yeah")
-    });
+    
     /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
     let espècesImpactées = $derived(getEspècesImpactés(dossier))
 </script>

@@ -28,6 +28,8 @@
     /** @type {Props} */
     let { dossierId, décisionAdministrative = $bindable(), supprimerDécisionAdministrative } = $props();
 
+    $inspect('décisionAdministrative', décisionAdministrative)
+
 
     let { id,
         numéro, type, date_signature, date_fin_obligations, fichier_url
@@ -200,7 +202,7 @@
                 Télécharger le fichier de l'arrếté
             </a>
         {:else}
-            (pas de fichier pour le moment)
+            (fichier manquant)
         {/if}
     </div>
 
