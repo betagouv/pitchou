@@ -6,6 +6,7 @@
     import FormulaireDécisionAdministrative from './Contrôles/FormulaireDécisionAdministrative.svelte'
 
     import {sauvegardeNouvelleDécisionAdministrative, supprimerDécisionAdministrative} from '../../actions/décisionAdministrative.js'
+    import {refreshDossierComplet} from '../../actions/dossier.js';
 
 
     /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
@@ -30,14 +31,19 @@
     function créerFonctionSupprimer(décisionAdministrative){
 
         return function(){
-            const index = décisionsAdministratives.indexOf(décisionAdministrative);
-            if (index !== -1) { 
-                décisionsAdministratives.splice(index, 1); 
+            if(dossier.décisionsAdministratives){
+                const index = dossier.décisionsAdministratives?.indexOf(décisionAdministrative) || -1;
+                if (index !== -1) { 
+                    dossier.décisionsAdministratives.splice(index, 1); 
+                }
+
+                refreshDossierComplet(dossier.id)
+
+                return supprimerDécisionAdministrative(décisionAdministrative.id)
             }
-
-            décisionsAdministratives = décisionsAdministratives
-
-            return supprimerDécisionAdministrative(décisionAdministrative.id)
+            else{
+                throw new Error(`C'est bizarre d'essayer de supprimer une décision administrative s'il n'y en a pas`)
+            }
         }
     }
 
@@ -90,10 +96,12 @@
 
     {#if décisionAdministrativeEnCréation}
         <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnCréation} onValider={onValider}>
-            <!-- @migration-task: migrate this slot by hand, `bouton-valider` is an invalid identifier -->
-    <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
-            <!-- @migration-task: migrate this slot by hand, `bouton-annuler` is an invalid identifier -->
-    <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" onclick={annulerCréation}>Annuler</button>
+            {#snippet boutonValider()}
+                <button type="submit" class="fr-btn">Sauvegarder</button>
+            {/snippet}
+            {#snippet boutonAnnuler()}
+                <button type="button" class="fr-btn fr-btn--secondary" onclick={annulerCréation}>Annuler</button>
+            {/snippet}
         </FormulaireDécisionAdministrative>
     {:else}
         <button onclick={commencerCréationDécisionAdministrative} class={classes}>Rajouter une décision administrative</button>
