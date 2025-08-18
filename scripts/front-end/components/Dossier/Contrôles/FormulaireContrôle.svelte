@@ -24,7 +24,10 @@
         boutonValider,
         boutonAnnuler,
         boutonSupprimer
-     } = $props();
+    } = $props();
+
+    /** @type {Props['contrôle']} */
+    let contrôleEnÉdition = $state(contrôle)
 
 
     /**
@@ -34,14 +37,14 @@
     async function formSubmit(e){
         e.preventDefault()
 
-        if(contrôle.date_action_suite_contrôle){
-            Object.defineProperty(contrôle.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
+        if(contrôleEnÉdition.date_action_suite_contrôle){
+            Object.defineProperty(contrôleEnÉdition.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
         }
-        if(contrôle.date_prochaine_échéance){
-            Object.defineProperty(contrôle.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
+        if(contrôleEnÉdition.date_prochaine_échéance){
+            Object.defineProperty(contrôleEnÉdition.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
         }
 
-        onValider(contrôle)
+        onValider(contrôleEnÉdition)
     }
 
 
@@ -54,7 +57,7 @@
         <label class="fr-label" for="text-input">
             Date du contrôle
         </label>
-        <DateInput bind:date={contrôle.date_contrôle}></DateInput>
+        <DateInput bind:date={contrôleEnÉdition.date_contrôle}></DateInput>
     </div>
 
 
@@ -63,7 +66,7 @@
         <input
             class="fr-input"
             list="résultats-contrôle"
-            bind:value={contrôle.résultat}
+            bind:value={contrôleEnÉdition.résultat}
         />
         <datalist id="résultats-contrôle">
             {#each résultatsContrôle as résultatContrôle}
@@ -74,7 +77,7 @@
 
     <div class="fr-input-group">
         <label class="fr-label" for="text-input"> Commentaire libre </label>
-        <textarea class="fr-input" bind:value={contrôle.commentaire}
+        <textarea class="fr-input" bind:value={contrôleEnÉdition.commentaire}
         ></textarea>
     </div>
 
@@ -85,7 +88,7 @@
         <input
             class="fr-input"
             list="type-actions"
-            bind:value={contrôle.type_action_suite_contrôle}
+            bind:value={contrôleEnÉdition.type_action_suite_contrôle}
         />
         <datalist id="type-actions">
             {#each typesActionSuiteContrôle as typeActionSuiteContrôle}
@@ -98,14 +101,14 @@
         <label class="fr-label" for="text-input">
             Date de l'action suite au contrôle
         </label>
-        <DateInput bind:date={contrôle.date_action_suite_contrôle}></DateInput>
+        <DateInput bind:date={contrôleEnÉdition.date_action_suite_contrôle}></DateInput>
     </div>
 
     <div class="fr-input-group">
         <label class="fr-label" for="text-input">
             Date prochaine échéance
         </label>
-        <DateInput bind:date={contrôle.date_prochaine_échéance}></DateInput>
+        <DateInput bind:date={contrôleEnÉdition.date_prochaine_échéance}></DateInput>
     </div>
 
     <div class="fr-mb-6w">

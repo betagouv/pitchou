@@ -1,4 +1,5 @@
 <script>
+    import {SvelteSet} from 'svelte/reactivity'
     import FormulaireContrôle from './FormulaireContrôle.svelte'
     import DéplierReplier from '../../common/DéplierReplier.svelte'
     import TagRésultatContrôle from '../../TagRésultatContrôle.svelte'
@@ -24,32 +25,26 @@
     } = $derived(prescription)
 
     /** @type {Set<Partial<Contrôle>>}*/
-    let contrôles = $derived(prescription.contrôles ? new Set([...prescription.contrôles]) : new Set())
+    let contrôles = $derived(prescription.contrôles ? new SvelteSet(prescription.contrôles) : new SvelteSet())
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
-    function rerender(){
-        contrôles = new Set([...contrôles].toSorted(
-            ({date_contrôle: dc1}, {date_contrôle: dc2}) => (dc2?.getTime() || 0) - (dc1?.getTime() || 0)
-        ))
-    }
+    let contrôlesTriés = $derived([...contrôles].toSorted(
+        ({date_contrôle: dc1}, {date_contrôle: dc2}) => (dc2?.getTime() || 0) - (dc1?.getTime() || 0)
+    ))
 
     let contrôlesOuverts = $state(false)
 
     function ouvrirContrôles(){
         contrôlesOuverts = true;
-
-        rerender()
     }
 
     function fermerContrôles(){
         contrôlesOuverts = false;
-
-        rerender()
     }
 
     /** @type {Partial<Contrôle> | undefined} */
-    let contrôleEnCours = $state();
+    let contrôleEnCours = $state(); 
 
     function ajouterContrôle(){
         /** @type {Contrôle} */
@@ -62,8 +57,6 @@
             date_action_suite_contrôle: null,
             date_prochaine_échéance: null
         }
-
-        rerender()
     }
 
     async function créerContrôle(){
@@ -79,12 +72,12 @@
 
             contrôleEnCours = undefined;
         }
-
-        rerender()
     }
 
+    // ne pas créer de proxy pour pouvoir faire des comparaisons ===
+    // https://svelte.dev/docs/svelte/runtime-warnings#Client-warnings-state_proxy_equality_mismatch
     /** @type {Partial<Contrôle> | undefined}*/
-    let contrôleEnModification = $state();
+    let contrôleEnModification = $state.raw();
 
     /** 
      * @param {Partial<Contrôle>} contrôle
@@ -106,7 +99,6 @@
             throw new TypeError(`pas de contrôle en modificaion`)
 
         contrôles.delete(contrôleEnModification)
-        rerender()
 
         const id = contrôleEnModification.id
         contrôleEnModification = undefined
@@ -198,7 +190,7 @@
                             </FormulaireContrôle>
                         {/if}
 
-                        {#each contrôles as contrôle}
+                        {#each contrôlesTriés as contrôle}
                             {#if contrôle === contrôleEnModification}
                                 <h6>Modification du contrôle</h6>
 
