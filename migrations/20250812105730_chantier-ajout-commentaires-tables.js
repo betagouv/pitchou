@@ -6,7 +6,7 @@ export function up(knex) {
     return knex.schema.alterTable('dossier', (table) => {
 
         table.string('id_demarches_simplifiées')
-            .comment(`Identifiant unique du dossier dans la plateforme Démarches Simplifiées`)
+            .comment(`Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées`)
             .alter({ alterNullable: false, alterType: false });
 
         table.dateTime('date_dépôt')
@@ -43,7 +43,7 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.string('nom')
-            .comment(`Nom du projet`)
+            .comment(`Nom de la demande de dérogation espèces protégées`)
             .alter({ alterNullable: false, alterType: false });
 
         table.string('number_demarches_simplifiées')
@@ -68,7 +68,7 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.string('commentaire_libre')
-            .comment(`Commentaires de l'instructeur.i.ce sur le dossier.`)
+            .comment(`Commentaires de l'instructeur.rice sur le dossier`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('historique_date_envoi_dernière_contribution')
@@ -80,23 +80,23 @@ export function up(knex) {
             .alter({ alterNullable: false, alterType: false });
 
         table.date('historique_date_saisine_csrpn')
-            .comment(`Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel)`)
+            .comment(`À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel)`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('historique_date_saisine_cnpn')
-            .comment(`Date de saisine du CNPN (Conseil National de Protection de la Nature)`)
+            .comment(`À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature)`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_avis_csrpn')
-            .comment(`Date de l'avis officiel émis par le CSRPN`)
+            .comment(`À supprimer. Date de l'avis officiel émis par le CSRPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_avis_cnpn')
-            .comment(`Date de l'avis officiel émis par le CNPN`)
+            .comment(`À supprimer. Date de l'avis officiel émis par le CNPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.string('avis_csrpn_cnpn')
-            .comment(`Avis du CSRPN ou du CNPN`)
+            .comment(`À supprimer. Avis du CSRPN ou du CNPN`)
             .alter({ alterNullable: false, alterType: false });
 
         table.date('date_consultation_public')
@@ -211,15 +211,15 @@ export function up(knex) {
                 .alter({ alterNullable: false, alterType: false });
 
             table.string('type_action_suite_contrôle')
-                .comment(`Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : contrôle terrain, mail à envoyer au porteur de projet...`)
+                .comment(`Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc.`)
                 .alter({ alterNullable: false, alterType: false });
 
             table.date('date_action_suite_contrôle')
-                .comment(`Date à laquelle l'action suite au contrôle a été effectuée. Permet de tracer le délai entre le contrôle et la mise en œuvre des mesures correctives ou coercitives.`)
+                .comment(`Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle`)
                 .alter({ alterNullable: false, alterType: false });
 
             table.date('date_prochaine_échéance')
-                .comment(`Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi et de s'assurer que les contrôles sont effectués selon la fréquence prévue dans la prescription.`)
+                .comment(`Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle.`)
                 .alter({ alterNullable: false, alterType: false });
         });
     }).then(() => {
@@ -227,11 +227,11 @@ export function up(knex) {
         return knex.schema.alterTable('personne', (table) => {
 
             table.string('nom')
-                .comment(`Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système.`)
+                .comment(`Nom de famille de la personne. Identité civile`)
                 .alter({ alterNullable: false, alterType: false });
 
             table.string('prénoms')
-                .comment(`Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille.`)
+                .comment(`Prénoms de la personne. Identité civile`)
                 .alter({ alterNullable: false, alterType: false });
 
             table.string('email')
@@ -239,7 +239,7 @@ export function up(knex) {
                 .alter({ alterNullable: false, alterType: false });
 
             table.string('code_accès')
-                .comment(`Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système.`)
+                .comment(`Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur`)
                 .alter({ alterNullable: false, alterType: false });
         });
     }).then(() => {

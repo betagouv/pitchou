@@ -22,13 +22,13 @@ export default interface ContrLe {
   /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
   commentaire: string | null;
 
-  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : contrôle terrain, mail à envoyer au porteur de projet... */
+  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
   type_action_suite_contrôle: string | null;
 
-  /** Date à laquelle l'action suite au contrôle a été effectuée. Permet de tracer le délai entre le contrôle et la mise en œuvre des mesures correctives ou coercitives. */
+  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
   date_action_suite_contrôle: Date | null;
 
-  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi et de s'assurer que les contrôles sont effectués selon la fréquence prévue dans la prescription. */
+  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
   date_prochaine_échéance: Date | null;
 }
 
@@ -49,13 +49,13 @@ export interface ContrLeInitializer {
   /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
   commentaire?: string | null;
 
-  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : contrôle terrain, mail à envoyer au porteur de projet... */
+  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
   type_action_suite_contrôle?: string | null;
 
-  /** Date à laquelle l'action suite au contrôle a été effectuée. Permet de tracer le délai entre le contrôle et la mise en œuvre des mesures correctives ou coercitives. */
+  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
   date_action_suite_contrôle?: Date | null;
 
-  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi et de s'assurer que les contrôles sont effectués selon la fréquence prévue dans la prescription. */
+  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
   date_prochaine_échéance?: Date | null;
 }
 
@@ -75,12 +75,12 @@ export interface ContrLeMutator {
   /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
   commentaire?: string | null;
 
-  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : contrôle terrain, mail à envoyer au porteur de projet... */
+  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
   type_action_suite_contrôle?: string | null;
 
-  /** Date à laquelle l'action suite au contrôle a été effectuée. Permet de tracer le délai entre le contrôle et la mise en œuvre des mesures correctives ou coercitives. */
+  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
   date_action_suite_contrôle?: Date | null;
 
-  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi et de s'assurer que les contrôles sont effectués selon la fréquence prévue dans la prescription. */
+  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
   date_prochaine_échéance?: Date | null;
 }

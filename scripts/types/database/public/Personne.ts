@@ -8,16 +8,16 @@ export type PersonneId = number & { __brand: 'public.personne' };
 export default interface Personne {
   id: PersonneId;
 
-  /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
+  /** Nom de famille de la personne. Identité civile */
   nom: string | null;
 
-  /** Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille. */
+  /** Prénoms de la personne. Identité civile */
   prénoms: string | null;
 
   /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
   email: string | null;
 
-  /** Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système. */
+  /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
   code_accès: string | null;
 }
 
@@ -26,16 +26,16 @@ export interface PersonneInitializer {
   /** Default value: nextval('personne_id_seq'::regclass) */
   id?: PersonneId;
 
-  /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
+  /** Nom de famille de la personne. Identité civile */
   nom?: string | null;
 
-  /** Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille. */
+  /** Prénoms de la personne. Identité civile */
   prénoms?: string | null;
 
   /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
   email?: string | null;
 
-  /** Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système. */
+  /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
   code_accès?: string | null;
 }
 
@@ -43,15 +43,15 @@ export interface PersonneInitializer {
 export interface PersonneMutator {
   id?: PersonneId;
 
-  /** Nom de famille de la personne. Permet d'identifier formellement l'individu dans le système. */
+  /** Nom de famille de la personne. Identité civile */
   nom?: string | null;
 
-  /** Prénoms de la personne. Complète l'identification de l'individu avec le nom de famille. */
+  /** Prénoms de la personne. Identité civile */
   prénoms?: string | null;
 
   /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
   email?: string | null;
 
-  /** Code d'accès unique de la personne. Permet l'authentification et l'identification de l'utilisateur lors de la connexion au système. */
+  /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
   code_accès?: string | null;
 }

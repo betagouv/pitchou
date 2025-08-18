@@ -12,7 +12,7 @@ export type DossierId = number & { __brand: 'public.dossier' };
 export default interface Dossier {
   id: DossierId;
 
-  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
+  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées */
   id_demarches_simplifiées: string | null;
 
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
@@ -39,7 +39,7 @@ export default interface Dossier {
   /** Liste des régions concernées par le projet */
   régions: unknown | null;
 
-  /** Nom du projet */
+  /** Nom de la demande de dérogation espèces protégées */
   nom: string | null;
 
   /** Numéro du dossier dans Démarches Simplifiées */
@@ -57,7 +57,7 @@ export default interface Dossier {
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique: boolean | null;
 
-  /** Commentaires de l'instructeur.i.ce sur le dossier. */
+  /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre: string | null;
 
   /** Date d'envoi de la dernière contribution */
@@ -66,19 +66,19 @@ export default interface Dossier {
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre: string | null;
 
-  /** Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
+  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
   historique_date_saisine_csrpn: Date | null;
 
-  /** Date de saisine du CNPN (Conseil National de Protection de la Nature) */
+  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn: Date | null;
 
-  /** Date de l'avis officiel émis par le CSRPN */
+  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn: Date | null;
 
-  /** Date de l'avis officiel émis par le CNPN */
+  /** À supprimer. Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn: Date | null;
 
-  /** Avis du CSRPN ou du CNPN */
+  /** À supprimer. Avis du CSRPN ou du CNPN */
   avis_csrpn_cnpn: string | null;
 
   /** Date de la consultation publique */
@@ -156,7 +156,7 @@ export interface DossierInitializer {
   /** Default value: nextval('dossier_id_seq'::regclass) */
   id?: DossierId;
 
-  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
+  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées */
   id_demarches_simplifiées?: string | null;
 
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
@@ -183,7 +183,7 @@ export interface DossierInitializer {
   /** Liste des régions concernées par le projet */
   régions?: unknown | null;
 
-  /** Nom du projet */
+  /** Nom de la demande de dérogation espèces protégées */
   nom?: string | null;
 
   /** Numéro du dossier dans Démarches Simplifiées */
@@ -201,7 +201,7 @@ export interface DossierInitializer {
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
 
-  /** Commentaires de l'instructeur.i.ce sur le dossier. */
+  /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre?: string | null;
 
   /** Date d'envoi de la dernière contribution */
@@ -210,19 +210,19 @@ export interface DossierInitializer {
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string | null;
 
-  /** Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
+  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
   historique_date_saisine_csrpn?: Date | null;
 
-  /** Date de saisine du CNPN (Conseil National de Protection de la Nature) */
+  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn?: Date | null;
 
-  /** Date de l'avis officiel émis par le CSRPN */
+  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn?: Date | null;
 
-  /** Date de l'avis officiel émis par le CNPN */
+  /** À supprimer. Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn?: Date | null;
 
-  /** Avis du CSRPN ou du CNPN */
+  /** À supprimer. Avis du CSRPN ou du CNPN */
   avis_csrpn_cnpn?: string | null;
 
   /** Date de la consultation publique */
@@ -299,7 +299,7 @@ export interface DossierInitializer {
 export interface DossierMutator {
   id?: DossierId;
 
-  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées */
+  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées */
   id_demarches_simplifiées?: string | null;
 
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
@@ -326,7 +326,7 @@ export interface DossierMutator {
   /** Liste des régions concernées par le projet */
   régions?: unknown | null;
 
-  /** Nom du projet */
+  /** Nom de la demande de dérogation espèces protégées */
   nom?: string | null;
 
   /** Numéro du dossier dans Démarches Simplifiées */
@@ -344,7 +344,7 @@ export interface DossierMutator {
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
 
-  /** Commentaires de l'instructeur.i.ce sur le dossier. */
+  /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre?: string | null;
 
   /** Date d'envoi de la dernière contribution */
@@ -353,19 +353,19 @@ export interface DossierMutator {
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string | null;
 
-  /** Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
+  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
   historique_date_saisine_csrpn?: Date | null;
 
-  /** Date de saisine du CNPN (Conseil National de Protection de la Nature) */
+  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn?: Date | null;
 
-  /** Date de l'avis officiel émis par le CSRPN */
+  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn?: Date | null;
 
-  /** Date de l'avis officiel émis par le CNPN */
+  /** À supprimer. Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn?: Date | null;
 
-  /** Avis du CSRPN ou du CNPN */
+  /** À supprimer. Avis du CSRPN ou du CNPN */
   avis_csrpn_cnpn?: string | null;
 
   /** Date de la consultation publique */
