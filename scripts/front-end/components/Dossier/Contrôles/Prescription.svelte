@@ -27,6 +27,8 @@
     /** @type {Set<Partial<Contrôle>>}*/
     let contrôles = $derived(prescription.contrôles ? new SvelteSet(prescription.contrôles) : new SvelteSet())
 
+    $inspect('contrôles', contrôles)
+
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     let contrôlesTriés = $derived([...contrôles].toSorted(
@@ -86,19 +88,39 @@
         contrôleEnModification = contrôle
     }
 
-    async function validerModificationsContrôle(){
+    /** 
+     * @param {Partial<Contrôle>} contrôleValidé
+     */
+    async function validerModificationsContrôle(contrôleValidé){
         if(!contrôleEnModification)
             throw new TypeError(`pas de contrôle en modificaion`)
-            
-        await modifierContrôle(contrôleEnModification)
+
+        // remplacer contrôleEnModification par contrôleValidé dans le tableau des contrôles
+        // @ts-ignore
+        const index = prescription.contrôles?.indexOf(contrôleEnModification) || -1;
+        if (index !== -1) { 
+            prescription.contrôles?.splice(index, 1); 
+        }
         contrôleEnModification = undefined
+
+        // @ts-ignore
+        prescription.contrôles?.push(contrôleValidé)
+            
+        console.log('validerModificationsContrôle contrôleValidé', contrôleValidé)
+            
+        await modifierContrôle(contrôleValidé)
+        
     }
 
     async function supprimerContrôleEnModification(){
         if(!contrôleEnModification)
             throw new TypeError(`pas de contrôle en modificaion`)
 
-        contrôles.delete(contrôleEnModification)
+        // @ts-ignore
+        const index = prescription.contrôles?.indexOf(contrôleEnModification) || -1;
+        if (index !== -1) { 
+            prescription.contrôles?.splice(index, 1); 
+        }
 
         const id = contrôleEnModification.id
         contrôleEnModification = undefined
@@ -124,7 +146,7 @@
                     (Prescription non renseignée)
                 {/if}
             </h6>
-            {/snippet}
+        {/snippet}
         {#snippet content()}
                 <section >
                 {#if numéro_article}

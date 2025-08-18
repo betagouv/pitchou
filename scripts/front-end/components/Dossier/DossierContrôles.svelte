@@ -19,7 +19,9 @@
      */
 
     /** @type {Props} */
-    let { dossier } = $props();
+    let props = $props();
+
+    let { dossier } = $state(props)
 
     /** @type {FrontEndDécisionAdministrative[]} */
     let décisionsAdministratives = $derived(dossier.décisionsAdministratives || [])
@@ -31,19 +33,16 @@
     function créerFonctionSupprimer(décisionAdministrative){
 
         return function(){
-            if(dossier.décisionsAdministratives){
-                const index = dossier.décisionsAdministratives?.indexOf(décisionAdministrative) || -1;
-                if (index !== -1) { 
-                    dossier.décisionsAdministratives.splice(index, 1); 
-                }
-
-                refreshDossierComplet(dossier.id)
-
-                return supprimerDécisionAdministrative(décisionAdministrative.id)
+            
+            const index = décisionsAdministratives.indexOf(décisionAdministrative);
+            console.log('index', index)
+            if (index !== undefined && index !== -1) { 
+                décisionsAdministratives = décisionsAdministratives.toSpliced(index, 1); 
             }
-            else{
-                throw new Error(`C'est bizarre d'essayer de supprimer une décision administrative s'il n'y en a pas`)
-            }
+
+            refreshDossierComplet(dossier.id)
+
+            return supprimerDécisionAdministrative(décisionAdministrative.id)
         }
     }
 
@@ -70,6 +69,8 @@
 
         //@ts-ignore
         décisionsAdministratives.push(décisionAdministrativeEnCréation)
+        // optimist UI change
+        décisionsAdministratives = décisionsAdministratives
         sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation) 
         décisionAdministrativeEnCréation = undefined;
     }
