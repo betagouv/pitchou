@@ -1,20 +1,34 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (bouton-valider to bouton_valider) making the component unusable -->
 <script>
     import DateInput from '../../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
     import {typesDécisionAdministrative} from '../../../../commun/décision-administrative.js'
 
+    /** @import {Snippet} from 'svelte' */
     /** @import {DécisionAdministrativePourTransfer} from '../../../../types/API_Pitchou.js' */
 
-    /** @type {DécisionAdministrativePourTransfer} */
-    export let décisionAdministrative
+    /**
+     * @typedef {Object} Props
+     * @property {DécisionAdministrativePourTransfer} décisionAdministrative
+     * @property {(décision: DécisionAdministrativePourTransfer) => any} onValider
+     * @property {Snippet} boutonValider
+     * @property {Snippet} [boutonAnnuler]
+     * @property {Snippet} [boutonSupprimer]
+     */
 
-    /** @type {(décision: DécisionAdministrativePourTransfer) => any} */
-    export let onValider
+    /** @type {Props} */
+    let { 
+        décisionAdministrative,
+        onValider,
+        boutonValider,
+        boutonAnnuler,
+        boutonSupprimer
+     } = $props();
+
+
 
     /** @type {FileList | undefined}*/
-    let fichiers
+    let fichiers = $state()
 
     /**
      * 
@@ -66,7 +80,7 @@
 
 </script>
 
-<form on:submit={formSubmit}>
+<form onsubmit={formSubmit}>
     <div class="fr-upload-group">
         <label class="fr-label" for="upload-fichier-décision">Fichier de la décision administrative 
             <span class="fr-hint-text">Indication : 
@@ -107,19 +121,21 @@
     </div>
 
     <div class="fr-mb-6w">
-        <slot name="bouton-valider">
+        {#if boutonValider}
+            {@render boutonValider()}
+        {:else}
             <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
                 Enregistrer
             </button>
-        </slot>
+        {/if}
 
-        <slot name="bouton-annuler" />
+        {@render boutonAnnuler?.()}
     </div>
 
-    {#if $$slots['bouton-supprimer']}
-    <div>
-        <slot name="bouton-supprimer"/>
-    </div>
+    {#if boutonSupprimer}
+        <div>
+            {@render boutonSupprimer()}
+        </div>
     {/if}
 
 </form>

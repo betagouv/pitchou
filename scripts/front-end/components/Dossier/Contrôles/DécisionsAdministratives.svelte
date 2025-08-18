@@ -295,17 +295,17 @@
         <h4>Modifier décision administrative</h4>
 
         <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnModification || {}} onValider={sauvegarderDécisionAdministrative}>
-            
-            <!-- @migration-task: migrate this slot by hand, `bouton-valider` is an invalid identifier -->
-    <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
-            <!-- @migration-task: migrate this slot by hand, `bouton-annuler` is an invalid identifier -->
-    <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" onclick={annulerModification}>Annuler</button>
-        
-            <!-- @migration-task: migrate this slot by hand, `bouton-supprimer` is an invalid identifier -->
-    <button slot="bouton-supprimer" type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" onclick={supprimerDécisionAdministrative}>
-                Supprimer cette décision administrative
-            </button>
-        
+            {#snippet boutonValider()}
+                <button type="submit" class="fr-btn">Sauvegarder</button>
+            {/snippet}
+            {#snippet boutonAnnuler()}
+                <button type="button" class="fr-btn fr-btn--secondary" onclick={annulerModification}>Annuler</button>
+            {/snippet}
+            {#snippet boutonSupprimer()}
+                <button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" onclick={supprimerDécisionAdministrative}>
+                    Supprimer cette décision administrative
+                </button>
+            {/snippet}
         </FormulaireDécisionAdministrative>
     {/if}
 
