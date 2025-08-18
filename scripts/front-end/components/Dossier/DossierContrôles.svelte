@@ -24,8 +24,8 @@
     /** @type {FrontEndDécisionAdministrative[]} */
     let décisionsAdministratives = $derived(dossier.décisionsAdministratives || [])
 
-    $inspect('dossier', dossier)
-    $inspect('décisionsAdministratives', décisionsAdministratives)
+    //$inspect('dossier', dossier)
+    //$inspect('décisionsAdministratives', décisionsAdministratives)
 
     /**
      * 
@@ -34,9 +34,8 @@
     function créerFonctionSupprimer(décisionAdministrative){
 
         return function(){
-            
             const index = décisionsAdministratives.indexOf(décisionAdministrative);
-            console.log('index', index)
+            
             if (index !== undefined && index !== -1) { 
                 décisionsAdministratives = décisionsAdministratives.toSpliced(index, 1); 
             }

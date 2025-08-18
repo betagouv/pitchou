@@ -29,7 +29,7 @@
     /** @type {Props} */
     let { dossierId, décisionAdministrative = $bindable(), supprimerDécisionAdministrative } = $props();
 
-    $inspect('décisionAdministrative', décisionAdministrative)
+    //$inspect('décisionAdministrative', décisionAdministrative)
 
 
     let { id,
