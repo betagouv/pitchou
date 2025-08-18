@@ -30,11 +30,15 @@
 
 <style lang="scss">
 details{
+    cursor: initial;
 
     summary{
         display: flex;
         flex-direction: row;
         align-items: baseline;
+
+        cursor: pointer;
+
 
         &::marker{
             content: "";
