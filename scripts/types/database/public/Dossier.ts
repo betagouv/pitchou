@@ -12,92 +12,130 @@ export type DossierId = number & { __brand: 'public.dossier' };
 export default interface Dossier {
   id: DossierId;
 
+  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées */
   id_demarches_simplifiées: string | null;
 
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
+  /** Liste des espèces protégées concernées par le dossier */
   espèces_protégées_concernées: string | null;
 
+  /** Liste des départements concernés par le projet */
   départements: unknown | null;
 
+  /** Liste des communes concernées par le projet */
   communes: unknown | null;
 
+  /** Le déposant est la personne qui dépose le dossier sur DS. Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose le dossier. Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur. Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" (qui est différent de notre "demandeur") */
   déposant: PersonneId | null;
 
+  /** Si le demandeur est une personne physique, ce champ est non nul */
   demandeur_personne_physique: PersonneId | null;
 
+  /** Si le demandeur est une personne morale, ce champ est non nul */
   demandeur_personne_morale: EntrepriseSiret | null;
 
+  /** Liste des régions concernées par le projet */
   régions: unknown | null;
 
+  /** Nom de la demande de dérogation espèces protégées */
   nom: string | null;
 
+  /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées: string | null;
 
+  /** Nom du porteur de projet dans les Annotations Privées */
   historique_nom_porteur: string | null;
 
+  /** Localisation du projet dans les Annotations Privées */
   historique_localisation: string | null;
 
+  /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
   ddep_nécessaire: string | null;
 
+  /** Indique si le dossier présente un enjeu politique */
   enjeu_politique: boolean | null;
 
+  /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre: string | null;
 
+  /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution: Date | null;
 
+  /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre: string | null;
 
+  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
   historique_date_saisine_csrpn: Date | null;
 
+  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn: Date | null;
 
+  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn: Date | null;
 
+  /** À supprimer. Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn: Date | null;
 
+  /** À supprimer. Avis du CSRPN ou du CNPN */
   avis_csrpn_cnpn: string | null;
 
+  /** Date de la consultation publique */
   date_consultation_public: Date | null;
 
+  /** Indique si le dossier présente un enjeu écologique */
   enjeu_écologique: boolean | null;
 
+  /** Indique si le dossier est rattaché au régime d'Autorisation Environnementale */
   rattaché_au_régime_ae: boolean | null;
 
+  /** Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...) */
   prochaine_action_attendue_par: string | null;
 
+  /** Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention. */
   activité_principale: string | null;
 
+  /** Référence vers le fichier des espèces impactées */
   espèces_impactées: FichierId | null;
 
-  /** Description du dossier fournie par le pétitionnaire */
+  /** Description synthétique du projet */
   description: string | null;
 
+  /** Date de début de l'intervention */
   date_début_intervention: Date | null;
 
+  /** Date de fin de l'intervention */
   date_fin_intervention: Date | null;
 
-  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec une petite période d'intervention annuelle */
   durée_intervention: number | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Ce champ correspond à la liste des opérations envisagées dans le cadre de la demande de dérogation espèces protégées, choisies parmi des catégories prédéfinies (par ex. capture et relâcher immédiat sur place avec ou sans marquage, prélèvement de matériel biologique, autres cas spécifiques). Plusieurs types peuvent être sélectionnés pour une même demande. */
   scientifique_type_demande: string[] | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Description du protocole scientifique prévu (ex. capture et relâcher immédiat avec ou sans marquage, prélèvement de matériel biologique, autres cas). */
   scientifique_description_protocole_suivi: string | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Modes de capture utilisés */
   scientifique_mode_capture: string[] | null;
 
   /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses: string | null;
 
+  /** Modalités de marquage des individus */
   scientifique_modalités_marquage: string | null;
 
+  /** Modalités de transport des individus */
   scientifique_modalités_transport: string | null;
 
+  /** Périmètre géographique de l'intervention scientifique */
   scientifique_périmètre_intervention: string | null;
 
+  /** Liste des intervenants scientifiques */
   scientifique_intervenants: unknown | null;
 
+  /** Précisions sur les autres intervenants scientifiques */
   scientifique_précisions_autres_intervenants: string | null;
 
   /** Article L411-2 I.4 du code de l'environnement */
@@ -106,8 +144,10 @@ export default interface Dossier {
   /** Article L411-2 I.4 a) b) c) d) e) du code de l'environnement */
   motif_dérogation: string | null;
 
+  /** Justification du motif de dérogation */
   justification_motif_dérogation: string | null;
 
+  /** Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues */
   mesures_erc_prévues: boolean | null;
 }
 
@@ -116,92 +156,130 @@ export interface DossierInitializer {
   /** Default value: nextval('dossier_id_seq'::regclass) */
   id?: DossierId;
 
+  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées */
   id_demarches_simplifiées?: string | null;
 
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
+  /** Liste des espèces protégées concernées par le dossier */
   espèces_protégées_concernées?: string | null;
 
+  /** Liste des départements concernés par le projet */
   départements?: unknown | null;
 
+  /** Liste des communes concernées par le projet */
   communes?: unknown | null;
 
+  /** Le déposant est la personne qui dépose le dossier sur DS. Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose le dossier. Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur. Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" (qui est différent de notre "demandeur") */
   déposant?: PersonneId | null;
 
+  /** Si le demandeur est une personne physique, ce champ est non nul */
   demandeur_personne_physique?: PersonneId | null;
 
+  /** Si le demandeur est une personne morale, ce champ est non nul */
   demandeur_personne_morale?: EntrepriseSiret | null;
 
+  /** Liste des régions concernées par le projet */
   régions?: unknown | null;
 
+  /** Nom de la demande de dérogation espèces protégées */
   nom?: string | null;
 
+  /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées?: string | null;
 
+  /** Nom du porteur de projet dans les Annotations Privées */
   historique_nom_porteur?: string | null;
 
+  /** Localisation du projet dans les Annotations Privées */
   historique_localisation?: string | null;
 
+  /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
   ddep_nécessaire?: string | null;
 
+  /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
 
+  /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre?: string | null;
 
+  /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
 
+  /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string | null;
 
+  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
   historique_date_saisine_csrpn?: Date | null;
 
+  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn?: Date | null;
 
+  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn?: Date | null;
 
+  /** À supprimer. Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn?: Date | null;
 
+  /** À supprimer. Avis du CSRPN ou du CNPN */
   avis_csrpn_cnpn?: string | null;
 
+  /** Date de la consultation publique */
   date_consultation_public?: Date | null;
 
+  /** Indique si le dossier présente un enjeu écologique */
   enjeu_écologique?: boolean | null;
 
+  /** Indique si le dossier est rattaché au régime d'Autorisation Environnementale */
   rattaché_au_régime_ae?: boolean | null;
 
+  /** Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...) */
   prochaine_action_attendue_par?: string | null;
 
+  /** Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention. */
   activité_principale?: string | null;
 
+  /** Référence vers le fichier des espèces impactées */
   espèces_impactées?: FichierId | null;
 
-  /** Description du dossier fournie par le pétitionnaire */
+  /** Description synthétique du projet */
   description?: string | null;
 
+  /** Date de début de l'intervention */
   date_début_intervention?: Date | null;
 
+  /** Date de fin de l'intervention */
   date_fin_intervention?: Date | null;
 
-  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec une petite période d'intervention annuelle */
   durée_intervention?: number | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Ce champ correspond à la liste des opérations envisagées dans le cadre de la demande de dérogation espèces protégées, choisies parmi des catégories prédéfinies (par ex. capture et relâcher immédiat sur place avec ou sans marquage, prélèvement de matériel biologique, autres cas spécifiques). Plusieurs types peuvent être sélectionnés pour une même demande. */
   scientifique_type_demande?: string[] | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Description du protocole scientifique prévu (ex. capture et relâcher immédiat avec ou sans marquage, prélèvement de matériel biologique, autres cas). */
   scientifique_description_protocole_suivi?: string | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Modes de capture utilisés */
   scientifique_mode_capture?: string[] | null;
 
   /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses?: string | null;
 
+  /** Modalités de marquage des individus */
   scientifique_modalités_marquage?: string | null;
 
+  /** Modalités de transport des individus */
   scientifique_modalités_transport?: string | null;
 
+  /** Périmètre géographique de l'intervention scientifique */
   scientifique_périmètre_intervention?: string | null;
 
+  /** Liste des intervenants scientifiques */
   scientifique_intervenants?: unknown | null;
 
+  /** Précisions sur les autres intervenants scientifiques */
   scientifique_précisions_autres_intervenants?: string | null;
 
   /** Article L411-2 I.4 du code de l'environnement */
@@ -210,8 +288,10 @@ export interface DossierInitializer {
   /** Article L411-2 I.4 a) b) c) d) e) du code de l'environnement */
   motif_dérogation?: string | null;
 
+  /** Justification du motif de dérogation */
   justification_motif_dérogation?: string | null;
 
+  /** Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues */
   mesures_erc_prévues?: boolean | null;
 }
 
@@ -219,92 +299,130 @@ export interface DossierInitializer {
 export interface DossierMutator {
   id?: DossierId;
 
+  /** Identifiant unique du dossier dans la plateforme Démarches Simplifiées. Utile uniquement pour certaines mutations de l'API GraphQL. Utiliser plutôt le number_demarches_simplifiées */
   id_demarches_simplifiées?: string | null;
 
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt?: Date;
 
+  /** Liste des espèces protégées concernées par le dossier */
   espèces_protégées_concernées?: string | null;
 
+  /** Liste des départements concernés par le projet */
   départements?: unknown | null;
 
+  /** Liste des communes concernées par le projet */
   communes?: unknown | null;
 
+  /** Le déposant est la personne qui dépose le dossier sur DS. Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose le dossier. Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur. Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur" (qui est différent de notre "demandeur") */
   déposant?: PersonneId | null;
 
+  /** Si le demandeur est une personne physique, ce champ est non nul */
   demandeur_personne_physique?: PersonneId | null;
 
+  /** Si le demandeur est une personne morale, ce champ est non nul */
   demandeur_personne_morale?: EntrepriseSiret | null;
 
+  /** Liste des régions concernées par le projet */
   régions?: unknown | null;
 
+  /** Nom de la demande de dérogation espèces protégées */
   nom?: string | null;
 
+  /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées?: string | null;
 
+  /** Nom du porteur de projet dans les Annotations Privées */
   historique_nom_porteur?: string | null;
 
+  /** Localisation du projet dans les Annotations Privées */
   historique_localisation?: string | null;
 
+  /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
   ddep_nécessaire?: string | null;
 
+  /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
 
+  /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre?: string | null;
 
+  /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
 
+  /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string | null;
 
+  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
   historique_date_saisine_csrpn?: Date | null;
 
+  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
   historique_date_saisine_cnpn?: Date | null;
 
+  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
   date_avis_csrpn?: Date | null;
 
+  /** À supprimer. Date de l'avis officiel émis par le CNPN */
   date_avis_cnpn?: Date | null;
 
+  /** À supprimer. Avis du CSRPN ou du CNPN */
   avis_csrpn_cnpn?: string | null;
 
+  /** Date de la consultation publique */
   date_consultation_public?: Date | null;
 
+  /** Indique si le dossier présente un enjeu écologique */
   enjeu_écologique?: boolean | null;
 
+  /** Indique si le dossier est rattaché au régime d'Autorisation Environnementale */
   rattaché_au_régime_ae?: boolean | null;
 
+  /** Indique qui doit effectuer la prochaine action (Instructeur, CNPN/CSRPN, Consultation du public, Pétitionnaire, Autre administration...) */
   prochaine_action_attendue_par?: string | null;
 
+  /** Catégorie normalisée décrivant le secteur ou le type d'activité à l'origine de la demande de dérogation relative aux espèces protégées. Les valeurs possibles couvrent différents domaines (production d'énergie renouvelable, infrastructures de transport, carrières, urbanisation, gestion de l'eau, restauration écologique, etc.) et permettent de classer les dossiers selon la nature de l'intervention. */
   activité_principale?: string | null;
 
+  /** Référence vers le fichier des espèces impactées */
   espèces_impactées?: FichierId | null;
 
-  /** Description du dossier fournie par le pétitionnaire */
+  /** Description synthétique du projet */
   description?: string | null;
 
+  /** Date de début de l'intervention */
   date_début_intervention?: Date | null;
 
+  /** Date de fin de l'intervention */
   date_fin_intervention?: Date | null;
 
-  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec un petite période d'intervention annuelle */
+  /** Peut être différente de (date_fin_intervention - date_début_intervention) dans le cas des dérogations pluri-annuelles avec une petite période d'intervention annuelle */
   durée_intervention?: number | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Ce champ correspond à la liste des opérations envisagées dans le cadre de la demande de dérogation espèces protégées, choisies parmi des catégories prédéfinies (par ex. capture et relâcher immédiat sur place avec ou sans marquage, prélèvement de matériel biologique, autres cas spécifiques). Plusieurs types peuvent être sélectionnés pour une même demande. */
   scientifique_type_demande?: string[] | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Description du protocole scientifique prévu (ex. capture et relâcher immédiat avec ou sans marquage, prélèvement de matériel biologique, autres cas). */
   scientifique_description_protocole_suivi?: string | null;
 
+  /** Dans le contexte d'un dossier dont l'activité principale est la recherche scientifique. Modes de capture utilisés */
   scientifique_mode_capture?: string[] | null;
 
   /** null signifie qu'il n'y a pas d'utilisation de sources lumineuses */
   scientifique_modalités_source_lumineuses?: string | null;
 
+  /** Modalités de marquage des individus */
   scientifique_modalités_marquage?: string | null;
 
+  /** Modalités de transport des individus */
   scientifique_modalités_transport?: string | null;
 
+  /** Périmètre géographique de l'intervention scientifique */
   scientifique_périmètre_intervention?: string | null;
 
+  /** Liste des intervenants scientifiques */
   scientifique_intervenants?: unknown | null;
 
+  /** Précisions sur les autres intervenants scientifiques */
   scientifique_précisions_autres_intervenants?: string | null;
 
   /** Article L411-2 I.4 du code de l'environnement */
@@ -313,7 +431,9 @@ export interface DossierMutator {
   /** Article L411-2 I.4 a) b) c) d) e) du code de l'environnement */
   motif_dérogation?: string | null;
 
+  /** Justification du motif de dérogation */
   justification_motif_dérogation?: string | null;
 
+  /** Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues */
   mesures_erc_prévues?: boolean | null;
 }

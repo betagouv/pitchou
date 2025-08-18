@@ -10,20 +10,25 @@ export type ContrLeId = string & { __brand: 'public.contrôle' };
 export default interface ContrLe {
   id: ContrLeId;
 
+  /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
   prescription: PrescriptionId;
 
+  /** Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs. */
   date_contrôle: Date | null;
 
-  /** Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini */
+  /** Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting. */
   résultat: string | null;
 
+  /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
   commentaire: string | null;
 
-  /** Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini */
+  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
   type_action_suite_contrôle: string | null;
 
+  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
   date_action_suite_contrôle: Date | null;
 
+  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
   date_prochaine_échéance: Date | null;
 }
 
@@ -32,20 +37,25 @@ export interface ContrLeInitializer {
   /** Default value: gen_random_uuid() */
   id?: ContrLeId;
 
+  /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
   prescription: PrescriptionId;
 
+  /** Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs. */
   date_contrôle?: Date | null;
 
-  /** Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini */
+  /** Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting. */
   résultat?: string | null;
 
+  /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
   commentaire?: string | null;
 
-  /** Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini */
+  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
   type_action_suite_contrôle?: string | null;
 
+  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
   date_action_suite_contrôle?: Date | null;
 
+  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
   date_prochaine_échéance?: Date | null;
 }
 
@@ -53,19 +63,24 @@ export interface ContrLeInitializer {
 export interface ContrLeMutator {
   id?: ContrLeId;
 
+  /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
   prescription?: PrescriptionId;
 
+  /** Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs. */
   date_contrôle?: Date | null;
 
-  /** Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini */
+  /** Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting. */
   résultat?: string | null;
 
+  /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
   commentaire?: string | null;
 
-  /** Pour le moment, c'est une string. Et après un certain temps, on pourra refermer les valeurs à un ensemble fini */
+  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
   type_action_suite_contrôle?: string | null;
 
+  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
   date_action_suite_contrôle?: Date | null;
 
+  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
   date_prochaine_échéance?: Date | null;
 }
