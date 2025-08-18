@@ -79,6 +79,8 @@
         résultatsSynchronisationDS88444
     } = $props();
 
+    //let dossier = $state(_dossier)
+
 
     $inspect('Dossier complet', dossier)
     

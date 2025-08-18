@@ -19,12 +19,13 @@
      */
 
     /** @type {Props} */
-    let props = $props();
-
-    let { dossier } = $state(props)
+    let { dossier } = $props();
 
     /** @type {FrontEndDécisionAdministrative[]} */
     let décisionsAdministratives = $derived(dossier.décisionsAdministratives || [])
+
+    $inspect('dossier', dossier)
+    $inspect('décisionsAdministratives', décisionsAdministratives)
 
     /**
      * 
