@@ -2,7 +2,7 @@
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
-/** @import  {DossierPourSynchronisation, DonnéesPersonnesEntreprises} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import  {DossierPourSynchronisation, DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
@@ -16,7 +16,7 @@ import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDo
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @returns {DonnéesPersonnesEntreprises}
+ * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
 function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
     const {
@@ -165,12 +165,12 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
  * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierPourSynchronisation<DossierInitializer>[], dossiersAModifierPourSynchro: DossierPourSynchronisation<DossierMutator>[] }>} 
+ * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
 export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
-    /** @type {Promise<DossierPourSynchronisation<DossierInitializer>>[]} */
+    /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
             const champsDossierPourInitP = makeChampsDossierPourInitialisation(
                 dossierDS,
@@ -178,20 +178,24 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 pitchouKeyToAnnotationDS
             )
             return champsDossierPourInitP.then(champsDossierPourInit => ({
-                ...champsDossierPourInit,
-                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
+                dossier: {
+                    ...champsDossierPourInit,
+                    ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
+                }
             }))
         })
 
 
-    /** @type {DossierPourSynchronisation<DossierMutator>[]} */
+    /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
     const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => ({
-            ...(makeColonnesCommunesDossierPourSynchro(
-                dossierDS,
-                pitchouKeyToChampDS,
-                pitchouKeyToAnnotationDS
-            )),
-            ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+            dossier: {
+                ...(makeColonnesCommunesDossierPourSynchro(
+                    dossierDS,
+                    pitchouKeyToChampDS,
+                    pitchouKeyToAnnotationDS
+                )),
+                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+            }
         }))
 
 

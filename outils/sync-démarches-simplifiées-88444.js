@@ -35,7 +35,7 @@ import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/make
 /** @import {Message} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourSynchronisation, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../scripts/types/database/public/Dossier.ts' */
 
@@ -240,43 +240,46 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {DossierInitializer[]} */
-const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
+/**
+ * @overload
+ * @param {DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation
+ * @return {DossierPourUpdate}
+ */
+
+/**
+ * 
+ * @param {DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation 
+ * @returns {DossierPourInsert}
+ */
+function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation){
     const { 
-        déposant,
-        demandeur_personne_physique,
-        demandeur_personne_morale, 
-        ...autresPropriétés
-    } = dossier
+        dossier: {
+            déposant,
+            demandeur_personne_physique,
+            demandeur_personne_morale, 
+            ...autresPropriétésDossiers
+        },
+        ...autresDonnéesTables
+    } = dossierPourSynchronisation
 
     return {
-        //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
-        déposant: getPersonneId(déposant) || null,
-        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
-        demandeur_personne_morale: 
-            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
-        ...autresPropriétés,
+        dossier: {
+            //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
+            déposant: getPersonneId(déposant) || null,
+            //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
+            demandeur_personne_morale: 
+                (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
+            ...autresPropriétésDossiers,
+        },
+        ...autresDonnéesTables
     }
-})
+}
+
+/** @type {DossierInitializer[]} */
+const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(remplacerPersonneEntrepriseInitializerParId)
 
 /** @type {DossierMutator[]} */
-const dossiersAModifier = dossiersAModifierPourSynchro.map(dossier => {
-    const { 
-        déposant,
-        demandeur_personne_physique, // demandeur_personne_physiqu est toujours "undefined". Suivi de l'issue: https://github.com/betagouv/pitchou/issues/262
-        demandeur_personne_morale, 
-        ...autresPropriétés
-    } = dossier
-
-    return {
-        //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
-        déposant: getPersonneId(déposant) || null,
-        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
-        demandeur_personne_morale: 
-            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
-        ...autresPropriétés,
-    }
-})
+const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntrepriseInitializerParId)
 
 
 /** Télécharger les nouveaux fichiers espèces impactées */

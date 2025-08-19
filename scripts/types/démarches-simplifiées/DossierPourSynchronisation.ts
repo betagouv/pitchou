@@ -1,6 +1,18 @@
 import { DossierInitializer, DossierMutator } from "../database/public/Dossier.ts"
 import { PersonneInitializer } from "../database/public/Personne.ts"
 import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
+import { default as ÉvènementPhaseDossier } from "../database/public/ÉvènementPhaseDossier.ts"
+
+
+export type DonnéesPersonnesEntreprisesInitializer = {
+    déposant: PersonneInitializer,
+    demandeur_personne_physique: PersonneInitializer | undefined,
+    demandeur_personne_morale: EntrepriseInitializer | undefined,
+}
+
+type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | DossierInitializer> = 
+    Omit<T, "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale">
+        & DonnéesPersonnesEntreprisesInitializer
 
 /**
  * Représente le format des données issues de Démarches Simplifiées (DS) 
@@ -22,13 +34,20 @@ import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
  * TODO :
  * - Suivi due l'issue : @see {@link https://github.com/betagouv/pitchou/issues/312}
  */
-export type DossierPourSynchronisation<
-    T = DossierMutator | DossierInitializer
-> = Omit<T, "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale">
-    & DonnéesPersonnesEntreprises;
 
-export type DonnéesPersonnesEntreprises = {
-    déposant: PersonneInitializer,
-    demandeur_personne_physique: PersonneInitializer | undefined,
-    demandeur_personne_morale: EntrepriseInitializer | undefined,
+export type DossierPourSynchronisation<DossierType> = {
+    dossier: DossierType
+    //évènement_phase_dossier: Omit<ÉvènementPhaseDossier, 'dossier'>
 }
+
+export type DossierEntreprisesPersonneInitializersPourInsert = 
+    DossierPourSynchronisation<DossierAvecDonnéesPersonnesEntreprisesInitializers<DossierInitializer>>
+
+export type DossierEntreprisesPersonneInitializersPourUpdate = 
+    DossierPourSynchronisation<DossierAvecDonnéesPersonnesEntreprisesInitializers<DossierMutator>>
+    
+export type DossierPourInsert = DossierPourSynchronisation<DossierInitializer>
+
+export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>
+
+
