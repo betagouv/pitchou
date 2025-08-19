@@ -111,10 +111,10 @@ export async function logout(){
     store.mutations.setCapabilities({})
     store.mutations.setIdentité(undefined)
 
-    store.mutations.setDossiersRésumés(new Map())
-    store.mutations.setDossiersComplets(new Map())
+    store.mutations.setDossiersRésumés(new SvelteMap())
+    store.mutations.setDossiersComplets(new SvelteMap())
     store.mutations.resetMessages()
-    store.mutations.setRelationSuivis(new Map())
+    store.mutations.setRelationSuivis(new SvelteMap())
 
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }
