@@ -1,7 +1,6 @@
 <script>
-    //@ts-check
+    import {SvelteSet} from 'svelte/reactivity'
 
-    
     /**
      * @typedef {Object} Props
      * @property {Set<string>} options
@@ -15,19 +14,12 @@
         options,
         titre,
         mettreÀJourOptionsSélectionnées,
-        optionsSélectionnées = $bindable(new Set(options))
+        optionsSélectionnées = new SvelteSet(options)
     } = $props();
 
-    let optionsAffichées = $derived([...options].map(option => ({option, checked: optionsSélectionnées.has(option)})))
-
-    function rerender() {
-        optionsSélectionnées = optionsSélectionnées
-    }
 
     /**
-     *
      * @param {string} option
-     * @returns 
      */
     function mettreÀJourOption(option) {
         if (optionsSélectionnées.has(option)) {
@@ -36,7 +28,6 @@
             optionsSélectionnées.add(option)
         }
 
-        rerender()
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
@@ -79,16 +70,15 @@
         <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectionnerRien}>Sélectionner rien</button>
 
         <ul>
-
-            {#each optionsAffichées as optionAffichée}
+            {#each options as option}
                 <li>
                     <label>
                         <input 
                             type="checkbox" 
-                            bind:checked={optionAffichée.checked}
-                            oninput={() => mettreÀJourOption(optionAffichée.option)}
+                            checked={optionsSélectionnées.has(option)}
+                            oninput={() => mettreÀJourOption(option)}
                         />
-                        {optionAffichée.option}
+                        {option}
                     </label>
                 </li>
             {/each}
