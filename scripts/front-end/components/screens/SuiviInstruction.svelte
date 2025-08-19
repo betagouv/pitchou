@@ -55,19 +55,21 @@
     //$inspect('filtresSélectionnés', filtresSélectionnés)
     $inspect('relationSuivis', relationSuivis)
 
-    let dossiersIdSuivisParAucunInstructeur = $derived(relationSuivis && (() => {
+    let dossiersIdSuivisParAucunInstructeur = $derived.by(() => {
+        if(!relationSuivis){
+            return new SvelteSet()
+        }
+
         // démarrer avec tous les ids
-        const dossierIdsSansSuivi = new SvelteSet(dossiers.map(d => d.id))
+        let dossierIdsSansSuivi = new Set(dossiers.map(d => d.id))
 
         // retirer les ids suivis par au moins un.e instructeur.rice
         for(const dossierIds of relationSuivis.values()){
-            for(const dossierId of dossierIds){
-                dossierIdsSansSuivi.delete(dossierId)
-            }
+            dossierIdsSansSuivi = dossierIdsSansSuivi.difference(dossierIds)
         }
 
-        return dossierIdsSansSuivi
-    })())
+        return new SvelteSet(dossierIdsSansSuivi)
+    })
 
     /** @type {DossierRésumé[]} */
     let dossiersSelectionnés = $state([])
@@ -282,11 +284,15 @@
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
     const instructeursOptions = new SvelteSet([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions])
 
+    //$inspect('')
+
     /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
     let instructeursSélectionnés = $state(new SvelteSet(filtresSélectionnés.instructeurs ?
         filtresSélectionnés.instructeurs :
         instructeursOptions
     ))
+
+    $inspect('instructeursSélectionnés', instructeursSélectionnés)
 
     tousLesFiltres.set('instructeurs', dossier => {
         if(!relationSuivis)
@@ -372,8 +378,6 @@
 
     /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
     let selectionneursPage = $derived.by(() => {
-        console.log('selectionneursPage $derived.by')
-
         if(dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
             const nombreDePages = Math.ceil(dossiersSelectionnés.length/NOMBRE_DOSSIERS_PAR_PAGE)
 
