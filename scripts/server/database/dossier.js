@@ -156,8 +156,8 @@ const varcharKeys = [
 
 /**
  *
- * @param {DossierPourSynchronisation<DossierInitializer>[]} dossiersAInitialiser
- * @param {DossierPourSynchronisation<DossierMutator>[]} dossiersAModifier
+ * @param {DossierInitializer[]} dossiersAInitialiser
+ * @param {DossierMutator[]} dossiersAModifier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseConnection = directDatabaseConnection){
