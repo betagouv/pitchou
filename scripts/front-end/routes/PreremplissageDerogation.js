@@ -1,8 +1,6 @@
 //@ts-check
 
-import { replaceComponent } from '../routeComponentLifeCycle.js'
-import store from '../store.js'
-import { svelteTarget } from '../config.js'
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import PreremplissageDerogation from '../components/screens/PreremplissageDerogation.svelte'
@@ -14,7 +12,7 @@ export default () => {
     /**
      * 
      * @param {PitchouState} state
-     * @returns {ComponentProps<PreremplissageDerogation>}
+     * @returns {ComponentProps<typeof PreremplissageDerogation>}
      */
     function mapStateToProps(state){
         if(!state.schemaDS88444){
@@ -26,12 +24,7 @@ export default () => {
             schemaDS88444: state.schemaDS88444,
         }
     }   
-    
-    const preremplissageDerogation = new PreremplissageDerogation({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
 
-    replaceComponent(preremplissageDerogation, mapStateToProps)
+    replaceComponent(PreremplissageDerogation, mapStateToProps)
 
 }

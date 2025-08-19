@@ -1,4 +1,5 @@
 //@ts-check
+import './before-ses-lockdown.js'
 
 import page from 'page'
 

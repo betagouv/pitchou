@@ -1,8 +1,6 @@
 //@ts-check
 
-import { replaceComponent } from '../routeComponentLifeCycle.js'
-import store from '../store.js'
-import { svelteTarget } from '../config.js'
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import Stats from '../components/screens/Stats.svelte';
@@ -21,7 +19,7 @@ export default async () => {
         /**
          * 
          * @param {PitchouState} state 
-         * @returns {ComponentProps<Stats>}
+         * @returns {ComponentProps<typeof Stats>}
          */
         function mapStateToProps(state) {
             const { email, erreurs } = mapStateToSqueletteProps(state);
@@ -31,13 +29,8 @@ export default async () => {
                 erreurs
             };
         }  
-        
-        const StatsComponent = new Stats({
-            target: svelteTarget,
-            props: mapStateToProps(store.state)
-        });
 
-        replaceComponent(StatsComponent, mapStateToProps)
+        replaceComponent(Stats, mapStateToProps)
     } catch (error) {
         console.error('Erreur lors du chargement des stats :', error)
     }

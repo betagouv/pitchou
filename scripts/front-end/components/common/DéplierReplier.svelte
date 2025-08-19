@@ -8,25 +8,37 @@
  * et standard
  */
 
-/** @type {boolean}*/
-export let open = false
+
+    /**
+     * @typedef {Object} Props
+     * @property {boolean} [open]
+     * @property {import('svelte').Snippet} [summary]
+     * @property {import('svelte').Snippet} [content]
+     */
+
+    /** @type {Props} */
+    let { open = false, summary, content } = $props();
 
 </script>
 
 <details {open}>
     <summary>
-        <slot name="summary"></slot>
+        {@render summary?.()}
     </summary>
-    <slot name="content"></slot>
+    {@render content?.()}
 </details>
 
 <style lang="scss">
 details{
+    cursor: initial;
 
     summary{
         display: flex;
         flex-direction: row;
         align-items: baseline;
+
+        cursor: pointer;
+
 
         &::marker{
             content: "";

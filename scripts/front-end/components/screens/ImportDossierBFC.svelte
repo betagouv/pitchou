@@ -1,5 +1,6 @@
 <script>
     //@ts-check
+    import {SvelteMap} from 'svelte/reactivity'
     import { text } from "d3-fetch";
     import Squelette from "../Squelette.svelte";
     import {
@@ -14,17 +15,23 @@
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
     /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
 
-    /** @type {ComponentProps<Squelette>['email']} */
-    export let email = undefined;
+    
 
     /** @type {LigneDossierBFC[] | undefined} */
-    let lignesTableauImport = undefined;
+    let lignesTableauImport = $state(undefined);
 
     /** @type {Map<any,string>} */
-    let ligneToLienPréremplissage = new Map();
+    let ligneToLienPréremplissage = $state(new SvelteMap());
 
-    /** @type {DossierRésumé[]} */
-    export let dossiers = [];
+    
+    /**
+     * @typedef {Object} Props
+     * @property {ComponentProps<typeof Squelette>['email']} [email]
+     * @property {DossierRésumé[]} [dossiers]
+     */
+
+    /** @type {Props} */
+    let { email = undefined, dossiers = [] } = $props();
 
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
@@ -142,7 +149,7 @@
             id="file-upload"
             name="file-upload"
             accept=".ods"
-            on:change={handleFileChange}
+            onchange={handleFileChange}
         />
         <div
             class="fr-messages-group"
@@ -208,7 +215,7 @@
                                                 <button
                                                     type="button"
                                                     class="fr-btn fr-btn--secondary"
-                                                    on:click={() =>
+                                                    onclick={() =>
                                                         handleCréerLienPréRemplissage(
                                                             LigneDossierBFC,
                                                         )}

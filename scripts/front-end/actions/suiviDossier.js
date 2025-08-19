@@ -1,4 +1,4 @@
-
+import {SvelteMap, SvelteSet} from 'svelte/reactivity'
 import store from '../store.js'
 
 /** @import Dossier from '../../types/database/public/Dossier.ts' */
@@ -13,14 +13,16 @@ const inutile = true;
  * @param {Dossier['id']} dossierId 
  */
 export function instructeurSuitDossier(instructeurEmail, dossierId){
+    console.log('instructeurSuitDossier', dossierId)
+
     const modifierRelationSuivi = store.state.capabilities.modifierRelationSuivi
 
     if(!modifierRelationSuivi){
         throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`)
     }
 
-    const relationsSuivi = store.state.relationSuivis || new Map()
-    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new Set()
+    const relationsSuivi = store.state.relationSuivis || new SvelteMap()
+    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet()
     dossiersSuivisParInstructeur.add(dossierId)
     relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur)
     store.mutations.setRelationSuivis(relationsSuivi)
@@ -40,8 +42,8 @@ export function instructeurLaisseDossier(instructeurEmail, dossierId){
         throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`)
     }
 
-    const relationsSuivi = store.state.relationSuivis || new Map()
-    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new Set()
+    const relationsSuivi = store.state.relationSuivis || new SvelteMap()
+    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet()
     dossiersSuivisParInstructeur.delete(dossierId)
     relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur)
     store.mutations.setRelationSuivis(relationsSuivi)

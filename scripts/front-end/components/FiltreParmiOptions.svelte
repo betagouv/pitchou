@@ -1,28 +1,25 @@
 <script>
-    //@ts-check
-
-    /** @type {Set<string>}*/
-    export let options  
-
-    /** @type {string} */
-    export let titre
-
-    /** @type {function} */
-    export let mettreÀJourOptionsSélectionnées
-
-    /** @type {Set<string>} */
-    export let optionsSélectionnées = new Set(options)
-
-    $: optionsAffichées = [...options].map(option => ({option, checked: optionsSélectionnées.has(option)}))
-
-    function rerender() {
-        optionsSélectionnées = optionsSélectionnées
-    }
+    import {SvelteSet} from 'svelte/reactivity'
 
     /**
-     *
+     * @typedef {Object} Props
+     * @property {Set<string>} options
+     * @property {string} titre
+     * @property {function} mettreÀJourOptionsSélectionnées
+     * @property {Set<string>} [optionsSélectionnées]
+     */
+
+    /** @type {Props} */
+    let {
+        options,
+        titre,
+        mettreÀJourOptionsSélectionnées,
+        optionsSélectionnées = new SvelteSet(options)
+    } = $props();
+
+
+    /**
      * @param {string} option
-     * @returns 
      */
     function mettreÀJourOption(option) {
         if (optionsSélectionnées.has(option)) {
@@ -31,7 +28,6 @@
             optionsSélectionnées.add(option)
         }
 
-        rerender()
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
@@ -45,24 +41,24 @@
         mettreÀJourOptionsSélectionnées(optionsSélectionnées)
     }
 
-    let open = false;
+    let open = $state(false);
 
-    /** @type {HTMLElement} */
-    let details;
+    /** @type {HTMLElement | undefined} */
+    let details = $state();
 
     /**
      * @param {MouseEvent} e
      */
     function detailsOnClick(e){
         // @ts-ignore
-        if(!details.contains(e.target)){
+        if(!details?.contains(e.target)){
             open = false
         }
     }
 
 </script>
 
-<svelte:body on:click={detailsOnClick}/>
+<svelte:body onclick={detailsOnClick}/>
 
 <details bind:open bind:this={details}>
     <summary class="fr-btn fr-btn--secondary fr-btn--sm">
@@ -70,20 +66,19 @@
     </summary>
 
     <section class="filtre-options">
-        <button class="fr-btn fr-btn--secondary fr-btn--sm" on:click={selectionnerTout}>Sélectionner tout</button>
-        <button class="fr-btn fr-btn--secondary fr-btn--sm" on:click={selectionnerRien}>Sélectionner rien</button>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectionnerTout}>Sélectionner tout</button>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectionnerRien}>Sélectionner rien</button>
 
         <ul>
-
-            {#each optionsAffichées as optionAffichée}
+            {#each options as option}
                 <li>
                     <label>
                         <input 
                             type="checkbox" 
-                            bind:checked={optionAffichée.checked}
-                            on:input={() => mettreÀJourOption(optionAffichée.option)}
+                            checked={optionsSélectionnées.has(option)}
+                            oninput={() => mettreÀJourOption(option)}
                         />
-                        {optionAffichée.option}
+                        {option}
                     </label>
                 </li>
             {/each}

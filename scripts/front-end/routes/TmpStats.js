@@ -1,8 +1,7 @@
 //@ts-check
 
-import { replaceComponent } from '../routeComponentLifeCycle.js'
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import store from '../store.js'
-import { svelteTarget } from '../config.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import TmpStats from '../components/screens/TmpStats.svelte';
@@ -23,7 +22,7 @@ export default async () => {
     /**
      * 
      * @param {PitchouState} state 
-     * @returns {ComponentProps<TmpStats>}
+     * @returns {ComponentProps<typeof TmpStats>}
      */
     function mapStateToProps(state){
         const dossiersById = state.dossiersRésumés
@@ -33,12 +32,7 @@ export default async () => {
             dossiers: [...dossiersById.values()]
         }
     }    
-    
-    const suiviInstructeur = new TmpStats({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
 
-    replaceComponent(suiviInstructeur, mapStateToProps)
+    replaceComponent(TmpStats, mapStateToProps)
 
 }

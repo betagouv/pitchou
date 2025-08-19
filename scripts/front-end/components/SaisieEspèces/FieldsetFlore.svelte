@@ -1,52 +1,48 @@
 <script>
     // @ts-check
 
-    import { makeEspèceToKeywords, makeEspèceToLabel} from "../../espèceFieldset.js";
     import {
         trierParOrdreAlphabétiqueEspèce,
         grouperParActivité,
      } from "../../triEspèces.js"
-    import AutocompleteEspeces from "../AutocompleteEspèces.svelte"
+    import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import FloreAtteinteEditRow from "./FloreAtteinteEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    /** @type {FloreAtteinte[]} */
-    export let floresAtteintes
+    
+    /**
+     * @typedef {Object} Props
+     * @property {FloreAtteinte[]} floresAtteintes
+     * @property {EspèceProtégée[]} espècesProtégéesFlore
+     * @property {ActivitéMenançante[]} activitésMenaçantes
+     */
 
-    /** @type {EspèceProtégée[]} */
-    export let espècesProtégéesFlore
-
-    /** @type {ActivitéMenançante[]} */
-    export let activitésMenaçantes
-
-    const espècesToKeywords = makeEspèceToKeywords(espècesProtégéesFlore)
-    const espècesToLabel = makeEspèceToLabel(espècesProtégéesFlore)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteKeywordsFunction = esp => espècesToKeywords.get(esp)
-
-    /** @param {EspèceProtégée} esp */
-    const autocompleteLabelFunction = esp => espècesToLabel.get(esp)
+    /** @type {Props} */
+    let { floresAtteintes = $bindable(), espècesProtégéesFlore, activitésMenaçantes } = $props();
 
     /** @type {TriTableau | undefined}*/
-    let triSélectionné = undefined
+    let triSélectionné = $state(undefined)
 
     function rerender() {
         floresAtteintes = floresAtteintes
     }
 
-    /** @param {EspèceProtégée} flore */
-    function ajouterFlore(flore) {
-        floresAtteintes.push({
-            espèce: flore,
-        })
-        triSélectionné = undefined
+    /** @type {EspèceProtégée | undefined} */
+    let espèceRechercheSélectionnée = $state(undefined)
 
-        rerender()
-    }
+    $effect(() => {
+        if(espèceRechercheSélectionnée){
+            floresAtteintes.push({
+                espèce: espèceRechercheSélectionnée
+            })
+            triSélectionné = undefined
+            espèceRechercheSélectionnée = undefined
+        }
+        
+    })
 
     /** @param {EspèceProtégée} _espèce */
     function onSupprimerLigne(_espèce){
@@ -125,9 +121,12 @@
                     </thead>
 
                     <tbody>
-                        {#each floresAtteintes as {espèce, activité, nombreIndividus, surfaceHabitatDétruit}}
+                        {#each floresAtteintes as floreAtteinte}
                             <FloreAtteinteEditRow
-                                bind:espèce bind:activité bind:nombreIndividus bind:surfaceHabitatDétruit
+                                bind:espèce={floreAtteinte.espèce} 
+                                bind:activité={floreAtteinte.activité}
+                                bind:nombreIndividus={floreAtteinte.nombreIndividus}
+                                bind:surfaceHabitatDétruit={floreAtteinte.surfaceHabitatDétruit}
                                 {espècesProtégéesFlore} {activitésMenaçantes}
                                 {onSupprimerLigne}
                                 {onDupliquerLigne}
@@ -138,10 +137,7 @@
                             <td>
                                 <AutocompleteEspeces
                                     espèces={espècesProtégéesFlore}
-                                    onChange={ajouterFlore}
-                                    htmlClass="fr-input search"
-                                    labelFunction={autocompleteLabelFunction}
-                                    keywordsFunction={autocompleteKeywordsFunction}
+                                    bind:espèceSélectionnée={espèceRechercheSélectionnée}
                                 />
                             </td>
                             <td>

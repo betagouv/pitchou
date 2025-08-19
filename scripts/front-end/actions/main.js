@@ -3,6 +3,7 @@
 import {json} from 'd3-fetch'
 import remember, {forget} from 'remember'
 import page from 'page'
+import {SvelteMap, SvelteSet} from 'svelte/reactivity'
 
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
@@ -23,10 +24,10 @@ export function chargerRelationSuivi(){
                     throw new TypeError("On attendait un tableau de relation suivis ici !")
                 }
 
-                const relationSuivis = new Map()
+                const relationSuivis = new SvelteMap()
 
                 for(const {personneEmail, dossiersSuivisIds} of relationSuivisBDD){
-                    relationSuivis.set(personneEmail, new Set(dossiersSuivisIds))
+                    relationSuivis.set(personneEmail, new SvelteSet(dossiersSuivisIds))
                 }
 
                 store.mutations.setRelationSuivis(relationSuivis)
@@ -110,10 +111,10 @@ export async function logout(){
     store.mutations.setCapabilities({})
     store.mutations.setIdentité(undefined)
 
-    store.mutations.setDossiersRésumés(new Map())
-    store.mutations.setDossiersComplets(new Map())
+    store.mutations.setDossiersRésumés(new SvelteMap())
+    store.mutations.setDossiersComplets(new SvelteMap())
     store.mutations.resetMessages()
-    store.mutations.setRelationSuivis(new Map())
+    store.mutations.setRelationSuivis(new SvelteMap())
 
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }

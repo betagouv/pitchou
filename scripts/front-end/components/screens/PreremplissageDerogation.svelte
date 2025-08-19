@@ -7,20 +7,26 @@
     /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
 
 
-    /** @type {SchemaDémarcheSimplifiée}  */
-    export let schemaDS88444
-    export let email
+    
+    /**
+     * @typedef {Object} Props
+     * @property {SchemaDémarcheSimplifiée} schemaDS88444
+     * @property {string} [email]
+     */
+
+    /** @type {Props} */
+    let { schemaDS88444, email = undefined } = $props();
 
     /** @type {Partial<DossierDemarcheSimplifiee88444>} */
-    let nouveauDossierPartiel = {}
-    let lienDePreremplissage = ""
+    let nouveauDossierPartiel = $state({})
+    let lienDePreremplissage = $state("")
     
     /** @type { (keyof DossierDemarcheSimplifiee88444)[] } */
     //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
-    $: champsPreremplis = Object.keys(nouveauDossierPartiel).filter(champ => {
+    let champsPreremplis = $derived(Object.keys(nouveauDossierPartiel).filter(champ => {
         //@ts-expect-error pareil
         return nouveauDossierPartiel[champ] !== ""
-    })
+    }))
 
     let onSelectChanged = () => {
         lienDePreremplissage = créerLienGETPréremplissageDémarche(nouveauDossierPartiel, schemaDS88444)
@@ -63,7 +69,7 @@
         <div class="fr-col-8">
             <h1>Pré-remplissage dérogation espèces protégées</h1>
 
-            <form on:change={onSelectChanged}>
+            <form onchange={onSelectChanged}>
                 {#each champsRemplissables as champ}
                     {#if champ["__typename"] == "HeaderSectionChampDescriptor"}
                         <h3>{champ["label"]}</h3>
@@ -109,7 +115,7 @@
                                 <li>
                                     {champPrerempli} : 
                                     <em>
-                                        {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean" }
+                                        {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean"}
                                             {nouveauDossierPartiel[champPrerempli] ? "Oui" : "Non"}
                                         {:else}
                                             {nouveauDossierPartiel[champPrerempli]}

@@ -33,19 +33,32 @@
         return format(date, `d MMMM yyyy HH'h'mm`, { locale: fr })
     }
 
-    /** @type {boolean} */
-    export let nav = true;
+    
 
-    /** @type {string | undefined} */
-    export let email = undefined;
+    
 
-    /** @type {PitchouState['erreurs']} */
-    export let erreurs = new Set()
+    
 
-    /** @type {PitchouState['résultatsSynchronisationDS88444']} */
-    export let résultatsSynchronisationDS88444 = undefined
+    
+    /**
+     * @typedef {Object} Props
+     * @property {boolean} [nav]
+     * @property {string | undefined} [email]
+     * @property {PitchouState['erreurs']} [erreurs]
+     * @property {PitchouState['résultatsSynchronisationDS88444']} [résultatsSynchronisationDS88444]
+     * @property {import('svelte').Snippet} [children]
+     */
 
-    $: dernièreSynchronisationRéussie = résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find(r=> r.succès)
+    /** @type {Props} */
+    let {
+        nav = true,
+        email = undefined,
+        erreurs = new Set(),
+        résultatsSynchronisationDS88444 = undefined,
+        children
+    } = $props();
+
+    let dernièreSynchronisationRéussie = $derived(résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find(r=> r.succès))
 
     let enleverErreur = store.mutations.enleverErreur
 </script>
@@ -79,7 +92,7 @@
                         <ul class="fr-btns-group">
                             <li>
                                 <span>{email}</span>
-                                <button class="fr-btn fr-icon-lock-line" on:click={logoutAndRedirect}>
+                                <button class="fr-btn fr-icon-lock-line" onclick={logoutAndRedirect}>
                                     Se déconnecter
                                 </button>
                             </li>
@@ -150,7 +163,7 @@
             <div class="fr-alert-background fr-mb-1w">
                 <div class="fr-alert fr-alert--error fr-alert--sm">
                     <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
-                    <button on:click={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
+                    <button onclick={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
                 </div>
             </div>
         {/each}    
@@ -159,7 +172,7 @@
 {/if}
 
 
-<slot />
+{@render children?.()}
 
 <footer class="fr-footer" id="footer">
     <div class="fr-container">

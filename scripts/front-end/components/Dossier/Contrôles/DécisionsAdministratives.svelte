@@ -1,4 +1,5 @@
-<script>    
+<script>
+    import {SvelteSet, SvelteMap} from 'svelte/reactivity'
     import DateInput from '../../common/DateInput.svelte'
     import Prescription from './Prescription.svelte'
     import FormulaireDécisionAdministrative from './FormulaireDécisionAdministrative.svelte'
@@ -17,31 +18,30 @@
     /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
     /** @import PrescriptionType from '../../../../types/database/public/Prescription.ts' */
 
-    /** @type {Dossier['id']} */
-    export let dossierId
+    
+    /**
+     * @typedef {Object} Props
+     * @property {Dossier['id']} dossierId
+     * @property {FrontEndDécisionAdministrative} décisionAdministrative
+     * @property {() => Promise<unknown>} supprimerDécisionAdministrative
+     */
+
+    /** @type {Props} */
+    let { dossierId, décisionAdministrative = $bindable(), supprimerDécisionAdministrative } = $props();
+
+    //$inspect('décisionAdministrative', décisionAdministrative)
 
 
-    /** @type {FrontEndDécisionAdministrative} */
-    export let décisionAdministrative
-
-    /** @type {() => Promise<unknown>} */
-    export let supprimerDécisionAdministrative
-
-
-    $: ({ id,
+    let { id,
         numéro, type, date_signature, date_fin_obligations, fichier_url
-    } = décisionAdministrative)
+    } = $derived(décisionAdministrative)
 
     /** @type {Set<Partial<FrontEndPrescription>>}*/
-    let prescriptions = décisionAdministrative.prescriptions ? new Set(décisionAdministrative.prescriptions) : new Set()
+    let prescriptions = $state(décisionAdministrative.prescriptions ? new SvelteSet(décisionAdministrative.prescriptions) : new SvelteSet())
     //$: console.log('prescriptions', prescriptions)
 
 
     const NON_RENSEIGNÉ = '(non renseigné)'
-
-    function rerender(){
-        prescriptions = prescriptions
-    }
 
     function ajouterPrescription(){
         /** @type {Partial<PrescriptionType>} */
@@ -60,11 +60,11 @@
 
         prescriptions.add(nouvellePrescription)
 
-        rerender()
+        vuePrescription = 'modifier'
     }
 
-    /** @type {WeakMap<Partial<PrescriptionType>, {prescriptionIdP: Promise<PrescriptionType['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
-    const prescriptionToPendingIdAndLatestData = new WeakMap()
+    /** @type {Map<Partial<PrescriptionType>, {prescriptionIdP: Promise<PrescriptionType['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
+    const prescriptionToPendingIdAndLatestData = new SvelteMap()
 
     /**
      * 
@@ -82,7 +82,7 @@
             if(pendingPrescriptionIdEntry){
                 pendingPrescriptionIdEntry.updateAfterRecievingId = true
             } else {
-                /** @type {Promise<Prescription['id'] | undefined>} */
+                /** @type {Promise<PrescriptionType['id'] | undefined>} */
                 const prescriptionIdP = ajouterPrescriptionBaseDeDonnées(prescription)
 
                 const newPendingPrescriptionIdEntry = {
@@ -116,8 +116,6 @@
         }
 
         prescriptions.delete(prescription)
-
-        rerender()
     }
 
     /**
@@ -141,7 +139,7 @@
 
 
     /** @type {DécisionAdministrativePourTransfer | undefined} */
-    let décisionAdministrativeEnModification
+    let décisionAdministrativeEnModification = $state()
 
     function passerEnVueModifierDécisionAdministrative(){
         décisionAdministrativeEnModification = {
@@ -178,7 +176,7 @@
     }
 
     /** @type {'consulter' | 'modifier'} */
-    let vuePrescription = 'consulter'
+    let vuePrescription = $state('consulter')
 
 </script>
 
@@ -187,7 +185,7 @@
     {#if !décisionAdministrativeEnModification}
     <h4>
         {type || 'Décision de type inconnu'} {numéro || ''} du {formatDateAbsolue(date_signature)}
-        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" on:click={passerEnVueModifierDécisionAdministrative}>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" onclick={passerEnVueModifierDécisionAdministrative}>
             Modifier
         </button>
     </h4>
@@ -199,7 +197,7 @@
                 Télécharger le fichier de l'arrếté
             </a>
         {:else}
-            (pas de fichier pour le moment)
+            (fichier manquant)
         {/if}
     </div>
 
@@ -209,7 +207,7 @@
             <section class="fr-mb-3w">
                 <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-                <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
                     Ajouter une prescription
                 </button>
             </section>
@@ -222,7 +220,7 @@
                         Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles sont toutes optionnelles)
                         <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : .ods</span>
                     </label>
-                    <input on:input={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
+                    <input oninput={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
                 </div>
             </section>
         {:else}
@@ -233,7 +231,7 @@
                     <Prescription {prescription}></Prescription>
                 {/each}
 
-                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" on:click={() => vuePrescription = 'modifier'}>
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" onclick={() => vuePrescription = 'modifier'}>
                     Modifier les prescriptions
                 </button>
             {:else}
@@ -254,7 +252,7 @@
                     </thead>
                     <tbody>
                         {#each prescriptions as prescription}
-                            <tr class="prescription" on:focusout={(e) => {
+                            <tr class="prescription" onfocusout={(e) => {
                                 //@ts-ignore
                                 if (!e.target?.classList.contains('bouton-supprimer')) {
                                     savePrescription(prescription)
@@ -271,19 +269,19 @@
                                 <td><input class="fr-input" bind:value={prescription.individus_évités} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_compensés} type="number" min="0"></td>
                                 <td><input class="fr-input" bind:value={prescription.nids_évités} type="number" min="0"></td>
-                                <td><button class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" on:click={() => supprimerPrescription(prescription)}>Supprimer</button></td>
+                                <td><button class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary" onclick={() => supprimerPrescription(prescription)}>Supprimer</button></td>
                             </tr>
                         {/each}
                         <tr><td colspan="9" class="fr-pt-1w">
-                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" on:click={ajouterPrescription}>
+                            <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
                                 Ajouter une prescription
                             </button>
                         </td></tr>
                     </tbody>
                 </table>
 
-                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" on:click={() => vuePrescription = 'consulter'}>
-                    Modification terminées
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w" onclick={() => vuePrescription = 'consulter'}>
+                    Modifications terminées
                 </button>
             {/if}
         {/if}
@@ -294,14 +292,17 @@
         <h4>Modifier décision administrative</h4>
 
         <FormulaireDécisionAdministrative décisionAdministrative={décisionAdministrativeEnModification || {}} onValider={sauvegarderDécisionAdministrative}>
-            
-            <button slot="bouton-valider" type="submit" class="fr-btn" >Sauvegarder</button>
-            <button slot="bouton-annuler" type="button" class="fr-btn fr-btn--secondary" on:click={annulerModification}>Annuler</button>
-        
-            <button slot="bouton-supprimer" type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" on:click={supprimerDécisionAdministrative}>
-                Supprimer cette décision administrative
-            </button>
-        
+            {#snippet boutonValider()}
+                <button type="submit" class="fr-btn">Sauvegarder</button>
+            {/snippet}
+            {#snippet boutonAnnuler()}
+                <button type="button" class="fr-btn fr-btn--secondary" onclick={annulerModification}>Annuler</button>
+            {/snippet}
+            {#snippet boutonSupprimer()}
+                <button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line" onclick={supprimerDécisionAdministrative}>
+                    Supprimer cette décision administrative
+                </button>
+            {/snippet}
         </FormulaireDécisionAdministrative>
     {/if}
 
@@ -342,12 +343,6 @@
                 &>:nth-child(n+4){
                     width: 6rem;
                 }
-
-                input{
-                    padding-right: 0.4rem;
-                    padding-left: 0.5rem;
-                }
-
             }
         }
     }

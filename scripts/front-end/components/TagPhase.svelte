@@ -5,22 +5,34 @@
     /** @import { DossierPhase } from '../../types/API_Pitchou.ts' */
 	
 
-    /** @type {DossierPhase} */
-    export let phase
+    
 
     // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-    /** @type {'SM' | 'MD'} */
-    export let taille = 'MD'
+    
 
-    /** @type {MouseEventHandler<HTMLButtonElement> | undefined} */
-    export let onClick = undefined
+    
 
-    /** @type {boolean | undefined} */
-    export let ariaPressed = undefined
+    
 
-    /** @type {string[]} */
-    export let classes = []
+    
+  /**
+   * @typedef {Object} Props
+   * @property {DossierPhase} phase
+   * @property {'SM' | 'MD'} [taille]
+   * @property {MouseEventHandler<HTMLButtonElement> | undefined} [onClick]
+   * @property {boolean | undefined} [ariaPressed]
+   * @property {string[]} [classes]
+   */
+
+  /** @type {Props} */
+  let {
+    phase,
+    taille = 'MD',
+    onClick = undefined,
+    ariaPressed = undefined,
+    classes = []
+  } = $props();
 
     /** @type {Map<DossierPhase, string>} */
     const phaseToClass = new Map([
@@ -38,12 +50,12 @@
         ['MD', 'fr-tag--md']
     ])
 
-    $: allClasses = [
+    let allClasses = $derived([
         'fr-tag',
         tailleToClass.get(taille),
         phaseToClass.get(phase),
         ...classes
-    ].filter(x => !!x)
+    ].filter(x => !!x))
 
 
     /**
@@ -61,7 +73,7 @@
 </script>
 
 {#if typeof onClick === 'function'}
-    <button class={allClasses.join(' ')} aria-pressed={ariaPressed} on:click={onClickWithDSFROverride} type="button">{phase}</button>
+    <button class={allClasses.join(' ')} aria-pressed={ariaPressed} onclick={onClickWithDSFROverride} type="button">{phase}</button>
 {:else}
     <p class={allClasses.join(' ')}>{phase}</p>
 {/if}

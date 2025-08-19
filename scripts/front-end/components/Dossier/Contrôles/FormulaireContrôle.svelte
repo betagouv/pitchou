@@ -1,18 +1,34 @@
+<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (bouton-valider to bouton_valider) making the component unusable -->
 <script>
     import DateInput from '../../common/DateInput.svelte'
 
     import toJSONPerserveDate from '../../../../commun/DateToJSON.js';
     import {résultatsContrôle, typesActionSuiteContrôle} from '../../../actions/contrôle.js'
 
-
+    /** @import {Snippet} from 'svelte' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
 
+    /**
+     * @typedef {Object} Props
+     * @property {Contrôle | Partial<Contrôle>} contrôle
+     * @property {(contrôle: Contrôle | Partial<Contrôle>) => Promise<any>} onValider
+     * @property {Snippet} [boutonValider]
+     * @property {Snippet} [boutonAnnuler]
+     * @property {Snippet} [boutonSupprimer]
+     */
 
-    /** @type {Contrôle | Partial<Contrôle>} */
-    export let contrôle
+    /** @type {Props} */
+    let { 
+        contrôle,
+        onValider,
+        boutonValider,
+        boutonAnnuler,
+        boutonSupprimer
+    } = $props();
 
-    /** @type {(contrôle: Contrôle | Partial<Contrôle>) => Promise<any>} */
-    export let onValider
+    /** @type {Props['contrôle']} */
+    let contrôleEnÉdition = $state(contrôle)
+
 
     /**
      * 
@@ -21,14 +37,14 @@
     async function formSubmit(e){
         e.preventDefault()
 
-        if(contrôle.date_action_suite_contrôle){
-            Object.defineProperty(contrôle.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
+        if(contrôleEnÉdition.date_action_suite_contrôle){
+            Object.defineProperty(contrôleEnÉdition.date_action_suite_contrôle, 'toJSON', {value: toJSONPerserveDate})
         }
-        if(contrôle.date_prochaine_échéance){
-            Object.defineProperty(contrôle.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
+        if(contrôleEnÉdition.date_prochaine_échéance){
+            Object.defineProperty(contrôleEnÉdition.date_prochaine_échéance, 'toJSON', {value: toJSONPerserveDate})
         }
 
-        onValider(contrôle)
+        onValider(contrôleEnÉdition)
     }
 
 
@@ -36,12 +52,12 @@
 
 
 
-<form on:submit={formSubmit}>
+<form onsubmit={formSubmit}>
     <div class="fr-input-group">
         <label class="fr-label" for="text-input">
             Date du contrôle
         </label>
-        <DateInput bind:date={contrôle.date_contrôle}></DateInput>
+        <DateInput bind:date={contrôleEnÉdition.date_contrôle}></DateInput>
     </div>
 
 
@@ -50,7 +66,7 @@
         <input
             class="fr-input"
             list="résultats-contrôle"
-            bind:value={contrôle.résultat}
+            bind:value={contrôleEnÉdition.résultat}
         />
         <datalist id="résultats-contrôle">
             {#each résultatsContrôle as résultatContrôle}
@@ -61,7 +77,7 @@
 
     <div class="fr-input-group">
         <label class="fr-label" for="text-input"> Commentaire libre </label>
-        <textarea class="fr-input" bind:value={contrôle.commentaire}
+        <textarea class="fr-input" bind:value={contrôleEnÉdition.commentaire}
         ></textarea>
     </div>
 
@@ -72,7 +88,7 @@
         <input
             class="fr-input"
             list="type-actions"
-            bind:value={contrôle.type_action_suite_contrôle}
+            bind:value={contrôleEnÉdition.type_action_suite_contrôle}
         />
         <datalist id="type-actions">
             {#each typesActionSuiteContrôle as typeActionSuiteContrôle}
@@ -85,25 +101,31 @@
         <label class="fr-label" for="text-input">
             Date de l'action suite au contrôle
         </label>
-        <DateInput bind:date={contrôle.date_action_suite_contrôle}></DateInput>
+        <DateInput bind:date={contrôleEnÉdition.date_action_suite_contrôle}></DateInput>
     </div>
 
     <div class="fr-input-group">
         <label class="fr-label" for="text-input">
             Date prochaine échéance
         </label>
-        <DateInput bind:date={contrôle.date_prochaine_échéance}></DateInput>
+        <DateInput bind:date={contrôleEnÉdition.date_prochaine_échéance}></DateInput>
     </div>
 
-    <slot name="bouton-valider">
-        <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-            Enregistrer
-        </button>
-    </slot>
+    <div class="fr-mb-6w">
+        {#if boutonValider}
+            {@render boutonValider()}
+        {:else}
+            <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                Enregistrer
+            </button>
+        {/if}
 
-    <slot name="bouton-annuler" />
+        {@render boutonAnnuler?.()}
+    </div>
 
-    <slot name="bouton-supprimer"/>
+    {#if boutonSupprimer}
+        {@render boutonSupprimer()}
+    {/if}
 
 </form>
 
@@ -113,6 +135,5 @@
         margin-top: 1rem;
         margin-bottom: 2rem;
     }
-
 
 </style>

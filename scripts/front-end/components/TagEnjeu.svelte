@@ -2,16 +2,22 @@
     //@ts-check
   
 	
-    /** @type {'écologique' | 'politique'} */
-    export let enjeu
+    
 
     // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-    /** @type {'SM' | 'MD'} */
-    export let taille = 'MD'
+    
 
-    /** @type {string[]} */
-    export let classes = []
+    
+  /**
+   * @typedef {Object} Props
+   * @property {'écologique' | 'politique'} enjeu
+   * @property {'SM' | 'MD'} [taille]
+   * @property {string[]} [classes]
+   */
+
+  /** @type {Props} */
+  let { enjeu, taille = 'MD', classes = [] } = $props();
 
     /** @type {Map<typeof enjeu, string>} */
     const enjeuToClass = new Map([
@@ -25,12 +31,12 @@
         ['MD', 'fr-tag--md']
     ])
 
-    $: allClasses = [
+    let allClasses = $derived([
         'fr-tag',
         tailleToClass.get(taille),
         enjeuToClass.get(enjeu),
         ...classes
-    ].filter(x => !!x)
+    ].filter(x => !!x))
 
 </script>
 
