@@ -34,7 +34,7 @@ function isOngletValide(onglet) {
  * @param {string} ctx.params.dossierId
  * @param {string} [ctx.hash]
  */
-export default async ({params: {dossierId}, hash: onglet}) => {
+export default async ({params: {dossierId}}) => {
     /** @type {DossierId} */
     // @ts-ignore
     const id = Number(dossierId)
@@ -62,6 +62,9 @@ export default async ({params: {dossierId}, hash: onglet}) => {
 
         const messages = state.messagesParDossierId.get(id)
         const relationSuivis = state.relationSuivis
+
+        const hash = location.hash;
+        const onglet = hash.slice('#'.length)
 
         /** @type {Onglet} */
         const ongletActifInitial = onglet && isOngletValide(onglet)

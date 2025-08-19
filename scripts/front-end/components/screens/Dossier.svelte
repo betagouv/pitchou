@@ -79,13 +79,10 @@
         résultatsSynchronisationDS88444
     } = $props();
 
-    //let dossier = $state(_dossier)
-
-
     $inspect('Dossier complet', dossier)
     
     let ongletActif = $derived(ongletActifInitial)
-    
+
     /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
     let espècesImpactées = $derived(getEspècesImpactés(dossier))
 </script>
