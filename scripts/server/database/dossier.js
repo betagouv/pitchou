@@ -31,7 +31,7 @@ import {getContrôles} from './controle.js';
 //@ts-ignore
 /** @import {DossierInitializer, DossierMutator} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
-/** @import {DossierPourSynchronisation} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierPourInsert, DossierPourSynchronisation, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 //@ts-ignore
 /** @import AvisExpert from '../../types/database/public/AvisExpert.ts' */
 //@ts-ignore
@@ -156,12 +156,12 @@ const varcharKeys = [
 
 /**
  *
- * @param {DossierInitializer[]} dossiersAInitialiser
- * @param {DossierMutator[]} dossiersAModifier
+ * @param {DossierPourInsert[]} dossiersPourInsert
+ * @param {DossierPourUpdate[]} dossiersPourUpdate
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseConnection = directDatabaseConnection){
-    for(const d of [...dossiersAInitialiser, ...dossiersAModifier]){
+export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, databaseConnection = directDatabaseConnection){
+    for(const {dossier: d} of [...dossiersPourInsert, ...dossiersPourUpdate]){
         for(const k of varcharKeys){
             if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
@@ -177,23 +177,42 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
     /**@type {knex.Knex.QueryBuilder<any, any>[]} */
     let updatePromises = []
     
-    if (dossiersAModifier.length>=1) {
-        updatePromises = dossiersAModifier.map(dossierAModifier => 
-        databaseConnection('dossier')
-            .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
-            .update(dossierAModifier)
-            .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
-        )
+    if (dossiersPourUpdate.length>=1) {
+        updatePromises = dossiersPourUpdate.map(({dossier: dossierAModifier}) => {
+            return databaseConnection('dossier')
+                .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
+                .update(dossierAModifier)
+                .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
+        })
     }
 
-    /**@type {knex.Knex.QueryBuilder<any, any> | undefined} */
-    let insertPromise
+    /**@type {Dossier['id'][] | undefined} */
+    //let insertedDossierIds
 
-    if (dossiersAInitialiser.length >= 1) {
-        insertPromise = databaseConnection('dossier')
-        .insert(dossiersAInitialiser)
-        .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
+    if (dossiersPourInsert.length >= 1) {
+        let insertedDossierIds = await databaseConnection('dossier')
+            .insert(dossiersPourInsert.map(tables => tables.dossier))
+            .returning(['id'])
+
+        insertedDossierIds.forEach((dossierInséréId, index) => {
+            // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
+            const donnéesPourDossier = dossiersPourInsert[index]
+
+            const {évènement_phase_dossier} = donnéesPourDossier
+            if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
+                for(const ev of évènement_phase_dossier){
+                    ev.dossier = dossierInséréId
+                }
+            }
+        })
     }
+
+    // désormais, tous les évènement_phase_dossier sont des ÉvènementPhaseDossierInitializer
+
+    throw `PPP insérer tous les évènement_phase_dossier avec un insert on conflict ignore `
+
+
+
 
     return Promise.all([insertPromise, ...updatePromises])
     .then(results => results.flat())

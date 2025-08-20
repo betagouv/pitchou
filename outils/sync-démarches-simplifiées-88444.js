@@ -144,14 +144,14 @@ for(const personne of allPersonnesCurrentlyInDatabase){
     }
 }
 
-/** @type {readonly (Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique"> | Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">)[] } */
+/** @type {readonly (DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate)[] } */
 const dossiersPourSynchronisation = Object.freeze([...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro])
 
 /** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
 const personnesInDossiersAvecEmail = new Map()
 const personnesInDossiersSansEmail = new Map()
 
-for (const {déposant, /** demandeur_personne_physique */} of dossiersPourSynchronisation) {
+for (const {dossier: {déposant, /** demandeur_personne_physique */}} of dossiersPourSynchronisation) {
     if (déposant) {
         if(déposant.email) {
             personnesInDossiersAvecEmail.set(déposant.email, déposant)
@@ -218,7 +218,7 @@ if(personnesInDossiersWithoutId.length >= 1){
 /** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
-for(const {demandeur_personne_morale, id_demarches_simplifiées} of dossiersPourSynchronisation){
+for(const {dossier: {demandeur_personne_morale, id_demarches_simplifiées}} of dossiersPourSynchronisation){
     if (demandeur_personne_morale) {
         const {siret} = demandeur_personne_morale
         if(demandeur_personne_morale && !siret){
@@ -245,11 +245,15 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * @param {DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation
  * @return {DossierPourUpdate}
  */
-
 /**
- * 
+ * @overload
  * @param {DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation 
  * @returns {DossierPourInsert}
+ */
+/**
+ * 
+ * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation 
+ * @returns {DossierPourInsert | DossierPourUpdate}
  */
 function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation){
     const { 
@@ -275,10 +279,11 @@ function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation)
     }
 }
 
-/** @type {DossierInitializer[]} */
+/** @type {DossierPourInsert[]} */
 const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(remplacerPersonneEntrepriseInitializerParId)
 
-/** @type {DossierMutator[]} */
+/** @type {DossierPourUpdate[]} */
+// @ts-ignore
 const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntrepriseInitializerParId)
 
 

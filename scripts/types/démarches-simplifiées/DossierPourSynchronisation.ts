@@ -1,7 +1,8 @@
 import { DossierInitializer, DossierMutator } from "../database/public/Dossier.ts"
 import { PersonneInitializer } from "../database/public/Personne.ts"
 import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
-import { default as ÉvènementPhaseDossier } from "../database/public/ÉvènementPhaseDossier.ts"
+import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../database/public/ÉvènementPhaseDossier.ts"
+import { PartialBy } from "../tools"
 
 
 export type DonnéesPersonnesEntreprisesInitializer = {
@@ -37,7 +38,7 @@ type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | Do
 
 export type DossierPourSynchronisation<DossierType> = {
     dossier: DossierType
-    //évènement_phase_dossier: Omit<ÉvènementPhaseDossier, 'dossier'>
+    évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
 }
 
 export type DossierEntreprisesPersonneInitializersPourInsert = 
