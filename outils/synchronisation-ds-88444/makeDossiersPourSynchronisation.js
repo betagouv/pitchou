@@ -1,5 +1,5 @@
 /** @import {DossierPourSynchronisation, DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
+/** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
 
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
@@ -139,7 +139,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
      * POUR IMPORT DOSSIERS HISTORIQUES
      * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
-    /** @type {DonnéesSupplémentaires | undefined} */
+    /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
     let données_supplémentaires
     try {
         données_supplémentaires = données_supplémentaires_à_déchiffrer ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer)) : undefined

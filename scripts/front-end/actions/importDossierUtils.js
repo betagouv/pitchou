@@ -31,7 +31,7 @@ import memoize from 'just-memoize'
  *   date_avis_csrpn_cnpn: string | undefined,
  *   derogation_accordee: string | undefined,
  *   date_ap: string | undefined
- * }} DonnéesSupplémentaires
+ * }} DonnéesSupplémentairesPourCréationDossier
  */
 
 

@@ -3,7 +3,7 @@
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 
-/** @import { DonnéesSupplémentaires } from "./importDossierUtils" */
+/** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import Dossier from '../../types/database/public/Dossier.ts' */
 
@@ -128,7 +128,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierBFC} ligne
- * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
+ * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const description = ligne['Description avancement dossier avec dates']
