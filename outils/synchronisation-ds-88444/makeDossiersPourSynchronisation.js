@@ -130,7 +130,7 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossier
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Promise<DossierInitializer>}
+ * @returns {Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, 'dossier'>>}
  */
 async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
@@ -153,8 +153,11 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     }
 
     return {
-        ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
-        date_dépôt: données_supplémentaires?.date_dépôt ?? dossierDS.dateDepot
+        dossier: {
+            ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
+            date_dépôt: données_supplémentaires?.dossier.date_dépôt ?? dossierDS.dateDepot
+        },
+        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier
     }
 }
 
@@ -230,10 +233,13 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
             return champsDossierPourInitP.then(champsDossierPourInit => ({
                 dossier: {
-                    ...champsDossierPourInit,
+                    ...champsDossierPourInit.dossier,
                     ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
                 },
-                évènement_phase_dossier
+                évènement_phase_dossier : [
+                    ...(champsDossierPourInit.évènement_phase_dossier || []),
+                    ...évènement_phase_dossier
+                ]
             }))
         })
 

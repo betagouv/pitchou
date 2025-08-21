@@ -1,22 +1,20 @@
+/** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
+/** @import { PartialBy }  from '../../types/tools' */
+/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 
-
-//@ts-check
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
 
-//@ts-ignore
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-//@ts-ignore
-/** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-//@ts-ignore
-/** @import Dossier from "../../types/database/public/Dossier" */
+
 
 /**
  * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
  * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
  * données propres à Pitchou comme le suivi des dossiers
  * 
- * @typedef {Object} DonnéesSupplémentairesPourCréationDossier
+ * PPP Ce type est complètement à revoir pour mieux coller aux colonnes de la table Dossier
+ * 
+ * @typedef {Object} DonnéesSupplémentairesPourCréationDossier_Dossier
  * @property {string} [commentaire_libre]
  * @property {Date} [date_dépôt]
  * @property {string} [personne_mail]
@@ -33,6 +31,19 @@ import memoize from 'just-memoize'
  * @property {string} [derogation_accordee]
  * @property {string} [date_ap]
  */
+
+/**
+ * Les propriétés de cet objet correspondent à des noms de tables 
+ * dans lesquelles ces données seront stockées
+ * 
+ * PPP est-ce que ce type est le même que DossierPourInsert/Update ou un truc comme ça ?
+ * 
+ * @typedef {Object} DonnéesSupplémentairesPourCréationDossier
+ * @property {DonnéesSupplémentairesPourCréationDossier_Dossier} dossier
+ * @property {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} [évènement_phase_dossier]
+ * 
+ */
+
 
 
 /**
