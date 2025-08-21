@@ -1,12 +1,15 @@
-/** @import {DossierDS88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
-/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
-/** @import  {DossierPourSynchronisation, DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierPourSynchronisation, DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
-/** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
+
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+
+/** @import Dossier, {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
+/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
+/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
+/** @import {default as ÉvènementPhaseDossier, VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer} from '../../scripts/types/database/public/ÉvènementPhaseDossier.ts' */
+
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
@@ -156,6 +159,49 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 }
 
 
+/**
+ * Converti les "state" des "traitements" DS vers les phases Pitchou
+ * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
+ * 
+ * @param {Traitement['state']} DSTraitementState
+ * @returns {import('../../scripts/types/API_Pitchou.ts').DossierPhase}
+ */
+function traitementPhaseToDossierPhase(DSTraitementState){
+    if(DSTraitementState === 'en_construction')
+        return "Accompagnement amont"
+    if(DSTraitementState === 'en_instruction')
+        return "Instruction"
+    if(DSTraitementState === 'accepte')
+        return "Contrôle"
+    if(DSTraitementState === 'sans_suite')
+        return "Classé sans suite"
+    if(DSTraitementState === 'refuse')
+        return "Obligations terminées"
+
+    throw `Traitement phase non reconnue: ${DSTraitementState}`
+}
+
+/**
+ * 
+ * @param {DossierDS88444['traitements']} traitements 
+ */
+function makeÉvènementsPhaseDossierFromTraitementsDS(traitements){
+    /** @type {DossierPourInsert['évènement_phase_dossier']} */
+    const évènementsPhaseDossier = [];
+    
+    for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
+        évènementsPhaseDossier.push({
+            phase: traitementPhaseToDossierPhase(state),
+            horodatage: new Date(dateTraitement),
+            cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
+            DS_emailAgentTraitant: emailAgentTraitant,
+            DS_motivation: motivation
+        })
+    }
+
+    return évènementsPhaseDossier
+}
+
 
 /**
  * Récupère les données brutes des dossiers depuis Démarches Simplifiées
@@ -177,17 +223,25 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
             )
+
+            const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
+
             return champsDossierPourInitP.then(champsDossierPourInit => ({
                 dossier: {
                     ...champsDossierPourInit,
                     ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
-                }
+                },
+                évènement_phase_dossier
             }))
         })
 
 
     /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
-    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => ({
+    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
+        
+        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
+
+        return({
             dossier: {
                 ...(makeColonnesCommunesDossierPourSynchro(
                     dossierDS,
@@ -195,8 +249,10 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                     pitchouKeyToAnnotationDS
                 )),
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
-            }
-        }))
+            },
+            évènement_phase_dossier
+        })
+    })
 
 
     const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP)

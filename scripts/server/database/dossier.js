@@ -80,55 +80,7 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
         .onConflict('id_démarches_simplifiées').merge()
 }
 
-/**
- * Converti les "state" des "traitements" DS vers les phases Pitchou
- * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
- * 
- * @param {API_DS_SCHEMA.Traitement['state']} DSTraitementState
- * @returns {DossierPhase}
- */
-function traitementPhaseToDossierPhase(DSTraitementState){
-    if(DSTraitementState === 'en_construction')
-        return "Accompagnement amont"
-    if(DSTraitementState === 'en_instruction')
-        return "Instruction"
-    if(DSTraitementState === 'accepte')
-        return "Contrôle"
-    if(DSTraitementState === 'sans_suite')
-        return "Classé sans suite"
-    if(DSTraitementState === 'refuse')
-        return "Obligations terminées"
 
-    throw `Traitement phase non reconnue: ${DSTraitementState}`
-}
-
-/**
- * @param {Map<Dossier['id'], API_DS_SCHEMA.DossierDS88444['traitements']>} idToTraitements
- * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
-export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
-    /** @type {ÉvènementPhaseDossier[]} */
-    const évènementsPhaseDossier = [];
-    
-    for(const [dossierId, traitements] of idToTraitements){
-        for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
-            évènementsPhaseDossier.push({
-                phase: traitementPhaseToDossierPhase(state),
-                horodatage: new Date(dateTraitement),
-                dossier: dossierId,
-                cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
-                DS_emailAgentTraitant: emailAgentTraitant,
-                DS_motivation: motivation
-            })
-        }
-    };
-    
-    return databaseConnection('évènement_phase_dossier')
-        .insert(évènementsPhaseDossier)
-        .onConflict(['dossier', 'phase', 'horodatage'])
-        .merge()
-}
 
 /**
  * Cette fonction est sensible
@@ -186,14 +138,13 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         })
     }
 
-    /**@type {Dossier['id'][] | undefined} */
-    //let insertedDossierIds
 
     if (dossiersPourInsert.length >= 1) {
         let insertedDossierIds = await databaseConnection('dossier')
             .insert(dossiersPourInsert.map(tables => tables.dossier))
             .returning(['id'])
 
+        // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const donnéesPourDossier = dossiersPourInsert[index]
@@ -209,13 +160,19 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
     // désormais, tous les évènement_phase_dossier sont des ÉvènementPhaseDossierInitializer
 
-    throw `PPP insérer tous les évènement_phase_dossier avec un insert on conflict ignore `
+    const évènementsPhaseDossier = [...dossiersPourUpdate, ...dossiersPourInsert]
+        .map(tables => tables.évènement_phase_dossier)
+        .filter(x => x !== undefined)
+        .flat()
+
+    const évènmentsPhaseDossiersInsérésP = databaseConnection('évènement_phase_dossier')
+        .insert(évènementsPhaseDossier)
+        .onConflict(['dossier', 'phase', 'horodatage'])
+        .merge()
 
 
-
-
-    return Promise.all([insertPromise, ...updatePromises])
-    .then(results => results.flat())
+    return Promise.all([évènmentsPhaseDossiersInsérésP, ...updatePromises])
+        .then(results => results.flat())
         
 }
 

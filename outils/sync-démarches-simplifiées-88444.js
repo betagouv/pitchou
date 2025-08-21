@@ -5,7 +5,7 @@ import {sub, format, formatDistanceToNow, isAfter} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
@@ -433,31 +433,6 @@ if(dossiersDS.length >= 1){
 
 
 
-/** Synchronisation des évènements de changement de phase */
-
-/** @type {Map<NonNullable<DossierDS88444['number']>, DossierDS88444['traitements']>} */
-const traitementsByNumberDS = new Map(dossiersDS.map(
-    ({number, traitements}) => [number, traitements])
-)
-
-
-let traitementsSynchronisés;
-
-/** @type {Map<DatabaseDossier['id'], DossierDS88444['traitements']>} */
-const idToTraitements = new Map()
-
-for(const [number, traitements] of traitementsByNumberDS){
-    const dossierId = dossierIdByDS_number.get(number)
-
-    if(!dossierId)
-        throw new Error(`Dossier.id manquant pour dossier DS numéro ${number}`)
-
-    idToTraitements.set(dossierId, traitements)
-}
-
-if(idToTraitements.size >= 1){
-    traitementsSynchronisés = dumpDossierTraitements(idToTraitements, laTransactionDeSynchronisationDS)
-}
 
 
 /** Synchronisation des décisions administratives */
@@ -467,6 +442,12 @@ if(idToTraitements.size >= 1){
 
     On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus)
 */
+
+/** @type {Map<NonNullable<DossierDS88444['number']>, DossierDS88444['traitements']>} */
+const traitementsByNumberDS = new Map(dossiersDS.map(
+    ({number, traitements}) => [number, traitements])
+)
+
 let décisionsAdministrativesSynchronisées = fichiersMotivationTéléchargésP.then(fichiersMotivationTéléchargés => {
     if(fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1){
         /** @type {Omit<DécisionAdministrative, 'id'>[]} */
@@ -561,7 +542,6 @@ if (dossiersDS.length >= 1) {
 Promise.all([
     groupesInstructeursSynchronisés,
     messagesSynchronisés,
-    traitementsSynchronisés,
     décisionsAdministrativesSynchronisées,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
