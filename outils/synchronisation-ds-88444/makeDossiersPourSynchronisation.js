@@ -100,17 +100,17 @@ function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
  * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarches Simplifiées du dossier n'existe pas déjà en base de données.
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
+ * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} dossierNumberToDossierId
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }} 
  */
-function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD) {
+function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossierId) {
     /** @type {DossierDS88444[]} */
     let dossiersDSAInitialiser = []
     /** @type {DossierDS88444[]} */
     let dossiersDSAModifier = []
 
     dossiersDS.forEach((dossier) => {
-        if (numberDSDossiersDéjàExistantsEnBDD.has(String(dossier.number))) {
+        if (dossierNumberToDossierId.has(String(dossier.number))) {
             dossiersDSAModifier.push(dossier)
         } else {
             dossiersDSAInitialiser.push(dossier)
@@ -184,14 +184,16 @@ function traitementPhaseToDossierPhase(DSTraitementState){
 /**
  * 
  * @param {DossierDS88444['traitements']} traitements 
+ * @param {Dossier['id']} [dossierId]
  */
-function makeÉvènementsPhaseDossierFromTraitementsDS(traitements){
+function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId){
     /** @type {DossierPourInsert['évènement_phase_dossier']} */
     const évènementsPhaseDossier = [];
     
     for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
         évènementsPhaseDossier.push({
             phase: traitementPhaseToDossierPhase(state),
+            dossier: dossierId,
             horodatage: new Date(dateTraitement),
             cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
             DS_emailAgentTraitant: emailAgentTraitant,
@@ -208,7 +210,7 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements){
  * puis les transforme au format attendu par l'application
  * afin de permettre leur insertion ou mise à jour en base de données.
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
+ * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
@@ -238,16 +240,23 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
     /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
     const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
-        
-        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
+        const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number))
+
+        if(!dossierId){
+            throw new Error(`dossier.id non trouvé pour dossier DS ${dossierDS.number} qui est en base de données`)
+        }
+
+        const dossierPartiel = makeColonnesCommunesDossierPourSynchro(
+            dossierDS,
+            pitchouKeyToChampDS,
+            pitchouKeyToAnnotationDS
+        )
+
+        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements, dossierId)
 
         return({
             dossier: {
-                ...(makeColonnesCommunesDossierPourSynchro(
-                    dossierDS,
-                    pitchouKeyToChampDS,
-                    pitchouKeyToAnnotationDS
-                )),
+                ...dossierPartiel,
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
             },
             évènement_phase_dossier
