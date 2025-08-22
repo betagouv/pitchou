@@ -17,7 +17,8 @@ process.title = `Génération liste espèces`
  * BDC_STATUTS
  * 
  */
-const keptCdTypeStatus = new Set(['POM', 'PD', 'PN', 'PR'])
+const keptCdTypeStatus = ['PN', 'PR', 'PD', 'POM']
+const keptCdTypeStatusSet = new Set(keptCdTypeStatus)
 
 const bdcParser = parse({
   delimiter: ',',
@@ -40,7 +41,7 @@ const bdc_statutsP = new Promise((resolve, reject) => {
             // au nom valide correspondant àce CD_NOM dans la dernière version diffusée de TAXREF.
             // https://inpn.mnhn.fr/docs-web/docs/download/232196 (page 6)
             const {CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT} = record
-            if(keptCdTypeStatus.has(CD_TYPE_STATUT)){
+            if(keptCdTypeStatusSet.has(CD_TYPE_STATUT)){
                 espècesProtégéesBDC_STATUTS.push({CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT});
             }
         }
@@ -205,7 +206,9 @@ Promise.all([taxrefP, protectionsEspècesP])
             classification, 
             nomsScientifiques: [...(nomsScientifiques || [])].join(','),
             nomsVernaculaires: [...(nomsVernaculaires || [])].join(','), 
-            CD_TYPE_STATUTS: [...(CD_TYPE_STATUTS || [])].join(',')
+            CD_TYPE_STATUTS: [...(CD_TYPE_STATUTS || [])].toSorted((cd_type_statut_1, cd_type_statut_2) => {
+                return keptCdTypeStatus.indexOf(cd_type_statut_1) - keptCdTypeStatus.indexOf(cd_type_statut_2)
+            }).join(',')
         })
     }
     stringifier.end()
