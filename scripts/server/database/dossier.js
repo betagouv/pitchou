@@ -315,6 +315,8 @@ const colonnesDossierComplet = [
     "ddep_nécessaire",
     
     "scientifique_type_demande",
+    "scientifique_bilan_antérieur",
+    "scientifique_finalité_demande",
     "scientifique_description_protocole_suivi",
     "scientifique_mode_capture",
     "scientifique_modalités_source_lumineuses",

@@ -54,6 +54,10 @@
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore
     let scientifiquesIntervenants = dossier.scientifique_intervenants;
+        
+    /** @type {string[] | undefined} */
+    // @ts-ignore
+    let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
 </script>
 
 <section class="row">
@@ -219,6 +223,24 @@
                     <li>{typeDemande}</li>
                 {/each}
             </ul>
+
+            <h3>Programme de suivi antérieur</h3>
+            <p>
+                {dossier.scientifique_bilan_antérieur ? 'Oui' : 'Non'}
+            </p>
+
+                
+            <h3>Finalité de la demande</h3>
+            {#if Array.isArray(scientifiqueFinalitéDemande) && scientifiqueFinalitéDemande.length >= 1}
+                <ul>
+                    {#each scientifiqueFinalitéDemande as finalité}
+                        <li>{finalité}</li>
+                    {/each}
+                </ul>
+            {:else}
+                Non renseigné
+            {/if}
+            
 
             <h3>Protocole de suivi</h3>
             <p>
