@@ -153,9 +153,15 @@ export function makeColonnesCommunesDossierPourSynchro(
     /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
     const scientifique_type_demande_values = champById.get(pitchouKeyToChampDS.get('Recherche scientifique - Votre demande concerne :'))?.values
 
+    /** @type {DossierDemarcheSimplifiee88444['Captures/Relâchers/Prélèvement - Finalité(s) de la demande']} */
+    const scientifique_finalité_demande = champById.get(pitchouKeyToChampDS.get('Captures/Relâchers/Prélèvement - Finalité(s) de la demande'))?.values
+
+    /** @type {DossierDemarcheSimplifiee88444['Cette demande concerne un programme de suivi déjà existant']} */
+    const scientifique_bilan_antérieur = champById.get(pitchouKeyToChampDS.get('Cette demande concerne un programme de suivi déjà existant'))?.checked
+    // "Non renseigné" est tranformé en 'false'
+
     /** @type {DossierDemarcheSimplifiee88444['Description du protocole de suivi']} */
     const scientifique_description_protocole_suivi = champById.get(pitchouKeyToChampDS.get('Description du protocole de suivi'))?.stringValue
-
 
     /** @type {DossierDemarcheSimplifiee88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`][]} */
     const scientifique_précisez_mode_capture_values = champById.get(pitchouKeyToChampDS.get(`En cas de nécessité de capture d'individus, précisez le mode de capture`))?.values
@@ -296,6 +302,8 @@ export function makeColonnesCommunesDossierPourSynchro(
          */
         //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
         scientifique_type_demande: scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined,
+        scientifique_finalité_demande: scientifique_finalité_demande ? JSON.stringify(scientifique_finalité_demande) : undefined,
+        scientifique_bilan_antérieur,
         scientifique_description_protocole_suivi,
         //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
         scientifique_mode_capture,
