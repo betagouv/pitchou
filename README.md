@@ -167,7 +167,7 @@ pour les autocomplete de saisie espèces notamment
 
 ### Ajouter une espèce manquante
 
-Dans le fichier `data/sources_especes/espèces_manquantes.csv` ajouter l'espèce avec son identifiant INPN (CD_NOM),nom latin (LB_NOM), nom vernaculaire (NOM_VERN) et sa justification légale (LABEL_STATUT).
+Dans le fichier `data/sources_especes/espèces_manquantes.ods` ajouter l'espèce avec son identifiant INPN (CD_NOM),nom latin (LB_NOM), nom vernaculaire (NOM_VERN) et sa justification légale (LABEL_STATUT).
 
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces complétée.
 
