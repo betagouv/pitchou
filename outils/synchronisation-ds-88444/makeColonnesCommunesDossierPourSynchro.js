@@ -236,7 +236,6 @@ export function makeColonnesCommunesDossierPourSynchro(
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
-    const commentaire_libre = annotationById.get(pitchouKeyToAnnotationDS.get("Commentaires sur les enjeux et la procédure")).stringValue
 
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
@@ -313,7 +312,6 @@ export function makeColonnesCommunesDossierPourSynchro(
 
         enjeu_écologique,
         enjeu_politique,
-        commentaire_libre,
 
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
