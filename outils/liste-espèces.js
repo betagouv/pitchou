@@ -182,7 +182,14 @@ Promise.all([taxrefP, protectionsEspècesP])
             }
         }
     }
-
+    
+    // Trier les espèces par CD_REF
+    // ce n'est utile que pour pouvoir inspecter facilement les diffs du fichier généré
+    const espècesProtégéesArray = [...espècesProtégées.values()].sort(({CD_REF: cdref1}, {CD_REF: cdref2}) => {
+        return Number(cdref1) - Number(cdref2)
+    })
+    
+    
 
 
     const stringifier = stringify({
@@ -192,7 +199,7 @@ Promise.all([taxrefP, protectionsEspècesP])
 
     stringifier.pipe(createWriteStream('data/liste-espèces-protégées.csv'))
 
-    for(const {CD_REF, classification, nomsScientifiques, nomsVernaculaires, CD_TYPE_STATUTS} of [...espècesProtégées.values()]){
+    for(const {CD_REF, classification, nomsScientifiques, nomsVernaculaires, CD_TYPE_STATUTS} of espècesProtégéesArray){
         stringifier.write({
             CD_REF, 
             classification, 
