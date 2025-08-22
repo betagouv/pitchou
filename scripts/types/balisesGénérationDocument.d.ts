@@ -24,6 +24,8 @@ interface EspeceParImpact {
  */
 interface DonneesScientifiques {
   type_demande: string[] | null;
+  bilan_antérieur: boolean | null;
+  finalité_demande: string[] | null;
   description_protocole_suivi: string | null;
   mode_capture: string[] | null;
   modalités_source_lumineuses: string | null;
