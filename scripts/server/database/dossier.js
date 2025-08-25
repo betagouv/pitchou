@@ -7,7 +7,7 @@ import {getContrôles} from './controle.js';
 
 //@ts-ignore
 /** @import {DossierComplet, DossierPhase, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
-/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+/** @import {default as Dossier, DossierId} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 //@ts-ignore
@@ -140,6 +140,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
 
     if (dossiersPourInsert.length >= 1) {
+        /**@type { {id: DossierId}[]} */
         let insertedDossierIds = await databaseConnection('dossier')
             .insert(dossiersPourInsert.map(tables => tables.dossier))
             .returning(['id'])
@@ -152,7 +153,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             const {évènement_phase_dossier} = donnéesPourDossier
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 for(const ev of évènement_phase_dossier){
-                    ev.dossier = dossierInséréId
+                    ev.dossier = dossierInséréId.id
                 }
             }
         })
@@ -164,7 +165,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .map(tables => tables.évènement_phase_dossier)
         .filter(x => x !== undefined)
         .flat()
-
+    // TODO : Faire en sorte que la transaction rollback s'il y'a une erreur lors de l'insertion d'une ligne dans la table évènement_phase_dossier
     const évènmentsPhaseDossiersInsérésP = databaseConnection('évènement_phase_dossier')
         .insert(évènementsPhaseDossier)
         .onConflict(['dossier', 'phase', 'horodatage'])
