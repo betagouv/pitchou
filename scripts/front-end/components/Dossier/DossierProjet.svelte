@@ -17,7 +17,6 @@
 
     /** @type {Props} */
     let { dossier, espècesImpactées } = $props();
-    
 
     const { number_demarches_simplifiées: numdos } = dossier;
 
@@ -226,7 +225,11 @@
 
             <h3>Programme de suivi antérieur</h3>
             <p>
-                {dossier.scientifique_bilan_antérieur ? 'Oui' : 'Non'}
+                {#if dossier.scientifique_bilan_antérieur === null}
+                    Non renseigné
+                {:else}
+                    {dossier.scientifique_bilan_antérieur ? 'Oui' : 'Non'}
+                {/if}
             </p>
 
                 
