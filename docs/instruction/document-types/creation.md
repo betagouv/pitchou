@@ -192,13 +192,23 @@ Les balises ont des types qui peuvent être :
                             <td> Valeur indiquant si l'information relative à l'Autorisation Environnementale a été renseignée dans le formulaire.</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{scientifique.bilan_antérieur}</code></th>
+                            <td> booléen</td>
+                            <td>Réponse à la question "Cette demande concerne un programme de suivi déjà existant" </td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{scientifique.description_protocole_suivi}</code></th>
                             <td> texte</td>
                             <td> </td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{scientifique.finalité_demande}</code></th>
+                            <td> <strong>liste de texte</strong></td>
+                            <td>Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande"</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{scientifique.intervenants}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> <strong>liste de texte</strong></td>
                             <td> </td>
                         </tr>
                         <tr>

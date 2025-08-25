@@ -44,6 +44,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         activité_principale,
         rattaché_au_régime_ae,
         scientifique_type_demande,
+        scientifique_bilan_antérieur,
+        scientifique_finalité_demande,
         scientifique_description_protocole_suivi,
         scientifique_mode_capture,
         scientifique_modalités_source_lumineuses,
@@ -100,6 +102,9 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         }) ),
         scientifique: {
             type_demande: scientifique_type_demande,
+            bilan_antérieur: scientifique_bilan_antérieur,
+            // @ts-expect-error colonne json, donc la génération de types comprend mal
+            finalité_demande: scientifique_finalité_demande,
             description_protocole_suivi: scientifique_description_protocole_suivi,
             mode_capture: scientifique_mode_capture,
             modalités_source_lumineuses: scientifique_modalités_source_lumineuses,

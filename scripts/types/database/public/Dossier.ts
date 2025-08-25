@@ -149,6 +149,12 @@ export default interface Dossier {
 
   /** Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues */
   mesures_erc_prévues: boolean | null;
+
+  /** Réponse à la question "Cette demande concerne un programme de suivi déjà existant" */
+  scientifique_bilan_antérieur: boolean | null;
+
+  /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
+  scientifique_finalité_demande: unknown | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -293,6 +299,12 @@ export interface DossierInitializer {
 
   /** Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues */
   mesures_erc_prévues?: boolean | null;
+
+  /** Réponse à la question "Cette demande concerne un programme de suivi déjà existant" */
+  scientifique_bilan_antérieur?: boolean | null;
+
+  /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
+  scientifique_finalité_demande?: unknown | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -436,4 +448,10 @@ export interface DossierMutator {
 
   /** Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues */
   mesures_erc_prévues?: boolean | null;
+
+  /** Réponse à la question "Cette demande concerne un programme de suivi déjà existant" */
+  scientifique_bilan_antérieur?: boolean | null;
+
+  /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
+  scientifique_finalité_demande?: unknown | null;
 }
