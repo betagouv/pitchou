@@ -8,7 +8,7 @@ backups/*
 
 data/sources_especes/*
 !data/sources_especes/README.md
-!data/sources_especes/espèces_manquantes.csv
+!data/sources_especes/espèces_manquantes.ods
 
 pgdata/
 

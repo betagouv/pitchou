@@ -2,9 +2,10 @@
 
 import {readFile} from 'node:fs/promises'
 import {createReadStream, createWriteStream} from 'node:fs'
+
 import { parse } from 'csv-parse';
 import { stringify } from 'csv-stringify';
-import {dsvFormat} from 'd3-dsv'
+import {getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty} from '@odfjs/odfjs'
 
 import {TAXREF_ROWClassification, nomsVernaculaires} from '../scripts/commun/outils-espèces.js'
 
@@ -17,7 +18,8 @@ process.title = `Génération liste espèces`
  * BDC_STATUTS
  * 
  */
-const keptCdTypeStatus = new Set(['POM', 'PD', 'PN', 'PR'])
+const keptCdTypeStatus = ['PN', 'PR', 'PD', 'POM']
+const keptCdTypeStatusSet = new Set(keptCdTypeStatus)
 
 const bdcParser = parse({
   delimiter: ',',
@@ -40,7 +42,7 @@ const bdc_statutsP = new Promise((resolve, reject) => {
             // au nom valide correspondant àce CD_NOM dans la dernière version diffusée de TAXREF.
             // https://inpn.mnhn.fr/docs-web/docs/download/232196 (page 6)
             const {CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT} = record
-            if(keptCdTypeStatus.has(CD_TYPE_STATUT)){
+            if(keptCdTypeStatusSet.has(CD_TYPE_STATUT)){
                 espècesProtégéesBDC_STATUTS.push({CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT});
             }
         }
@@ -54,23 +56,33 @@ const bdc_statutsP = new Promise((resolve, reject) => {
 createReadStream('data/sources_especes/BDC_STATUTS_17.csv').pipe(bdcParser)
 
 bdc_statutsP.then(bdc_statuts => {
-    console.log('bdc_statuts.length', bdc_statuts.length)
-    console.log('bdc_statuts unique CD_NOM', new Set(bdc_statuts.map(({CD_NOM}) => CD_NOM)).size)
+    console.info('bdc_statuts.length', bdc_statuts.length)
+    console.info('bdc_statuts unique CD_NOM', new Set(bdc_statuts.map(({CD_NOM}) => CD_NOM)).size)
 })
 
 
 // Espèces Manquantes
 /** @type {Promise<BDC_STATUT_ROW[]>} */
-const espèces_manquantesP = readFile('data/sources_especes/espèces_manquantes.csv', 'utf-8')
-    .then(espèces_manquantes_rawStr => {
-        /** @type {BDC_STATUT_ROW[]} */
-        // @ts-ignore
-        const espèces_manquantes_raw = dsvFormat(';').parse(espèces_manquantes_rawStr)
-        console.log('espèces_manquantes_raw.length', espèces_manquantes_raw.length)
-        return espèces_manquantes_raw
-            .map(({ CD_NOM, LABEL_STATUT }) => ({ CD_NOM, CD_REF: CD_NOM, CD_TYPE_STATUT: "Protection Pitchou", LABEL_STATUT }))
-    }) 
+const espèces_manquantesP = readFile('data/sources_especes/espèces_manquantes.ods')
+    .then(getODSTableRawContent)
+    // @ts-ignore
+    .then(sheetMap => sheetMap.get('espèces_manquantes'))
+    .then(sheet => {
+        const espècesProtégéesManquantesFichier = sheetRawContentToObjects(sheet.filter(isRowNotEmpty))
+        
+        console.info(`Nombre d'espèces manquantes`, espècesProtégéesManquantesFichier.length)
 
+
+        return espècesProtégéesManquantesFichier
+            // @ts-ignore
+            .map(({ CD_NOM, LABEL_STATUT }) => {
+                CD_NOM = CD_NOM.toString(10)
+
+                return { CD_NOM, CD_REF: CD_NOM, CD_TYPE_STATUT: "Protection Pitchou", LABEL_STATUT }
+            })
+    })
+
+    
 /** @type {Promise<BDC_STATUT_ROW[]>} */
 const protectionsEspècesP = Promise.all([bdc_statutsP, espèces_manquantesP])
     // @ts-ignore
@@ -111,7 +123,7 @@ const taxrefP = new Promise((resolve, reject) => {
 createReadStream('data/sources_especes/TAXREFv17.txt').pipe(taxrefParser)
 
 taxrefP.then(taxref => {
-    console.log('taxref.length', taxref.length)
+    console.info('taxref.length', taxref.length)
 })
 
 
@@ -182,7 +194,14 @@ Promise.all([taxrefP, protectionsEspècesP])
             }
         }
     }
-
+    
+    // Trier les espèces par CD_REF
+    // ce n'est utile que pour pouvoir inspecter facilement les diffs du fichier généré
+    const espècesProtégéesArray = [...espècesProtégées.values()].sort(({CD_REF: cdref1}, {CD_REF: cdref2}) => {
+        return Number(cdref1) - Number(cdref2)
+    })
+    
+    
 
 
     const stringifier = stringify({
@@ -192,13 +211,15 @@ Promise.all([taxrefP, protectionsEspècesP])
 
     stringifier.pipe(createWriteStream('data/liste-espèces-protégées.csv'))
 
-    for(const {CD_REF, classification, nomsScientifiques, nomsVernaculaires, CD_TYPE_STATUTS} of [...espècesProtégées.values()]){
+    for(const {CD_REF, classification, nomsScientifiques, nomsVernaculaires, CD_TYPE_STATUTS} of espècesProtégéesArray){
         stringifier.write({
             CD_REF, 
             classification, 
             nomsScientifiques: [...(nomsScientifiques || [])].join(','),
             nomsVernaculaires: [...(nomsVernaculaires || [])].join(','), 
-            CD_TYPE_STATUTS: [...(CD_TYPE_STATUTS || [])].join(',')
+            CD_TYPE_STATUTS: [...(CD_TYPE_STATUTS || [])].toSorted((cd_type_statut_1, cd_type_statut_2) => {
+                return keptCdTypeStatus.indexOf(cd_type_statut_1) - keptCdTypeStatus.indexOf(cd_type_statut_2)
+            }).join(',')
         })
     }
     stringifier.end()
