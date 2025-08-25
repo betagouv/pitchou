@@ -1,3 +1,16 @@
+
+
+/** @import {default as Dossier, DossierId} from '../../types/database/public/Dossier.ts' */
+/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
+/** @import {default as Message} from '../../types/database/public/Message.ts' */
+/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+/** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
+/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
+/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
+/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
+/** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
+/** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+
 import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
@@ -6,36 +19,9 @@ import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
 
 //@ts-ignore
-/** @import {DossierComplet, DossierPhase, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
-/** @import {default as Dossier, DossierId} from '../../types/database/public/Dossier.ts' */
-//@ts-ignore
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-//@ts-ignore
-/** @import {default as Message} from '../../types/database/public/Message.ts' */
-//@ts-ignore
-/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
-//@ts-ignore
-/** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
-//@ts-ignore
-/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
-//@ts-ignore
-/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
-//@ts-ignore
-/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
-//@ts-ignore
-/** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
-//@ts-ignore
-/** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
+/** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
 //@ts-ignore
 /** @import {PickNonNullable} from '../../types/tools.d.ts' */
-//@ts-ignore
-/** @import {DossierInitializer, DossierMutator} from '../../types/database/public/Dossier.ts' */
-//@ts-ignore
-/** @import {DossierPourInsert, DossierPourSynchronisation, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-//@ts-ignore
-/** @import AvisExpert from '../../types/database/public/AvisExpert.ts' */
-//@ts-ignore
-/** @import {DossierDS88444, Annotations88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
 
 
 /**
