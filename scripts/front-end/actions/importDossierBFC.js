@@ -3,7 +3,7 @@
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 
-/** @import { DonnéesSupplémentaires } from "./importDossierUtils" */
+/** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import Dossier from '../../types/database/public/Dossier.ts' */
 
@@ -128,7 +128,7 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierBFC} ligne
- * @returns { DonnéesSupplémentaires } Données supplémentaires ou undefined
+ * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
  */
 export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const description = ligne['Description avancement dossier avec dates']
@@ -155,28 +155,30 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const date_ap = ligne['Date AP']
 
 
-    return {
-        'commentaire_libre': commentaire_libre,
-        'date_dépôt': ligne['Date de sollicitation'],
-        'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
-        'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
+    return { 
+        dossier: {
+            'commentaire_libre': commentaire_libre,
+            'date_dépôt': ligne['Date de sollicitation'],
+            'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
+            'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
 
-        // Champs pour la table arête_personne_suit_dossier
-        'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
+            // Champs pour la table arête_personne_suit_dossier
+            'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
 
-        // Infos utiles historiques dossier
-        'historique_dossier': ligne['Description avancement dossier avec dates'],
-        'DEP': dep,
-        'date_de_depot_dep': date_de_depot_dep,
-        'derogation_accordee': derogation_accordee,
-        'date_ap': date_ap,
+            // Infos utiles historiques dossier
+            'historique_dossier': ligne['Description avancement dossier avec dates'],
+            'DEP': dep,
+            'date_de_depot_dep': date_de_depot_dep,
+            'derogation_accordee': derogation_accordee,
+            'date_ap': date_ap,
 
-        // Infos utiles saisines CSRPN/CNPN
-        'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
-        'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
-        'nom_expert_csrpn': nom_expert_csrpn,
-        'avis_csrpn_cnpn': avis_csrpn_cnpn,
-        'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
+            // Infos utiles saisines CSRPN/CNPN
+            'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
+            'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
+            'nom_expert_csrpn': nom_expert_csrpn,
+            'avis_csrpn_cnpn': avis_csrpn_cnpn,
+            'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
+        }
     }
 }
 

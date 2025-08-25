@@ -1,12 +1,14 @@
-/** @import {DossierDS88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
-/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
-/** @import  {DossierPourSynchronisation, DonnéesPersonnesEntreprises} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DonnéesSupplémentaires} from '../../scripts/front-end/actions/importDossierUtils.js' */
-/** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
+/** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
+
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+
+/** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
+/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
+/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
+
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
@@ -16,7 +18,7 @@ import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDo
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @returns {DonnéesPersonnesEntreprises}
+ * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
 function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
     const {
@@ -97,17 +99,17 @@ function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
  * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarches Simplifiées du dossier n'existe pas déjà en base de données.
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
+ * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} dossierNumberToDossierId
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }} 
  */
-function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD) {
+function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossierId) {
     /** @type {DossierDS88444[]} */
     let dossiersDSAInitialiser = []
     /** @type {DossierDS88444[]} */
     let dossiersDSAModifier = []
 
     dossiersDS.forEach((dossier) => {
-        if (numberDSDossiersDéjàExistantsEnBDD.has(String(dossier.number))) {
+        if (dossierNumberToDossierId.has(String(dossier.number))) {
             dossiersDSAModifier.push(dossier)
         } else {
             dossiersDSAInitialiser.push(dossier)
@@ -127,7 +129,7 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjà
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Promise<DossierInitializer>}
+ * @returns {Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, 'dossier'>>}
  */
 async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
@@ -136,7 +138,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
      * POUR IMPORT DOSSIERS HISTORIQUES
      * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
-    /** @type {DonnéesSupplémentaires | undefined} */
+    /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
     let données_supplémentaires
     try {
         données_supplémentaires = données_supplémentaires_à_déchiffrer ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer)) : undefined
@@ -150,11 +152,59 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     }
 
     return {
-        ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
-        date_dépôt: données_supplémentaires?.date_dépôt ?? dossierDS.dateDepot
+        dossier: {
+            ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
+            date_dépôt: données_supplémentaires?.dossier.date_dépôt ?? dossierDS.dateDepot
+        },
+        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier
     }
 }
 
+
+/**
+ * Converti les "state" des "traitements" DS vers les phases Pitchou
+ * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
+ * 
+ * @param {Traitement['state']} DSTraitementState
+ * @returns {import('../../scripts/types/API_Pitchou.ts').DossierPhase}
+ */
+function traitementPhaseToDossierPhase(DSTraitementState){
+    if(DSTraitementState === 'en_construction')
+        return "Accompagnement amont"
+    if(DSTraitementState === 'en_instruction')
+        return "Instruction"
+    if(DSTraitementState === 'accepte')
+        return "Contrôle"
+    if(DSTraitementState === 'sans_suite')
+        return "Classé sans suite"
+    if(DSTraitementState === 'refuse')
+        return "Obligations terminées"
+
+    throw `Traitement phase non reconnue: ${DSTraitementState}`
+}
+
+/**
+ * 
+ * @param {DossierDS88444['traitements']} traitements 
+ * @param {Dossier['id']} [dossierId]
+ */
+function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId){
+    /** @type {DossierPourInsert['évènement_phase_dossier']} */
+    const évènementsPhaseDossier = [];
+    
+    for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
+        évènementsPhaseDossier.push({
+            phase: traitementPhaseToDossierPhase(state),
+            dossier: dossierId,
+            horodatage: new Date(dateTraitement),
+            cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
+            DS_emailAgentTraitant: emailAgentTraitant,
+            DS_motivation: motivation
+        })
+    }
+
+    return évènementsPhaseDossier
+}
 
 
 /**
@@ -162,37 +212,61 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
  * puis les transforme au format attendu par l'application
  * afin de permettre leur insertion ou mise à jour en base de données.
  * @param {DossierDS88444[]} dossiersDS
- * @param {Set<Dossier['number_demarches_simplifiées']>} numberDSDossiersDéjàExistantsEnBDD
+ * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierPourSynchronisation<DossierInitializer>[], dossiersAModifierPourSynchro: DossierPourSynchronisation<DossierMutator>[] }>} 
+ * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
 export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
-    /** @type {Promise<DossierPourSynchronisation<DossierInitializer>>[]} */
+    /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
             const champsDossierPourInitP = makeChampsDossierPourInitialisation(
                 dossierDS,
                 pitchouKeyToChampDS,
                 pitchouKeyToAnnotationDS
             )
+
+            const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
+
             return champsDossierPourInitP.then(champsDossierPourInit => ({
-                ...champsDossierPourInit,
-                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
+                dossier: {
+                    ...champsDossierPourInit.dossier,
+                    ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
+                },
+                évènement_phase_dossier : [
+                    ...(champsDossierPourInit.évènement_phase_dossier || []),
+                    ...évènement_phase_dossier
+                ]
             }))
         })
 
 
-    /** @type {DossierPourSynchronisation<DossierMutator>[]} */
-    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => ({
-            ...(makeColonnesCommunesDossierPourSynchro(
-                dossierDS,
-                pitchouKeyToChampDS,
-                pitchouKeyToAnnotationDS
-            )),
-            ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
-        }))
+    /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
+    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
+        const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number))
+
+        if(!dossierId){
+            throw new Error(`dossier.id non trouvé pour dossier DS ${dossierDS.number} qui est en base de données`)
+        }
+
+        const dossierPartiel = makeColonnesCommunesDossierPourSynchro(
+            dossierDS,
+            pitchouKeyToChampDS,
+            pitchouKeyToAnnotationDS
+        )
+
+        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements, dossierId)
+
+        return({
+            dossier: {
+                ...dossierPartiel,
+                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+            },
+            évènement_phase_dossier
+        })
+    })
 
 
     const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP)
