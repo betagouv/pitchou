@@ -1,3 +1,16 @@
+
+
+/** @import {default as Dossier, DossierId} from '../../types/database/public/Dossier.ts' */
+/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
+/** @import {default as Message} from '../../types/database/public/Message.ts' */
+/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+/** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
+/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
+/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
+/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
+/** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
+/** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+
 import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
@@ -6,36 +19,9 @@ import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
 
 //@ts-ignore
-/** @import {DossierComplet, DossierPhase, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
-/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
-//@ts-ignore
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-//@ts-ignore
-/** @import {default as Message} from '../../types/database/public/Message.ts' */
-//@ts-ignore
-/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
-//@ts-ignore
-/** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
-//@ts-ignore
-/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
-//@ts-ignore
-/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
-//@ts-ignore
-/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
-//@ts-ignore
-/** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
-//@ts-ignore
-/** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
+/** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
 //@ts-ignore
 /** @import {PickNonNullable} from '../../types/tools.d.ts' */
-//@ts-ignore
-/** @import {DossierInitializer, DossierMutator} from '../../types/database/public/Dossier.ts' */
-//@ts-ignore
-/** @import {DossierPourSynchronisation} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-//@ts-ignore
-/** @import AvisExpert from '../../types/database/public/AvisExpert.ts' */
-//@ts-ignore
-/** @import {DossierDS88444, Annotations88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
 
 
 /**
@@ -80,55 +66,7 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
         .onConflict('id_démarches_simplifiées').merge()
 }
 
-/**
- * Converti les "state" des "traitements" DS vers les phases Pitchou
- * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
- * 
- * @param {API_DS_SCHEMA.Traitement['state']} DSTraitementState
- * @returns {DossierPhase}
- */
-function traitementPhaseToDossierPhase(DSTraitementState){
-    if(DSTraitementState === 'en_construction')
-        return "Accompagnement amont"
-    if(DSTraitementState === 'en_instruction')
-        return "Instruction"
-    if(DSTraitementState === 'accepte')
-        return "Contrôle"
-    if(DSTraitementState === 'sans_suite')
-        return "Classé sans suite"
-    if(DSTraitementState === 'refuse')
-        return "Obligations terminées"
 
-    throw `Traitement phase non reconnue: ${DSTraitementState}`
-}
-
-/**
- * @param {Map<Dossier['id'], API_DS_SCHEMA.DossierDS88444['traitements']>} idToTraitements
- * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
-export async function dumpDossierTraitements(idToTraitements, databaseConnection = directDatabaseConnection) {
-    /** @type {ÉvènementPhaseDossier[]} */
-    const évènementsPhaseDossier = [];
-    
-    for(const [dossierId, traitements] of idToTraitements){
-        for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
-            évènementsPhaseDossier.push({
-                phase: traitementPhaseToDossierPhase(state),
-                horodatage: new Date(dateTraitement),
-                dossier: dossierId,
-                cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
-                DS_emailAgentTraitant: emailAgentTraitant,
-                DS_motivation: motivation
-            })
-        }
-    };
-    
-    return databaseConnection('évènement_phase_dossier')
-        .insert(évènementsPhaseDossier)
-        .onConflict(['dossier', 'phase', 'horodatage'])
-        .merge()
-}
 
 /**
  * Cette fonction est sensible
@@ -156,12 +94,12 @@ const varcharKeys = [
 
 /**
  *
- * @param {DossierInitializer[]} dossiersAInitialiser
- * @param {DossierMutator[]} dossiersAModifier
+ * @param {DossierPourInsert[]} dossiersPourInsert
+ * @param {DossierPourUpdate[]} dossiersPourUpdate
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseConnection = directDatabaseConnection){
-    for(const d of [...dossiersAInitialiser, ...dossiersAModifier]){
+export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, databaseConnection = directDatabaseConnection){
+    for(const {dossier: d} of [...dossiersPourInsert, ...dossiersPourUpdate]){
         for(const k of varcharKeys){
             if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
@@ -177,26 +115,51 @@ export function dumpDossiers(dossiersAInitialiser, dossiersAModifier, databaseCo
     /**@type {knex.Knex.QueryBuilder<any, any>[]} */
     let updatePromises = []
     
-    if (dossiersAModifier.length>=1) {
-        updatePromises = dossiersAModifier.map(dossierAModifier => 
-        databaseConnection('dossier')
-            .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
-            .update(dossierAModifier)
-            .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
-        )
+    if (dossiersPourUpdate.length>=1) {
+        updatePromises = dossiersPourUpdate.map(({dossier: dossierAModifier}) => {
+            return databaseConnection('dossier')
+                .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
+                .update(dossierAModifier)
+                .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
+        })
     }
 
-    /**@type {knex.Knex.QueryBuilder<any, any> | undefined} */
-    let insertPromise
 
-    if (dossiersAInitialiser.length >= 1) {
-        insertPromise = databaseConnection('dossier')
-        .insert(dossiersAInitialiser)
-        .returning(['id', 'number_demarches_simplifiées', 'id_demarches_simplifiées'])
+    if (dossiersPourInsert.length >= 1) {
+        /**@type { {id: DossierId}[]} */
+        let insertedDossierIds = await databaseConnection('dossier')
+            .insert(dossiersPourInsert.map(tables => tables.dossier))
+            .returning(['id'])
+
+        // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
+        insertedDossierIds.forEach((dossierInséréId, index) => {
+            // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
+            const donnéesPourDossier = dossiersPourInsert[index]
+
+            const {évènement_phase_dossier} = donnéesPourDossier
+            if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
+                for(const ev of évènement_phase_dossier){
+                    ev.dossier = dossierInséréId.id
+                }
+            }
+        })
     }
 
-    return Promise.all([insertPromise, ...updatePromises])
-    .then(results => results.flat())
+    // désormais, tous les évènement_phase_dossier sont des ÉvènementPhaseDossierInitializer
+
+    const évènementsPhaseDossier = [...dossiersPourUpdate, ...dossiersPourInsert]
+        .map(tables => tables.évènement_phase_dossier)
+        .filter(x => x !== undefined)
+        .flat()
+    // TODO : Faire en sorte que la transaction rollback s'il y'a une erreur lors de l'insertion d'une ligne dans la table évènement_phase_dossier
+    const évènmentsPhaseDossiersInsérésP = databaseConnection('évènement_phase_dossier')
+        .insert(évènementsPhaseDossier)
+        .onConflict(['dossier', 'phase', 'horodatage'])
+        .merge()
+
+
+    return Promise.all([évènmentsPhaseDossiersInsérésP, ...updatePromises])
+        .then(results => results.flat())
         
 }
 

@@ -5,7 +5,7 @@ import {sub, format, formatDistanceToNow, isAfter} from 'date-fns'
 import { fr } from "date-fns/locale"
 
 import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésultatSynchronisationDS88444} from '../scripts/server/database.js'
-import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, dumpDossierTraitements, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
+import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
@@ -35,9 +35,8 @@ import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/make
 /** @import {Message} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {DossierDS88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierPourSynchronisation} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {DossierInitializer, DossierMutator} from '../scripts/types/database/public/Dossier.ts' */
 
 
 // récups les données de DS
@@ -126,9 +125,9 @@ const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
 
 
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
-const numberDSDossiersDéjàExistantsEnBDD = new Set(dossiersDéjàExistantsEnBDD.map(d => d.number_demarches_simplifiées));
+const dossierNumberToDossierId = new Map(dossiersDéjàExistantsEnBDD.map(d => [d.number_demarches_simplifiées, d.id]));
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -144,14 +143,14 @@ for(const personne of allPersonnesCurrentlyInDatabase){
     }
 }
 
-/** @type {readonly (Omit<DossierPourSynchronisation<DossierInitializer>, "demandeur_personne_physique"> | Omit<DossierPourSynchronisation<DossierMutator>, "demandeur_personne_physique">)[] } */
+/** @type {readonly (DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate)[] } */
 const dossiersPourSynchronisation = Object.freeze([...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro])
 
 /** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
 const personnesInDossiersAvecEmail = new Map()
 const personnesInDossiersSansEmail = new Map()
 
-for (const {déposant, /** demandeur_personne_physique */} of dossiersPourSynchronisation) {
+for (const {dossier: {déposant, /** demandeur_personne_physique */}} of dossiersPourSynchronisation) {
     if (déposant) {
         if(déposant.email) {
             personnesInDossiersAvecEmail.set(déposant.email, déposant)
@@ -218,7 +217,7 @@ if(personnesInDossiersWithoutId.length >= 1){
 /** @type {Map<Entreprise['siret'], Entreprise>} */
 const entreprisesInDossiersBySiret = new Map()
 
-for(const {demandeur_personne_morale, id_demarches_simplifiées} of dossiersPourSynchronisation){
+for(const {dossier: {demandeur_personne_morale, id_demarches_simplifiées}} of dossiersPourSynchronisation){
     if (demandeur_personne_morale) {
         const {siret} = demandeur_personne_morale
         if(demandeur_personne_morale && !siret){
@@ -240,43 +239,51 @@ if(entreprisesInDossiersBySiret.size >= 1){
  * et les objets Personne par leur id
 */
 
-/** @type {DossierInitializer[]} */
-const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(dossier => {
+/**
+ * @overload
+ * @param {DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation
+ * @return {DossierPourUpdate}
+ */
+/**
+ * @overload
+ * @param {DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation 
+ * @returns {DossierPourInsert}
+ */
+/**
+ * 
+ * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation 
+ * @returns {DossierPourInsert | DossierPourUpdate}
+ */
+function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation){
     const { 
-        déposant,
-        demandeur_personne_physique,
-        demandeur_personne_morale, 
-        ...autresPropriétés
-    } = dossier
+        dossier: {
+            déposant,
+            demandeur_personne_physique,
+            demandeur_personne_morale, 
+            ...autresPropriétésDossiers
+        },
+        ...autresDonnéesTables
+    } = dossierPourSynchronisation
 
     return {
-        //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
-        déposant: getPersonneId(déposant) || null,
-        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
-        demandeur_personne_morale: 
-            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
-        ...autresPropriétés,
+        dossier: {
+            //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
+            déposant: getPersonneId(déposant) || null,
+            //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
+            demandeur_personne_morale: 
+                (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
+            ...autresPropriétésDossiers,
+        },
+        ...autresDonnéesTables
     }
-})
+}
 
-/** @type {DossierMutator[]} */
-const dossiersAModifier = dossiersAModifierPourSynchro.map(dossier => {
-    const { 
-        déposant,
-        demandeur_personne_physique, // demandeur_personne_physiqu est toujours "undefined". Suivi de l'issue: https://github.com/betagouv/pitchou/issues/262
-        demandeur_personne_morale, 
-        ...autresPropriétés
-    } = dossier
+/** @type {DossierPourInsert[]} */
+const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(remplacerPersonneEntrepriseInitializerParId)
 
-    return {
-        //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
-        déposant: getPersonneId(déposant) || null,
-        //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
-        demandeur_personne_morale: 
-            (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
-        ...autresPropriétés,
-    }
-})
+/** @type {DossierPourUpdate[]} */
+// @ts-ignore La signature de remplacerPersonneEntrepriseInitializerParId ne permet pas d'assurer que si en entrée on a un DossierEntreprisesPersonneInitializersPourUpdate alors en sortie on aura un DossierPourUpdate
+const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntrepriseInitializerParId)
 
 
 /** Télécharger les nouveaux fichiers espèces impactées */
@@ -425,31 +432,6 @@ if(dossiersDS.length >= 1){
 
 
 
-/** Synchronisation des évènements de changement de phase */
-
-/** @type {Map<NonNullable<DossierDS88444['number']>, DossierDS88444['traitements']>} */
-const traitementsByNumberDS = new Map(dossiersDS.map(
-    ({number, traitements}) => [number, traitements])
-)
-
-
-let traitementsSynchronisés;
-
-/** @type {Map<DatabaseDossier['id'], DossierDS88444['traitements']>} */
-const idToTraitements = new Map()
-
-for(const [number, traitements] of traitementsByNumberDS){
-    const dossierId = dossierIdByDS_number.get(number)
-
-    if(!dossierId)
-        throw new Error(`Dossier.id manquant pour dossier DS numéro ${number}`)
-
-    idToTraitements.set(dossierId, traitements)
-}
-
-if(idToTraitements.size >= 1){
-    traitementsSynchronisés = dumpDossierTraitements(idToTraitements, laTransactionDeSynchronisationDS)
-}
 
 
 /** Synchronisation des décisions administratives */
@@ -459,6 +441,12 @@ if(idToTraitements.size >= 1){
 
     On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus)
 */
+
+/** @type {Map<NonNullable<DossierDS88444['number']>, DossierDS88444['traitements']>} */
+const traitementsByNumberDS = new Map(dossiersDS.map(
+    ({number, traitements}) => [number, traitements])
+)
+
 let décisionsAdministrativesSynchronisées = fichiersMotivationTéléchargésP.then(fichiersMotivationTéléchargés => {
     if(fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1){
         /** @type {Omit<DécisionAdministrative, 'id'>[]} */
@@ -553,7 +541,6 @@ if (dossiersDS.length >= 1) {
 Promise.all([
     groupesInstructeursSynchronisés,
     messagesSynchronisés,
-    traitementsSynchronisés,
     décisionsAdministrativesSynchronisées,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,

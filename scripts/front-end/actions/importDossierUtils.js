@@ -1,38 +1,49 @@
+/** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
+/** @import { PartialBy }  from '../../types/tools' */
+/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 
-
-//@ts-check
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
 
-//@ts-ignore
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-//@ts-ignore
-/** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-//@ts-ignore
-/** @import Dossier from "../../types/database/public/Dossier" */
+
 
 /**
  * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
  * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
  * données propres à Pitchou comme le suivi des dossiers
- * @typedef {{
- *   commentaire_libre: Dossier['commentaire_libre'],
- *   date_dépôt: Dossier['date_dépôt'],
- *   personne_mail: string | undefined,
- *   historique_dossier: string | undefined,
- *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
- *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
- *   DEP: string | undefined,
- *   date_de_depot_dep: string | undefined,
- *   saisine_csrpn_cnpn: string | undefined,
- *   date_saisine_csrpn_cnpn: string | undefined,
- *   nom_expert_csrpn: string | undefined,
- *   avis_csrpn_cnpn: string | undefined,
- *   date_avis_csrpn_cnpn: string | undefined,
- *   derogation_accordee: string | undefined,
- *   date_ap: string | undefined
- * }} DonnéesSupplémentaires
+ * 
+ * PPP Ce type est complètement à revoir pour mieux coller aux colonnes de la table Dossier
+ * 
+ * @typedef {Object} DonnéesSupplémentairesPourCréationDossier_Dossier
+ * @property {string} [commentaire_libre]
+ * @property {Date} [date_dépôt]
+ * @property {string} [personne_mail]
+ * @property {string} [historique_dossier]
+ * @property {string} [historique_identifiant_demande_onagre]
+ * @property {string} [prochaine_action_attendue_par]
+ * @property {string} [DEP]
+ * @property {string} [date_de_depot_dep]
+ * @property {string} [saisine_csrpn_cnpn]
+ * @property {string} [date_saisine_csrpn_cnpn]
+ * @property {string} [nom_expert_csrpn]
+ * @property {string} [avis_csrpn_cnpn]
+ * @property {string} [date_avis_csrpn_cnpn]
+ * @property {string} [derogation_accordee]
+ * @property {string} [date_ap]
  */
+
+/**
+ * Les propriétés de cet objet correspondent à des noms de tables 
+ * dans lesquelles ces données seront stockées
+ * 
+ * PPP est-ce que ce type est le même que DossierPourInsert/Update ou un truc comme ça ?
+ * 
+ * @typedef {Object} DonnéesSupplémentairesPourCréationDossier
+ * @property {DonnéesSupplémentairesPourCréationDossier_Dossier} dossier
+ * @property {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} [évènement_phase_dossier]
+ * 
+ */
+
 
 
 /**
