@@ -133,19 +133,19 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossier
  */
 async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
-     
+
     /**
      * POUR IMPORT DOSSIERS HISTORIQUES
      * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
     /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
-    console.info({données_supplémentaires_à_déchiffrer}, dossierDS.champs)
     let données_supplémentaires
     try {
         données_supplémentaires = données_supplémentaires_à_déchiffrer ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer)) : undefined
 
         if (données_supplémentaires) {
-            console.info("Il y a des données supplémentaires dans le dossier avec pour identifiant DS " + dossierDS.id + " : ", { données_supplémentaires })
+            // Ces données seront utilisées plus tard pour remplir des champs en base de données
+            console.log("Il y a des données supplémentaires dans le dossier avec pour identifiant DS " + dossierDS.id + " : ", { données_supplémentaires })
         }
     } catch (erreur) {
         console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
