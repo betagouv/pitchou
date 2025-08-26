@@ -251,7 +251,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
  */
 /**
  * 
- * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation 
+ * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation 
  * @returns {DossierPourInsert | DossierPourUpdate}
  */
 function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation){
