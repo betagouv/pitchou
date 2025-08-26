@@ -36,7 +36,7 @@ import memoize from 'just-memoize'
  * Les propriétés de cet objet correspondent à des noms de tables 
  * dans lesquelles ces données seront stockées
  * 
- * PPP est-ce que ce type est le même que DossierPourInsert/Update ou un truc comme ça ?
+ * PPP A terme, cela devra être DossierPourInsert et on supprimera DonnéesSupplémentairesPourCréationDossier
  * 
  * @typedef {Object} DonnéesSupplémentairesPourCréationDossier
  * @property {DonnéesSupplémentairesPourCréationDossier_Dossier} dossier

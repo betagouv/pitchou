@@ -1,11 +1,12 @@
 //@ts-check
-
-import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
-
-
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-/** @import Dossier from '../../types/database/public/Dossier.ts' */
+/** @import { PartialBy }  from '../../types/tools' */
+/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
+
+import { isValidDateString } from "../../commun/typeFormat";
+import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
+
 
 /** @typedef {{
  * "Date de sollicitation": Date;
@@ -81,7 +82,7 @@ const correspondanceThématiqueVersActivitéPrincipale = new Map([
     ["Manifestations sportives et culturelles", "Événementiel avec ou sans aménagement temporaire"],
     ["Naturalisation", "Restauration écologique"],
     ["Ouvrages cours d’eau", "Projets liés à la gestion de l’eau"],
-    ["PPV", "Péril animalier"],
+    ["PPV", "Production énergie renouvelable - Photovoltaïque"],
     ["Projet agricole", "Installations agricoles"],
     ["Projet d’aménagement", "ZAC"],
     ["Restauration", "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art"],
@@ -103,86 +104,6 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 }
 
 /**
- * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
- * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
- * données propres à Pitchou comme le suivi des dossiers
- * @typedef {{
- *   commentaire_libre: Dossier['commentaire_libre'],
- *   date_dépôt: Dossier['date_dépôt'],
- *   personne_mail: string | undefined,
- *   historique_dossier: string | undefined,
- *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
- *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
- *   DEP: string | undefined,
- *   date_de_depot_dep: string | undefined,
- *   saisine_csrpn_cnpn: string | undefined,
- *   date_saisine_csrpn_cnpn: string | undefined,
- *   nom_expert_csrpn: string | undefined,
- *   avis_csrpn_cnpn: string | undefined,
- *   date_avis_csrpn_cnpn: string | undefined,
- *   derogation_accordee: string | undefined,
- *   date_ap: string | undefined
- * }} DonnéesSupplémentaires
- */
-
-/**
- * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
- * @param {LigneDossierBFC} ligne
- * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
- */
-export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const description = ligne['Description avancement dossier avec dates']
-        ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
-        : '';
-    const observations = ligne['OBSERVATIONS']
-        ? 'Observations : ' + ligne['OBSERVATIONS']
-        : '';
-    const commentaire_libre = [description, observations]
-        .filter(value => value?.trim())
-        .join('\n');
-
-
-
-    const dep = ligne['DEP']
-    const date_de_depot_dep = ligne['Date de dépôt DEP']
-    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
-    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
-
-    const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
-    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
-    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
-    const derogation_accordee = ligne['Dérogation accordée']
-    const date_ap = ligne['Date AP']
-
-
-    return { 
-        dossier: {
-            'commentaire_libre': commentaire_libre,
-            'date_dépôt': ligne['Date de sollicitation'],
-            'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
-            'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
-
-            // Champs pour la table arête_personne_suit_dossier
-            'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
-
-            // Infos utiles historiques dossier
-            'historique_dossier': ligne['Description avancement dossier avec dates'],
-            'DEP': dep,
-            'date_de_depot_dep': date_de_depot_dep,
-            'derogation_accordee': derogation_accordee,
-            'date_ap': date_ap,
-
-            // Infos utiles saisines CSRPN/CNPN
-            'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
-            'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
-            'nom_expert_csrpn': nom_expert_csrpn,
-            'avis_csrpn_cnpn': avis_csrpn_cnpn,
-            'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
-        }
-    }
-}
-
-/**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {LigneDossierBFC} ligne
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
@@ -195,7 +116,7 @@ export async function créerDossierDepuisLigne(ligne) {
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
-        'Nom du projet': ligne['OBJET'],
+        'Nom du projet': 'N° Dossier DEROG ' + ligne['N° Dossier DEROG'] + ' - ' + ligne['OBJET'],
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Avez-vous réalisé un état des lieux écologique complet ?': true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.
 
@@ -350,4 +271,83 @@ function générerProchaineActionAttenduePar(ligne) {
 
     // Par défaut, on considère que la prochaine action attendue est celle de l'instruteur.i.ce
     return 'Instructeur'
+}
+
+/**
+ * 
+ * @param {LigneDossierBFC} ligne 
+ * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesEvénementPhaseDossier(ligne) {
+    console.log('dans créer Données evenement Phase dossier', ligne['Date de dépôt DEP'], ligne['DEP'])
+    if (ligne['DEP'].toLowerCase().trim() === 'oui') {
+        if (!isValidDateString(ligne['Date de dépôt DEP'])) {
+            console.warn(`Date de dépôt DEP Invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'auhourd'hui.`)
+        }
+        return [{
+                phase:'Instruction',
+                horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : new Date()
+            }]
+    } else {
+        return undefined
+    }
+}
+
+
+/**
+ * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
+ * @param {LigneDossierBFC} ligne
+ * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
+ */
+export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+    const description = ligne['Description avancement dossier avec dates']
+        ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
+        : '';
+    const observations = ligne['OBSERVATIONS']
+        ? 'Observations : ' + ligne['OBSERVATIONS']
+        : '';
+    const commentaire_libre = [description, observations]
+        .filter(value => value?.trim())
+        .join('\n');
+
+    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
+    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+
+    const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
+    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
+    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
+    const derogation_accordee = ligne['Dérogation accordée']
+    const date_ap = ligne['Date AP']
+
+    if (!isValidDateString(ligne['Date de sollicitation'].toString())) {
+        console.warn('Date de sollicitation invalide.')
+    }
+
+    const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
+
+
+    return { 
+        dossier: {
+            'commentaire_libre': commentaire_libre,
+            'date_dépôt': isValidDateString(ligne['Date de sollicitation'].toString()) ? ligne['Date de sollicitation'] : undefined,
+            'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
+            'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
+
+            // Champs pour la table arête_personne_suit_dossier
+            'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
+
+            // Infos utiles historiques dossier
+            'historique_dossier': ligne['Description avancement dossier avec dates'],
+            'derogation_accordee': derogation_accordee,
+            'date_ap': date_ap,
+
+            // Infos utiles saisines CSRPN/CNPN
+            'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
+            'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
+            'nom_expert_csrpn': nom_expert_csrpn,
+            'avis_csrpn_cnpn': avis_csrpn_cnpn,
+            'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
+        },
+        évènement_phase_dossier: donnéesEvénementPhaseDossier,
+    }
 }
