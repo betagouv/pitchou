@@ -12,7 +12,6 @@
 
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
-    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
     /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
 
     
@@ -100,10 +99,10 @@
      * @param {LigneDossierBFC} LigneDossierBFC
      */
     async function handleCréerLienPréRemplissage(LigneDossierBFC) {
-        /** @type {Partial<DossierDemarcheSimplifiee88444>} */
+
         const dossier = await créerDossierDepuisLigne(LigneDossierBFC);
         console.log(
-            { dossier },
+            { dossier }, dossier['NE PAS MODIFIER - Données techniques associées à votre dossier'],
             "après avoir cliqué sur Préparer préremplissage",
         );
         try {
@@ -182,7 +181,9 @@
                                     <tr id="table-0-row-key-1" data-row-key="1">
                                         <td>{LigneDossierBFC["OBJET"]}</td>
                                         <td>
-                                            <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. -->
+                                            <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. 
+                                             TODO : il faut que cette vérification se fasse après avoir transformé les valeurs des colonnes du tableau pour le dossier Pitchou. 
+                                             Plus précisément, il faut vérifier la réponse que l'on donne à la question "Dans quel département se localise majoritairement votre projet ?"-->
                                             {#if String(LigneDossierBFC["Département"] ?? "")
                                                 .split("-")
                                                 .some((dep) => dep.trim() && !["21", "25", "39", "58", "70", "71", "89", "90"].includes(dep.trim()))}
