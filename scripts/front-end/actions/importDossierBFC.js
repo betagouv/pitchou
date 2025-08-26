@@ -5,7 +5,6 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
 
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-/** @import Dossier from '../../types/database/public/Dossier.ts' */
 
 /** @typedef {{
  * "Date de sollicitation": Date;
@@ -101,29 +100,6 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
     }
     return 'Autre';
 }
-
-/**
- * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
- * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
- * données propres à Pitchou comme le suivi des dossiers
- * @typedef {{
- *   commentaire_libre: Dossier['commentaire_libre'],
- *   date_dépôt: Dossier['date_dépôt'],
- *   personne_mail: string | undefined,
- *   historique_dossier: string | undefined,
- *   historique_identifiant_demande_onagre: Dossier['historique_identifiant_demande_onagre'],
- *   prochaine_action_attendue_par: Dossier['prochaine_action_attendue_par'],
- *   DEP: string | undefined,
- *   date_de_depot_dep: string | undefined,
- *   saisine_csrpn_cnpn: string | undefined,
- *   date_saisine_csrpn_cnpn: string | undefined,
- *   nom_expert_csrpn: string | undefined,
- *   avis_csrpn_cnpn: string | undefined,
- *   date_avis_csrpn_cnpn: string | undefined,
- *   derogation_accordee: string | undefined,
- *   date_ap: string | undefined
- * }} DonnéesSupplémentaires
- */
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
