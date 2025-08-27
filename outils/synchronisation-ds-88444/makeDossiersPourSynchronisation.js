@@ -11,8 +11,6 @@
 /** @import AvisExpert, {AvisExpertInitializer} from '../../scripts/types/database/public/AvisExpert.ts' */
 /** @import { PartialBy }  from '../../scripts/types/tools' */
 
-
-
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
