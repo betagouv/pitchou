@@ -5,8 +5,6 @@
 /** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
 /** @import { PartialBy }  from '../../types/tools' */
 
-import knex from 'knex';
-import {directDatabaseConnection} from '../database.js'
 import assert from 'node:assert';
 
 /**
@@ -92,23 +90,4 @@ export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN
     } 
 
     return lignes_à_insérer
-}
-
-/** 
- * @param {AvisExpertInitializer[][]} lignesAInsérer
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- */
-export async function synchroniserAvisExpert(lignesAInsérer, databaseConnection = directDatabaseConnection) {
-    try {
-        const lignesFlat = lignesAInsérer.flat();
-
-        if (lignesFlat.length === 0) return;
-
-        await databaseConnection('avis_expert')
-            .insert(lignesFlat)
-        
-        return lignesFlat;
-    } catch (erreur) {
-        throw new Error(`Une erreur est survenue lors de la synchronisation de avis_expert : ${erreur}`);
-    }
 }

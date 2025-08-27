@@ -136,10 +136,15 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const donnéesPourDossier = dossiersPourInsert[index]
 
-            const {évènement_phase_dossier} = donnéesPourDossier
+            const {évènement_phase_dossier, avis_expert} = donnéesPourDossier
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 for(const ev of évènement_phase_dossier){
                     ev.dossier = dossierInséréId.id
+                }
+            }
+            if (Array.isArray(avis_expert) && avis_expert.length >=1){
+                for(const ae of avis_expert){
+                    ae.dossier = dossierInséréId.id
                 }
             }
         })
@@ -152,13 +157,19 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .filter(x => x !== undefined)
         .flat()
     // TODO : Faire en sorte que la transaction rollback s'il y'a une erreur lors de l'insertion d'une ligne dans la table évènement_phase_dossier
-    const évènmentsPhaseDossiersInsérésP = databaseConnection('évènement_phase_dossier')
+    const évènementsPhaseDossiersInsérésP = databaseConnection('évènement_phase_dossier')
         .insert(évènementsPhaseDossier)
         .onConflict(['dossier', 'phase', 'horodatage'])
         .merge()
 
+    const avisExpertDossier = [...dossiersPourUpdate, ...dossiersPourInsert]
+        .map((tables) => tables.avis_expert)
+        .filter(x => x!==undefined)
+        .flat()
 
-    return Promise.all([évènmentsPhaseDossiersInsérésP, ...updatePromises])
+    const avisExpertDossiersInsérésP = databaseConnection('avis_expert').insert(avisExpertDossier)
+
+    return Promise.all([évènementsPhaseDossiersInsérésP, avisExpertDossiersInsérésP, ...updatePromises])
         .then(results => results.flat())
         
 }
