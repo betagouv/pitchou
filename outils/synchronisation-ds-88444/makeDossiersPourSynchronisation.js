@@ -238,7 +238,7 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
             const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
 
             
-            const avis_expert = getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, dossierId, pitchouKeyToAnnotationDS)
+            const avis_expert = getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, null)
 
             return champsDossierPourInitP.then(champsDossierPourInit => ({
                 dossier: {
@@ -270,7 +270,7 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
         const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements, dossierId)
 
-        const avis_expert = getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, dossierId, pitchouKeyToAnnotationDS)
+        const avis_expert = getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, dossierId)
 
         return({
             dossier: {

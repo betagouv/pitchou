@@ -3,6 +3,7 @@
 /** @import {DossierDS88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
 /** @import  { AnnotationsPriveesDemarcheSimplifiee88444 } from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
+/** @import { PartialBy }  from '../../types/tools' */
 
 import knex from 'knex';
 import {directDatabaseConnection} from '../database.js'
@@ -13,12 +14,12 @@ import assert from 'node:assert';
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
- * @param {AvisExpert['dossier']} idPitchouDuDossier
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
- * @returns {AvisExpertInitializer[]}
+ * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
+ * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
  */
-export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, idPitchouDuDossier, pitchouKeyToAnnotationDS) {
-    /** @type {(Pick<AvisExpert, "dossier" | "expert" | "avis" | "date_avis"> & Partial<Pick<AvisExpert, "date_saisine">>)[]} */
+export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, idPitchouDuDossier) {
+    /** @type {PartialBy<AvisExpertInitializer, 'dossier'>[]} */
     let lignes_à_insérer = []
 
     /** @type {Map<string | undefined, any>} */
@@ -67,8 +68,8 @@ export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN
             date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ?? undefined
             date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ?? undefined
         }
-        /** @type {Omit<AvisExpert, "id">} */
-        const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn, saisine_fichier: fichier_saisine_csrpn_cnpn }
+        /** @type {PartialBy<AvisExpertInitializer, 'dossier'>} */
+        const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier ?? undefined, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn, saisine_fichier: fichier_saisine_csrpn_cnpn }
         lignes_à_insérer.push(ligne_cnpn_csrpn)
     }
     
@@ -76,9 +77,9 @@ export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN
         const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre"))?.date
         const fichier_avis_ministre = fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length >= 1 ? fichiersAvisConformeMinistre[0] : null
 
-        /** @type {Omit<AvisExpert, "id">} */
+        /** @type {PartialBy<AvisExpertInitializer, 'dossier'>} */
         const ligne_ministre = {
-                dossier: idPitchouDuDossier,
+                dossier: idPitchouDuDossier ?? undefined,
                 date_avis: date_avis_ministre,
                 expert: 'Ministre',
                 avis: 'Conforme',
