@@ -8,11 +8,13 @@
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
+/** @import { FichierId } from '../../scripts/types/database/public/Fichier.ts' */
 
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
+import { getLignesAvisExpertFromDossier } from '../../scripts/server/database/avis_expert.js'
 
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
@@ -156,7 +158,8 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
             ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
             date_dépôt: données_supplémentaires?.dossier.date_dépôt ?? dossierDS.dateDepot
         },
-        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier
+        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
+        avis_expert: données_supplémentaires?.avis_expert,
     }
 }
 
@@ -215,10 +218,14 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId){
  * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
+    
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
@@ -230,6 +237,9 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
             const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
 
+            
+            const avis_expert = getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, dossierId, pitchouKeyToAnnotationDS)
+
             return champsDossierPourInitP.then(champsDossierPourInit => ({
                 dossier: {
                     ...champsDossierPourInit.dossier,
@@ -238,7 +248,8 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 évènement_phase_dossier : [
                     ...(champsDossierPourInit.évènement_phase_dossier || []),
                     ...évènement_phase_dossier
-                ]
+                ],
+                avis_expert
             }))
         })
 
@@ -259,12 +270,15 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
         const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements, dossierId)
 
+        const avis_expert = getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, dossierId, pitchouKeyToAnnotationDS)
+
         return({
             dossier: {
                 ...dossierPartiel,
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
             },
-            évènement_phase_dossier
+            évènement_phase_dossier,
+            avis_expert,
         })
     })
 

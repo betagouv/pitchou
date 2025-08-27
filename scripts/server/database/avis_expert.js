@@ -1,9 +1,10 @@
-/** @import {default as Fichier, FichierId} from '../../types/database/public/Fichier.ts' */
+/** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
 /** @import AvisExpert, {AvisExpertInitializer} from '../../types/database/public/AvisExpert.ts' */
 /** @import {DossierDS88444} from '../../types/démarches-simplifiées/apiSchema.ts' */
+/** @import  { AnnotationsPriveesDemarcheSimplifiee88444 } from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
 
 import knex from 'knex';
-import { pitchouKeyToAnnotationDS } from '../../../outils/sync-démarches-simplifiées-88444.js';
 import {directDatabaseConnection} from '../database.js'
 import assert from 'node:assert';
 
@@ -12,12 +13,11 @@ import assert from 'node:assert';
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<AvisExpertInitializer[]>}
+ * @param {AvisExpert['dossier']} idPitchouDuDossier
+ * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
+ * @returns {AvisExpertInitializer[]}
  */
-async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection = directDatabaseConnection) {
-    /**@type {AvisExpert['dossier']} */
-    const idPitchouDuDossier = (await databaseConnection('dossier').select('id').where('number_demarches_simplifiées', dossierDS.number).first()).id
+export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, idPitchouDuDossier, pitchouKeyToAnnotationDS) {
     /** @type {(Pick<AvisExpert, "dossier" | "expert" | "avis" | "date_avis"> & Partial<Pick<AvisExpert, "date_saisine">>)[]} */
     let lignes_à_insérer = []
 
@@ -93,24 +93,12 @@ async function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_
     return lignes_à_insérer
 }
 
-/**
- * @param {DossierDS88444[]} dossiersDS 
- * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
- * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
- * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
+/** 
+ * @param {AvisExpertInitializer[][]} lignesAInsérer
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserAvisExpert(dossiersDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection = directDatabaseConnection) {
+export async function synchroniserAvisExpert(lignesAInsérer, databaseConnection = directDatabaseConnection) {
     try {
-
-        console.log("fichiersAvisCSRPN_CNPN_Téléchargés", fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size)
-        console.log("fichiersSaisinesCSRPN_CNPN_Téléchargés", fichiersSaisinesCSRPN_CNPN_Téléchargés && fichiersSaisinesCSRPN_CNPN_Téléchargés.size)
-        console.log("fichiersAvisConformeMinistreTéléchargés", fichiersAvisConformeMinistreTéléchargés && fichiersAvisConformeMinistreTéléchargés.size)
-
-        const lignesAInsérer = await Promise.all(
-            dossiersDS.map((dossierDS) => getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, databaseConnection))
-        );
-
         const lignesFlat = lignesAInsérer.flat();
 
         if (lignesFlat.length === 0) return;
