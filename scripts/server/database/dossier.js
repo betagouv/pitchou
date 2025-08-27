@@ -143,6 +143,11 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             if (Array.isArray(avis_expert) && avis_expert.length >=1){
                 avis_expert.forEach(ae => ae.dossier = dossierInséréId.id)
             }
+            if (Array.isArray(avis_expert) && avis_expert.length >=1){
+                for(const ae of avis_expert){
+                    ae.dossier = dossierInséréId.id
+                }
+            }
         })
     }
 
