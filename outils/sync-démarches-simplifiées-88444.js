@@ -369,7 +369,7 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
  */
 let dossiersSynchronisés
 if(dossiersAInitialiser.length >= 1 || dossiersAModifierPourSynchro.length >= 1){
-    dossiersSynchronisés = dumpDossiers(dossiersAInitialiser, dossiersAModifier)
+    dossiersSynchronisés = dumpDossiers(dossiersAInitialiser, dossiersAModifier, laTransactionDeSynchronisationDS)
 }
 
 const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
