@@ -30,7 +30,7 @@ export function getLignesAvisExpertFromDossier(dossierDS, fichiersAvisCSRPN_CNPN
     const fichiersSaisinesCSRPN_CNPN = fichiersSaisinesCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
     const fichiersAvisConformeMinistre = fichiersAvisConformeMinistreTéléchargés?.get(Number(dossierDS.number))
 
-    if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>=1) {
+    if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>=1 || fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length>=1) {
         /** @type {"CSRPN" | "CNPN" | null} */
         let expert_cnpn_csrpn = null
         

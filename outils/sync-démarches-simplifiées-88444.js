@@ -119,7 +119,7 @@ export const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationD
     ({label, id}) => [label, id])
 )
 
-const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
+const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 
@@ -251,7 +251,7 @@ const personnesInDossiersWithoutId = [...personnesInDossiersAvecEmail.values(), 
 // console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if(personnesInDossiersWithoutId.length >= 1){
-    await créerPersonnes(personnesInDossiersWithoutId)
+    await créerPersonnes(personnesInDossiersWithoutId, laTransactionDeSynchronisationDS)
     .then((personneIds) => {
         personnesInDossiersWithoutId.forEach((p, i) => {
             p.id = personneIds[i].id
