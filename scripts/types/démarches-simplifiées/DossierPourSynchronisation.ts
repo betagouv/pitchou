@@ -3,6 +3,7 @@ import { PersonneInitializer } from "../database/public/Personne.ts"
 import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
 import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../database/public/ÉvènementPhaseDossier.ts"
 import { PartialBy } from "../tools"
+import { AvisExpertInitializer } from "../database/public/AvisExpert.ts"
 
 
 export type DonnéesPersonnesEntreprisesInitializer = {
@@ -31,6 +32,7 @@ type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | Do
 export type DossierPourSynchronisation<DossierType> = {
     dossier: DossierType
     évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
+    avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[]
 }
 
 export type DossierEntreprisesPersonneInitializersPourInsert = 

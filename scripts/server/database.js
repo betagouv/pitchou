@@ -37,20 +37,21 @@ export function créerTransaction(config){
 
 
 /**
- *
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Entreprise[]>}
  */
-export function listAllEntreprises(){
-    return directDatabaseConnection('entreprise').select()
+export function listAllEntreprises(databaseConnection = directDatabaseConnection){
+    return databaseConnection('entreprise').select()
 }
 
 /**
  *
  * @param {Entreprise[]} entreprises
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function dumpEntreprises(entreprises){
-    return directDatabaseConnection('entreprise')
+export function dumpEntreprises(entreprises, databaseConnection = directDatabaseConnection){
+    return databaseConnection('entreprise')
     .insert(entreprises)
     .onConflict('siret')
     .merge()
