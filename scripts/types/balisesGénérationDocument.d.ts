@@ -52,7 +52,7 @@ interface FonctionsUtilitaires {
  * @remark Attention, modifier le type de retour de cette fonction peut casser le rendu des documents existants.
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  **/
-export interface BalisesGénérationDocument extends FonctionsUtilitaires {
+export type BalisesGénérationDocument = {
   nom: string | null;
   demandeur: {
     adresse: string
@@ -78,6 +78,9 @@ export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   liste_espèces_par_impact: EspeceParImpact[] | undefined;
   mesures_erc_prévues: boolean | 'Non renseigné';
   mesures_erc_prévues_renseigné: boolean;
+
+  nb_nids_compensés: number | null;
+  nb_nids_détruits: umber | null;
 
   date_début_intervention: Date | null;
   date_fin_intervention: Date | null;

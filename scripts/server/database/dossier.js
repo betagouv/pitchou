@@ -335,6 +335,9 @@ const colonnesDossierComplet = [
     'date_consultation_public',
 
     "mesures_erc_prévues",
+
+    "nb_nids_compenses",
+    "nb_nids_detruits"
 /*    
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",

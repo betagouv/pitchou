@@ -155,6 +155,12 @@ export default interface Dossier {
 
   /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
   scientifique_finalité_demande: unknown | null;
+
+  /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
+  nb_nids_detruits: number | null;
+
+  /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation" */
+  nb_nids_compenses: number | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -305,6 +311,12 @@ export interface DossierInitializer {
 
   /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
   scientifique_finalité_demande?: unknown | null;
+
+  /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
+  nb_nids_detruits?: number | null;
+
+  /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation" */
+  nb_nids_compenses?: number | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -454,4 +466,10 @@ export interface DossierMutator {
 
   /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
   scientifique_finalité_demande?: unknown | null;
+
+  /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
+  nb_nids_detruits?: number | null;
+
+  /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation" */
+  nb_nids_compenses?: number | null;
 }
