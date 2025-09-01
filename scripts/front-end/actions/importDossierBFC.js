@@ -4,6 +4,7 @@
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 
+import { addMonths } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
@@ -273,15 +274,51 @@ function générerProchaineActionAttenduePar(ligne) {
  * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesEvénementPhaseDossier(ligne) {
+    const aujourdhui = new Date()
 
+    /**@type {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} */
+    const donnéesEvénementPhaseDossier = []
+
+    const ligneEtapeProjet = ligne['Etapes du projet'].trim()
+
+    // Rajout des évènementspPhase Accompagnement amont
+    if (ligneEtapeProjet === 'Phase amont' || 
+        ligneEtapeProjet === 'Pôle EnR' || 
+        ligneEtapeProjet === 'Contentieux') {
+            donnéesEvénementPhaseDossier.push({
+                phase: 'Accompagnement amont',
+                horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
+            })
+    }
+    console.log(ligneEtapeProjet, ligneEtapeProjet === "Phase d’instruction", typeof ligneEtapeProjet)
+
+    // Rajout des évènements phase Instruction
     if (ligne['DEP'].toLowerCase().trim() === 'oui') {
         if (!isValidDateString(ligne['Date de dépôt DEP'])) {
             console.warn(`Date de dépôt DEP Invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'auhourd'hui.`)
         }
-        return [{
-                phase:'Instruction',
-                horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : new Date()
-            }]
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Instruction',
+            horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
+        })
+    }
+    if (ligneEtapeProjet === "Phase d’instruction" ) {
+            donnéesEvénementPhaseDossier.push({
+                phase: 'Instruction',
+                horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 1) : aujourdhui
+            })
+    }
+
+    if (ligneEtapeProjet === 'Contrôle') {
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Contrôle',
+            horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 3) : aujourdhui
+        })
+    }
+
+
+    if (donnéesEvénementPhaseDossier.length >= 1) {
+        return donnéesEvénementPhaseDossier
     } else {
         return undefined
     }
@@ -322,7 +359,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
 
-    return { 
+    return {
         dossier: {
             'commentaire_libre': commentaire_libre,
             'date_dépôt': isValidDateString(ligne['Date de sollicitation'].toString()) ? ligne['Date de sollicitation'] : undefined,
