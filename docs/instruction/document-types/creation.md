@@ -179,7 +179,7 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{nb_nids_compensés}</code></th>
                             <td>code</td>
-                            <td>Nombre de nids d'Hirondelles détruits</td>
+                            <td>Nombre de nids artificiels posés en compensation</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{nb_nids_détruits}</code></th>
