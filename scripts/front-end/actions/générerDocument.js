@@ -36,6 +36,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         justification_absence_autre_solution_satisfaisante,
         mesures_erc_prévues,
         motif_dérogation,
+        nb_nids_compenses,
+        nb_nids_detruits,
         justification_motif_dérogation,
         date_début_intervention,
         date_fin_intervention,
@@ -75,6 +77,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         mesures_erc_prévues: mesures_erc_prévues===null ? 'Non renseigné' : mesures_erc_prévues,
         mesures_erc_prévues_renseigné: mesures_erc_prévues !== null,
         motif_dérogation,
+        nb_nids_compensés: nb_nids_compenses,
+        nb_nids_détruits: nb_nids_detruits,
         justification_motif_dérogation,
         identifiant_onagre: historique_identifiant_demande_onagre,
         activité_principale,
@@ -115,7 +119,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
             précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
         },
         identifiant_pitchou: dossier.id,
-        ...functions
+        ...functions,
     }
 }
 
