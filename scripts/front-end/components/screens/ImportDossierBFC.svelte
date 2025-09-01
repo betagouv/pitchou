@@ -32,6 +32,9 @@
     /** @type {Props} */
     let { email = undefined, dossiers = [] } = $props();
 
+    /**@type {number | undefined}*/
+    let pourcentageDeDossierCrééEnBDD = $state()
+
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
      * La recherche s'effectue en comparant le nom du projet (champ 'nom' de la table 'dossier').
@@ -87,6 +90,12 @@
                 ];
 
                 lignesTableauImport = lignes;
+                
+                // Calculer et afficher le pourcentage de fichiers en base de données
+                const totalFichiers = lignes.length;
+                const fichiersEnBDD = lignes.filter(ligneDossierEnBDD).length;
+                pourcentageDeDossierCrééEnBDD = totalFichiers > 0 ? (fichiersEnBDD / totalFichiers * 100) : 0;
+
             } catch (error) {
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
@@ -158,6 +167,10 @@
     </div>
 
     {#if lignesTableauImport}
+        <h2>Progression ({pourcentageDeDossierCrééEnBDD?.toFixed(2)}%)</h2>
+        <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
+            <div style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
+        </div>
         <h2>Toutes les lignes du tableau</h2>
         <div class="fr-table" id="table-0-component">
             <div class="fr-table__wrapper">
