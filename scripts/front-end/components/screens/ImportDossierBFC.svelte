@@ -16,8 +16,8 @@
 
     
 
-    /** @type {LigneDossierBFC[] | undefined} */
-    let lignesTableauImport = $state(undefined);
+    /** @type {LigneDossierBFC[]} */
+    let lignesTableauImport = $state([]);
 
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = $state(new SvelteMap());
@@ -34,6 +34,16 @@
 
     /**@type {number | undefined}*/
     let pourcentageDeDossierCrééEnBDD = $state()
+
+    /**@type {boolean}*/
+    let afficherUniquementDossiersAImporter = $state(false)
+
+    let lignesFiltrées = $derived(lignesTableauImport && afficherUniquementDossiersAImporter ? 
+            lignesTableauImport.filter(ligne => !ligneDossierEnBDD(ligne)) : 
+            lignesTableauImport)
+
+
+    let nombreDossiersAImporter =  $derived(lignesTableauImport.filter(ligne => !ligneDossierEnBDD(ligne)).length)
 
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
@@ -166,11 +176,18 @@
         ></div>
     </div>
 
-    {#if lignesTableauImport}
-        <h2>Progression ({pourcentageDeDossierCrééEnBDD?.toFixed(2)}%)</h2>
+    {#if lignesTableauImport.length >= 1}
+        <h2>Progression ({pourcentageDeDossierCrééEnBDD?.toFixed(2)}%) - {nombreDossiersAImporter} / {lignesTableauImport.length}</h2>
         <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
             <div style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
         </div>
+
+        <div class="fr-toggle">
+            <input type="checkbox" class="fr-toggle__input" id="toggle" aria-describedby="toggle-messages" bind:checked={afficherUniquementDossiersAImporter}>
+            <label class="fr-toggle__label" for="toggle" data-fr-checked-label="Activé" data-fr-unchecked-label="Désactivé">Afficher uniquement les dossiers à importer ({nombreDossiersAImporter})</label>
+            <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
+        </div>
+
         <h2>Toutes les lignes du tableau</h2>
         <div class="fr-table" id="table-0-component">
             <div class="fr-table__wrapper">
@@ -190,7 +207,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each lignesTableauImport as LigneDossierBFC}
+                                {#each lignesFiltrées as LigneDossierBFC}
                                     <tr id="table-0-row-key-1" data-row-key="1">
                                         <td>{LigneDossierBFC["OBJET"]}</td>
                                         <td>
