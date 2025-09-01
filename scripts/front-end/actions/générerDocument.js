@@ -1,3 +1,6 @@
+//@ts-check
+
+
 /** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces  } from '../../types/especes.ts' */
 /** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
 /** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
