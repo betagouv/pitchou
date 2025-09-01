@@ -300,7 +300,9 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const observations = ligne['OBSERVATIONS']
         ? 'Observations : ' + ligne['OBSERVATIONS']
         : '';
-    const commentaire_libre = [description, observations]
+
+    const sollicitationOFB = ligne['Sollicitation OFB pour avis'].toLowerCase() === 'oui' ? 'Ce dossier nécessite une sollicitation OFB pour avis.' : null
+    const commentaire_libre = [description, observations, sollicitationOFB]
         .filter(value => value?.trim())
         .join('\n');
 
