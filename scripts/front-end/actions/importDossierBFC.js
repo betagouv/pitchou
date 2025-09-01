@@ -187,19 +187,13 @@ function générerDonnéesDemandeurs(ligne) {
 function générerDonnéesAutorisationEnvironnementale(ligne) {
     const procedure_associée = ligne['Procédure associée'].toLowerCase();
 
-    if (procedure_associée === 'déclaration loi sur eau') {
-        return {
-            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
-            "À quelle procédure le projet est-il soumis ?": ["Autorisation loi sur l'eau"]
-        };
-    } else if (procedure_associée === "autorisation environnementale") {
+    if (procedure_associée === "autorisation environnementale") {
         return {
             "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
             "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE", "Autorisation loi sur l'eau"]
         };
     }
 
-    // Cas par défaut si aucune condition n'est remplie
     return {
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Non',
         "À quelle procédure le projet est-il soumis ?": []
@@ -279,7 +273,7 @@ function générerProchaineActionAttenduePar(ligne) {
  * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesEvénementPhaseDossier(ligne) {
-    console.log('dans créer Données evenement Phase dossier', ligne['Date de dépôt DEP'], ligne['DEP'])
+
     if (ligne['DEP'].toLowerCase().trim() === 'oui') {
         if (!isValidDateString(ligne['Date de dépôt DEP'])) {
             console.warn(`Date de dépôt DEP Invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'auhourd'hui.`)
