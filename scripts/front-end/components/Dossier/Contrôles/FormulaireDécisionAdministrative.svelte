@@ -84,7 +84,7 @@
     <div class="fr-upload-group">
         <label class="fr-label" for="upload-fichier-décision">Fichier de la décision administrative 
             <span class="fr-hint-text">Indication : 
-                Taille maximale&nbsp;: 100 Mo. 
+                Taille maximale&nbsp;: 15 Mo. 
                 Formats supportés&nbsp;: pdf</span>
         </label>
         <input accept=".pdf" bind:files={fichiers} class="fr-upload" aria-describedby="upload-fichier-décision-messages" type="file" id="upload-fichier-décision" name="upload">
