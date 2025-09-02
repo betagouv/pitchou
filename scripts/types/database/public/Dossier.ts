@@ -157,10 +157,10 @@ export default interface Dossier {
   scientifique_finalité_demande: unknown | null;
 
   /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
-  nb_nids_detruits: number | null;
+  nombre_nids_détruits: number | null;
 
   /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation" */
-  nb_nids_compenses: number | null;
+  nombre_nids_compensés: number | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -313,10 +313,10 @@ export interface DossierInitializer {
   scientifique_finalité_demande?: unknown | null;
 
   /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
-  nb_nids_detruits?: number | null;
+  nombre_nids_détruits?: number | null;
 
   /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation" */
-  nb_nids_compenses?: number | null;
+  nombre_nids_compensés?: number | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -468,8 +468,8 @@ export interface DossierMutator {
   scientifique_finalité_demande?: unknown | null;
 
   /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
-  nb_nids_detruits?: number | null;
+  nombre_nids_détruits?: number | null;
 
   /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation" */
-  nb_nids_compenses?: number | null;
+  nombre_nids_compensés?: number | null;
 }

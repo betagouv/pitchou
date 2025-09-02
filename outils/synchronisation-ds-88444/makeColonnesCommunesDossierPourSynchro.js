@@ -263,11 +263,11 @@ export function makeColonnesCommunesDossierPourSynchro(
 
     const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
 
-    const champ_nb_nids_compenses = champById.get(pitchouKeyToChampDS.get('Indiquer le nombre de nids artificiels posés en compensation'))?.stringValue
-    const nb_nids_compenses = champ_nb_nids_compenses ? Number(champ_nb_nids_compenses) : null
+    const champ_nombre_nids_compensés = champById.get(pitchouKeyToChampDS.get('Indiquer le nombre de nids artificiels posés en compensation'))?.stringValue
+    const nombre_nids_compensés = champ_nombre_nids_compensés ? Number(champ_nombre_nids_compensés) : null
 
-    const champ_nb_nids_detruits = champById.get(pitchouKeyToChampDS.get('Nombre de nids d\'Hirondelles détruits'))?.stringValue
-    const nb_nids_detruits = champ_nb_nids_detruits ? Number(champ_nb_nids_detruits) : null
+    const champ_nombre_nids_détruits = champById.get(pitchouKeyToChampDS.get('Nombre de nids d\'Hirondelles détruits'))?.stringValue
+    const nombre_nids_détruits = champ_nombre_nids_détruits ? Number(champ_nombre_nids_détruits) : null
 
     return {
         // méta-données
@@ -337,7 +337,7 @@ export function makeColonnesCommunesDossierPourSynchro(
 
         date_consultation_public,
 
-        nb_nids_compenses,
-        nb_nids_detruits
+        nombre_nids_compensés,
+        nombre_nids_détruits
     }
 }

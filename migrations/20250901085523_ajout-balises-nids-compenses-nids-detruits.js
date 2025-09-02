@@ -5,9 +5,9 @@
 export async function up(knex) {
 
     await knex.schema.alterTable('dossier', function (table) {
-        table.integer('nb_nids_detruits')
+        table.integer('nombre_nids_détruits')
             .comment(`Réponse à la question "Nombre de nids d'Hirondelles détruits"`)
-        table.integer('nb_nids_compenses')
+        table.integer('nombre_nids_compensés')
             .comment(`Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation"`)
     });
 
@@ -22,8 +22,8 @@ export async function down(knex) {
 
     await knex.schema.alterTable('dossier', function (table) {
         table.dropColumns(
-            'nb_nids_detruits',
-            'nb_nids_compenses'
+            'nombre_nids_détruits',
+            'nombre_nids_compensés'
         )
     });
 
