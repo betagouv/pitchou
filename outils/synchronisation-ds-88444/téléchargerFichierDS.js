@@ -31,9 +31,6 @@ async function _téléchargerFichierDS(url){
             console.error(message)
             throw erreurSimple
         }
-        else{
-            console.error('HTTP error', err)
-        }
 
         throw err
     }

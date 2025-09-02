@@ -1,5 +1,6 @@
 import {extname} from 'node:path';
 import byteSize from 'byte-size'
+import {HTTPError} from 'ky'
 
 import { ajouterFichier, trouverFichiersExistants } from '../../scripts/server/database/fichier.js';
 import { makeFichierHash } from '../../scripts/server/database/fichier.js';
@@ -126,7 +127,13 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
                 } 
 
             } catch (err) {
-                console.error(`Erreur lors du téléchargement d'un fichier`, err);
+                if(err instanceof HTTPError){
+                    console.error(`Erreur HTTP ${err.response.status} lors du téléchagement de l'url`, url, `dossier DS`, number)
+                }
+                else{
+                    console.error(`Erreur lors du téléchargement d'un fichier`, err);
+                }
+
                 return undefined;
             }
 
