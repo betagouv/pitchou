@@ -1,5 +1,10 @@
 <script>
     //@ts-check
+
+    /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
+    /** @import { ComponentProps } from 'svelte' */
+    /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
+
     import {SvelteMap} from 'svelte/reactivity'
     import { text } from "d3-fetch";
     import Squelette from "../Squelette.svelte";
@@ -10,19 +15,6 @@
     } from "@odfjs/odfjs";
     import { créerDossierDepuisLigne } from "../../actions/importDossierBFC.js";
 
-    /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
-    /** @import { ComponentProps } from 'svelte' */
-    /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
-
-    
-
-    /** @type {LigneDossierBFC[]} */
-    let lignesTableauImport = $state([]);
-
-    /** @type {Map<any,string>} */
-    let ligneToLienPréremplissage = $state(new SvelteMap());
-
-    
     /**
      * @typedef {Object} Props
      * @property {ComponentProps<typeof Squelette>['email']} [email]
@@ -31,6 +23,17 @@
 
     /** @type {Props} */
     let { email = undefined, dossiers = [] } = $props();
+    
+
+    /** @type {LigneDossierBFC[]} */
+    let lignesTableauImport = $state([]);
+    /** @type {LigneDossierBFC[]} */
+    let lignesFiltréesTableauImport = $state([]);
+    /** @type {DossierRésumé[]} */
+    let dossiersDéjàEnBDD = $state([]);
+
+    /** @type {Map<any,string>} */
+    let ligneToLienPréremplissage = $state(new SvelteMap());
 
     /**@type {number | undefined}*/
     let pourcentageDeDossierCrééEnBDD = $state()
@@ -38,9 +41,8 @@
     /**@type {boolean}*/
     let afficherUniquementDossiersAImporter = $state(false)
 
-    let lignesFiltrées = $derived(lignesTableauImport && afficherUniquementDossiersAImporter ? 
-            lignesTableauImport.filter(ligne => !ligneDossierEnBDD(ligne)) : 
-            lignesTableauImport)
+
+    const lignesAffichéesTableauImport = $derived(afficherUniquementDossiersAImporter ? lignesFiltréesTableauImport : lignesTableauImport)
 
 
     let nombreDossiersAImporter =  $derived(lignesTableauImport.filter(ligne => !ligneDossierEnBDD(ligne)).length)
@@ -100,11 +102,11 @@
                 ];
 
                 lignesTableauImport = lignes;
+                lignesFiltréesTableauImport = lignes.filter(ligne => !ligneDossierEnBDD(ligne))
+                dossiersDéjàEnBDD =  lignes.filter(ligne => ligneDossierEnBDD(ligne))
                 
-                // Calculer et afficher le pourcentage de fichiers en base de données
-                const totalFichiers = lignes.length;
-                const fichiersEnBDD = lignes.filter(ligneDossierEnBDD).length;
-                pourcentageDeDossierCrééEnBDD = totalFichiers > 0 ? (fichiersEnBDD / totalFichiers * 100) : 0;
+                const totalDossiers = lignes.length;
+                pourcentageDeDossierCrééEnBDD = totalDossiers > 0 ? (dossiersDéjàEnBDD.length / totalDossiers * 100) : 0;
 
             } catch (error) {
                 console.error(
@@ -207,7 +209,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each lignesFiltrées as LigneDossierBFC}
+                                {#each lignesAffichéesTableauImport as LigneDossierBFC}
                                     <tr id="table-0-row-key-1" data-row-key="1">
                                         <td>{LigneDossierBFC["OBJET"]}</td>
                                         <td>
@@ -233,11 +235,13 @@
                                             ]}</td
                                         >
                                         <td>
-                                            {#if ligneDossierEnBDD(LigneDossierBFC)}<p
-                                                    class="fr-badge fr-badge--success"
-                                                >
-                                                    En base de données
-                                                </p>{/if}
+                                            {#if ligneDossierEnBDD(LigneDossierBFC)}
+                                                <p
+                                                        class="fr-badge fr-badge--success"
+                                                    >
+                                                        En base de données
+                                                </p>
+                                             {/if}
                                             {#if ligneToLienPréremplissage.get(LigneDossierBFC)}
                                                 <a id="link-1" href={ligneToLienPréremplissage.get(
                                                                 LigneDossierBFC,
