@@ -23,6 +23,9 @@
 
     /** @type {Props} */
     let { email = undefined, dossiers = [] } = $props();
+
+    // Pré-calcul: ensemble des noms présents en base (lookup O(1))
+    const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
     
 
     /** @type {LigneDossierBFC[]} */
@@ -54,7 +57,7 @@
      * @returns {boolean}
      */
     function ligneDossierEnBDD(LigneDossierBFC) {
-        return dossiers.some((dossier) => dossier.nom === LigneDossierBFC["OBJET"]);
+        return nomsEnBDD.has(LigneDossierBFC["OBJET"]);
     }
 
     /**
