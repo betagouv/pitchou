@@ -281,7 +281,7 @@ for(const {dossier: {demandeur_personne_morale, id_demarches_simplifiées}} of d
 }
 
 if(entreprisesInDossiersBySiret.size >= 1){
-    await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
+    await dumpEntreprises([...entreprisesInDossiersBySiret.values()], laTransactionDeSynchronisationDS)
 }
 
 /*
