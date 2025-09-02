@@ -290,7 +290,6 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
                 horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
             })
     }
-    console.log(ligneEtapeProjet, ligneEtapeProjet === "Phase d’instruction", typeof ligneEtapeProjet)
 
     // Rajout des évènements phase Instruction
     if (ligne['DEP'].toLowerCase().trim() === 'oui') {

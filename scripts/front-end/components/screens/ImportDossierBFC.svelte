@@ -1,10 +1,6 @@
 <script>
     //@ts-check
 
-    /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
-    /** @import { ComponentProps } from 'svelte' */
-    /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
-
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
     import Squelette from "../Squelette.svelte";
@@ -14,6 +10,11 @@
         isRowNotEmpty,
     } from "@odfjs/odfjs";
     import { créerDossierDepuisLigne } from "../../actions/importDossierBFC.js";
+
+    /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
+    /** @import { ComponentProps } from 'svelte' */
+    /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
+    /** @import { DossierDemarcheSimplifiee88444 } from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
     /**
      * @typedef {Object} Props
@@ -31,8 +32,9 @@
     let lignesTableauImport = $state([]);
     /** @type {LigneDossierBFC[]} */
     let lignesFiltréesTableauImport = $state([]);
-    /** @type {DossierRésumé[]} */
-    let dossiersDéjàEnBDD = $state([]);
+
+    /** @type {Partial<DossierDemarcheSimplifiee88444>[]} */
+    let dossiersAImporter = $state([]);
 
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = $state(new SvelteMap());
@@ -111,15 +113,29 @@
                 lignesFiltréesTableauImport = lignes.filter(
                     (ligne) => !ligneDossierEnBDD(ligne),
                 );
-                dossiersDéjàEnBDD = lignes.filter((ligne) =>
+                const dossiersDéjàEnBDD = lignes.filter((ligne) =>
                     ligneDossierEnBDD(ligne),
                 );
 
-                const totalDossiers = lignes.length;
-                pourcentageDeDossierCrééEnBDD =
-                    totalDossiers > 0
-                        ? (dossiersDéjàEnBDD.length / totalDossiers) * 100
-                        : 0;
+                await Promise.allSettled(
+                    lignes.map((ligne) => créerDossierDepuisLigne(ligne)),
+                ).then((results) => {
+                    const allValues = (
+                        results.filter(
+                            (c) => c.status === "fulfilled",
+                        )
+                    ).map((c) => c.value);
+
+                    console.log({allValues});
+
+                    const failedResults = (
+                        results.filter(
+                            (c) => c.status === "rejected",
+                        )
+                    ).map((c) => c.reason);
+
+                    console.log({failedResults});
+                });
             } catch (error) {
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
@@ -133,13 +149,7 @@
      */
     async function handleCréerLienPréRemplissage(LigneDossierBFC) {
         const dossier = await créerDossierDepuisLigne(LigneDossierBFC);
-        console.log(
-            { dossier },
-            dossier[
-                "NE PAS MODIFIER - Données techniques associées à votre dossier"
-            ],
-            "après avoir cliqué sur Préparer préremplissage",
-        );
+        console.log("après avoir cliqué sur Préparer préremplissage");
         try {
             const lien = await text("/lien-preremplissage", {
                 method: "POST",
@@ -147,7 +157,7 @@
                 body: JSON.stringify(dossier),
             });
 
-            ligneToLienPréremplissage.set(LigneDossierBFC, lien);
+            ligneToLienPréremplissage.set(dossier, lien);
             ligneToLienPréremplissage = ligneToLienPréremplissage;
         } catch (error) {
             throw new Error(
