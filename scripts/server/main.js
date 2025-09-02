@@ -66,6 +66,12 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
 console.log('NODE_ENV', process.env.NODE_ENV)
 
 
+const ONE_MB = 1048576
+// certaines routes permettent des upload de fichier
+// ces routes partagent une taille maximale d'upload
+const MAX_UPLOAD_FILE_SIZE = 20*ONE_MB
+
+
 const fastify = Fastify({
   logger: {
     transport: {
@@ -372,7 +378,10 @@ fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler
 fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichierRouteHandler)
 
 
-fastify.post('/decision-administrative', async function(request, reply) {  
+fastify.post(
+  '/decision-administrative', 
+  {bodyLimit: MAX_UPLOAD_FILE_SIZE},
+  async function(request, reply) {  
   // @ts-ignore
   const { cap } = request.query
 
