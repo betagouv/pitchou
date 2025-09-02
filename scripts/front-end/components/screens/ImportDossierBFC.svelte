@@ -5,7 +5,7 @@
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
 
-    import {SvelteMap} from 'svelte/reactivity'
+    import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
     import Squelette from "../Squelette.svelte";
     import {
@@ -26,7 +26,6 @@
 
     // Pré-calcul: ensemble des noms présents en base (lookup O(1))
     const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
-    
 
     /** @type {LigneDossierBFC[]} */
     let lignesTableauImport = $state([]);
@@ -39,16 +38,20 @@
     let ligneToLienPréremplissage = $state(new SvelteMap());
 
     /**@type {number | undefined}*/
-    let pourcentageDeDossierCrééEnBDD = $state()
+    let pourcentageDeDossierCrééEnBDD = $state();
 
     /**@type {boolean}*/
-    let afficherUniquementDossiersAImporter = $state(false)
+    let afficherUniquementDossiersAImporter = $state(false);
 
+    const lignesAffichéesTableauImport = $derived(
+        afficherUniquementDossiersAImporter
+            ? lignesFiltréesTableauImport
+            : lignesTableauImport,
+    );
 
-    const lignesAffichéesTableauImport = $derived(afficherUniquementDossiersAImporter ? lignesFiltréesTableauImport : lignesTableauImport)
-
-
-    let nombreDossiersAImporter =  $derived(lignesTableauImport.filter(ligne => !ligneDossierEnBDD(ligne)).length)
+    let nombreDossiersAImporter = $derived(
+        lignesTableauImport.filter((ligne) => !ligneDossierEnBDD(ligne)).length,
+    );
 
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
@@ -105,12 +108,18 @@
                 ];
 
                 lignesTableauImport = lignes;
-                lignesFiltréesTableauImport = lignes.filter(ligne => !ligneDossierEnBDD(ligne))
-                dossiersDéjàEnBDD =  lignes.filter(ligne => ligneDossierEnBDD(ligne))
-                
-                const totalDossiers = lignes.length;
-                pourcentageDeDossierCrééEnBDD = totalDossiers > 0 ? (dossiersDéjàEnBDD.length / totalDossiers * 100) : 0;
+                lignesFiltréesTableauImport = lignes.filter(
+                    (ligne) => !ligneDossierEnBDD(ligne),
+                );
+                dossiersDéjàEnBDD = lignes.filter((ligne) =>
+                    ligneDossierEnBDD(ligne),
+                );
 
+                const totalDossiers = lignes.length;
+                pourcentageDeDossierCrééEnBDD =
+                    totalDossiers > 0
+                        ? (dossiersDéjàEnBDD.length / totalDossiers) * 100
+                        : 0;
             } catch (error) {
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
@@ -123,10 +132,12 @@
      * @param {LigneDossierBFC} LigneDossierBFC
      */
     async function handleCréerLienPréRemplissage(LigneDossierBFC) {
-
         const dossier = await créerDossierDepuisLigne(LigneDossierBFC);
         console.log(
-            { dossier }, dossier['NE PAS MODIFIER - Données techniques associées à votre dossier'],
+            { dossier },
+            dossier[
+                "NE PAS MODIFIER - Données techniques associées à votre dossier"
+            ],
             "après avoir cliqué sur Préparer préremplissage",
         );
         try {
@@ -182,15 +193,39 @@
     </div>
 
     {#if lignesTableauImport.length >= 1}
-        <h2>Progression ({pourcentageDeDossierCrééEnBDD?.toFixed(2)}%) - {nombreDossiersAImporter} / {lignesTableauImport.length}</h2>
-        <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
-            <div style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
+        <h2>
+            Progression ({pourcentageDeDossierCrééEnBDD?.toFixed(2)}%) - {nombreDossiersAImporter}
+            / {lignesTableauImport.length}
+        </h2>
+        <div
+            class="fr-progress-bar fr-mt-2w"
+            style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
+        >
+            <div
+                style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+            ></div>
         </div>
 
         <div class="fr-toggle">
-            <input type="checkbox" class="fr-toggle__input" id="toggle" aria-describedby="toggle-messages" bind:checked={afficherUniquementDossiersAImporter}>
-            <label class="fr-toggle__label" for="toggle" data-fr-checked-label="Activé" data-fr-unchecked-label="Désactivé">Afficher uniquement les dossiers à importer ({nombreDossiersAImporter})</label>
-            <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
+            <input
+                type="checkbox"
+                class="fr-toggle__input"
+                id="toggle"
+                aria-describedby="toggle-messages"
+                bind:checked={afficherUniquementDossiersAImporter}
+            />
+            <label
+                class="fr-toggle__label"
+                for="toggle"
+                data-fr-checked-label="Activé"
+                data-fr-unchecked-label="Désactivé"
+                >Afficher uniquement les dossiers à importer ({nombreDossiersAImporter})</label
+            >
+            <div
+                class="fr-messages-group"
+                id="toggle-messages"
+                aria-live="polite"
+            ></div>
         </div>
 
         <h2>Toutes les lignes du tableau</h2>
@@ -240,15 +275,21 @@
                                         <td>
                                             {#if ligneDossierEnBDD(LigneDossierBFC)}
                                                 <p
-                                                        class="fr-badge fr-badge--success"
-                                                    >
-                                                        En base de données
+                                                    class="fr-badge fr-badge--success"
+                                                >
+                                                    En base de données
                                                 </p>
-                                             {/if}
+                                            {/if}
                                             {#if ligneToLienPréremplissage.get(LigneDossierBFC)}
-                                                <a id="link-1" href={ligneToLienPréremplissage.get(
-                                                                LigneDossierBFC,
-                                                            )} target="_blank" class="fr-btn">Créer dossier</a>
+                                                <a
+                                                    id="link-1"
+                                                    href={ligneToLienPréremplissage.get(
+                                                        LigneDossierBFC,
+                                                    )}
+                                                    target="_blank"
+                                                    class="fr-btn"
+                                                    >Créer dossier</a
+                                                >
                                             {:else}
                                                 <button
                                                     type="button"
@@ -273,7 +314,6 @@
 </Squelette>
 
 <style lang="scss">
-
     .commentaire {
         white-space: pre;
         min-width: 30rem;
