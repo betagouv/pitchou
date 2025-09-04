@@ -322,7 +322,6 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
             const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
 
-            
             const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, null)
 
             return champsDossierPourInitP.then(champsDossierPourInit => ({
