@@ -313,7 +313,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
     const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
 
-    const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
+    //const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
     const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
     const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
     const derogation_accordee = ligne['Dérogation accordée']
@@ -340,14 +340,13 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             'historique_dossier': ligne['Description avancement dossier avec dates'],
             'derogation_accordee': derogation_accordee,
             'date_ap': date_ap,
-
-            // Infos utiles saisines CSRPN/CNPN
-            'saisine_csrpn_cnpn': saisine_csrpn_cnpn,
-            'date_saisine_csrpn_cnpn': date_saisine_csrpn_cnpn,
-            'nom_expert_csrpn': nom_expert_csrpn,
-            'avis_csrpn_cnpn': avis_csrpn_cnpn,
-            'date_avis_csrpn_cnpn': date_avis_csrpn_cnpn,
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
+        avis_expert: [{
+            expert: saisine_csrpn_cnpn,
+            date_saisine: isValidDateString(date_saisine_csrpn_cnpn) ? new Date(date_saisine_csrpn_cnpn) : undefined,
+            avis: avis_csrpn_cnpn,
+            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined
+        }]
     }
 }

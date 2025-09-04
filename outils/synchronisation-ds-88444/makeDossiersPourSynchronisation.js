@@ -148,7 +148,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 
         if (données_supplémentaires) {
             // Ces données seront utilisées plus tard pour remplir des champs en base de données
-            console.log("Il y a des données supplémentaires dans le dossier avec pour identifiant DS " + dossierDS.id + " : ", { données_supplémentaires })
+            console.log(`Il y a des données supplémentaires dans le dossier DS`, dossierDS.number, données_supplémentaires )
         }
     } catch (erreur) {
         console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
@@ -322,7 +322,6 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
             const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
 
-            
             const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, null)
 
             return champsDossierPourInitP.then(champsDossierPourInit => ({
@@ -334,7 +333,10 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                     ...(champsDossierPourInit.évènement_phase_dossier || []),
                     ...évènement_phase_dossier
                 ],
-                avis_expert
+                avis_expert: [
+                    ...(champsDossierPourInit.avis_expert || []),
+                    ...avis_expert
+                ]
             }))
         })
 
