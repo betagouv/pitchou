@@ -166,6 +166,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
         },
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
         avis_expert: données_supplémentaires?.avis_expert,
+        décision_administrative: données_supplémentaires?.décision_administrative
     }
 }
 

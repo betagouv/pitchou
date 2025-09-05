@@ -186,7 +186,7 @@ const [fichiersAvisCSRPN_CNPN_Téléchargés,
     ])
 
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés )
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id

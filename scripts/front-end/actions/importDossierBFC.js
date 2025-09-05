@@ -5,6 +5,7 @@
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
 
+
 import { addMonths } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
 import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
@@ -335,11 +336,28 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
  * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesDécisionAdministrative(ligne) {
-    if (isValidDateString(ligne['Date AP'])) {
-        return [{
-            date_signature: new Date(ligne['Date AP'])
-        }]
+    let décision_administrative
+
+    const ligneDérogationAccordée = ligne['Dérogation accordée'].trim().toLowerCase()
+
+    let date_signature = isValidDateString(ligne['Date AP']) ? new Date(ligne['Date AP']) : addMonths(new Date(ligne['Date de sollicitation']), 3)
+
+    if (ligneDérogationAccordée === 'non') {
+        décision_administrative = {
+            date_signature,
+            type: 'Arrêté refus',
+        }
+    } else if (ligneDérogationAccordée === 'oui' || ligneDérogationAccordée === 'autorisé avec dep') {
+        décision_administrative = {
+            date_signature,
+            type: 'Arrêté dérogation'
+        }
     }
+
+    if (décision_administrative) {
+        return [décision_administrative]
+    }
+
 }
 
 
@@ -370,7 +388,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
     const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
     const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
-    const derogation_accordee = ligne['Dérogation accordée']
 
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
@@ -386,9 +403,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
             // Champs pour la table arête_personne_suit_dossier
             'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
-
-            // Infos utiles historiques dossier
-            'derogation_accordee': derogation_accordee, // A quoi le lier ? Avis Expert ?
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
         avis_expert: [{

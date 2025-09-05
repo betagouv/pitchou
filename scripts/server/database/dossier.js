@@ -180,8 +180,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             : Promise.resolve([]),
 
         décisionAdministrativeDossier.length > 0
-            ? databaseConnection('décision_administrative')
-                .insert(décisionAdministrativeDossier)
+            ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
         
         ...updatePromises
