@@ -361,18 +361,16 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         .filter(value => value?.trim())
         .join('\n');
 
-    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
-    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
-
-    //const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
-    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
-    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
-    const derogation_accordee = ligne['Dérogation accordée']
-    const date_ap = ligne['Date AP']
-
     if (!isValidDateString(ligne['Date de sollicitation'].toString())) {
         console.warn('Date de sollicitation invalide.')
     }
+
+
+    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
+    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
+    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
+    const derogation_accordee = ligne['Dérogation accordée']
 
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
@@ -390,16 +388,14 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
 
             // Infos utiles historiques dossier
-            'historique_dossier': ligne['Description avancement dossier avec dates'],
-            'derogation_accordee': derogation_accordee,
-            'date_ap': date_ap,
+            'derogation_accordee': derogation_accordee, // A quoi le lier ? Avis Expert ?
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
         avis_expert: [{
             expert: saisine_csrpn_cnpn,
             date_saisine: isValidDateString(date_saisine_csrpn_cnpn) ? new Date(date_saisine_csrpn_cnpn) : undefined,
             avis: avis_csrpn_cnpn,
-            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined
+            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined,
         }],
         décision_administrative,
     }
