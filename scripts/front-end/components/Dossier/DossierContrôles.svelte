@@ -25,7 +25,7 @@
     let décisionsAdministratives = $derived(dossier.décisionsAdministratives || [])
 
     //$inspect('dossier', dossier)
-    $inspect('décisionsAdministratives', décisionsAdministratives)
+    //$inspect('décisionsAdministratives', décisionsAdministratives)
 
     /**
      * 
