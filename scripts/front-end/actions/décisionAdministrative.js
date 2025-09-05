@@ -157,18 +157,18 @@ export function supprimerDécisionAdministrative(décisionAdministrativeId){
  * 
  * @param {DécisionAdministrativePourTransfer} décisionAdministrativeEnCréation 
  */
-export function sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation){
+export async function sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation){
     const modifierDécisionAdministrativeDansDossier = store.state.capabilities.modifierDécisionAdministrativeDansDossier
 
     if(!modifierDécisionAdministrativeDansDossier){
         throw new Error(`Pas les droits suffisants pour créer une décision administrative`)
     }
 
-    modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnCréation) 
-
     if(!décisionAdministrativeEnCréation.dossier){
         throw new TypeError(`décisionAdministrativeEnCréation.dossier manquant dans sauvegardeNouvelleDécisionAdministrative`)
     }
+
+    await modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnCréation) 
 
     refreshDossierComplet(décisionAdministrativeEnCréation.dossier)
 }
