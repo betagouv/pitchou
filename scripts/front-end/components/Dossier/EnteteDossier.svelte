@@ -161,8 +161,4 @@
 
     }
 
-    .contenu-modale{
-        white-space: preserve;
-    }
-
 </style>

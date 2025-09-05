@@ -221,12 +221,6 @@
             max-width: 10rem;
         }
 
-        label{
-            select{
-                max-width: 30em;
-            }
-        }
-
         table{
             // surcharge DSFR pour que l'autocomplete s'affiche correctement
             overflow: initial;
