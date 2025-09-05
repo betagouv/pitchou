@@ -1,3 +1,6 @@
+//@ts-check
+
+
 /** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces  } from '../../types/especes.ts' */
 /** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
 /** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
@@ -36,6 +39,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         justification_absence_autre_solution_satisfaisante,
         mesures_erc_prévues,
         motif_dérogation,
+        nombre_nids_compensés_dossier_oiseau_simple,
+        nombre_nids_détruits_dossier_oiseau_simple,
         justification_motif_dérogation,
         date_début_intervention,
         date_fin_intervention,
@@ -75,6 +80,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         mesures_erc_prévues: mesures_erc_prévues===null ? 'Non renseigné' : mesures_erc_prévues,
         mesures_erc_prévues_renseigné: mesures_erc_prévues !== null,
         motif_dérogation,
+        nombre_nids_compensés_dossier_oiseau_simple,
+        nombre_nids_détruits_dossier_oiseau_simple,
         justification_motif_dérogation,
         identifiant_onagre: historique_identifiant_demande_onagre,
         activité_principale,
@@ -115,7 +122,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
             précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
         },
         identifiant_pitchou: dossier.id,
-        ...functions
+        ...functions,
     }
 }
 

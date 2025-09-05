@@ -155,6 +155,12 @@ export default interface Dossier {
 
   /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
   scientifique_finalité_demande: unknown | null;
+
+  /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
+  nombre_nids_détruits_dossier_oiseau_simple: number | null;
+
+  /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation". Concerne les dossiers spécifiques à des oiseaux, comme les hirondelles ou les cigognes. */
+  nombre_nids_compensés_dossier_oiseau_simple: number | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -305,6 +311,12 @@ export interface DossierInitializer {
 
   /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
   scientifique_finalité_demande?: unknown | null;
+
+  /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
+  nombre_nids_détruits_dossier_oiseau_simple?: number | null;
+
+  /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation". Concerne les dossiers spécifiques à des oiseaux, comme les hirondelles ou les cigognes. */
+  nombre_nids_compensés_dossier_oiseau_simple?: number | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -454,4 +466,10 @@ export interface DossierMutator {
 
   /** Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande" */
   scientifique_finalité_demande?: unknown | null;
+
+  /** Réponse à la question "Nombre de nids d'Hirondelles détruits" */
+  nombre_nids_détruits_dossier_oiseau_simple?: number | null;
+
+  /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation". Concerne les dossiers spécifiques à des oiseaux, comme les hirondelles ou les cigognes. */
+  nombre_nids_compensés_dossier_oiseau_simple?: number | null;
 }
