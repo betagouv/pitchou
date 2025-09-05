@@ -41,17 +41,14 @@
     let pourcentageDeDossierCrééEnBDD = $state();
 
     /**@type {boolean}*/
-    let afficherUniquementDossiersAImporter = $state(false);
+    let afficherTousLesDossiers = $state(false);
 
     const lignesAffichéesTableauImport = $derived(
-        afficherUniquementDossiersAImporter
-            ? lignesFiltréesTableauImport
-            : lignesTableauImport,
+        afficherTousLesDossiers ? lignesTableauImport : lignesFiltréesTableauImport
     );
 
-    let nombreDossiersAImporter = $derived(
-        lignesTableauImport.filter((ligne) => !ligneDossierEnBDD(ligne)).length,
-    );
+    let nombreDossiersDéjàImportés = $derived( dossiersDéjàEnBDD.length );
+    let nombreDossiersAImporter = $derived( lignesTableauImport.length - nombreDossiersDéjàImportés );
 
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
@@ -158,53 +155,39 @@
 </script>
 
 <Squelette {email} nav={true}>
-    <h1>Import de dossier</h1>
-    <div class="fr-notice fr-notice--warning">
-        <div class="fr-container">
-            <div class="fr-notice__body">
-                <p>
-                    <span class="fr-notice__title"
-                        >Attention : vous devez appartenir au groupe des
-                        instructeur·ices DREAL BFC.</span
-                    >
-                </p>
-            </div>
+    <h1>Import de dossiers historiques Bougogne-Franche-Comté</h1>
+
+    {#if !lignesTableauImport || lignesTableauImport.length === 0}
+        <div class="fr-upload-group fr-mb-4w">
+            <label class="fr-label" for="file-upload">
+                Charger un fichier de suivi
+                <span class="fr-hint-text">Formats supportés : .ods</span>
+            </label>
+            <input
+                class="fr-upload"
+                aria-describedby="file-upload-messages"
+                type="file"
+                id="file-upload"
+                name="file-upload"
+                accept=".ods"
+                onchange={handleFileChange}
+            />
+            <div
+                class="fr-messages-group"
+                id="file-upload-messages"
+                aria-live="polite"
+            ></div>
         </div>
-    </div>
-    <div class="fr-upload-group">
-        <label class="fr-label" for="file-upload">
-            Ajouter un fichier
-            <span class="fr-hint-text">Formats supportés : ods.</span>
-        </label>
-        <input
-            class="fr-upload"
-            aria-describedby="file-upload-messages"
-            type="file"
-            id="file-upload"
-            name="file-upload"
-            accept=".ods"
-            onchange={handleFileChange}
-        />
-        <div
-            class="fr-messages-group"
-            id="file-upload-messages"
-            aria-live="polite"
-        ></div>
-    </div>
+    {/if}
 
     {#if lignesTableauImport.length >= 1}
         <h2>
-            Progression ({pourcentageDeDossierCrééEnBDD?.toFixed(2)}%) - {nombreDossiersAImporter}
-            / {lignesTableauImport.length}
+            {#if afficherTousLesDossiers}
+            Tous les dossiers du fichier chargé ({lignesTableauImport.length})    
+            {:else}
+            Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})    
+            {/if}
         </h2>
-        <div
-            class="fr-progress-bar fr-mt-2w"
-            style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
-        >
-            <div
-                style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
-            ></div>
-        </div>
 
         <div class="fr-toggle">
             <input
@@ -212,15 +195,16 @@
                 class="fr-toggle__input"
                 id="toggle"
                 aria-describedby="toggle-messages"
-                bind:checked={afficherUniquementDossiersAImporter}
+                bind:checked={afficherTousLesDossiers}
             />
             <label
                 class="fr-toggle__label"
                 for="toggle"
                 data-fr-checked-label="Activé"
                 data-fr-unchecked-label="Désactivé"
-                >Afficher uniquement les dossiers à importer ({nombreDossiersAImporter})</label
-            >
+                >
+                Afficher tous les dossiers
+            </label>
             <div
                 class="fr-messages-group"
                 id="toggle-messages"
@@ -228,13 +212,26 @@
             ></div>
         </div>
 
-        <h2>Toutes les lignes du tableau</h2>
-        <div class="fr-table" id="table-0-component">
+        <div class="progression">
+            <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+
+            <div
+                class="fr-progress-bar"
+                title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
+            >
+                <div
+                    style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+                ></div>
+            </div>
+        </div>
+
+        
+
+        <div class="fr-table" >
             <div class="fr-table__wrapper">
                 <div class="fr-table__container">
                     <div class="fr-table__content">
-                        <table id="table-0" class="tableau-dossier-a-creer">
-                            <caption> Lignes du tableau </caption>
+                        <table class="tableau-dossier-a-creer">
                             <thead>
                                 <tr>
                                     <th> Nom du projet (OBJET) </th>
@@ -248,7 +245,7 @@
                             </thead>
                             <tbody>
                                 {#each lignesAffichéesTableauImport as LigneDossierBFC}
-                                    <tr id="table-0-row-key-1" data-row-key="1">
+                                    <tr data-row-key="1">
                                         <td>{LigneDossierBFC["OBJET"]}</td>
                                         <td>
                                             <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. 
@@ -314,6 +311,32 @@
 </Squelette>
 
 <style lang="scss">
+    h2{
+        margin-bottom: 1rem;
+    }
+
+    .fr-toggle label::before{
+        max-width: 5rem;
+    }
+
+    .progression{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .fr-progress-bar{
+            flex:1;
+
+            height: 1.5rem; 
+            margin-left: 1rem;
+            border-radius: 8px; 
+            overflow: hidden;
+
+            background: var(--background-alt-grey); 
+            
+        }
+    }
+
     .commentaire {
         white-space: pre;
         min-width: 30rem;
