@@ -1,13 +1,16 @@
 /** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
-
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
+/** @import { FichierId } from '../../scripts/types/database/public/Fichier.ts' */
+/** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
+/** @import AvisExpert, {AvisExpertInitializer} from '../../scripts/types/database/public/AvisExpert.ts' */
+/** @import { PartialBy }  from '../../scripts/types/tools' */
+
 
 
 import assert from 'node:assert/strict'
@@ -145,7 +148,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 
         if (données_supplémentaires) {
             // Ces données seront utilisées plus tard pour remplir des champs en base de données
-            console.log("Il y a des données supplémentaires dans le dossier avec pour identifiant DS " + dossierDS.id + " : ", { données_supplémentaires })
+            console.log(`Il y a des données supplémentaires dans le dossier DS`, dossierDS.number, données_supplémentaires )
         }
     } catch (erreur) {
         console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
@@ -156,7 +159,8 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
             ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
             date_dépôt: données_supplémentaires?.dossier.date_dépôt ?? dossierDS.dateDepot
         },
-        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier
+        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
+        avis_expert: données_supplémentaires?.avis_expert,
     }
 }
 
@@ -206,6 +210,90 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId){
     return évènementsPhaseDossier
 }
 
+/**
+ * @param {DossierDS88444} dossierDS 
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
+ * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
+ * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
+ * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
+ */
+function makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, idPitchouDuDossier) {
+    /** @type {PartialBy<AvisExpertInitializer, 'dossier'>[]} */
+    let lignes_à_insérer = []
+
+    /** @type {Map<string | undefined, any>} */
+    const annotationById = new Map()
+    for(const annotation of dossierDS.annotations){
+         annotationById.set(annotation.id, annotation)
+    }
+
+    const fichiersAvisCSRPN_CNPN = fichiersAvisCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
+    const fichiersSaisinesCSRPN_CNPN = fichiersSaisinesCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
+    const fichiersAvisConformeMinistre = fichiersAvisConformeMinistreTéléchargés?.get(Number(dossierDS.number))
+
+    if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>=1 || fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length>=1) {
+        /** @type {"CSRPN" | "CNPN" | null} */
+        let expert_cnpn_csrpn = null
+        
+        const champDateAvisCNPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date
+        const champDateAvisCSRPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date
+        const champDateSaisineCNPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date
+        const champDateSaisineCSRPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date
+
+        if (champDateAvisCNPN || champDateSaisineCNPN) {
+            expert_cnpn_csrpn = "CNPN"
+        } else if (champDateAvisCSRPN || champDateSaisineCSRPN) {
+            expert_cnpn_csrpn = "CSRPN"
+        }
+
+        /**
+         * On doit passer par un filter pour le champ Avis CSRPN/CNPN
+         * car il existe trois champs avec ce label dans les Annotations Privées
+         */
+        const champs_avis_csrpn_cnpn = dossierDS.annotations.filter((annotation) => annotation.label === "Avis CSRPN/CNPN")
+        assert(champs_avis_csrpn_cnpn.length === 3, `Le nombre de champs dans les Annotations Privées avec le label "Avis CSRPN/CNPN" est incorrect : ${champs_avis_csrpn_cnpn.length} au lieu de 3. `)
+        const id_champ_avis_csrpn_cnpn_selection = champs_avis_csrpn_cnpn[1].id
+
+        const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
+        const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>= 1 ? fichiersAvisCSRPN_CNPN[0] : null
+        const fichier_saisine_csrpn_cnpn = fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length >= 1 ? fichiersSaisinesCSRPN_CNPN[0] : null
+
+        let date_avis_cnpn_csprn
+        let date_saisine_cnpn_csrpn
+        if (expert_cnpn_csrpn === "CNPN") {
+            date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date ?? undefined
+            date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date ?? undefined
+        } else if (expert_cnpn_csrpn) {
+            date_avis_cnpn_csprn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date ?? undefined
+            date_saisine_cnpn_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN"))?.date ?? undefined
+        }
+        /** @type {PartialBy<AvisExpertInitializer, 'dossier'>} */
+        const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier ?? undefined, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn, saisine_fichier: fichier_saisine_csrpn_cnpn }
+        lignes_à_insérer.push(ligne_cnpn_csrpn)
+    }
+    
+    if (fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length>=1) {
+        const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre"))?.date
+        const fichier_avis_ministre = fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length >= 1 ? fichiersAvisConformeMinistre[0] : null
+
+        /** @type {PartialBy<AvisExpertInitializer, 'dossier'>} */
+        const ligne_ministre = {
+                dossier: idPitchouDuDossier ?? undefined,
+                date_avis: date_avis_ministre,
+                expert: 'Ministre',
+                avis: 'Conforme',
+                avis_fichier: fichier_avis_ministre,
+                saisine_fichier: null,
+                date_saisine: null
+            } 
+
+        lignes_à_insérer.push(ligne_ministre)
+    } 
+
+    return lignes_à_insérer
+}
 
 /**
  * Récupère les données brutes des dossiers depuis Démarches Simplifiées
@@ -215,10 +303,14 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId){
  * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
  * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
+    
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
@@ -230,6 +322,8 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
             const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
 
+            const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, null)
+
             return champsDossierPourInitP.then(champsDossierPourInit => ({
                 dossier: {
                     ...champsDossierPourInit.dossier,
@@ -238,6 +332,10 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 évènement_phase_dossier : [
                     ...(champsDossierPourInit.évènement_phase_dossier || []),
                     ...évènement_phase_dossier
+                ],
+                avis_expert: [
+                    ...(champsDossierPourInit.avis_expert || []),
+                    ...avis_expert
                 ]
             }))
         })
@@ -259,12 +357,15 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
         const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements, dossierId)
 
+        const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, dossierId)
+
         return({
             dossier: {
                 ...dossierPartiel,
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
             },
-            évènement_phase_dossier
+            évènement_phase_dossier,
+            avis_expert,
         })
     })
 

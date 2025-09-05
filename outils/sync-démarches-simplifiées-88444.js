@@ -20,7 +20,7 @@ import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' 
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 
 import { ajouterDécisionsAdministratives } from '../scripts/server/database/décision_administrative.js'
-import { synchroniserAvisExpert } from '../scripts/server/database/avis_expert.js'
+
 import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
@@ -119,15 +119,66 @@ export const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationD
     ({label, id}) => [label, id])
 )
 
-const allPersonnesCurrentlyInDatabaseP = listAllPersonnes();
+const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
+
+/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierAvisExpertAnnotationId = pitchouKeyToAnnotationDS.get('Avis CSRPN/CNPN')
+
+if(!fichierAvisExpertAnnotationId){
+    throw new Error('fichierAvisExpertAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
+const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
+    dossiersDS, 
+    fichierAvisExpertAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
+
+/** Télécharger les nouveaux fichiers des saisines d'experts (CNPN/CSRPN) */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierSaisineExpertAnnotationId = pitchouKeyToAnnotationDS.get("Saisine de l'instructeur")
+
+if(!fichierSaisineExpertAnnotationId){
+    throw new Error('fichierSaisineExpertAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
+const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
+    dossiersDS, 
+    fichierSaisineExpertAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
+
+/** Télécharger les nouveaux fichiers des avis conformes ministres */
+/** @type {ChampDescriptor['id'] | undefined} */
+const fichierAvisConformeMinistreAnnotationId = pitchouKeyToAnnotationDS.get('Avis conforme Ministre')
+
+if(!fichierAvisConformeMinistreAnnotationId){
+    throw new Error('fichierAvisConformeMinistreAnnotationId is undefined')
+}
+
+/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
+const fichiersAvisConformeMinistre = téléchargerNouveauxFichiersFromChampId(
+    dossiersDS, 
+    fichierAvisConformeMinistreAnnotationId, 
+    laTransactionDeSynchronisationDS
+)
 
 
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const dossierNumberToDossierId = new Map(dossiersDéjàExistantsEnBDD.map(d => [d.number_demarches_simplifiées, d.id]));
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS)
+const [fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés] = await Promise.all([
+        fichiersAvisCSRPN_CNPN,
+        fichiersSaisinesCSRPN_CNPN,
+        fichiersAvisConformeMinistre
+    ])
+
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés )
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -200,7 +251,7 @@ const personnesInDossiersWithoutId = [...personnesInDossiersAvecEmail.values(), 
 // console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if(personnesInDossiersWithoutId.length >= 1){
-    await créerPersonnes(personnesInDossiersWithoutId)
+    await créerPersonnes(personnesInDossiersWithoutId, laTransactionDeSynchronisationDS)
     .then((personneIds) => {
         personnesInDossiersWithoutId.forEach((p, i) => {
             p.id = personneIds[i].id
@@ -230,7 +281,7 @@ for(const {dossier: {demandeur_personne_morale, id_demarches_simplifiées}} of d
 }
 
 if(entreprisesInDossiersBySiret.size >= 1){
-    await dumpEntreprises([...entreprisesInDossiersBySiret.values()])
+    await dumpEntreprises([...entreprisesInDossiersBySiret.values()], laTransactionDeSynchronisationDS)
 }
 
 /*
@@ -311,57 +362,14 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
     laTransactionDeSynchronisationDS
 )
 
-/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisExpertAnnotationId = pitchouKeyToAnnotationDS.get('Avis CSRPN/CNPN')
 
-if(!fichierAvisExpertAnnotationId){
-    throw new Error('fichierAvisExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des saisines d'experts (CNPN/CSRPN) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierSaisineExpertAnnotationId = pitchouKeyToAnnotationDS.get("Saisine de l'instructeur")
-
-if(!fichierSaisineExpertAnnotationId){
-    throw new Error('fichierSaisineExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierSaisineExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des avis conformes ministres */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisConformeMinistreAnnotationId = pitchouKeyToAnnotationDS.get('Avis conforme Ministre')
-
-if(!fichierAvisConformeMinistreAnnotationId){
-    throw new Error('fichierAvisConformeMinistreAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisConformeMinistre = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisConformeMinistreAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
 
 /**
  * Synchronisation des dossiers
  */
 let dossiersSynchronisés
 if(dossiersAInitialiser.length >= 1 || dossiersAModifierPourSynchro.length >= 1){
-    dossiersSynchronisés = dumpDossiers(dossiersAInitialiser, dossiersAModifier)
+    dossiersSynchronisés = dumpDossiers(dossiersAInitialiser, dossiersAModifier, laTransactionDeSynchronisationDS)
 }
 
 const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
@@ -510,32 +518,6 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
     }
 })
 
-
-/** Synchronisation de la table avis_expert */
-let synchroniserDossiersAvisExpertP;
-if (dossiersDS.length >= 1) {
-    synchroniserDossiersAvisExpertP = Promise.all([
-        fichiersAvisCSRPN_CNPN,
-        fichiersSaisinesCSRPN_CNPN,
-        fichiersAvisConformeMinistre
-    ]).then(([fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés]) => {
-        // On ne synchronise que s'il y'a des nouveaux fichiers d'avis d'expert à télécharger
-        if ((fichiersAvisCSRPN_CNPN_Téléchargés && fichiersAvisCSRPN_CNPN_Téléchargés.size >= 1)
-             || (fichiersAvisConformeMinistreTéléchargés && fichiersAvisConformeMinistreTéléchargés.size >=1)) {
-            console.log("Des nouveaux avis d'experts doivent être synchronisés.")
-            return synchroniserAvisExpert(
-                dossiersDS,
-                fichiersAvisCSRPN_CNPN_Téléchargés,
-                fichiersSaisinesCSRPN_CNPN_Téléchargés,
-                fichiersAvisConformeMinistreTéléchargés,
-                laTransactionDeSynchronisationDS
-            );
-        }
-    });
-}
-
-
-
 /** Fin de l'outil de synchronisation - fermeture */
 
 Promise.all([
@@ -544,7 +526,6 @@ Promise.all([
     décisionsAdministrativesSynchronisées,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
-    synchroniserDossiersAvisExpertP
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
