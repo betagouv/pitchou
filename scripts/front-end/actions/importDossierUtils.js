@@ -71,6 +71,11 @@ export async function getCommuneData(nomCommune) {
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 async function getDépartementData(code) {
+    if (isNaN(Number.parseInt(code)) && code !== '2A' && code !== '2B') {
+        console.warn(`Il y a un problème dans le formatage du code de département : ${code}`)
+        return null
+    }
+
     const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
@@ -122,12 +127,13 @@ export async function formaterDépartementDepuisValeur(valeur) {
     if (typeof valeur === 'number') {
         codes = [valeur.toString()];
     }
-    if (typeof valeur === 'string') {
-        const blocs = valeur.split('-');
-        // Cela permet de récupérer les valeurs comme "21-78"
-        for (const bloc of blocs) {
-            codes.push(bloc)
-        }
+
+    if (typeof valeur === "string") {
+        // Exemple : "21-78" → ["21", "78"]
+        codes = valeur
+            .split("-")
+            .map((bloc) => bloc.trim())
+            .filter(Boolean);
     }
 
     const départementsP = codes.map((code) => getDépartementData(code))
@@ -142,7 +148,7 @@ export async function formaterDépartementDepuisValeur(valeur) {
             code: '21',
             nom: `Côte-d'Or`
         }];
-    } 
+    }
 }
 
 
