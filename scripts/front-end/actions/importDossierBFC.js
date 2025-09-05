@@ -282,18 +282,17 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
 
     const ligneEtapeProjet = ligne['Etapes du projet'].trim()
 
-    // Rajout des évènementspPhase Accompagnement amont
-    if (ligneEtapeProjet === 'Phase amont' || 
-        ligneEtapeProjet === 'Pôle EnR' || 
+    // Rajout de l'évènement phase Accompagnement amont
+    if (ligneEtapeProjet === 'Phase amont' ||
+        ligneEtapeProjet === 'Pôle EnR' ||
         ligneEtapeProjet === 'Contentieux') {
-            donnéesEvénementPhaseDossier.push({
-                phase: 'Accompagnement amont',
-                horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
-            })
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Accompagnement amont',
+            horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
+        })
     }
-    console.log(ligneEtapeProjet, ligneEtapeProjet === "Phase d’instruction", typeof ligneEtapeProjet)
 
-    // Rajout des évènements phase Instruction
+    // Rajout de l'évènement phase Instruction
     if (ligne['DEP'].toLowerCase().trim() === 'oui') {
         if (!isValidDateString(ligne['Date de dépôt DEP'])) {
             console.warn(`Date de dépôt DEP invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'aujourd'hui.`)
@@ -302,15 +301,20 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
             phase: 'Instruction',
             horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
         })
-    }
-    if (ligneEtapeProjet === "Phase d’instruction" ) {
-            donnéesEvénementPhaseDossier.push({
-                phase: 'Instruction',
-                horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 1) : aujourdhui
-            })
+    } else if (ligneEtapeProjet === "Phase d’instruction") {
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Instruction',
+            horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 1) : aujourdhui
+        })
     }
 
-    if (ligneEtapeProjet === 'Contrôle') {
+    // Rajout de l'évènement phase Contrôle
+    if (isValidDateString(ligne["Date AP"])) {
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Contrôle',
+            horodatage: new Date(ligne["Date AP"])
+        })
+    } else if (ligneEtapeProjet === 'Contrôle') {
         donnéesEvénementPhaseDossier.push({
             phase: 'Contrôle',
             horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 3) : aujourdhui
@@ -331,14 +335,10 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
  * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesDécisionAdministrative(ligne) {
-    if (ligne['Date AP'].trim().length >= 1) {
-        if (!isValidDateString(ligne['Date AP'])) {
-            console.warn(`Date AP invalide : La colonne Date AP semble spécifier une date qui n'est pas valide : ${ligne['Date AP'].trim()} `)
-        } else {
-            return [{
-                date_signature: new Date(ligne['Date AP'].trim())
-            }]
-        }
+    if (isValidDateString(ligne['Date AP'])) {
+        return [{
+            date_signature: new Date(ligne['Date AP'])
+        }]
     }
 }
 

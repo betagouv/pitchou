@@ -13,10 +13,10 @@
 
 import knex from 'knex';
 
-import { directDatabaseConnection } from '../database.js'
-import { getDécisionAdministratives, getDécisionsAdministratives } from './décision_administrative.js';
-import { getPrescriptions } from './prescription.js';
-import { getContrôles } from './controle.js';
+import {directDatabaseConnection} from '../database.js'
+import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
+import {getPrescriptions} from './prescription.js';
+import {getContrôles} from './controle.js';
 
 //@ts-ignore
 /** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
@@ -33,7 +33,7 @@ import { getContrôles } from './controle.js';
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise< PickNonNullable<Dossier, 'id' | 'id_demarches_simplifiées' | 'number_demarches_simplifiées'>[] >}
  */
-export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatabaseConnection) {
+export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatabaseConnection){
     return databaseConnection('dossier')
         .select(['id', 'id_demarches_simplifiées', 'number_demarches_simplifiées'])
         .whereIn('id_demarches_simplifiées', DS_ids)
@@ -48,9 +48,9 @@ export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatab
 export async function dumpDossierMessages(idToMessages, databaseConnection = directDatabaseConnection) {
     /** @type {Partial<Message>[]} */
     const messages = [];
-
-    for (const [dossierId, apiMessages] of idToMessages) {
-        for (const { id, body, createdAt, email } of apiMessages) {
+    
+    for(const [dossierId, apiMessages] of idToMessages){
+        for(const {id, body, createdAt, email} of apiMessages){
             messages.push({
                 contenu: body,
                 date: new Date(createdAt),
@@ -60,7 +60,7 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
             })
         }
     };
-
+    
     return databaseConnection('message')
         .insert(messages)
         .onConflict('id_démarches_simplifiées').merge()
@@ -76,10 +76,10 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Partial<Message>[] | null>}
  */
-export async function getDossierMessages(dossierId, databaseConnection = directDatabaseConnection) {
+export async function getDossierMessages(dossierId, databaseConnection = directDatabaseConnection){
     return databaseConnection('message')
         .select(['contenu', 'date', 'email_expéditeur'])
-        .where({ "dossier": dossierId })
+        .where({"dossier": dossierId})
 }
 
 
@@ -98,13 +98,13 @@ const varcharKeys = [
  * @param {DossierPourUpdate[]} dossiersPourUpdate
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, databaseConnection = directDatabaseConnection) {
-    for (const { dossier: d } of [...dossiersPourInsert, ...dossiersPourUpdate]) {
-        for (const k of varcharKeys) {
-            if (typeof d[k] === 'string' && d[k].length >= 255) {
+export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, databaseConnection = directDatabaseConnection){
+    for(const {dossier: d} of [...dossiersPourInsert, ...dossiersPourUpdate]){
+        for(const k of varcharKeys){
+            if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
                 console.warn('Valeur:', d[k])
-
+                
                 console.warn(`La valeur est coupée pour qu'elle rentre en base de données`)
                 // @ts-ignore
                 d[k] = d[k].slice(0, 255)
@@ -114,9 +114,9 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
     /**@type {knex.Knex.QueryBuilder<any, any>[]} */
     let updatePromises = []
-
-    if (dossiersPourUpdate.length >= 1) {
-        updatePromises = dossiersPourUpdate.map(({ dossier: dossierAModifier }) => {
+    
+    if (dossiersPourUpdate.length>=1) {
+        updatePromises = dossiersPourUpdate.map(({dossier: dossierAModifier}) => {
             return databaseConnection('dossier')
                 .where('number_demarches_simplifiées', dossierAModifier.number_demarches_simplifiées)
                 .update(dossierAModifier)
@@ -124,10 +124,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         })
     }
 
-    /** Maintenant, on va insérer / updater les tables à synchroniser autres que Dossier 
-     * - Le mettre dans une fonction à part ?
-     * - Renommer la fonctin dumpDossiers en dump, dumpTablesASynchroniser, pour clarifier le faire que l'on met à jour la table dossier mais aussi d'autres tables ?
-    */
 
     if (dossiersPourInsert.length >= 1) {
         /**@type { {id: DossierId}[]} */
@@ -136,25 +132,25 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             .returning(['id'])
 
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
-        insertedDossierIds.forEach((dossierInséré, index) => {
+        insertedDossierIds.forEach((dossierInséréId, index) => {
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const donnéesPourDossier = dossiersPourInsert[index]
 
-            const { évènement_phase_dossier, avis_expert, décision_administrative } = donnéesPourDossier
-            if (Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1) {
-                évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséré.id)
+            const {évènement_phase_dossier, avis_expert, décision_administrative} = donnéesPourDossier
+            if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
+                évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
-            if (Array.isArray(avis_expert) && avis_expert.length >= 1) {
-                avis_expert.forEach(ae => ae.dossier = dossierInséré.id)
+            if (Array.isArray(avis_expert) && avis_expert.length >=1){
+                avis_expert.forEach(ae => ae.dossier = dossierInséréId.id)
             }
             if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
-                décision_administrative.forEach(da => da.dossier = dossierInséré.id)
+                décision_administrative.forEach(da => da.dossier = dossierInséréId.id)
             }
         })
     }
 
     const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert]
-
+    
     const évènementsPhaseDossier = tousLesDossiers
         .map(tables => tables.évènement_phase_dossier)
         .filter(x => x !== undefined)
@@ -165,73 +161,76 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .filter(x => x !== undefined)
         .flat()
 
-    const décisionAdministrativeDossier = tousLesDossiers
+   const décisionAdministrativeDossier = tousLesDossiers
         .map(tables => tables.décision_administrative)
         .filter(x => x !== undefined)
         .flat()
 
+
     const databaseOperations = [
-        évènementsPhaseDossier.length > 0
+        évènementsPhaseDossier.length > 0 
             ? databaseConnection('évènement_phase_dossier')
                 .insert(évènementsPhaseDossier)
                 .onConflict(['dossier', 'phase', 'horodatage'])
                 .merge()
             : Promise.resolve([]),
+        
         avisExpertDossier.length > 0
             ? databaseConnection('avis_expert').insert(avisExpertDossier)
             : Promise.resolve([]),
+
         décisionAdministrativeDossier.length > 0
             ? databaseConnection('décision_administrative')
                 .insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
+        
         ...updatePromises
     ]
 
     return Promise.all(databaseOperations).then(results => results.flat())
 }
 
-
 /**
  * @param {any} dossierDS 
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databaseConnection = directDatabaseConnection) {
+export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databaseConnection = directDatabaseConnection){
     const dossierNumberDSToIdP = databaseConnection('dossier')
-        .select(['id', 'number_demarches_simplifiées'])
-        .whereIn('number_demarches_simplifiées', dossierDS.map((/** @type {{ number: string; }} */ d) => d.number))
-        .then(dossiers => {
-            const dossierNumberDSToId = new Map()
-            for (const { id, number_demarches_simplifiées } of dossiers) {
-                dossierNumberDSToId.set(number_demarches_simplifiées, id)
-            }
-            return dossierNumberDSToId;
-        });
+    .select(['id', 'number_demarches_simplifiées'])
+    .whereIn('number_demarches_simplifiées', dossierDS.map((/** @type {{ number: string; }} */ d) => d.number))
+    .then(dossiers => {
+        const dossierNumberDSToId = new Map()
+        for(const {id, number_demarches_simplifiées} of dossiers){
+            dossierNumberDSToId.set(number_demarches_simplifiées, id)
+        }
+        return dossierNumberDSToId;
+    });
 
     const groupeInstructeursLabelToIdP = databaseConnection('groupe_instructeurs')
-        .select(['id', 'nom'])
-        .then(groupesInstructeurs => {
-            const groupeInstructeursLabelToId = new Map()
-            for (const { id, nom } of groupesInstructeurs) {
-                groupeInstructeursLabelToId.set(nom, id)
-            }
-            return groupeInstructeursLabelToId;
-        });
-
+    .select(['id', 'nom'])
+    .then(groupesInstructeurs => {
+        const groupeInstructeursLabelToId = new Map()
+        for(const {id, nom} of groupesInstructeurs){
+            groupeInstructeursLabelToId.set(nom, id)
+        }
+        return groupeInstructeursLabelToId;
+    });
+    
     const dossierNumberDSToId = await dossierNumberDSToIdP
     const groupeInstructeursLabelToId = await groupeInstructeursLabelToIdP
 
     // @ts-ignore
-    const arêtesGroupeTnstructeurs_Dossier = dossierDS.map(({ number, groupeInstructeur: { label } }) => {
+    const arêtesGroupeTnstructeurs_Dossier = dossierDS.map(({number, groupeInstructeur: {label}}) => {
         const dossierId = dossierNumberDSToId.get(String(number))
-        const groupe_instructeursId = groupeInstructeursLabelToId.get(label)
+        const groupe_instructeursId =  groupeInstructeursLabelToId.get(label)
 
-        if (!groupe_instructeursId) {
+        if(!groupe_instructeursId){
             throw new Error(`groupe_instructeursId manquant pour groupe ${label}`)
         }
 
-        return { dossier: dossierId, groupe_instructeurs: groupe_instructeursId }
+        return {dossier: dossierId, groupe_instructeurs: groupe_instructeursId}
     })
-
+    
     return databaseConnection('arête_groupe_instructeurs__dossier')
         .insert(arêtesGroupeTnstructeurs_Dossier)
         .onConflict('dossier')
@@ -303,7 +302,7 @@ const colonnesDossierComplet = [
     "historique_localisation",
     */
     "ddep_nécessaire",
-
+    
     "scientifique_type_demande",
     "scientifique_bilan_antérieur",
     "scientifique_finalité_demande",
@@ -324,14 +323,14 @@ const colonnesDossierComplet = [
     'date_consultation_public',
 
     "mesures_erc_prévues",
-    /*    
-        "historique_date_envoi_dernière_contribution",
-        "historique_date_saisine_csrpn",
-        "historique_date_saisine_cnpn",
-        "date_avis_csrpn",
-        "date_avis_cnpn",
-        "avis_csrpn_cnpn",
-    */
+/*    
+    "historique_date_envoi_dernière_contribution",
+    "historique_date_saisine_csrpn",
+    "historique_date_saisine_cnpn",
+    "date_avis_csrpn",
+    "date_avis_cnpn",
+    "avis_csrpn_cnpn",
+*/
 
 ]
 
@@ -344,14 +343,14 @@ const colonnesDossierComplet = [
 export function listAllDossiersComplets(databaseConnection = directDatabaseConnection) {
     return databaseConnection('dossier')
         .select(colonnesDossierComplet)
-        .leftJoin('personne as déposant', { 'déposant.id': 'dossier.déposant' })
-        .leftJoin('personne as demandeur_personne_physique', { 'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique' })
-        .leftJoin('entreprise as demandeur_personne_morale', { 'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale' })
-        .leftJoin('fichier as fichier_espèces_impactées', { 'fichier_espèces_impactées.id': 'dossier.espèces_impactées' })
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('fichier as fichier_espèces_impactées', {'fichier_espèces_impactées.id': 'dossier.espèces_impactées'})
         .then(dossiers => {
-            for (const dossier of dossiers) {
+            for(const dossier of dossiers){
                 const id_fichier_espèces_impactées = dossier.espèces_impactées_id
-                if (id_fichier_espèces_impactées) {
+                if(id_fichier_espèces_impactées){
                     dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
                     // s'il y a un fichier, ignorer le champ contenant un lien
                     delete dossier.espèces_protégées_concernées
@@ -370,22 +369,22 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<DossierComplet | undefined>}
  */
-export async function getDossierComplet(dossierId, cap, databaseConnection = directDatabaseConnection) {
+export async function getDossierComplet(dossierId, cap, databaseConnection = directDatabaseConnection){
     /** @type {knex.Knex.Transaction} */
     let transaction;
 
-    if (databaseConnection.isTransaction) {
+    if(databaseConnection.isTransaction){
         //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
         transaction = databaseConnection
     }
-    else {
+    else{
         transaction = await databaseConnection.transaction({ readOnly: true })
     }
 
     const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap, transaction)
 
-    if (!accessibleDossierId.has(dossierId)) {
-        if (!databaseConnection.isTransaction) {
+    if(!accessibleDossierId.has(dossierId)){
+        if(!databaseConnection.isTransaction){
             // transaction créée à la main, la libérer avant de throw
             await transaction.commit()
         }
@@ -395,14 +394,14 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string, demandeur_personne_morale_adresse?: string}>} */
     const dossierP = transaction('dossier')
         .select(colonnesDossierComplet)
-        .join('arête_groupe_instructeurs__dossier', { 'arête_groupe_instructeurs__dossier.dossier': 'dossier.id' })
-        .join('arête_cap_dossier__groupe_instructeurs', { 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs' })
-        .leftJoin('personne as déposant', { 'déposant.id': 'dossier.déposant' })
-        .leftJoin('personne as demandeur_personne_physique', { 'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique' })
-        .leftJoin('entreprise as demandeur_personne_morale', { 'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale' })
-        .leftJoin('fichier as fichier_espèces_impactées', { 'fichier_espèces_impactées.id': 'dossier.espèces_impactées' })
-        .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap })
-        .andWhere({ "dossier.id": dossierId })
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
+        .join('arête_cap_dossier__groupe_instructeurs', {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'})
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .leftJoin('fichier as fichier_espèces_impactées', {'fichier_espèces_impactées.id': 'dossier.espèces_impactées'})
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
+        .andWhere({"dossier.id": dossierId})
         .first()
 
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
@@ -419,7 +418,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<Contrôle[]>} */
     const contrôlesP = getContrôles(prescriptionIds, transaction)
 
-    if (!databaseConnection.isTransaction) {
+    if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
         Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
@@ -433,7 +432,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             dossier.évènementsPhase = évènementsPhaseDossier
 
-            if (dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom) {
+            if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
                 dossier.espècesImpactées = {
                     contenu: dossier.espèces_impactées_contenu,
                     media_type: dossier.espèces_impactées_media_type,
@@ -447,7 +446,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             /** @type {Map<Prescription['id'], Contrôle[]>} */
             const contrôlesParPrescriptionId = new Map()
-            for (const c of contrôles) {
+            for(const c of contrôles){
                 const id = c.prescription
                 const contrôlesPourCetId = contrôlesParPrescriptionId.get(id) || []
                 contrôlesPourCetId.push(c)
@@ -457,7 +456,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             /** @type {Map<DécisionAdministrative['id'], FrontEndPrescription[]>} */
             const prescriptionsParDécisionId = new Map()
-            for (const p of prescriptions) {
+            for(const p of prescriptions){
                 const contrôles = contrôlesParPrescriptionId.get(p.id)
                 // @ts-ignore p devient un FrontEndPrescription
                 p.contrôles = contrôles
@@ -471,7 +470,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
             }
 
 
-            if (décisionsAdministratives.length >= 1) {
+            if(décisionsAdministratives.length >= 1){
                 dossier.décisionsAdministratives = décisionsAdministratives.map(
                     ({
                         id, numéro, type, date_signature, date_fin_obligations,
@@ -479,14 +478,14 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                     }) => ({
                         id, numéro, type, date_signature, date_fin_obligations,
                         prescriptions: prescriptionsParDécisionId.get(id),
-                        fichier_url: fichier ? `/decision-administrative/fichier/${fichier}` : undefined, dossier
+                        fichier_url: fichier ? `/decision-administrative/fichier/${fichier}`: undefined, dossier
                     })
                 )
             }
 
             return dossier
         })
-
+    
 }
 
 
@@ -546,79 +545,79 @@ const colonnesDossierRésumé = [
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<DossierRésumé[]>}
  */
-export async function getDossiersRésumésByCap(cap, databaseConnection = directDatabaseConnection) {
+export async function getDossiersRésumésByCap(cap, databaseConnection = directDatabaseConnection){
 
     /** @type {knex.Knex.Transaction} */
     let transaction;
 
-    if (databaseConnection.isTransaction) {
+    if(databaseConnection.isTransaction){
         //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
         transaction = databaseConnection
     }
-    else {
+    else{
         transaction = await databaseConnection.transaction({ readOnly: true })
     }
 
     /** @type {Promise<DossierRésumé[]>} */
     const dossiersP = transaction('dossier')
         .select(colonnesDossierRésumé)
-        .join('arête_groupe_instructeurs__dossier', { 'arête_groupe_instructeurs__dossier.dossier': 'dossier.id' })
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs',
-            { 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs' }
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
-        .leftJoin('personne as déposant', { 'déposant.id': 'dossier.déposant' })
-        .leftJoin('personne as demandeur_personne_physique', { 'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique' })
-        .leftJoin('entreprise as demandeur_personne_morale', { 'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale' })
-        .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap })
+        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
+        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
+        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
 
     const évènementsPhaseDossierP = getDerniersÉvènementsPhaseDossiers(cap, transaction)
 
     const décisionsAdministrativesP = getDécisionsAdministratives(cap, transaction)
 
     const result = Promise.all([dossiersP, évènementsPhaseDossierP, décisionsAdministrativesP])
-        .then(([dossiers, évènementsPhaseDossier, décisionsAdministratives]) => {
-            /** @type {Map<Dossier['id'], ÉvènementPhaseDossier>} */
-            const évènementsPhaseDossierById = new Map()
+    .then(([dossiers, évènementsPhaseDossier,décisionsAdministratives]) => {
+        /** @type {Map<Dossier['id'], ÉvènementPhaseDossier>} */
+        const évènementsPhaseDossierById = new Map()
 
-            for (const évènementPhaseDossier of évènementsPhaseDossier) {
-                évènementsPhaseDossierById.set(évènementPhaseDossier.dossier, évènementPhaseDossier)
+        for(const évènementPhaseDossier of évènementsPhaseDossier){
+            évènementsPhaseDossierById.set(évènementPhaseDossier.dossier, évènementPhaseDossier)
+        }
+        
+        for(const dossier of dossiers){
+            const évènementPhaseDossier = évènementsPhaseDossierById.get(dossier.id)
+
+            if(évènementPhaseDossier){
+                dossier.phase = évènementPhaseDossier.phase
+                dossier.date_début_phase = évènementPhaseDossier.horodatage
             }
-
-            for (const dossier of dossiers) {
-                const évènementPhaseDossier = évènementsPhaseDossierById.get(dossier.id)
-
-                if (évènementPhaseDossier) {
-                    dossier.phase = évènementPhaseDossier.phase
-                    dossier.date_début_phase = évènementPhaseDossier.horodatage
-                }
-                else {
-                    // dépôt du dossier
-                    dossier.phase = 'Accompagnement amont'
-                    dossier.date_début_phase = dossier.date_dépôt
-                }
+            else{
+                // dépôt du dossier
+                dossier.phase = 'Accompagnement amont'
+                dossier.date_début_phase = dossier.date_dépôt
             }
+        }
 
-            /** @type {Map<Dossier['id'], FrontEndDécisionAdministrative[]>} */
-            const décisionsAdministrativesById = new Map()
-            for (const décisionAdministrative of décisionsAdministratives) {
-                const décisionsAdministrativesPourCetId = décisionsAdministrativesById.get(décisionAdministrative.dossier) || []
-                décisionsAdministrativesPourCetId.push(décisionAdministrative)
-                décisionsAdministrativesById.set(décisionAdministrative.dossier, décisionsAdministrativesPourCetId)
+        /** @type {Map<Dossier['id'], FrontEndDécisionAdministrative[]>} */
+        const décisionsAdministrativesById = new Map()
+        for (const décisionAdministrative of décisionsAdministratives){
+            const décisionsAdministrativesPourCetId = décisionsAdministrativesById.get(décisionAdministrative.dossier) || []
+            décisionsAdministrativesPourCetId.push(décisionAdministrative)
+            décisionsAdministrativesById.set(décisionAdministrative.dossier, décisionsAdministrativesPourCetId )
+        }
+
+        for (const dossier of dossiers){
+            const décisionAdministrative = décisionsAdministrativesById.get(dossier.id)
+
+            if (décisionAdministrative) {
+                dossier.décisionsAdministratives = décisionAdministrative
             }
+        }
 
-            for (const dossier of dossiers) {
-                const décisionAdministrative = décisionsAdministrativesById.get(dossier.id)
+        return dossiers
+    })
 
-                if (décisionAdministrative) {
-                    dossier.décisionsAdministratives = décisionAdministrative
-                }
-            }
-
-            return dossiers
-        })
-
-    if (!databaseConnection.isTransaction) {
+    if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
         Promise.all([dossiersP, évènementsPhaseDossierP])
@@ -637,22 +636,22 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Set<Dossier['id']>>}
  */
-export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnection = directDatabaseConnection) {
-    if (!Array.isArray(dossierIds))
+export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnection = directDatabaseConnection){
+    if(!Array.isArray(dossierIds))
         dossierIds = [dossierIds]
 
     const ret = databaseConnection('arête_cap_dossier__groupe_instructeurs')
         .select(['dossier.id as id'])
         .leftJoin(
-            'arête_groupe_instructeurs__dossier',
-            { 'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs' }
+            'arête_groupe_instructeurs__dossier', 
+            {'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs'}
         )
         .leftJoin(
-            'dossier',
-            { 'dossier.id': 'arête_groupe_instructeurs__dossier.dossier' }
+            'dossier', 
+            {'dossier.id': 'arête_groupe_instructeurs__dossier.dossier'}
         )
         .whereIn('dossier.id', dossierIds)
-        .andWhere({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap })
+        .andWhere({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
         .then(dossiers => new Set(dossiers.map(d => d.id)))
 
     // @ts-ignore
@@ -668,16 +667,16 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
-export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection) {
+export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
 
     return databaseConnection('évènement_phase_dossier')
         .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
-        .join('arête_groupe_instructeurs__dossier', { 'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier' })
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs',
-            { 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs' }
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
-        .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
         .distinctOn('dossier')
         .andWhere(function () {
             // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
@@ -698,16 +697,16 @@ export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, database
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
-export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection) {
+export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnection = directDatabaseConnection){
 
     return databaseConnection('évènement_phase_dossier')
         .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
-        .join('arête_groupe_instructeurs__dossier', { 'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier' })
+        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs',
-            { 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs' }
+            'arête_cap_dossier__groupe_instructeurs', 
+            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
-        .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
+        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
         .andWhere(function () {
             // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
             // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
@@ -722,11 +721,11 @@ export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnecti
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
-async function getÉvènementsPhaseDossier(idDossier, databaseConnection = directDatabaseConnection) {
+async function getÉvènementsPhaseDossier(idDossier, databaseConnection = directDatabaseConnection){
 
     return databaseConnection('évènement_phase_dossier')
         .select('*')
-        .where({ 'dossier': idDossier })
+        .where({'dossier': idDossier})  
         .andWhere(function () {
             // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
             // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
@@ -744,7 +743,7 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
  * @param {number[]} numbers
  * @returns
  */
-export function deleteDossierByDSNumber(numbers) {
+export function deleteDossierByDSNumber(numbers){
     return directDatabaseConnection('dossier')
         .whereIn('number_demarches_simplifiées', numbers)
         .delete()
@@ -761,8 +760,8 @@ export function deleteDossierByDSNumber(numbers) {
 export function updateDossier(id, dossierParams, causePersonne, databaseConnection = directDatabaseConnection) {
     let phaseAjoutée = Promise.resolve()
 
-    if (dossierParams.évènementsPhase) {
-        for (const ev of dossierParams.évènementsPhase) {
+    if(dossierParams.évènementsPhase){
+        for(const ev of dossierParams.évènementsPhase){
             ev.cause_personne = causePersonne
         }
 
@@ -774,7 +773,7 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
 
     let dossierÀJour = Promise.resolve()
 
-    if (Object.keys(dossierParams).length >= 1) {
+    if(Object.keys(dossierParams).length >= 1){
         dossierÀJour = databaseConnection('dossier')
             .where({ id })
             .update(dossierParams)
