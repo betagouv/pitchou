@@ -279,7 +279,6 @@
                                             {/if}
                                             {#if ligneToLienPréremplissage.get(LigneDossierBFC)}
                                                 <a
-                                                    id="link-1"
                                                     href={ligneToLienPréremplissage.get(
                                                         LigneDossierBFC,
                                                     )}
