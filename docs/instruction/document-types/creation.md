@@ -177,12 +177,12 @@ Les balises ont des types qui peuvent être :
                             <td> Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{nombre_nids_compensés}</code></th>
+                            <th scope="row"> <code>{nombre_nids_compensés_oiseau_simple}</code></th>
                             <td>code</td>
                             <td>Nombre de nids artificiels posés en compensation</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{nombre_nids_détruits}</code></th>
+                            <th scope="row"> <code>{nombre_nids_détruits_oiseau_simple}</code></th>
                             <td>code</td>
                             <td>Nombre de nids d'Hirondelles détruits</td>
                         </tr>
