@@ -79,8 +79,8 @@ export type BalisesGénérationDocument = {
   mesures_erc_prévues: boolean | 'Non renseigné';
   mesures_erc_prévues_renseigné: boolean;
 
-  nombre_nids_compensés: number | null;
-  nombre_nids_détruits: number | null;
+  nombre_nids_compensés_dossier_oiseau_simple: number | null;
+  nombre_nids_détruits_dossier_oiseau_simple: number | null;
 
   date_début_intervention: Date | null;
   date_fin_intervention: Date | null;
