@@ -4,6 +4,7 @@ import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
 import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../database/public/ÉvènementPhaseDossier.ts"
 import { PartialBy } from "../tools"
 import { AvisExpertInitializer } from "../database/public/AvisExpert.ts"
+import { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts"
 
 
 export type DonnéesPersonnesEntreprisesInitializer = {
@@ -33,6 +34,7 @@ export type DossierPourSynchronisation<DossierType> = {
     dossier: DossierType
     évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
     avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[]
+    décision_administrative: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]
 }
 
 export type DossierEntreprisesPersonneInitializersPourInsert = 
