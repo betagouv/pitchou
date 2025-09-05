@@ -136,12 +136,15 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const donnéesPourDossier = dossiersPourInsert[index]
 
-            const {évènement_phase_dossier, avis_expert} = donnéesPourDossier
+            const {évènement_phase_dossier, avis_expert, décision_administrative} = donnéesPourDossier
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
             if (Array.isArray(avis_expert) && avis_expert.length >=1){
                 avis_expert.forEach(ae => ae.dossier = dossierInséréId.id)
+            }
+            if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
+                décision_administrative.forEach(da => da.dossier = dossierInséréId.id)
             }
         })
     }
@@ -158,6 +161,12 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .filter(x => x !== undefined)
         .flat()
 
+   const décisionAdministrativeDossier = tousLesDossiers
+        .map(tables => tables.décision_administrative)
+        .filter(x => x !== undefined)
+        .flat()
+
+
     const databaseOperations = [
         évènementsPhaseDossier.length > 0 
             ? databaseConnection('évènement_phase_dossier')
@@ -169,13 +178,16 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         avisExpertDossier.length > 0
             ? databaseConnection('avis_expert').insert(avisExpertDossier)
             : Promise.resolve([]),
+
+        décisionAdministrativeDossier.length > 0
+            ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
+            : Promise.resolve([]),
         
         ...updatePromises
     ]
 
     return Promise.all(databaseOperations).then(results => results.flat())
 }
-
 
 /**
  * @param {any} dossierDS 

@@ -3,6 +3,8 @@
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
+
 
 import { addMonths } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
@@ -281,35 +283,39 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
 
     const ligneEtapeProjet = ligne['Etapes du projet'].trim()
 
-    // Rajout des évènementspPhase Accompagnement amont
-    if (ligneEtapeProjet === 'Phase amont' || 
-        ligneEtapeProjet === 'Pôle EnR' || 
+    // Rajout de l'évènement phase Accompagnement amont
+    if (ligneEtapeProjet === 'Phase amont' ||
+        ligneEtapeProjet === 'Pôle EnR' ||
         ligneEtapeProjet === 'Contentieux') {
-            donnéesEvénementPhaseDossier.push({
-                phase: 'Accompagnement amont',
-                horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
-            })
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Accompagnement amont',
+            horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
+        })
     }
-    console.log(ligneEtapeProjet, ligneEtapeProjet === "Phase d’instruction", typeof ligneEtapeProjet)
 
-    // Rajout des évènements phase Instruction
+    // Rajout de l'évènement phase Instruction
     if (ligne['DEP'].toLowerCase().trim() === 'oui') {
         if (!isValidDateString(ligne['Date de dépôt DEP'])) {
-            console.warn(`Date de dépôt DEP Invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'auhourd'hui.`)
+            console.warn(`Date de dépôt DEP invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'aujourd'hui.`)
         }
         donnéesEvénementPhaseDossier.push({
             phase: 'Instruction',
             horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? new Date(ligne['Date de sollicitation']) : aujourdhui
         })
-    }
-    if (ligneEtapeProjet === "Phase d’instruction" ) {
-            donnéesEvénementPhaseDossier.push({
-                phase: 'Instruction',
-                horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 1) : aujourdhui
-            })
+    } else if (ligneEtapeProjet === "Phase d’instruction") {
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Instruction',
+            horodatage: isValidDateString(ligne['Date de dépôt DEP']) ? new Date(ligne['Date de dépôt DEP']) : isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 1) : aujourdhui
+        })
     }
 
-    if (ligneEtapeProjet === 'Contrôle') {
+    // Rajout de l'évènement phase Contrôle
+    if (isValidDateString(ligne["Date AP"])) {
+        donnéesEvénementPhaseDossier.push({
+            phase: 'Contrôle',
+            horodatage: new Date(ligne["Date AP"])
+        })
+    } else if (ligneEtapeProjet === 'Contrôle') {
         donnéesEvénementPhaseDossier.push({
             phase: 'Contrôle',
             horodatage: isValidDateString(ligne['Date de sollicitation'].toString()) ? addMonths(new Date(ligne['Date de sollicitation']), 3) : aujourdhui
@@ -322,6 +328,36 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
     } else {
         return undefined
     }
+}
+
+/**
+ * 
+ * @param {LigneDossierBFC} ligne 
+ * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesDécisionAdministrative(ligne) {
+    let décision_administrative
+
+    const ligneDérogationAccordée = ligne['Dérogation accordée'].trim().toLowerCase()
+
+    let date_signature = isValidDateString(ligne['Date AP']) ? new Date(ligne['Date AP']) : addMonths(new Date(ligne['Date de sollicitation']), 3)
+
+    if (ligneDérogationAccordée === 'non') {
+        décision_administrative = {
+            date_signature,
+            type: 'Arrêté refus',
+        }
+    } else if (ligneDérogationAccordée === 'oui' || ligneDérogationAccordée === 'autorisé avec dep') {
+        décision_administrative = {
+            date_signature,
+            type: 'Arrêté dérogation'
+        }
+    }
+
+    if (décision_administrative) {
+        return [décision_administrative]
+    }
+
 }
 
 
@@ -343,20 +379,19 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         .filter(value => value?.trim())
         .join('\n');
 
-    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
-    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
-
-    //const nom_expert_csrpn = ligne['Nom de l’expert désigné (pour le CSRPN)']
-    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
-    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
-    const derogation_accordee = ligne['Dérogation accordée']
-    const date_ap = ligne['Date AP']
-
     if (!isValidDateString(ligne['Date de sollicitation'].toString())) {
         console.warn('Date de sollicitation invalide.')
     }
 
+
+    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
+    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
+    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
+
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
+
+    const décision_administrative = créerDonnéesDécisionAdministrative(ligne)
 
 
     return {
@@ -368,18 +403,14 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
             // Champs pour la table arête_personne_suit_dossier
             'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
-
-            // Infos utiles historiques dossier
-            'historique_dossier': ligne['Description avancement dossier avec dates'],
-            'derogation_accordee': derogation_accordee,
-            'date_ap': date_ap,
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
         avis_expert: [{
             expert: saisine_csrpn_cnpn,
             date_saisine: isValidDateString(date_saisine_csrpn_cnpn) ? new Date(date_saisine_csrpn_cnpn) : undefined,
             avis: avis_csrpn_cnpn,
-            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined
-        }]
+            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined,
+        }],
+        décision_administrative,
     }
 }
