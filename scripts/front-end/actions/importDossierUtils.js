@@ -1,7 +1,8 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
-/** @import {AvisExpertInitializer} from '../../types/database/public/AvisExpert.ts' */
+/** @import {AvisExpertInitializer,} from '../../types/database/public/AvisExpert.ts' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer} from '../../types/database/public/DécisionAdministrative.ts' */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
@@ -43,6 +44,7 @@ import memoize from 'just-memoize'
  * @property {DonnéesSupplémentairesPourCréationDossier_Dossier} dossier
  * @property {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} [évènement_phase_dossier]
  * @property {PartialBy<AvisExpertInitializer, 'dossier'>[]} [avis_expert]
+ * @property {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]} [décision_administrative]
  * 
  */
 

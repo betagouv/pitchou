@@ -3,6 +3,7 @@
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
 
 import { addMonths } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
@@ -295,7 +296,7 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
     // Rajout des évènements phase Instruction
     if (ligne['DEP'].toLowerCase().trim() === 'oui') {
         if (!isValidDateString(ligne['Date de dépôt DEP'])) {
-            console.warn(`Date de dépôt DEP Invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'auhourd'hui.`)
+            console.warn(`Date de dépôt DEP invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'aujourd'hui.`)
         }
         donnéesEvénementPhaseDossier.push({
             phase: 'Instruction',
@@ -321,6 +322,23 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
         return donnéesEvénementPhaseDossier
     } else {
         return undefined
+    }
+}
+
+/**
+ * 
+ * @param {LigneDossierBFC} ligne 
+ * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesDécisionAdministrative(ligne) {
+    if (ligne['Date AP'].trim().length >= 1) {
+        if (!isValidDateString(ligne['Date AP'])) {
+            console.warn(`Date AP invalide : La colonne Date AP semble spécifier une date qui n'est pas valide : ${ligne['Date AP'].trim()} `)
+        } else {
+            return [{
+                date_signature: new Date(ligne['Date AP'].trim())
+            }]
+        }
     }
 }
 
@@ -358,6 +376,8 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
+    const décision_administrative = créerDonnéesDécisionAdministrative(ligne)
+
 
     return {
         dossier: {
@@ -380,6 +400,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             date_saisine: isValidDateString(date_saisine_csrpn_cnpn) ? new Date(date_saisine_csrpn_cnpn) : undefined,
             avis: avis_csrpn_cnpn,
             date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined
-        }]
+        }],
+        décision_administrative,
     }
 }
