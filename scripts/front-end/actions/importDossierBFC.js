@@ -1,12 +1,10 @@
 //@ts-check
+/** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
-/** @import { DossierPourInsert } from '../../types/démarches-simplifiées/DossierPourSynchronisation' */
-/** @import ArêtePersonneSuitDossier from '../../types/database/public/ArêtePersonneSuitDossier' */
 /** @import Personne from '../../types/database/public/Personne' */
-
 
 import { addMonths } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
@@ -111,16 +109,15 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {LigneDossierBFC} ligne
- * @param {Map<Personne['email'], Personne['id']>} personnesMails 
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
-export async function créerDossierDepuisLigne(ligne, personnesMails) {
+export async function créerDossierDepuisLigne(ligne) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
     const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
 
     return {
-        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne, personnesMails)),
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
         'Nom du projet': 'N° Dossier DEROG ' + ligne['N° Dossier DEROG'] + ' - ' + ligne['OBJET'],
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
@@ -364,35 +361,11 @@ function créerDonnéesDécisionAdministrative(ligne) {
 }
 
 /**
- * 
- * @param {LigneDossierBFC} ligne 
- * @param {Map<Personne['email'], Personne['id']>} personnesMails 
- * @returns {PartialBy<ArêtePersonneSuitDossier, 'dossier'>[]  | undefined}
- */
-function créerDonnéesArêtePersonneSuitDossier(ligne, personnesMails) {
-    const emailTrouvé = extrairePremierMail(ligne['POUR\nATTRIBUTION'].trim());
-
-    const personneId = personnesMails.get(emailTrouvé)
-
-    if (emailTrouvé && emailTrouvé.length >= 1) {
-        if (!personneId) {
-            console.warn(`Attention, la personne avec l'email ${emailTrouvé} n'est pas en base de données.`)
-        } else {
-            return [{
-                personne: personneId,
-            }]
-        }
-    }
-}
-
-
-/**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierBFC} ligne
- * @param {Map<Personne['email'], Personne['id']>} personnesMails 
- * @returns { Partial<DossierPourInsert> } Données supplémentaires ou undefined
+ * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
  */
-export function créerDonnéesSupplémentairesDepuisLigne(ligne, personnesMails) {
+export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const description = ligne['Description avancement dossier avec dates']
         ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
         : '';
@@ -415,11 +388,14 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne, personnesMails)
     const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
     const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
 
+    const emailTrouvé = extrairePremierMail(ligne['POUR\nATTRIBUTION'])
+    /**@type {Pick<Personne, "email">[] | undefined} */
+    const personnes_qui_suivent = emailTrouvé ? [{email: emailTrouvé}] : undefined;
+
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
     const décision_administrative = créerDonnéesDécisionAdministrative(ligne)
-
-    const arête_personne_suit_dossier = créerDonnéesArêtePersonneSuitDossier(ligne, personnesMails)
+    
 
 
     return {
@@ -437,6 +413,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne, personnesMails)
             date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined,
         }],
         décision_administrative,
-        arête_personne_suit_dossier,
+        personnes_qui_suivent,
     }
 }

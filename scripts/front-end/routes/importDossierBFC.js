@@ -39,26 +39,7 @@ export default async () => {
             await chargerDossiers()
                 .catch(err => console.error({ err }))
 
-            if (store.state.capabilities.listerPersonnes) {
-                try {
-                    const personnes = await store.state.capabilities.listerPersonnes()
-
-                    const personnesMails = new Map()
-                    for (const p of personnes) {
-                        if (p.email) personnesMails.set(p.email, p.id)
-                    }
-
-                    replaceComponent(ImportDossierBFC, (state) => ({
-                        ...mapStateToProps(state),
-                        personnesMails,
-                    }))
-                } catch (err) {
-                    console.error('Erreur chargement personnes', err)
-                    replaceComponent(ImportDossierBFC, mapStateToProps)
-                }
-            } else {
-                replaceComponent(ImportDossierBFC, mapStateToProps)
-            }
+            replaceComponent(ImportDossierBFC, mapStateToProps)
         } else {
             console.error('store.state.capabilities.listerDossiers undefined')
         }

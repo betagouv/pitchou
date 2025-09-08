@@ -11,6 +11,7 @@
 /** @import DCisionAdministrative ,{DCisionAdministrativeInitializer} from '../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import { PartialBy }  from '../../scripts/types/tools' */
 /** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
+/** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
 
 
 
@@ -145,7 +146,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
      * POUR IMPORT DOSSIERS HISTORIQUES
      * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
-    /** @type {DossierPourInsert | undefined} */
+    /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
     let données_supplémentaires
     try {
         données_supplémentaires = données_supplémentaires_à_déchiffrer ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer)) : undefined
@@ -166,7 +167,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
         avis_expert: données_supplémentaires?.avis_expert,
         décision_administrative: données_supplémentaires?.décision_administrative,
-        arête_personne_suit_dossier: données_supplémentaires?.arête_personne_suit_dossier,
+        arête_personne_suit_dossier: [],
     }
 }
 

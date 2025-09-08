@@ -1,7 +1,28 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
+/** @import { PartialBy }  from '../../types/tools' */
+/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
+/** @import {AvisExpertInitializer,} from '../../types/database/public/AvisExpert.ts' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer} from '../../types/database/public/DécisionAdministrative.ts' */
+/** @import {DossierInitializer} from '../../types/database/public/Dossier.ts' */
+/** @import Personne from "../../types/database/public/Personne.ts" */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
+
+
+/**
+ * Les propriétés de cet objet correspondent à des noms de tables 
+ * dans lesquelles ces données seront stockées
+ * 
+ * @typedef {Object} DonnéesSupplémentairesPourCréationDossier
+ * @property {DossierInitializer} dossier
+ * @property {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} [évènement_phase_dossier]
+ * @property {PartialBy<AvisExpertInitializer, 'dossier'>[]} [avis_expert]
+ * @property {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]} [décision_administrative]
+ * @property {Pick<Personne, 'email'>[]} [personnes_qui_suivent]
+ * 
+ */
+
 
 
 /**
