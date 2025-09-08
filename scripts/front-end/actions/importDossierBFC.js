@@ -374,8 +374,6 @@ function créerDonnéesArêtePersonneSuitDossier(ligne, personnesMails) {
 
     const personneId = personnesMails.get(emailTrouvé)
 
-    console.log({emailTrouvé, personneId, personnesMails})
-
     if (emailTrouvé && emailTrouvé.length >= 1) {
         if (!personneId) {
             console.warn(`Attention, la personne avec l'email ${emailTrouvé} n'est pas en base de données.`)
