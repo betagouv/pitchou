@@ -136,7 +136,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const donnéesPourDossier = dossiersPourInsert[index]
 
-            const {évènement_phase_dossier, avis_expert, décision_administrative} = donnéesPourDossier
+            const {évènement_phase_dossier, avis_expert, décision_administrative, arête_personne_suit_dossier} = donnéesPourDossier
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
@@ -145,6 +145,9 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             }
             if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
                 décision_administrative.forEach(da => da.dossier = dossierInséréId.id)
+            }
+            if (Array.isArray(arête_personne_suit_dossier) && arête_personne_suit_dossier.length >= 1) {
+                arête_personne_suit_dossier.forEach(apsd => apsd.dossier = dossierInséréId.id)
             }
         })
     }
@@ -190,7 +193,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         
         arêtePersonneSuitDossierDossier.length > 0
             ? databaseConnection('arête_personne_suit_dossier')
-                .insert('arête_personne_suit_dossier')
+                .insert(arêtePersonneSuitDossierDossier)
                 .onConflict(['personne', 'dossier'])
                 .ignore()
             : Promise.resolve([]),
@@ -198,7 +201,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         ...updatePromises
     ]
 
-    return Promise.all(databaseOperations).then(results => results.flat())
+    return Promise.all(databaseOperations).then(results => results)
 }
 
 /**
