@@ -51,6 +51,24 @@ export async function ajouterDécisionAdministrativeAvecFichier(décision, datab
         .then(d => d[0].id)
 }
 
+
+/**
+ * 
+ * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
+ */
+export function ajouterDécisionsAdministratives(décisions, databaseConnection = directDatabaseConnection){
+    if(!Array.isArray(décisions)){
+        décisions = [décisions]
+    }
+
+    return databaseConnection('décision_administrative')
+        .insert(décisions)
+}
+
+
+
 /**
  * 
  * @param {Dossier['id']} dossierId 
