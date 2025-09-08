@@ -5,6 +5,7 @@ import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } 
 import { PartialBy } from "../tools"
 import { AvisExpertInitializer } from "../database/public/AvisExpert.ts"
 import { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts"
+import ArTePersonneSuitDossier from "../database/public/ArêtePersonneSuitDossier.ts"
 
 
 export type DonnéesPersonnesEntreprisesInitializer = {
@@ -35,6 +36,7 @@ export type DossierPourSynchronisation<DossierType> = {
     évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
     avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[]
     décision_administrative: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]
+    arête_personne_suit_dossier?: PartialBy<ArTePersonneSuitDossier, 'dossier'>[]
 }
 
 export type DossierEntreprisesPersonneInitializersPourInsert = 

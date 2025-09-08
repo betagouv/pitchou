@@ -166,6 +166,11 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .filter(x => x !== undefined)
         .flat()
 
+   const arêtePersonneSuitDossierDossier = tousLesDossiers
+        .map(tables => tables.arête_personne_suit_dossier)
+        .filter(x => x !== undefined)
+        .flat()
+
 
     const databaseOperations = [
         évènementsPhaseDossier.length > 0 
@@ -183,6 +188,13 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
         
+        arêtePersonneSuitDossierDossier.length > 0
+            ? databaseConnection('arête_personne_suit_dossier')
+                .insert('arête_personne_suit_dossier')
+                .onConflict(['personne', 'dossier'])
+                .ignore()
+            : Promise.resolve([]),
+            
         ...updatePromises
     ]
 

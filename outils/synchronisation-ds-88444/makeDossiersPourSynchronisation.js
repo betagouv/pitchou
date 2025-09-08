@@ -396,7 +396,8 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
             décision_administrative: [
                 ...(champsDossierPourInit.décision_administrative || []),
                 ...décision_administrative
-            ]
+            ],
+            arête_personne_suit_dossier: champsDossierPourInit.arête_personne_suit_dossier,
         }))
     })
 
