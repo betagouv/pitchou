@@ -276,6 +276,7 @@ export default function(capURLs){
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
         modifierDécisionAdministrativeDansDossier: wrapModifierDécisionAdministrative(capURLs.modifierDécisionAdministrativeDansDossier),
+        listerPersonnes: wrapGETUrl(capURLs.listerPersonnes),
         identité: capURLs.identité
     }
 

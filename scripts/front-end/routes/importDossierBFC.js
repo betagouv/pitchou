@@ -23,10 +23,16 @@ export default async () => {
             const dossiersById = state.dossiersRésumés
             const { email } = mapStateToSqueletteProps(state);
             const dossiers = [...dossiersById.values()]
+            /** @type {Map<string, number>} */
+            const personnesMails = new Map()
+            if (state.capabilities.listerPersonnes) {
+                // à garder ?
+            }
 
             return {
                 email,
                 dossiers,
+                personnesMails,
             };
         }
 
@@ -39,7 +45,27 @@ export default async () => {
             await chargerDossiers()
                 .catch(err => console.error({ err }))
 
-            replaceComponent(ImportDossierBFC, mapStateToProps)
+            // Charger les personnes et construire personnesMails
+            if (store.state.capabilities.listerPersonnes) {
+                try {
+                    const personnes = await store.state.capabilities.listerPersonnes()
+                    /** @type {Map<string, number>} */
+                    const personnesMails = new Map()
+                    for (const p of personnes) {
+                        if (p.email) personnesMails.set(p.email, p.id)
+                    }
+
+                    replaceComponent(ImportDossierBFC, (state) => ({
+                        ...mapStateToProps(state),
+                        personnesMails,
+                    }))
+                } catch (err) {
+                    console.error('Erreur chargement personnes', err)
+                    replaceComponent(ImportDossierBFC, mapStateToProps)
+                }
+            } else {
+                replaceComponent(ImportDossierBFC, mapStateToProps)
+            }
         } else {
             console.error('store.state.capabilities.listerDossiers undefined')
         }

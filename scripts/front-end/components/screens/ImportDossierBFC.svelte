@@ -4,6 +4,7 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
+    /** @import Personne from '../../../types/database/public/Personne' */
 
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
@@ -19,10 +20,11 @@
      * @typedef {Object} Props
      * @property {ComponentProps<typeof Squelette>['email']} [email]
      * @property {DossierRésumé[]} [dossiers]
+     * @property {Map<NonNullable<Personne['email']>, Personne['id']>} [personnesMails]
      */
 
     /** @type {Props} */
-    let { email = undefined, dossiers = [] } = $props();
+    let { email = undefined, dossiers = [], personnesMails = new SvelteMap() } = $props();
 
     // Pré-calcul: ensemble des noms présents en base (lookup O(1))
     const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
@@ -137,7 +139,7 @@
      * @param {LigneDossierBFC} LigneDossierBFC
      */
     async function handleCréerLienPréRemplissage(LigneDossierBFC) {
-        const dossier = await créerDossierDepuisLigne(LigneDossierBFC);
+        const dossier = await créerDossierDepuisLigne(LigneDossierBFC, personnesMails);
         console.log(
             { dossier },
             dossier[

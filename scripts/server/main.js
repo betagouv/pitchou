@@ -13,7 +13,7 @@ import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap,
   créerTransaction} from './database.js'
 
 import { dossiersAccessibleViaCap, getDossierComplet, getDossierMessages, getDossiersRésumésByCap, getÉvènementsPhaseDossiers, updateDossier } from './database/dossier.js'
-import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap, getPersonneByEmail } from './database/personne.js'
+import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap, getPersonneByEmail, listAllPersonnes } from './database/personne.js'
 
 import { modifierDécisionAdministrative, supprimerDécisionAdministrative, ajouterDécisionAdministrativeAvecFichier } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
@@ -221,6 +221,9 @@ fastify.get('/caps', async function (request, reply) {
   if(capBundle.listerÉvènementsPhaseDossier){
     ret.listerÉvènementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerÉvènementsPhaseDossier}`
   }
+  if(capBundle.listerPersonnes){
+    ret.listerPersonnes = `/personnes?cap=${capBundle.listerPersonnes}`
+  }
   if(capBundle.listerMessages){
     ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`
   }
@@ -253,6 +256,17 @@ fastify.get('/dossiers', async function (request, reply) {
     /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
     const dossiers = await getDossiersRésumésByCap(cap)
     return dossiers 
+  } else {
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
+  }
+})
+
+fastify.get('/personnes', async function (request, reply) {
+  // @ts-ignore
+  const cap = request.query.cap
+  if (cap) {
+    const personnes = await listAllPersonnes()
+    return personnes
   } else {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
   }

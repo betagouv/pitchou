@@ -1,9 +1,11 @@
 //@ts-check
-/** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
+/** @import { DossierPourInsert } from '../../types/démarches-simplifiées/DossierPourSynchronisation' */
+/** @import ArêtePersonneSuitDossier from '../../types/database/public/ArêtePersonneSuitDossier' */
+/** @import Personne from '../../types/database/public/Personne' */
 
 
 import { addMonths } from "date-fns";
@@ -109,15 +111,16 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {LigneDossierBFC} ligne
+ * @param {Map<Personne['email'], Personne['id']>} personnesMails 
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
-export async function créerDossierDepuisLigne(ligne) {
+export async function créerDossierDepuisLigne(ligne, personnesMails) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
     const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
 
     return {
-        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne, personnesMails)),
 
         'Nom du projet': 'N° Dossier DEROG ' + ligne['N° Dossier DEROG'] + ' - ' + ligne['OBJET'],
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
@@ -360,13 +363,38 @@ function créerDonnéesDécisionAdministrative(ligne) {
 
 }
 
+/**
+ * 
+ * @param {LigneDossierBFC} ligne 
+ * @param {Map<Personne['email'], Personne['id']>} personnesMails 
+ * @returns {PartialBy<ArêtePersonneSuitDossier, 'dossier'>[]  | undefined}
+ */
+function créerDonnéesArêtePersonneSuitDossier(ligne, personnesMails) {
+    const emailTrouvé = extrairePremierMail(ligne['POUR\nATTRIBUTION'].trim());
+
+    const personneId = personnesMails.get(emailTrouvé)
+
+    console.log({emailTrouvé, personneId, personnesMails})
+
+    if (emailTrouvé && emailTrouvé.length >= 1) {
+        if (!personneId) {
+            console.warn(`Attention, la personne avec l'email ${emailTrouvé} n'est pas en base de données.`)
+        } else {
+            return [{
+                personne: personneId,
+            }]
+        }
+    }
+}
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierBFC} ligne
- * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
+ * @param {Map<Personne['email'], Personne['id']>} personnesMails 
+ * @returns { Partial<DossierPourInsert> } Données supplémentaires ou undefined
  */
-export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+export function créerDonnéesSupplémentairesDepuisLigne(ligne, personnesMails) {
     const description = ligne['Description avancement dossier avec dates']
         ? 'Description avancement dossier avec dates : ' + ligne['Description avancement dossier avec dates']
         : '';
@@ -393,16 +421,15 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
     const décision_administrative = créerDonnéesDécisionAdministrative(ligne)
 
+    const arête_personne_suit_dossier = créerDonnéesArêtePersonneSuitDossier(ligne, personnesMails)
+
 
     return {
         dossier: {
             'commentaire_libre': commentaire_libre,
-            'date_dépôt': isValidDateString(ligne['Date de sollicitation'].toString()) ? ligne['Date de sollicitation'] : undefined,
+            'date_dépôt': isValidDateString(ligne['Date de sollicitation'].toString()) ? ligne['Date de sollicitation'] : new Date(),
             'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
             'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
-
-            // Champs pour la table arête_personne_suit_dossier
-            'personne_mail': ligne['POUR\nATTRIBUTION'], // TODO : mettre le mail de la personne dont le prénom est la valeur de la colonne 'POUR ATTRIBUTION'
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
         avis_expert: [{
@@ -412,5 +439,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined,
         }],
         décision_administrative,
+        arête_personne_suit_dossier,
     }
 }

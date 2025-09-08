@@ -1,53 +1,7 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-/** @import { PartialBy }  from '../../types/tools' */
-/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
-/** @import {AvisExpertInitializer,} from '../../types/database/public/AvisExpert.ts' */
-/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer} from '../../types/database/public/DécisionAdministrative.ts' */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
-
-
-
-/**
- * @description Données qui ne sont pas utilisées pour le pré-remplissage, 
- * mais qui seront utilisées pour remplir les annotations privées, ou d'autres 
- * données propres à Pitchou comme le suivi des dossiers
- * 
- * PPP Ce type est complètement à revoir pour mieux coller aux colonnes de la table Dossier
- * 
- * @typedef {Object} DonnéesSupplémentairesPourCréationDossier_Dossier
- * @property {string} [commentaire_libre]
- * @property {Date} [date_dépôt]
- * @property {string} [personne_mail]
- * @property {string} [historique_dossier]
- * @property {string} [historique_identifiant_demande_onagre]
- * @property {string} [prochaine_action_attendue_par]
- * @property {string} [DEP]
- * @property {string} [date_de_depot_dep]
- * @property {string} [saisine_csrpn_cnpn]
- * @property {string} [date_saisine_csrpn_cnpn]
- * @property {string} [nom_expert_csrpn]
- * @property {string} [avis_csrpn_cnpn]
- * @property {string} [date_avis_csrpn_cnpn]
- * @property {string} [derogation_accordee]
- * @property {string} [date_ap]
- */
-
-/**
- * Les propriétés de cet objet correspondent à des noms de tables 
- * dans lesquelles ces données seront stockées
- * 
- * PPP A terme, cela devra être DossierPourInsert et on supprimera DonnéesSupplémentairesPourCréationDossier
- * 
- * @typedef {Object} DonnéesSupplémentairesPourCréationDossier
- * @property {DonnéesSupplémentairesPourCréationDossier_Dossier} dossier
- * @property {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} [évènement_phase_dossier]
- * @property {PartialBy<AvisExpertInitializer, 'dossier'>[]} [avis_expert]
- * @property {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]} [décision_administrative]
- * 
- */
-
 
 
 /**
