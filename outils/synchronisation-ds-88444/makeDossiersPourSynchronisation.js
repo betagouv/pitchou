@@ -9,13 +9,18 @@
 /** @import { FichierId } from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import AvisExpert, {AvisExpertInitializer} from '../../scripts/types/database/public/AvisExpert.ts' */
+/** @import DCisionAdministrative ,{DCisionAdministrativeInitializer} from '../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import { PartialBy }  from '../../scripts/types/tools' */
+/** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
 
 
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
+import { isAfter } from 'date-fns'
+
+
 
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
@@ -148,7 +153,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 
         if (données_supplémentaires) {
             // Ces données seront utilisées plus tard pour remplir des champs en base de données
-            console.log(`Il y a des données supplémentaires dans le dossier DS`, dossierDS.number, données_supplémentaires )
+            console.log(`Il y a des données supplémentaires dans le dossier DS`, dossierDS.number, données_supplémentaires)
         }
     } catch (erreur) {
         console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
@@ -161,6 +166,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
         },
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
         avis_expert: données_supplémentaires?.avis_expert,
+        décision_administrative: données_supplémentaires?.décision_administrative
     }
 }
 
@@ -172,16 +178,16 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
  * @param {Traitement['state']} DSTraitementState
  * @returns {import('../../scripts/types/API_Pitchou.ts').DossierPhase}
  */
-function traitementPhaseToDossierPhase(DSTraitementState){
-    if(DSTraitementState === 'en_construction')
+function traitementPhaseToDossierPhase(DSTraitementState) {
+    if (DSTraitementState === 'en_construction')
         return "Accompagnement amont"
-    if(DSTraitementState === 'en_instruction')
+    if (DSTraitementState === 'en_instruction')
         return "Instruction"
-    if(DSTraitementState === 'accepte')
+    if (DSTraitementState === 'accepte')
         return "Contrôle"
-    if(DSTraitementState === 'sans_suite')
+    if (DSTraitementState === 'sans_suite')
         return "Classé sans suite"
-    if(DSTraitementState === 'refuse')
+    if (DSTraitementState === 'refuse')
         return "Obligations terminées"
 
     throw `Traitement phase non reconnue: ${DSTraitementState}`
@@ -192,11 +198,11 @@ function traitementPhaseToDossierPhase(DSTraitementState){
  * @param {DossierDS88444['traitements']} traitements 
  * @param {Dossier['id']} [dossierId]
  */
-function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId){
+function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
     /** @type {DossierPourInsert['évènement_phase_dossier']} */
     const évènementsPhaseDossier = [];
-    
-    for(const {dateTraitement, state, emailAgentTraitant, motivation} of traitements){
+
+    for (const { dateTraitement, state, emailAgentTraitant, motivation } of traitements) {
         évènementsPhaseDossier.push({
             phase: traitementPhaseToDossierPhase(state),
             dossier: dossierId,
@@ -225,18 +231,18 @@ function makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Tél�
 
     /** @type {Map<string | undefined, any>} */
     const annotationById = new Map()
-    for(const annotation of dossierDS.annotations){
-         annotationById.set(annotation.id, annotation)
+    for (const annotation of dossierDS.annotations) {
+        annotationById.set(annotation.id, annotation)
     }
 
     const fichiersAvisCSRPN_CNPN = fichiersAvisCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
     const fichiersSaisinesCSRPN_CNPN = fichiersSaisinesCSRPN_CNPN_Téléchargés?.get(Number(dossierDS.number))
     const fichiersAvisConformeMinistre = fichiersAvisConformeMinistreTéléchargés?.get(Number(dossierDS.number))
 
-    if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>=1 || fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length>=1) {
+    if (fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length >= 1 || fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length >= 1) {
         /** @type {"CSRPN" | "CNPN" | null} */
         let expert_cnpn_csrpn = null
-        
+
         const champDateAvisCNPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN"))?.date
         const champDateAvisCSRPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN"))?.date
         const champDateSaisineCNPN = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN"))?.date
@@ -257,7 +263,7 @@ function makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Tél�
         const id_champ_avis_csrpn_cnpn_selection = champs_avis_csrpn_cnpn[1].id
 
         const avis_csrpn_cnpn = annotationById.get(id_champ_avis_csrpn_cnpn_selection)?.stringValue || ''
-        const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length>= 1 ? fichiersAvisCSRPN_CNPN[0] : null
+        const fichier_avis_csrpn_cnpn = fichiersAvisCSRPN_CNPN && fichiersAvisCSRPN_CNPN.length >= 1 ? fichiersAvisCSRPN_CNPN[0] : null
         const fichier_saisine_csrpn_cnpn = fichiersSaisinesCSRPN_CNPN && fichiersSaisinesCSRPN_CNPN.length >= 1 ? fichiersSaisinesCSRPN_CNPN[0] : null
 
         let date_avis_cnpn_csprn
@@ -273,26 +279,73 @@ function makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Tél�
         const ligne_cnpn_csrpn = { dossier: idPitchouDuDossier ?? undefined, avis: avis_csrpn_cnpn, date_avis: date_avis_cnpn_csprn, date_saisine: date_saisine_cnpn_csrpn, expert: expert_cnpn_csrpn, avis_fichier: fichier_avis_csrpn_cnpn, saisine_fichier: fichier_saisine_csrpn_cnpn }
         lignes_à_insérer.push(ligne_cnpn_csrpn)
     }
-    
-    if (fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length>=1) {
+
+    if (fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length >= 1) {
         const date_avis_ministre = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis conforme Ministre"))?.date
         const fichier_avis_ministre = fichiersAvisConformeMinistre && fichiersAvisConformeMinistre.length >= 1 ? fichiersAvisConformeMinistre[0] : null
 
         /** @type {PartialBy<AvisExpertInitializer, 'dossier'>} */
         const ligne_ministre = {
-                dossier: idPitchouDuDossier ?? undefined,
-                date_avis: date_avis_ministre,
-                expert: 'Ministre',
-                avis: 'Conforme',
-                avis_fichier: fichier_avis_ministre,
-                saisine_fichier: null,
-                date_saisine: null
-            } 
+            dossier: idPitchouDuDossier ?? undefined,
+            date_avis: date_avis_ministre,
+            expert: 'Ministre',
+            avis: 'Conforme',
+            avis_fichier: fichier_avis_ministre,
+            saisine_fichier: null,
+            date_saisine: null
+        }
 
         lignes_à_insérer.push(ligne_ministre)
-    } 
+    }
 
     return lignes_à_insérer
+}
+
+/**
+ * Synchronisation des décisions administratives
+ * Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
+ * une nouvelle décision administrative qui n'est pas encore en BDD
+ * 
+ * On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus)
+ * 
+ * @param {DossierDS88444} dossierDS 
+ * @param {Map<DossierDS88444['number'], FichierId> | undefined} fichiersMotivationTéléchargés
+ * @param {DCisionAdministrative['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
+ * @returns {PartialBy<DCisionAdministrativeInitializer, "dossier">[]}
+ */
+function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, idPitchouDuDossier) {
+    /**@type { PartialBy<DCisionAdministrativeInitializer, "dossier">[] } */
+    const décisionsAdministratives = []
+
+    if (fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1) {
+        const fichierMotivationId = fichiersMotivationTéléchargés.get(dossierDS.number)
+
+        /** @type {TypeDécisionAdministrative} */
+        let type = 'Autre décision';
+
+        const traitements = dossierDS.traitements
+        let dernierTraitement = traitements[0];
+        for (const traitement of traitements) {
+            if (isAfter(traitement.dateTraitement, dernierTraitement.dateTraitement)) {
+                dernierTraitement = traitement
+            }
+        }
+        if (dernierTraitement.state === 'accepte')
+            type = 'Arrêté dérogation'
+        if (dernierTraitement.state === 'refuse')
+            type = 'Arrêté refus'
+
+        décisionsAdministratives.push({
+            dossier: idPitchouDuDossier ?? undefined,
+            fichier: fichierMotivationId,
+            type,
+            date_signature: null, // pas de remplissage par défaut
+            numéro: null,
+            date_fin_obligations: null
+        })
+    }
+
+    return décisionsAdministratives
 }
 
 /**
@@ -306,46 +359,53 @@ function makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Tél�
  * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
+ * @param {Map<number, FichierId> | undefined} fichiersMotivationTéléchargés
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
-    
+
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
-            const champsDossierPourInitP = makeChampsDossierPourInitialisation(
-                dossierDS,
-                pitchouKeyToChampDS,
-                pitchouKeyToAnnotationDS
-            )
+        const champsDossierPourInitP = makeChampsDossierPourInitialisation(
+            dossierDS,
+            pitchouKeyToChampDS,
+            pitchouKeyToAnnotationDS
+        )
 
-            const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
+        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
 
-            const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, null)
+        const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, null)
 
-            return champsDossierPourInitP.then(champsDossierPourInit => ({
-                dossier: {
-                    ...champsDossierPourInit.dossier,
-                    ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
-                },
-                évènement_phase_dossier : [
-                    ...(champsDossierPourInit.évènement_phase_dossier || []),
-                    ...évènement_phase_dossier
-                ],
-                avis_expert: [
-                    ...(champsDossierPourInit.avis_expert || []),
-                    ...avis_expert
-                ]
-            }))
-        })
+        const décision_administrative = makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, null)
+
+        return champsDossierPourInitP.then(champsDossierPourInit => ({
+            dossier: {
+                ...champsDossierPourInit.dossier,
+                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
+            },
+            évènement_phase_dossier: [
+                ...(champsDossierPourInit.évènement_phase_dossier || []),
+                ...évènement_phase_dossier
+            ],
+            avis_expert: [
+                ...(champsDossierPourInit.avis_expert || []),
+                ...avis_expert
+            ],
+            décision_administrative: [
+                ...(champsDossierPourInit.décision_administrative || []),
+                ...décision_administrative
+            ]
+        }))
+    })
 
 
     /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
     const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
         const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number))
 
-        if(!dossierId){
+        if (!dossierId) {
             throw new Error(`dossier.id non trouvé pour dossier DS ${dossierDS.number} qui est en base de données`)
         }
 
@@ -359,13 +419,16 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
 
         const avis_expert = makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, dossierId)
 
-        return({
+        const décision_administrative = makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, dossierId)
+
+        return ({
             dossier: {
                 ...dossierPartiel,
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
             },
             évènement_phase_dossier,
             avis_expert,
+            décision_administrative,
         })
     })
 
