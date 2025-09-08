@@ -23,16 +23,10 @@ export default async () => {
             const dossiersById = state.dossiersRésumés
             const { email } = mapStateToSqueletteProps(state);
             const dossiers = [...dossiersById.values()]
-            /** @type {Map<string, number>} */
-            const personnesMails = new Map()
-            if (state.capabilities.listerPersonnes) {
-                // à garder ?
-            }
 
             return {
                 email,
                 dossiers,
-                personnesMails,
             };
         }
 
@@ -45,11 +39,10 @@ export default async () => {
             await chargerDossiers()
                 .catch(err => console.error({ err }))
 
-            // Charger les personnes et construire personnesMails
             if (store.state.capabilities.listerPersonnes) {
                 try {
                     const personnes = await store.state.capabilities.listerPersonnes()
-                    /** @type {Map<string, number>} */
+
                     const personnesMails = new Map()
                     for (const p of personnes) {
                         if (p.email) personnesMails.set(p.email, p.id)
