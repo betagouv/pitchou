@@ -4,7 +4,7 @@
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
-/** @import Personne from '../../types/database/public/Personne' */
+
 
 import { addMonths } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
@@ -389,7 +389,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
 
     const emailTrouvé = extrairePremierMail(ligne['POUR\nATTRIBUTION'])
-    /**@type {Pick<Personne, "email">[] | undefined} */
+
     const personnes_qui_suivent = emailTrouvé ? [{email: emailTrouvé}] : undefined;
 
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
