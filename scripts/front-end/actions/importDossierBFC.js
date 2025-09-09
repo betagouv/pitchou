@@ -108,6 +108,14 @@ function convertirThématiqueEnActivitéPrincipale(valeur) {
 }
 
 /**
+ * @param {LigneDossierBFC} ligne
+ * @return {string}
+ */
+export function créerNomPourDossier(ligne) {
+    return 'N° Dossier DEROG ' + ligne['N° Dossier DEROG'] + ' - ' + ligne['OBJET']
+}
+
+/**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {LigneDossierBFC} ligne
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
@@ -120,7 +128,7 @@ export async function créerDossierDepuisLigne(ligne) {
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
-        'Nom du projet': 'N° Dossier DEROG ' + ligne['N° Dossier DEROG'] + ' - ' + ligne['OBJET'],
+        'Nom du projet': créerNomPourDossier(ligne),
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Avez-vous réalisé un état des lieux écologique complet ?': true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.
 

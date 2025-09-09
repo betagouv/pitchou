@@ -13,7 +13,7 @@
         sheetRawContentToObjects,
         isRowNotEmpty,
     } from "@odfjs/odfjs";
-    import { créerDossierDepuisLigne } from "../../actions/importDossierBFC.js";
+    import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
 
     /**
      * @typedef {Object} Props
@@ -65,7 +65,7 @@
      * @returns {boolean}
      */
     function ligneDossierEnBDD(LigneDossierBFC) {
-        return nomsEnBDD.has(LigneDossierBFC["OBJET"]);
+        return nomsEnBDD.has(créerNomPourDossier(LigneDossierBFC));
     }
 
     /**
@@ -252,7 +252,7 @@
                             <tbody>
                                 {#each lignesAffichéesTableauImport as LigneDossierBFC}
                                     <tr data-row-key="1">
-                                        <td>{LigneDossierBFC["OBJET"]}</td>
+                                        <td>{créerNomPourDossier(LigneDossierBFC)}</td>
                                         <td>
                                             <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. 
                                              TODO : il faut que cette vérification se fasse après avoir transformé les valeurs des colonnes du tableau pour le dossier Pitchou. 
