@@ -36,8 +36,6 @@
         return dossier.espècesImpactées?.nom || "fichier";
     }
 
-    
-
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
@@ -48,6 +46,11 @@
                     créerEspècesGroupéesParImpact(value, activitésNomenclaturePitchou)
                 )
             : undefined);
+
+    $effect(() => {
+        espècesImpactéesParActivité?.catch(err => console.error(`erreur lecture espèces`, err))
+    })
+    
 
         
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
@@ -186,8 +189,10 @@
                         pétitionnaire de fournir le fichier dans le bon format à
                         la place du fichier actuel.
                     {:else}
-                        Une erreur est survenue. Veuillez réessayer en
-                        rafraichissant la page maintenant ou plus tard.
+                        <p>Une erreur est survenue. Veuillez réessayer en
+                        rafraichissant la page maintenant ou plus tard.</p>
+
+                        <p><strong>Détails&nbsp;:&nbsp;</strong>{erreur.message}</p>
                     {/if}
                 </div>
             {/await}
