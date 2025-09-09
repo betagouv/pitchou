@@ -7,12 +7,15 @@
 
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
-    import Squelette from "../Squelette.svelte";
     import {
         getODSTableRawContent,
         sheetRawContentToObjects,
         isRowNotEmpty,
     } from "@odfjs/odfjs";
+    
+    import Squelette from "../Squelette.svelte";
+    import Pagination from '../DSFR/Pagination.svelte'
+    
     import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
     import BoutonModale from "../DSFR/BoutonModale.svelte";
 
@@ -48,12 +51,6 @@
 
     /**@type {boolean}*/
     let afficherTousLesDossiers = $state(false);
-
-    const lignesAffichéesTableauImport = $derived(
-        afficherTousLesDossiers
-            ? lignesTableauImport
-            : lignesFiltréesTableauImport,
-    );
 
     let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
     let nombreDossiersAImporter = $derived(
@@ -162,6 +159,56 @@
             );
         }
     }
+
+    // Pagination du tableau de suivi
+    /** @typedef {() => void} SelectionneurPage */
+
+    const NOMBRE_DOSSIERS_PAR_PAGE = 20
+
+    // numéro de page qui correspond à celui affiché, donc commençant à 1
+    /** @type {number} */
+    let numéroPageSelectionnée = $state(1)
+
+    /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
+    let selectionneursPage = $derived.by(() => {
+        if(lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
+            const nombreDePages = Math.ceil(lignesTableauImport.length/NOMBRE_DOSSIERS_PAR_PAGE)
+
+            return [
+                undefined,
+                ...[...Array(nombreDePages).keys()].map(i => () => {
+                    console.log('sélection de la page', i+1)
+                    numéroPageSelectionnée = i+1
+                })
+            ]
+        }
+        
+        return undefined
+    });
+
+    $effect(() => {
+        if(selectionneursPage)
+            numéroPageSelectionnée = 1
+    })
+
+    /** @type {typeof lignesTableauImport} */
+    let lignesAffichéesTableauImport = $derived.by(() => {
+        const lignesÀAfficher = afficherTousLesDossiers
+            ? lignesTableauImport
+            : lignesFiltréesTableauImport;
+
+        if(!selectionneursPage)
+            return lignesÀAfficher
+        else{
+            return lignesÀAfficher.slice(
+                NOMBRE_DOSSIERS_PAR_PAGE*(numéroPageSelectionnée-1),
+                NOMBRE_DOSSIERS_PAR_PAGE*numéroPageSelectionnée
+            )
+        }
+    })
+
+
+
 </script>
 
 <Squelette {email} nav={true}>
@@ -304,6 +351,10 @@
                 </div>
             </div>
         </div>
+
+        {#if selectionneursPage}
+            <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}></Pagination>
+        {/if}
     {/if}
 </Squelette>
 
