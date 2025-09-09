@@ -337,7 +337,6 @@
     .tableau-dossier-a-creer {
         th,
         td:not(:last-of-type) {
-            max-width: 13rem;
             max-height: 2rem;
             overflow: auto;
         }
