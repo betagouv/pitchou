@@ -14,6 +14,8 @@
         isRowNotEmpty,
     } from "@odfjs/odfjs";
     import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
+    import BoutonModale from "../DSFR/BoutonModale.svelte";
+
 
     /**
      * @typedef {Object} Props
@@ -241,40 +243,24 @@
                             <thead>
                                 <tr>
                                     <th> Nom du projet (OBJET) </th>
-                                    <th> Département </th>
-                                    <th>
-                                        Commentaires sur les enjeux et la
-                                        procédure
-                                    </th>
-                                    <th> Action </th>
+                                    <th> Détails </th>
+                                    <th> Actions </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each lignesAffichéesTableauImport as LigneDossierBFC}
+                                {#each lignesAffichéesTableauImport as LigneDossierBFC, index}
                                     <tr data-row-key="1">
                                         <td>{créerNomPourDossier(LigneDossierBFC)}</td>
                                         <td>
-                                            <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. 
-                                             TODO : il faut que cette vérification se fasse après avoir transformé les valeurs des colonnes du tableau pour le dossier Pitchou. 
-                                             Plus précisément, il faut vérifier la réponse que l'on donne à la question "Dans quel département se localise majoritairement votre projet ?"-->
-                                            {#if String(LigneDossierBFC["Département"] ?? "")
-                                                .split("-")
-                                                .some((dep) => dep.trim() && !["21", "25", "39", "58", "70", "71", "89", "90"].includes(dep.trim()))}
-                                                <span
-                                                    class="fr-badge fr-badge--error"
-                                                    >{LigneDossierBFC[
-                                                        "Département"
-                                                    ]}</span
-                                                >
-                                            {:else}
-                                                {LigneDossierBFC["Département"]}
-                                            {/if}
+                                            <BoutonModale id={`dsfr-modale-${index}`}>
+                                                {#snippet boutonOuvrirDétails()}
+                                                    <button type='button'>Voir les détails</button>
+                                                {/snippet}
+                                                {#snippet contenu()}
+                                                    <div>{JSON.stringify(LigneDossierBFC)}</div>
+                                                {/snippet}
+                                            </BoutonModale>
                                         </td>
-                                        <td class="commentaire"
-                                            >{LigneDossierBFC[
-                                                "Description avancement dossier avec dates"
-                                            ]}</td
-                                        >
                                         <td>
                                             {#if ligneDossierEnBDD(LigneDossierBFC)}
                                                 <p
@@ -348,10 +334,6 @@
         }
     }
 
-    .commentaire {
-        white-space: pre;
-        min-width: 30rem;
-    }
     .tableau-dossier-a-creer {
         th,
         td:not(:last-of-type) {
