@@ -283,7 +283,7 @@
                                                     En base de données
                                                 </p>
                                                 <a
-                                                    href={`/dossier/${nomToDossierId.get(LigneDossierBFC["OBJET"])}`}
+                                                    href={`/dossier/${nomToDossierId.get(créerNomPourDossier(LigneDossierBFC))}`}
                                                     target="_blank"
                                                     class="fr-btn fr-btn--secondary fr-ml-2w"
                                                 >
