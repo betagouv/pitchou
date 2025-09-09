@@ -127,49 +127,26 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         })
     }
 
-    /** @type {ArTePersonneSuitDossier[]} */
-    let arêtePersonneSuitDossierDossier = [];
+    /** @type {Promise<any>} */
+    let synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = Promise.resolve([])
 
-    if (dossiersPourInsert.length >= 1) {
-
-        const personnesQuiSuiventDossiers = dossiersPourInsert.flatMap(dossier => dossier.personnes_qui_suivent)
-
-        
+    if (dossiersPourInsert.length >= 1) {   
+   
         /**@type { {id: DossierId}[]} */
         let insertedDossierIds = await databaseConnection('dossier')
                                     .insert(dossiersPourInsert.map(tables => tables.dossier))
                                     .returning(['id'])
-
-        await databaseConnection('personne')
-            .insert(personnesQuiSuiventDossiers)
-            .onConflict(['email'])
-            .ignore();
-
-        const emails = personnesQuiSuiventDossiers.map(p => p.email)
-
-        /** @type {Pick<Personne, "id" | "email">[]} */
-        const personnes = await databaseConnection('personne')
-                .select('id', 'email')
-                .whereIn('email', emails);
-
         
+        synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(
+            dossiersPourInsert,
+            insertedDossierIds,
+            databaseConnection
+        )
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
-            const {évènement_phase_dossier, avis_expert, décision_administrative, personnes_qui_suivent} = dossiersPourInsert[index]
+            const {évènement_phase_dossier, avis_expert, décision_administrative} = dossiersPourInsert[index]
 
-
-            const emailsQuiSuivent = new Set(personnes_qui_suivent.map(p => p.email));
-            const personnesQuiSuiventCeDossier = personnes.filter(p => p.email && emailsQuiSuivent.has(p.email));
-
-            if (personnesQuiSuiventCeDossier.length >= 1) {
-                personnesQuiSuiventCeDossier.forEach(personne => {
-                    arêtePersonneSuitDossierDossier.push({
-                        dossier: dossierInséréId.id,
-                        personne: personne.id,
-                    });
-                });
-            }
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
@@ -217,13 +194,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
 
-        // Seulement pour les dossiers à créer
-        arêtePersonneSuitDossierDossier.length > 0
-          ? databaseConnection('arête_personne_suit_dossier')
-              .insert(arêtePersonneSuitDossierDossier)
-              .onConflict(['personne', 'dossier'])
-              .ignore()
-          : Promise.resolve([]),
+        synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP,
             
         ...updatePromises
     ]
@@ -821,4 +792,53 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
     }
 
     return Promise.all([phaseAjoutée, dossierÀJour])
+}
+
+/**
+ * Synchronise les personnes et les relations de suivi pour des dossiers nouvellement insérés.
+ * 
+ * @param {DossierPourInsert[]} dossiersPourInsert
+ * @param { { id: DossierId }[] } insertedDossierIds
+ * @param {knex.Knex.Transaction | knex.Knex} databaseConnection
+ */
+async function synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(dossiersPourInsert, insertedDossierIds, databaseConnection){
+    /** @type {ArTePersonneSuitDossier[]} */
+    const arêtePersonneSuitDossierDossier = []
+
+    const personnesQuiSuiventDossiers = dossiersPourInsert
+        .flatMap(dossier => dossier.personnes_qui_suivent)
+        .filter(x => x != null)
+
+    if (personnesQuiSuiventDossiers.length >= 1) {
+        await databaseConnection('personne')
+            .insert(personnesQuiSuiventDossiers)
+            .onConflict(['email'])
+            .ignore();
+
+        const emails = personnesQuiSuiventDossiers
+            .map(p => p?.email)
+            .filter(x => x != null)
+
+        const personnes = await databaseConnection('personne')
+            .select('id', 'email')
+            .whereIn('email', emails)
+
+        insertedDossierIds.forEach((dossierInséréId, index) => {
+            const {personnes_qui_suivent} = dossiersPourInsert[index]
+            const emailsQuiSuivent = new Set(personnes_qui_suivent?.map(p => p.email))
+            const personnesQuiSuiventCeDossier = personnes.filter(p => p.email && emailsQuiSuivent.has(p.email))
+            personnesQuiSuiventCeDossier.forEach(personne => {
+                arêtePersonneSuitDossierDossier.push({ dossier: dossierInséréId.id, personne: personne.id })
+            })
+        })
+    }
+
+    if (arêtePersonneSuitDossierDossier.length > 0) {
+        return databaseConnection('arête_personne_suit_dossier')
+              .insert(arêtePersonneSuitDossierDossier)
+              .onConflict(['personne', 'dossier'])
+              .ignore()
+    } else {
+        return  Promise.resolve([])
+    }
 }
