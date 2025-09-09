@@ -10,6 +10,7 @@
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 /** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import ArTePersonneSuitDossier from '../../types/database/public/ArêtePersonneSuitDossier.ts' */
 
 import knex from 'knex';
 
@@ -17,6 +18,7 @@ import {directDatabaseConnection} from '../database.js'
 import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
 import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
+
 
 //@ts-ignore
 /** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
@@ -99,6 +101,7 @@ const varcharKeys = [
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, databaseConnection = directDatabaseConnection){
+
     for(const {dossier: d} of [...dossiersPourInsert, ...dossiersPourUpdate]){
         for(const k of varcharKeys){
             if(typeof d[k] === 'string' && d[k].length >= 255){
@@ -124,19 +127,26 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         })
     }
 
+    /** @type {Promise<any>} */
+    let synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = Promise.resolve([])
 
-    if (dossiersPourInsert.length >= 1) {
+    if (dossiersPourInsert.length >= 1) {   
+   
         /**@type { {id: DossierId}[]} */
         let insertedDossierIds = await databaseConnection('dossier')
-            .insert(dossiersPourInsert.map(tables => tables.dossier))
-            .returning(['id'])
-
+                                    .insert(dossiersPourInsert.map(tables => tables.dossier))
+                                    .returning(['id'])
+        
+        synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(
+            dossiersPourInsert,
+            insertedDossierIds,
+            databaseConnection
+        )
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
-            const donnéesPourDossier = dossiersPourInsert[index]
+            const {évènement_phase_dossier, avis_expert, décision_administrative} = dossiersPourInsert[index]
 
-            const {évènement_phase_dossier, avis_expert, décision_administrative} = donnéesPourDossier
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
@@ -148,6 +158,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             }
         })
     }
+
 
     const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert]
     
@@ -182,11 +193,13 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         décisionAdministrativeDossier.length > 0
             ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
-        
+
+        synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP,
+            
         ...updatePromises
     ]
 
-    return Promise.all(databaseOperations).then(results => results.flat())
+    return Promise.all(databaseOperations)
 }
 
 /**
@@ -779,4 +792,61 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
     }
 
     return Promise.all([phaseAjoutée, dossierÀJour])
+}
+
+/**
+ * Synchronise les personnes et les relations de suivi pour des dossiers nouvellement insérés.
+ * 
+ * @remark On suppose que les lignes de dossiersPourInsert et insertedDossierIds sont alignées
+ * i.e. l'id d'un index de l'un correspond à l'id d'un index de l'autre
+ * @param {DossierPourInsert[]} dossiersPourInsert
+ * @param { { id: DossierId }[] } insertedDossierIds
+ * @param {knex.Knex.Transaction | knex.Knex} databaseConnection
+ */
+async function synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(dossiersPourInsert, insertedDossierIds, databaseConnection){
+    /** @type {ArTePersonneSuitDossier[]} */
+    const arêtePersonneSuitDossierDossier = []
+
+    /** @type {Pick<Personne,"email" | "nom" |"prénoms">[]} */
+    //@ts-ignore
+    const personnesQuiSuiventDossiers = dossiersPourInsert
+        .flatMap(dossier => dossier.personnes_qui_suivent)
+        .filter(x => x != null)
+        // On ne sélectionne que les propriétés que l'on veut garder (pas code_accès)
+        .map(({email, nom, prénoms}) => ({ email, nom, prénoms}))
+
+    if (personnesQuiSuiventDossiers.length >= 1) {
+        await databaseConnection('personne')
+            .insert(personnesQuiSuiventDossiers)
+            .onConflict(['email'])
+            .ignore();
+
+        const emails = personnesQuiSuiventDossiers
+            .map(p => p?.email)
+            .filter(x => x != null)
+
+        const personnes = await databaseConnection('personne')
+            .select('id', 'email')
+            .whereIn('email', emails)
+
+        insertedDossierIds.forEach((dossierInséréId, index) => {
+            const {personnes_qui_suivent} = dossiersPourInsert[index]
+            const emailsQuiSuivent = new Set(personnes_qui_suivent?.map(p => p.email))
+            
+            //Attention, ici il y a un risque de problèmes de performance avec le filter
+            const personnesQuiSuiventCeDossier = personnes.filter(p => p.email && emailsQuiSuivent.has(p.email))
+            personnesQuiSuiventCeDossier.forEach(personne => {
+                arêtePersonneSuitDossierDossier.push({ dossier: dossierInséréId.id, personne: personne.id })
+            })
+        })
+    }
+
+    if (arêtePersonneSuitDossierDossier.length > 0) {
+        return databaseConnection('arête_personne_suit_dossier')
+              .insert(arêtePersonneSuitDossierDossier)
+              .onConflict(['personne', 'dossier'])
+              .ignore()
+    } else {
+        return  Promise.resolve([])
+    }
 }

@@ -1,5 +1,4 @@
 /** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
@@ -12,6 +11,7 @@
 /** @import DCisionAdministrative ,{DCisionAdministrativeInitializer} from '../../scripts/types/database/public/DécisionAdministrative.ts' */
 /** @import { PartialBy }  from '../../scripts/types/tools' */
 /** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
+/** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
 
 
 
@@ -19,8 +19,6 @@ import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
 import { isAfter } from 'date-fns'
-
-
 
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
@@ -144,7 +142,6 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 
     /**
      * POUR IMPORT DOSSIERS HISTORIQUES
-     * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
     /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
     let données_supplémentaires
@@ -162,11 +159,12 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     return {
         dossier: {
             ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
-            date_dépôt: données_supplémentaires?.dossier.date_dépôt ?? dossierDS.dateDepot
+            date_dépôt: données_supplémentaires?.dossier?.date_dépôt ?? dossierDS.dateDepot
         },
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
         avis_expert: données_supplémentaires?.avis_expert,
-        décision_administrative: données_supplémentaires?.décision_administrative
+        décision_administrative: données_supplémentaires?.décision_administrative,
+        personnes_qui_suivent: données_supplémentaires?.personnes_qui_suivent,
     }
 }
 
@@ -396,12 +394,11 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
             décision_administrative: [
                 ...(champsDossierPourInit.décision_administrative || []),
                 ...décision_administrative
-            ]
+            ],
+            personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent
         }))
     })
 
-
-    /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
     const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
         const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number))
 
