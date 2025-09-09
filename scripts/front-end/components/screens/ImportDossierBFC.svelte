@@ -27,6 +27,10 @@
     // Pré-calcul: ensemble des noms présents en base (lookup O(1))
     const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
 
+    const nomToDossierId = $derived(
+        new Map(dossiers.map((d) => [d.nom, d.id])),
+    );
+
     /** @type {LigneDossierBFC[]} */
     let lignesTableauImport = $state([]);
     /** @type {LigneDossierBFC[]} */
@@ -44,11 +48,15 @@
     let afficherTousLesDossiers = $state(false);
 
     const lignesAffichéesTableauImport = $derived(
-        afficherTousLesDossiers ? lignesTableauImport : lignesFiltréesTableauImport
+        afficherTousLesDossiers
+            ? lignesTableauImport
+            : lignesFiltréesTableauImport,
     );
 
-    let nombreDossiersDéjàImportés = $derived( dossiersDéjàEnBDD.length );
-    let nombreDossiersAImporter = $derived( lignesTableauImport.length - nombreDossiersDéjàImportés );
+    let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
+    let nombreDossiersAImporter = $derived(
+        lignesTableauImport.length - nombreDossiersDéjàImportés,
+    );
 
     /**
      * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
@@ -183,9 +191,9 @@
     {#if lignesTableauImport.length >= 1}
         <h2>
             {#if afficherTousLesDossiers}
-            Tous les dossiers du fichier chargé ({lignesTableauImport.length})    
+                Tous les dossiers du fichier chargé ({lignesTableauImport.length})
             {:else}
-            Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})    
+                Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
             {/if}
         </h2>
 
@@ -202,7 +210,7 @@
                 for="toggle"
                 data-fr-checked-label="Activé"
                 data-fr-unchecked-label="Désactivé"
-                >
+            >
                 Afficher tous les dossiers
             </label>
             <div
@@ -225,9 +233,7 @@
             </div>
         </div>
 
-        
-
-        <div class="fr-table" >
+        <div class="fr-table">
             <div class="fr-table__wrapper">
                 <div class="fr-table__container">
                     <div class="fr-table__content">
@@ -276,8 +282,14 @@
                                                 >
                                                     En base de données
                                                 </p>
-                                            {/if}
-                                            {#if ligneToLienPréremplissage.get(LigneDossierBFC)}
+                                                <a
+                                                    href={`/dossier/${nomToDossierId.get(LigneDossierBFC["OBJET"])}`}
+                                                    target="_blank"
+                                                    class="fr-btn fr-btn--secondary fr-ml-2w"
+                                                >
+                                                    Ouvrir dossier
+                                                </a>
+                                            {:else if ligneToLienPréremplissage.get(LigneDossierBFC)}
                                                 <a
                                                     href={ligneToLienPréremplissage.get(
                                                         LigneDossierBFC,
@@ -326,12 +338,12 @@
         .fr-progress-bar{
             flex:1;
 
-            height: 1.5rem; 
+            height: 1.5rem;
             margin-left: 1rem;
-            border-radius: 8px; 
+            border-radius: 8px;
             overflow: hidden;
 
-            background: var(--background-alt-grey); 
+            background: var(--background-alt-grey);
             
         }
     }
