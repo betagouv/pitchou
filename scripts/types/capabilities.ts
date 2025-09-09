@@ -13,7 +13,6 @@ export interface PitchouInstructeurCapabilities{
     modifierDossier: (dossierId: Dossier['id'], dossier: Partial<DossierComplet>) => Promise<void> 
     remplirAnnotations: (annotations: any) => Promise<void>
     modifierDécisionAdministrativeDansDossier: (décisionAdministrative: DécisionAdministrativePourTransfer) => Promise<void> 
-    listerPersonnes: () => Promise<Personne[]>
 }
 
 export interface IdentitéInstructeurPitchou{
