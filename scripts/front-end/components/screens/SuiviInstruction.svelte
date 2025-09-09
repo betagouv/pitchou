@@ -625,26 +625,27 @@
                                         <a class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
 
                                         {#if commentaire_libre && commentaire_libre.trim().length >= 1}
-                                            <BoutonModale id={`dsfr-modale-${id}`}>
-                                                <!-- @migration-task: migrate this slot by hand, `contenu-bouton` is an invalid identifier -->
-                                                <svelte:fragment slot="contenu-bouton">Commentaire</svelte:fragment>
-                        
-                                                <!-- @migration-task: migrate this slot by hand, `titre-modale` is an invalid identifier -->
-                                                <header class="titre-modale" slot="titre-modale">
-                                                    <h1 class="fr-modal__title">
-                                                        Commentaire dossier {nom}
-                                                    </h1>
-                                                    <h2 class="fr-modal__title">
-                                                        {formatPorteurDeProjet(dossier)}
-                                                        &nbsp;-&nbsp;
-                                                        {formatLocalisation({communes, départements, régions})}
-                                                    </h2>
-                                                </header>
-                        
-                                                <!-- @migration-task: migrate this slot by hand, `contenu-modale` is an invalid identifier -->
-                                                <div class="contenu-modale" slot="contenu-modale">
-                                                    {commentaire_libre}
-                                                </div>
+                                            <BoutonModale id={`dsfr-modale-${id}`} >
+                                                {#snippet boutonOuvrirDétails()}
+                                                    Commentaire
+                                                {/snippet}
+                                                {#snippet contenu()}
+                                                    <header class="titre-modale">
+                                                        <h1 class="fr-modal__title">
+                                                            Commentaire dossier {nom}
+                                                        </h1>
+                                                        <h2 class="fr-modal__title">
+                                                            {formatPorteurDeProjet(dossier)}
+                                                            &nbsp;-&nbsp;
+                                                            {formatLocalisation({communes, départements, régions})}
+                                                        </h2>
+                                                    </header>
+                            
+                                                    <div class="contenu-modale">
+                                                        {commentaire_libre}
+                                                    </div>
+                                                {/snippet}
+                                                
                                             </BoutonModale>
                                         {/if}
 

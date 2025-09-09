@@ -1,11 +1,27 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (contenu-bouton to contenu_bouton) making the component unusable -->
 <script>
-    export let id;
+    /** @import {Snippet} from 'svelte' */
+    /**
+     * @typedef {Object} Props
+     * @property {Snippet} [boutonOuvrirDétails]
+     * @property {Snippet} contenu
+     * @property {string} id
+     */
+    /** @type {Props} */
+    let { 
+        boutonOuvrirDétails,
+        contenu,
+        id
+     } = $props();
+
 
 </script>
 
 <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line" data-fr-opened="false" aria-controls={id}>
-    <slot name="contenu-bouton">Ouvrir</slot>
+    {#if boutonOuvrirDétails}
+        {@render boutonOuvrirDétails()}
+    {:else}
+        Ouvrir
+    {/if}
 </button>
 
 <dialog aria-labelledby="fr-modal-title-modal-1" id={id} class="fr-modal">
@@ -17,8 +33,7 @@
                         <button class="fr-btn--close fr-btn" title="Fermer la fenêtre modale" aria-controls={id}>Fermer</button>
                     </div>
                     <div class="fr-modal__content">
-                        <slot name="titre-modale"></slot>
-                        <slot name="contenu-modale"></slot>
+                        {@render contenu()}
                     </div>
                 </div>
             </div>

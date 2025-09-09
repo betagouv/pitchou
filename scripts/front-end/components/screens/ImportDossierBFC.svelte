@@ -7,13 +7,18 @@
 
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
-    import Squelette from "../Squelette.svelte";
     import {
         getODSTableRawContent,
         sheetRawContentToObjects,
         isRowNotEmpty,
     } from "@odfjs/odfjs";
+    
+    import Squelette from "../Squelette.svelte";
+    import Pagination from '../DSFR/Pagination.svelte'
+    
     import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
+    import BoutonModale from "../DSFR/BoutonModale.svelte";
+
 
     /**
      * @typedef {Object} Props
@@ -46,12 +51,6 @@
 
     /**@type {boolean}*/
     let afficherTousLesDossiers = $state(false);
-
-    const lignesAffichéesTableauImport = $derived(
-        afficherTousLesDossiers
-            ? lignesTableauImport
-            : lignesFiltréesTableauImport,
-    );
 
     let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
     let nombreDossiersAImporter = $derived(
@@ -160,6 +159,56 @@
             );
         }
     }
+
+    // Pagination du tableau de suivi
+    /** @typedef {() => void} SelectionneurPage */
+
+    const NOMBRE_DOSSIERS_PAR_PAGE = 20
+
+    // numéro de page qui correspond à celui affiché, donc commençant à 1
+    /** @type {number} */
+    let numéroPageSelectionnée = $state(1)
+
+    /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
+    let selectionneursPage = $derived.by(() => {
+        if(lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
+            const nombreDePages = Math.ceil(lignesTableauImport.length/NOMBRE_DOSSIERS_PAR_PAGE)
+
+            return [
+                undefined,
+                ...[...Array(nombreDePages).keys()].map(i => () => {
+                    console.log('sélection de la page', i+1)
+                    numéroPageSelectionnée = i+1
+                })
+            ]
+        }
+        
+        return undefined
+    });
+
+    $effect(() => {
+        if(selectionneursPage)
+            numéroPageSelectionnée = 1
+    })
+
+    /** @type {typeof lignesTableauImport} */
+    let lignesAffichéesTableauImport = $derived.by(() => {
+        const lignesÀAfficher = afficherTousLesDossiers
+            ? lignesTableauImport
+            : lignesFiltréesTableauImport;
+
+        if(!selectionneursPage)
+            return lignesÀAfficher
+        else{
+            return lignesÀAfficher.slice(
+                NOMBRE_DOSSIERS_PAR_PAGE*(numéroPageSelectionnée-1),
+                NOMBRE_DOSSIERS_PAR_PAGE*numéroPageSelectionnée
+            )
+        }
+    })
+
+
+
 </script>
 
 <Squelette {email} nav={true}>
@@ -241,40 +290,24 @@
                             <thead>
                                 <tr>
                                     <th> Nom du projet (OBJET) </th>
-                                    <th> Département </th>
-                                    <th>
-                                        Commentaires sur les enjeux et la
-                                        procédure
-                                    </th>
-                                    <th> Action </th>
+                                    <th> Détails </th>
+                                    <th> Actions </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each lignesAffichéesTableauImport as LigneDossierBFC}
+                                {#each lignesAffichéesTableauImport as LigneDossierBFC, index}
                                     <tr data-row-key="1">
                                         <td>{créerNomPourDossier(LigneDossierBFC)}</td>
                                         <td>
-                                            <!-- Alerter si le département ne fait pas partie de ceux pris en charge par la DREAL BFC. 
-                                             TODO : il faut que cette vérification se fasse après avoir transformé les valeurs des colonnes du tableau pour le dossier Pitchou. 
-                                             Plus précisément, il faut vérifier la réponse que l'on donne à la question "Dans quel département se localise majoritairement votre projet ?"-->
-                                            {#if String(LigneDossierBFC["Département"] ?? "")
-                                                .split("-")
-                                                .some((dep) => dep.trim() && !["21", "25", "39", "58", "70", "71", "89", "90"].includes(dep.trim()))}
-                                                <span
-                                                    class="fr-badge fr-badge--error"
-                                                    >{LigneDossierBFC[
-                                                        "Département"
-                                                    ]}</span
-                                                >
-                                            {:else}
-                                                {LigneDossierBFC["Département"]}
-                                            {/if}
+                                            <BoutonModale id={`dsfr-modale-${index}`}>
+                                                {#snippet boutonOuvrirDétails()}
+                                                    <button type='button'>Voir les détails</button>
+                                                {/snippet}
+                                                {#snippet contenu()}
+                                                    <div>{JSON.stringify(LigneDossierBFC)}</div>
+                                                {/snippet}
+                                            </BoutonModale>
                                         </td>
-                                        <td class="commentaire"
-                                            >{LigneDossierBFC[
-                                                "Description avancement dossier avec dates"
-                                            ]}</td
-                                        >
                                         <td>
                                             {#if ligneDossierEnBDD(LigneDossierBFC)}
                                                 <p
@@ -318,6 +351,10 @@
                 </div>
             </div>
         </div>
+
+        {#if selectionneursPage}
+            <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}></Pagination>
+        {/if}
     {/if}
 </Squelette>
 
@@ -348,14 +385,9 @@
         }
     }
 
-    .commentaire {
-        white-space: pre;
-        min-width: 30rem;
-    }
     .tableau-dossier-a-creer {
         th,
         td:not(:last-of-type) {
-            max-width: 13rem;
             max-height: 2rem;
             overflow: auto;
         }
