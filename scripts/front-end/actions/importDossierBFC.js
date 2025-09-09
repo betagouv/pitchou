@@ -4,6 +4,7 @@
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
+/** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
 
 
 import { addMonths } from "date-fns";
@@ -361,6 +362,27 @@ function créerDonnéesDécisionAdministrative(ligne) {
 }
 
 /**
+ * 
+ * @param {LigneDossierBFC} ligne 
+ * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesAvisExpert(ligne) {
+    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
+    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
+    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
+    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
+
+    if (saisine_csrpn_cnpn && saisine_csrpn_cnpn.trim().length>=1) {
+        return [{
+            expert: saisine_csrpn_cnpn,
+            date_saisine: isValidDateString(date_saisine_csrpn_cnpn) ? new Date(date_saisine_csrpn_cnpn) : undefined,
+            avis: avis_csrpn_cnpn && avis_csrpn_cnpn.length >= 1 ? avis_csrpn_cnpn : undefined,
+            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined,
+        }]
+    }
+}
+
+/**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierBFC} ligne
  * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
@@ -383,10 +405,6 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     }
 
 
-    const saisine_csrpn_cnpn = ligne['Saisine CSRPN/CNPN']
-    const date_saisine_csrpn_cnpn = ligne['Date saisine CSRPN/CNPN']
-    const avis_csrpn_cnpn = ligne['Avis CSRPN/CNPN']
-    const date_avis_csrpn_cnpn = ligne['Date avis CSRPN/CNPN']
 
     const emailTrouvé = extrairePremierMail(ligne['POUR\nATTRIBUTION'])
 
@@ -395,6 +413,8 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
     const décision_administrative = créerDonnéesDécisionAdministrative(ligne)
+
+    const avis_expert = créerDonnéesAvisExpert(ligne)
     
 
 
@@ -402,16 +422,11 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         dossier: {
             'commentaire_libre': commentaire_libre,
             'date_dépôt': isValidDateString(ligne['Date de sollicitation'].toString()) ? ligne['Date de sollicitation'] : new Date(),
-            'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'],
+            'historique_identifiant_demande_onagre': ligne['N° de l’avis Onagre ou interne'] && ligne['N° de l’avis Onagre ou interne'].trim().length >= 1 ? ligne['N° de l’avis Onagre ou interne'] : undefined,
             'prochaine_action_attendue_par': générerProchaineActionAttenduePar(ligne),
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
-        avis_expert: [{
-            expert: saisine_csrpn_cnpn,
-            date_saisine: isValidDateString(date_saisine_csrpn_cnpn) ? new Date(date_saisine_csrpn_cnpn) : undefined,
-            avis: avis_csrpn_cnpn,
-            date_avis: isValidDateString(date_avis_csrpn_cnpn) ? new Date(date_avis_csrpn_cnpn) : undefined,
-        }],
+        avis_expert,
         décision_administrative,
         personnes_qui_suivent,
     }
