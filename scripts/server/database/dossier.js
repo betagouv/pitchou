@@ -199,7 +199,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         ...updatePromises
     ]
 
-    return Promise.all(databaseOperations).then(results => results)
+    return Promise.all(databaseOperations)
 }
 
 /**
@@ -797,6 +797,8 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
 /**
  * Synchronise les personnes et les relations de suivi pour des dossiers nouvellement insérés.
  * 
+ * @remark On suppose que les lignes de dossiersPourInsert et insertedDossierIds sont alignées
+ * i.e. l'id d'un index de l'un correspond à l'id d'un index de l'autre
  * @param {DossierPourInsert[]} dossiersPourInsert
  * @param { { id: DossierId }[] } insertedDossierIds
  * @param {knex.Knex.Transaction | knex.Knex} databaseConnection
@@ -805,9 +807,13 @@ async function synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(dossie
     /** @type {ArTePersonneSuitDossier[]} */
     const arêtePersonneSuitDossierDossier = []
 
+    /** @type {Pick<Personne,"email" | "nom" |"prénoms">[]} */
+    //@ts-ignore
     const personnesQuiSuiventDossiers = dossiersPourInsert
         .flatMap(dossier => dossier.personnes_qui_suivent)
         .filter(x => x != null)
+        // On ne sélectionne que les propriétés que l'on veut garder (pas code_accès)
+        .map(({email, nom, prénoms}) => ({ email, nom, prénoms}))
 
     if (personnesQuiSuiventDossiers.length >= 1) {
         await databaseConnection('personne')
@@ -826,6 +832,8 @@ async function synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(dossie
         insertedDossierIds.forEach((dossierInséréId, index) => {
             const {personnes_qui_suivent} = dossiersPourInsert[index]
             const emailsQuiSuivent = new Set(personnes_qui_suivent?.map(p => p.email))
+            
+            //Attention, ici il y a un risque de problèmes de performance avec le filter
             const personnesQuiSuiventCeDossier = personnes.filter(p => p.email && emailsQuiSuivent.has(p.email))
             personnesQuiSuiventCeDossier.forEach(personne => {
                 arêtePersonneSuitDossierDossier.push({ dossier: dossierInséréId.id, personne: personne.id })
