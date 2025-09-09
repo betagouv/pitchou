@@ -20,8 +20,6 @@ import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/serve
 import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
 import { isAfter } from 'date-fns'
 
-
-
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
  * @param {DossierDS88444} dossierDS
@@ -144,7 +142,6 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
 
     /**
      * POUR IMPORT DOSSIERS HISTORIQUES
-     * Récupérer les données supplémentaires dans la question 'NE PAS MODIFIER - Données techniques associées à votre dossier'
      */
     /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
     let données_supplémentaires
@@ -162,12 +159,12 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     return {
         dossier: {
             ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
-            date_dépôt: données_supplémentaires?.dossier.date_dépôt ?? dossierDS.dateDepot
+            date_dépôt: données_supplémentaires?.dossier?.date_dépôt ?? dossierDS.dateDepot
         },
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
         avis_expert: données_supplémentaires?.avis_expert,
         décision_administrative: données_supplémentaires?.décision_administrative,
-        arête_personne_suit_dossier: [],
+        personnes_qui_suivent: données_supplémentaires?.personnes_qui_suivent,
     }
 }
 
@@ -398,12 +395,10 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 ...(champsDossierPourInit.décision_administrative || []),
                 ...décision_administrative
             ],
-            arête_personne_suit_dossier: champsDossierPourInit.arête_personne_suit_dossier,
+            personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent
         }))
     })
 
-
-    /** @type {DossierEntreprisesPersonneInitializersPourUpdate[]} */
     const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
         const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number))
 

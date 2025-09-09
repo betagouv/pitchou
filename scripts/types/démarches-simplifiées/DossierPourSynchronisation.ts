@@ -1,12 +1,10 @@
 import { DossierInitializer, DossierMutator } from "../database/public/Dossier.ts"
-import { PersonneInitializer } from "../database/public/Personne.ts"
+import Personne, { PersonneInitializer } from "../database/public/Personne.ts"
 import { EntrepriseInitializer } from "../database/public/Entreprise.ts"
 import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../database/public/ÉvènementPhaseDossier.ts"
 import { PartialBy } from "../tools"
 import { AvisExpertInitializer } from "../database/public/AvisExpert.ts"
 import { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts"
-import ArTePersonneSuitDossier from "../database/public/ArêtePersonneSuitDossier.ts"
-
 
 export type DonnéesPersonnesEntreprisesInitializer = {
     déposant: PersonneInitializer,
@@ -36,7 +34,6 @@ export type DossierPourSynchronisation<DossierType> = {
     évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
     avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[]
     décision_administrative: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]
-    arête_personne_suit_dossier?: PartialBy<ArTePersonneSuitDossier, 'dossier'>[]
 }
 
 export type DossierEntreprisesPersonneInitializersPourInsert = 
@@ -44,8 +41,16 @@ export type DossierEntreprisesPersonneInitializersPourInsert =
 
 export type DossierEntreprisesPersonneInitializersPourUpdate = 
     DossierPourSynchronisation<DossierAvecDonnéesPersonnesEntreprisesInitializers<DossierMutator>>
+
+/**
+ * A la création de Dossier via un import
+ * On peut récupérer la donnée de personnes qui suivent ce dossier.
+ * Dans ce cas, on doit impérativement avoir l'email de cette personne.
+ */
+export type PersonneAvecEmailObligatoire = Partial<Omit<Personne, "email">> & {email: NonNullable<Personne['email']>} ;
+
     
-export type DossierPourInsert = DossierPourSynchronisation<DossierInitializer>
+export type DossierPourInsert = DossierPourSynchronisation<DossierInitializer> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] }
 
 export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>
 

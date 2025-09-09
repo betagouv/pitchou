@@ -10,6 +10,7 @@
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 /** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
 /** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import ArTePersonneSuitDossier from '../../types/database/public/ArêtePersonneSuitDossier.ts' */
 
 import knex from 'knex';
 
@@ -17,6 +18,7 @@ import {directDatabaseConnection} from '../database.js'
 import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
 import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
+
 
 //@ts-ignore
 /** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
@@ -99,6 +101,7 @@ const varcharKeys = [
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, databaseConnection = directDatabaseConnection){
+
     for(const {dossier: d} of [...dossiersPourInsert, ...dossiersPourUpdate]){
         for(const k of varcharKeys){
             if(typeof d[k] === 'string' && d[k].length >= 255){
@@ -124,19 +127,49 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         })
     }
 
+    /** @type {ArTePersonneSuitDossier[]} */
+    let arêtePersonneSuitDossierDossier = [];
 
     if (dossiersPourInsert.length >= 1) {
+
+        const personnesQuiSuiventDossiers = dossiersPourInsert.flatMap(dossier => dossier.personnes_qui_suivent)
+
+        
         /**@type { {id: DossierId}[]} */
         let insertedDossierIds = await databaseConnection('dossier')
-            .insert(dossiersPourInsert.map(tables => tables.dossier))
-            .returning(['id'])
+                                    .insert(dossiersPourInsert.map(tables => tables.dossier))
+                                    .returning(['id'])
 
+        await databaseConnection('personne')
+            .insert(personnesQuiSuiventDossiers)
+            .onConflict(['email'])
+            .ignore();
+
+        const emails = personnesQuiSuiventDossiers.map(p => p.email)
+
+        /** @type {Pick<Personne, "id" | "email">[]} */
+        const personnes = await databaseConnection('personne')
+                .select('id', 'email')
+                .whereIn('email', emails);
+
+        
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
-            const donnéesPourDossier = dossiersPourInsert[index]
+            const {évènement_phase_dossier, avis_expert, décision_administrative, personnes_qui_suivent} = dossiersPourInsert[index]
 
-            const {évènement_phase_dossier, avis_expert, décision_administrative, arête_personne_suit_dossier} = donnéesPourDossier
+
+            const emailsQuiSuivent = new Set(personnes_qui_suivent.map(p => p.email));
+            const personnesQuiSuiventCeDossier = personnes.filter(p => p.email && emailsQuiSuivent.has(p.email));
+
+            if (personnesQuiSuiventCeDossier.length >= 1) {
+                personnesQuiSuiventCeDossier.forEach(personne => {
+                    arêtePersonneSuitDossierDossier.push({
+                        dossier: dossierInséréId.id,
+                        personne: personne.id,
+                    });
+                });
+            }
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
@@ -146,11 +179,9 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
                 décision_administrative.forEach(da => da.dossier = dossierInséréId.id)
             }
-            if (Array.isArray(arête_personne_suit_dossier) && arête_personne_suit_dossier.length >= 1) {
-                arête_personne_suit_dossier.forEach(apsd => apsd.dossier = dossierInséréId.id)
-            }
         })
     }
+
 
     const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert]
     
@@ -166,11 +197,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
    const décisionAdministrativeDossier = tousLesDossiers
         .map(tables => tables.décision_administrative)
-        .filter(x => x !== undefined)
-        .flat()
-
-   const arêtePersonneSuitDossierDossier = tousLesDossiers
-        .map(tables => tables.arête_personne_suit_dossier)
         .filter(x => x !== undefined)
         .flat()
 
@@ -190,13 +216,14 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         décisionAdministrativeDossier.length > 0
             ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
-        
+
+        // Seulement pour les dossiers à créer
         arêtePersonneSuitDossierDossier.length > 0
-            ? databaseConnection('arête_personne_suit_dossier')
-                .insert(arêtePersonneSuitDossierDossier)
-                .onConflict(['personne', 'dossier'])
-                .ignore()
-            : Promise.resolve([]),
+          ? databaseConnection('arête_personne_suit_dossier')
+              .insert(arêtePersonneSuitDossierDossier)
+              .onConflict(['personne', 'dossier'])
+              .ignore()
+          : Promise.resolve([]),
             
         ...updatePromises
     ]
