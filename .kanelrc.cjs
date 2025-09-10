@@ -60,6 +60,7 @@ const Dossier_scientifique_mode_capture = makePreRenderHook(
 
 
 module.exports = {
+    enumStyle: 'type', 
     customTypeMap: {
         'pg_catalog.bytea': 'Buffer'
     },

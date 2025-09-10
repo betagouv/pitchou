@@ -4,6 +4,7 @@
 import type { PersonneId } from './Personne';
 import type { EntrepriseSiret } from './Entreprise';
 import type { FichierId } from './Fichier';
+import type { default as TypeDossier } from './TypeDossier';
 
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: 'public.dossier' };
@@ -161,6 +162,9 @@ export default interface Dossier {
 
   /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation". Concerne les dossiers spécifiques à des oiseaux, comme les hirondelles ou les cigognes. */
   nombre_nids_compensés_dossier_oiseau_simple: number | null;
+
+  /** Type du dossier. Les instructeurices ont des typologies de dossiers qui reviennent souvent, comme les dossiers Hirondelles, les dossiers Cigognes... */
+  type: TypeDossier | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -317,6 +321,9 @@ export interface DossierInitializer {
 
   /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation". Concerne les dossiers spécifiques à des oiseaux, comme les hirondelles ou les cigognes. */
   nombre_nids_compensés_dossier_oiseau_simple?: number | null;
+
+  /** Type du dossier. Les instructeurices ont des typologies de dossiers qui reviennent souvent, comme les dossiers Hirondelles, les dossiers Cigognes... */
+  type?: TypeDossier | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -472,4 +479,7 @@ export interface DossierMutator {
 
   /** Réponse à la question "Indiquer le nombre de nids artificiels posés en compensation". Concerne les dossiers spécifiques à des oiseaux, comme les hirondelles ou les cigognes. */
   nombre_nids_compensés_dossier_oiseau_simple?: number | null;
+
+  /** Type du dossier. Les instructeurices ont des typologies de dossiers qui reviennent souvent, comme les dossiers Hirondelles, les dossiers Cigognes... */
+  type?: TypeDossier | null;
 }
