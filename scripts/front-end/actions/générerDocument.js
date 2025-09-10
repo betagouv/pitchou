@@ -48,6 +48,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         historique_identifiant_demande_onagre,
         activité_principale,
         rattaché_au_régime_ae,
+        type,
         scientifique_type_demande,
         scientifique_bilan_antérieur,
         scientifique_finalité_demande,
@@ -65,7 +66,18 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
     // Transformer les espèces impactées si elles existent
     const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou)
 
-    
+    /** @type {{ nids_détruits: number | null, nids_compensés: number | null }} */
+    const hirondelles = {
+        nids_détruits: type === 'Hirondelle' ? (nombre_nids_détruits_dossier_oiseau_simple ?? null) : null,
+        nids_compensés: type === 'Hirondelle' ? (nombre_nids_compensés_dossier_oiseau_simple ?? null) : null,
+    }
+
+    /** @type {{ nids_détruits: number | null, nids_compensés: number | null }} */
+    const cigognes = {
+        nids_détruits: type === 'Cigogne' ? (nombre_nids_détruits_dossier_oiseau_simple ?? null) : null,
+        nids_compensés: type === 'Cigogne' ? (nombre_nids_compensés_dossier_oiseau_simple ?? null) : null,
+    }
+
     return {
         nom,
         commentaire_instruction: commentaire_libre?.trim() ?? '',
@@ -80,8 +92,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         mesures_erc_prévues: mesures_erc_prévues===null ? 'Non renseigné' : mesures_erc_prévues,
         mesures_erc_prévues_renseigné: mesures_erc_prévues !== null,
         motif_dérogation,
-        nombre_nids_compensés_dossier_oiseau_simple,
-        nombre_nids_détruits_dossier_oiseau_simple,
+        hirondelles,
+        cigognes,
         justification_motif_dérogation,
         identifiant_onagre: historique_identifiant_demande_onagre,
         activité_principale,
