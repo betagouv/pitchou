@@ -159,6 +159,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     return {
         dossier: {
             ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
+            ...(données_supplémentaires?.dossier || {}),
             date_dépôt: données_supplémentaires?.dossier?.date_dépôt ?? dossierDS.dateDepot
         },
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
