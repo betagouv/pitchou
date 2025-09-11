@@ -117,6 +117,9 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
     /**@type {knex.Knex.QueryBuilder<any, any>[]} */
     let updatePromises = []
+
+    /** @type {ArTePersonneSuitDossier[]} */
+    const arêtePersonneSuitDossierDossier = []
     
     if (dossiersPourUpdate.length>=1) {
         updatePromises = dossiersPourUpdate.map(({dossier: dossierAModifier}) => {
@@ -136,17 +139,39 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         let insertedDossierIds = await databaseConnection('dossier')
                                     .insert(dossiersPourInsert.map(tables => tables.dossier))
                                     .returning(['id'])
-        
-        synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(
-            dossiersPourInsert,
-            insertedDossierIds,
-            databaseConnection
-        )
+                                
+        const toutesLesPersonnesQuiSuivent = await synchroniserEtRetournerPersonnesPourDossiersInsérer(
+                dossiersPourInsert,
+                databaseConnection
+            )
+
+        if (toutesLesPersonnesQuiSuivent.length >= 1) {
+            insertedDossierIds.forEach((dossierInséréId, index) => {
+            const {personnes_qui_suivent, évènement_phase_dossier} = dossiersPourInsert[index]
+            const emailsQuiSuivent = new Set(personnes_qui_suivent?.map(p => p.email))
+            
+            //Attention, ici il y a un risque de problèmes de performance avec le filter
+            const personnesQuiSuiventCeDossier = toutesLesPersonnesQuiSuivent.filter(p => p.email && emailsQuiSuivent.has(p.email))
+
+            personnesQuiSuiventCeDossier.forEach(personne => {arêtePersonneSuitDossierDossier.push({ dossier: dossierInséréId.id, personne: personne.id }) })
+            
+           
+            if(personnesQuiSuiventCeDossier.length >= 1){
+                évènement_phase_dossier.forEach(ev => {
+                    if (!ev.cause_personne) {
+                        // Dans le front-end, on souhaite afficher les évènements phases avec une cause_personne non nulle.
+                        ev.cause_personne = personnesQuiSuiventCeDossier[0].id
+                    }
+                })
+            }
+            })
+        }
+
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
-            // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
+                // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const {évènement_phase_dossier, avis_expert, décision_administrative} = dossiersPourInsert[index]
-
+                
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
@@ -156,7 +181,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
                 décision_administrative.forEach(da => da.dossier = dossierInséréId.id)
             }
-        })
+            })
     }
 
 
@@ -192,6 +217,14 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
         décisionAdministrativeDossier.length > 0
             ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
+            : Promise.resolve([]),
+
+        arêtePersonneSuitDossierDossier.length > 0
+            ? databaseConnection('arête_personne_suit_dossier')
+                    .insert(arêtePersonneSuitDossierDossier)
+                    .onConflict(['personne', 'dossier'])
+                    .ignore()
+
             : Promise.resolve([]),
 
         synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP,
@@ -795,17 +828,14 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
 }
 
 /**
- * Synchronise les personnes et les relations de suivi pour des dossiers nouvellement insérés.
+ * Synchronise et retourne les personnes des dossiers à insérer.
  * 
- * @remark On suppose que les lignes de dossiersPourInsert et insertedDossierIds sont alignées
- * i.e. l'id d'un index de l'un correspond à l'id d'un index de l'autre
  * @param {DossierPourInsert[]} dossiersPourInsert
- * @param { { id: DossierId }[] } insertedDossierIds
  * @param {knex.Knex.Transaction | knex.Knex} databaseConnection
  */
-async function synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(dossiersPourInsert, insertedDossierIds, databaseConnection){
-    /** @type {ArTePersonneSuitDossier[]} */
-    const arêtePersonneSuitDossierDossier = []
+async function synchroniserEtRetournerPersonnesPourDossiersInsérer(dossiersPourInsert, databaseConnection){
+    /** @type {Personne[]} */
+    let personnes = []
 
     /** @type {Pick<Personne,"email" | "nom" |"prénoms">[]} */
     //@ts-ignore
@@ -825,28 +855,11 @@ async function synchroniserPersonnesEtRelationsSuiviPourDossiersInsérés(dossie
             .map(p => p?.email)
             .filter(x => x != null)
 
-        const personnes = await databaseConnection('personne')
+        personnes = await databaseConnection('personne')
             .select('id', 'email')
             .whereIn('email', emails)
 
-        insertedDossierIds.forEach((dossierInséréId, index) => {
-            const {personnes_qui_suivent} = dossiersPourInsert[index]
-            const emailsQuiSuivent = new Set(personnes_qui_suivent?.map(p => p.email))
-            
-            //Attention, ici il y a un risque de problèmes de performance avec le filter
-            const personnesQuiSuiventCeDossier = personnes.filter(p => p.email && emailsQuiSuivent.has(p.email))
-            personnesQuiSuiventCeDossier.forEach(personne => {
-                arêtePersonneSuitDossierDossier.push({ dossier: dossierInséréId.id, personne: personne.id })
-            })
-        })
     }
+    return personnes
 
-    if (arêtePersonneSuitDossierDossier.length > 0) {
-        return databaseConnection('arête_personne_suit_dossier')
-              .insert(arêtePersonneSuitDossierDossier)
-              .onConflict(['personne', 'dossier'])
-              .ignore()
-    } else {
-        return  Promise.resolve([])
-    }
 }
