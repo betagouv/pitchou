@@ -177,6 +177,26 @@ Les balises ont des types qui peuvent être :
                             <td> Motif de la dérogation (Article L411-2 du Code de l'Environnement) (RIIPM, fins scientifiques, etc.)</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{hirondelles.nids_détruits}</code></th>
+                            <td> nombre</td>
+                            <td> Nombre de nids d'Hirondelles détruits (renseigné si le dossier est de type « Hirondelle »)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{hirondelles.nids_compensés}</code></th>
+                            <td> nombre</td>
+                            <td> Nombre de nids artificiels d'Hirondelles posés en compensation (renseigné si le dossier est de type « Hirondelle »)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{cigognes.nids_détruits}</code></th>
+                            <td> nombre</td>
+                            <td> Nombre de nids de Cigognes détruits (renseigné si le dossier est de type « Cigogne »)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{cigognes.nids_compensés}</code></th>
+                            <td> nombre</td>
+                            <td> Nombre de nids de Cigognes posés en compensation (renseigné si le dossier est de type « Cigogne »)</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{nom}</code></th>
                             <td> texte</td>
                             <td> Nom du dossier</td>
