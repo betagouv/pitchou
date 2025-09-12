@@ -3,7 +3,7 @@
 import {dsv} from 'd3-fetch'
 import store from "../store"
 import { getURL } from '../getLinkURL.js';
-import { espèceProtégéeStringToEspèceProtégée, isClassif } from '../../commun/outils-espèces.js';
+import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif } from '../../commun/outils-espèces.js';
 
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
@@ -58,104 +58,6 @@ export async function chargerListeEspècesProtégées(){
     return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF })
 }
 
-
-/**
- * @param {ActivitéMenançante[]} activitésBrutes 
- * @param {MéthodeMenançante[]} méthodesBrutes 
- * @param {TransportMenançant[]} transportsBruts 
- * 
- * @returns {{
- *  activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, 
- *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, 
- *  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>> 
- * }}
- */
-
-
-export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
-    /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-    const activités = {
-        oiseau: new Map(),
-        "faune non-oiseau": new Map(),
-        flore: new Map()
-    };
-
-    for(const activite of activitésBrutes){
-        const classif = activite['Espèces']
-
-        if(!classif.trim() && !activite['Code']){
-            // ignore empty lines (certainly comments)
-            break; 
-        }
-
-        if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
-        }
-        
-        const classifActivz = activités[classif]
-        Object.freeze(activite)
-        classifActivz.set(activite.Code, activite)
-        activités[classif] = classifActivz
-    }
-    
-
-    /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */
-    const méthodes = {
-        oiseau: new Map(),
-        "faune non-oiseau": new Map(),
-        flore: new Map()
-    };
-
-    for(const methode of méthodesBrutes){
-        const classif = methode['Espèces']
-
-        if(!classif.trim() && !methode['Code']){
-            // ignore empty lines (certainly comments)
-            break; 
-        }
-
-        if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
-        }
-        
-        const classifMeth = méthodes[classif]
-        Object.freeze(methode)
-        classifMeth.set(methode.Code, methode)
-        méthodes[classif] = classifMeth
-    }
-
-    /** @type {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} */
-    const transports = {
-        oiseau: new Map(),
-        "faune non-oiseau": new Map(),
-        flore: new Map()
-    };
-    
-    for(const transport of transportsBruts){
-        const classif = transport['Espèces']
-
-        if(!classif.trim() && !transport['Code']){
-            // ignore empty lines (certainly comments)
-            break; 
-        }
-
-        if(!isClassif(classif)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
-        }
-        
-        const classifTrans = transports[classif]
-        Object.freeze(transport)
-        classifTrans.set(transport.Code, transport)
-        transports[classif] = classifTrans
-    }
-
-    return {
-        activités,
-        méthodes,
-        transports
-    }
-}
-
 /**
  * Charge et organise données concernant les activités, méthodes et transports depuis les fichiers CSV externes.
  * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
@@ -163,16 +65,16 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
  * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
  * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
  * - activitésNomenclaturePitchou : Map unifiée de toutes les activités (standard + spécifiques Pitchou) indexées par leur code
- * 
+ *
  * @remarks
  * - La fonction utilise un cache dans le store pour éviter les rechargements inutiles
  * - Les données sont automatiquement gelées (Object.freeze) pour prévenir les modifications
  * - Cette fonction met également à jour le store avec les activités indexées par code
  * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
- * 
+ *
  * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
  * @see {@link getActivitésNomenclaturePitchou} Pour la création des activités additionnelles Pitchou
- * 
+ *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
@@ -201,11 +103,11 @@ export async function chargerActivitésMéthodesTransports(){
 }
 
 /**
- * Récupère et fusionne l'ensemble des activités issues du standard européen 
+ * Récupère et fusionne l'ensemble des activités issues du standard européen
  * ainsi que les activités spécifiques à Pitchou, en les indexant par leur code.
  * @param {ParClassification<Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>>} activités
  * @returns {Map<ActivitéMenançante['Code'], ActivitéMenançante>}
- * Une promesse résolue avec une `Map` contenant toutes les activités, 
+ * Une promesse résolue avec une `Map` contenant toutes les activités,
  * indexées par leur code.
  *
  * @throws {Error} Si l’activité "4" (de base) est absente, ce qui empêche la création
@@ -241,9 +143,9 @@ export function getActivitésNomenclaturePitchou(activités) {
     ].map(a => [a.Code, a]))
 
     return new Map([
-        ...activités.oiseau, 
-        ...activitésAdditionnelles, 
-        ...activités['faune non-oiseau'], 
+        ...activités.oiseau,
+        ...activitésAdditionnelles,
+        ...activités['faune non-oiseau'],
         ...activités.flore
     ])
 }
