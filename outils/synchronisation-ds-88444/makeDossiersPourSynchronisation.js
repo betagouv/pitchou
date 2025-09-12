@@ -384,7 +384,8 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 ...champsDossierPourInit.dossier,
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
             },
-            // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS ne concernent pas les dossiers à importer
+            // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS 
+            // ne concernent que les dossiers à mettre à jour (pas ceux créés)
             évènement_phase_dossier: champsDossierPourInit.évènement_phase_dossier ?? évènement_phase_dossier,
             avis_expert: [
                 ...(champsDossierPourInit.avis_expert || []),
