@@ -4,6 +4,8 @@ import {default as DécisionAdministrative} from './database/public/DécisionAdm
 export type DossierPourGeoMCE = Dossier
     & Pick<DécisionAdministrative, 'date_signature'>
     & { instructeurs: GeoMceInstructeur[] }
+    & { specimens_faunes: GeoMceSpecimenFaune[], specimens_flores: GeoMceSpecimenFlores[] }
+
 
 export interface GeoMceMessage {
     projet: GeoMceProjet
@@ -19,7 +21,7 @@ export interface GeoMceProjet {
     avancement: "Autorisé" | "Annulé" | "Cessation d’activité" | "Partiellement autorisé",
     typologies: GeoMceTypologies[] | null
     maitrise_ouvrage: GeoMceMaitriseOuvrage[] | null
-    emprise: GeoMceEmprise[] | null
+    emprises: GeoMceEmprise[] | null
 }
 
 export interface GeoMceTypologies {
@@ -57,7 +59,7 @@ export interface GeoMceProcedure {
     autorite_decisionnaire: "Préfet" | "Ministre" | "Autre" | null
     specimens_faunes: GeoMceSpecimenFaune[]
     specimens_flores: GeoMceSpecimenFlores[]
-    emprises: GeoMceEmprise[]
+    emprises: GeoMceEmprise[] | null
 }
 
 export interface GeoMceInstructeur {
@@ -67,18 +69,18 @@ export interface GeoMceInstructeur {
 
 export interface GeoMceSpecimenFaune {
     nom_scientifique: string
-    couples: number
-    oeufs: number | null
-    nids: number | null
-    siteelevage: number | null
-    airederepos: number | null
+    couples?: number
+    oeufs?: number | null
+    nids?: number | null
+    siteelevage?: number | null
+    airederepos?: number | null
 }
 
 export interface GeoMceSpecimenFlores {
     nom_scientifique: string
-    pieds: number | null
-    stations: number | null
-    surface: number | null
+    pieds?: number | null
+    stations?: number | null
+    surface?: number | null
 }
 
 export interface GeoMceMesure {
