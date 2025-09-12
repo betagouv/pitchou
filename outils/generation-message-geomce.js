@@ -150,7 +150,8 @@ async function genererMessageGeoMCE(idDossier) {
             specimens_faunes: dossier.specimens_faunes,
             specimens_flores: dossier.specimens_flores,
             emprises: null
-        }
+        },
+        mesures: []
     }
 }
 
