@@ -212,7 +212,7 @@
 </script>
 
 <Squelette {email} nav={true}>
-    <h1>Import de dossiers historiques Bougogne-Franche-Comté</h1>
+    <h1>Import de dossiers historiques Bourgogne-Franche-Comté</h1>
 
     {#if !lignesTableauImport || lignesTableauImport.length === 0}
         <div class="fr-upload-group fr-mb-4w">
