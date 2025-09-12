@@ -159,6 +159,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampD
     return {
         dossier: {
             ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
+            ...(données_supplémentaires?.dossier || {}),
             date_dépôt: données_supplémentaires?.dossier?.date_dépôt ?? dossierDS.dateDepot
         },
         évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
@@ -383,10 +384,9 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
                 ...champsDossierPourInit.dossier,
                 ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
             },
-            évènement_phase_dossier: [
-                ...(champsDossierPourInit.évènement_phase_dossier || []),
-                ...évènement_phase_dossier
-            ],
+            // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS 
+            // ne concernent que les dossiers à mettre à jour (pas ceux créés)
+            évènement_phase_dossier: champsDossierPourInit.évènement_phase_dossier ?? évènement_phase_dossier,
             avis_expert: [
                 ...(champsDossierPourInit.avis_expert || []),
                 ...avis_expert
