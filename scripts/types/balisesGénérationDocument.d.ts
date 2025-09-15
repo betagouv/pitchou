@@ -64,7 +64,7 @@ export interface BalisesGénérationDocument extends FonctionsUtilitaires {
   localisation: string;
   date_dépôt: Date;
   
-  département_principale: string | undefined
+  département_principal: string | undefined
   liste_départements: string[] | undefined
 
   régime_autorisation_environnementale_renseigné: boolean;

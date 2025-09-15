@@ -102,7 +102,7 @@ Les balises ont des types qui peuvent être :
                             <td> Nom du porteur de projet (raison sociale si c'est une personne morale)</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{département_principale}</code></th>
+                            <th scope="row"> <code>{département_principal}</code></th>
                             <td> texte</td>
                             <td> Code du département principale du dossier (<code>33</code>, <code>2B</code>, etc.)</td>
                         </tr>
