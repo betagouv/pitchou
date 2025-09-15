@@ -67,7 +67,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         date_début_consultation_public: date_consultation_public,
         description,
         date_dépôt,
-        département_principale: Array.isArray(départements) ? départements[0] : undefined,
+        département_principal: Array.isArray(départements) ? départements[0] : undefined,
         liste_départements: départements || undefined,
         enjeu_écologique: !!enjeu_écologique,
         enjeu_politique: !!enjeu_politique,
