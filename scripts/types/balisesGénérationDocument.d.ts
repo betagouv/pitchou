@@ -79,12 +79,12 @@ export type BalisesGénérationDocument = {
   mesures_erc_prévues: boolean | 'Non renseigné';
   mesures_erc_prévues_renseigné: boolean;
 
-  hirondelles: {
+  hirondelles?: {
     nids_détruits: number | null;
     nids_compensés: number | null;
   };
 
-  cigognes: {
+  cigognes?: {
     nids_détruits: number | null;
     nids_compensés: number | null;
   };
