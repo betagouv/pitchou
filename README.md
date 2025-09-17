@@ -227,7 +227,7 @@ Pour les lien de connexion en production :
 
 Pour donner l'origine de manière libre :
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://test.l'`
+`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
 
 
 
