@@ -6,6 +6,7 @@
 
 import knex from 'knex';
 import { directDatabaseConnection } from '../database.js';
+import { normalisationEmail } from '../../commun/manipulationStrings.js';
 
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
@@ -16,6 +17,10 @@ const inutile = true;
  * @param {PersonneInitializer} personne
  */
 export function créerPersonne(personne, databaseConnection = directDatabaseConnection){
+    if (personne.email) {
+        personne.email = normalisationEmail(personne.email)
+    }
+
     return databaseConnection('personne')
     .insert(personne)
 }
@@ -26,6 +31,12 @@ export function créerPersonne(personne, databaseConnection = directDatabaseConn
  * @returns { Promise<{id: Personne['id']}[]> }
  */
 export function créerPersonnes(personnes, databaseConnection = directDatabaseConnection){
+    for (const personne of personnes) {
+        if (personne.email) {
+            personne.email = normalisationEmail(personne.email)
+        }
+    }
+
     return databaseConnection('personne')
     .insert(personnes, ['id'])
 }
@@ -38,7 +49,7 @@ export function créerPersonnes(personnes, databaseConnection = directDatabaseCo
  */
 export function getPersonneByCode(code_accès, databaseConnection = directDatabaseConnection) {
     return databaseConnection('personne')
-    .where({ code_accès })
+    .where({ code_accès })
     .select('id')
     .first()
 }
@@ -66,7 +77,7 @@ export function getPersonnesByEmail(emails ,databaseConnection = directDatabaseC
     return databaseConnection('personne')
         .select()
         .whereIn('email', emails)
-    
+
 }
 
 /**
@@ -119,7 +130,7 @@ export function créerPersonneOuMettreÀJourCodeAccès(email, databaseConnection
 }
 
 /**
- * 
+ *
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Personne[]>}
  */
