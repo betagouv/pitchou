@@ -14,7 +14,7 @@ services:
     environment:
       PORT: 2648
       DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
-    user: "${UID}:${GID}"
+    user: "${DOCKER_UID}:${DOCKER_GID}"
     stop_grace_period: 2s
 
   tooling:
@@ -28,7 +28,7 @@ services:
     command: sleep 365d
     environment:
       DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
-    user: "${UID}:${GID}"
+    user: "${DOCKER_UID}:${DOCKER_GID}"
     stop_grace_period: 1s
 
   db:
