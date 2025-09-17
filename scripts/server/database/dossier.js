@@ -18,6 +18,7 @@ import {directDatabaseConnection} from '../database.js'
 import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
 import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
+import { normalisationEmail } from '../../commun/manipulationStrings.js';
 
 
 //@ts-ignore
@@ -28,10 +29,10 @@ import {getContrôles} from './controle.js';
 
 /**
  * Récupérer les id Pitchou à partir des id DS (pas les numéro)
- * 
+ *
  * PPP : c'est un peu bizarre d'utiliser les ids DS, on pourrait utiliser les numéros
- * 
- * @param {Dossier['id_demarches_simplifiées'][]} DS_ids 
+ *
+ * @param {Dossier['id_demarches_simplifiées'][]} DS_ids
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise< PickNonNullable<Dossier, 'id' | 'id_demarches_simplifiées' | 'number_demarches_simplifiées'>[] >}
  */
@@ -50,7 +51,7 @@ export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatab
 export async function dumpDossierMessages(idToMessages, databaseConnection = directDatabaseConnection) {
     /** @type {Partial<Message>[]} */
     const messages = [];
-    
+
     for(const [dossierId, apiMessages] of idToMessages){
         for(const {id, body, createdAt, email} of apiMessages){
             messages.push({
@@ -62,7 +63,7 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
             })
         }
     };
-    
+
     return databaseConnection('message')
         .insert(messages)
         .onConflict('id_démarches_simplifiées').merge()
@@ -73,7 +74,7 @@ export async function dumpDossierMessages(idToMessages, databaseConnection = dir
 /**
  * Cette fonction est sensible
  * Appeler dossiersAccessibleViaCap avant
- * 
+ *
  * @param {Dossier['id']} dossierId
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Partial<Message>[] | null>}
@@ -107,7 +108,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             if(typeof d[k] === 'string' && d[k].length >= 255){
                 console.warn('Attontion !! Dossier DS numéro', d.number_demarches_simplifiées, 'key', k, '.length >= 255')
                 console.warn('Valeur:', d[k])
-                
+
                 console.warn(`La valeur est coupée pour qu'elle rentre en base de données`)
                 // @ts-ignore
                 d[k] = d[k].slice(0, 255)
@@ -120,7 +121,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
     /** @type {ArTePersonneSuitDossier[]} */
     const arêtePersonneSuitDossierDossier = []
-    
+
     if (dossiersPourUpdate.length>=1) {
         updatePromises = dossiersPourUpdate.map(({dossier: dossierAModifier}) => {
             return databaseConnection('dossier')
@@ -133,13 +134,13 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
     /** @type {Promise<any>} */
     let synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = Promise.resolve([])
 
-    if (dossiersPourInsert.length >= 1) {   
-   
+    if (dossiersPourInsert.length >= 1) {
+
         /**@type { {id: DossierId}[]} */
         let insertedDossierIds = await databaseConnection('dossier')
                                     .insert(dossiersPourInsert.map(tables => tables.dossier))
                                     .returning(['id'])
-                                
+
         const toutesLesPersonnesQuiSuivent = await synchroniserEtRetournerPersonnesPourDossiersInsérer(
                 dossiersPourInsert,
                 databaseConnection
@@ -149,13 +150,13 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             insertedDossierIds.forEach((dossierInséréId, index) => {
             const {personnes_qui_suivent, évènement_phase_dossier} = dossiersPourInsert[index]
             const emailsQuiSuivent = new Set(personnes_qui_suivent?.map(p => p.email))
-            
+
             //Attention, ici il y a un risque de problèmes de performance avec le filter
             const personnesQuiSuiventCeDossier = toutesLesPersonnesQuiSuivent.filter(p => p.email && emailsQuiSuivent.has(p.email))
 
             personnesQuiSuiventCeDossier.forEach(personne => {arêtePersonneSuitDossierDossier.push({ dossier: dossierInséréId.id, personne: personne.id }) })
-            
-           
+
+
             if(personnesQuiSuiventCeDossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => {
                     if (!ev.cause_personne) {
@@ -171,7 +172,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         insertedDossierIds.forEach((dossierInséréId, index) => {
                 // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const {évènement_phase_dossier, avis_expert, décision_administrative} = dossiersPourInsert[index]
-                
+
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
             }
@@ -186,7 +187,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
 
     const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert]
-    
+
     const évènementsPhaseDossier = tousLesDossiers
         .map(tables => tables.évènement_phase_dossier)
         .filter(x => x !== undefined)
@@ -204,13 +205,13 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
 
     const databaseOperations = [
-        évènementsPhaseDossier.length > 0 
+        évènementsPhaseDossier.length > 0
             ? databaseConnection('évènement_phase_dossier')
                 .insert(évènementsPhaseDossier)
                 .onConflict(['dossier', 'phase', 'horodatage'])
                 .merge()
             : Promise.resolve([]),
-        
+
         avisExpertDossier.length > 0
             ? databaseConnection('avis_expert').insert(avisExpertDossier)
             : Promise.resolve([]),
@@ -228,7 +229,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             : Promise.resolve([]),
 
         synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP,
-            
+
         ...updatePromises
     ]
 
@@ -236,7 +237,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 }
 
 /**
- * @param {any} dossierDS 
+ * @param {any} dossierDS
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databaseConnection = directDatabaseConnection){
@@ -260,7 +261,7 @@ export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databa
         }
         return groupeInstructeursLabelToId;
     });
-    
+
     const dossierNumberDSToId = await dossierNumberDSToIdP
     const groupeInstructeursLabelToId = await groupeInstructeursLabelToIdP
 
@@ -275,7 +276,7 @@ export async function synchroniserDossierDansGroupeInstructeur(dossierDS, databa
 
         return {dossier: dossierId, groupe_instructeurs: groupe_instructeursId}
     })
-    
+
     return databaseConnection('arête_groupe_instructeurs__dossier')
         .insert(arêtesGroupeTnstructeurs_Dossier)
         .onConflict('dossier')
@@ -347,7 +348,7 @@ const colonnesDossierComplet = [
     "historique_localisation",
     */
     "ddep_nécessaire",
-    
+
     "scientifique_type_demande",
     "scientifique_bilan_antérieur",
     "scientifique_finalité_demande",
@@ -373,7 +374,7 @@ const colonnesDossierComplet = [
     "nombre_nids_détruits_dossier_oiseau_simple",
 
     "type",
-/*    
+/*
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
     "historique_date_saisine_cnpn",
@@ -414,8 +415,8 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
 
 
 /**
- * @param {DossierComplet['id']} dossierId 
- * @param {CapDossier['cap']} cap 
+ * @param {DossierComplet['id']} dossierId
+ * @param {CapDossier['cap']} cap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<DossierComplet | undefined>}
  */
@@ -535,7 +536,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             return dossier
         })
-    
+
 }
 
 
@@ -591,7 +592,7 @@ const colonnesDossierRésumé = [
 
 
 /**
- * @param {CapDossier['cap']} cap 
+ * @param {CapDossier['cap']} cap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<DossierRésumé[]>}
  */
@@ -613,7 +614,7 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
         .select(colonnesDossierRésumé)
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs', 
+            'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
@@ -633,7 +634,7 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
         for(const évènementPhaseDossier of évènementsPhaseDossier){
             évènementsPhaseDossierById.set(évènementPhaseDossier.dossier, évènementPhaseDossier)
         }
-        
+
         for(const dossier of dossiers){
             const évènementPhaseDossier = évènementsPhaseDossierById.get(dossier.id)
 
@@ -680,7 +681,7 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
 
 /**
  * retourne le sous-ensemble de dossierIds accessibles via la cap
- * 
+ *
  * @param {Dossier['id'] | Dossier['id'][]} dossierIds
  * @param {CapDossier['cap']} cap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
@@ -693,11 +694,11 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
     const ret = databaseConnection('arête_cap_dossier__groupe_instructeurs')
         .select(['dossier.id as id'])
         .leftJoin(
-            'arête_groupe_instructeurs__dossier', 
+            'arête_groupe_instructeurs__dossier',
             {'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs'}
         )
         .leftJoin(
-            'dossier', 
+            'dossier',
             {'dossier.id': 'arête_groupe_instructeurs__dossier.dossier'}
         )
         .whereIn('dossier.id', dossierIds)
@@ -712,8 +713,8 @@ export async function dossiersAccessibleViaCap(dossierIds, cap, databaseConnecti
 /**
  * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier
  * La requête utilise une astuce à coup de distinctOn (spécifique à Postgresql) pour y arriver
- * 
- * @param {CapDossier['cap']} cap_dossier 
+ *
+ * @param {CapDossier['cap']} cap_dossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
@@ -723,7 +724,7 @@ export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, database
         .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs', 
+            'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
@@ -731,7 +732,7 @@ export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, database
         .andWhere(function () {
             // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
             // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
-            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant', 
+            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant',
             // on ne veut pas le refléter côté interface
             this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
         })
@@ -743,7 +744,7 @@ export async function getDerniersÉvènementsPhaseDossiers(cap_dossier, database
 
 
 /**
- * @param {CapDossier['cap']} cap_dossier 
+ * @param {CapDossier['cap']} cap_dossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
@@ -753,21 +754,21 @@ export async function getÉvènementsPhaseDossiers(cap_dossier, databaseConnecti
         .select(['évènement_phase_dossier.dossier as dossier', 'phase', 'horodatage'])
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'évènement_phase_dossier.dossier'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs', 
+            'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
         .andWhere(function () {
             // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
             // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
-            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant', 
+            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant',
             // on ne veut pas le refléter côté interface
             this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
         })
 }
 
 /**
- * @param {Dossier['id']} idDossier 
+ * @param {Dossier['id']} idDossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
@@ -775,11 +776,11 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 
     return databaseConnection('évènement_phase_dossier')
         .select('*')
-        .where({'dossier': idDossier})  
+        .where({'dossier': idDossier})
         .andWhere(function () {
             // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
             // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
-            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant', 
+            // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant',
             // on ne veut pas le refléter côté interface
             this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
         })
@@ -834,7 +835,7 @@ export function updateDossier(id, dossierParams, causePersonne, databaseConnecti
 
 /**
  * Synchronise et retourne les personnes des dossiers à insérer.
- * 
+ *
  * @param {DossierPourInsert[]} dossiersPourInsert
  * @param {knex.Knex.Transaction | knex.Knex} databaseConnection
  */
@@ -848,7 +849,7 @@ async function synchroniserEtRetournerPersonnesPourDossiersInsérer(dossiersPour
         .flatMap(dossier => dossier.personnes_qui_suivent)
         .filter(x => x != null)
         // On ne sélectionne que les propriétés que l'on veut garder (pas code_accès)
-        .map(({email, nom, prénoms}) => ({ email, nom, prénoms}))
+        .map(({email, nom, prénoms}) => ({ email: email ? normalisationEmail(email) : null, nom, prénoms}))
 
     if (personnesQuiSuiventDossiers.length >= 1) {
         await databaseConnection('personne')

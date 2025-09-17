@@ -3,6 +3,7 @@
 
     import Squelette from '../Squelette.svelte'
     import Loader from '../Loader.svelte'
+    import { normalisationEmail } from '../../../commun/manipulationStrings';
 
     /** @import {ComponentProps} from 'svelte' */
 
@@ -27,7 +28,7 @@
     let emailInProgress = $state();
 
     function onSubmit(){
-        emailInProgress = envoiEmailConnexion(email)
+        emailInProgress = envoiEmailConnexion(normalisationEmail(email))
     }
 
 

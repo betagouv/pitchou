@@ -3,6 +3,7 @@
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
+import { normalisationEmail } from "../../commun/manipulationStrings.js";
 
 
 /**
@@ -28,8 +29,8 @@ export async function getCommuneData(nomCommune) {
 }
 
 /**
- * 
- * @param {string} code 
+ *
+ * @param {string} code
  * @returns {Promise<GeoAPIDépartement | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
@@ -51,11 +52,11 @@ export { memoizedGetDépartementData as getDépartementData }
 /**
  * Extrait un tableau de noms de communes à partir d'une chaîne de caractères.
  * La chaîne peut contenir des noms séparés par des virgules (`,`), des slashes (`/`), ou un mélange des deux.
- * Exemples de valeur en entrée : 
+ * Exemples de valeur en entrée :
  * - Arthonnay, Mélisey, Quincerot, Rugny, Thorey, Trichey et Villon
  * - Argenteuil-sur-Armancon / Moulins-en-Tonnerrois
  * - Mélisey
- * 
+ *
  * On n'inclut pas le séparateur "-" car beaucoup de villes contiennent des "-"
  *
  * @param {string} valeur - La chaîne contenant une ou plusieurs communes séparées.
@@ -105,7 +106,7 @@ export async function formaterDépartementDepuisValeur(valeur) {
             code: '21',
             nom: `Côte-d'Or`
         }];
-    } 
+    }
 }
 
 
@@ -143,7 +144,7 @@ export function extrairePremierMail(text) {
     const mailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     const résultat = text.match(mailRegex)
 
-    return résultat && résultat?.length ? résultat[0] : null
+    return résultat && résultat?.length ? normalisationEmail(résultat[0]) : null
 }
 
 /**

@@ -49,7 +49,7 @@ async function getGroupesInstructeurs(databaseConnection = directDatabaseConnect
  */
 async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParEmail, databaseConnection = directDatabaseConnection){
     //console.log('créerGroupesInstructeurs', instructeurParEmail)
-    
+
     const nomsGroupes = groupesInstructeursAPI.map(g => ({nom: g.label}))
 
     // Créer les groupes d'instructeurs en BDD
@@ -178,7 +178,7 @@ async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, 
         .whereIn('email', [...emails])
         .leftJoin('cap_dossier', {'personne.code_accès': 'cap_dossier.personne_cap'})
         .whereNull('cap')
-    
+
     //console.log('instructeursSansDossierCap', instructeursSansDossierCap)
 
     // rajouter les cap_dossier manquants
@@ -188,7 +188,7 @@ async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, 
             .onConflict('personne_cap')
             .ignore();
     }
-    
+
     const capDossierPourCesEmails = await databaseConnection('personne')
         .select('cap')
         .whereIn('email', [...emails])
@@ -213,7 +213,7 @@ async function ajouterPersonnesDansGroupeParEmails(groupe_instructeurs, emails, 
  */
 async function supprimerPersonnesDansGroupeParEmail(groupe_instructeurs, emails, databaseConnection = directDatabaseConnection){
     //console.log('supprimerPersonnesDansGroupeParEmail', groupe_instructeurs, emails)
-    
+
     const capDossierPourCesEmails = await databaseConnection('personne')
         .select('cap')
         .whereIn('email', [...emails])
@@ -262,7 +262,7 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
             .whereNotIn('personne_cap', codes)
             .delete();
     })
-    
+
 
     // Rajouter les cap_écriture_annotation pour les nouveaux instructeurId s'il y en a
     const instructeurIdAndÉcritureCapsP = databaseConnection('cap_écriture_annotation')
@@ -281,8 +281,8 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
             .onConflict('personne_cap')
             .ignore();
     })
-    
-    
+
+
 
     const instructeurIdToÉcritureAnnotationCapP = Promise.all([deleteAbsentInstructeurIdsP, instructeurIdAndÉcritureCapsP])
         .then(() => databaseConnection('cap_écriture_annotation')
@@ -299,7 +299,7 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
 
             return map
         })
-    
+
     return Promise.all([personnesAvecCodeP, instructeurIdToÉcritureAnnotationCapP, deleteAbsentInstructeurCapDossier, instructeurDossierCapsP])
         .then(([personnesAvecCode, instructeurIdToCaps]) => {
             //console.log('personnesAvecCode', personnesAvecCode)
@@ -314,7 +314,7 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
                 const capÉcritureAnnotationCorrespondante = instructeurIdToCaps.get(instructeurId)
 
                 personneCodeToCapÉcritureAnnotation.push({
-                    personne_cap: code_accès, 
+                    personne_cap: code_accès,
                     écriture_annotation_cap: capÉcritureAnnotationCorrespondante
                 })
             }
@@ -331,7 +331,7 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
 /**
  * Synchroniser le groupes instructeurs dans la base de données avec ceux qui viennent de l'API
  *
- * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI 
+ * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, databaseConnection = directDatabaseConnection){

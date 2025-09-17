@@ -95,7 +95,7 @@ const correspondanceThématiqueVersActivitéPrincipale = new Map([
 
 
 /**
- * 
+ *
  * @param {string} valeur
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
@@ -213,11 +213,11 @@ function générerDonnéesAutorisationEnvironnementale(ligne) {
 }
 
 /**
- * 
- * @param {{Communes: string | undefined, Département: number | string}} ligne 
+ *
+ * @param {{Communes: string | undefined, Département: number | string}} ligne
  * @returns { Promise<
  *              Partial<Pick<DossierDemarcheSimplifiee88444,
- *                  "Commune(s) où se situe le projet" | 
+ *                  "Commune(s) où se situe le projet" |
  *                  "Département(s) où se situe le projet" |
  *                  "Le projet se situe au niveau…"
  *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
@@ -257,7 +257,7 @@ async function générerDonnéesLocalisations(ligne) {
 
 /**
  * Cette fonction permet de remplir le champ "prochaine_action_attendue_par" en base de données
- * @param {LigneDossierBFC} ligne 
+ * @param {LigneDossierBFC} ligne
  * @returns {string}
  */
 function générerProchaineActionAttenduePar(ligne) {
@@ -280,8 +280,8 @@ function générerProchaineActionAttenduePar(ligne) {
 }
 
 /**
- * 
- * @param {LigneDossierBFC} ligne 
+ *
+ * @param {LigneDossierBFC} ligne
  * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesEvénementPhaseDossier(ligne) {
@@ -340,8 +340,8 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
 }
 
 /**
- * 
- * @param {LigneDossierBFC} ligne 
+ *
+ * @param {LigneDossierBFC} ligne
  * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesDécisionAdministrative(ligne) {
@@ -370,8 +370,8 @@ function créerDonnéesDécisionAdministrative(ligne) {
 }
 
 /**
- * 
- * @param {LigneDossierBFC} ligne 
+ *
+ * @param {LigneDossierBFC} ligne
  * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[] | undefined}
  */
 function créerDonnéesAvisExpert(ligne) {
@@ -423,7 +423,7 @@ export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const décision_administrative = créerDonnéesDécisionAdministrative(ligne)
 
     const avis_expert = créerDonnéesAvisExpert(ligne)
-    
+
 
 
     return {
