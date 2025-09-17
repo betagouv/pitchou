@@ -15,7 +15,7 @@ import { actMetTransArraysToMapBundle, espèceProtégéeStringToEspèceProtégé
 const DATA_DIR = path.join(import.meta.dirname, '../data')
 
 /**
- * @returns {Promise<Omit<NonNullable<PitchouState['activitésMéthodesTransports']>, 'activitésNomenclaturePitchou'> }
+ * @returns {Promise<Omit<NonNullable<PitchouState['activitésMéthodesTransports']>, 'activitésNomenclaturePitchou'>> }
  */
 async function chargerActivitésMéthodesTransports() {
     const activitésBuffer = await fs.readFile(path.join(DATA_DIR, 'activités.csv'))
