@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
-    
+
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
     import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
@@ -11,33 +11,15 @@
     import OiseauAtteintEditRow from '../SaisieEspèces/OiseauAtteintEditRow.svelte'
     import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'
     import FloreAtteinteEditRow from '../SaisieEspèces/FloreAtteinteEditRow.svelte'
-    
+
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
-    
+
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
     /** @import { NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
-    
 
-    
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {string | undefined} [email]
@@ -67,10 +49,10 @@
     } = $props();
 
     function rerender(){
-        oiseauxAtteints = oiseauxAtteints 
+        oiseauxAtteints = oiseauxAtteints
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
         floresAtteintes = floresAtteintes
-    }    
+    }
 
     const mailto = "mailto:pitchou@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
 
@@ -78,7 +60,7 @@
         const regex = /^\d+-\d+$/;
         return regex.test(str);
     }*/
-    
+
     async function créerOdsBlob(){
         const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
             oiseau: oiseauxAtteints,
@@ -98,7 +80,7 @@
      * Mais, vraissemblablement, il y avait un bug de svelte qui considérait que files changeait quand
      * d'autres choses non-liés changeaient dans la page
      * Alors, on gère plutôt ça avec un évènement 'input' désormais plutôt que la réactivité de svelte
-     * 
+     *
      * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
      */
     async function onFileInput(e){
@@ -126,7 +108,7 @@
 
 
     /**
-     * 
+     *
      * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @returns {Map<string, EspèceProtégée>}
      */
@@ -145,7 +127,7 @@
                         }
                     }
                 }
-                
+
                 if(nomsVernaculaires.size >= 1){
                     for(const nom of nomsVernaculaires){
                         const normalized = normalizeNomEspèce(nom)
@@ -169,7 +151,7 @@
     let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification))
 
     /**
-     * 
+     *
      * @param {string} texte
      * @returns {Set<EspèceProtégée>}
      */
@@ -282,7 +264,7 @@
 </script>
 
 
-<Squelette nav={false} {email}>
+<Squelette nav={false} {email} title="Saisie des espèces protégées">
     <article>
         <h1 class="fr-mt-6w">Saisie des espèces protégées impactées</h1>
 
@@ -310,7 +292,7 @@
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
                     </section>
-                    
+
                     <section class="fr-mb-4w">
                         <h3>Depuis un groupe d'espèces</h3>
                         <div class="fr-select-group">
@@ -350,8 +332,8 @@
                                 </thead>
                                 <tbody>
                                     <OiseauAtteintEditRow
-                                        bind:activité={activitéOiseauPréremplie} 
-                                        bind:méthode={méthodeOiseauPréremplie} 
+                                        bind:activité={activitéOiseauPréremplie}
+                                        bind:méthode={méthodeOiseauPréremplie}
                                         bind:transport={transportOiseauPrérempli}
                                         bind:nombreIndividus={nombreIndividusOiseauPrérempli}
                                         bind:nombreNids={nombreNidsOiseauPrérempli}
@@ -363,7 +345,7 @@
                                     />
                                 </tbody>
                             </table>
-                        </div>                        
+                        </div>
                     </section>
                     {/if}
 
@@ -389,8 +371,8 @@
                                 </thead>
                                 <tbody>
                                     <FauneNonOiseauAtteinteEditRow
-                                        bind:activité={activitéFauneNonOiseauPréremplie} 
-                                        bind:méthode={méthodeFauneNonOiseauPréremplie} 
+                                        bind:activité={activitéFauneNonOiseauPréremplie}
+                                        bind:méthode={méthodeFauneNonOiseauPréremplie}
                                         bind:transport={transportFauneNonOiseauPréremplie}
                                         bind:nombreIndividus={nombreIndividusFauneNonOiseauPréremplie}
                                         bind:surfaceHabitatDétruit={surfaceHabitatDétruitFauneNonOiseauPréremplie}
@@ -400,7 +382,7 @@
                                     />
                                 </tbody>
                             </table>
-                        </div>                        
+                        </div>
                     </section>
                     {/if}
 
@@ -431,10 +413,10 @@
                                     />
                                 </tbody>
                             </table>
-                        </div>                        
+                        </div>
                     </section>
                     {/if}
-                    
+
                     {#if oiseauxÀPréremplir.size >= 1 || fauneNonOiseauxÀPréremplir.size >= 1 || floreÀPréremplir.size >= 1}
                     <button onclick={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
                     {/if}
@@ -471,13 +453,13 @@
                     <details>
                         <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
                         <p class="fr-callout__text">
-                            Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci   
-                            <a target="_blank" href={mailto}>d’envoyer un mail à pitchou@beta.gouv.fr</a>en 
+                            Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci
+                            <a target="_blank" href={mailto}>d’envoyer un mail à pitchou@beta.gouv.fr</a>en
                             indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
-                            Le <code>CD_NOM</code> est disponible sur 
-                            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>, 
+                            Le <code>CD_NOM</code> est disponible sur
+                            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
                             en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
-                            Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code> 
+                            Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
                                 <code>4221</code></a>.
                         </p>
                     </details>
@@ -518,5 +500,5 @@
                 list-style: '- ';
             }
         }
-    }	
+    }
 </style>

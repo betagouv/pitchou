@@ -12,10 +12,10 @@
         sheetRawContentToObjects,
         isRowNotEmpty,
     } from "@odfjs/odfjs";
-    
+
     import Squelette from "../Squelette.svelte";
     import Pagination from '../DSFR/Pagination.svelte'
-    
+
     import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
     import BoutonModale from "../DSFR/BoutonModale.svelte";
 
@@ -182,7 +182,7 @@
                 })
             ]
         }
-        
+
         return undefined
     });
 
@@ -211,7 +211,7 @@
 
 </script>
 
-<Squelette {email} nav={true}>
+<Squelette {email} nav={true} title="Bourgogne-Franche-Comté — Import de dossiers">
     <h1>Import de dossiers historiques Bourgogne-Franche-Comté</h1>
 
     {#if !lignesTableauImport || lignesTableauImport.length === 0}
@@ -381,7 +381,7 @@
             overflow: hidden;
 
             background: var(--background-alt-grey);
-            
+
         }
     }
 

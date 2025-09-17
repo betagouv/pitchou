@@ -7,7 +7,7 @@
     /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
 
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {SchemaDémarcheSimplifiée} schemaDS88444
@@ -20,7 +20,7 @@
     /** @type {Partial<DossierDemarcheSimplifiee88444>} */
     let nouveauDossierPartiel = $state({})
     let lienDePreremplissage = $state("")
-    
+
     /** @type { (keyof DossierDemarcheSimplifiee88444)[] } */
     //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
     let champsPreremplis = $derived(Object.keys(nouveauDossierPartiel).filter(champ => {
@@ -39,7 +39,7 @@
         "CheckboxChampDescriptor",
         "HeaderSectionChampDescriptor",
     ]
-    
+
 
 
     /** @type {Dossier88444ChampDescriptor[]} */
@@ -51,20 +51,20 @@
             const champSuivant = tableauActuel[i+1]
 
             if (!champSuivant) return champ["__typename"] !== "HeaderSectionChampDescriptor"
-            
-            if (champSuivant["__typename"] !== "HeaderSectionChampDescriptor") { 
+
+            if (champSuivant["__typename"] !== "HeaderSectionChampDescriptor") {
                 return true
             } else {
                 return false
             }
         } else {
             return true
-        } 
+        }
     })
 
 </script>
 
-<Squelette {email}>
+<Squelette {email} title="Pré-remplissage dérogation">
     <div class="fr-grid-row fr-grid-row--center">
         <div class="fr-col-8">
             <h1>Pré-remplissage dérogation espèces protégées</h1>
@@ -78,15 +78,15 @@
                             <div class="fr-fieldset__element">
                                 <div class="fr-input-group">
                                     <label class="fr-label" for="{champ["label"]}">
-                                        {champ["label"]} 
+                                        {champ["label"]}
                                     </label>
 
-                                    <select 
-                                        bind:value={nouveauDossierPartiel[champ["label"]]} 
+                                    <select
+                                        bind:value={nouveauDossierPartiel[champ["label"]]}
                                         id="{champ["label"]}"
                                         class="fr-select"
                                     >
-                                        
+
                                         <option value="" selected></option>
                                         {#if champ["options"]}
                                             {#each champ["options"] as option}
@@ -113,7 +113,7 @@
                         <ul>
                             {#each champsPreremplis as champPrerempli}
                                 <li>
-                                    {champPrerempli} : 
+                                    {champPrerempli} :
                                     <em>
                                         {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean"}
                                             {nouveauDossierPartiel[champPrerempli] ? "Oui" : "Non"}

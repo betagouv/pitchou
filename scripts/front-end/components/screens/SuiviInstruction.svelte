@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { SvelteSet, SvelteMap } from 'svelte/reactivity';
-    
+
     import Squelette from '../Squelette.svelte'
     import FiltreParmiOptions from '../FiltreParmiOptions.svelte'
     import BarreRecherche from '../BarreRecherche.svelte'
@@ -16,7 +16,7 @@
     import {retirerAccents} from '../../../commun/manipulationStrings.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
     import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
-    
+
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
@@ -109,7 +109,7 @@
     const triPriorisationPhaseProchaineAction = [
         { nom: "Prioriser", trier(){ dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés) }, id: 'Priorisation-PhaseAction' }
     ]
-    
+
     /** @type {TriTableau[]} */
     const tris = [
         ...trisActivitéPrincipale,
@@ -146,7 +146,7 @@
     const phaseOptions = new SvelteSet([...phases])
 
     /** @type {Set<DossierPhase>} */
-    let phasesSélectionnées = $state(filtresSélectionnés.phases ? 
+    let phasesSélectionnées = $state(filtresSélectionnés.phases ?
         new SvelteSet(filtresSélectionnés.phases) :
         new SvelteSet([
             'Accompagnement amont',
@@ -206,7 +206,7 @@
      */
     function filtrerParProchainesActionsAttenduesPar(_prochainesActionsAttenduesParSélectionnés) {
         prochainesActionsAttenduesParSélectionnés = new SvelteSet(_prochainesActionsAttenduesParSélectionnés)
-        
+
         filtrerDossiers()
     }
 
@@ -339,7 +339,7 @@
     tousLesFiltres.set('activité principale', dossier => {
         if(!dossier.activité_principale || !activitésPrincipalesOptions.has(dossier.activité_principale))
             return activitésPrincipalesSélectionnées.has(AUCUNE_ACTIVITÉ_PRINCIPALE)
-        
+
         return activitésPrincipalesSélectionnées.has(dossier.activité_principale)
     })
 
@@ -366,7 +366,7 @@
     });
 
 
-    
+
     // Pagination du tableau de suivi
     /** @typedef {() => void} SelectionneurPage */
 
@@ -389,7 +389,7 @@
                 })
             ]
         }
-        
+
         return undefined
     });
 
@@ -414,7 +414,7 @@
 
 
     // filtrage avec les filtres initiaux
-    onMount(async () => {        
+    onMount(async () => {
         if(texteÀChercher){
             ajouterFiltreTexte(texteÀChercher)
         }
@@ -425,7 +425,7 @@
 
 
     /**
-     * 
+     *
      * @param {Dossier['id']} id
      */
     function instructeurActuelSuitDossier(id) {
@@ -433,17 +433,17 @@
     }
 
     /**
-     * 
+     *
      * @param {Dossier['id']} id
      */
     function instructeurActuelLaisseDossier(id) {
         return instructeurLaisseDossier(email, id)
     }
 
-    
+
 </script>
 
-<Squelette {email} {erreurs} {résultatsSynchronisationDS88444}>
+<Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Suivi instruction" >
     <div class="fr-grid-row fr-mt-4w fr-grid-row--center">
         <div class="fr-col">
 
@@ -536,7 +536,7 @@
                             {/each}
                         {/if}
                     </div>
-                    
+
                     <div class="fr-mb-1w">
                         <span>Activités principales&nbsp;:</span>
                         {#if activitésPrincipalesNonSélectionnées.size === 0}
@@ -556,7 +556,7 @@
                             {/each}
                         {/if}
                     </div>
-                    
+
                     {#if texteÀChercher}
                         <div class="fr-mb-1w">
                             <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span>
@@ -615,7 +615,7 @@
                         </thead>
                         <tbody>
                             {#each dossiersAffichés as dossier (dossier)}
-                            {@const { id, nom, 
+                            {@const { id, nom,
                                 communes, départements, régions,
                                 activité_principale, rattaché_au_régime_ae,
                                 enjeu_politique, enjeu_écologique, commentaire_libre,
@@ -640,12 +640,12 @@
                                                             {formatLocalisation({communes, départements, régions})}
                                                         </h2>
                                                     </header>
-                            
+
                                                     <div class="contenu-modale">
                                                         {commentaire_libre}
                                                     </div>
                                                 {/snippet}
-                                                
+
                                             </BoutonModale>
                                         {/if}
 
@@ -694,12 +694,12 @@
                     Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
                     <br>
                     Vous pouvez <a href="https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees">créer des dossiers sur démarches simplifiées</a>.
-                    Et répondre un département correspondant à votre département ou région à la question 
+                    Et répondre un département correspondant à votre département ou région à la question
                     "Dans quel département se localise majoritairement votre projet ?"
                     <br>
                     Le dossier sera alors visible ici après 10-15 minutes d'attente maximum
                 </div>
-                
+
             {/if}
         </div>
     </div>

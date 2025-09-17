@@ -6,7 +6,7 @@
 
     /** @import {ComponentProps} from 'svelte' */
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {Set<string>} authorizedEmailDomains
@@ -30,17 +30,17 @@
         emailInProgress = envoiEmailConnexion(email)
     }
 
-    
+
 
 </script>
 
-<Squelette nav={false} {erreurs}>
+<Squelette nav={false} {erreurs} title="Connexion">
     <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
         <div class="fr-col-8">
             <h1>Connexion par email</h1>
 
             <p>Saisissez votre adresse email ici et vous recevrez un email avec un lien secret pour vous connecter à Pitchou.</p>
-            <p>⚠️ Seules les adresses emails venant d'un de ces domaine peuvent recevoir un lien de connexion : 
+            <p>⚠️ Seules les adresses emails venant d'un de ces domaine peuvent recevoir un lien de connexion :
                 {#each [...authorizedEmailDomains] as authorizedEmailDomain, i}
                     {#if i !== 0} ,&nbsp; {/if}
                     <code class="hostname">{authorizedEmailDomain}</code>
@@ -54,7 +54,7 @@
             <form onsubmit={preventDefault(onSubmit)}>
                 <label class="fr-label" for="email">Adresse email</label>
                 <input class="fr-input" autocomplete="email" type="email" id="email" bind:value={email}>
-                <button class="fr-btn">Obtenir un lien de connexion par email</button> 
+                <button class="fr-btn">Obtenir un lien de connexion par email</button>
                 {#if emailInProgress}
                     {#await emailInProgress}
                         <Loader/>
