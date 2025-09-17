@@ -2,6 +2,7 @@ import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
 
 import * as csv from 'csv-parse/sync'
+import parseArgs from 'minimist'
 
 import { directDatabaseConnection, closeDatabaseConnection } from '../scripts/server/database.js';
 import { actMetTransArraysToMapBundle, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
@@ -94,18 +95,16 @@ async function récupérerDossierParId(idDossier) {
             }
         }),
         specimens_faunes: [
-            ...(descriptionEspèces.oiseau || []).map(({ espèce }) => {
-                return {
-                    nom_scientifique: espèce.nomsScientifiques.values().next().value
-                }
-            }),
-            ...(descriptionEspèces['faune non-oiseau'] || []).map(({ espèce }) => {
-                return {
-                    nom_scientifique: espèce.nomsScientifiques.values().next().value
-                }
-            })
-        ],
-        specimens_flores: (descriptionEspèces.flore || []).map(({ espèce }) => {
+            ...new Set((descriptionEspèces.oiseau || []).map(({ espèce }) => espèce)),
+            ...new Set((descriptionEspèces['faune non-oiseau'] || []).map(({ espèce }) => espèce)),
+        ].map((espèce) => {
+            return {
+                nom_scientifique: espèce.nomsScientifiques.values().next().value
+            }
+        }),
+        specimens_flores: [...new Set(
+            (descriptionEspèces.flore || []).map(({ espèce }) => espèce)
+        )].map((espèce) => {
             return {
                 nom_scientifique: espèce.nomsScientifiques.values().next().value
             }
@@ -155,5 +154,30 @@ async function genererMessageGeoMCE(idDossier) {
     }
 }
 
-console.log(JSON.stringify(await genererMessageGeoMCE(1172958), null, 4))
-await closeDatabaseConnection()
+async function main() {
+    const args = parseArgs(process.argv);
+
+    if (args['lister-dossiers']) {
+        const dossiers = await directDatabaseConnection('dossier')
+            .select('dossier.id')
+            .from('dossier')
+            .join('décision_administrative', {'décision_administrative.dossier': 'dossier.id'})
+            .where({'décision_administrative.type': 'Arrêté dérogation'})
+            .whereNotNull('décision_administrative.date_signature')
+            .whereNotNull('dossier.espèces_impactées');
+
+        console.log(`${dossiers.length} dossiers trouvés:\n`)
+        console.log(dossiers.map(({ id }) => id).join(', '))
+    } else if (args.dossier) {
+        // @ts-expect-error
+        console.log(JSON.stringify(await genererMessageGeoMCE(parseInt(args.dossier)), null, 4))
+    } else {
+        console.log(`Usage:
+--lister-dossiers\tLister les ID des dossiers candidats
+--dossier ID_DOSSIER\tAffichier le message Geo MCE pour le dossier`)
+    }
+
+    await closeDatabaseConnection()
+}
+
+await main()

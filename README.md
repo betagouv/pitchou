@@ -57,9 +57,9 @@ Pour éviter le téléchargement et créer les types à partir du fichier schema
 
 ### Pour pgadmin
 
-Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser `postgres_db` (le `container_name` de la base de donnée Postgres) comme hostname 
+Pour se connecter au serveur postgres depuis un container : ce container doit être exposé au réseau et utiliser `postgres_db` (le `container_name` de la base de donnée Postgres) comme hostname
 
-URL pour pgadmin en dev : 
+URL pour pgadmin en dev :
 `http://localhost:5050/`
 
 ### Visualiser la documentation en local avec Jekyll
@@ -81,7 +81,7 @@ Lancer le serveur Jekyll en local
    ```sh
    docker run --rm -p 4000:4000 -v "$PWD/docs":/srv/jekyll -e PAGES_REPO_NWO="dev" mon-jekyll
    ```
-Le site sera accessible à l'adresse : 
+Le site sera accessible à l'adresse :
 [http://localhost:4000/](http://localhost:4000/)
 
 
@@ -131,7 +131,7 @@ cd -
 # Supprimer la base de données existante
 docker exec postgres_db dropdb -f --username=dev especes_pro_3731
 
-# Recréer la base de données 
+# Recréer la base de données
 docker exec postgres_db createdb --username=dev especes_pro_3731
 
 # Restore des données
@@ -153,7 +153,7 @@ Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.s
 
 `knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
 
-Pour aller en arrière et en avant d'un cran dans la liste des migrations : 
+Pour aller en arrière et en avant d'un cran dans la liste des migrations :
 `npm run migrate:down`
 `npm run migrate:up`
 
@@ -221,11 +221,23 @@ Utile pour tester rapidement en local après un restore de backup en tant qu'une
 
 `docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
 
-Pour les lien de connexion en production : 
+Pour les lien de connexion en production :
 
 `docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
 
 Pour donner l'origine de manière libre :
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://test.lol'`
+`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://test.l'`
 
+
+
+### Générer les messages pour GeoMCE
+
+Pour lister les ids de dossiers pour lesquels on peut générer des messages pour GeoMCE
+
+`docker exec tooling node outils/generation-message-geomce.js --lister-dossier`
+
+
+Pour générer un message pour GeoMCE pour un id
+
+`docker exec tooling node outils/generation-message-geomce.js --dossier <dossierId>`
