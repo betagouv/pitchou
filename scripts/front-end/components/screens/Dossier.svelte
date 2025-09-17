@@ -18,7 +18,7 @@
     /** @import {Onglet} from '../../routes/Dossier.js' */
 
     /**
-     * @param {Onglet} nouvelOnglet 
+     * @param {Onglet} nouvelOnglet
      */
     function changerOnglet(nouvelOnglet) {
         ongletActif = nouvelOnglet;
@@ -27,7 +27,7 @@
     }
 
     /**
-     * @param {Onglet} onglet 
+     * @param {Onglet} onglet
      */
     function handleTabClick(onglet) {
         changerOnglet(onglet);
@@ -37,7 +37,7 @@
     const EXTENSION_ATTENDUE = '.ods'
 
     /**
-     * 
+     *
      * @param {DossierComplet} dossier
      * @return {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined}
      */
@@ -58,7 +58,7 @@
         return espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu)
     }
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
@@ -80,28 +80,28 @@
     } = $props();
 
     $inspect('Dossier complet', dossier)
-    
+
     let ongletActif = $derived(ongletActifInitial)
 
     /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
     let espècesImpactées = $derived(getEspècesImpactés(dossier))
 </script>
 
-<Squelette {email} {résultatsSynchronisationDS88444}>
+<Squelette {email} {résultatsSynchronisationDS88444} title={`${dossier.nom} — Dossier n°${dossier.id}`}>
     <div class="fr-grid-row fr-mt-2w">
         <div class="fr-col">
             <EnteteDossier {dossier} {relationSuivis} {email}></EnteteDossier>
-            
+
             <div class="fr-tabs">
                 <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
                     <li role="presentation">
-                    <button 
+                    <button
                         type="button"
-                        id="tabpanel-instruction" 
-                        aria-controls="tabpanel-instruction-panel" 
-                        class="fr-tabs__tab {ongletActif === 'instruction' ? 'fr-tabs__tab--selected' : ''}" 
-                        tabindex={ongletActif === 'instruction'  ? 0 : -1} 
-                        role="tab" 
+                        id="tabpanel-instruction"
+                        aria-controls="tabpanel-instruction-panel"
+                        class="fr-tabs__tab {ongletActif === 'instruction' ? 'fr-tabs__tab--selected' : ''}"
+                        tabindex={ongletActif === 'instruction'  ? 0 : -1}
+                        role="tab"
                         aria-selected={ongletActif === 'instruction' }
                         onclick={() => handleTabClick('instruction')}
                     >
@@ -109,13 +109,13 @@
                     </button>
                     </li>
                     <li role="presentation">
-                    <button 
+                    <button
                         type="button"
-                        id="tabpanel-projet" 
-                        aria-controls="tabpanel-projet-panel" 
-                        class="fr-tabs__tab {ongletActif === 'projet'  ? 'fr-tabs__tab--selected' : ''}" 
-                        tabindex={ongletActif === 'projet'  ? 0 : -1} 
-                        role="tab" 
+                        id="tabpanel-projet"
+                        aria-controls="tabpanel-projet-panel"
+                        class="fr-tabs__tab {ongletActif === 'projet'  ? 'fr-tabs__tab--selected' : ''}"
+                        tabindex={ongletActif === 'projet'  ? 0 : -1}
+                        role="tab"
                         aria-selected={ongletActif === 'projet' }
                         onclick={() => handleTabClick('projet')}
                     >
@@ -123,13 +123,13 @@
                     </button>
                     </li>
                     <li role="presentation">
-                    <button 
+                    <button
                         type="button"
-                        id="tabpanel-echanges" 
-                        aria-controls="tabpanel-echanges-panel" 
-                        class="fr-tabs__tab {ongletActif === 'echanges' ? 'fr-tabs__tab--selected' : ''}" 
-                        tabindex={ongletActif === 'echanges' ? 0 : -1} 
-                        role="tab" 
+                        id="tabpanel-echanges"
+                        aria-controls="tabpanel-echanges-panel"
+                        class="fr-tabs__tab {ongletActif === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
+                        tabindex={ongletActif === 'echanges' ? 0 : -1}
+                        role="tab"
                         aria-selected={ongletActif === 'echanges'}
                         onclick={() => handleTabClick('echanges')}
                     >
@@ -137,13 +137,13 @@
                     </button>
                     </li>
                     <li role="presentation">
-                    <button 
+                    <button
                         type="button"
-                        id="tabpanel-avis" 
-                        aria-controls="tabpanel-avis-panel" 
-                        class="fr-tabs__tab {ongletActif === 'avis' ? 'fr-tabs__tab--selected' : ''}" 
-                        tabindex={ongletActif === 'avis' ? 0 : -1} 
-                        role="tab" 
+                        id="tabpanel-avis"
+                        aria-controls="tabpanel-avis-panel"
+                        class="fr-tabs__tab {ongletActif === 'avis' ? 'fr-tabs__tab--selected' : ''}"
+                        tabindex={ongletActif === 'avis' ? 0 : -1}
+                        role="tab"
                         aria-selected={ongletActif === 'avis'}
                         onclick={() => handleTabClick('avis')}
                     >
@@ -151,13 +151,13 @@
                     </button>
                     </li>
                     <li role="presentation">
-                    <button 
+                    <button
                         type="button"
-                        id="tabpanel-controles" 
-                        aria-controls="tabpanel-controles-panel" 
-                        class="fr-tabs__tab {ongletActif === 'controles' ? 'fr-tabs__tab--selected' : ''}" 
-                        tabindex={ongletActif === 'controles' ? 0 : -1} 
-                        role="tab" 
+                        id="tabpanel-controles"
+                        aria-controls="tabpanel-controles-panel"
+                        class="fr-tabs__tab {ongletActif === 'controles' ? 'fr-tabs__tab--selected' : ''}"
+                        tabindex={ongletActif === 'controles' ? 0 : -1}
+                        role="tab"
                         aria-selected={ongletActif === 'controles'}
                         onclick={() => handleTabClick('controles')}
                     >
@@ -165,13 +165,13 @@
                     </button>
                     </li>
                     <li role="presentation">
-                    <button 
+                    <button
                         type="button"
-                        id="tabpanel-generation-document" 
-                        aria-controls="tabpanel-generation-document-panel" 
-                        class="fr-tabs__tab {ongletActif === 'generation-document' ? 'fr-tabs__tab--selected' : ''}" 
-                        tabindex={ongletActif === 'generation-document' ? 0 : -1} 
-                        role="tab" 
+                        id="tabpanel-generation-document"
+                        aria-controls="tabpanel-generation-document-panel"
+                        class="fr-tabs__tab {ongletActif === 'generation-document' ? 'fr-tabs__tab--selected' : ''}"
+                        tabindex={ongletActif === 'generation-document' ? 0 : -1}
+                        role="tab"
                         aria-selected={ongletActif === 'generation-document'}
                         onclick={() => handleTabClick('generation-document')}
                     >
@@ -179,67 +179,67 @@
                     </button>
                     </li>
                 </ul>
-                <div 
-                    id="tabpanel-instruction-panel" 
-                    aria-labelledby="tabpanel-instruction" 
-                    class="fr-tabs__panel" 
+                <div
+                    id="tabpanel-instruction-panel"
+                    aria-labelledby="tabpanel-instruction"
+                    class="fr-tabs__panel"
                     class:fr-tabs__panel--selected={ongletActif === 'instruction' }
-                    role="tabpanel" 
+                    role="tabpanel"
                     tabindex="0"
-                    
+
                 >
                     <DossierInstruction {dossier}></DossierInstruction>
                 </div>
-                <div 
-                    id="tabpanel-projet-panel" 
-                    aria-labelledby="tabpanel-projet" 
-                    class="fr-tabs__panel" 
+                <div
+                    id="tabpanel-projet-panel"
+                    aria-labelledby="tabpanel-projet"
+                    class="fr-tabs__panel"
                     class:fr-tabs__panel--selected={ongletActif === 'projet' }
-                    role="tabpanel" 
+                    role="tabpanel"
                     tabindex="0"
                 >
                     <DossierProjet {dossier} {espècesImpactées}></DossierProjet>
                 </div>
-                <div 
-                    id="tabpanel-echanges-panel" 
-                    aria-labelledby="tabpanel-echanges" 
-                    class="fr-tabs__panel" 
+                <div
+                    id="tabpanel-echanges-panel"
+                    aria-labelledby="tabpanel-echanges"
+                    class="fr-tabs__panel"
                     class:fr-tabs__panel--selected={ongletActif === 'echanges'}
-                    role="tabpanel" 
+                    role="tabpanel"
                     tabindex="0"
                 >
                     <DossierMessagerie {dossier} {messages}></DossierMessagerie>
                 </div>
-                <div 
-                    id="tabpanel-avis-panel" 
-                    aria-labelledby="tabpanel-avis" 
-                    class="fr-tabs__panel" 
+                <div
+                    id="tabpanel-avis-panel"
+                    aria-labelledby="tabpanel-avis"
+                    class="fr-tabs__panel"
                     class:fr-tabs__panel--selected={ongletActif === 'avis'}
-                    role="tabpanel" 
+                    role="tabpanel"
                     tabindex="0"
                 >
                     <DossierAvis {dossier}></DossierAvis>
                 </div>
-                <div 
-                    id="tabpanel-controles-panel" 
-                    aria-labelledby="tabpanel-controles" 
-                    class="fr-tabs__panel" 
+                <div
+                    id="tabpanel-controles-panel"
+                    aria-labelledby="tabpanel-controles"
+                    class="fr-tabs__panel"
                     class:fr-tabs__panel--selected={ongletActif === 'controles'}
-                    role="tabpanel" 
+                    role="tabpanel"
                     tabindex="0"
                 >
                     <DossierContrôles {dossier}></DossierContrôles>
                 </div>
-                <div 
-                    id="tabpanel-generation-document-panel" 
-                    aria-labelledby="tabpanel-generation-document" 
-                    class="fr-tabs__panel" 
+                <div
+                    id="tabpanel-generation-document-panel"
+                    aria-labelledby="tabpanel-generation-document"
+                    class="fr-tabs__panel"
                     class:fr-tabs__panel--selected={ongletActif === 'generation-document'}
-                    role="tabpanel" 
+                    role="tabpanel"
                     tabindex="0"
                 >
                     <DossierGénérationDocuments {dossier} {espècesImpactées}></DossierGénérationDocuments>
-                </div> 
+                </div>
             </div>
         </div>
     </div>

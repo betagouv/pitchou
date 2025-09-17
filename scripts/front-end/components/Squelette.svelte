@@ -29,21 +29,15 @@
         if(diff <= 30) {
             return `Il y a ${diff} minutes`
         }
-    
+
         return format(date, `d MMMM yyyy HH'h'mm`, { locale: fr })
     }
 
-    
-
-    
-
-    
-
-    
     /**
      * @typedef {Object} Props
      * @property {boolean} [nav]
      * @property {string | undefined} [email]
+     * @property {string | undefined} [title]
      * @property {PitchouState['erreurs']} [erreurs]
      * @property {PitchouState['résultatsSynchronisationDS88444']} [résultatsSynchronisationDS88444]
      * @property {import('svelte').Snippet} [children]
@@ -55,6 +49,7 @@
         email = undefined,
         erreurs = new Set(),
         résultatsSynchronisationDS88444 = undefined,
+        title = undefined,
         children
     } = $props();
 
@@ -62,6 +57,10 @@
 
     let enleverErreur = store.mutations.enleverErreur
 </script>
+
+<svelte:head>
+    <title>{title ? `${title} — ` : ''}Pitchou</title>
+</svelte:head>
 
 <header class="fr-header">
     <div class="fr-header__body">
@@ -85,7 +84,7 @@
                         </p>
                     </div>
                 </div>
-                
+
                 {#if email}
                 <div class="fr-header__tools">
                     <div class="fr-header__tools-links">
@@ -138,7 +137,7 @@
                     </ul>
                 </div>
             </li>
-            
+
             -->
             <li class="fr-nav__item">
                 <a class="fr-nav__link" href="/">Tableau de suivi</a>
@@ -166,7 +165,7 @@
                     <button onclick={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
                 </div>
             </div>
-        {/each}    
+        {/each}
         </div>
     </section>
 {/if}
@@ -292,7 +291,7 @@
     }
 
     .fr-nav__item{
-        // pour une raison pas claire, cette règle est annulée par une media query @media (min-width: 62em) 
+        // pour une raison pas claire, cette règle est annulée par une media query @media (min-width: 62em)
         // et ça casse le menu.
         // Cette ligne le répare
         position: relative;
