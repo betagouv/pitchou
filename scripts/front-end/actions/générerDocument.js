@@ -1,3 +1,6 @@
+//@ts-check
+
+
 /** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces  } from '../../types/especes.ts' */
 /** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
 /** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
@@ -36,6 +39,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         justification_absence_autre_solution_satisfaisante,
         mesures_erc_prévues,
         motif_dérogation,
+        nombre_nids_compensés_dossier_oiseau_simple,
+        nombre_nids_détruits_dossier_oiseau_simple,
         justification_motif_dérogation,
         date_début_intervention,
         date_fin_intervention,
@@ -43,6 +48,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         historique_identifiant_demande_onagre,
         activité_principale,
         rattaché_au_régime_ae,
+        type,
         scientifique_type_demande,
         scientifique_bilan_antérieur,
         scientifique_finalité_demande,
@@ -60,7 +66,18 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
     // Transformer les espèces impactées si elles existent
     const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou)
 
-    
+    /** @type {BalisesGénérationDocument['hirondelles']} */
+    const hirondelles = type === 'Hirondelle' ? {
+        nids_détruits: nombre_nids_détruits_dossier_oiseau_simple ?? null,
+        nids_compensés: nombre_nids_compensés_dossier_oiseau_simple ?? null,
+    } : undefined
+
+    /** @type {BalisesGénérationDocument['cigognes']} */
+    const cigognes = type === 'Cigogne' ? {
+        nids_détruits: nombre_nids_détruits_dossier_oiseau_simple ?? null,
+        nids_compensés: nombre_nids_compensés_dossier_oiseau_simple ?? null,
+    } : undefined;
+
     return {
         nom,
         commentaire_instruction: commentaire_libre?.trim() ?? '',
@@ -75,6 +92,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
         mesures_erc_prévues: mesures_erc_prévues===null ? 'Non renseigné' : mesures_erc_prévues,
         mesures_erc_prévues_renseigné: mesures_erc_prévues !== null,
         motif_dérogation,
+        hirondelles,
+        cigognes,
         justification_motif_dérogation,
         identifiant_onagre: historique_identifiant_demande_onagre,
         activité_principale,
@@ -115,7 +134,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
             précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
         },
         identifiant_pitchou: dossier.id,
-        ...functions
+        ...functions,
     }
 }
 

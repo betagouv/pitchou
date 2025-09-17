@@ -368,6 +368,11 @@ const colonnesDossierComplet = [
     'date_consultation_public',
 
     "mesures_erc_prévues",
+
+    "nombre_nids_compensés_dossier_oiseau_simple",
+    "nombre_nids_détruits_dossier_oiseau_simple",
+
+    "type",
 /*    
     "historique_date_envoi_dernière_contribution",
     "historique_date_saisine_csrpn",
