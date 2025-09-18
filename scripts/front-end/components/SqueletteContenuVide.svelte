@@ -1,7 +1,3 @@
-<svelte:head>
-    <title>Pitchou</title>
-</svelte:head>
-
 <script>
     import Squelette from './Squelette.svelte'
     import Loader from './Loader.svelte'
