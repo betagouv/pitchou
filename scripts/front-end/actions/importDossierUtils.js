@@ -77,8 +77,9 @@ export function extraireCommunes(valeur) {
 
 /**
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
+ * Renvoie null si pas de département reconnu.
  * @param {string | number} valeur
- * @returns {Promise<GeoAPIDépartement[]>}
+ * @returns {Promise<GeoAPIDépartement[] | null>}
  */
 export async function formaterDépartementDepuisValeur(valeur) {
     /** @type {string[]} */
@@ -95,17 +96,19 @@ export async function formaterDépartementDepuisValeur(valeur) {
     }
 
     const départementsP = codes.map((code) => getDépartementData(code))
-    const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
 
-    if (départements.length >= 1) {
-        // On force le cast car la logique garantit un tableau non vide
-        return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
-    } else {
-        // Par défaut, on retourne le département Côte-d'Or
-        return [{
-            code: '21',
-            nom: `Côte-d'Or`
-        }];
+    try {
+        const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
+
+        if (départements.length >= 1) {
+            // On force le cast car la logique garantit un tableau non vide
+            return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
+        } else {
+            return null;
+        }
+    } catch (e) {
+        console.warn(`Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`)
+        return null
     }
 }
 
