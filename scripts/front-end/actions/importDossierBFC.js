@@ -229,7 +229,7 @@ async function générerDonnéesLocalisations(ligne) {
     const communesP = valeursCommunes.map((com) => getCommuneData(com));
     const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
 
-    const [départements, communesResult] = await Promise.all([
+    const [départementsTrouvés, communesResult] = await Promise.all([
         départementsP,
         Promise.all(communesP),
     ]);
@@ -245,6 +245,7 @@ async function générerDonnéesLocalisations(ligne) {
             "Dans quel département se localise majoritairement votre projet ?": communes[0].departement,
         }
     } else {
+        const départements = départementsTrouvés ?? [{code: '25', nom: 'Doubs'}] // La valeur par défaut est le département du siège de la DREAL BFC
         return {
             "Commune(s) où se situe le projet": undefined,
             "Département(s) où se situe le projet": départements,
