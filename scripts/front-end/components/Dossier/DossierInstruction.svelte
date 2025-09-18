@@ -6,21 +6,34 @@
     import TagPhase from '../TagPhase.svelte'
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
-
-    /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
     
+    /** @import Personne from '../../../types/database/public/Personne.js' */
+    /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
+    /** @import {PitchouState} from '../../store.js' */
     
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
+     * @property {PitchouState['relationSuivis']} relationSuivis
      */
 
     /** @type {Props} */
-    let { dossier } = $props();
+    let { dossier, relationSuivis } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
     let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
+
+    /** @type {NonNullable<Personne['email']>[]} */
+    let personnesQuiSuiventDossier = $derived(
+    relationSuivis
+        ? Array.from(relationSuivis)
+            .filter(([, dossiersSuivis]) => dossiersSuivis.has(dossier.id))
+            .map(([email]) => email)
+        : []
+    );
+
+    $inspect("héhooo personnesQuiSuiventDossier", personnesQuiSuiventDossier)
 
 
     let phase = $derived(phaseActuelle)
@@ -106,6 +119,13 @@
                 <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
             </li>
         </ol>
+        
+        <h2 class="fr-mt-3w">Personnes suivent ce dossier</h2>
+        <ul>
+            {#each personnesQuiSuiventDossier as personneQuiSuitDossier }
+                <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
+            {/each}
+        </ul>
     </section>
 
     <section>
@@ -175,7 +195,7 @@
         margin-bottom: 2rem;
     }
 
-    ol{
+    ol, ul{
         list-style: none;
         margin-top: 0;
         padding-left: 0;

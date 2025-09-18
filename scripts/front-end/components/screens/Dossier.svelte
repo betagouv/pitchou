@@ -188,7 +188,7 @@
                     tabindex="0"
 
                 >
-                    <DossierInstruction {dossier}></DossierInstruction>
+                    <DossierInstruction {dossier} {relationSuivis}></DossierInstruction>
                 </div>
                 <div
                     id="tabpanel-projet-panel"
