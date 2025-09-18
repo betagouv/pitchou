@@ -120,11 +120,15 @@
             </li>
         </ol>
         
-        <h2 class="fr-mt-3w">Personnes suivent ce dossier</h2>
+        <h2 class="fr-mt-3w">Personnes qui suivent ce dossier</h2>
         <ul>
-            {#each personnesQuiSuiventDossier as personneQuiSuitDossier }
-                <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
-            {/each}
+            {#if personnesQuiSuiventDossier.length >=1 }
+                {#each personnesQuiSuiventDossier as personneQuiSuitDossier }
+                    <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
+                {/each}
+            {:else}
+                <span>Personne ne suit ce dossier pour l'instant.</span>
+            {/if}
         </ul>
     </section>
 
