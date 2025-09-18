@@ -155,23 +155,25 @@
     </nav>
 {/if}
 
-{#if erreurs.size >= 1}
-    <section class="erreurs fr-grid-row fr-grid-row--center">
-        <div class="fr-col">
-        {#each [...erreurs] as erreur}
-            <div class="fr-alert-background fr-mb-1w">
-                <div class="fr-alert fr-alert--error fr-alert--sm">
-                    <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
-                    <button onclick={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
+<main>
+    {#if erreurs.size >= 1}
+        <section class="erreurs fr-grid-row fr-grid-row--center">
+            <div class="fr-col">
+            {#each [...erreurs] as erreur}
+                <div class="fr-alert-background fr-mb-1w">
+                    <div class="fr-alert fr-alert--error fr-alert--sm">
+                        <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
+                        <button onclick={() => enleverErreur(erreur)} class="fr-link--close fr-link">Masquer le message</button>
+                    </div>
                 </div>
+            {/each}
             </div>
-        {/each}
-        </div>
-    </section>
-{/if}
+        </section>
+    {/if}
 
 
-{@render children?.()}
+    {@render children?.()}
+</main>
 
 <footer class="fr-footer" id="footer">
     <div class="fr-container">
