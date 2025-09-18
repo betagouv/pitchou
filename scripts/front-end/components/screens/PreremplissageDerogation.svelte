@@ -6,7 +6,13 @@
     /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
     /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
 
-
+    /**
+     * @param {string} label
+     * @returns string
+     */
+     function labelToId(label) {
+        return label.replace(/[^a-zA-Z0-9]+/g, '-')
+    }
 
     /**
      * @typedef {Object} Props
@@ -40,8 +46,6 @@
         "HeaderSectionChampDescriptor",
     ]
 
-
-
     /** @type {Dossier88444ChampDescriptor[]} */
     //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
     let champsRemplissables = schemaDS88444["revision"]["champDescriptors"].filter((champ) => {
@@ -74,32 +78,28 @@
                     {#if champ["__typename"] == "HeaderSectionChampDescriptor"}
                         <h3>{champ["label"]}</h3>
                     {:else}
-                        <fieldset class="fr-fieldset fr-p-1-5v">
-                            <div class="fr-fieldset__element">
-                                <div class="fr-input-group">
-                                    <label class="fr-label" for="{champ["label"]}">
-                                        {champ["label"]}
-                                    </label>
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="{labelToId(champ["label"])}">
+                                {champ["label"]}
+                            </label>
 
-                                    <select
-                                        bind:value={nouveauDossierPartiel[champ["label"]]}
-                                        id="{champ["label"]}"
-                                        class="fr-select"
-                                    >
+                            <select
+                                bind:value={nouveauDossierPartiel[champ["label"]]}
+                                id="{labelToId(champ["label"])}"
+                                class="fr-select"
+                            >
 
-                                        <option value="" selected></option>
-                                        {#if champ["options"]}
-                                            {#each champ["options"] as option}
-                                                <option value={option}>{option}</option>
-                                            {/each}
-                                        {:else}
-                                            <option value={true}>Oui</option>
-                                            <option value={false}>Non</option>
-                                        {/if}
-                                    </select>
-                                </div>
-                            </div>
-                        </fieldset>
+                                <option value="" selected></option>
+                                {#if champ["options"]}
+                                    {#each champ["options"] as option}
+                                        <option value={option}>{option}</option>
+                                    {/each}
+                                {:else}
+                                    <option value={true}>Oui</option>
+                                    <option value={false}>Non</option>
+                                {/if}
+                            </select>
+                        </div>
                     {/if}
                 {/each}
             </form>
