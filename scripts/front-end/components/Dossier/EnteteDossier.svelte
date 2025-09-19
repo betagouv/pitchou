@@ -63,7 +63,13 @@
         </div>
         <div>
             <span class="fr-icon-user-fill" aria-hidden="true"></span>
-            {formatPorteurDeProjet(dossier)}
+            {#if dossier.demandeur_personne_physique_email || dossier.déposant_email}
+                <a href={`mailto:${dossier.demandeur_personne_physique_email || dossier.déposant_email}`}>
+                    {formatPorteurDeProjet(dossier)}
+                </a>
+            {:else}
+                {formatPorteurDeProjet(dossier)}
+            {/if}
         </div>
         <div>
             <span class="fr-icon-briefcase-fill" aria-hidden="true"></span>

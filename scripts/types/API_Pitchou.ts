@@ -18,6 +18,8 @@ type DossierPersonnesImpliquéesRésumé = {
 
 type DossierPersonnesImpliquéesComplet =  DossierPersonnesImpliquéesRésumé & {
     demandeur_adresse: string
+    déposant_email: string | null;
+    demandeur_personne_physique_email: string | null;
 }
 
 /**

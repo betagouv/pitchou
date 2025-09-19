@@ -46,13 +46,20 @@ export function formatLocalisation({communes, départements, régions}){
 
 
 /**
- * @param {DossierComplet | DossierRésumé} déposant
+ * @param {DossierComplet | DossierRésumé} dossier
  * @returns {string} 
  */
-function formatDéposant({déposant_nom, déposant_prénoms}){
-    if(!déposant_nom && !déposant_prénoms)
-        return '(inconnu)'
+function formatDéposant(dossier){
+    const INCONNU = '(inconnu)'
 
+    let {déposant_nom, déposant_prénoms} = dossier
+
+    if(!déposant_nom && !déposant_prénoms){
+        if ("déposant_email" in dossier) {
+            return dossier.déposant_email ?? INCONNU
+        }
+        return INCONNU
+    }
     if(!déposant_nom){
         déposant_nom = ''
     }
