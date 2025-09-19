@@ -457,7 +457,6 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
         })
     })
 
-    console.log(dossiersAModifierPourSynchro.map((dossier) => dossier.dossier.demandeur_personne_physique))
     const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP)
 
     return {

@@ -3,7 +3,6 @@
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
 /** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.d.ts' */
 
 /**
