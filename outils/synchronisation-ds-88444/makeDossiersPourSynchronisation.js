@@ -72,7 +72,6 @@ function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
 
     /** @type {DossierDemarcheSimplifiee88444['Le demandeur est…'] | undefined} */
     const personneMoraleOuPhysique = champById.get(pitchouKeyToChampDS.get('Le demandeur est…'))?.stringValue
-    console.log("personneMoraleOuPhysique", personneMoraleOuPhysique)
 
     if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === 'une personne physique') {
         déposant = {
