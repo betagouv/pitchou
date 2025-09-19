@@ -14,8 +14,8 @@
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
-    /** @import {PitchouState} from '../../store.js' */
     /** @import {Onglet} from '../../routes/Dossier.js' */
+    /** @import Personne from '../../../types/database/public/Personne.js' */
 
     /**
      * @param {Onglet} nouvelOnglet
@@ -62,21 +62,23 @@
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
-     * @property {PitchouState['relationSuivis']} relationSuivis
      * @property {Onglet} ongletActifInitial
      * @property {any} messages
      * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
      * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
+     * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
      */
 
     /** @type {Props} */
     let {
         dossier,
-        relationSuivis,
         ongletActifInitial,
         messages,
         email,
-        résultatsSynchronisationDS88444
+        résultatsSynchronisationDS88444,
+        personnesQuiSuiventDossier,
+        dossierActuelSuiviParInstructeurActuel
     } = $props();
 
     $inspect('Dossier complet', dossier)
@@ -90,7 +92,7 @@
 <Squelette {email} {résultatsSynchronisationDS88444} title={`${dossier.nom} — Dossier n°${dossier.id}`}>
     <div class="fr-grid-row fr-mt-2w">
         <div class="fr-col">
-            <EnteteDossier {dossier} {relationSuivis} {email}></EnteteDossier>
+            <EnteteDossier {dossier} {dossierActuelSuiviParInstructeurActuel} {email}></EnteteDossier>
 
             <div class="fr-tabs">
                 <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
@@ -188,7 +190,7 @@
                     tabindex="0"
 
                 >
-                    <DossierInstruction {dossier}></DossierInstruction>
+                    <DossierInstruction {dossier} {personnesQuiSuiventDossier} {dossierActuelSuiviParInstructeurActuel} {email}></DossierInstruction>
                 </div>
                 <div
                     id="tabpanel-projet-panel"

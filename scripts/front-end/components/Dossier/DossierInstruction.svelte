@@ -6,22 +6,28 @@
     import TagPhase from '../TagPhase.svelte'
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
-
+    import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
+    
+    /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
-    
-    
+    /** @import Dossier from '../../../types/database/public/Dossier.ts' */
+    /** @import {ComponentProps} from 'svelte' */
+    /** @import Squelette from '../Squelette.svelte' */
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
+     * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
+     * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
+     * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
      */
 
     /** @type {Props} */
-    let { dossier } = $props();
+    let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
     let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
-
 
     let phase = $derived(phaseActuelle)
     let commentaire_libre = $state(dossier.commentaire_libre)
@@ -83,6 +89,23 @@
         afficherMessageSucces = false
     }
 
+        /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelSuitDossier(id) {
+        return instructeurSuitDossier(email, id)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelLaisseDossier(id) {
+        return instructeurLaisseDossier(email, id)
+    }
+
+
 
 </script>
 
@@ -106,6 +129,26 @@
                 <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
             </li>
         </ol>
+        
+        <h2 class="fr-mt-3w">Personnes qui suivent ce dossier</h2>
+        {#if personnesQuiSuiventDossier.length >=1}
+            <ul>
+            {#each personnesQuiSuiventDossier as personneQuiSuitDossier}
+                <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
+            {/each}
+            </ul>
+        {:else}
+            <div class="col">
+                <span>Personne ne suit ce dossier pour l'instant.</span>
+                {#if typeof dossierActuelSuiviParInstructeurActuel === 'boolean'}
+                    {#if dossierActuelSuiviParInstructeurActuel}
+                        <button onclick={() => instructeurActuelLaisseDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+                    {:else}
+                        <button onclick={() => instructeurActuelSuitDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
+                    {/if}
+                {/if}
+            </div>
+        {/if}
     </section>
 
     <section>
@@ -175,7 +218,7 @@
         margin-bottom: 2rem;
     }
 
-    ol{
+    ol, ul{
         list-style: none;
         margin-top: 0;
         padding-left: 0;
@@ -190,6 +233,11 @@
 
     .resize-vertical {
         resize: vertical
+    }
+
+    .col {
+        display: flex;
+        flex-direction: column;  
     }
 
 </style>
