@@ -1,10 +1,11 @@
 //@ts-check
 
+/** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.ts' */
+
+
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-//@ts-expect-error TS ne comprend pas que ces imports sont utilisés
-/** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.d.ts' */
 
 /**
  * @param {Partial<DossierComplet>} localisation
@@ -46,13 +47,20 @@ export function formatLocalisation({communes, départements, régions}){
 
 
 /**
- * @param {DossierComplet | DossierRésumé} déposant
+ * @param {DossierComplet | DossierRésumé} dossier
  * @returns {string} 
  */
-function formatDéposant({déposant_nom, déposant_prénoms}){
-    if(!déposant_nom && !déposant_prénoms)
-        return '(inconnu)'
+function formatDéposant(dossier){
+    const INCONNU = '(inconnu)'
 
+    let {déposant_nom, déposant_prénoms} = dossier
+
+    if(!déposant_nom && !déposant_prénoms){
+        if ("déposant_email" in dossier) {
+            return dossier.déposant_email ?? INCONNU
+        }
+        return INCONNU
+    }
     if(!déposant_nom){
         déposant_nom = ''
     }

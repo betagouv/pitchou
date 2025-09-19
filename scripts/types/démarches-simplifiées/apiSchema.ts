@@ -26,7 +26,7 @@ interface BaseRepetitionChampsDS<ChampDSSpecific> extends BaseChampDS {
 export interface DemandeurDS {
     prenom: string
     nom: string
-    email: string
+    email: string | null
 }
 
 export interface DémarchesSimpliféesCommune{
@@ -112,12 +112,25 @@ export interface Traitement{
 export type Champs88444 = BaseChampDS | ChampDSCheckbox | ChampDSCommune | ChampDSDépartement | ChampDSRégions | ChampDSPieceJustificative;
 export type Annotations88444 = BaseChampDS | ChampDSCheckbox | ChampDSDate
 
+/**
+ * @see {@link https://www.demarches-simplifiees.fr/graphql/schema/types/Profile}
+ */
+export type Profile = {
+    // id
+    email: string
+}
 
 export interface DossierDS<Champs, Annotations> {
     id: string
     number: number
     dateDepot: Date 
     state: string
+    // Profil d'un usager connecté (déposant un dossier, instruisant un dossier...)
+    usager: Profile
+    // Prénom et nom de la personne qui dépose le dossier sur DS au nom du demandeur DS
+    prenomMandataire: string
+    nomMandataire: string 
+    // Personne qui formule la demande dans DS
     demandeur: DemandeurDS
     groupeInstructeur: GroupeInstructeurs
     instructeurs: Instructeur[]

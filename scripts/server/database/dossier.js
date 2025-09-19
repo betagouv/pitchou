@@ -327,12 +327,16 @@ const colonnesDossierComplet = [
     "déposant.nom as déposant_nom",
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "déposant.prénoms as déposant_prénoms",
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+    "déposant.email as déposant_email",
 
     // demandeur_personne_physique
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+    //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+    "demandeur_personne_physique.email as demandeur_personne_physique_email",
 
     // demandeur_personne_morale
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
@@ -565,8 +569,6 @@ const colonnesDossierRésumé = [
     "déposant.nom as déposant_nom",
     //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
     "déposant.prénoms as déposant_prénoms",
-    //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
-    "déposant.email as déposant_email",
 
     // demandeur_personne_physique
     //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
