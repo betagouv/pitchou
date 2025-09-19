@@ -190,7 +190,7 @@
                     tabindex="0"
 
                 >
-                    <DossierInstruction {dossier} {personnesQuiSuiventDossier}></DossierInstruction>
+                    <DossierInstruction {dossier} {personnesQuiSuiventDossier} {dossierActuelSuiviParInstructeurActuel} {email}></DossierInstruction>
                 </div>
                 <div
                     id="tabpanel-projet-panel"

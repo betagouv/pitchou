@@ -6,18 +6,24 @@
     import TagPhase from '../TagPhase.svelte'
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
+    import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
     
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
-    
+    /** @import Dossier from '../../../types/database/public/Dossier.ts' */
+    /** @import {ComponentProps} from 'svelte' */
+    /** @import Squelette from '../Squelette.svelte' */
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
      * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
+     * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
+     * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
      */
 
     /** @type {Props} */
-    let { dossier, personnesQuiSuiventDossier } = $props();
+    let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
@@ -83,6 +89,23 @@
         afficherMessageSucces = false
     }
 
+        /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelSuitDossier(id) {
+        return instructeurSuitDossier(email, id)
+    }
+
+    /**
+     * 
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelLaisseDossier(id) {
+        return instructeurLaisseDossier(email, id)
+    }
+
+
 
 </script>
 
@@ -108,15 +131,24 @@
         </ol>
         
         <h2 class="fr-mt-3w">Personnes qui suivent ce dossier</h2>
-        <ul>
-            {#if personnesQuiSuiventDossier.length >=1 }
-                {#each personnesQuiSuiventDossier as personneQuiSuitDossier }
-                    <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
-                {/each}
-            {:else}
+        {#if personnesQuiSuiventDossier.length >=1}
+            <ul>
+            {#each personnesQuiSuiventDossier as personneQuiSuitDossier}
+                <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
+            {/each}
+            </ul>
+        {:else}
+            <div class="col">
                 <span>Personne ne suit ce dossier pour l'instant.</span>
-            {/if}
-        </ul>
+                {#if typeof dossierActuelSuiviParInstructeurActuel === 'boolean'}
+                    {#if dossierActuelSuiviParInstructeurActuel}
+                        <button onclick={() => instructeurActuelLaisseDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left">Ne plus suivre</button>
+                    {:else}
+                        <button onclick={() => instructeurActuelSuitDossier(dossier.id)} class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left" >Suivre</button>
+                    {/if}
+                {/if}
+            </div>
+        {/if}
     </section>
 
     <section>
@@ -201,6 +233,11 @@
 
     .resize-vertical {
         resize: vertical
+    }
+
+    .col {
+        display: flex;
+        flex-direction: column;  
     }
 
 </style>
