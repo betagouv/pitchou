@@ -26,7 +26,7 @@ interface BaseRepetitionChampsDS<ChampDSSpecific> extends BaseChampDS {
 export interface DemandeurDS {
     prenom: string
     nom: string
-    email: string
+    email: string | null
 }
 
 export interface DémarchesSimpliféesCommune{
@@ -129,7 +129,7 @@ export interface DossierDS<Champs, Annotations> {
     usager: Profile
     // Prénom et nom de la personne qui dépose le dossier sur DS au nom du demandeur DS
     prenomMandataire: string
-    nomMandataire: string
+    nomMandataire: string 
     // Personne qui formule la demande dans DS
     demandeur: DemandeurDS
     groupeInstructeur: GroupeInstructeurs

@@ -19,6 +19,7 @@ import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
 import { isAfter } from 'date-fns'
+import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 
 /**
  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
@@ -30,6 +31,9 @@ function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
     const {
         demandeur,
         champs,
+        nomMandataire = '',
+        prenomMandataire = '',
+        usager,
     } = dossierDS
 
     /** 
@@ -57,24 +61,48 @@ function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
     */
     /** @type {PersonneInitializer} */
     let déposant;
-    {
-        const { prenom: prénoms, nom, email } = demandeur
-        déposant = {
-            prénoms,
-            nom,
-            email: email === '' ? undefined : email
-        }
-    }
-
     /*
     Demandeur
- 
     Personne physique ou morale qui formule la demande de dérogation espèces protégées
     */
     /** @type {PersonneInitializer | undefined} */
-    /** let demandeur_personne_physique = undefined; */
+    let demandeur_personne_physique = undefined;
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
+
+    /** @type {DossierDemarcheSimplifiee88444['Le demandeur est…'] | undefined} */
+    const personneMoraleOuPhysique = champById.get(pitchouKeyToChampDS.get('Le demandeur est…'))?.stringValue
+    console.log("personneMoraleOuPhysique", personneMoraleOuPhysique)
+
+    if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === 'une personne physique') {
+        déposant = {
+            prénoms: prenomMandataire,
+            nom: nomMandataire,
+            email: normalisationEmail(usager.email)
+        }
+    } else {
+        déposant = {
+            prénoms: demandeur.prenom,
+            nom: demandeur.nom,
+            email: demandeur.email ? normalisationEmail(demandeur.email) : undefined,
+        }
+    }
+
+    if (personneMoraleOuPhysique === "une personne physique") {
+        const {prenom, nom} = demandeur
+
+        /** @type {DossierDemarcheSimplifiee88444['Adresse mail de contact'] | undefined} */
+        const adresseEmailDeContact = champById.get(pitchouKeyToChampDS.get('Adresse mail de contact'))?.stringValue
+
+        let email = adresseEmailDeContact || demandeur.email || déposant.email
+
+        demandeur_personne_physique = {
+            prénoms: prenom,
+            nom,
+            email: email ? normalisationEmail(email) : undefined,
+        }
+    }
+
 
     const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
     if (SIRETChamp) {
@@ -96,7 +124,7 @@ function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
     return {
         déposant,
         demandeur_personne_morale,
-        demandeur_personne_physique: undefined,
+        demandeur_personne_physique,
     }
 
 }
@@ -429,7 +457,7 @@ export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossie
         })
     })
 
-
+    console.log(dossiersAModifierPourSynchro.map((dossier) => dossier.dossier.demandeur_personne_physique))
     const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP)
 
     return {

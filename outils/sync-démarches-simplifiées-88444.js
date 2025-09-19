@@ -97,7 +97,7 @@ const dossiersDS = await recupérerDossiersRécemmentModifiés(
 console.info('Nombre de dossiers', dossiersDS.length)
 
 //console.log('3 dossiers', dossiersDS.slice(0, 3))
-console.log('dossier', dossiersDS.find(d => d.number === 26544801))
+// console.log('dossier', dossiersDS.find(d => d.number === 26544801))
 
 
 
@@ -209,7 +209,7 @@ const dossiersPourSynchronisation = Object.freeze([...dossiersAInitialiserPourSy
 const personnesInDossiersAvecEmail = new Map()
 const personnesInDossiersSansEmail = new Map()
 
-for (const {dossier: {déposant, /** demandeur_personne_physique */}} of dossiersPourSynchronisation) {
+for (const {dossier: {déposant, demandeur_personne_physique}} of dossiersPourSynchronisation) {
     if (déposant) {
         if(déposant.email) {
             personnesInDossiersAvecEmail.set(déposant.email, déposant)
@@ -218,13 +218,13 @@ for (const {dossier: {déposant, /** demandeur_personne_physique */}} of dossier
         }
     }
 
-    /** if (demandeur_personne_physique) {
+    if (demandeur_personne_physique) {
         if(demandeur_personne_physique.email) {
             personnesInDossiersAvecEmail.set(demandeur_personne_physique.email, demandeur_personne_physique)
         } else {
             personnesInDossiersSansEmail.set(`${demandeur_personne_physique.prénoms}|${demandeur_personne_physique.nom}`, demandeur_personne_physique)
         }
-    } */
+    }
 
 }
 
@@ -328,7 +328,8 @@ function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation)
         dossier: {
             //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
             déposant: getPersonneId(déposant) || null,
-            //demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
+            //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
+            demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
             demandeur_personne_morale: 
                 (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
             ...autresPropriétésDossiers,
