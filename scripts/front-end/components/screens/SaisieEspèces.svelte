@@ -17,7 +17,7 @@
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
 
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
-    /** @import { NomGroupeEspèces, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
+    /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
 
     /**
@@ -28,7 +28,6 @@
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
      * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
      * @property {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} importDescriptionMenacesEspècesFromOds
-     * @property {Map<NomGroupeEspèces, EspèceProtégée[]>} groupesEspèces
      * @property {OiseauAtteint[]} oiseauxAtteints
      * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
      * @property {FloreAtteinte[]} floresAtteintes
@@ -42,7 +41,6 @@
         méthodesParClassificationEtreVivant,
         transportsParClassificationEtreVivant,
         importDescriptionMenacesEspècesFromOds,
-        groupesEspèces,
         oiseauxAtteints = $bindable(),
         faunesNonOiseauxAtteintes = $bindable(),
         floresAtteintes = $bindable()
@@ -171,18 +169,9 @@
     /** @type {Set<EspèceProtégée> | undefined} */
     let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
 
-    /**
-     * Aide saisie par groupe
-     */
-    /** @type {string} */
-    let nomGroupChoisi = $state('');
-
-    /** @type {EspèceProtégée[] | undefined} */
-    let groupeChoisi = $derived(groupesEspèces.get(nomGroupChoisi))
-    let espècesÀPréremplirParGroupe = $derived(groupeChoisi || [])
 
     /** @type {EspèceProtégée[]} */
-    let espècesÀPréremplir = $derived([...espècesÀPréremplirParTexte, ...espècesÀPréremplirParGroupe])
+    let espècesÀPréremplir = $derived([...espècesÀPréremplirParTexte])
 
     let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau')))
     let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau')))
@@ -256,7 +245,6 @@
         }
 
         texteEspèces = ''
-        nomGroupChoisi = ''
 
         rerender()
     }
@@ -291,21 +279,6 @@
                             Les espèces seront reconnues et permettront le pré-remplissage du formulaire
                         </p>
                         <textarea bind:value={texteEspèces} class="fr-input"></textarea>
-                    </section>
-
-                    <section class="fr-mb-4w">
-                        <h3>Depuis un groupe d'espèces</h3>
-                        <div class="fr-select-group">
-                            <label class="fr-label" for="select">
-                                Choisir un groupe d'espèces à ajouter
-                            </label>
-                            <select bind:value={nomGroupChoisi} class="fr-select" id="select">
-                                <option value="" selected disabled hidden>Sélectionner une option</option>
-                                {#each [...groupesEspèces.keys()] as nomGroupe}
-                                    <option value={nomGroupe}>{nomGroupe}</option>
-                                {/each}
-                            </select>
-                        </div>
                     </section>
 
                     {#if oiseauxÀPréremplir && oiseauxÀPréremplir.size >= 1}

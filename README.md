@@ -206,10 +206,6 @@ scalingo --app especes-protegees run node outils/sync-démarches-simplifiées-88
 ```
 
 
-### Fabriquer le JSON de la liste des groupes d'espèces
-
-`node outils/groupes-espèces.js`
-
 ### Remplir des annotations privées
 
 `node --env-file=.env outils/remplir-annotations.js`
