@@ -62,12 +62,18 @@ export default async ({params: {dossierId}}) => {
         const messages = state.messagesParDossierId.get(id)
         const relationSuivis = state.relationSuivis
 
+        // Récupérer les emails des personnes qui suivent ce dossier
         /** @type {NonNullable<Personne['email']>[]} */
         let personnesQuiSuiventDossier = relationSuivis ? Array.from(relationSuivis)
                 .filter(([, dossiersSuivis]) => dossiersSuivis.has(dossier.id))
                 .map(([email]) => email)
             : []
 
+        // Récupérer l'info de si oui ou non l'instructeurice suit ce dossier
+        let dossiersSuiviParInstructeurActuel = relationSuivis && relationSuivis.get(mapStateToSqueletteProps(state)?.email ?? "")
+        let dossierActuelSuiviParInstructeurActuel = dossiersSuiviParInstructeurActuel && dossiersSuiviParInstructeurActuel.has(dossier.id)
+
+        // Récupérer l'info de l'onglet sélectionné
         const hash = location.hash;
         const onglet = hash.slice('#'.length)
         /** @type {Onglet} */
@@ -80,9 +86,9 @@ export default async ({params: {dossierId}}) => {
             ...mapStateToSqueletteProps(state),
             dossier,
             messages,
-            relationSuivis,
             ongletActifInitial,
             personnesQuiSuiventDossier,
+            dossierActuelSuiviParInstructeurActuel,
         }
     }
 
