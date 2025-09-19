@@ -1,9 +1,11 @@
 //@ts-check
 
+/** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.ts' */
+
+
 import { differenceInDays, format, formatRelative } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-/** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.d.ts' */
 
 /**
  * @param {Partial<DossierComplet>} localisation
