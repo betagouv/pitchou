@@ -9,32 +9,19 @@
     
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
-    /** @import {PitchouState} from '../../store.js' */
     
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
-     * @property {PitchouState['relationSuivis']} relationSuivis
+     * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
      */
 
     /** @type {Props} */
-    let { dossier, relationSuivis } = $props();
+    let { dossier, personnesQuiSuiventDossier } = $props();
 
     const {number_demarches_simplifiées: numdos} = dossier
 
     let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
-
-    /** @type {NonNullable<Personne['email']>[]} */
-    let personnesQuiSuiventDossier = $derived(
-    relationSuivis
-        ? Array.from(relationSuivis)
-            .filter(([, dossiersSuivis]) => dossiersSuivis.has(dossier.id))
-            .map(([email]) => email)
-        : []
-    );
-
-    $inspect("héhooo personnesQuiSuiventDossier", personnesQuiSuiventDossier)
-
 
     let phase = $derived(phaseActuelle)
     let commentaire_libre = $state(dossier.commentaire_libre)

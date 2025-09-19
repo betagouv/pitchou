@@ -16,6 +16,7 @@
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {Onglet} from '../../routes/Dossier.js' */
+    /** @import Personne from '../../../types/database/public/Personne.js' */
 
     /**
      * @param {Onglet} nouvelOnglet
@@ -67,6 +68,7 @@
      * @property {any} messages
      * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
      * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+     * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
      */
 
     /** @type {Props} */
@@ -76,7 +78,8 @@
         ongletActifInitial,
         messages,
         email,
-        résultatsSynchronisationDS88444
+        résultatsSynchronisationDS88444,
+        personnesQuiSuiventDossier
     } = $props();
 
     $inspect('Dossier complet', dossier)
@@ -188,7 +191,7 @@
                     tabindex="0"
 
                 >
-                    <DossierInstruction {dossier} {relationSuivis}></DossierInstruction>
+                    <DossierInstruction {dossier} {personnesQuiSuiventDossier}></DossierInstruction>
                 </div>
                 <div
                     id="tabpanel-projet-panel"
