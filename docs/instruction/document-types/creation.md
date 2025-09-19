@@ -531,7 +531,8 @@ Voici les oiseaux les plus importants au monde :
 ## Points de vigilance
 
 **ℹ️ Point d'attention :**
-Le mécanisme de génération est précis et sensible. Il n'est pas tolérant aux erreurs, même d'une seule lettre. Ainsi, s'il est attendu <code>{ demandeur }</code>, alors <code>{ pétitionnaire }</code> ne marchera pas. <code>{ demandeur }</code> (au pluriel) ne marche pas non plus
+Le mécanisme de génération est précis et sensible. Il n'est pas tolérant aux erreurs, même d'une seule lettre. Ainsi, s'il est attendu <code>{ demandeur }</code>, alors <code>{ pétitionnaire }</code> ne marchera pas. <code>{ demandeur }</code> (au pluriel) ne marche pas non plus. 
+Le mécanisme ne fonctionnera pas non plus si une balise est insérée dans le modèle, mais que le champ n'est pas rempli dans le formulaire. C'est pourquoi il faut porter une attention particulière au **bon remplissage** du formulaire par les pétitionnaires.
 
 ```
 ✅ { demandeur } # attendu
