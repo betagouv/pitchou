@@ -6,7 +6,13 @@
     /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
     /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
 
-
+    /**
+     * @param {string} label
+     * @returns {string}
+     */
+     function labelToId(label) {
+        return label.replace(/[^a-zA-Z0-9]+/g, '-')
+    }
 
     /**
      * @typedef {Object} Props
@@ -40,8 +46,6 @@
         "HeaderSectionChampDescriptor",
     ]
 
-
-
     /** @type {Dossier88444ChampDescriptor[]} */
     //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
     let champsRemplissables = schemaDS88444["revision"]["champDescriptors"].filter((champ) => {
@@ -62,6 +66,30 @@
         }
     })
 
+    /** @type {(typeof groupe)[]} */
+    let champsRemplissablesGroupés = []
+
+    let groupe = {
+        /** @type {string} */
+        nom: 'Questions préliminaires',
+        /** @type {Dossier88444ChampDescriptor[]} */
+        champs: []
+    }
+
+    for (const champ of champsRemplissables) {
+        if (champ['__typename'] === 'HeaderSectionChampDescriptor') {
+            if (groupe.champs.length) {
+                champsRemplissablesGroupés.push(groupe)
+            }
+            groupe = {
+                nom: champ["label"],
+                champs: []
+            }
+        } else {
+            groupe.champs.push(champ)
+        }
+    }
+
 </script>
 
 <Squelette {email} title="Pré-remplissage dérogation">
@@ -70,20 +98,21 @@
             <h1>Pré-remplissage dérogation espèces protégées</h1>
 
             <form onchange={onSelectChanged}>
-                {#each champsRemplissables as champ}
-                    {#if champ["__typename"] == "HeaderSectionChampDescriptor"}
-                        <h3>{champ["label"]}</h3>
-                    {:else}
-                        <fieldset class="fr-fieldset fr-p-1-5v">
+                {#each champsRemplissablesGroupés as groupe}
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend">
+                            <h2>{groupe.nom}</h2>
+                        </legend>
+                        {#each groupe.champs as champ }
                             <div class="fr-fieldset__element">
-                                <div class="fr-input-group">
-                                    <label class="fr-label" for="{champ["label"]}">
+                                <div class="fr-select-group">
+                                    <label class="fr-label" for="{labelToId(champ["label"])}">
                                         {champ["label"]}
                                     </label>
 
                                     <select
                                         bind:value={nouveauDossierPartiel[champ["label"]]}
-                                        id="{champ["label"]}"
+                                        id="{labelToId(champ["label"])}"
                                         class="fr-select"
                                     >
 
@@ -99,8 +128,8 @@
                                     </select>
                                 </div>
                             </div>
-                        </fieldset>
-                    {/if}
+                        {/each}
+                    </fieldset>
                 {/each}
             </form>
 
