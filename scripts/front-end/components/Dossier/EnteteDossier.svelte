@@ -31,9 +31,6 @@
 
     let phase = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
 
-    // let dossiersSuiviParInstructeurActuel = $derived(relationSuivis && relationSuivis.get(email))
-    // let dossierActuelSuiviParInstructeurActuel = $derived(dossiersSuiviParInstructeurActuel && dossiersSuiviParInstructeurActuel.has(dossier.id))
-
     /**
      * 
      * @param {Dossier['id']} id
