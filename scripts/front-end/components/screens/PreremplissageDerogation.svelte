@@ -8,7 +8,7 @@
 
     /**
      * @param {string} label
-     * @returns string
+     * @returns {string}
      */
      function labelToId(label) {
         return label.replace(/[^a-zA-Z0-9]+/g, '-')
@@ -66,6 +66,30 @@
         }
     })
 
+    /** @type {(typeof groupe)[]} */
+    let champsRemplissablesGroupés = []
+
+    let groupe = {
+        /** @type {string} */
+        nom: 'Questions préliminaires',
+        /** @type {Dossier88444ChampDescriptor[]} */
+        champs: []
+    }
+
+    for (const champ of champsRemplissables) {
+        if (champ['__typename'] === 'HeaderSectionChampDescriptor') {
+            if (groupe.champs.length) {
+                champsRemplissablesGroupés.push(groupe)
+            }
+            groupe = {
+                nom: champ["label"],
+                champs: []
+            }
+        } else {
+            groupe.champs.push(champ)
+        }
+    }
+
 </script>
 
 <Squelette {email} title="Pré-remplissage dérogation">
@@ -74,33 +98,38 @@
             <h1>Pré-remplissage dérogation espèces protégées</h1>
 
             <form onchange={onSelectChanged}>
-                {#each champsRemplissables as champ}
-                    {#if champ["__typename"] == "HeaderSectionChampDescriptor"}
-                        <h3>{champ["label"]}</h3>
-                    {:else}
-                        <div class="fr-select-group">
-                            <label class="fr-label" for="{labelToId(champ["label"])}">
-                                {champ["label"]}
-                            </label>
+                {#each champsRemplissablesGroupés as groupe}
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend">
+                            <h2>{groupe.nom}</h2>
+                        </legend>
+                        {#each groupe.champs as champ }
+                            <div class="fr-fieldset__element">
+                                <div class="fr-select-group">
+                                    <label class="fr-label" for="{labelToId(champ["label"])}">
+                                        {champ["label"]}
+                                    </label>
 
-                            <select
-                                bind:value={nouveauDossierPartiel[champ["label"]]}
-                                id="{labelToId(champ["label"])}"
-                                class="fr-select"
-                            >
+                                    <select
+                                        bind:value={nouveauDossierPartiel[champ["label"]]}
+                                        id="{labelToId(champ["label"])}"
+                                        class="fr-select"
+                                    >
 
-                                <option value="" selected></option>
-                                {#if champ["options"]}
-                                    {#each champ["options"] as option}
-                                        <option value={option}>{option}</option>
-                                    {/each}
-                                {:else}
-                                    <option value={true}>Oui</option>
-                                    <option value={false}>Non</option>
-                                {/if}
-                            </select>
-                        </div>
-                    {/if}
+                                        <option value="" selected></option>
+                                        {#if champ["options"]}
+                                            {#each champ["options"] as option}
+                                                <option value={option}>{option}</option>
+                                            {/each}
+                                        {:else}
+                                            <option value={true}>Oui</option>
+                                            <option value={false}>Non</option>
+                                        {/if}
+                                    </select>
+                                </div>
+                            </div>
+                        {/each}
+                    </fieldset>
                 {/each}
             </form>
 
