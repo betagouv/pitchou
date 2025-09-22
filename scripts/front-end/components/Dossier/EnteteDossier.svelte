@@ -10,7 +10,6 @@
     /** @import Squelette from '../Squelette.svelte' */
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-    /** @import {PitchouState} from '../../store.js' */
     /** @import Dossier from '../../../types/database/public/Dossier.ts' */
 
 
@@ -24,16 +23,13 @@
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
      * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
-     * @property {PitchouState['relationSuivis']} relationSuivis
+     * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
      */
 
     /** @type {Props} */
-    let { dossier, email, relationSuivis } = $props();
+    let { dossier, email, dossierActuelSuiviParInstructeurActuel } = $props();
 
     let phase = dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont';
-
-    let dossiersSuiviParInstructeurActuel = $derived(relationSuivis && relationSuivis.get(email))
-    let dossierActuelSuiviParInstructeurActuel = $derived(dossiersSuiviParInstructeurActuel && dossiersSuiviParInstructeurActuel.has(dossier.id))
 
     /**
      * 
