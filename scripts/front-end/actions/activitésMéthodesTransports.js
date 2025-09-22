@@ -1,6 +1,7 @@
 //@ts-check
 
-import {dsv} from 'd3-fetch'
+import {dsv, buffer} from 'd3-fetch'
+import { getODSTableRawContent, tableRawContentToObjects } from '@odfjs/odfjs';
 import store from "../store"
 import { getURL } from '../getLinkURL.js';
 import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif } from '../../commun/outils-espèces.js';
@@ -84,15 +85,33 @@ export async function chargerActivitésMéthodesTransports(){
         return Promise.resolve(store.state.activitésMéthodesTransports)
     }
 
-    /** @type { [ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[]] } */
-    // @ts-ignore
-    const [activitésBrutes, méthodesBrutes, transportsBruts] = await Promise.all([
-        dsv(";", getURL('link#activites-data')),
-        dsv(";", getURL('link#methodes-data')),
-        dsv(";", getURL('link#transports-data'))
-    ])
+    const odsData = await buffer(getURL('link#activites-methodes-transports-data'));
+    const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
 
-    const activitésMéthodesTransports =  actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts)
+    // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
+    // utilisée par Svelte
+
+    /** @type { ActivitéMenançante[] } */
+    const activitésBrutes = activitésMéthodesTransportsBruts.get("Activités").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+    /** @type { MéthodeMenançante[] } */
+    const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+    /** @type { TransportMenançant[] } */
+    const transportsBruts = activitésMéthodesTransportsBruts.get("Transports").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+
+    const activitésMéthodesTransports = actMetTransArraysToMapBundle(
+        activitésBrutes,
+        méthodesBrutes,
+        transportsBruts
+    )
     const activitésNomenclaturePitchou = getActivitésNomenclaturePitchou(activitésMéthodesTransports.activités)
 
     store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou})
