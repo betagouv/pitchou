@@ -446,7 +446,8 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
    for(const activite of activitésBrutes){
        const classif = activite['Espèces']
 
-       if(!classif.trim() && !activite['Code']){
+       // @ts-expect-error Le Code du fichier ODS est soit une string soit un float (ou peut être pas défini)
+       if(!classif.trim() && (activite['Code'] === undefined || activite['Code'] === '')){
            // ignore empty lines (certainly comments)
            break;
        }
@@ -454,6 +455,9 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
        if(!isClassif(classif)){
            throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
        }
+
+       // @ts-expect-error
+       activite['Code'] = activite['Code'].toString()
 
        const classifActivz = activités[classif]
        Object.freeze(activite)
@@ -472,7 +476,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
    for(const methode of méthodesBrutes){
        const classif = methode['Espèces']
 
-       if(!classif.trim() && !methode['Code']){
+       if(!classif.trim() && (methode['Code'] === undefined || methode['Code'] === '')){
            // ignore empty lines (certainly comments)
            break;
        }
@@ -480,6 +484,8 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
        if(!isClassif(classif)){
            throw new TypeError(`Classification d'espèce non reconnue : ${classif}`)
        }
+
+       methode['Code'] = methode['Code'].toString()
 
        const classifMeth = méthodes[classif]
        Object.freeze(methode)
@@ -497,7 +503,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
    for(const transport of transportsBruts){
        const classif = transport['Espèces']
 
-       if(!classif.trim() && !transport['Code']){
+       if(!classif.trim() && (transport['Code'] === undefined || transport['Code'] === '')){
            // ignore empty lines (certainly comments)
            break;
        }
@@ -505,6 +511,8 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
        if(!isClassif(classif)){
            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
        }
+
+       transport['Code'] = transport['Code'].toString()
 
        const classifTrans = transports[classif]
        Object.freeze(transport)
