@@ -4,10 +4,10 @@
     import { fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
-    
+
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {EspèceProtégée | undefined} [espèce]
@@ -47,7 +47,7 @@
     const dupliquerLigne = onDupliquerLigne && (() => {
         if(espèce){
             onDupliquerLigne({
-                espèce,  
+                espèce,
                 activité,
                 méthode,
                 transport,
@@ -64,8 +64,8 @@
 <tr>
     {#if espècesProtégéesOiseau.length >= 1}
     <td>
-        <AutocompleteEspeces 
-            bind:espèceSélectionnée={espèce} 
+        <AutocompleteEspeces
+            bind:espèceSélectionnée={espèce}
             espèces={espècesProtégéesOiseau}
         />
     </td>
@@ -154,7 +154,7 @@
             all: unset;
             cursor: pointer;
         }
-        
+
         input[type="number"] {
             border-radius: 0.5em;
             padding: 0.4em;

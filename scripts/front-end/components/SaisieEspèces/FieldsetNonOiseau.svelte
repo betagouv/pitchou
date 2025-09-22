@@ -50,7 +50,7 @@
             triSélectionné = undefined
             espèceRechercheSélectionnée = undefined
         }
-        
+
     })
 
     /** @param {EspèceProtégée} _espèce */
@@ -148,9 +148,9 @@
                     </thead>
 
                     <tbody>
-                        {#each faunesNonOiseauxAtteintes as fauneNonOiseauAtteinte}
+                        {#each faunesNonOiseauxAtteintes as fauneNonOiseauAtteinte (fauneNonOiseauAtteinte)}
                         <FauneNonOiseauAtteinteEditRow
-                            bind:espèce={fauneNonOiseauAtteinte.espèce} 
+                            bind:espèce={fauneNonOiseauAtteinte.espèce}
                             bind:activité={fauneNonOiseauAtteinte.activité}
                             bind:méthode={fauneNonOiseauAtteinte.méthode}
                             bind:transport={fauneNonOiseauAtteinte.transport}

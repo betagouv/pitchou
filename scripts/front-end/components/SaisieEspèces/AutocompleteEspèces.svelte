@@ -12,7 +12,7 @@
 
 
     /**
-     * il y a 1000 opportunités d'optimizations en temps 
+     * il y a 1000 opportunités d'optimizations en temps
      * (notamment des memoization). Une autre fois
      */
 
@@ -26,7 +26,7 @@
 
     $inspect('espèceSélectionnée', espèceSélectionnée)
 
-    let text = $state(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : '')
+    let text = $derived(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : '')
 
     $inspect('text', text)
 
@@ -41,7 +41,7 @@
     }
     let onblur = () => {
         timeout = setTimeout(
-            () => {openChoices = false}, 
+            () => {openChoices = false},
             400
         )
     }
@@ -49,7 +49,7 @@
     let espècesPertinentes = $derived.by(() => {
         if(text.trim().length === 0)
             return []
-        
+
 
         return espèces
             .filter(({nomsScientifiques, nomsVernaculaires}) => {
@@ -75,20 +75,19 @@
     })
 
     /**
-     * 
+     *
      * @param {EspèceProtégée} espèce
      */
     function selectionnerEspèce(espèce){
         if(onChange){
             onChange(espèce)
         }
-     
-        text = ''
+
         espèceSélectionnée = espèce
     }
 
     /**
-     * 
+     *
      * @param {EspèceProtégée} espèce
      * @returns {string}
      */
@@ -107,7 +106,7 @@
     {#if openChoices && espècesPertinentes.length >= 1}
     <ol>
         {#each espècesPertinentes as espèce}
-            <li><button onclick={() => selectionnerEspèce(espèce)} {onfocus} {onblur}>
+            <li><button type="button" onclick={() => selectionnerEspèce(espèce)} {onfocus} {onblur}>
                 {espèceLabel(espèce)}
             </button></li>
         {/each}
@@ -126,7 +125,7 @@
             z-index: 1;
 
             background-color: var(--border-default-grey);
-           
+
             padding-inline-start: 0;
 
             li{
@@ -148,6 +147,6 @@
             }
         }
     }
-   
+
 
 </style>
