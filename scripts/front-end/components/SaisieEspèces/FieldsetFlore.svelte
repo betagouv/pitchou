@@ -12,7 +12,7 @@
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {FloreAtteinte[]} floresAtteintes
@@ -41,7 +41,7 @@
             triSélectionné = undefined
             espèceRechercheSélectionnée = undefined
         }
-        
+
     })
 
     /** @param {EspèceProtégée} _espèce */
@@ -121,9 +121,9 @@
                     </thead>
 
                     <tbody>
-                        {#each floresAtteintes as floreAtteinte}
+                        {#each floresAtteintes as floreAtteinte (floreAtteinte)}
                             <FloreAtteinteEditRow
-                                bind:espèce={floreAtteinte.espèce} 
+                                bind:espèce={floreAtteinte.espèce}
                                 bind:activité={floreAtteinte.activité}
                                 bind:nombreIndividus={floreAtteinte.nombreIndividus}
                                 bind:surfaceHabitatDétruit={floreAtteinte.surfaceHabitatDétruit}

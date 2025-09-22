@@ -13,7 +13,7 @@
     /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {OiseauAtteint[]} oiseauxAtteints
@@ -50,7 +50,7 @@
             triSélectionné = undefined
             espèceRechercheSélectionnée = undefined
         }
-        
+
     })
 
     /** @param {EspèceProtégée} _espèce */
@@ -150,15 +150,15 @@
                     </thead>
                     <tbody>
 
-                        {#each oiseauxAtteints as oiseauAtteint}
+                        {#each oiseauxAtteints as oiseauAtteint (oiseauAtteint)}
                             <OiseauAtteintEditRow
-                                bind:espèce={oiseauAtteint.espèce} 
-                                bind:activité={oiseauAtteint.activité} 
-                                bind:méthode={oiseauAtteint.méthode} 
-                                bind:transport={oiseauAtteint.transport} 
-                                bind:nombreIndividus={oiseauAtteint.nombreIndividus} 
-                                bind:nombreNids={oiseauAtteint.nombreNids} 
-                                bind:nombreOeufs={oiseauAtteint.nombreOeufs} 
+                                bind:espèce={oiseauAtteint.espèce}
+                                bind:activité={oiseauAtteint.activité}
+                                bind:méthode={oiseauAtteint.méthode}
+                                bind:transport={oiseauAtteint.transport}
+                                bind:nombreIndividus={oiseauAtteint.nombreIndividus}
+                                bind:nombreNids={oiseauAtteint.nombreNids}
+                                bind:nombreOeufs={oiseauAtteint.nombreOeufs}
                                 bind:surfaceHabitatDétruit={oiseauAtteint.surfaceHabitatDétruit}
                                 {espècesProtégéesOiseau} {activitésMenaçantes} {méthodesMenaçantes} {transportMenaçants}
                                 {onSupprimerLigne}
