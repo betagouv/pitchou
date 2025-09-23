@@ -13,6 +13,14 @@ import ImportDossierBFC from './routes/importDossierBFC.js';
 import { init } from './actions/main.js';
 import Stats from './routes/Stats.js';
 
+// Évite l'appel du routeur sur les liens dont le chemain est le même que la page courante mais l'ancre (#) est différente
+page((ctx, next) => {
+    console.log(ctx)
+    if (!ctx.init && ctx.hash && ctx.path === window.location.pathname) {
+        return
+    }
+    next()
+})
 
 page('/', Accueil)
 
