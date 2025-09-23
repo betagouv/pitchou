@@ -1,10 +1,9 @@
 <script>
+    /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
+    /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
     import { créerLienGETPréremplissageDémarche } from '../../../commun/préremplissageDémarcheSimplifiée';
     import Squelette from '../Squelette.svelte'
     import CopyButton from '../CopyButton.svelte'
-
-    /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-    /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
 
     /**
      * @param {string} label
