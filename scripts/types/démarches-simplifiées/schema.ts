@@ -39,6 +39,7 @@ interface RevisionSchemaDémarcheSimplifiée{
 
 export interface SchemaDémarcheSimplifiée {
     revision: RevisionSchemaDémarcheSimplifiée
+    number: number
 }
 
 

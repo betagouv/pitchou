@@ -45,14 +45,14 @@ exécuter `npm run build-types:db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 
 
-#### Re-générer les types à partir du schema DS 88444
+#### Re-générer les types à partir des 2 schémas DS
 
-`npm run build-types:ds-88444`
+`npm run build-types:ds`
 
-Cette commande télécharge aussi la dernière version du schema avant de créer les types
+Cette commande télécharge aussi les dernières versions des schémas avant de créer les types.
 
-Pour éviter le téléchargement et créer les types à partir du fichier schema existant dans le repo, ajouter l'option `--skipDownload`:
-`node outils/genere-types-88444.js --skipDownload`
+Pour éviter le téléchargement et créer les types à partir des fichiers schémas existants dans le repo, ajouter l'option `--skipDownload`, par exemple :
+`node outils/genere-types-schema-DS.js --skipDownload --idSchemaDS derogation-especes-protegees`
 
 
 ### Pour pgadmin

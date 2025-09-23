@@ -25,7 +25,6 @@ const annotations = {
     "DDEP nécessaire ?": 'Oui',
     'Enjeu écologique': true,
     'Enjeu politique': true,
-    'Commentaires sur les enjeux et la procédure': 'Procédure super importante de ouf ! Sauvons le lion rose !\nOn va pas se mentir, Mayor Dewey, il assure pas !',
     'Date de réception DDEP': new Date('2024-03-08'),
     "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": new Date('2024-04-09'),
     'N° Demande ONAGRE': 'O1234',
