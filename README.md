@@ -206,11 +206,6 @@ scalingo --app especes-protegees run node outils/sync-démarches-simplifiées.js
 ```
 
 
-### Remplir des annotations privées
-
-`node --env-file=.env outils/remplir-annotations.js`
-
-
 ### Lister les liens de connexion en local
 
 Utile pour tester rapidement en local après un restore de backup en tant qu'une personne en particulier
