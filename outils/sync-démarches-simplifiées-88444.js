@@ -42,12 +42,6 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
 }
 
-/** @type {number} */
-const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER || "")
-if(!DEMARCHE_NUMBER){
-  throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
-}
-
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
@@ -65,6 +59,12 @@ else{
     lastModified = sub(new Date(), {hours: 12})
 }
 
+/** @type {SchemaDémarcheSimplifiée} */
+// @ts-expect-error TS ne peut pas le savoir
+const schema88444 = _schema88444
+
+const DEMARCHE_NUMBER = schema88444.number
+
 console.info(
     `Synchronisation des dossiers de la démarche`, 
     DEMARCHE_NUMBER, 
@@ -72,10 +72,6 @@ console.info(
     format(lastModified, 'd MMMM yyyy (HH:mm O) ', {locale: fr}),
     `(${formatDistanceToNow(lastModified, {locale: fr})})`
 )
-
-/** @type {SchemaDémarcheSimplifiée} */
-// @ts-expect-error TS ne peut pas le savoir
-const schema88444 = _schema88444
 
 const laTransactionDeSynchronisationDS = await créerTransaction()
 
