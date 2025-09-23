@@ -58,7 +58,7 @@ else{
         await writeFile(schemaPath, JSON.stringify(schema, null, 4))
     }
     catch(e){
-        // ignore
+        console.error(`Erreur lors de l'écriture du fichier ${schemaPath}`, e)
     }
 }
 
