@@ -4,7 +4,6 @@ import knex from 'knex';
 
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
-/** @import {default as CapÉcritureAnnotation} from '../types/database/public/CapÉcritureAnnotation.ts' */
 /** @import {default as RésultatSynchronisationDS88444} from '../types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
 /** @import {StringValues} from '../types/tools.d.ts' */
@@ -55,27 +54,6 @@ export function dumpEntreprises(entreprises, databaseConnection = directDatabase
     .insert(entreprises)
     .onConflict('siret')
     .merge()
-}
-
-
-
-/**
- * La table cap_écriture_annotation contient un instructeur_id qui est l'identifiant de l'instructeur
- * dans démarches-simplifiées
- * Cette fonction part de la capability d'écriture d'une annotation privée et retourne l'identifiant 
- * d'instructeur (pour l'utiliser lors des appels API DS pour indiquer qui modifie une annotation privée)
- * 
- * @param {CapÉcritureAnnotation['cap']} cap 
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<CapÉcritureAnnotation['instructeur_id']>}
- */
-export async function getInstructeurIdByÉcritureAnnotationCap(cap, databaseConnection = directDatabaseConnection){
-    const res = await databaseConnection('cap_écriture_annotation')
-        .select('instructeur_id')
-        .where({cap})
-        .first()
-
-    return res && res.instructeur_id
 }
 
 
