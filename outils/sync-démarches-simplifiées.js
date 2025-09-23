@@ -18,7 +18,7 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 
-import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
+import { getDonnéesPersonnesEntreprises88444, makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -36,6 +36,7 @@ import { join } from 'node:path'
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
+/** @import {GetDonnéesPersonnesEntreprises} from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'. */
 
 // récups les données de DS
 
@@ -195,7 +196,10 @@ const [fichiersAvisCSRPN_CNPN_Téléchargés,
     ])
 
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés)
+/** @type {GetDonnéesPersonnesEntreprises} */
+const getDonnéesPersonnesEntreprises = getDonnéesPersonnesEntreprises88444
+
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, schema, getDonnéesPersonnesEntreprises)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id

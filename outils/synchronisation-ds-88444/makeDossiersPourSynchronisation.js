@@ -1,6 +1,6 @@
 /** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {ChampDescriptor, SchemaDémarcheSimplifiée} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
@@ -21,13 +21,23 @@ import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDo
 import { isAfter } from 'date-fns'
 import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 
+
+
 /**
- * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
+ * @callback GetDonnéesPersonnesEntreprises
+ *  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
+ * @param {DossierDS88444} dossierDS
+ * Le premier paramètre de pitchouKeyToChampDS doit être une chaîne de caractère qui représente une clef du DossierDémarcheSimplifiée
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @returns {DonnéesPersonnesEntreprisesInitializer}
+ */
+
+/**
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
-function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
+export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToChampDS) {
     const {
         demandeur,
         champs,
@@ -374,23 +384,35 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
     return décisionsAdministratives
 }
 
+
 /**
  * Récupère les données brutes des dossiers depuis Démarches Simplifiées
  * puis les transforme au format attendu par l'application
  * afin de permettre leur insertion ou mise à jour en base de données.
+ * 
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {Map<number, FichierId> | undefined} fichiersMotivationTéléchargés
+ * @param {SchemaDémarcheSimplifiée} schema 
+ * @param {GetDonnéesPersonnesEntreprises} getDonnéesPersonnesEntreprises
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, schema, getDonnéesPersonnesEntreprises) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
-
+    /** @type {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} */
+    //@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheSimplifiee88444 sont les schema88444.revision.champDescriptors.map(label)
+    const pitchouKeyToChampDS = new Map(schema.revision.champDescriptors.map(
+        ({label, id}) => [label, id])
+    )
+    
+    /** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
+    //@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
+    export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescriptors.map(
+        ({label, id}) => [label, id])
+    )
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
