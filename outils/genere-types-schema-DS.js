@@ -11,11 +11,18 @@ import ky from 'ky'
 
 const args = parseArgs(process.argv)
 
-/** @type {SchemaDémarcheSimplifiée} */
-let schema88444;
+const ID_SCHEMA_DS = args.idSchemaDS
 
-const schemaPath = 'data/démarches-simplifiées/schema-DS-88444.json'
-const outPath = 'scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts'
+if (!ID_SCHEMA_DS) {
+    throw Error("L'ID du Schéma DS n'est pas défini.")
+}
+
+const urlSchema = `https://www.demarches-simplifiees.fr/preremplir/${ID_SCHEMA_DS}/schema`
+
+/** @type {SchemaDémarcheSimplifiée} */
+let schema;
+
+const schemaPath = `data/démarches-simplifiées/schema-DS/${ID_SCHEMA_DS}.json`
 
 if(args.skipDownload){
     /** @type {string} */
@@ -24,32 +31,31 @@ if(args.skipDownload){
         schemaStr = await readFile(schemaPath, 'utf-8')
     }
     catch(e){
-        console.error('Erreur lors de la récupération du fichier data/démarches-simplifiées/schema-DS-88444.json')
+        console.error(`Erreur lors de la récupération du fichier ${schemaPath}`)
         console.error(e)
         process.exit(1)
     }
 
-    schema88444 = JSON.parse(schemaStr);
+    schema = JSON.parse(schemaStr);
 
-    console.log(`Utilisation du fichier data/démarches-simplifiées/schema-DS-88444.json déjà présent dans le repo`)
+    console.log(`Utilisation du fichier ${schemaPath} déjà présent dans le repo`)
 }
 else{
-    const urlSchema88444 = 'https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema'
     let schemaStr;
 
-    console.log(`Téléchargement de la dernière version du schema DS 88444`)
+    console.info(`Téléchargement de la dernière version du schema DS ${urlSchema}`)
     try{
-        schemaStr = await ky.get(urlSchema88444).text()
-        schema88444 = JSON.parse(schemaStr);
+        schemaStr = await ky.get(urlSchema).text()
+        schema = JSON.parse(schemaStr);
     }
     catch(err){
-        console.error(`Erreur lors du téléchargement de ${urlSchema88444}. Réessayer plus tard ou avec l'option --skipDownload`)
+        console.error(`Erreur lors du téléchargement de ${urlSchema}. Réessayer plus tard ou avec l'option --skipDownload`)
         console.error(err)
         process.exit(1)
     }
 
     try{
-        await writeFile(schemaPath, JSON.stringify(schema88444, null, 4))
+        await writeFile(schemaPath, JSON.stringify(schema, null, 4))
     }
     catch(e){
         // ignore
@@ -198,7 +204,7 @@ const DSTypenameToJSONSchema = new Map([
 ])
 
 
-const { revision: { champDescriptors, annotationDescriptors } } = schema88444
+const { revision: { champDescriptors, annotationDescriptors } } = schema
 
 /**
  * champDescriptors vers JSONSchema
@@ -243,12 +249,14 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors){
 
 
 
-const dossierDémarcheSimplifiée88444JSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
+const dossierDémarcheSimplifiéeJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
 
-const dossierDémarcheSimplifiée88444InterfaceP = compile(
+
+
+const dossierDémarcheSimplifiéeInterfaceP = compile(
     //@ts-ignore
-    dossierDémarcheSimplifiée88444JSONSchema, 
-    'DossierDemarcheSimplifiee88444', 
+    dossierDémarcheSimplifiéeJSONSchema, 
+    `DossierDemarcheSimplifiee${schema.number}`, 
     { bannerComment: '' }
 )
 
@@ -258,26 +266,26 @@ const dossierDémarcheSimplifiée88444InterfaceP = compile(
  * annotationDescriptors vers JSONSchema
  */
 
-const annotationsDémarcheSimplifiée88444JSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
+const annotationsDémarcheSimplifiéeJSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
 
 
-const annotationsDémarcheSimplifiée88444InterfaceP = compile(
+const annotationsDémarcheSimplifiéeInterfaceP = compile(
     //@ts-ignore
-    annotationsDémarcheSimplifiée88444JSONSchema, 
-    'AnnotationsPriveesDemarcheSimplifiee88444', 
+    annotationsDémarcheSimplifiéeJSONSchema, 
+    `AnnotationsPriveesDemarcheSimplifiee${schema.number}`, 
     { bannerComment: '' }
 )
 
 
 const commentaireInitial = `/**
-* Ce fichier a été généré automatiquement par outils/genere-types-88444.js
-* en prenant data/démarches-simplifiées/schema-DS-88444.json comme source
+* Ce fichier a été généré automatiquement par outils/genere-types-schema-DS.js
+* en prenant ${schemaPath} comme source
 * 
 * Ne pas le modifier à la main
 * 
-* À la place, mettre à jour data/démarches-simplifiées/schema-DS-88444.json
-* d'après https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
-* et faire relancer outils/genere-types-88444.js
+* À la place, mettre à jour ${schemaPath}
+* d'après ${urlSchema}
+* et relancer outils/genere-types-schema-DS.js
 */`
 
 const imports = [
@@ -285,19 +293,19 @@ const imports = [
     `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join('\n')
 
-
+const outPath = `scripts/types/démarches-simplifiées/DémarcheSimplifiée${schema.number}.ts`
 await Promise.all([
-    dossierDémarcheSimplifiée88444InterfaceP,
-    annotationsDémarcheSimplifiée88444InterfaceP
+    dossierDémarcheSimplifiéeInterfaceP,
+    annotationsDémarcheSimplifiéeInterfaceP
 ])
 .then(([
-    dossierDémarcheSimplifiée88444Interface,
-    annotationsDémarcheSimplifiée88444Interface
+    dossierDémarcheSimplifiéeInterface,
+    annotationsDémarcheSimplifiéeInterface
 ]) => [
     commentaireInitial, 
     imports,
-    dossierDémarcheSimplifiée88444Interface,
-    annotationsDémarcheSimplifiée88444Interface
+    dossierDémarcheSimplifiéeInterface,
+    annotationsDémarcheSimplifiéeInterface
 ].join('\n\n'))
 .then(str => writeFile(outPath, str))
 
