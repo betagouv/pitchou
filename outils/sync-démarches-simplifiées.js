@@ -16,10 +16,12 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import _schema88444 from '../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 
 import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
+import { readdir } from 'node:fs/promises'
+import { join } from 'node:path'
+
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
@@ -42,18 +44,24 @@ if(!DEMARCHE_SIMPLIFIEE_API_TOKEN){
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`)
 }
 
-/** @type {number} */
-const DEMARCHE_NUMBER = parseInt(process.env.DEMARCHE_NUMBER || "")
-if(!DEMARCHE_NUMBER){
-  throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
-}
-
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL){
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
 }
 
 const args = parseArgs(process.argv)
+
+const ID_SCHEMA_DS = args.IdSchemaDS
+
+if (!ID_SCHEMA_DS) {
+    const liste_fichiers = await readdir(join(import.meta.dirname,`../data/démarches-simplifiées/schema-DS`))
+    console.error(`
+Aucun argument --IdSchemaDS n'a été fourni.
+Voici la liste des ids des schémas DS disponibles : 
+  - ${liste_fichiers.map((fichier) => fichier.slice(0, -'.json'.length)).join('\n  - ')}
+`)
+    process.exit(1)
+}
 
 /** @type {Date} */
 let lastModified;
@@ -64,6 +72,11 @@ if(typeof args.lastModified === 'string' && isValidDate(new Date(args.lastModifi
 else{
     lastModified = sub(new Date(), {hours: 12})
 }
+/** @type {SchemaDémarcheSimplifiée} */
+const schema = (await import(`../data/démarches-simplifiées/schema-DS/${ID_SCHEMA_DS}.json`, {with: {type: 'json'}})).default
+
+const DEMARCHE_NUMBER = schema.number
+
 
 console.info(
     `Synchronisation des dossiers de la démarche`, 
@@ -72,10 +85,6 @@ console.info(
     format(lastModified, 'd MMMM yyyy (HH:mm O) ', {locale: fr}),
     `(${formatDistanceToNow(lastModified, {locale: fr})})`
 )
-
-/** @type {SchemaDémarcheSimplifiée} */
-// @ts-expect-error TS ne peut pas le savoir
-const schema88444 = _schema88444
 
 const laTransactionDeSynchronisationDS = await créerTransaction()
 
@@ -105,13 +114,13 @@ console.info('Nombre de dossiers', dossiersDS.length)
 
 /** @type {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} */
 //@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheSimplifiee88444 sont les schema88444.revision.champDescriptors.map(label)
-const pitchouKeyToChampDS = new Map(schema88444.revision.champDescriptors.map(
+const pitchouKeyToChampDS = new Map(schema.revision.champDescriptors.map(
     ({label, id}) => [label, id])
 )
 
 /** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
 //@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
-export const pitchouKeyToAnnotationDS = new Map(schema88444.revision.annotationDescriptors.map(
+export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescriptors.map(
     ({label, id}) => [label, id])
 )
 

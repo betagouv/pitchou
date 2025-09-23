@@ -7,7 +7,7 @@ import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
 
-import { closeDatabaseConnection, getInstructeurIdByÉcritureAnnotationCap, 
+import { closeDatabaseConnection, 
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
   getRésultatsSynchronisationDS88444,
   créerTransaction} from './database.js'
@@ -25,13 +25,12 @@ import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
 import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
 
-import remplirAnnotations from './démarches-simplifiées/remplirAnnotations.js'
-import _schema88444 from '../../data/démarches-simplifiées/schema-DS-88444.json' with {type: 'json'}
+import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 
 
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
+/** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
 /** @import {StringValues} from '../types/tools.ts' */
@@ -655,64 +654,6 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
           reply.code(500).send(`Erreur lors du changement de suivi du dossier ${dossierId} par ${personneEmail}. ${err}`)
       })
 })
-
-
-
-fastify.post('/remplir-annotations', async (request, reply) => {
-  // @ts-ignore
-  const cap = request.query.cap
-  if(!cap){
-    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
-  }
-  else{
-    const instructeurId = await getInstructeurIdByÉcritureAnnotationCap(cap)
-    if (!instructeurId) {
-      reply.code(403).send(`Le paramètre 'cap' est invalide`)
-      return
-    } 
-    else{
-      /** @type { {dossierId: string, annotations: Partial<AnnotationsPriveesDemarcheSimplifiee88444>} } */
-      // @ts-ignore
-      const {dossierId, annotations} = request.body
-
-      if(!dossierId){
-        reply.code(400).send(`Donnée 'dossierId' manquante dans le body`)
-        return
-      }
-
-      if(!annotations){
-        reply.code(400).send(`Donnée 'annotations' manquante dans le body`)
-        return
-      }
-
-      /** @type {(keyof AnnotationsPriveesDemarcheSimplifiee88444)[]} */
-      const dateKeys = [
-        'Date de réception DDEP', 
-        'Date saisine CSRPN', 
-        'Date saisine CNPN',
-        'Date avis CNPN', 
-        'Date avis CSRPN',
-        "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP",
-        "Date de début de la consultation du public ou enquête publique"
-      ]
-
-      for(const k of dateKeys){
-            if(annotations[k]){
-                //@ts-expect-error TS ne peut pas savoir qu'on n'a sélectionner que les clefs pour des dates
-                annotations[k] = new Date(annotations[k])
-            }
-      }
-
-      return remplirAnnotations(
-        DEMARCHE_SIMPLIFIEE_API_TOKEN,
-        { dossierId, instructeurId, annotations }
-      )
-    }
-  }
-})
-
-
 
 
 // Lancer le serveur HTTP

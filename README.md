@@ -178,12 +178,12 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 depuis le container du serveur
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js` (dernières heures par défaut)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees` (dernières heures par défaut)
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
 
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
+`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 
 #### En prod
@@ -202,13 +202,8 @@ Parfois, notamment après des changements dans le modèle de données, il est n�
 Pour le faire, on peut utiliser un [*one-off container*}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
-scalingo --app especes-protegees run node outils/sync-démarches-simplifiées-88444.js --lastModified 2024-01-01
+scalingo --app especes-protegees run node outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01
 ```
-
-
-### Remplir des annotations privées
-
-`node --env-file=.env outils/remplir-annotations.js`
 
 
 ### Lister les liens de connexion en local
