@@ -7,7 +7,7 @@ import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
 
-import { closeDatabaseConnection, 
+import { closeDatabaseConnection,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
   getRésultatsSynchronisationDS88444,
   créerTransaction} from './database.js'
@@ -50,11 +50,6 @@ const schema88444 = _schema88444
 const PORT = parseInt(process.env.PORT || '')
 if(!PORT){
   throw new TypeError(`Variable d'environnement PORT manquante`)
-}
-
-const DEMARCHE_NUMBER = process.env.DEMARCHE_NUMBER
-if(!DEMARCHE_NUMBER){
-  throw new TypeError(`Variable d'environnement DEMARCHE_NUMBER manquante`)
 }
 
 const DEMARCHE_SIMPLIFIEE_API_TOKEN = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN
@@ -112,9 +107,9 @@ fastify.register(fastifyMultipart, {
 
 
 /**
- * 
- * @param {any} _request 
- * @param {any} reply 
+ *
+ * @param {any} _request
+ * @param {any} reply
  */
 function sendIndexHTMLFile(_request, reply){
   reply.sendFile('index.html')
@@ -135,13 +130,13 @@ fastify.post('/lien-preremplissage', async function (request) {
   let donnéesPreRemplissage = request.body
 
   const donnéesSupplémentairesDossiers = donnéesPreRemplissage['NE PAS MODIFIER - Données techniques associées à votre dossier']
-  
+
   // Les données supplémentaires concernent les données des annotations privées, les données de suivi des instructeur.i.ces...
   // Ces données ne peuvent pas être pré-remplies directement, on va donc les chiffrer pour les utiliser plus tard.
   if (donnéesSupplémentairesDossiers) {
     donnéesPreRemplissage['NE PAS MODIFIER - Données techniques associées à votre dossier'] = await chiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentairesDossiers)
   }
-  
+
   return demanderLienPréremplissage(donnéesPreRemplissage, schema88444)
     // @ts-ignore
     .then(({dossier_url}) => dossier_url)
@@ -188,7 +183,7 @@ fastify.get('/api/stats-publiques', async function () {
 
 
 /**
- * Routes qui nécessite des privilèges 
+ * Routes qui nécessite des privilèges
  */
 
 
@@ -251,7 +246,7 @@ fastify.get('/dossiers', async function (request, reply) {
   if (cap) {
     /** @type {Awaited<ReturnType<NonNullable<PitchouInstructeurCapabilities['listerDossiers']>>>} */
     const dossiers = await getDossiersRésumésByCap(cap)
-    return dossiers 
+    return dossiers
   } else {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
   }
@@ -273,13 +268,13 @@ fastify.get('/dossier/:dossierId', function(request, reply) {
 
     if(!cap){
       reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-      return 
+      return
     }
-    
+
     //@ts-ignore
     if(!request.params.dossierId){
       reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
-      return 
+      return
     }
 
     /** @type {DossierComplet['id']} */
@@ -300,7 +295,7 @@ fastify.get('/dossier/:dossierId', function(request, reply) {
           // @ts-ignore
           dossier.espècesImpactées.contenu = dossier.espècesImpactées.contenu.toString('base64')
         }
-        
+
         return dossier
       }
     })
@@ -315,13 +310,13 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
 
   if(!cap){
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
+    return
   }
-  
+
   //@ts-ignore
   if(!request.params.dossierId){
     reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
-    return 
+    return
   }
 
   /** @type {DossierComplet['id']} */
@@ -333,7 +328,7 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
 
   if(!accessibleDossierId.has(dossierId)){
     reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
-    return 
+    return
   }
 
   const capPersonne = await getPersonneByDossierCap(cap)
@@ -349,11 +344,11 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
 
 //@ts-expect-error Fastify type is hard to get
 async function téléchargementFichierRouteHandler(request, reply) {
-  
+
   //@ts-ignore
   if(!request.params.fichierId){
     reply.code(400).send(`Paramètre 'fichierId' manquant dans l'URL`)
-    return 
+    return
   }
 
   //@ts-ignore
@@ -378,24 +373,24 @@ fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichi
 
 
 fastify.post(
-  '/decision-administrative', 
+  '/decision-administrative',
   {bodyLimit: MAX_UPLOAD_FILE_SIZE},
-  async function(request, reply) {  
+  async function(request, reply) {
   // @ts-ignore
   const { cap } = request.query
 
   if(!cap){
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
+    return
   }
-  
+
   /** @type { DécisionAdministrativePourTransfer } */
   // @ts-ignore
   const décisionData = request.body
 
   if(!décisionData.dossier){
     reply.code(400).send(`Le 'dossier' est absent des données de décision administrative`)
-    return 
+    return
   }
 
 
@@ -430,11 +425,11 @@ fastify.post(
 })
 
 
-fastify.delete('/decision-administrative/:decisionAdministrativeId', async function(request, reply) {  
+fastify.delete('/decision-administrative/:decisionAdministrativeId', async function(request, reply) {
   //@ts-ignore
   if(!request.params.decisionAdministrativeId){
     reply.code(400).send(`Paramètre 'decisionAdministrativeId' manquant dans l'URL`)
-    return 
+    return
   }
 
   // @ts-ignore
@@ -443,7 +438,7 @@ fastify.delete('/decision-administrative/:decisionAdministrativeId', async funct
 
 
 
-fastify.post('/prescription', function(request, reply) {  
+fastify.post('/prescription', function(request, reply) {
   /** @type { Partial<Prescription> } */
   // @ts-ignore
   const prescriptionData = request.body
@@ -466,7 +461,7 @@ fastify.post('/prescription', function(request, reply) {
 })
 
 
-fastify.post('/prescriptions-et-contrôles', function(request, reply) {  
+fastify.post('/prescriptions-et-contrôles', function(request, reply) {
   /** @type { Omit<FrontEndPrescription, 'id'>[] } */
   // @ts-ignore
   const prescriptionData = request.body
@@ -480,11 +475,11 @@ fastify.post('/prescriptions-et-contrôles', function(request, reply) {
 
 
 
-fastify.delete('/prescription/:prescriptionId', async function(request, reply) {  
+fastify.delete('/prescription/:prescriptionId', async function(request, reply) {
   //@ts-ignore
   if(!request.params.prescriptionId){
     reply.code(400).send(`Paramètre 'prescriptionId' manquant dans l'URL`)
-    return 
+    return
   }
 
   // @ts-ignore
@@ -492,7 +487,7 @@ fastify.delete('/prescription/:prescriptionId', async function(request, reply) {
 })
 
 
-fastify.post('/contrôle', function(request, reply) {  
+fastify.post('/contrôle', function(request, reply) {
   /** @type { Partial<Contrôle> } */
   // @ts-ignore
   const contrôleData = request.body
@@ -515,11 +510,11 @@ fastify.post('/contrôle', function(request, reply) {
 })
 
 
-fastify.delete('/contrôle/:contrôleId', async function(request, reply) {  
+fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
   //@ts-ignore
   if(!request.params.contrôleId){
     reply.code(400).send(`Paramètre 'contrôleId' manquant dans l'URL`)
-    return 
+    return
   }
 
   // @ts-ignore
@@ -533,13 +528,13 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
 
   if(!cap){
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
+    return
   }
-  
+
   //@ts-ignore
   if(!request.params.dossierId){
     reply.code(400).send(`Paramètre 'dossierId' manquant dans l'URL`)
-    return 
+    return
   }
 
   /** @type {DossierComplet['id']} */
@@ -551,7 +546,7 @@ fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
 
   if(!accessibleDossierId.has(dossierId)){
     reply.code(403).send(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`)
-    return 
+    return
   }
 
   // @ts-ignore
@@ -564,14 +559,14 @@ fastify.get('/dossiers/evenements-phases', async function(request, reply) {
 
   if(!cap){
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
+    return
   }
 
   const évènementsPhase = await getÉvènementsPhaseDossiers(cap)
   if (!évènementsPhase) {
     reply.code(403).send(`Le paramètre 'cap' est invalide`)
     return
-  } 
+  }
 
   return évènementsPhase
 })
@@ -583,14 +578,14 @@ fastify.get('/dossiers/relation-suivis', async function(request, reply) {
 
   if(!cap){
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
+    return
   }
 
   const relationSuivis = await getRelationSuivis(cap)
   if (!relationSuivis) {
     reply.code(403).send(`Le paramètre 'cap' est invalide`)
     return
-  } 
+  }
 
   return relationSuivis
 })
@@ -602,7 +597,7 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
 
   if(!cap){
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`)
-    return 
+    return
   }
 
   /** @typedef {Parameters<PitchouInstructeurCapabilities['modifierRelationSuivi']>} ChangerSuiviParams */
@@ -672,7 +667,7 @@ try {
  * @param {string} signal
  */
 async function shutdown(signal){
-  console.log('shutdown on', signal)  
+  console.log('shutdown on', signal)
   await Promise.all([
     closeDatabaseConnection(),
     fastify.close()
@@ -683,5 +678,3 @@ async function shutdown(signal){
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
-
-
