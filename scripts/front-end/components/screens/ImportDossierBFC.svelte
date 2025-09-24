@@ -26,7 +26,7 @@
      * @typedef {Object} Props
      * @property {ComponentProps<typeof Squelette>['email']} [email]
      * @property {DossierRésumé[]} [dossiers]
-     * @property {SchemaDémarcheSimplifiée} schema
+     * @property {SchemaDémarcheSimplifiée | undefined} schema
      */
 
     /** @type {Props} */
@@ -47,11 +47,13 @@
     /** @type {Set<DossierDemarcheSimplifiee88444['Activité principale']>} } */
     // @ts-ignore
     const activitésPrincipales88444 = $derived(
-        new Set(
-            schema.revision.champDescriptors
-                .find(c => c.label === 'Activité principale')
-                ?.options
-        )
+        schema ?
+            new Set(
+                schema.revision.champDescriptors
+                    .find(c => c.label === 'Activité principale')
+                    ?.options
+            ) :
+            new Set()
     )
     /** @type {LigneDossierBFC[]} */
     let lignesTableauImport = $state([]);
