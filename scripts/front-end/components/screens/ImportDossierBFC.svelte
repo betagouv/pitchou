@@ -154,7 +154,7 @@
      */
     async function handleCréerLienPréRemplissage(LigneDossierBFC) {
         const dossier = await créerDossierDepuisLigne(LigneDossierBFC, activitésPrincipales88444);
-        
+
         console.log(
             { dossier },
             dossier[
@@ -195,7 +195,7 @@
             return [
                 undefined,
                 ...[...Array(nombreDePages).keys()].map(i => () => {
-                    console.log('sélection de la page', i+1)
+                    //console.log('sélection de la page', i+1)
                     numéroPageSelectionnée = i+1
                 })
             ]
