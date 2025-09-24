@@ -69,41 +69,50 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
  */
 
 
-/**
- * @type {Map<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>}
- */
+/** @type {Map<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>} */
 const correspondanceThématiqueVersActivitéPrincipale = new Map([
     ["Autres", "Autre"],
-    ["Autres EnR", "Production énergie renouvelable - Autres"],
+    ["Autres EnR", "Production énergie renouvelable - Méthaniseur, biomasse"],
     ["Avis sur document d’urbanisme", "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)"],
     ["Bâti (espèces anthropophiles)", "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art"],
     ["Carrières", "Carrières"],
     ["Dommages liés aux EP", "Dommages aux biens et activités"],
     ["Dessertes forestières", "Exploitation forestière"],
     ["Éolien", "Production énergie renouvelable - Éolien"],
-    ["Infrastructures linéaires", "Infrastructures de transport routières"],
     ["Inventaires, recherche scientifique", "Demande à caractère scientifique"],
     ["Manifestations sportives et culturelles", "Événementiel avec ou sans aménagement temporaire"],
-    ["Naturalisation", "Restauration écologique"],
+    ["Naturalisation", "Pédagogique enseignement"],
     ["Ouvrages cours d’eau", "Projets liés à la gestion de l’eau"],
     ["PPV", "Production énergie renouvelable - Photovoltaïque"],
     ["Projet agricole", "Installations agricoles"],
-    ["Projet d’aménagement", "ZAC"],
-    ["Restauration", "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art"],
-    ["Transport de spécimens", "Conservation des espèces"]
+    ["Projet d’aménagement", "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)"],
+    ["Restauration", "Restauration écologique"],
+    ["Transport de spécimens", "Production énergie renouvelable - Éolien -  Suivi mortalité"]
 ]);
 
 
 /**
  *
- * @param {string} valeur
+ * @param {string} thématiqueBFC
+ * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
-function convertirThématiqueEnActivitéPrincipale(valeur) {
-    const activité = correspondanceThématiqueVersActivitéPrincipale.get(    /** @type {ThématiquesOptions} */(valeur))
+function convertirThématiqueEnActivitéPrincipale(thématiqueBFC, activitésPrincipales88444) {
+
+    // Si la thématique est déjà une valeur pitchou
+    // @ts-ignore
+    if(activitésPrincipales88444.has(thématiqueBFC)){
+        // @ts-ignore
+        return thématiqueBFC
+    }
+
+    const activité = correspondanceThématiqueVersActivitéPrincipale.get(    /** @type {ThématiquesOptions} */(thématiqueBFC))
     if (activité) {
         return activité
     }
+
+    console.warn("Thématique BFC non associée à une activité Pitchou", thématiqueBFC)
+
     return 'Autre';
 }
 
@@ -118,9 +127,10 @@ export function créerNomPourDossier(ligne) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {LigneDossierBFC} ligne
+ * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
-export async function créerDossierDepuisLigne(ligne) {
+export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
     const donnéesDemandeurs = générerDonnéesDemandeurs(ligne)
     const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
@@ -135,7 +145,7 @@ export async function créerDossierDepuisLigne(ligne) {
         "Commune(s) où se situe le projet": donnéesLocalisations['Commune(s) où se situe le projet'],
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
-        'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique']),
+        'Activité principale': convertirThématiqueEnActivitéPrincipale(ligne['Thématique'], activitésPrincipales88444),
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": donnéesAutorisationEnvironnementale["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"],
         'À quelle procédure le projet est-il soumis ?': donnéesAutorisationEnvironnementale['À quelle procédure le projet est-il soumis ?'],
         'Le demandeur est…': donnéesDemandeurs["Le demandeur est…"],

@@ -27,6 +27,7 @@ export default async () => {
             return {
                 email,
                 dossiers,
+                schema: state.schemaDS88444
             };
         }
 
