@@ -122,6 +122,11 @@ fastify.get('/tmp/stats', sendIndexHTMLFile)
 fastify.get('/stats', sendIndexHTMLFile)
 fastify.get('/import-dossier-historique/bourgogne-franche-comte', sendIndexHTMLFile)
 
+// Page accessibilité statique
+fastify.get('/accessibilite', function(_request, reply){
+  reply.sendFile('declaration-accessibilite_2025-07-07.html')
+})
+
 
 
 fastify.post('/lien-preremplissage', async function (request) {
