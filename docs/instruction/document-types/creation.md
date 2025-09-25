@@ -406,12 +406,12 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row"> <code>{afficher_nombre}</code></th>
+                            <th scope="row"> <code>afficher_nombre(n, precision)</code></th>
                             <td> n, precision (facultatif)</td>
                             <td> Formate un nombre <code>n</code> avec une précision <code>precision</code> (2 par défaut)</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{formatter_date_simple}</code></th>
+                            <th scope="row"> <code>formatter_date_simple(date)</code></th>
                             <td> date</td>
                             <td> Formate une date « en clair » : <em>jour mois année</em> (ex. <em>5 septembre 2025</em>). Équivalent à <code>{ formatter_date(date, 'd MMMM yyyy') }</code>. Renvoie rien si la date est vide.</td>
                         </tr>
