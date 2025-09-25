@@ -4,6 +4,8 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
+    /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarches-simplifiées/schema.js"; */
+    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
@@ -24,10 +26,15 @@
      * @typedef {Object} Props
      * @property {ComponentProps<typeof Squelette>['email']} [email]
      * @property {DossierRésumé[]} [dossiers]
+     * @property {SchemaDémarcheSimplifiée | undefined} schema
      */
 
     /** @type {Props} */
-    let { email = undefined, dossiers = [] } = $props();
+    let { 
+        email = undefined, 
+        dossiers = [],
+        schema
+    } = $props();
 
     // Pré-calcul: ensemble des noms présents en base (lookup O(1))
     const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
@@ -36,6 +43,18 @@
         new Map(dossiers.map((d) => [d.nom, d.id])),
     );
 
+
+    /** @type {Set<DossierDemarcheSimplifiee88444['Activité principale']>} } */
+    // @ts-ignore
+    const activitésPrincipales88444 = $derived(
+        schema ?
+            new Set(
+                schema.revision.champDescriptors
+                    .find(c => c.label === 'Activité principale')
+                    ?.options
+            ) :
+            new Set()
+    )
     /** @type {LigneDossierBFC[]} */
     let lignesTableauImport = $state([]);
     /** @type {LigneDossierBFC[]} */
@@ -136,7 +155,8 @@
      * @param {LigneDossierBFC} LigneDossierBFC
      */
     async function handleCréerLienPréRemplissage(LigneDossierBFC) {
-        const dossier = await créerDossierDepuisLigne(LigneDossierBFC);
+        const dossier = await créerDossierDepuisLigne(LigneDossierBFC, activitésPrincipales88444);
+
         console.log(
             { dossier },
             dossier[
@@ -177,7 +197,7 @@
             return [
                 undefined,
                 ...[...Array(nombreDePages).keys()].map(i => () => {
-                    console.log('sélection de la page', i+1)
+                    //console.log('sélection de la page', i+1)
                     numéroPageSelectionnée = i+1
                 })
             ]
