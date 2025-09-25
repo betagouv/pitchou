@@ -411,11 +411,6 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
                             <td> Formate un nombre <code>n</code> avec une précision <code>precision</code> (2 par défaut)</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{formatter_date}</code></th>
-                            <td> date, format</td>
-                            <td> Formate une date selon un modèle, en français. Exemple : <code>{ formatter_date(date_dépôt, 'dd/MM/yyyy') }</code> → <em>05/09/2025</em>, <code>{ formatter_date(date_dépôt, 'd MMMM yyyy') }</code> → <em>5 septembre 2025</em>. Le paramètre <code>format</code> suit les codes habituels (<code>d</code> jour, <code>MM</code> mois, <code>yyyy</code> année…). Renvoie rien si la date est vide.</td>
-                        </tr>
-                        <tr>
                             <th scope="row"> <code>{formatter_date_simple}</code></th>
                             <td> date</td>
                             <td> Formate une date « en clair » : <em>jour mois année</em> (ex. <em>5 septembre 2025</em>). Équivalent à <code>{ formatter_date(date, 'd MMMM yyyy') }</code>. Renvoie rien si la date est vide.</td>
@@ -454,11 +449,7 @@ La DREAL Île-de-France
 Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
 
 ```
-Date de dépôt (JJ/MM/AAAA) : { formatter_date(date_dépôt, 'dd/MM/yyyy') }
 Date de dépôt (en clair)   : { formatter_date_simple(date_dépôt) }
-
-Début d'intervention (mois/année) : { formatter_date(date_début_intervention, 'MMMM yyyy') }
-Fin d'intervention (jour mois)    : { formatter_date(date_fin_intervention, 'd MMMM') }
 ```
 
 #### Accusé de réception issu du document-type
