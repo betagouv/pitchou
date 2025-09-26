@@ -12,7 +12,8 @@ const inutile = true;
  * @returns {Promise<Prescription['id']>}
  */
 export function ajouterPrescription(prescription){
-    //@ts-ignore
+        //@ts-ignore
+
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,14 +35,15 @@ export function ajouterPrescriptionsEtContrôles(prescription){
 
 /**
  * 
- * @param {Partial<Prescription>} prescription 
+ * @param {Partial<FrontEndPrescription>} prescription 
  * @returns {Promise<undefined>}
  */
 export function modifierPrescription(prescription){
+    const { contrôles, ...prescriptionSansContrôles } = prescription || {};
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(prescription)
+        body: JSON.stringify(prescriptionSansContrôles)
     })
 }
 
