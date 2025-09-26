@@ -231,7 +231,7 @@
 
             {#if vuePrescription === 'consulter'}
                 {#each prescriptions as prescription}
-                    <Prescription {prescription}></Prescription>
+                    <Prescription {prescription} refreshDossierComplet={() => refreshDossierComplet(dossierId)}></Prescription>
                 {/each}
 
                 <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" onclick={() => vuePrescription = 'modifier'}>
