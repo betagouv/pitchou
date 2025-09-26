@@ -149,14 +149,14 @@ const {
     fichiersSaisinesCSRPN_CNPN_Téléchargés,
     fichiersAvisConformeMinistreTéléchargés
 } = await (async () => {
-    if (schema.number === 88444) {
+    if (DEMARCHE_NUMBER === 88444) {
         return await récupérerFichiersAvisEtSaisines88444(
             dossiersDS,
             pitchouKeyToAnnotationDS,
             laTransactionDeSynchronisationDS
         )
     } else {
-        throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${schema.number}.`)
+        throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
     }
 })()
 
@@ -165,7 +165,7 @@ const {
     makeAvisExpertFromTraitementsDS, 
     makeColonnesCommunesDossierPourSynchro
 } = (() => {
-    if (schema.number === 88444) {
+    if (DEMARCHE_NUMBER === 88444) {
         return {
             /** @type {GetDonnéesPersonnesEntreprises} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
@@ -181,7 +181,7 @@ const {
             makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
         }
     } else {
-        throw new Error(`Les fonctions nécessaires pour asssocier les questions du formulaire de la démarche aux données Pitchou n'ont pas été trouvées pour la Démarche numéro ${schema.number}.`)
+        throw new Error(`Les fonctions nécessaires pour asssocier les questions du formulaire de la démarche aux données Pitchou n'ont pas été trouvées pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
     }
 })()
 
@@ -360,14 +360,14 @@ const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntr
 /** Télécharger les nouveaux fichiers espèces impactées */
 /** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
 const fichiersEspècesImpactéesTéléchargésP = (async () => {
-    if (schema.number === 88444) {
+    if (DEMARCHE_NUMBER === 88444) {
         return récupérerFichiersEspècesImpactées88444(
             dossiersDS,
             pitchouKeyToChampDS,
             laTransactionDeSynchronisationDS
         )
     } else {
-        throw new Error(`La fonction pour récupérer les fichiers espèces impactées n'a pas été trouvée pour la Démarche numéro ${schema.number}.`)
+        throw new Error(`La fonction pour récupérer les fichiers espèces impactées n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
     }
 })()
 
