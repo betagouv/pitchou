@@ -1,6 +1,6 @@
 /** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {ChampDescriptor, SchemaDémarcheSimplifiée} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
@@ -176,8 +176,8 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossier
 /**
  * Renvoyer le dossier rempli des champs obligatoires pour l'initialisation d'un nouveau dossier
  * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
  * @returns {Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, 'dossier'>>}
  */
@@ -415,25 +415,15 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {Map<number, FichierId> | undefined} fichiersMotivationTéléchargés
- * @param {SchemaDémarcheSimplifiée} schema 
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
  * @param {GetDonnéesPersonnesEntreprises} getDonnéesPersonnesEntreprises
  * @param {MakeAvisExpertFromTraitementsDS} makeAvisExpertFromTraitementsDS
  * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, schema, getDonnéesPersonnesEntreprises, makeAvisExpertFromTraitementsDS, makeColonnesCommunesDossierPourSynchro) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, getDonnéesPersonnesEntreprises, makeAvisExpertFromTraitementsDS, makeColonnesCommunesDossierPourSynchro) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
-    /** @type {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} */
-    //@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheSimplifiee88444 sont les schema88444.revision.champDescriptors.map(label)
-    const pitchouKeyToChampDS = new Map(schema.revision.champDescriptors.map(
-        ({label, id}) => [label, id])
-    )
-    
-    /** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
-    //@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
-    const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescriptors.map(
-        ({label, id}) => [label, id])
-    )
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
