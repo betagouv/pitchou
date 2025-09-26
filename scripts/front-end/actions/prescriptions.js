@@ -35,15 +35,14 @@ export function ajouterPrescriptionsEtContrôles(prescription){
 
 /**
  * 
- * @param {Partial<FrontEndPrescription>} prescription 
+ * @param {Partial<Prescription>} prescription 
  * @returns {Promise<undefined>}
  */
 export function modifierPrescription(prescription){
-    const { contrôles, ...prescriptionSansContrôles } = prescription || {};
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(prescriptionSansContrôles)
+        body: JSON.stringify(prescription)
     })
 }
 
