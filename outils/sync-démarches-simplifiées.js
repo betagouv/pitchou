@@ -16,11 +16,11 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
-import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds-88444/synchronisation-dossier-88444.js'
+import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds/téléchargerNouveauxFichiersParType.js'
+import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
 
-import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
-import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds-88444/makeColonnesCommunesDossierPourSynchro88444.js'
+import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
+import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -38,8 +38,8 @@ import { join } from 'node:path'
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
-/** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'. */
-/** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'. */
+/** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
+/** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 
 // récups les données de DS
 
