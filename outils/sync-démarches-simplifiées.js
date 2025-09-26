@@ -16,8 +16,8 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
-import { récupérerFichiersAvisEtSaisines88444 } from './synchronisation-ds-88444/synchronisation-dossier-88444.js'
+import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds-88444/synchronisation-dossier-88444.js'
 
 import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds-88444/makeColonnesCommunesDossierPourSynchro88444.js'
@@ -358,19 +358,18 @@ const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntr
 
 
 /** Télécharger les nouveaux fichiers espèces impactées */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
-
-if(!fichierEspècesImpactéeChampId){
-    throw new Error('fichierEspècesImpactéeChampId is undefined')
-}
-
 /** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
-const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
-    dossiersDS, 
-    fichierEspècesImpactéeChampId, 
-    laTransactionDeSynchronisationDS
-)
+const fichiersEspècesImpactéesTéléchargésP = (async () => {
+    if (schema.number === 88444) {
+        return récupérerFichiersEspècesImpactées88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les fichiers espèces impactées n'a pas été trouvée pour la Démarche numéro ${schema.number}.`)
+    }
+})()
 
 /**
  * Synchronisation des dossiers
