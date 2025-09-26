@@ -12,7 +12,8 @@ const inutile = true;
  * @returns {Promise<Prescription['id']>}
  */
 export function ajouterPrescription(prescription){
-    //@ts-ignore
+        //@ts-ignore
+
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

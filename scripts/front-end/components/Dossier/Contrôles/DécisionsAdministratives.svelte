@@ -68,7 +68,7 @@
 
     /**
      * 
-     * @param {Partial<PrescriptionType>} prescription
+     * @param {Partial<FrontEndPrescription>} prescription
      */
     async function savePrescription(prescription){
         if(prescription.date_échéance){
@@ -76,7 +76,10 @@
         }
 
         if (prescription.id) {
-            modifierPrescription(prescription)
+            // "contrôles" est une proprété du type FrontEndPrescription pas une propriété du type Prescription
+            // ce qui pose un problème lors de l'insertion/l'update de la prescription en base de données
+            const { contrôles, ...prescriptionSansContrôles } = prescription;
+            modifierPrescription(prescriptionSansContrôles)
         } else {
             const pendingPrescriptionIdEntry = prescriptionToPendingIdAndLatestData.get(prescription)
             if(pendingPrescriptionIdEntry){
@@ -228,7 +231,7 @@
 
             {#if vuePrescription === 'consulter'}
                 {#each prescriptions as prescription}
-                    <Prescription {prescription}></Prescription>
+                    <Prescription {prescription} refreshDossierComplet={() => refreshDossierComplet(dossierId)}></Prescription>
                 {/each}
 
                 <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line" onclick={() => vuePrescription = 'modifier'}>

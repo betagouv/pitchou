@@ -14,10 +14,13 @@
     /**
      * @typedef {Object} Props
      * @property {Partial<FrontEndPrescription>} prescription
+     * @property {() => Promise<any>} refreshDossierComplet
      */
 
     /** @type {Props} */
-    let { prescription } = $props();
+    let { prescription,
+        refreshDossierComplet
+     } = $props();
 
     let {
         id, description, date_échéance, numéro_article,
@@ -116,11 +119,7 @@
         if(!contrôleEnModification)
             throw new TypeError(`pas de contrôle en modificaion`)
 
-        // @ts-ignore
-        const index = prescription.contrôles?.indexOf(contrôleEnModification) || -1;
-        if (index !== -1) { 
-            prescription.contrôles?.splice(index, 1); 
-        }
+        contrôles.delete(contrôleEnModification)
 
         const id = contrôleEnModification.id
         contrôleEnModification = undefined
@@ -128,8 +127,10 @@
         if(!id){
             throw new TypeError(`il manque un id au contrôle en modificaion`)
         }
-        
+
         await supprimerContrôle(id)
+
+        refreshDossierComplet()
     }
 
 </script>
