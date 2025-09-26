@@ -16,9 +16,11 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds/téléchargerNouveauxFichiersParType.js'
+import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
 
-import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
+import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
+import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -36,6 +38,8 @@ import { join } from 'node:path'
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
+/** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
+/** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 
 // récups les données de DS
 
@@ -127,53 +131,6 @@ export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescri
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-
-/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisExpertAnnotationId = pitchouKeyToAnnotationDS.get('Avis CSRPN/CNPN')
-
-if(!fichierAvisExpertAnnotationId){
-    throw new Error('fichierAvisExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des saisines d'experts (CNPN/CSRPN) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierSaisineExpertAnnotationId = pitchouKeyToAnnotationDS.get("Saisine de l'instructeur")
-
-if(!fichierSaisineExpertAnnotationId){
-    throw new Error('fichierSaisineExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierSaisineExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des avis conformes ministres */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisConformeMinistreAnnotationId = pitchouKeyToAnnotationDS.get('Avis conforme Ministre')
-
-if(!fichierAvisConformeMinistreAnnotationId){
-    throw new Error('fichierAvisConformeMinistreAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisConformeMinistre = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisConformeMinistreAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const dossierNumberToDossierId = new Map(dossiersDéjàExistantsEnBDD.map(d => [d.number_demarches_simplifiées, d.id]));
 
@@ -184,18 +141,63 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
     laTransactionDeSynchronisationDS
 )
 
-const [fichiersAvisCSRPN_CNPN_Téléchargés, 
-        fichiersSaisinesCSRPN_CNPN_Téléchargés, 
-        fichiersAvisConformeMinistreTéléchargés, 
-        fichiersMotivationTéléchargés] = await Promise.all([
-            fichiersAvisCSRPN_CNPN,
-            fichiersSaisinesCSRPN_CNPN,
-            fichiersAvisConformeMinistre,
-            fichiersMotivationTéléchargésP
-    ])
+const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP
 
+/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
+const {
+    fichiersAvisCSRPN_CNPN_Téléchargés,
+    fichiersSaisinesCSRPN_CNPN_Téléchargés,
+    fichiersAvisConformeMinistreTéléchargés
+} = await (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return await récupérerFichiersAvisEtSaisines88444(
+            dossiersDS,
+            pitchouKeyToAnnotationDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés)
+const {
+    getDonnéesPersonnesEntreprises, 
+    makeAvisExpertFromTraitementsDS, 
+    makeColonnesCommunesDossierPourSynchro
+} = (() => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return {
+            /** @type {GetDonnéesPersonnesEntreprises} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheSimplifiee88444
+            getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444, 
+            /** @type {MakeAvisExpertFromTraitementsDS} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            makeAvisExpertFromTraitementsDS: makeAvisExpertFromTraitementsDS88444,
+            /** @type {MakeColonnesCommunesDossierPourSynchro} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
+        }
+    } else {
+        throw new Error(`Les fonctions nécessaires pour asssocier les questions du formulaire de la démarche aux données Pitchou n'ont pas été trouvées pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
+
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(
+    dossiersDS, 
+    dossierNumberToDossierId, 
+    fichiersSaisinesCSRPN_CNPN_Téléchargés, 
+    fichiersAvisCSRPN_CNPN_Téléchargés, 
+    fichiersAvisConformeMinistreTéléchargés, 
+    fichiersMotivationTéléchargés, 
+    pitchouKeyToChampDS, 
+    pitchouKeyToAnnotationDS, 
+    getDonnéesPersonnesEntreprises, 
+    makeAvisExpertFromTraitementsDS, 
+    makeColonnesCommunesDossierPourSynchro
+)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -356,19 +358,18 @@ const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntr
 
 
 /** Télécharger les nouveaux fichiers espèces impactées */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
-
-if(!fichierEspècesImpactéeChampId){
-    throw new Error('fichierEspècesImpactéeChampId is undefined')
-}
-
 /** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
-const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
-    dossiersDS, 
-    fichierEspècesImpactéeChampId, 
-    laTransactionDeSynchronisationDS
-)
+const fichiersEspècesImpactéesTéléchargésP = (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return récupérerFichiersEspècesImpactées88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les fichiers espèces impactées n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
 
 /**
  * Synchronisation des dossiers
