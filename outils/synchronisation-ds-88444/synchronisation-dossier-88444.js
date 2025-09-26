@@ -6,7 +6,32 @@
 /** @import {Knex} from 'knex' */
 /** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
-import { téléchargerNouveauxFichiersFromChampId } from './téléchargerNouveauxFichiersParType.js'
+import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
+
+
+
+/**
+ * Télécharge les nouveaux fichiers "Espèces impactées" pour la démarche 88444
+ * @param {DossierDS88444[]} dossiersDS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
+ */
+export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKeyToChampDS, laTransactionDeSynchronisationDS){
+    /** @type {ChampDescriptor['id'] | undefined} */
+    const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
+    if(!fichierEspècesImpactéeChampId){
+        throw new Error('fichierEspècesImpactéeChampId is undefined')
+    }
+
+    return téléchargerNouveauxFichiersEspècesImpactées(
+        dossiersDS,
+        fichierEspècesImpactéeChampId,
+        laTransactionDeSynchronisationDS
+    )
+}
+
+
 
 /**
  * Télécharge les nouveaux fichiers pour 88444: Avis CSRPN/CNPN, Saisines, Avis conforme Ministre pour les dossiers 
