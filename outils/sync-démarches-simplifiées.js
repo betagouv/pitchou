@@ -16,7 +16,8 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import { récupérerFichiersAvisEtSaisines88444 } from './synchronisation-ds-88444/synchronisation-dossier-88444.js'
 
 import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds-88444/makeColonnesCommunesDossierPourSynchro88444.js'
@@ -130,53 +131,6 @@ export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescri
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-
-/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisExpertAnnotationId = pitchouKeyToAnnotationDS.get('Avis CSRPN/CNPN')
-
-if(!fichierAvisExpertAnnotationId){
-    throw new Error('fichierAvisExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des saisines d'experts (CNPN/CSRPN) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierSaisineExpertAnnotationId = pitchouKeyToAnnotationDS.get("Saisine de l'instructeur")
-
-if(!fichierSaisineExpertAnnotationId){
-    throw new Error('fichierSaisineExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierSaisineExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des avis conformes ministres */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisConformeMinistreAnnotationId = pitchouKeyToAnnotationDS.get('Avis conforme Ministre')
-
-if(!fichierAvisConformeMinistreAnnotationId){
-    throw new Error('fichierAvisConformeMinistreAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisConformeMinistre = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisConformeMinistreAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const dossierNumberToDossierId = new Map(dossiersDéjàExistantsEnBDD.map(d => [d.number_demarches_simplifiées, d.id]));
 
@@ -187,15 +141,24 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
     laTransactionDeSynchronisationDS
 )
 
-const [fichiersAvisCSRPN_CNPN_Téléchargés, 
-        fichiersSaisinesCSRPN_CNPN_Téléchargés, 
-        fichiersAvisConformeMinistreTéléchargés, 
-        fichiersMotivationTéléchargés] = await Promise.all([
-            fichiersAvisCSRPN_CNPN,
-            fichiersSaisinesCSRPN_CNPN,
-            fichiersAvisConformeMinistre,
-            fichiersMotivationTéléchargésP
-    ])
+const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP
+
+/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
+const {
+    fichiersAvisCSRPN_CNPN_Téléchargés,
+    fichiersSaisinesCSRPN_CNPN_Téléchargés,
+    fichiersAvisConformeMinistreTéléchargés
+} = await (async () => {
+    if (schema.number === 88444) {
+        return await récupérerFichiersAvisEtSaisines88444(
+            dossiersDS,
+            pitchouKeyToAnnotationDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${schema.number}.`)
+    }
+})()
 
 const {
     getDonnéesPersonnesEntreprises, 
