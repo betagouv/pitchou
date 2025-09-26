@@ -4,13 +4,14 @@
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 import { téléchargerNouveauxFichiersFromChampId } from './téléchargerNouveauxFichiersParType.js'
 
 /**
- * Télécharge les nouveaux fichiers pour 88444: Avis CSRPN/CNPN, Saisines, Avis conforme Ministre
+ * Télécharge les nouveaux fichiers pour 88444: Avis CSRPN/CNPN, Saisines, Avis conforme Ministre pour les dossiers 
  * @param {DossierDS88444[]} dossiersDS
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
+ * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<{
  *  fichiersAvisCSRPN_CNPN_Téléchargés: Map<DossierDS88444['number'], Fichier['id'][]> | undefined,
