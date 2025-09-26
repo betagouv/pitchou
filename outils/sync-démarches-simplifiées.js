@@ -229,7 +229,8 @@ const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await ma
     fichiersAvisCSRPN_CNPN_Téléchargés, 
     fichiersAvisConformeMinistreTéléchargés, 
     fichiersMotivationTéléchargés, 
-    schema, 
+    pitchouKeyToChampDS, 
+    pitchouKeyToAnnotationDS, 
     getDonnéesPersonnesEntreprises, 
     makeAvisExpertFromTraitementsDS, 
     makeColonnesCommunesDossierPourSynchro
