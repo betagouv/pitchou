@@ -18,7 +18,8 @@ import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
 
-import { getDonnéesPersonnesEntreprises88444, makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
+import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
+import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds-88444/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -36,7 +37,8 @@ import { join } from 'node:path'
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
-/** @import {GetDonnéesPersonnesEntreprises} from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'. */
+/** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'. */
+/** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'. */
 
 // récups les données de DS
 
@@ -195,11 +197,43 @@ const [fichiersAvisCSRPN_CNPN_Téléchargés,
             fichiersMotivationTéléchargésP
     ])
 
+const {
+    getDonnéesPersonnesEntreprises, 
+    makeAvisExpertFromTraitementsDS, 
+    makeColonnesCommunesDossierPourSynchro
+} = (() => {
+    if (schema.number === 88444) {
+        return {
+            /** @type {GetDonnéesPersonnesEntreprises} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheSimplifiee88444
+            getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444, 
+            /** @type {MakeAvisExpertFromTraitementsDS} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            makeAvisExpertFromTraitementsDS: makeAvisExpertFromTraitementsDS88444,
+            /** @type {MakeColonnesCommunesDossierPourSynchro} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
+        }
+    } else {
+        throw new Error(`Les fonctions nécessaires pour asssocier les questions du formulaire de la démarche aux données Pitchou n'ont pas été trouvées pour la Démarche numéro ${schema.number}.`)
+    }
+})()
 
-/** @type {GetDonnéesPersonnesEntreprises} */
-const getDonnéesPersonnesEntreprises = getDonnéesPersonnesEntreprises88444
-
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, schema, getDonnéesPersonnesEntreprises)
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(
+    dossiersDS, 
+    dossierNumberToDossierId, 
+    fichiersSaisinesCSRPN_CNPN_Téléchargés, 
+    fichiersAvisCSRPN_CNPN_Téléchargés, 
+    fichiersAvisConformeMinistreTéléchargés, 
+    fichiersMotivationTéléchargés, 
+    schema, 
+    getDonnéesPersonnesEntreprises, 
+    makeAvisExpertFromTraitementsDS, 
+    makeColonnesCommunesDossierPourSynchro
+)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
