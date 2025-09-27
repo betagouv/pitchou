@@ -245,9 +245,9 @@
                     <a class="fr-footer__bottom-link" href="https://github.com/betagouv/pitchou">Code source</a>
                 </li>
                 <li class="fr-footer__bottom-item">
-                    <span class="fr-footer__bottom-link">
+                     <a id="footer__bottom-link-accessibilite" href="/accessibilite" class="fr-footer__bottom-link">
                         Accessibilité : non conforme
-                    </span>
+                    </a>
                 </li>
                 <!--<li class="fr-footer__bottom-item">
                     <a class="fr-footer__bottom-link" href="#"
