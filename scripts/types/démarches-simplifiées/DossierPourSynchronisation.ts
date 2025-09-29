@@ -12,19 +12,19 @@ export type DonnéesPersonnesEntreprisesInitializer = {
     demandeur_personne_morale: EntrepriseInitializer | undefined,
 }
 
-type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | DossierInitializer> = 
+type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | DossierInitializer> =
     Omit<T, "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale">
         & DonnéesPersonnesEntreprisesInitializer
 
 /**
- * Représente le format des données issues de Démarches Simplifiées (DS) 
+ * Représente le format des données issues de Démarches Simplifiées (DS)
  * avant leur insertion ou mise à jour dans la base de données.
- * 
+ *
  * Problème technique actuel :
  * - Les données des personnes/entreprises sont récupérées depuis DS,
  *   créées en base, puis réinjectées dans les dossiers à stocker.
  * - Ce couplage complique l’utilisation directe de `DossierMutator` ou `DossierInitializer` pour le type DossierType.
- * 
+ *
  * TODO :
  * - Suivi de l'issue : @see {@link https://github.com/betagouv/pitchou/issues/312}
  */
@@ -36,10 +36,10 @@ export type DossierPourSynchronisation<DossierType> = {
     décision_administrative: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]
 }
 
-export type DossierEntreprisesPersonneInitializersPourInsert = 
+export type DossierEntreprisesPersonneInitializersPourInsert =
     DossierPourSynchronisation<DossierAvecDonnéesPersonnesEntreprisesInitializers<DossierInitializer>>
 
-export type DossierEntreprisesPersonneInitializersPourUpdate = 
+export type DossierEntreprisesPersonneInitializersPourUpdate =
     DossierPourSynchronisation<DossierAvecDonnéesPersonnesEntreprisesInitializers<DossierMutator>>
 
 /**
@@ -49,9 +49,8 @@ export type DossierEntreprisesPersonneInitializersPourUpdate =
  */
 export type PersonneAvecEmailObligatoire = Partial<Omit<Personne, "email">> & {email: NonNullable<Personne['email']>} ;
 
-    
-export type DossierPourInsert = DossierPourSynchronisation<DossierInitializer> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined }
+
+export type DossierPourInsertGénérique<Dossier> = DossierPourSynchronisation<Dossier> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined }
+export type DossierPourInsert = DossierPourInsertGénérique<DossierInitializer>
 
 export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>
-
-

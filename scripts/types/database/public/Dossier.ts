@@ -165,6 +165,8 @@ export default interface Dossier {
 
   /** Type du dossier. Les instructeurices ont des typologies de dossiers qui reviennent souvent, comme les dossiers Hirondelles, les dossiers Cigognes... */
   type: TypeDossier | null;
+
+  numéro_démarche: number;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -324,6 +326,8 @@ export interface DossierInitializer {
 
   /** Type du dossier. Les instructeurices ont des typologies de dossiers qui reviennent souvent, comme les dossiers Hirondelles, les dossiers Cigognes... */
   type?: TypeDossier | null;
+
+  numéro_démarche: number;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -482,4 +486,6 @@ export interface DossierMutator {
 
   /** Type du dossier. Les instructeurices ont des typologies de dossiers qui reviennent souvent, comme les dossiers Hirondelles, les dossiers Cigognes... */
   type?: TypeDossier | null;
+
+  numéro_démarche?: number;
 }

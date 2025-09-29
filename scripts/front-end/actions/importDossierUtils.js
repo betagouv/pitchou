@@ -1,5 +1,6 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-/** @import { DossierPourInsert } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import { DossierPourInsertGénérique } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import { DossierInitializer } from '../../types/database/public/Dossier.ts' */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
@@ -7,7 +8,7 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
 
 
 /**
- * @typedef {Partial<DossierPourInsert>} DonnéesSupplémentairesPourCréationDossier
+ * @typedef {Partial<DossierPourInsertGénérique<Omit<DossierInitializer, 'numéro_démarche'>>>} DonnéesSupplémentairesPourCréationDossier
  */
 
 /**
