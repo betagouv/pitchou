@@ -18,7 +18,7 @@
     /** @type {Props} */
     let { dossier, espècesImpactées } = $props();
 
-    const { number_demarches_simplifiées: numdos } = dossier;
+    const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
 
     function makeFileContentBlob() {
         return new Blob(
@@ -50,13 +50,13 @@
     $effect(() => {
         espècesImpactéesParActivité?.catch(err => console.error(`erreur lecture espèces`, err))
     })
-    
 
-        
+
+
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore
     let scientifiquesIntervenants = dossier.scientifique_intervenants;
-        
+
     /** @type {string[] | undefined} */
     // @ts-ignore
     let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
@@ -221,7 +221,7 @@
                 {/if}
             </p>
 
-                
+
             <h3>Finalité de la demande</h3>
             {#if Array.isArray(scientifiqueFinalitéDemande) && scientifiqueFinalitéDemande.length >= 1}
                 <ul>
@@ -232,7 +232,7 @@
             {:else}
                 Non renseigné
             {/if}
-            
+
 
             <h3>Protocole de suivi</h3>
             <p>
@@ -294,7 +294,7 @@
         <a
             class="fr-btn fr-mb-1w"
             target="_blank"
-            href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}`}
+            href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}`}
             >Dossier sur Démarches Simplifiées</a
         >
     </section>

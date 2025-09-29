@@ -187,6 +187,7 @@ const {
 
 const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(
     dossiersDS,
+    DEMARCHE_NUMBER,
     dossierNumberToDossierId,
     fichiersSaisinesCSRPN_CNPN_Téléchargés,
     fichiersAvisCSRPN_CNPN_Téléchargés,

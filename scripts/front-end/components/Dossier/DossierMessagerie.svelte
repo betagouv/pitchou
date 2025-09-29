@@ -6,8 +6,8 @@
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {default as Message} from '../../../types/database/public/Message.ts' */
 
-    
-    
+
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
@@ -17,7 +17,7 @@
     /** @type {Props} */
     let { dossier, messages = [] } = $props();
 
-    const {number_demarches_simplifiées: numdos} = dossier
+    const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
     let messagesTriés = $derived(messages.toSorted(
         // @ts-ignore
@@ -29,7 +29,7 @@
 <div class="row">
     <h2>Échanges avec le pétitionnaire</h2>
 
-    <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/messagerie`}>
+    <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}>
         Répondre sur Démarches Simplifiées
     </a>
 </div>
@@ -45,10 +45,10 @@
             </button>
         </h3>
         <div class="contenu-message fr-collapse" id={accordionId}>
-            <!-- 
+            <!--
                 Avertissement : Source de problèmes de sécurité potentiels
-                Actuellement, les contenus viennent de Démarches Simplifiées et on 
-                leur fait confiance pour assainir le HTML, mais 
+                Actuellement, les contenus viennent de Démarches Simplifiées et on
+                leur fait confiance pour assainir le HTML, mais
             -->
             {@html contenu}
         </div>
