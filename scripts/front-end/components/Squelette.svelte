@@ -62,6 +62,16 @@
     <title>{title ? `${title} — ` : ''}Pitchou</title>
 </svelte:head>
 
+<div class="fr-skiplinks">
+    <nav aria-label="Accès rapide" class="fr-container">
+        <ul class="fr-skiplinks__list">
+            <li>
+                <a class="fr-link" href="#main">Contenu</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
 <header class="fr-header">
     <div class="fr-header__body">
         <div class="fr-container">
@@ -155,7 +165,7 @@
     </nav>
 {/if}
 
-<main>
+<main tabindex="-1" id="main">
     {#if erreurs.size >= 1}
         <section class="erreurs fr-grid-row fr-grid-row--center">
             <div class="fr-col">
