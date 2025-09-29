@@ -3,7 +3,7 @@
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
@@ -12,7 +12,7 @@
     /** @type {Props} */
     let { dossier } = $props();
 
-    const {number_demarches_simplifiées: numdos} = dossier
+    const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
 </script>
 
@@ -25,10 +25,10 @@
     </section>
 
     <section>
-        <a class="fr-btn fr-mr-3w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/avis_new`}>
+        <a class="fr-btn fr-mr-3w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
             Demander un avis
         </a>
-        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/avis`}>
+        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
             Voir les avis
         </a>
     </section>

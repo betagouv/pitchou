@@ -7,9 +7,9 @@
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
     import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
-    
+
     /** @import Personne from '../../../types/database/public/Personne.js' */
-    /** @import {DossierComplet} from '../../../types/API_Pitchou' */    
+    /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import Dossier from '../../../types/database/public/Dossier.ts' */
     /** @import {ComponentProps} from 'svelte' */
     /** @import Squelette from '../Squelette.svelte' */
@@ -25,7 +25,7 @@
     /** @type {Props} */
     let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } = $props();
 
-    const {number_demarches_simplifiées: numdos} = dossier
+    const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
     let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
 
@@ -34,7 +34,7 @@
     let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
 
 
-    let messageErreur = $state("") 
+    let messageErreur = $state("")
     let afficherMessageSucces = $state(false)
 
 
@@ -70,7 +70,7 @@
         if (dossier.commentaire_libre !== commentaire_libre?.trim()) {
             modifs.commentaire_libre = commentaire_libre?.trim()
         }
-        
+
         if(dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par){
             modifs.prochaine_action_attendue_par = prochaine_action_attendue_par
         }
@@ -84,13 +84,13 @@
         }
     });
 
-    const retirerAlert = () => { 
+    const retirerAlert = () => {
         messageErreur = ""
         afficherMessageSucces = false
     }
 
         /**
-     * 
+     *
      * @param {Dossier['id']} id
      */
     function instructeurActuelSuitDossier(id) {
@@ -98,7 +98,7 @@
     }
 
     /**
-     * 
+     *
      * @param {Dossier['id']} id
      */
     function instructeurActuelLaisseDossier(id) {
@@ -117,9 +117,9 @@
         {#each dossier.évènementsPhase as {phase, horodatage}}
             <li>
                 <TagPhase phase={phase}></TagPhase>
-                - 
+                -
                 <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
-            </li>    
+            </li>
         {/each}
             <li>
                 <TagPhase phase="Accompagnement amont"></TagPhase>
@@ -129,7 +129,7 @@
                 <span title={formatDateAbsolue(dossier.date_dépôt)}>{formatDateRelative(dossier.date_dépôt)}</span>
             </li>
         </ol>
-        
+
         <h2 class="fr-mt-3w">Personnes qui suivent ce dossier</h2>
         {#if personnesQuiSuiventDossier.length >=1}
             <ul>
@@ -185,7 +185,7 @@
             <label class="fr-label" for="prochaine_action_attendue_par">
                 <strong>Prochaine action attendue de</strong>
             </label>
-    
+
             <select onfocus={retirerAlert} bind:value={prochaine_action_attendue_par} class="fr-select" id="prochaine_action_attendue_par">
                 {#each [...prochaineActionAttenduePar] as acteur}
                     <option value={acteur}>{acteur}</option>
@@ -194,7 +194,7 @@
         </div>
 
 
-        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/88444/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
     </section>
 
@@ -222,7 +222,7 @@
         list-style: none;
         margin-top: 0;
         padding-left: 0;
-        
+
         li{
             &::marker{
                 content: none;
@@ -237,7 +237,7 @@
 
     .col {
         display: flex;
-        flex-direction: column;  
+        flex-direction: column;
     }
 
 </style>
