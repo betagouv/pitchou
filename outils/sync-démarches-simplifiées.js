@@ -173,11 +173,11 @@ const {
             getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444, 
             /** @type {MakeAvisExpertFromTraitementsDS} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            // ici, on voudrait que le type MakeAvisExpertFromTraitementsDS soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
             makeAvisExpertFromTraitementsDS: makeAvisExpertFromTraitementsDS88444,
             /** @type {MakeColonnesCommunesDossierPourSynchro} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
             makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
         }
     } else {
