@@ -12,22 +12,38 @@
 /** @import { PartialBy }  from '../../scripts/types/tools' */
 /** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
 /** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
-
+/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 
 
 import assert from 'node:assert/strict'
 import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-import { makeColonnesCommunesDossierPourSynchro } from './makeColonnesCommunesDossierPourSynchro.js'
 import { isAfter } from 'date-fns'
 import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 
+
 /**
- * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
+ * @callback MakeColonnesCommunesDossierPourSynchro
+ * @param {DossierDS88444} dossierDS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
+ * @returns {DossierInitializer| DossierMutator}
+ */
+
+/**
+ * @callback GetDonnéesPersonnesEntreprises
+ *  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
+ * @param {DossierDS88444} dossierDS
+ * Le premier paramètre de pitchouKeyToChampDS doit être une chaîne de caractère qui représente une clef du DossierDémarcheSimplifiée
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @returns {DonnéesPersonnesEntreprisesInitializer}
+ */
+
+/**
  * @param {DossierDS88444} dossierDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
-function getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS) {
+export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToChampDS) {
     const {
         demandeur,
         champs,
@@ -160,11 +176,12 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossier
 /**
  * Renvoyer le dossier rempli des champs obligatoires pour l'initialisation d'un nouveau dossier
  * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
  * @returns {Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, 'dossier'>>}
  */
-async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS) {
+async function makeChampsDossierPourInitialisation(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, makeColonnesCommunesDossierPourSynchro) {
     const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
 
     /**
@@ -242,6 +259,18 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
     return évènementsPhaseDossier
 }
 
+
+/**
+ * @callback MakeAvisExpertFromTraitementsDS
+ * @param {DossierDS88444} dossierDS 
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
+ * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
+ * @param {Map<string, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
+ * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
+ * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
+ */
+
 /**
  * @param {DossierDS88444} dossierDS 
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
@@ -251,7 +280,7 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
  * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
  * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
  */
-function makeAvisExpertFromTraitementsDS(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, idPitchouDuDossier) {
+export function makeAvisExpertFromTraitementsDS88444(dossierDS, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, pitchouKeyToAnnotationDS, idPitchouDuDossier) {
     /** @type {PartialBy<AvisExpertInitializer, 'dossier'>[]} */
     let lignes_à_insérer = []
 
@@ -374,30 +403,35 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
     return décisionsAdministratives
 }
 
+
 /**
  * Récupère les données brutes des dossiers depuis Démarches Simplifiées
  * puis les transforme au format attendu par l'application
  * afin de permettre leur insertion ou mise à jour en base de données.
+ * 
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @param {Map<number, FichierId[]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {Map<number, FichierId> | undefined} fichiersMotivationTéléchargés
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
+ * @param {GetDonnéesPersonnesEntreprises} getDonnéesPersonnesEntreprises
+ * @param {MakeAvisExpertFromTraitementsDS} makeAvisExpertFromTraitementsDS
+ * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>} 
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés) {
+export async function makeDossiersPourSynchronisation(dossiersDS, numberDSDossiersDéjàExistantsEnBDD, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, getDonnéesPersonnesEntreprises, makeAvisExpertFromTraitementsDS, makeColonnesCommunesDossierPourSynchro) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
-
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
     const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
         const champsDossierPourInitP = makeChampsDossierPourInitialisation(
             dossierDS,
             pitchouKeyToChampDS,
-            pitchouKeyToAnnotationDS
+            pitchouKeyToAnnotationDS,
+            makeColonnesCommunesDossierPourSynchro
         )
 
         const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
