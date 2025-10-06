@@ -231,8 +231,8 @@
 
 </script>
 
-<Squelette {email} nav={true} title="Bourgogne-Franche-Comté — Import de dossiers">
-    <h1>Import de dossiers historiques Bourgogne-Franche-Comté</h1>
+<Squelette {email} nav={true} title="Corse — Import de dossiers">
+    <h1>Import de dossiers historiques Corse</h1>
 
     {#if !lignesTableauImport || lignesTableauImport.length === 0}
         <div class="fr-upload-group fr-mb-4w">
