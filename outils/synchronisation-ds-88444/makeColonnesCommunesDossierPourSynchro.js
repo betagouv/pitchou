@@ -239,8 +239,6 @@ export function makeColonnesCommunesDossierPourSynchro(
         annotationById.set(annotation.id, annotation)
     }
 
-    const historique_nom_porteur = annotationById.get(pitchouKeyToAnnotationDS.get("Nom du porteur de projet"))?.stringValue
-    const historique_localisation = annotationById.get(pitchouKeyToAnnotationDS.get("Localisation du projet"))?.stringValue
     const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
@@ -328,8 +326,6 @@ export function makeColonnesCommunesDossierPourSynchro(
         scientifique_précisions_autres_intervenants,
 
         // annotations privées
-        historique_nom_porteur,
-        historique_localisation,
         ddep_nécessaire,
 
         enjeu_écologique,
