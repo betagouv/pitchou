@@ -246,16 +246,21 @@ async function générerDonnéesLocalisations(ligne) {
 
     const communes = communesResult.filter((commune) => commune !== null);
 
+    const départementColonne = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
+        départementsTrouvés[0] : 
+        undefined
 
     if (communes.length >= 1) {
+        const départementPremièreCommune = communes[0].departement
+
         return {
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
             "Le projet se situe au niveau…": "d'une ou plusieurs communes",
-            "Dans quel département se localise majoritairement votre projet ?": communes[0].departement,
+            "Dans quel département se localise majoritairement votre projet ?": départementColonne ?? départementPremièreCommune
         }
     } else {
-        const départements = départementsTrouvés ?? [{code: '25', nom: 'Doubs'}] // La valeur par défaut est le département du siège de la DREAL BFC
+        const départements =  Array.isArray(départementsTrouvés) ? départementsTrouvés : [{code: '25', nom: 'Doubs'}] // La valeur par défaut est le département du siège de la DREAL BFC
         return {
             "Commune(s) où se situe le projet": undefined,
             "Département(s) où se situe le projet": départements,
