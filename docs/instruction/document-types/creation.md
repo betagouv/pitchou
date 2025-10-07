@@ -413,7 +413,7 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
                         <tr>
                             <th scope="row"> <code>formatter_date_simple(date)</code></th>
                             <td> date</td>
-                            <td> Formate une date « en clair » : <em>jour mois année</em> (ex. <em>5 septembre 2025</em>).
+                            <td> Formate une date « en clair » : <em>jour mois année</em> (ex. <em>5 septembre 2025</em>). Équivalent à <code>{ formatter_date(date, 'd MMMM yyyy') }</code>. Renvoie rien si la date est vide.</td>
                         </tr>
                     </tbody>
                 </table>
