@@ -59,7 +59,7 @@ export function créerNomPourDossier(ligne) {
  *   "Électrique" |
  *   "Hydroélectrique" |
  *   "Ouvrages d’art" |
- *   "Projet Immobilier" |
+ *   "Projet immobilier" |
  *   "Routes" |
  *   "Stockage de déchets (ISDND)"
  * } TypeDeProjetOptions
@@ -77,7 +77,7 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
     ["Électrique", "Transport énergie électrique"],
     ["Hydroélectrique", "Production énergie renouvelable - Hydroélectricité"],
     ["Ouvrages d’art", "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art"],
-    ["Projet Immobilier", "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)"],
+    ["Projet immobilier", "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)"],
     ["Routes", "Infrastructures de transport routières"],
     ["Stockage de déchets (ISDND)", "Installations de gestion des déchets"]
 ]);
@@ -90,7 +90,7 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
 function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444) {
-    const typeDeProjet = ligne['Type de projet']
+    const typeDeProjet = ligne['Type de projet'].trim()
 
     // Si le type de projet est déjà une valeur pitchou
     // @ts-ignore
@@ -104,7 +104,7 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
         return activité
     }
 
-    console.warn("Type de projet non associé à une activité Pitchou", typeDeProjet)
+    console.warn(`Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou) On attribue donc l'activité "Autre" à ce projet.`)
 
     return 'Autre';
 }
