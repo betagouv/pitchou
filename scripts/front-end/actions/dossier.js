@@ -1,9 +1,11 @@
 //@ts-check
-
+/** @import {PitchouState} from '../store.js' */
 import store from "../store"
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées } from './activitésMéthodesTransports.js';
+import { isDossierRésuméArray } from '../../types/typeguards.js';
+import { chargerRelationSuivi } from "./main.js";
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {DossierComplet, DossierPhase} from '../../types/API_Pitchou.d.ts' */
@@ -11,8 +13,6 @@ import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées }
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
-//@ts-ignore
-/** @import {PitchouState} from '../store.js' */
 //@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
 
@@ -116,4 +116,39 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
         transports
     )
 
+}
+
+export function chargerDossiers(){
+
+    chargerRelationSuivi()
+
+    if(store.state.capabilities?.listerDossiers){
+        return store.state.capabilities?.listerDossiers()
+            .then((dossiers) => {
+                if (!isDossierRésuméArray(dossiers)) {
+                    throw new TypeError("On attendait un tableau de dossiers ici !")
+                }
+
+                /* Formatter les dossiers */
+                for(const dossier of dossiers){
+                    dossier.date_dépôt = new Date(dossier.date_dépôt)
+                    dossier.date_début_phase = new Date(dossier.date_début_phase)
+                }
+
+                /** @type {PitchouState['dossiersRésumés']} */
+                const dossiersById = new Map()
+
+                for(const dossier of dossiers){
+                    Object.freeze(dossier)
+                    dossiersById.set(dossier.id, dossier)
+                }
+
+                store.mutations.setDossiersRésumés(dossiersById)
+
+                return dossiersById
+            })
+    }
+    else{
+        return Promise.reject(new TypeError('Impossible de charger les dossiers, capability manquante'))
+    }
 }

@@ -9,8 +9,9 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import SuiviInstruction from '../components/screens/SuiviInstruction.svelte';
 import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 
-import { chargerDossiers, logout, secretFromURL } from '../actions/main.js';
+import { logout, secretFromURL } from '../actions/main.js';
 import showLoginByEmail from './montrerPageDAccueil.js';
+import { chargerDossiers } from '../actions/dossier.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */

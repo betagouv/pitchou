@@ -5,7 +5,8 @@ import store from '../store.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import ImportDossierBFC from '../components/screens/ImportDossierBFC.svelte';
-import { chargerDossiers, secretFromURL } from '../actions/main.js';
+import { secretFromURL } from '../actions/main.js';
+import { chargerDossiers } from '../actions/dossier.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
