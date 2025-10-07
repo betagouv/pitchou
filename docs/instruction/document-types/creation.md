@@ -69,22 +69,22 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{date_début_intervention}</code></th>
                             <td> date</td>
-                            <td> Date de début de l'intervention</td>
+                            <td> Date de début de l'intervention. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_début_consultation_public}</code></th>
                             <td> date</td>
-                            <td> Date de début de la consultation du public ou enquête publique</td>
+                            <td> Date de début de la consultation du public ou enquête publique. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_dépôt}</code></th>
                             <td> date</td>
-                            <td> Date de dépôt du dossier</td>
+                            <td> Date de dépôt du dossier. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
                             <td> date</td>
-                            <td> Date de fin de l'intervention</td>
+                            <td> Date de fin de l'intervention. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{demandeur}</code></th>
@@ -118,12 +118,12 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"><code>{enjeu_écologique}</code></th>
-                            <td>Booléen</td>
+                            <td> booléen</td>
                             <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu écologique, sinon <code>false</code></td>
                         </tr>
                         <tr>
                             <th scope="row"><code>{enjeu_politique}</code></th>
-                            <td>Booléen</td>
+                            <td> booléen</td>
                             <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu politique, sinon <code>false</code></td>
                         </tr>
                         <tr>
@@ -148,12 +148,12 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_espèces_par_impact}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_départements}</code></th>
-                            <td> <strong>liste de textes </strong></td>
+                            <td> liste de textes</td>
                             <td> Code des codes de départements dossier</code>.</td>
                         </tr>
                         <tr>
@@ -223,12 +223,12 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"> <code>{scientifique.finalité_demande}</code></th>
-                            <td> <strong>liste de texte</strong></td>
+                            <td> liste de texte</td>
                             <td>Réponse à la question "Captures/Relâchers/Prélèvement - Finalité(s) de la demande"</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{scientifique.intervenants}</code></th>
-                            <td> <strong>liste de texte</strong></td>
+                            <td> liste de texte</td>
                             <td> </td>
                         </tr>
                         <tr>
@@ -263,7 +263,7 @@ Les balises ont des types qui peuvent être :
                         </tr>
                         <tr>
                             <th scope="row"> <code>{scientifique.type_demande}</code></th>
-                            <td> <strong>liste</strong> de texte</td>
+                            <td> liste de texte</td>
                             <td> </td>
                         </tr>
                     </tbody>
@@ -298,12 +298,12 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_espèces}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : <code>{liste_impacts_quantifiés}</code>, <code>{nomScientifique}</code> et <code>{nomVernaculaire}</code></td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_noms_impacts_quantifiés}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste des noms des impacts quantifiés (Surface, Nombre d'individus...)</td>
                         </tr>
                     </tbody>
@@ -333,7 +333,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                     <tbody>
                         <tr>
                             <th scope="row"> <code>{liste_impacts_quantifiés}</code></th>
-                            <td> <strong>liste</strong></td>
+                            <td> liste</td>
                             <td> Liste des impacts quantifiés (Surface, nombre d'individus...). Cette liste est alignée avec <code>{liste_noms_impacts_quantifiés}</code>.</td>
                         </tr>
                         <tr>
@@ -388,6 +388,42 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
 
 &nbsp;
 
+
+## Fonctions disponibles
+
+<div class="fr-table">
+    <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+            <div class="fr-table__content">
+                <table>
+                    <caption>Liste des fonctions disponibles</caption>
+                    <thead>
+                        <tr> 
+                            <th scope="col"> Fonction</th>
+                            <th scope="col"> Paramètres</th>
+                            <th scope="col"> Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row"> <code>afficher_nombre(n, precision)</code></th>
+                            <td> n, precision (facultatif)</td>
+                            <td> Formate un nombre <code>n</code> avec une précision <code>precision</code> (2 par défaut)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>formatter_date_simple(date)</code></th>
+                            <td> date</td>
+                            <td> Formate une date « en clair » : <em>jour mois année</em> (ex. <em>5 septembre 2025</em>). </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 ## Exemples 
 
 ### Génération d'un accusé de réception
@@ -406,6 +442,14 @@ Nous reviendrons vers vous quand nous aurons vérifié que le dossier est comple
 Nous vous souhaitons une belle journée,
 
 La DREAL Île-de-France
+```
+
+### Formater des dates dans un document-type
+
+Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
+
+```
+Date de dépôt (en clair)   : { formatter_date_simple(date_dépôt) }
 ```
 
 #### Accusé de réception issu du document-type
