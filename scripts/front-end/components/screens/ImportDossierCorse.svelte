@@ -142,6 +142,9 @@
                     totalDossiers > 0
                         ? (dossiersDéjàEnBDD.length / totalDossiers) * 100
                         : 0;
+
+                // Visualiser en une fois tous les warnings de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
+                // lignesTableauImport.map((ligne) => handleCréerLienPréRemplissage(ligne))
             } catch (error) {
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
