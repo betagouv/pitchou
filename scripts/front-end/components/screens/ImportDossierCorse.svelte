@@ -3,7 +3,7 @@
 
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
-    /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
+    /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
     /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarches-simplifiées/schema.js"; */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
@@ -14,13 +14,17 @@
         sheetRawContentToObjects,
         isRowNotEmpty,
     } from "@odfjs/odfjs";
-
     import Squelette from "../Squelette.svelte";
-    import Pagination from '../DSFR/Pagination.svelte'
-
-    import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
+    import Pagination from "../DSFR/Pagination.svelte";
+    import {
+        créerDossierDepuisLigne,
+        créerNomPourDossier,
+        ligneDossierEnBDD
+    } from "../../actions/importDossierCorse.js";
     import BoutonModale from "../DSFR/BoutonModale.svelte";
 
+    const NOM_FEUILLE_TABLEAU_SUIVI = "TDB";
+    const DREAL = "Corse";
 
     /**
      * @typedef {Object} Props
@@ -30,34 +34,37 @@
      */
 
     /** @type {Props} */
-    let { 
-        email = undefined, 
-        dossiers = [],
-        schema
-    } = $props();
+    let { email = undefined, dossiers = [], schema } = $props();
 
-    // Pré-calcul: ensemble des noms présents en base (lookup O(1))
     const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
 
     const nomToDossierId = $derived(
         new Map(dossiers.map((d) => [d.nom, d.id])),
     );
 
+    const nomToHistoriqueIdentifiantDemandeOnagre = $derived(
+        new Map(
+            dossiers.map((d) => [
+                d.nom,
+                d.historique_identifiant_demande_onagre,
+            ]),
+        ),
+    );
 
     /** @type {Set<DossierDemarcheSimplifiee88444['Activité principale']>} } */
     // @ts-ignore
     const activitésPrincipales88444 = $derived(
-        schema ?
-            new Set(
-                schema.revision.champDescriptors
-                    .find(c => c.label === 'Activité principale')
-                    ?.options
-            ) :
-            new Set()
-    )
-    /** @type {LigneDossierBFC[]} */
+        schema
+            ? new Set(
+                  schema.revision.champDescriptors.find(
+                      (c) => c.label === "Activité principale",
+                  )?.options,
+              )
+            : new Set(),
+    );
+    /** @type {LigneDossierCorse[]} */
     let lignesTableauImport = $state([]);
-    /** @type {LigneDossierBFC[]} */
+    /** @type {LigneDossierCorse[]} */
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
@@ -75,16 +82,6 @@
     let nombreDossiersAImporter = $derived(
         lignesTableauImport.length - nombreDossiersDéjàImportés,
     );
-
-    /**
-     * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
-     * La recherche s'effectue en comparant le nom du projet (champ 'nom' de la table 'dossier').
-     * @param {LigneDossierBFC} LigneDossierBFC
-     * @returns {boolean}
-     */
-    function ligneDossierEnBDD(LigneDossierBFC) {
-        return nomsEnBDD.has(créerNomPourDossier(LigneDossierBFC));
-    }
 
     /**
      * @param {Event} event
@@ -117,11 +114,13 @@
                 const fichierImport = await file.arrayBuffer();
                 const rawData = await getODSTableRawContent(fichierImport);
 
-                const rawDataTableauSuivi = rawData.get("tableau_suivi");
+                const rawDataTableauSuivi = rawData.get(
+                    NOM_FEUILLE_TABLEAU_SUIVI,
+                );
 
                 if (!rawDataTableauSuivi) {
                     throw new TypeError(
-                        `Erreur dans la récupération de la page "tableau_suivi". Assurez-vous que cette page existe bien dans votre tableur ods.`,
+                        `Erreur dans la récupération de la feuille ${NOM_FEUILLE_TABLEAU_SUIVI}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
                     );
                 }
                 const lignes = [
@@ -132,10 +131,10 @@
 
                 lignesTableauImport = lignes;
                 lignesFiltréesTableauImport = lignes.filter(
-                    (ligne) => !ligneDossierEnBDD(ligne),
+                    (ligne) => !ligneDossierEnBDD(ligne, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre),
                 );
                 dossiersDéjàEnBDD = lignes.filter((ligne) =>
-                    ligneDossierEnBDD(ligne),
+                    ligneDossierEnBDD(ligne, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre),
                 );
 
                 const totalDossiers = lignes.length;
@@ -152,10 +151,13 @@
     }
 
     /**
-     * @param {LigneDossierBFC} LigneDossierBFC
+     * @param {LigneDossierCorse} LigneDossierCorse
      */
-    async function handleCréerLienPréRemplissage(LigneDossierBFC) {
-        const dossier = await créerDossierDepuisLigne(LigneDossierBFC, activitésPrincipales88444);
+    async function handleCréerLienPréRemplissage(LigneDossierCorse) {
+        const dossier = await créerDossierDepuisLigne(
+            LigneDossierCorse,
+            activitésPrincipales88444,
+        );
 
         console.log(
             { dossier },
@@ -171,7 +173,7 @@
                 body: JSON.stringify(dossier),
             });
 
-            ligneToLienPréremplissage.set(LigneDossierBFC, lien);
+            ligneToLienPréremplissage.set(LigneDossierCorse, lien);
             ligneToLienPréremplissage = ligneToLienPréremplissage;
         } catch (error) {
             throw new Error(
@@ -183,33 +185,34 @@
     // Pagination du tableau de suivi
     /** @typedef {() => void} SelectionneurPage */
 
-    const NOMBRE_DOSSIERS_PAR_PAGE = 20
+    const NOMBRE_DOSSIERS_PAR_PAGE = 20;
 
     // numéro de page qui correspond à celui affiché, donc commençant à 1
     /** @type {number} */
-    let numéroPageSelectionnée = $state(1)
+    let numéroPageSelectionnée = $state(1);
 
     /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
     let selectionneursPage = $derived.by(() => {
-        if(lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE*2 + 1){
-            const nombreDePages = Math.ceil(lignesTableauImport.length/NOMBRE_DOSSIERS_PAR_PAGE)
+        if (lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
+            const nombreDePages = Math.ceil(
+                lignesTableauImport.length / NOMBRE_DOSSIERS_PAR_PAGE,
+            );
 
             return [
                 undefined,
-                ...[...Array(nombreDePages).keys()].map(i => () => {
+                ...[...Array(nombreDePages).keys()].map((i) => () => {
                     //console.log('sélection de la page', i+1)
-                    numéroPageSelectionnée = i+1
-                })
-            ]
+                    numéroPageSelectionnée = i + 1;
+                }),
+            ];
         }
 
-        return undefined
+        return undefined;
     });
 
     $effect(() => {
-        if(selectionneursPage)
-            numéroPageSelectionnée = 1
-    })
+        if (selectionneursPage) numéroPageSelectionnée = 1;
+    });
 
     /** @type {typeof lignesTableauImport} */
     let lignesAffichéesTableauImport = $derived.by(() => {
@@ -217,22 +220,18 @@
             ? lignesTableauImport
             : lignesFiltréesTableauImport;
 
-        if(!selectionneursPage)
-            return lignesÀAfficher
-        else{
+        if (!selectionneursPage) return lignesÀAfficher;
+        else {
             return lignesÀAfficher.slice(
-                NOMBRE_DOSSIERS_PAR_PAGE*(numéroPageSelectionnée-1),
-                NOMBRE_DOSSIERS_PAR_PAGE*numéroPageSelectionnée
-            )
+                NOMBRE_DOSSIERS_PAR_PAGE * (numéroPageSelectionnée - 1),
+                NOMBRE_DOSSIERS_PAR_PAGE * numéroPageSelectionnée,
+            );
         }
-    })
-
-
-
+    });
 </script>
 
-<Squelette {email} nav={true} title="Corse — Import de dossiers">
-    <h1>Import de dossiers historiques Corse</h1>
+<Squelette {email} nav={true} title={`${DREAL} — Import de dossiers`}>
+    <h1>Import de dossiers historiques {DREAL}</h1>
 
     {#if !lignesTableauImport || lignesTableauImport.length === 0}
         <div class="fr-upload-group fr-mb-4w">
@@ -309,43 +308,55 @@
                         <table class="tableau-dossier-a-creer">
                             <thead>
                                 <tr>
-                                    <th> Nom du projet (OBJET) </th>
+                                    <th> Nom du projet </th>
                                     <th> Détails </th>
                                     <th> Actions </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each lignesAffichéesTableauImport as LigneDossierBFC, index}
+                                {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
                                     <tr data-row-key="1">
-                                        <td>{créerNomPourDossier(LigneDossierBFC)}</td>
+                                        <td
+                                            >{créerNomPourDossier(
+                                                ligneAffichéeTableauImport,
+                                            )}</td
+                                        >
                                         <td>
-                                            <BoutonModale id={`dsfr-modale-${index}`}>
+                                            <BoutonModale
+                                                id={`dsfr-modale-${index}`}
+                                            >
                                                 {#snippet boutonOuvrirDétails()}
-                                                    <button type='button'>Voir les détails</button>
+                                                    <button type="button"
+                                                        >Voir les détails</button
+                                                    >
                                                 {/snippet}
                                                 {#snippet contenu()}
-                                                    <div>{JSON.stringify(LigneDossierBFC)}</div>
+                                                    <div>
+                                                        {JSON.stringify(
+                                                            ligneAffichéeTableauImport,
+                                                        )}
+                                                    </div>
                                                 {/snippet}
                                             </BoutonModale>
                                         </td>
                                         <td>
-                                            {#if ligneDossierEnBDD(LigneDossierBFC)}
+                                            {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
                                                 <p
                                                     class="fr-badge fr-badge--success"
                                                 >
                                                     En base de données
                                                 </p>
                                                 <a
-                                                    href={`/dossier/${nomToDossierId.get(créerNomPourDossier(LigneDossierBFC))}`}
+                                                    href={`/dossier/${nomToDossierId.get(créerNomPourDossier(ligneAffichéeTableauImport))}`}
                                                     target="_blank"
                                                     class="fr-btn fr-btn--secondary fr-ml-2w"
                                                 >
                                                     Ouvrir dossier
                                                 </a>
-                                            {:else if ligneToLienPréremplissage.get(LigneDossierBFC)}
+                                            {:else if ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
                                                 <a
                                                     href={ligneToLienPréremplissage.get(
-                                                        LigneDossierBFC,
+                                                        ligneAffichéeTableauImport,
                                                     )}
                                                     target="_blank"
                                                     class="fr-btn"
@@ -357,7 +368,7 @@
                                                     class="fr-btn fr-btn--secondary"
                                                     onclick={() =>
                                                         handleCréerLienPréRemplissage(
-                                                            LigneDossierBFC,
+                                                            ligneAffichéeTableauImport,
                                                         )}
                                                     >Préparer préremplissage</button
                                                 >
@@ -373,27 +384,30 @@
         </div>
 
         {#if selectionneursPage}
-            <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}></Pagination>
+            <Pagination
+                {selectionneursPage}
+                pageActuelle={selectionneursPage[numéroPageSelectionnée]}
+            ></Pagination>
         {/if}
     {/if}
 </Squelette>
 
 <style lang="scss">
-    h2{
+    h2 {
         margin-bottom: 1rem;
     }
 
-    .fr-toggle label::before{
+    .fr-toggle label::before {
         max-width: 5rem;
     }
 
-    .progression{
+    .progression {
         display: flex;
         flex-direction: row;
         align-items: center;
 
-        .fr-progress-bar{
-            flex:1;
+        .fr-progress-bar {
+            flex: 1;
 
             height: 1.5rem;
             margin-left: 1rem;
@@ -401,7 +415,6 @@
             overflow: hidden;
 
             background: var(--background-alt-grey);
-
         }
     }
 
