@@ -423,6 +423,13 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
 </div>
 
 
+### Exemple pour formater des dates dans un document-type
+
+Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
+
+```
+Date de dépôt (en clair)   : { formatter_date_simple(date_dépôt) }
+```
 
 ## Exemples 
 
@@ -444,13 +451,6 @@ Nous vous souhaitons une belle journée,
 La DREAL Île-de-France
 ```
 
-### Formater des dates dans un document-type
-
-Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
-
-```
-Date de dépôt (en clair)   : { formatter_date_simple(date_dépôt) }
-```
 
 #### Accusé de réception issu du document-type
 
