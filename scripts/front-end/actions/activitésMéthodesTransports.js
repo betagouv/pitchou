@@ -65,7 +65,6 @@ export async function chargerListeEspècesProtégées(){
  * - activités : Map indexée par classification d'espèce (oiseau, faune non-oiseau, flore) contenant les activités menaçantes indexées par leur code
  * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
  * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
- * - activitésNomenclaturePitchou : Map unifiée de toutes les activités (standard + spécifiques Pitchou) indexées par leur code
  *
  * @remarks
  * - La fonction utilise un cache dans le store pour éviter les rechargements inutiles
@@ -74,7 +73,6 @@ export async function chargerListeEspècesProtégées(){
  * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
  *
  * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
- * @see {@link getActivitésNomenclaturePitchou} Pour la création des activités additionnelles Pitchou
  *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
@@ -91,18 +89,28 @@ export async function chargerActivitésMéthodesTransports(){
     // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
     // utilisée par Svelte
 
-    /** @type { ActivitéMenançante[] } */
-    const activitésBrutes = activitésMéthodesTransportsBruts.get("Activités").map(
-        // @ts-ignore
-        row => Object.assign({}, row)
-    )
+    /**  @type {ParClassification<ActivitéMenançante[]>} */
+    const activitésBrutes = {
+        oiseau: activitésMéthodesTransportsBruts.get("Activités oiseau").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+        "faune non-oiseau": activitésMéthodesTransportsBruts.get("Activités faune non oiseau").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+        flore: activitésMéthodesTransportsBruts.get("Activités flore").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+    }
     /** @type { MéthodeMenançante[] } */
     const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
         // @ts-ignore
         row => Object.assign({}, row)
     )
     /** @type { TransportMenançant[] } */
-    const transportsBruts = activitésMéthodesTransportsBruts.get("Transports").map(
+    const moyensPoursuite = activitésMéthodesTransportsBruts.get("Moyens de poursuite").map(
         // @ts-ignore
         row => Object.assign({}, row)
     )
@@ -110,22 +118,19 @@ export async function chargerActivitésMéthodesTransports(){
     const activitésMéthodesTransports = actMetTransArraysToMapBundle(
         activitésBrutes,
         méthodesBrutes,
-        transportsBruts
+        moyensPoursuite
     )
-    const activitésNomenclaturePitchou = getActivitésNomenclaturePitchou(activitésMéthodesTransports.activités)
 
-    store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou})
+    store.mutations.setActivitésMéthodesTransports(activitésMéthodesTransports)
 
-    const ret = {...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou }
-
-    return ret
+    return activitésMéthodesTransports
 }
 
 /**
  * Récupère et fusionne l'ensemble des activités issues du standard européen
  * ainsi que les activités spécifiques à Pitchou, en les indexant par leur code.
  * @param {ParClassification<Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>>} activités
- * @returns {Map<ActivitéMenançante['Code'], ActivitéMenançante>}
+ * @returns {Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>}
  * Une promesse résolue avec une `Map` contenant toutes les activités,
  * indexées par leur code.
  *
@@ -141,7 +146,7 @@ export function getActivitésNomenclaturePitchou(activités) {
         throw Error(`Activité 4 manquante`)
     }
 
-    /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
+    /** @type {Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>} */
     //@ts-ignore
     const activitésAdditionnelles = new Map([
         {
