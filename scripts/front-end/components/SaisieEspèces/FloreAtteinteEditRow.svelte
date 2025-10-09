@@ -4,9 +4,9 @@
     import { fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
-    
+
     /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
-    
+
     /**
      * @typedef {Object} Props
      * @property {EspèceProtégée | undefined} [espèce]
@@ -32,22 +32,22 @@
     } = $props();
 
     const dupliquerLigne = $derived(onDupliquerLigne && (() =>  espèce && onDupliquerLigne(
-        { 
+        {
             espèce,
             activité,
             nombreIndividus,
             surfaceHabitatDétruit
         },
     )))
-    
+
     let onSupprimerClick = $derived(onSupprimerLigne && (() => espèce && onSupprimerLigne(espèce)))
 </script>
 
 <tr>
     {#if espècesProtégéesFlore.length >= 1}
     <td>
-        <AutocompleteEspeces 
-            bind:espèceSélectionnée={espèce} 
+        <AutocompleteEspeces
+            bind:espèceSélectionnée={espèce}
             espèces={espècesProtégéesFlore}
         />
     </td>
@@ -57,7 +57,7 @@
             <option value={undefined}>-</option>
             {#each activitésMenaçantes || [] as act}
             <option value={act}>
-                {act['étiquette affichée']}
+                {act['Libellé Pitchou']}
             </option>
             {/each}
         </select>
@@ -108,7 +108,7 @@
             all: unset;
             cursor: pointer;
         }
-        
+
         input[type="number"] {
             border-radius: 0.5em;
             padding: 0.4em;
@@ -118,7 +118,7 @@
         select{
             max-width: 10rem;
         }
-        
+
         .icon-cell {
             text-align: center;
             vertical-align: middle;

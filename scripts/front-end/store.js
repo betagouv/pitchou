@@ -5,14 +5,14 @@ import Store from 'baredux'
 import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
 
 /**
- * Un store baredux a pour vocation de refléter notamment le modèle mental de la 
+ * Un store baredux a pour vocation de refléter notamment le modèle mental de la
  * personne face à notre application. Le store stocke donc principalement des données (et parfois des singletons)
  * Il stocke aussi parfois des promesses (pour permettre d'afficher des loaders dans les composants)
- * 
+ *
  * Dans un store Baredux, les mutations sont synchrones
  * S'il manque des informations, attendre la résolution de la promesse avant d'appeler une mutation
  * (à moins que la valeur soit délibérément une promesse)
- * 
+ *
  */
 // DO NOT import x from 'remember' // do it in an action instead
 // DO NOT import x from './actions/*.js' // you're making an action, so add an action instead
@@ -32,13 +32,13 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {Partial<PitchouInstructeurCapabilities>} capabilities
  * @property {Map<DossierRésumé['id'], DossierRésumé>} dossiersRésumés
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
- * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId 
+ * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>, activitésNomenclaturePitchou: Map<ActivitéMenançante['Code'], ActivitéMenançante> } } [activitésMéthodesTransports]
+ * @property { {activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>> } } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
  */
@@ -64,14 +64,14 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['dossiersRésumés']} dossiersRésumés 
+   * @param {PitchouState['dossiersRésumés']} dossiersRésumés
    */
   setDossiersRésumés(state, dossiersRésumés) {
     state.dossiersRésumés = dossiersRésumés
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['dossiersComplets']} dossiersComplets 
+   * @param {PitchouState['dossiersComplets']} dossiersComplets
    */
   setDossiersComplets(state, dossiersComplets) {
     state.dossiersComplets = dossiersComplets
