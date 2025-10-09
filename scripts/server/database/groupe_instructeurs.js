@@ -117,14 +117,12 @@ async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParE
 /**
  *
  * @param {GroupeInstructeurs['id'][]} groupeIds
- * @param {number} demarcheNumber
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns
  */
-async function supprimerGroupesInstructeurs(groupeIds, demarcheNumber, databaseConnection = directDatabaseConnection){
+async function supprimerGroupesInstructeurs(groupeIds, databaseConnection = directDatabaseConnection){
     return databaseConnection('groupe_instructeurs')
         .delete()
-        .where({'numéro_démarche': demarcheNumber})
         .whereIn('id', groupeIds);
 }
 
@@ -379,7 +377,7 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, de
     //console.log('groupesInstructeurs En BDD Absents Dans DS (donc à supprimer)', groupesInstructeursEnBDDAbsentsDansDS)
 
     const groupesInstructeursEnTropEnBDDSupprimés = groupesInstructeursEnBDDAbsentsDansDS.size >= 1 ?
-        supprimerGroupesInstructeurs([...groupesInstructeursEnBDDAbsentsDansDS.values()].map(({id}) => id), demarcheNumber, databaseConnection) :
+        supprimerGroupesInstructeurs([...groupesInstructeursEnBDDAbsentsDansDS.values()].map(({id}) => id), databaseConnection) :
         Promise.resolve()
 
     // Pour les groupes qui sont présents dans les deux, trouver les groupes qui ont besoin
