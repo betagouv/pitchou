@@ -2,11 +2,11 @@
 
 import graphQLQuery from './queryGraphQL.js'
 
+/** @import {GroupeInstructeurs} from '../../types/démarches-simplifiées/apiSchema.ts' */
+
 import {GroupeInstructeursQuery} from './graphQLqueries.js'
 import { normalisationEmail } from '../../commun/manipulationStrings.js'
 
-//@ts-ignore erreur incompréhensible
-/** @import {GroupeInstructeurs} from '../../types/démarches-simplifiées/apiSchema.ts' */
 
 /**
  *
