@@ -8,10 +8,8 @@ import {SvelteMap, SvelteSet} from 'svelte/reactivity'
 import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
-import { isDossierRésuméArray } from '../../types/typeguards.js';
 import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
 
-/** @import {PitchouState} from '../store.js' */
 /** @import {default as RésultatSynchronisationDS88444} from '../../types/database/public/RésultatSynchronisationDS88444.js' */
 
 const PITCHOU_SECRET_STORAGE_KEY = 'secret-pitchou'
@@ -32,42 +30,6 @@ export function chargerRelationSuivi(){
 
                 store.mutations.setRelationSuivis(relationSuivis)
             })
-    }
-}
-
-
-export function chargerDossiers(){
-
-    chargerRelationSuivi()
-
-    if(store.state.capabilities?.listerDossiers){
-        return store.state.capabilities?.listerDossiers()
-            .then((dossiers) => {
-                if (!isDossierRésuméArray(dossiers)) {
-                    throw new TypeError("On attendait un tableau de dossiers ici !")
-                }
-
-                /* Formatter les dossiers */
-                for(const dossier of dossiers){
-                    dossier.date_dépôt = new Date(dossier.date_dépôt)
-                    dossier.date_début_phase = new Date(dossier.date_début_phase)
-                }
-
-                /** @type {PitchouState['dossiersRésumés']} */
-                const dossiersById = new Map()
-
-                for(const dossier of dossiers){
-                    Object.freeze(dossier)
-                    dossiersById.set(dossier.id, dossier)
-                }
-
-                store.mutations.setDossiersRésumés(dossiersById)
-
-                return dossiersById
-            })
-    }
-    else{
-        return Promise.reject(new TypeError('Impossible de charger les dossiers, capability manquante'))
     }
 }
 

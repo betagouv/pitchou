@@ -6,7 +6,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 
 import TmpStats from '../components/screens/TmpStats.svelte';
 
-import { chargerDossiers } from '../actions/main.js';
+import { chargerDossiers } from '../actions/dossier.js';
 
 /** @import {PitchouState} from '../store.js' */
 /** @import {ComponentProps} from 'svelte' */
