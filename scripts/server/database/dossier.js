@@ -373,12 +373,7 @@ const colonnesDossierComplet = [
 
     "type",
 /*
-    "historique_date_envoi_dernière_contribution",
-    "historique_date_saisine_csrpn",
-    "historique_date_saisine_cnpn",
-    "date_avis_csrpn",
-    "date_avis_cnpn",
-    "avis_csrpn_cnpn",
+    "historique_date_envoi_dernière_contribution"
 */
 
 ]
