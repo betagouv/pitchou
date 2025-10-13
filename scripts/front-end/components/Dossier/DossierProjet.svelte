@@ -196,6 +196,22 @@
                     {/if}
                 </div>
             {/await}
+        {:else if dossier.espèces_protégées_concernées}
+            <!-- Cette section est amenée à disparatre avec la fin de la transmission des espèces via un lien -->
+            <p>
+                Le pétitionnaire n'a pas encore transmis de fichier, mais il a
+                transmis ceci&nbsp;:
+            </p>
+
+            <pre>{dossier.espèces_protégées_concernées}</pre>
+            <p>
+                <strong>Recommandation&nbsp;:</strong> l'inviter à plutôt
+                transmettre
+                <a href="/saisie-especes"
+                    >un fichier qu'il peut créer sur Pitchou</a
+                >, puis déposer ce fichier au bon endroit sur son dossier sur
+                Démarches Simplifiées
+            </p>
         {:else}
             <p>
                 Aucune données sur les espèces impactées n'a été fournie par le
