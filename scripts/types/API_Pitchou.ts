@@ -5,6 +5,7 @@ import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.t
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
 import Prescription from './database/public/Prescription.ts'
 import Contrôle from './database/public/Contrôle.ts'
+import AvisExpert from './database/public/AvisExpert.ts'
 
 
 type DossierPersonnesImpliquéesRésumé = {
@@ -105,6 +106,7 @@ export type DossierComplet = Omit<Dossier,
     & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
     & { évènementsPhase: ÉvènementPhaseDossier[] }
     & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}
+    & { avisExpert: AvisExpert[]}
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
