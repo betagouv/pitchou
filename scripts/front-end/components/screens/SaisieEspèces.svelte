@@ -252,10 +252,14 @@
 </script>
 
 
-<Squelette nav={false} {email} title="Saisie des espèces protégées">
+<Squelette nav={false} {email} title="Espèces protégées impactées">
     <article>
-        <h1 class="fr-mt-6w">Saisie des espèces protégées impactées</h1>
-
+        <header>
+            <h1 class="fr-mt-4w">Espèces protégées impactées</h1>
+            <button class="fr-btn fr-btn--secondary" type="button">
+                Pré-remplir
+            </button>
+        </header>
         <div class="fr-grid-row fr-mt-6w fr-mb-4w">
             <div class="fr-col">
                 <section class="fr-mb-4w">
@@ -457,7 +461,12 @@
 
 <style lang="scss">
 	article{
-
+        header{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
         details{
             cursor: default; // surcharge dsfr parce que c'est bizarre
         }
