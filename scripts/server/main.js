@@ -121,6 +121,7 @@ fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
 fastify.get('/tmp/stats', sendIndexHTMLFile)
 fastify.get('/stats', sendIndexHTMLFile)
 fastify.get('/import-dossier-historique/bourgogne-franche-comte', sendIndexHTMLFile)
+fastify.get('/import-dossier-historique/corse', sendIndexHTMLFile)
 fastify.get('/accessibilite', sendIndexHTMLFile)
 
 
