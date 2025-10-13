@@ -239,8 +239,6 @@ export function makeColonnesCommunesDossierPourSynchro(
         annotationById.set(annotation.id, annotation)
     }
 
-    const historique_nom_porteur = annotationById.get(pitchouKeyToAnnotationDS.get("Nom du porteur de projet"))?.stringValue
-    const historique_localisation = annotationById.get(pitchouKeyToAnnotationDS.get("Localisation du projet"))?.stringValue
     const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
@@ -248,22 +246,7 @@ export function makeColonnesCommunesDossierPourSynchro(
 
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
-
-    const historique_date_saisine_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CSRPN")).date
-
-    const historique_date_saisine_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN")) ?
-        annotationById.get(pitchouKeyToAnnotationDS.get("Date saisine CNPN")).date :
-        undefined
-
-
-    const date_avis_csrpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CSRPN")).date
-
-    const date_avis_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")) ?
-        annotationById.get(pitchouKeyToAnnotationDS.get("Date avis CNPN")).date :
-        undefined
-
-    const avis_csrpn_cnpn = annotationById.get(pitchouKeyToAnnotationDS.get("Avis CSRPN/CNPN")).stringValue
-
+    
     const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
 
     const champ_nombre_nids_compensés_oiseau_simple = champById.get(pitchouKeyToChampDS.get('Indiquer le nombre de nids artificiels posés en compensation'))?.stringValue
@@ -328,8 +311,6 @@ export function makeColonnesCommunesDossierPourSynchro(
         scientifique_précisions_autres_intervenants,
 
         // annotations privées
-        historique_nom_porteur,
-        historique_localisation,
         ddep_nécessaire,
 
         enjeu_écologique,
@@ -337,11 +318,6 @@ export function makeColonnesCommunesDossierPourSynchro(
 
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
-        historique_date_saisine_csrpn,
-        historique_date_saisine_cnpn,
-        date_avis_csrpn,
-        date_avis_cnpn,
-        avis_csrpn_cnpn,
 
         date_consultation_public,
 
