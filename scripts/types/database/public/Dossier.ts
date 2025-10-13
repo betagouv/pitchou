@@ -19,9 +19,6 @@ export default interface Dossier {
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
-  /** Liste des espèces protégées concernées par le dossier */
-  espèces_protégées_concernées: string | null;
-
   /** Liste des départements concernés par le projet */
   départements: unknown | null;
 
@@ -46,12 +43,6 @@ export default interface Dossier {
   /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées: string | null;
 
-  /** Nom du porteur de projet dans les Annotations Privées */
-  historique_nom_porteur: string | null;
-
-  /** Localisation du projet dans les Annotations Privées */
-  historique_localisation: string | null;
-
   /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
   ddep_nécessaire: string | null;
 
@@ -66,21 +57,6 @@ export default interface Dossier {
 
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre: string | null;
-
-  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
-  historique_date_saisine_csrpn: Date | null;
-
-  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
-  historique_date_saisine_cnpn: Date | null;
-
-  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
-  date_avis_csrpn: Date | null;
-
-  /** À supprimer. Date de l'avis officiel émis par le CNPN */
-  date_avis_cnpn: Date | null;
-
-  /** À supprimer. Avis du CSRPN ou du CNPN */
-  avis_csrpn_cnpn: string | null;
 
   /** Date de la consultation publique */
   date_consultation_public: Date | null;
@@ -178,9 +154,6 @@ export interface DossierInitializer {
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt: Date;
 
-  /** Liste des espèces protégées concernées par le dossier */
-  espèces_protégées_concernées?: string | null;
-
   /** Liste des départements concernés par le projet */
   départements?: unknown | null;
 
@@ -205,12 +178,6 @@ export interface DossierInitializer {
   /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées?: string | null;
 
-  /** Nom du porteur de projet dans les Annotations Privées */
-  historique_nom_porteur?: string | null;
-
-  /** Localisation du projet dans les Annotations Privées */
-  historique_localisation?: string | null;
-
   /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
   ddep_nécessaire?: string | null;
 
@@ -225,21 +192,6 @@ export interface DossierInitializer {
 
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string | null;
-
-  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
-  historique_date_saisine_csrpn?: Date | null;
-
-  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
-  historique_date_saisine_cnpn?: Date | null;
-
-  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
-  date_avis_csrpn?: Date | null;
-
-  /** À supprimer. Date de l'avis officiel émis par le CNPN */
-  date_avis_cnpn?: Date | null;
-
-  /** À supprimer. Avis du CSRPN ou du CNPN */
-  avis_csrpn_cnpn?: string | null;
 
   /** Date de la consultation publique */
   date_consultation_public?: Date | null;
@@ -336,9 +288,6 @@ export interface DossierMutator {
   /** Date à laquelle la demande de dérogation Espèce Protégée a été reçue par les instructeur.i.ces. */
   date_dépôt?: Date;
 
-  /** Liste des espèces protégées concernées par le dossier */
-  espèces_protégées_concernées?: string | null;
-
   /** Liste des départements concernés par le projet */
   départements?: unknown | null;
 
@@ -363,12 +312,6 @@ export interface DossierMutator {
   /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées?: string | null;
 
-  /** Nom du porteur de projet dans les Annotations Privées */
-  historique_nom_porteur?: string | null;
-
-  /** Localisation du projet dans les Annotations Privées */
-  historique_localisation?: string | null;
-
   /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
   ddep_nécessaire?: string | null;
 
@@ -383,21 +326,6 @@ export interface DossierMutator {
 
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string | null;
-
-  /** À supprimer. Date de saisine du CSRPN (Conseil Scientifique Régional du Patrimoine Naturel) */
-  historique_date_saisine_csrpn?: Date | null;
-
-  /** À supprimer. Date de saisine du CNPN (Conseil National de Protection de la Nature) */
-  historique_date_saisine_cnpn?: Date | null;
-
-  /** À supprimer. Date de l'avis officiel émis par le CSRPN */
-  date_avis_csrpn?: Date | null;
-
-  /** À supprimer. Date de l'avis officiel émis par le CNPN */
-  date_avis_cnpn?: Date | null;
-
-  /** À supprimer. Avis du CSRPN ou du CNPN */
-  avis_csrpn_cnpn?: string | null;
 
   /** Date de la consultation publique */
   date_consultation_public?: Date | null;

@@ -86,11 +86,9 @@ export async function getDossierMessages(dossierId, databaseConnection = directD
 }
 
 
-/** @type {(keyof Pick<Dossier, "nom" | 'historique_nom_porteur' | 'historique_localisation' | 'ddep_nécessaire'>)[]} */
+/** @type {(keyof Pick<Dossier, "nom" | 'ddep_nécessaire'>)[]} */
 const varcharKeys = [
     'nom',
-    'historique_nom_porteur',
-    'historique_localisation',
     'ddep_nécessaire'
 ]
 
@@ -347,10 +345,6 @@ const colonnesDossierComplet = [
     "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
 
     // annotations privées
-    /*
-    "historique_nom_porteur",
-    "historique_localisation",
-    */
     "ddep_nécessaire",
 
     "scientifique_type_demande",
@@ -379,12 +373,7 @@ const colonnesDossierComplet = [
 
     "type",
 /*
-    "historique_date_envoi_dernière_contribution",
-    "historique_date_saisine_csrpn",
-    "historique_date_saisine_cnpn",
-    "date_avis_csrpn",
-    "date_avis_cnpn",
-    "avis_csrpn_cnpn",
+    "historique_date_envoi_dernière_contribution"
 */
 
 ]
