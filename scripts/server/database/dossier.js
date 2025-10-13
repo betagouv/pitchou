@@ -396,8 +396,6 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
                 const id_fichier_espèces_impactées = dossier.espèces_impactées_id
                 if(id_fichier_espèces_impactées){
                     dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
-                    // s'il y a un fichier, ignorer le champ contenant un lien
-                    delete dossier.espèces_protégées_concernées
                 }
 
             }
