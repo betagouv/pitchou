@@ -112,21 +112,22 @@ function toSheetRawCellContent(x){
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
 
         const labelActivité = activité && activité['Libellé Pitchou']
-        const codeActivité = activité && activité['Identifiant Pitchou']
+        const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
+        const codeEuropeActivité = activité && activité['Code rapportage européen']
         const labelMéthode = méthode && méthode['étiquette affichée']
         const codeMéthode = méthode && méthode.Code
         const labelTransport = transport && transport['étiquette affichée']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
             .map(toSheetRawCellContent)
         )
     }
@@ -143,20 +144,21 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
  */
 function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
         const labelActivité = activité && activité['Libellé Pitchou']
-        const codeActivité = activité && activité['Identifiant Pitchou']
+        const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
+        const codeEuropeActivité = activité && activité['Code rapportage européen']
         const labelMéthode = méthode && méthode['étiquette affichée']
         const codeMéthode = méthode && méthode.Code
         const labelTransport = transport && transport['étiquette affichée']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
             .map(toSheetRawCellContent)
         )
     }
@@ -174,16 +176,17 @@ function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
 function floresAtteintesToTableContent(floresAtteintes){
 
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité} of floresAtteintes){
         const labelActivité = activité && activité['Libellé Pitchou']
-        const codeActivité = activité && activité['Identifiant Pitchou']
+        const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
+        const codeEuropeActivité = activité && activité['Code rapportage européen']
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité]
             .map(toSheetRawCellContent)
         )
     }
@@ -332,13 +335,32 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
                 "code méthode": codeMéthode,
-                "code transport": codeTransport
+                "code transport": codeTransport,
             } = ligneOiseauOds
+            let identifiantPitchouActivité = ligneOiseauOds['identifiant pitchou activité']
 
             const espèce = espèceByCD_REF.get(CD_REF)
 
             if(!espèce){
                 throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
+
+            if (!identifiantPitchouActivité) {
+                if (codeActivité === '4') {
+                    if ((nombreOeufs && nombreOeufs > 0) || (nombreNids && nombreNids > 0)) {
+                        // Destruction de nids/oeufs
+                        identifiantPitchouActivité = 'P-4-1'
+                    } else {
+                        // Dégradation/destruction d’aires de repos/reproduction
+                        identifiantPitchouActivité = 'P-4-2'
+                    }
+                } else if (codeActivité == '2') {
+                    // TODO: Vérifier si c'est okay d'utiliser cet impact en fallback
+                    // Capture pour captivité temporaire ou définitive
+                    identifiantPitchouActivité = 'P-2-1'
+                } else {
+                    identifiantPitchouActivité = `P-${codeActivité}`
+                }
             }
 
             return {
@@ -347,8 +369,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 nombreNids,
                 nombreOeufs,
                 surfaceHabitatDétruit,
-                //@ts-ignore
-                activité: activites['oiseau'].get(codeActivité),
+                activité: activites['oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['oiseau'].get(codeMéthode),
                 transport: transports['oiseau'].get(codeTransport),
             }
@@ -369,6 +390,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "code méthode": codeMéthode,
                 "code transport": codeTransport
             } = ligneFauneNonOiseauOds
+            let identifiantPitchouActivité = ligneFauneNonOiseauOds['identifiant pitchou activité']
 
             const espèce = espèceByCD_REF.get(CD_REF)
 
@@ -376,12 +398,21 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
             }
 
+            if (!identifiantPitchouActivité) {
+                if (codeActivité === '70') {
+                    // TODO: Vérifier si c'est okay d'utiliser cet impact en fallback
+                    // Détention de spécimens vivants ou morts
+                    identifiantPitchouActivité = 'P-70-1'
+                } else {
+                    identifiantPitchouActivité = `P-${codeActivité}`
+                }
+            }
+
             return {
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                //@ts-ignore
-                activité: activites['faune non-oiseau'].get(codeActivité),
+                activité: activites['faune non-oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['faune non-oiseau'].get(codeMéthode),
                 transport: transports['faune non-oiseau'].get(codeTransport),
             }
@@ -399,6 +430,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "nombre individus": nombreIndividus,
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
+                "identifiant pitchou activité": identifiantPitchouActivité,
             } = ligneFloreOds
 
             const espèce = espèceByCD_REF.get(CD_REF)
@@ -411,13 +443,10 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                //@ts-ignore
-                activité: activites['flore'].get(codeActivité)
+                activité: activites['flore'].get(identifiantPitchouActivité || `P-${codeActivité}`)
             }
         })
     }
-
-
 
     return descriptionMenacesEspèces
 }
@@ -455,7 +484,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
 
             activité['Code rapportage européen'] = activité['Code rapportage européen'].toString()
             // @ts-ignore
-            activités[classification].set(activité['Identifiant Pitchou'], activités)
+            activités[classification].set(activité['Identifiant Pitchou'], activité)
         }
     }
 
