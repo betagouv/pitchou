@@ -428,7 +428,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
  * @param {TransportMenançant[]} transportsBruts
  *
  * @returns {{
-*  activités: ParClassification<Map<ActivitéMenançante['Code rapportage européen'], ActivitéMenançante>>,
+*  activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>,
 *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>,
 *  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>
 * }}

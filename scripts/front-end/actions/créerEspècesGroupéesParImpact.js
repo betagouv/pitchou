@@ -1,16 +1,15 @@
 
-/** @import { ActivitéMenançante, CodeActivitéPitchou, CodeActivitéStandard, DescriptionMenacesEspèces, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
+/** @import { ActivitéMenançante, DescriptionMenacesEspèces, DonnéesSecondaires, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
 
 
 
 /** @type {ActivitéMenançante} */
 const ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION = {
-    Code: 'mix-1-10-3-30-6-40',
-    "étiquette affichée": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
-    "Libellé long": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
-    Espèces: 'faune non-oiseau', // champ inutilisé
-    Méthode: 'n', // champ inutilisé
-    transport: 'n' // champ inutilisé
+    "Identifiant Pitchou": 'mix-1-10-3-30-6-40',
+    "Libellé Pitchou": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
+    "Libellé activité directive européenne": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
+    Méthode: 'Non', // champ inutilisé
+    "Moyen de poursuite": 'Non' // champ inutilisé
 }
 
 const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
@@ -49,30 +48,13 @@ function œufs(espèceImpactée){
     return espèceImpactée.nombreOeufs ? `${espèceImpactée.nombreOeufs}` : VALEUR_NON_RENSEIGNÉ
 }
 
-
-
-/** @type {Map<ActivitéMenançante['Code'] | undefined, Map<string, ((esp: any) => string)>>}  */
-let activitéVersDonnéesSecondaires = new Map([
-    // 1, 10, 3, 30, 6, 40
-    [ ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION.Code, new Map([ [ `Nombre d'individus`, individus ] ]) ],
-
-    [ '2', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    [ '4-1-pitchou-aires', new Map([ [ `Surface`, surface ] ]) ],
-    [ '4-2-pitchou-nids', new Map([ [ `Nombre de nids`, nids ] ]) ],
-    [ '4-3-pitchou-œufs', new Map([ [ `Nombre d'œufs`, œufs ] ]) ],
-    [ '5', new Map([ [ `Nombre d'œufs`, œufs ] ]) ],
-    [ '7', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    [ '8', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    [ '20', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    // insatisfaisant pour "Destruction intentionnelle d’oeufs/pontes" (faune non-oiseau)
-    [ '50', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    [ '60', new Map([ [ `Surface`, surface ] ]) ],
-    [ '70', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    [ '80', new Map([ [ `Surface`, surface ] ]) ],
-    [ '90', new Map([ [ `Nombre d'individus`, individus ] ]) ],
-    [ undefined, new Map([ [ `Nombre d'individus`, individus ] ]) ]
-])
-
+/** @type {Map<DonnéesSecondaires, ((esp: any) => string)>}  */
+const getterDonnéesSecondaires = new Map([
+    ["Nombre d'individus", individus],
+    ["Nids", nids],
+    ["Œufs", œufs],
+    ["Surface habitat détruit (m²)", surface],
+]);
 
 /**
  * @typedef EspèceImpactéeSimplifiée
@@ -86,94 +68,71 @@ let activitéVersDonnéesSecondaires = new Map([
 /**
  * @typedef {Object} EspècesParActivité
  * @prop {string} activité
- * @prop {string[]} impactsQuantifiés
+ * @prop {DonnéesSecondaires[]} impactsQuantifiés
  * @prop {EspèceImpactéeSimplifiée[]} espèces
  */
 
 
 /**
- * 
+ *
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitésNomenclaturePitchou
+ * @param {Map<ActivitéMenançante['Identifiant Pitchou'], DonnéesSecondaires[]>} activitéVersDonnéesSecondaires
  * @returns {EspècesParActivité[]}
  */
-export function créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou) {
+export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVersDonnéesSecondaires) {
 
     /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
     const _espècesImpactéesParActivité = new Map()
 
     /**
-     * 
+     *
      * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
      */
     function push(espèceImpactée){
         const activité = espèceImpactée.activité
+
+        if (!activité) {
+            // TODO: Possiblement pas le bon comportement
+            throw new Error(`Activité non définie`)
+        }
+
         const esps = _espècesImpactéesParActivité.get(activité) || []
-        const donnéesSecondaires = activitéVersDonnéesSecondaires.get(espèceImpactée.activité?.Code)
+        const donnéesSecondaires = activitéVersDonnéesSecondaires.get(activité['Identifiant Pitchou'])
 
         if(!donnéesSecondaires){
-            throw new Error(`Pas de données secondaires pour activité ${espèceImpactée.activité?.Code}`)
+            throw new Error(`Pas de données secondaires pour activité ${activité['Identifiant Pitchou']}`)
         }
 
         esps.push({
             CD_REF: espèceImpactée.espèce.CD_REF,
             nomScientifique: [...espèceImpactée.espèce.nomsScientifiques][0],
             nomVernaculaire: [...espèceImpactée.espèce.nomsVernaculaires][0],
-            détails: [...donnéesSecondaires.values()]
-                .map(funcDétail => funcDétail(espèceImpactée))
+            détails: [...donnéesSecondaires]
+                .map((donnéeSecondaire) => {
+                    const funcDetail = getterDonnéesSecondaires.get(donnéeSecondaire)
+
+                    if (!funcDetail) {
+                        throw new Error(`Fonction de récupération des détails de l'espèce non définie pour le type ${donnéeSecondaire}`)
+                    }
+
+                    return funcDetail(espèceImpactée)
+                })
         })
         _espècesImpactéesParActivité.set(activité, esps)
     }
 
-    
+
     for(const classif of (/** @type {const} */ (['oiseau', 'faune non-oiseau', 'flore']))){
         if(espècesImpactées[classif]){
             for(const espèceImpactée of espècesImpactées[classif]){
-                const activité = espèceImpactée.activité
-                const code  = activité?.Code || ''
-                if(code === '4'){ // Destruction intentionnelle de nids, œufs, aires de repos ou reproduction
-                    // séparer en sous-activités
-                    if(espèceImpactée.surfaceHabitatDétruit){
-                        push({
-                            ...espèceImpactée,
-                            activité: activitésNomenclaturePitchou.get('4-1-pitchou-aires')
-                        })
-                    }
-
-                    // @ts-ignore
-                    if(espèceImpactée.nombreNids){
-                        push({
-                            ...espèceImpactée,
-                            activité: activitésNomenclaturePitchou.get('4-2-pitchou-nids')
-                        })
-                    }
-
-                    // @ts-ignore
-                    if(espèceImpactée.nombreOeufs){
-                        push({
-                            ...espèceImpactée,
-                            activité: activitésNomenclaturePitchou.get('4-3-pitchou-œufs')
-                        }) 
-                    }
-
-                }
-                else{
-                    if(['1', '10', '3', '30', '6', '40'].includes(code)){
-                        push({
-                            ...espèceImpactée,
-                            activité: ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION
-                        })
-                    }
-                    else
-                        push(espèceImpactée)
-                }
+                push(espèceImpactée)
             }
         }
     }
 
     for(const [activité, esps] of _espècesImpactéesParActivité){
         _espècesImpactéesParActivité.set(
-            activité, 
+            activité,
             esps.toSorted(({nomScientifique: nom1}, {nomScientifique: nom2}) =>  {
                 if (nom1 < nom2) { return -1; }
                 if (nom1 > nom2) { return 1; }
@@ -184,9 +143,8 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitésN
 
     return [..._espècesImpactéesParActivité]
         .map(([activité, espèces]) => ({
-            activité: activité ? activité['étiquette affichée'] : `Type d'impact non-renseignée`, 
-            // @ts-ignore
-            impactsQuantifiés: [...activitéVersDonnéesSecondaires.get(activité?.Code).keys()],
+            activité: activité ? activité['Libellé Pitchou'] : `Type d'impact non-renseignée`,
+            impactsQuantifiés: activitéVersDonnéesSecondaires.get(activité ? activité['Identifiant Pitchou'] : '') || [],
             espèces
         }))
 }

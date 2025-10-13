@@ -15,7 +15,7 @@
     let erreurGénérationDocument = $state();
 
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
@@ -39,7 +39,7 @@
 
 
     /**
-     * 
+     *
      * @param {SubmitEvent} e
      */
     async function generateDoc(e){
@@ -51,7 +51,7 @@
 
         let espèces_impacts = undefined
 
-        const { activitésNomenclaturePitchou } = await chargerActivitésMéthodesTransports()
+        const { activitéVersDonnéesSecondaires } = await chargerActivitésMéthodesTransports()
 
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a
@@ -69,7 +69,7 @@
             return;
         }
 
-		const balises = getBalisesGénérationDocument(dossier, espèces_impacts, activitésNomenclaturePitchou)
+		const balises = getBalisesGénérationDocument(dossier, espèces_impacts, activitéVersDonnéesSecondaires)
 
         console.log('balises', balises)
 
@@ -120,7 +120,7 @@
     </form>
 
     {#if documentGénéré && nomDocumentGénéré}
-        <div>            
+        <div>
             <a class="fr-link fr-link--download" download={nomDocumentGénéré} href={urlDocumentGénéré}>
                 Télécharger le document généré
             </a>
@@ -128,7 +128,7 @@
                 <summary>Voir le texte brut</summary>
                 {#await texteDocumentGénéré}
                     (... en chargement ...)
-                {:then texte} 
+                {:then texte}
                     <div class="texte-document-généré">{texte}</div>
                 {/await}
             </details>
