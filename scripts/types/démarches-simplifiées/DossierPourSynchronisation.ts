@@ -50,7 +50,6 @@ export type DossierEntreprisesPersonneInitializersPourUpdate =
 export type PersonneAvecEmailObligatoire = Partial<Omit<Personne, "email">> & {email: NonNullable<Personne['email']>} ;
 
 
-export type DossierPourInsertGénérique<Dossier> = DossierPourSynchronisation<Dossier> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined }
-export type DossierPourInsert = DossierPourInsertGénérique<DossierInitializer>
+export type DossierPourInsert = DossierPourSynchronisation<DossierInitializer> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined }
 
 export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>
