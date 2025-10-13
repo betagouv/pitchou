@@ -1,7 +1,7 @@
 //@ts-check
 
 
-/** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces, DonnéesSecondaires  } from '../../types/especes.ts' */
+/** @import { ActivitéMenançante, DescriptionMenacesEspèces, DonnéesSecondaires  } from '../../types/especes.ts' */
 /** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
 /** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
 /** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.js' */

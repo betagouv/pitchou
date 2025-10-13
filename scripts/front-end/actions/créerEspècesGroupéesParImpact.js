@@ -2,18 +2,7 @@
 /** @import { ActivitéMenançante, DescriptionMenacesEspèces, DonnéesSecondaires, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
 
 
-
-/** @type {ActivitéMenançante} */
-const ACTIVITÉ_DESTRUCTION_CAPTURE_PERTURBATION = {
-    "Identifiant Pitchou": 'mix-1-10-3-30-6-40',
-    "Libellé Pitchou": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
-    "Libellé activité directive européenne": 'Destruction intentionnelle, capture ou perturbation intentionnelle de spécimens',
-    Méthode: 'Non', // champ inutilisé
-    "Moyen de poursuite": 'Non' // champ inutilisé
-}
-
 const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
-
 
 
 /**
