@@ -1,7 +1,7 @@
 //@ts-check
 
 
-/** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces  } from '../../types/especes.ts' */
+/** @import { CodeActivitéPitchou, CodeActivitéStandard, ActivitéMenançante, DescriptionMenacesEspèces, DonnéesSecondaires  } from '../../types/especes.ts' */
 /** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
 /** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
 /** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.js' */
@@ -9,18 +9,18 @@
 import {format} from 'date-fns'
 import {fr} from 'date-fns/locale';
 
-import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js' 
+import {formatLocalisation, formatPorteurDeProjet} from '../affichageDossier.js'
 import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpact.js'
 
 
 /**
  * @param {DossierComplet} dossier
  * @param {DescriptionMenacesEspèces} espècesImpactées Description des espèces impactées par le dossier
- * @param {Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>} activitésNomenclaturePitchou
+ * @param {Map<ActivitéMenançante['Identifiant Pitchou'], DonnéesSecondaires[]>} activitéVersDonnéesSecondaires
  * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
-export function getBalisesGénérationDocument(dossier, espècesImpactées, activitésNomenclaturePitchou) {
+export function getBalisesGénérationDocument(dossier, espècesImpactées, activitéVersDonnéesSecondaires) {
     const functions = {
         afficher_nombre,
         formatter_date,
@@ -64,7 +64,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
 
     /** @type {EspècesParActivité[] | undefined} */
     // Transformer les espèces impactées si elles existent
-    const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, activitésNomenclaturePitchou)
+    const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, activitéVersDonnéesSecondaires)
 
     /** @type {BalisesGénérationDocument['hirondelles']} */
     const hirondelles = type === 'Hirondelle' ? {
@@ -139,7 +139,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
 }
 
 /**
- * 
+ *
  * @param {any} n
  * @param {number} precision
  * @returns {string | undefined}
@@ -165,7 +165,7 @@ function afficher_nombre(n, precision = 2){
 }
 
 /**
- * 
+ *
  * @param {any} date
  * @param {string} formatString
  * @returns {string | undefined}
@@ -179,7 +179,7 @@ function formatter_date(date, formatString){
 
 
 /**
- * 
+ *
  * @param {any} date
  * @returns {string | undefined}
  */

@@ -9,7 +9,7 @@ import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundl
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, DonnéesSecondaires} from '../../types/especes.d.ts' */
 
 
 /**
@@ -104,6 +104,7 @@ export async function chargerActivitésMéthodesTransports(){
             row => Object.assign({}, row)
         ),
     }
+
     /** @type { MéthodeMenançante[] } */
     const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
         // @ts-ignore
@@ -121,9 +122,30 @@ export async function chargerActivitésMéthodesTransports(){
         moyensPoursuite
     )
 
-    store.mutations.setActivitésMéthodesTransports(activitésMéthodesTransports)
+    const activitéVersDonnéesSecondaires = new Map(Object.values(activitésMéthodesTransports.activités)
+        .flatMap((activités) => {
+            return [...activités.entries().map(([code, activité]) => {
+                /** @type {DonnéesSecondaires[]} */
+                const donnéesSecondaires =  [ "Nombre d'individus", "Nids", "Œufs", "Surface habitat détruit (m²)" ]
 
-    return activitésMéthodesTransports
+                const donnéesSecondairesFiltrés = donnéesSecondaires.filter((donnéeSecondaire) => {
+                    return activité[donnéeSecondaire] === 'Oui'
+                });
+
+                /** @type {[ActivitéMenançante['Identifiant Pitchou'], DonnéesSecondaires[]]} */
+                const ret = [code, donnéesSecondairesFiltrés]
+                return ret
+            })]
+        }))
+
+    const ret = {
+        activitéVersDonnéesSecondaires: activitéVersDonnéesSecondaires,
+        ...activitésMéthodesTransports
+    }
+
+    store.mutations.setActivitésMéthodesTransports(ret)
+
+    return ret
 }
 
 /**
