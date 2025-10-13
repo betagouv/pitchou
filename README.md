@@ -84,11 +84,7 @@ Lancer le serveur Jekyll en local
 Le site sera accessible à l'adresse :
 [http://localhost:4000/](http://localhost:4000/)
 
-### Tests automatisés avec Playwright
 
-1. Installer le navigateur de test: `npx playwright install chromium`
-2. Lancer Pitchou en mode dev: `npm run dev`
-3. Lancer les tests `npx playwright test tests/e2e`
 
 ## En prod
 

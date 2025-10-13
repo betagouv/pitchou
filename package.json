@@ -23,7 +23,6 @@
     "migrate:down": "docker exec tooling npx knex migrate:down --env docker_dev"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
