@@ -69,22 +69,22 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{date_début_intervention}</code></th>
                             <td> date</td>
-                            <td> Date de début de l'intervention. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
+                            <td> Date de début de l'intervention. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_début_consultation_public}</code></th>
                             <td> date</td>
-                            <td> Date de début de la consultation du public ou enquête publique. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
+                            <td> Date de début de la consultation du public ou enquête publique. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_dépôt}</code></th>
                             <td> date</td>
-                            <td> Date de dépôt du dossier. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
+                            <td> Date de dépôt du dossier. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
                             <td> date</td>
-                            <td> Date de fin de l'intervention. Voir « <a href="#fonctions-disponibles">Fonctions disponibles</a> » pour le formatage.</td>
+                            <td> Date de fin de l'intervention. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{demandeur}</code></th>
@@ -406,14 +406,14 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row"> <code>afficher_nombre(n, precision)</code></th>
-                            <td> n, precision (facultatif)</td>
-                            <td> Formate un nombre <code>n</code> avec une précision <code>precision</code> (2 par défaut)</td>
-                        </tr>
-                        <tr>
                             <th scope="row"> <code>formatter_date_simple(date)</code></th>
                             <td> date</td>
                             <td> Formate une date « en clair » : <em>jour mois année</em> (ex. <em>5 septembre 2025</em>). </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>formatter_date(date, 'P')</code></th>
+                            <td> date</td>
+                            <td> Affiche la date suivant le format "JJ/MM/AAAA" (ex. <em>05/09/2025</em>). </td>
                         </tr>
                     </tbody>
                 </table>
@@ -423,13 +423,43 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
 </div>
 
 
-### Exemple pour formater des dates dans un document-type
+### Exemples d'utilisation des fonctions dans un document-type
 
 Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
 
-```
-Date de dépôt (en clair)   : { formatter_date_simple(date_dépôt) }
-```
+
+<div class="fr-table">
+    <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+            <div class="fr-table__content">
+                <table>
+                    <caption>Exemples d'affichage de dates</caption>
+                    <thead>
+                        <tr> 
+                            <th scope="col"> Dans le document-type</th>
+                            <th scope="col"> Dans le document généré</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row"> <code>Le porteur de projet a sollicité la DREAL le { date_dépôt }.</code></th>
+                            <td>Le porteur de projet a sollicité la DREAL le Wed Aug 30 2023 02:00:00 GMT+0200 (heure d’été d’Europe centrale)..</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>Le porteur de projet a sollicité la DREAL le { formatter_date_simple(date_dépôt) }.</code></th>
+                            <td>Le porteur de projet a sollicité la DREAL le 30 août 2023.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>Le porteur de projet a sollicité la DREAL le { formatter_date(date_dépôt, 'P') }.</code></th>
+                            <td> Le porteur de projet a sollicité la DREAL le 30/08/2023.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 ## Exemples 
 
@@ -548,7 +578,7 @@ Contenu qui est répété pour chaque {ÉLÉMENT}
 
 Imaginons une liste <code>liste_espèces</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
 
-et un document type qui contient:
+et un document-type qui contient:
 
 ```
 Voici les oiseaux les plus importants au monde : 
