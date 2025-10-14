@@ -67,7 +67,7 @@ export type ChampScientifiqueIntervenants = BaseRepetitionChampsDS<BaseChampDS>
 
 export interface DSFile{
     filename: string,
-    url: string, 
+    url: string,
     contentType: string,
     createdAt: string, // ISO8601DateTime
     byteSize: string, // parseable as number, censé être déprécié
@@ -123,13 +123,13 @@ export type Profile = {
 export interface DossierDS<Champs, Annotations> {
     id: string
     number: number
-    dateDepot: Date 
+    dateDepot: Date
     state: string
     // Profil d'un usager connecté (déposant un dossier, instruisant un dossier...)
     usager: Profile
     // Prénom et nom de la personne qui dépose le dossier sur DS au nom du demandeur DS
     prenomMandataire: string
-    nomMandataire: string 
+    nomMandataire: string
     // Personne qui formule la demande dans DS
     demandeur: DemandeurDS
     groupeInstructeur: GroupeInstructeurs

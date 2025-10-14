@@ -288,6 +288,7 @@ const colonnesDossierComplet = [
     "dossier.id as id",
     //"id_demarches_simplifiées",
     "number_demarches_simplifiées",
+    "numéro_démarche",
     "date_dépôt",
     //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
     "dossier.nom as nom",

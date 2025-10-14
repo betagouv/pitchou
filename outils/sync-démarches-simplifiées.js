@@ -16,9 +16,11 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
-import {téléchargerNouveauxFichiersEspècesImpactées, téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersMotivation} from './synchronisation-ds-88444/téléchargerNouveauxFichiersParType.js'
+import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds/téléchargerNouveauxFichiersParType.js'
+import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
 
-import { makeDossiersPourSynchronisation } from './synchronisation-ds-88444/makeDossiersPourSynchronisation.js'
+import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
+import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -36,6 +38,8 @@ import { join } from 'node:path'
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
+/** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
+/** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 
 // récups les données de DS
 
@@ -57,7 +61,7 @@ if (!ID_SCHEMA_DS) {
     const liste_fichiers = await readdir(join(import.meta.dirname,`../data/démarches-simplifiées/schema-DS`))
     console.error(`
 Aucun argument --IdSchemaDS n'a été fourni.
-Voici la liste des ids des schémas DS disponibles : 
+Voici la liste des ids des schémas DS disponibles :
   - ${liste_fichiers.map((fichier) => fichier.slice(0, -'.json'.length)).join('\n  - ')}
 `)
     process.exit(1)
@@ -79,9 +83,9 @@ const DEMARCHE_NUMBER = schema.number
 
 
 console.info(
-    `Synchronisation des dossiers de la démarche`, 
-    DEMARCHE_NUMBER, 
-    'modifiés depuis le', 
+    `Synchronisation des dossiers de la démarche`,
+    DEMARCHE_NUMBER,
+    'modifiés depuis le',
     format(lastModified, 'd MMMM yyyy (HH:mm O) ', {locale: fr}),
     `(${formatDistanceToNow(lastModified, {locale: fr})})`
 )
@@ -92,13 +96,13 @@ const laTransactionDeSynchronisationDS = await créerTransaction()
 const dossSuppP = récupérerTousLesDossiersSupprimés(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
 
 const groupesInstructeursSynchronisés = recupérerGroupesInstructeurs(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER)
-    .then(groupesInstructeurs => synchroniserGroupesInstructeurs(groupesInstructeurs, laTransactionDeSynchronisationDS));
+    .then(groupesInstructeurs => synchroniserGroupesInstructeurs(groupesInstructeurs, DEMARCHE_NUMBER, laTransactionDeSynchronisationDS));
 
 
 /** @type {DossierDS88444[]} */
 const dossiersDS = await recupérerDossiersRécemmentModifiés(
-    DEMARCHE_SIMPLIFIEE_API_TOKEN, 
-    DEMARCHE_NUMBER, 
+    DEMARCHE_SIMPLIFIEE_API_TOKEN,
+    DEMARCHE_NUMBER,
     lastModified
 )
 
@@ -127,53 +131,6 @@ export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescri
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-
-/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisExpertAnnotationId = pitchouKeyToAnnotationDS.get('Avis CSRPN/CNPN')
-
-if(!fichierAvisExpertAnnotationId){
-    throw new Error('fichierAvisExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des saisines d'experts (CNPN/CSRPN) */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierSaisineExpertAnnotationId = pitchouKeyToAnnotationDS.get("Saisine de l'instructeur")
-
-if(!fichierSaisineExpertAnnotationId){
-    throw new Error('fichierSaisineExpertAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersSaisinesCSRPN_CNPN = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierSaisineExpertAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-/** Télécharger les nouveaux fichiers des avis conformes ministres */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierAvisConformeMinistreAnnotationId = pitchouKeyToAnnotationDS.get('Avis conforme Ministre')
-
-if(!fichierAvisConformeMinistreAnnotationId){
-    throw new Error('fichierAvisConformeMinistreAnnotationId is undefined')
-}
-
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} */
-const fichiersAvisConformeMinistre = téléchargerNouveauxFichiersFromChampId(
-    dossiersDS, 
-    fichierAvisConformeMinistreAnnotationId, 
-    laTransactionDeSynchronisationDS
-)
-
-
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS);
 const dossierNumberToDossierId = new Map(dossiersDéjàExistantsEnBDD.map(d => [d.number_demarches_simplifiées, d.id]));
 
@@ -184,18 +141,64 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
     laTransactionDeSynchronisationDS
 )
 
-const [fichiersAvisCSRPN_CNPN_Téléchargés, 
-        fichiersSaisinesCSRPN_CNPN_Téléchargés, 
-        fichiersAvisConformeMinistreTéléchargés, 
-        fichiersMotivationTéléchargés] = await Promise.all([
-            fichiersAvisCSRPN_CNPN,
-            fichiersSaisinesCSRPN_CNPN,
-            fichiersAvisConformeMinistre,
-            fichiersMotivationTéléchargésP
-    ])
+const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP
 
+/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
+const {
+    fichiersAvisCSRPN_CNPN_Téléchargés,
+    fichiersSaisinesCSRPN_CNPN_Téléchargés,
+    fichiersAvisConformeMinistreTéléchargés
+} = await (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return await récupérerFichiersAvisEtSaisines88444(
+            dossiersDS,
+            pitchouKeyToAnnotationDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
 
-const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(dossiersDS, dossierNumberToDossierId, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés)
+const {
+    getDonnéesPersonnesEntreprises,
+    makeAvisExpertFromTraitementsDS,
+    makeColonnesCommunesDossierPourSynchro
+} = (() => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return {
+            /** @type {GetDonnéesPersonnesEntreprises} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheSimplifiee88444
+            getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444,
+            /** @type {MakeAvisExpertFromTraitementsDS} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type MakeAvisExpertFromTraitementsDS soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            makeAvisExpertFromTraitementsDS: makeAvisExpertFromTraitementsDS88444,
+            /** @type {MakeColonnesCommunesDossierPourSynchro} **/
+            //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
+            // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
+        }
+    } else {
+        throw new Error(`Les fonctions nécessaires pour asssocier les questions du formulaire de la démarche aux données Pitchou n'ont pas été trouvées pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
+
+const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(
+    dossiersDS,
+    DEMARCHE_NUMBER,
+    dossierNumberToDossierId,
+    fichiersSaisinesCSRPN_CNPN_Téléchargés,
+    fichiersAvisCSRPN_CNPN_Téléchargés,
+    fichiersAvisConformeMinistreTéléchargés,
+    fichiersMotivationTéléchargés,
+    pitchouKeyToChampDS,
+    pitchouKeyToAnnotationDS,
+    getDonnéesPersonnesEntreprises,
+    makeAvisExpertFromTraitementsDS,
+    makeColonnesCommunesDossierPourSynchro
+)
 
 /*
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
@@ -238,8 +241,8 @@ for (const {dossier: {déposant, demandeur_personne_physique}} of dossiersPourSy
 }
 
 /**
- * 
- * @param {Personne | undefined} descriptionPersonne 
+ *
+ * @param {Personne | undefined} descriptionPersonne
  * @returns {Personne['id'] | undefined}
  */
 function getPersonneId(descriptionPersonne){
@@ -291,7 +294,7 @@ for(const {dossier: {demandeur_personne_morale, id_demarches_simplifiées}} of d
         if(demandeur_personne_morale && !siret){
             throw new TypeError(`Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id_DS: ${id_demarches_simplifiées})`)
         }
-        
+
         // @ts-expect-error TS ne comprend pas que demandeur_personne_morale est forcément une Entreprise
         entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale)
     }
@@ -302,7 +305,7 @@ if(entreprisesInDossiersBySiret.size >= 1){
 }
 
 /*
- * Après avoir créé les entreprises et les personnes, 
+ * Après avoir créé les entreprises et les personnes,
  * remplacer les objets Entreprise par leur siret
  * et les objets Personne par leur id
 */
@@ -314,20 +317,20 @@ if(entreprisesInDossiersBySiret.size >= 1){
  */
 /**
  * @overload
- * @param {DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation 
+ * @param {DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation
  * @returns {DossierPourInsert}
  */
 /**
- * 
- * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation 
+ *
+ * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation
  * @returns {DossierPourInsert | DossierPourUpdate}
  */
 function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation){
-    const { 
+    const {
         dossier: {
             déposant,
             demandeur_personne_physique,
-            demandeur_personne_morale, 
+            demandeur_personne_morale,
             ...autresPropriétésDossiers
         },
         ...autresDonnéesTables
@@ -339,7 +342,7 @@ function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation)
             déposant: getPersonneId(déposant) || null,
             //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
             demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
-            demandeur_personne_morale: 
+            demandeur_personne_morale:
                 (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
             ...autresPropriétésDossiers,
         },
@@ -356,19 +359,18 @@ const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPersonneEntr
 
 
 /** Télécharger les nouveaux fichiers espèces impactées */
-/** @type {ChampDescriptor['id'] | undefined} */
-const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
-
-if(!fichierEspècesImpactéeChampId){
-    throw new Error('fichierEspècesImpactéeChampId is undefined')
-}
-
 /** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
-const fichiersEspècesImpactéesTéléchargésP = téléchargerNouveauxFichiersEspècesImpactées(
-    dossiersDS, 
-    fichierEspècesImpactéeChampId, 
-    laTransactionDeSynchronisationDS
-)
+const fichiersEspècesImpactéesTéléchargésP = (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return récupérerFichiersEspècesImpactées88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les fichiers espèces impactées n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
 
 /**
  * Synchronisation des dossiers
@@ -387,8 +389,8 @@ await Promise.all([
 
 /**
  * Après synchronisation des dossiers
- * 
- * Désormais, chaque dossier de la variable 'dossiers' avec un numéro de dossier DS 
+ *
+ * Désormais, chaque dossier de la variable 'dossiers' avec un numéro de dossier DS
  * a aussi un identifiant de dossier pitchou
  */
 
@@ -482,7 +484,7 @@ Promise.all([
 })
 .catch(err => {
     console.error('Sync échoué', err,  'rollback de la transaction')
-    
+
     /** @type {RésultatSynchronisationDS88444} */
     const résultatSynchro = {
         succès: false,
@@ -499,4 +501,3 @@ Promise.all([
     console.log('Fin de la synchronisation, cloture de la connexion avec la base de données')
     return closeDatabaseConnection()
 })
-

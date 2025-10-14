@@ -12,10 +12,11 @@ import {directDatabaseConnection} from '../database.js'
 /** @import * as API_DS from '../../types/démarches-simplifiées/apiSchema.ts' */
 
 /**
+ * @param {number} demarcheNumber
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise< Map<GroupeInstructeurs['nom'], {id: GroupeInstructeurs['id'], instructeurs: Set<NonNullable<Personne['email']>>}> >}
  */
-async function getGroupesInstructeurs(databaseConnection = directDatabaseConnection){
+async function getGroupesInstructeurs(demarcheNumber, databaseConnection = directDatabaseConnection){
     const groupesInstructeursBDD = await databaseConnection('groupe_instructeurs')
         .select([
             'groupe_instructeurs.id as id_groupe',
@@ -25,6 +26,7 @@ async function getGroupesInstructeurs(databaseConnection = directDatabaseConnect
         .leftJoin('arête_cap_dossier__groupe_instructeurs', {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'groupe_instructeurs.id'})
         .leftJoin('cap_dossier', {'cap_dossier.cap': 'arête_cap_dossier__groupe_instructeurs.cap_dossier'})
         .leftJoin('personne', {'personne.code_accès': 'cap_dossier.personne_cap'})
+        .where({"numéro_démarche": demarcheNumber})
 
     const groupeByNom = new Map()
 
@@ -45,12 +47,13 @@ async function getGroupesInstructeurs(databaseConnection = directDatabaseConnect
  *
  * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI
  * @param {Map<Personne['email'], Partial<Personne>>} instructeurParEmail
+ * @param {number} demarcheNumber
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParEmail, databaseConnection = directDatabaseConnection){
+async function créerGroupesInstructeurs(groupesInstructeursAPI, instructeurParEmail, demarcheNumber, databaseConnection = directDatabaseConnection){
     //console.log('créerGroupesInstructeurs', instructeurParEmail)
 
-    const nomsGroupes = groupesInstructeursAPI.map(g => ({nom: g.label}))
+    const nomsGroupes = groupesInstructeursAPI.map(g => ({nom: g.label, numéro_démarche: demarcheNumber}))
 
     // Créer les groupes d'instructeurs en BDD
     const nouveauxGroupesP = databaseConnection('groupe_instructeurs')
@@ -332,9 +335,10 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
  * Synchroniser le groupes instructeurs dans la base de données avec ceux qui viennent de l'API
  *
  * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI
+ * @param {number} demarcheNumber
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
-export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, databaseConnection = directDatabaseConnection){
+export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, demarcheNumber, databaseConnection = directDatabaseConnection){
 
     const instructeursEnBDD = await createAndReturnInstructeurPersonne(
         [...new Set(
@@ -349,7 +353,7 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, da
 
     //console.log('instructeurParEmail', instructeurParEmail)
 
-    const groupesInstructeursBDD = await getGroupesInstructeurs(databaseConnection)
+    const groupesInstructeursBDD = await getGroupesInstructeurs(demarcheNumber, databaseConnection)
 
     //console.log('groupesInstructeursAPI', groupesInstructeursAPI)
     //console.log('synchroniserGroupesInstructeurs', groupesInstructeursBDD)
@@ -360,7 +364,7 @@ export async function synchroniserGroupesInstructeurs(groupesInstructeursAPI, da
     //console.log('groupesInstructeursDansDSAbsentEnBDD', groupesInstructeursDansDSAbsentEnBDD)
 
     const groupesInstructeursManquantsEnBDDCréés = groupesInstructeursDansDSAbsentEnBDD.length >= 1 ?
-        créerGroupesInstructeurs(groupesInstructeursDansDSAbsentEnBDD, instructeurParEmail, databaseConnection) :
+        créerGroupesInstructeurs(groupesInstructeursDansDSAbsentEnBDD, instructeurParEmail, demarcheNumber, databaseConnection) :
         Promise.resolve()
 
 

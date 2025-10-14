@@ -9,6 +9,8 @@ export default interface GroupeInstructeurs {
   id: GroupeInstructeursId;
 
   nom: string;
+
+  numéro_démarche: number;
 }
 
 /** Represents the initializer for the table public.groupe_instructeurs */
@@ -17,6 +19,8 @@ export interface GroupeInstructeursInitializer {
   id?: GroupeInstructeursId;
 
   nom: string;
+
+  numéro_démarche: number;
 }
 
 /** Represents the mutator for the table public.groupe_instructeurs */
@@ -24,4 +28,6 @@ export interface GroupeInstructeursMutator {
   id?: GroupeInstructeursId;
 
   nom?: string;
+
+  numéro_démarche?: number;
 }
