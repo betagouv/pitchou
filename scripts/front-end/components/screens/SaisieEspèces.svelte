@@ -248,18 +248,33 @@
 
         rerender()
     }
-
 </script>
 
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">
     <article>
+        
         <header>
             <h1 class="fr-mt-4w">Espèces protégées impactées</h1>
-            <button class="fr-btn fr-btn--secondary" type="button">
-                Pré-remplir
-            </button>
+
+            <div class="fr-translate fr-nav">
+                    <div class="fr-nav__item">
+                <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">Pré-remplir
+                </button>
+                <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
+                    <ul class="fr-menu__list">
+                        <li>
+                            <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button">Importer un document .ods</button>
+                        </li>
+                        <li>
+                            <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button">Pré-remplir depuis texte</button>
+                        </li>
+                    </ul>
+                </div>
+                </div>
+            </div>
         </header>
+
         <div class="fr-grid-row fr-mt-6w fr-mb-4w">
             <div class="fr-col">
                 <section class="fr-mb-4w">
