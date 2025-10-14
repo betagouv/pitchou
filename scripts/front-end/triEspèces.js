@@ -59,7 +59,7 @@ export const grouperParActivité = (espècesAtteintes) => {
 export const grouperParMéthode = (espècesAtteintes) => {
     return [...espècesAtteintes].sort((espèceAtteinteA, espèceAtteinteB) => {
         if(espèceAtteinteA.méthode && espèceAtteinteB.méthode) {
-            return espèceAtteinteA.méthode["étiquette affichée"].localeCompare(espèceAtteinteB.méthode["étiquette affichée"])
+            return espèceAtteinteA.méthode["Libellé Pitchou"].localeCompare(espèceAtteinteB.méthode["Libellé Pitchou"])
         }
 
         if(!espèceAtteinteA.méthode && espèceAtteinteB.méthode) {

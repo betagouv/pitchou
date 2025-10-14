@@ -42,8 +42,8 @@
     let espècesImpactéesParActivité =
         $derived(espècesImpactées && promesseRéférentiels
             ? Promise.all([espècesImpactées, promesseRéférentiels])
-                .then(([espècesImpactées, { activitéVersDonnéesSecondaires }]) =>
-                    créerEspècesGroupéesParImpact(espècesImpactées, activitéVersDonnéesSecondaires)
+                .then(([espècesImpactées, { activitéVersImpactsQuantifiés }]) =>
+                    créerEspècesGroupéesParImpact(espècesImpactées, activitéVersImpactsQuantifiés)
                 )
             : undefined);
 

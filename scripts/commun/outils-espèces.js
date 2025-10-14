@@ -15,9 +15,11 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from '@o
  *    ActivitéMenançante,
  *    MéthodeMenançante,
  *    TransportMenançant,
+ *    ImpactQuantifié,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from '@odfjs/odfjs' */
 /** @import {FauneNonOiseauAtteinteOds_V1, FichierEspècesImpactéesOds_V1, FloreAtteinteOds_V1, OiseauAtteintOds_V1} from '../types/espècesFichierOds.d.ts' */
+/** @import { PitchouState } from '../front-end/store.js' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
@@ -121,9 +123,9 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
         const labelActivité = activité && activité['Libellé Pitchou']
         const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
         const codeEuropeActivité = activité && activité['Code rapportage européen']
-        const labelMéthode = méthode && méthode['étiquette affichée']
+        const labelMéthode = méthode && méthode['Libellé Pitchou']
         const codeMéthode = méthode && méthode.Code
-        const labelTransport = transport && transport['étiquette affichée']
+        const labelTransport = transport && transport['Libellé Pitchou']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
@@ -152,9 +154,9 @@ function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
         const labelActivité = activité && activité['Libellé Pitchou']
         const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
         const codeEuropeActivité = activité && activité['Code rapportage européen']
-        const labelMéthode = méthode && méthode['étiquette affichée']
+        const labelMéthode = méthode && méthode['Libellé Pitchou']
         const codeMéthode = méthode && méthode.Code
-        const labelTransport = transport && transport['étiquette affichée']
+        const labelTransport = transport && transport['Libellé Pitchou']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
@@ -449,6 +451,73 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     }
 
     return descriptionMenacesEspèces
+}
+
+/**
+ * @param {Buffer} odsData
+ * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
+ */
+export async function constuireActivitésMéthodesTransports(odsData) {
+    const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
+
+    // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
+    // utilisée par Svelte
+
+    /**  @type {ParClassification<ActivitéMenançante[]>} */
+    const activitésBrutes = {
+        oiseau: activitésMéthodesTransportsBruts.get("Activités oiseau").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+        "faune non-oiseau": activitésMéthodesTransportsBruts.get("Activités faune non oiseau").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+        flore: activitésMéthodesTransportsBruts.get("Activités flore").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+    }
+
+    /** @type { MéthodeMenançante[] } */
+    const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+    /** @type { TransportMenançant[] } */
+    const moyensPoursuite = activitésMéthodesTransportsBruts.get("Moyens de poursuite").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+
+    const activitésMéthodesTransports = actMetTransArraysToMapBundle(
+        activitésBrutes,
+        méthodesBrutes,
+        moyensPoursuite
+    )
+
+    const activitéVersImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
+        .flatMap((activités) => {
+            return [...activités.entries().map(([code, activité]) => {
+                /** @type {ImpactQuantifié[]} */
+                const impactsQuantifiés =  [ "Nombre d'individus", "Nids", "Œufs", "Surface habitat détruit (m²)" ]
+
+                const impactsQuantifiésFiltrés = impactsQuantifiés.filter((donnéeSecondaire) => {
+                    return activité[donnéeSecondaire] === 'Oui'
+                });
+
+                /** @type {[ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]]} */
+                const ret = [code, impactsQuantifiésFiltrés]
+                return ret
+            })]
+        }))
+
+    const ret = {
+        activitéVersImpactsQuantifiés: activitéVersImpactsQuantifiés,
+        ...activitésMéthodesTransports
+    }
+
+    return ret
 }
 
 /**
