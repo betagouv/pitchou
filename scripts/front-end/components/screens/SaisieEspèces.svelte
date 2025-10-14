@@ -325,6 +325,9 @@
                                             <textarea bind:value={texteEspèces} class="fr-input"></textarea>
                                         </div>
                                     </div>
+                                    <div class="fr-modal__footer">
+                                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto">Valider le texte</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
