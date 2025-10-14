@@ -51,7 +51,7 @@
 
         let espèces_impacts = undefined
 
-        const { activitéVersDonnéesSecondaires } = await chargerActivitésMéthodesTransports()
+        const { activitéVersImpactsQuantifiés } = await chargerActivitésMéthodesTransports()
 
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a
@@ -69,7 +69,7 @@
             return;
         }
 
-		const balises = getBalisesGénérationDocument(dossier, espèces_impacts, activitéVersDonnéesSecondaires)
+		const balises = getBalisesGénérationDocument(dossier, espèces_impacts, activitéVersImpactsQuantifiés)
 
         console.log('balises', balises)
 

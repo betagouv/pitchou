@@ -63,7 +63,7 @@ export type CodeActivitéStandard = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8
 // pour quand on veut réunir ou séparer des activités
 export type CodeActivitéPitchou = '4-1-pitchou-aires' | '4-2-pitchou-nids' | '4-3-pitchou-œufs' | 'mix-1-10-3-30-6-40';
 
-export type DonnéesSecondaires = `Nombre d'individus` | 'Nids' | 'Œufs' | 'Surface habitat détruit (m²)';
+export type ImpactQuantifié = `Nombre d'individus` | 'Nids' | 'Œufs' | 'Surface habitat détruit (m²)';
 
 
 export interface ActivitéMenançante {
@@ -83,15 +83,15 @@ export interface ActivitéMenançante {
 export interface MéthodeMenançante {
     Code: string,
     Espèces: ClassificationEtreVivant,
-    "Libellé long": string,
-    "étiquette affichée": string,
+    "Libellé activité directive européenne": string,
+    "Libellé Pitchou": string,
 }
 
 export interface TransportMenançant {
     Code: string,
     Espèces: ClassificationEtreVivant,
-    "Libellé long": string,
-    "étiquette affichée": string,
+    "Libellé activité directive européenne": string,
+    "Libellé Pitchou": string,
 }
 
 export interface EtreVivantAtteint {

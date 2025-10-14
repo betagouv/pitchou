@@ -86,7 +86,7 @@
         <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'Non'} class="fr-select">
             <option value="{undefined}">-</option>
             {#each méthodesMenaçantes as met}
-                <option value={met}>{met['étiquette affichée']}</option>
+                <option value={met}>{met['Libellé Pitchou']}</option>
             {/each}
         </select>
     </td>
@@ -95,7 +95,7 @@
         <select bind:value={transport} disabled={activité && activité['Moyen de poursuite'] === 'Non'} class="fr-select">
             <option value="{undefined}">-</option>
             {#each transportMenaçants as trans}
-                <option value={trans}>{trans['étiquette affichée']}</option>
+                <option value={trans}>{trans['Libellé Pitchou']}</option>
             {/each}
         </select>
     </td>

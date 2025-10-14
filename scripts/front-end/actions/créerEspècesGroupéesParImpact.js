@@ -1,5 +1,5 @@
 
-/** @import { ActivitéMenançante, DescriptionMenacesEspèces, DonnéesSecondaires, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
+/** @import { ActivitéMenançante, DescriptionMenacesEspèces, ImpactQuantifié, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
 
 
 const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`
@@ -37,8 +37,8 @@ function œufs(espèceImpactée){
     return espèceImpactée.nombreOeufs ? `${espèceImpactée.nombreOeufs}` : VALEUR_NON_RENSEIGNÉ
 }
 
-/** @type {Map<DonnéesSecondaires, ((esp: any) => string)>}  */
-const getterDonnéesSecondaires = new Map([
+/** @type {Map<ImpactQuantifié, ((esp: any) => string)>}  */
+const getterImpactQuantifié = new Map([
     ["Nombre d'individus", individus],
     ["Nids", nids],
     ["Œufs", œufs],
@@ -57,7 +57,7 @@ const getterDonnéesSecondaires = new Map([
 /**
  * @typedef {Object} EspècesParActivité
  * @prop {string} activité
- * @prop {DonnéesSecondaires[]} impactsQuantifiés
+ * @prop {ImpactQuantifié[]} impactsQuantifiés
  * @prop {EspèceImpactéeSimplifiée[]} espèces
  */
 
@@ -65,10 +65,10 @@ const getterDonnéesSecondaires = new Map([
 /**
  *
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<ActivitéMenançante['Identifiant Pitchou'], DonnéesSecondaires[]>} activitéVersDonnéesSecondaires
+ * @param {Map<ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]>} activitéVersImpactsQuantifiés
  * @returns {EspècesParActivité[]}
  */
-export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVersDonnéesSecondaires) {
+export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVersImpactsQuantifiés) {
 
     /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
     const _espècesImpactéesParActivité = new Map()
@@ -80,28 +80,19 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVe
     function push(espèceImpactée){
         const activité = espèceImpactée.activité
 
-        if (!activité) {
-            // TODO: Possiblement pas le bon comportement
-            throw new Error(`Activité non définie`)
-        }
-
         const esps = _espècesImpactéesParActivité.get(activité) || []
-        const donnéesSecondaires = activitéVersDonnéesSecondaires.get(activité['Identifiant Pitchou'])
-
-        if(!donnéesSecondaires){
-            throw new Error(`Pas de données secondaires pour activité ${activité['Identifiant Pitchou']}`)
-        }
+        const impactsQuantifiés = activitéVersImpactsQuantifiés.get(activité ? activité['Identifiant Pitchou'] : '') || []
 
         esps.push({
             CD_REF: espèceImpactée.espèce.CD_REF,
             nomScientifique: [...espèceImpactée.espèce.nomsScientifiques][0],
             nomVernaculaire: [...espèceImpactée.espèce.nomsVernaculaires][0],
-            détails: [...donnéesSecondaires]
+            détails: [...impactsQuantifiés]
                 .map((donnéeSecondaire) => {
-                    const funcDetail = getterDonnéesSecondaires.get(donnéeSecondaire)
+                    const funcDetail = getterImpactQuantifié.get(donnéeSecondaire)
 
                     if (!funcDetail) {
-                        throw new Error(`Fonction de récupération des détails de l'espèce non définie pour le type ${donnéeSecondaire}`)
+                        throw new Error(`Fonction de récupération des détails de l'espèce non définie pour le type de données ${donnéeSecondaire}`)
                     }
 
                     return funcDetail(espèceImpactée)
@@ -133,7 +124,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVe
     return [..._espècesImpactéesParActivité]
         .map(([activité, espèces]) => ({
             activité: activité ? activité['Libellé Pitchou'] : `Type d'impact non-renseignée`,
-            impactsQuantifiés: activitéVersDonnéesSecondaires.get(activité ? activité['Identifiant Pitchou'] : '') || [],
+            impactsQuantifiés: activitéVersImpactsQuantifiés.get(activité ? activité['Identifiant Pitchou'] : '') || [],
             espèces
         }))
 }
