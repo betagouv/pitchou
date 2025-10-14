@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
+ * @see https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/deviceDescriptorsSource.json
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -20,10 +21,9 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'chromium',
+      name: 'firefox',
       use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
+        ...devices['Desktop Firefox"'],
       },
     },
   ],
