@@ -49,7 +49,7 @@ export type DossierEntreprisesPersonneInitializersPourUpdate =
  */
 export type PersonneAvecEmailObligatoire = Partial<Omit<Personne, "email">> & {email: NonNullable<Personne['email']>} ;
 
-
+//Le type DossierPourInsertGénérique existe pour construire le type des données supplémentaires des dossiers importés
 export type DossierPourInsertGénérique<Dossier> = DossierPourSynchronisation<Dossier> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined }
 export type DossierPourInsert = DossierPourInsertGénérique<DossierInitializer>
 
