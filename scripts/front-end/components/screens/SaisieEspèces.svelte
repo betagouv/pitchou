@@ -166,9 +166,8 @@
         return espècesTrouvées
     }
 
-    /** @type {Set<EspèceProtégée> | undefined} */
+    /** @type {Set<EspèceProtégée>} */
     let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
-
 
     /** @type {EspèceProtégée[]} */
     let espècesÀPréremplir = $derived([...espècesÀPréremplirParTexte])
@@ -248,8 +247,8 @@
 
         rerender()
     }
-</script>
 
+</script>
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">
     <article>
@@ -334,19 +333,13 @@
                     </div>
                 </dialog>
 
-                {#if texteEspèces && texteEspèces.length >= 1}
+                {#if espècesÀPréremplirParTexte.size >= 1}
                     <details open>
                         <summary>
                             <h2>Pré-remplissage automatique</h2>
                         </summary>
-                        {#if (!oiseauxÀPréremplir || oiseauxÀPréremplir.size === 0) &&
-                             (!fauneNonOiseauxÀPréremplir || fauneNonOiseauxÀPréremplir.size === 0) &&
-                             (!floreÀPréremplir || floreÀPréremplir.size === 0)
-                        }
-                            Aucune espèce n'a été trouvée à partir de votre texte.
-                        {/if}
 
-                        {#if oiseauxÀPréremplir && oiseauxÀPréremplir.size >= 1}
+                        {#if oiseauxÀPréremplir.size >= 1}
                         <section class="préremplir-espèces fr-mb-4w">
                             <h3>{oiseauxÀPréremplir.size} oiseaux</h3>
                             <ul>
@@ -387,7 +380,7 @@
                         </section>
                         {/if}
 
-                        {#if fauneNonOiseauxÀPréremplir && fauneNonOiseauxÀPréremplir.size >= 1}
+                        {#if fauneNonOiseauxÀPréremplir.size >= 1}
                         <section class="préremplir-espèces fr-mb-4w">
                             <h3>{fauneNonOiseauxÀPréremplir.size} faunes non-oiseau</h3>
                             <ul>
@@ -424,7 +417,7 @@
                         </section>
                         {/if}
 
-                        {#if floreÀPréremplir && floreÀPréremplir.size >= 1}
+                        {#if floreÀPréremplir.size >= 1}
                         <section class="préremplir-espèces fr-mb-4w">
                             <h3>{floreÀPréremplir.size} flores</h3>
                             <ul>
@@ -455,9 +448,9 @@
                         </section>
                         {/if}
 
-                        {#if oiseauxÀPréremplir.size >= 1 || fauneNonOiseauxÀPréremplir.size >= 1 || floreÀPréremplir.size >= 1}
-                        <button onclick={préremplirFormulaire} type="button" class="fr-btn">Pré-remplir avec ces espèces</button>
-                        {/if}
+                        <button onclick={préremplirFormulaire} type="button" class="fr-btn">
+                            Pré-remplir avec ces espèces
+                        </button>                        
                     </details>
                 {/if}
             </div>
