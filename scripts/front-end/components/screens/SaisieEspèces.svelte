@@ -275,7 +275,7 @@
                 </div>
             </div>
         </header>
-        <div class="fr-grid-row fr-mt-6w fr-mb-4w">
+        <div class="fr-grid-row">
             <div class="fr-col">
                 <dialog id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
                     <div class="fr-container fr-container--fluid fr-container-md">
@@ -457,11 +457,7 @@
             </div>
         </div>
 
-        
-
         <form class="fr-mb-4w">
-            <h2>Liste des espèces</h2>
-
             <FieldsetOiseau
                 bind:oiseauxAtteints={oiseauxAtteints}
                 espècesProtégéesOiseau={espècesProtégéesParClassification["oiseau"]}
