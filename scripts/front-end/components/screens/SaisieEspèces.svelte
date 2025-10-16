@@ -257,20 +257,21 @@
             <h1 class="fr-mt-4w">Espèces protégées impactées</h1>
 
             <div class="fr-translate fr-nav">
-                    <div class="fr-nav__item">
-                <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">Pré-remplir
-                </button>
-                <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
-                    <ul class="fr-menu__list">
-                        <li>
-                            <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-import" >Importer un document .ods</button>
-                        </li>
-                        <li>
-                        <li>
-                            <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button>
-                        </li>
-                    </ul>
-                </div>
+                <div class="fr-nav__item">
+                    <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">
+                        Pré-remplir
+                    </button>
+                    <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
+                        <ul class="fr-menu__list">
+                            <li>
+                                <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-import" >Importer un document .ods</button>
+                            </li>
+                            <li>
+                            <li>
+                                <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </header>
