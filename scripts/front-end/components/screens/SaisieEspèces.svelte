@@ -16,6 +16,7 @@
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
 
+
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
     /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
@@ -45,6 +46,9 @@
         faunesNonOiseauxAtteintes = $bindable(),
         floresAtteintes = $bindable()
     } = $props();
+
+    /** @type {File | undefined} */
+    let fichierEspècesOds = $state()
 
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
@@ -84,17 +88,27 @@
     async function onFileInput(e){
         /** @type {FileList | null} */
         const files = e.currentTarget.files
-        const file = files && files[0]
+        fichierEspècesOds = files && files[0] || undefined
+    }
 
-        if(file){
-            const descriptionMenacesEspèces = await file.arrayBuffer()
+    async function onClickPréRemplirAvecDocumentOds(){
+        if(fichierEspècesOds){
+            const descriptionMenacesEspèces = await fichierEspècesOds.arrayBuffer()
                 .then(importDescriptionMenacesEspècesFromOds)
 
-            if(descriptionMenacesEspèces){
+            if(Object.keys(descriptionMenacesEspèces).length >= 1){
                 oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
                 faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
                 floresAtteintes = descriptionMenacesEspèces['flore'] || []
+
+                const modale = document.querySelector('#modale-préremplir-depuis-import');
+                if (modale) {
+                    //@ts-ignore
+                    window.dsfr(modale).modal.conceal();
+                }
             }
+        } else {
+            console.warn("Aucun fichier espèces .ods n'a été téléchargé.")
         }
     }
 
@@ -292,18 +306,41 @@
                                         <button aria-controls="modale-préremplir-depuis-import" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
                                     </div>
                                     <div class="fr-modal__content">
-                                        <h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
-                                            Pré-remplir avec une liste déjà réalisée
-                                        </h2>
-                                        <div class="fr-mb-4w"> 
-                                            <div class="fr-upload-group">
-                                                <label class="fr-label" for="file-upload">Importer un fichier d'espèces
-                                                    <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
-                                                </label>
-                                                <input oninput={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
-                                            </div>
-                                        </div>
+										<h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
+											Pré-remplir avec une liste déjà réalisée
+										</h2>
+										<div class="fr-mb-4w">
+                                            <span class="fr-text--sm">
+                                                Vous pouvez choisir : 
+                                                <ul>
+                                                    <li>
+                                                        un document déjà généré avec cet outil
+                                                    </li>
+                                                    <li>
+                                                        un document .ods qui respecte la nomenclature décrite <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page de nomenclature - nouvelle fenêtre" class="fr-link">sur cette page</a>
+                                                    </li>
+                                                </ul>
+                                            </span>
+											<div class="fr-upload-group">
+												<label class="fr-label" for="file-upload">
+													<span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
+												</label>
+												<input
+													aria-label="Importer un fichier d'espèces"
+													oninput={onFileInput}
+													class="fr-upload"
+													type="file"
+													accept=".ods"
+													id="file-upload"
+													name="file-upload" />
+											</div>
+										</div>
                                     </div>
+									<div class="fr-modal__footer">
+                                        <button class="fr-btn fr-ml-auto" onclick={onClickPréRemplirAvecDocumentOds}>
+                                            Pré-remplir
+                                        </button>
+									</div>
                                 </div>
                             </div>
                         </div>
@@ -538,6 +575,12 @@
         }
 
         .préremplir-espèces{
+            ul{
+                list-style: '- ';
+            }
+        }
+
+        #modale-préremplir-depuis-import{
             ul{
                 list-style: '- ';
             }
