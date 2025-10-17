@@ -324,7 +324,19 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     const odsContent = tableRawContentToObjects(odsRawContent)
 
     let lignesOiseauOds = odsContent.get('oiseau')
+    let lignesFauneNonOiseauOds = odsContent.get('faune non-oiseau') || odsContent.get('faune_non-oiseau')
+    let lignesFloreOds = odsContent.get('flore')
+
     lignesOiseauOds = lignesOiseauOds && lignesOiseauOds.filter(ligneEspèceImpactéeHasCD_REF)
+    lignesFauneNonOiseauOds = lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.filter(ligneEspèceImpactéeHasCD_REF)
+    lignesFloreOds = lignesFloreOds && lignesFloreOds.filter(ligneEspèceImpactéeHasCD_REF)
+
+    if (!(lignesOiseauOds && lignesOiseauOds.length >= 1) &&
+        !(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1) &&
+        !(lignesFloreOds && lignesFloreOds.length >= 1)
+    ) {
+        console.warn('Le fichier espèces .ods semble ne contenir aucune feuille oiseau, faune non-oiseau ou flore.')
+    }
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
@@ -378,9 +390,6 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
         })
     }
 
-    let lignesFauneNonOiseauOds = odsContent.get('faune non-oiseau') || odsContent.get('faune_non-oiseau')
-    lignesFauneNonOiseauOds = lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.filter(ligneEspèceImpactéeHasCD_REF)
-
     if(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds.map(ligneFauneNonOiseauOds => {
@@ -419,9 +428,6 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             }
         })
     }
-
-    let lignesFloreOds = odsContent.get('flore')
-    lignesFloreOds = lignesFloreOds && lignesFloreOds.filter(ligneEspèceImpactéeHasCD_REF)
 
     if(lignesFloreOds && lignesFloreOds.length >= 1){
         // recups les infos depuis les colonnes
