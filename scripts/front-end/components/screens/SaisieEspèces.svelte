@@ -49,7 +49,7 @@
 
     let nombreEspècesSaisies = $derived(oiseauxAtteints.length + faunesNonOiseauxAtteintes.length + floresAtteintes.length)
     /** @type {File | undefined} */
-    let file = $state()
+    let fichierEspècesOds = $state()
 
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
@@ -89,12 +89,12 @@
     async function onFileInput(e){
         /** @type {FileList | null} */
         const files = e.currentTarget.files
-        file = files && files[0] || undefined
+        fichierEspècesOds = files && files[0] || undefined
     }
 
     async function onClickPréRemplirAvecDocumentOds(){
-        if(file){
-            const descriptionMenacesEspèces = await file.arrayBuffer()
+        if(fichierEspècesOds){
+            const descriptionMenacesEspèces = await fichierEspècesOds.arrayBuffer()
                 .then(importDescriptionMenacesEspècesFromOds)
 
             if(Object.keys(descriptionMenacesEspèces).length >= 1){
