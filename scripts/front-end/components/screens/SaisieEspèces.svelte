@@ -3,6 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
+    import EspècesImpactéesLecture from '../EspècesProtégéesImpactées.svelte'
 
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
@@ -15,6 +16,8 @@
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
+    import { créerEspècesGroupéesParImpact } from '../../actions/créerEspècesGroupéesParImpact.js'
+    import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
 
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
     /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
@@ -53,6 +56,32 @@
     }
 
     const mailto = "mailto:pitchou@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
+
+    /**
+     * Mode lecture
+     */
+    let modeLecture = $state(false);
+
+    const promesseRéférentiels = chargerActivitésMéthodesTransports();
+
+    let espècesImpactéesParActivité = $derived(
+        modeLecture && promesseRéférentiels
+            ? promesseRéférentiels.then(({ activitésNomenclaturePitchou }) =>
+                créerEspècesGroupéesParImpact(
+                    {
+                        oiseau: oiseauxAtteints,
+                        'faune non-oiseau': faunesNonOiseauxAtteintes,
+                        flore: floresAtteintes,
+                    },
+                    activitésNomenclaturePitchou
+                )
+            )
+            : undefined
+    );
+
+    $effect(() => {
+        espècesImpactéesParActivité?.catch(err => console.error(`erreur lecture espèces`, err))
+    })
 
     /*function isFourchette(str) {
         const regex = /^\d+-\d+$/;
@@ -256,30 +285,41 @@
         <header>
             <h1 class="fr-mt-4w">Espèces protégées impactées</h1>
 
-            <!--
-                Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
-                ne fournit pas de ciomposant plus générique pour le moment
-                Ce morceau sera à revisiter soit avec un composant fait par nous
-                soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
-            -->
-            <div class="fr-translate fr-nav">
-                <div class="fr-nav__item">
-                    <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">
-                        Pré-remplir
-                    </button>
-                    <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
-                        <ul class="fr-menu__list">
-                            <li>
-                                <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-import" >Importer un document .ods</button>
-                            </li>
-                            <li>
-                            <li>
-                                <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button>
-                            </li>
-                        </ul>
-                    </div>
+            <div class="fr-toggle">
+                <input bind:checked={modeLecture} type="checkbox" class="fr-toggle__input" id="toggle-mode-lecture" aria-describedby="toggle-messages toggle-hint">
+                <label class="fr-toggle__label" for="toggle-mode-lecture">
+                    Mode lecture
+                </label>
+                <div class="fr-messages-group" id="toggle-messages" aria-live="polite">
                 </div>
             </div>
+
+            {#if !modeLecture}
+                <!--
+                    Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
+                    ne fournit pas de ciomposant plus générique pour le moment
+                    Ce morceau sera à revisiter soit avec un composant fait par nous
+                    soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
+                -->
+                <div class="fr-translate fr-nav">
+                    <div class="fr-nav__item">
+                        <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">
+                            Pré-remplir
+                        </button>
+                        <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
+                            <ul class="fr-menu__list">
+                                <li>
+                                    <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-import" >Importer un document .ods</button>
+                                </li>
+                                <li>
+                                <li>
+                                    <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {/if}
         </header>
         <div class="fr-grid-row">
             <div class="fr-col">
@@ -340,7 +380,7 @@
                     </div>
                 </dialog>
 
-                {#if espècesÀPréremplirParTexte.size >= 1}
+                {#if !modeLecture && espècesÀPréremplirParTexte.size >= 1}
                     <details open>
                         <summary>
                             <h2>Pré-remplissage automatique</h2>
@@ -463,59 +503,70 @@
             </div>
         </div>
 
-        <form class="fr-mb-4w">
-            <FieldsetOiseau
-                bind:oiseauxAtteints={oiseauxAtteints}
-                espècesProtégéesOiseau={espècesProtégéesParClassification["oiseau"]}
-                activitésMenaçantes={[...activitesParClassificationEtreVivant["oiseau"].values()]}
-                méthodesMenaçantes={[...méthodesParClassificationEtreVivant["oiseau"].values()]}
-                transportMenaçants={[...transportsParClassificationEtreVivant["oiseau"].values()]}
-            />
-            <FieldsetNonOiseau
-                bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
-                espècesProtégéesFauneNonOiseau={espècesProtégéesParClassification["faune non-oiseau"]}
-                activitésMenaçantes={[...activitesParClassificationEtreVivant["faune non-oiseau"].values()]}
-                méthodesMenaçantes={[...méthodesParClassificationEtreVivant["faune non-oiseau"].values()]}
-                transportMenaçants={[...transportsParClassificationEtreVivant["faune non-oiseau"].values()]}
-            />
-            <FieldsetFlore
-                bind:floresAtteintes={floresAtteintes}
-                espècesProtégéesFlore={espècesProtégéesParClassification["flore"]}
-                activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
-            />
-        </form>
-        <div class="fr-grid-row fr-mb-4w">
-            <div class="fr-col-8">
-                <div class="fr-callout fr-icon-information-line">
-                    <details>
-                        <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
-                        <p class="fr-callout__text">
-                            Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci
-                            <a target="_blank" href={mailto}>d’envoyer un mail à pitchou@beta.gouv.fr</a>en
-                            indiquant l’espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
-                            Le <code>CD_NOM</code> est disponible sur
-                            <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
-                            en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
-                            Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
-                                <code>4221</code></a>.
-                        </p>
-                    </details>
-                </div>
-            </div>
-        </div>
-        <div class="fr-grid-row fr-mb-10w">
-            <div class="fr-col-8">
-                <h2>Fichier de liste d'espèces pour votre dossier</h2>
-                <p>Une fois la liste des espèces saisie, téléchargez le fichier via le bouton ci-dessous et mettez-le dans votre dossier Démarches Simplifiées.</p>
-
-                <DownloadButton
-                    classname="fr-btn fr-btn--lg"
-                    label="Télécharger fichier des espèces impactées (.ods)"
-                    makeFilename={() => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
+        {#if modeLecture}
+            {#if oiseauxAtteints.length > 0 || faunesNonOiseauxAtteintes.length > 0 || floresAtteintes.length > 0}
+                <EspècesImpactéesLecture 
+                    {espècesImpactéesParActivité}
                     makeFileContentBlob={créerOdsBlob}
                 />
+            {:else}
+                <p class="fr-mt-4w">Aucune espèce n'a encore été saisie.</p>
+            {/if}
+        {:else}
+            <form class="fr-mb-4w">
+                <FieldsetOiseau
+                    bind:oiseauxAtteints={oiseauxAtteints}
+                    espècesProtégéesOiseau={espècesProtégéesParClassification["oiseau"]}
+                    activitésMenaçantes={[...activitesParClassificationEtreVivant["oiseau"].values()]}
+                    méthodesMenaçantes={[...méthodesParClassificationEtreVivant["oiseau"].values()]}
+                    transportMenaçants={[...transportsParClassificationEtreVivant["oiseau"].values()]}
+                />
+                <FieldsetNonOiseau
+                    bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
+                    espècesProtégéesFauneNonOiseau={espècesProtégéesParClassification["faune non-oiseau"]}
+                    activitésMenaçantes={[...activitesParClassificationEtreVivant["faune non-oiseau"].values()]}
+                    méthodesMenaçantes={[...méthodesParClassificationEtreVivant["faune non-oiseau"].values()]}
+                    transportMenaçants={[...transportsParClassificationEtreVivant["faune non-oiseau"].values()]}
+                />
+                <FieldsetFlore
+                    bind:floresAtteintes={floresAtteintes}
+                    espècesProtégéesFlore={espècesProtégéesParClassification["flore"]}
+                    activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
+                />
+            </form>
+            <div class="fr-grid-row fr-mb-4w">
+                <div class="fr-col-8">
+                    <div class="fr-callout fr-icon-information-line">
+                        <details>
+                            <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
+                            <p class="fr-callout__text">
+                                Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci
+                                <a target="_blank" href={mailto}>d'envoyer un mail à pitchou@beta.gouv.fr</a>en
+                                indiquant l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
+                                Le <code>CD_NOM</code> est disponible sur
+                                <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
+                                en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
+                                Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
+                                    <code>4221</code></a>.
+                            </p>
+                        </details>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div class="fr-grid-row fr-mb-10w">
+                <div class="fr-col-8">
+                    <h2>Fichier de liste d'espèces pour votre dossier</h2>
+                    <p>Une fois la liste des espèces saisie, téléchargez le fichier via le bouton ci-dessous et mettez-le dans votre dossier Démarches Simplifiées.</p>
+
+                    <DownloadButton
+                        classname="fr-btn fr-btn--lg"
+                        label="Télécharger fichier des espèces impactées (.ods)"
+                        makeFilename={() => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
+                        makeFileContentBlob={créerOdsBlob}
+                    />
+                </div>
+            </div>
+        {/if}
     </article>
 </Squelette>
 
@@ -540,6 +591,13 @@
         .préremplir-espèces{
             ul{
                 list-style: '- ';
+            }
+        }
+        .fr-toggle{
+            label{
+                white-space: nowrap;
+                width: auto;
+                min-width: max-content;
             }
         }
     }
