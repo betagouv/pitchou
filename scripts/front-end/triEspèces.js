@@ -1,13 +1,13 @@
 /** @import {
- *    OiseauAtteint, 
- *    FauneNonOiseauAtteinte, 
- *    FloreAtteinte, 
- *  } from '../types/especes.d.ts' 
+ *    OiseauAtteint,
+ *    FauneNonOiseauAtteinte,
+ *    FloreAtteinte,
+ *  } from '../types/especes.d.ts'
  */
 
 /**
- * 
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes 
+ *
+ * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes
  * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]}
  */
 export const trierParOrdreAlphabétiqueEspèce = (espècesAtteintes) => {
@@ -17,8 +17,8 @@ export const trierParOrdreAlphabétiqueEspèce = (espècesAtteintes) => {
             const nomsVernaculairesB = [...espèceAtteinteB.espèce.nomsVernaculaires]
 
             if (
-                nomsVernaculairesA.length >= 1 && 
-                nomsVernaculairesA[0] !== "" && 
+                nomsVernaculairesA.length >= 1 &&
+                nomsVernaculairesA[0] !== "" &&
                 nomsVernaculairesB.length >= 1
             ) {
                 return nomsVernaculairesA[0].localeCompare(nomsVernaculairesB[0], 'fr')
@@ -29,14 +29,14 @@ export const trierParOrdreAlphabétiqueEspèce = (espècesAtteintes) => {
 }
 
 /**
- * 
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes 
+ *
+ * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes
  * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]}
  */
 export const grouperParActivité = (espècesAtteintes) => {
     return [...espècesAtteintes].sort((espèceAtteinteA, espèceAtteinteB) => {
         if(espèceAtteinteA.activité && espèceAtteinteB.activité) {
-            return espèceAtteinteA.activité["étiquette affichée"].localeCompare(espèceAtteinteB.activité["étiquette affichée"])
+            return espèceAtteinteA.activité['Libellé Pitchou'].localeCompare(espèceAtteinteB.activité['Libellé Pitchou'])
         }
 
         if(!espèceAtteinteA.activité && espèceAtteinteB.activité) {
@@ -52,14 +52,14 @@ export const grouperParActivité = (espècesAtteintes) => {
 }
 
 /**
- * 
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]} espècesAtteintes 
+ *
+ * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]} espècesAtteintes
  * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]}
  */
 export const grouperParMéthode = (espècesAtteintes) => {
     return [...espècesAtteintes].sort((espèceAtteinteA, espèceAtteinteB) => {
         if(espèceAtteinteA.méthode && espèceAtteinteB.méthode) {
-            return espèceAtteinteA.méthode["étiquette affichée"].localeCompare(espèceAtteinteB.méthode["étiquette affichée"])
+            return espèceAtteinteA.méthode["Libellé Pitchou"].localeCompare(espèceAtteinteB.méthode["Libellé Pitchou"])
         }
 
         if(!espèceAtteinteA.méthode && espèceAtteinteB.méthode) {

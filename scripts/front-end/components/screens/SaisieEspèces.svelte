@@ -24,7 +24,7 @@
      * @typedef {Object} Props
      * @property {string | undefined} [email]
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-     * @property {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activitesParClassificationEtreVivant
+     * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activitesParClassificationEtreVivant
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
      * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
      * @property {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} importDescriptionMenacesEspècesFromOds

@@ -1,7 +1,7 @@
 import {StringValues} from '../types/tools.d.ts'
 
 export type Règne = 'Animalia' | 'Plantae' | 'Fungi' | 'Chromista'
-export type Classe = 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae' 
+export type Classe = 'Aves' | 'Amphibia' | 'Actinopterygii' | 'Malacostraca' | 'Mammalia' | 'Anthozoa' | 'Equisetopsida' | 'Gastropoda' | 'Insecta' | 'Bivalvia' | 'Petromyzonti' | 'Lecanoromycetes' | 'Ulvophyceae' | 'Holothuroidea' | 'Elasmobranchii' | 'Arachnida' | 'Charophyceae' | 'Cephalopoda' | 'Echinoidea' | 'Phaeophyceae'
 export type ClassificationEtreVivant = "oiseau" | "faune non-oiseau" | "flore"
 
 export type ParClassification<T> = {
@@ -12,7 +12,7 @@ export type ParClassification<T> = {
 
 /**
  * Lignes du fichier TAXREF.txt (INPN)
- * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
+ * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes
  */
 export interface TAXREF_ROW {
     CD_NOM: string,
@@ -39,12 +39,12 @@ export interface BDC_STATUT_ROW {
 
 /**
  * Lignes du fichier liste-espèces-protégées.csv
- * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes 
+ * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes
  */
 export interface EspèceProtégée {
     CD_REF: TAXREF_ROW['CD_REF'],
     // TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
-    nomsVernaculaires: Set<TAXREF_ROW['NOM_VERN']>, 
+    nomsVernaculaires: Set<TAXREF_ROW['NOM_VERN']>,
     // plusieurs noms si plusieurs CD_NOM pour le même CD_REF
     nomsScientifiques: Set<TAXREF_ROW['LB_NOM']>,
     classification: ClassificationEtreVivant,
@@ -52,7 +52,7 @@ export interface EspèceProtégée {
     CD_TYPE_STATUTS: Set<BDC_STATUT_ROW['CD_TYPE_STATUT']>,
 }
 
-/** 
+/**
  * Les Set<string> deviennent des string séparés par des `,`
  */
 export type EspèceProtégéeStrings = StringValues<EspèceProtégée>
@@ -63,30 +63,35 @@ export type CodeActivitéStandard = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8
 // pour quand on veut réunir ou séparer des activités
 export type CodeActivitéPitchou = '4-1-pitchou-aires' | '4-2-pitchou-nids' | '4-3-pitchou-œufs' | 'mix-1-10-3-30-6-40';
 
-
+export type ImpactQuantifié = `Nombre d'individus` | 'Nids' | 'Œufs' | 'Surface habitat détruit (m²)';
 
 
 export interface ActivitéMenançante {
-    Code: CodeActivitéStandard | CodeActivitéPitchou,
-    Espèces: ClassificationEtreVivant,
-    "Libellé long": string,
-    "étiquette affichée": string,
-    Méthode: 'o' | 'n',
-    transport: 'o' | 'n',
+    "Code rapportage européen": string,
+    "Identifiant Pitchou": string,
+    "Libellé activité directive européenne": string,
+    "Libellé Pitchou": string,
+    "Méthode": 'Oui' | 'Non',
+    "Moyen de poursuite": 'Oui' | 'Non',
+    // Données secondaires
+    "Nombre d'individus": 'Oui' | 'Non',
+    "Nids": 'Oui' | 'Non',
+    "Œufs": 'Oui' | 'Non',
+    "Surface habitat détruit (m²)": 'Oui' | 'Non',
 }
 
 export interface MéthodeMenançante {
     Code: string,
     Espèces: ClassificationEtreVivant,
-    "Libellé long": string,
-    "étiquette affichée": string,
+    "Libellé activité directive européenne": string,
+    "Libellé Pitchou": string,
 }
 
 export interface TransportMenançant {
     Code: string,
     Espèces: ClassificationEtreVivant,
-    "Libellé long": string,
-    "étiquette affichée": string,
+    "Libellé activité directive européenne": string,
+    "Libellé Pitchou": string,
 }
 
 export interface EtreVivantAtteint {
