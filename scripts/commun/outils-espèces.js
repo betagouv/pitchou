@@ -335,7 +335,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
         !(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1) &&
         !(lignesFloreOds && lignesFloreOds.length >= 1)
     ) {
-        console.warn('Le fichier espèces .ods semble ne contenir aucune feuille oiseau, faune non-oiseau ou flore.')
+        throw new Error('Le fichier espèces .ods semble ne contenir aucune feuille oiseau, faune non-oiseau ou flore.')
     }
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
