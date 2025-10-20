@@ -82,7 +82,7 @@
 
 
 <style lang="scss">
-    $couleur-phase-accompagnement-amont: var(--artwork-minor-yellow-tournesol);
+    $couleur-phase-accompagnement-amont: var(--background-contrast-yellow-tournesol);
     $couleur-phase-étude-recevabilité: var(--background-action-high-orange-terre-battue);
     $couleur-phase-instruction: var(--background-flat-blue-cumulus);
     $couleur-phase-contrôle: var(--background-flat-pink-tuile);
@@ -102,7 +102,7 @@
 
         &.phase--accompagnement-amont{
             background-color: $couleur-phase-accompagnement-amont;
-            color: var(--text-inverted-yellow-tournesol);
+            color: var(--text-title-grey);
 
             &::after{
                 color: $couleur-phase-accompagnement-amont;
