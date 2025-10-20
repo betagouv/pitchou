@@ -51,6 +51,9 @@
     /** @type {File | undefined} */
     let fichierEspècesOds = $state()
 
+    /** @type {string | undefined} */
+    let messageErreurPréRemplirAvecDocumentOds = $state()
+
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
@@ -65,13 +68,13 @@
     }*/
 
     async function créerOdsBlob(){
-        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
-            oiseau: oiseauxAtteints,
-            "faune non-oiseau": faunesNonOiseauxAtteintes,
-            flore: floresAtteintes,
-        })
+            const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
+                oiseau: oiseauxAtteints,
+                "faune non-oiseau": faunesNonOiseauxAtteintes,
+                flore: floresAtteintes,
+            }) 
 
-        return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
+            return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
     }
 
     /**
@@ -93,7 +96,10 @@
     }
 
     async function onClickPréRemplirAvecDocumentOds(){
-        if(fichierEspècesOds){
+        try {
+            if(!fichierEspècesOds){
+                throw new Error("Aucun fichier espèces .ods n'a été téléchargé.")
+            }
             const descriptionMenacesEspèces = await fichierEspècesOds.arrayBuffer()
                 .then(importDescriptionMenacesEspècesFromOds)
 
@@ -108,8 +114,18 @@
                     window.dsfr(modale).modal.conceal();
                 }
             }
-        } else {
-            console.warn("Aucun fichier espèces .ods n'a été téléchargé.")
+            // Comme le fichier est bien téléchargé avec le bon format quand on arrive ici, on s'assure que la variable contenant le message d'erreur est undefined.
+            messageErreurPréRemplirAvecDocumentOds = undefined
+        } catch (erreur) {
+            messageErreurPréRemplirAvecDocumentOds = "Une erreur est survenue au moment de cliquer sur le bouton Pré-remplir.";
+            if (erreur instanceof Error) {
+                if (erreur.cause === 'format incorrect') {
+                    messageErreurPréRemplirAvecDocumentOds = 'Le fichier ne respecte pas le document .ods qui respecte le format décrit <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d\'un fichier espèces - nouvelle fenêtre">sur cette page.</a>'
+                } else {
+                    messageErreurPréRemplirAvecDocumentOds = erreur.message;
+                }
+            }
+            throw new Error(messageErreurPréRemplirAvecDocumentOds)
         }
     }
 
@@ -322,7 +338,7 @@
                                                     </li>
                                                 </ul>
                                             </span>
-											<div class="fr-upload-group fr-mt-6w">
+											<div class="fr-upload-group fr-mt-6w" class:fr-upload-group--error={messageErreurPréRemplirAvecDocumentOds}>
 												<label class="fr-label" for="file-upload">
 													<span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
 												</label>
@@ -334,6 +350,13 @@
 													accept=".ods"
 													id="file-upload"
 													name="file-upload" />
+                                                <div class="fr-messages-group" id="file-upload-messages" aria-live="polite">
+                                                    {#if messageErreurPréRemplirAvecDocumentOds}
+                                                        <p class="fr-message fr-message--error" id="file-upload-message-error-format-incorrect">
+                                                            {@html messageErreurPréRemplirAvecDocumentOds}
+                                                        </p>
+                                                    {/if}
+                                                </div>
 											</div>
 										</div>
                                     </div>
@@ -636,6 +659,10 @@
             ul{
                 list-style: '- ';
             }
+        }
+
+        #file-upload-message-error-format-incorrect{
+            display:unset
         }
     }
 </style>
