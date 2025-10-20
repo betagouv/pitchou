@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
-    import EspècesImpactéesLecture from '../EspècesProtégéesImpactées.svelte'
+    import EspècesImpactéesLecture from '../EspècesProtégéesGroupéesParImpact.svelte'
 
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'

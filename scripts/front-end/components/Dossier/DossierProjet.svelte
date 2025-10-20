@@ -1,6 +1,6 @@
 <script>
     //@ts-check
-    import EspècesImpactéesLecture from "../EspècesProtégéesImpactées.svelte";
+    import EspècesImpactéesLecture from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
     import { chargerActivitésMéthodesTransports } from "../../actions/activitésMéthodesTransports.js";
