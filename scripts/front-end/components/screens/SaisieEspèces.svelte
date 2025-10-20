@@ -318,7 +318,7 @@
                                                         un document déjà généré avec cet outil
                                                     </li>
                                                     <li>
-                                                        un document .ods qui respecte la nomenclature décrite <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page de nomenclature - nouvelle fenêtre" class="fr-link">sur cette page</a>
+                                                        un document .ods qui respecte le format décrite <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page de nomenclature - nouvelle fenêtre" class="fr-link">sur cette page</a>
                                                     </li>
                                                 </ul>
                                             </span>
