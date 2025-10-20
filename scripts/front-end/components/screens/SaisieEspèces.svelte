@@ -73,6 +73,8 @@
 
     let modeLecture = $state(false);
 
+    let aucuneEspèceSaisie = $derived(oiseauxAtteints.length === 0 && faunesNonOiseauxAtteintes.length === 0 && floresAtteintes.length === 0)
+
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
     let espècesImpactéesParActivité = $derived(
@@ -576,7 +578,17 @@
         </div>
 
         {#if modeLecture}
-            {#if oiseauxAtteints.length >= 1 || faunesNonOiseauxAtteintes.length >= 1 || floresAtteintes.length >= 1}
+            {#if aucuneEspèceSaisie}
+                <div class="fr-grid-row fr-mb-2w">
+                    <div class="fr-col">
+                        <div class="fr-alert fr-alert--warning">
+                            <p>
+                                Aucune espèce n'a encore été saisie.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {:else}
                 <div class="fr-grid-row fr-mb-2w">
                     <div class="fr-col">
                         <div class="fr-alert fr-alert--info">
@@ -589,16 +601,6 @@
                 <EspècesProtégéesGroupéesParImpact 
                     {espècesImpactéesParActivité}
                 />
-            {:else}
-                <div class="fr-grid-row fr-mb-2w">
-                    <div class="fr-col">
-                        <div class="fr-alert fr-alert--warning">
-                            <p>
-                                Aucune espèce n'a encore été saisie.
-                            </p>
-                        </div>
-                    </div>
-                </div>
             {/if}
         {:else}
             <form class="fr-mb-4w">
