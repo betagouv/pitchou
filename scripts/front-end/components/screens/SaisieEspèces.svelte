@@ -71,9 +71,6 @@
 
     const mailto = "mailto:pitchou@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
 
-    /**
-     * Mode lecture
-     */
     let modeLecture = $state(false);
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
@@ -322,15 +319,21 @@
     <article>
 
         <header>
-            <h1 class="fr-mt-4w">Espèces protégées impactées</h1>
-
+            <h1>Espèces protégées impactées</h1>
+            
             <div class="fr-toggle">
-                <input bind:checked={modeLecture} type="checkbox" class="fr-toggle__input" id="toggle-mode-lecture" aria-describedby="toggle-messages toggle-hint">
+                <input bind:checked={modeLecture} type="checkbox" class="fr-toggle__input" id="toggle-mode-lecture">
                 <label class="fr-toggle__label" for="toggle-mode-lecture">
                     Mode lecture
                 </label>
-                <div class="fr-messages-group" id="toggle-messages" aria-live="polite">
-                </div>
+            </div>
+            
+            <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
+                {#if modeLecture}
+                    Mode lecture activé. Les espèces sont maintenant affichées regroupées par type d'impact.
+                {:else}
+                    Mode lecture désactivé. Vous pouvez modifier les espèces et leurs impacts.
+                {/if}
             </div>
 
         <!--
@@ -358,6 +361,7 @@
             </div>
         </div>
         </header>
+        
         <div class="fr-grid-row">
             <div class="fr-col">
                 <dialog bind:this={modale} id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
@@ -415,7 +419,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> 
                 </dialog>
 
                 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true">
@@ -572,12 +576,29 @@
         </div>
 
         {#if modeLecture}
-            {#if oiseauxAtteints.length > 0 || faunesNonOiseauxAtteintes.length > 0 || floresAtteintes.length > 0}
+            {#if oiseauxAtteints.length >= 1 || faunesNonOiseauxAtteintes.length >= 1 || floresAtteintes.length >= 1}
+                <div class="fr-grid-row fr-mb-2w">
+                    <div class="fr-col">
+                        <div class="fr-alert fr-alert--info">
+                            <p>
+                                Mode lecture activé : les espèces sont affichées regroupées par type d'impact. Désactivez le mode lecture pour modifier les espèces.
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 <EspècesProtégéesGroupéesParImpact 
                     {espècesImpactéesParActivité}
                 />
             {:else}
-                <p class="fr-mt-4w">Aucune espèce n'a encore été saisie.</p>
+                <div class="fr-grid-row fr-mb-2w">
+                    <div class="fr-col">
+                        <div class="fr-alert fr-alert--warning">
+                            <p>
+                                Aucune espèce n'a encore été saisie.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             {/if}
         {:else}
             <form class="fr-mb-4w">
@@ -673,6 +694,7 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
+            margin-top: 2rem;
         }
         details{
             cursor: default; // surcharge dsfr parce que c'est bizarre
@@ -722,9 +744,7 @@
         }
         .fr-toggle{
             label{
-                white-space: nowrap;
-                width: auto;
-                min-width: max-content;
+                width: 100%;
             }
         }
     }
