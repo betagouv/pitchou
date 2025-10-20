@@ -3,7 +3,7 @@
     import Squelette from '../Squelette.svelte'
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
-    import EspècesImpactéesLecture from '../EspècesProtégéesGroupéesParImpact.svelte'
+    import EspècesProtégéesGroupéesParImpact from '../EspècesProtégéesGroupéesParImpact.svelte'
 
     import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
     import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
@@ -573,7 +573,7 @@
 
         {#if modeLecture}
             {#if oiseauxAtteints.length > 0 || faunesNonOiseauxAtteintes.length > 0 || floresAtteintes.length > 0}
-                <EspècesImpactéesLecture 
+                <EspècesProtégéesGroupéesParImpact 
                     {espècesImpactéesParActivité}
                     makeFileContentBlob={créerOdsBlob}
                 />

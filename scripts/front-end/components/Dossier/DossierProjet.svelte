@@ -1,6 +1,6 @@
 <script>
     //@ts-check
-    import EspècesImpactéesLecture from "../EspècesProtégéesGroupéesParImpact.svelte";
+    import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
     import { chargerActivitésMéthodesTransports } from "../../actions/activitésMéthodesTransports.js";
@@ -126,7 +126,7 @@
 
         <h2>Espèces impactées</h2>
         {#if dossier.espècesImpactées}
-            <EspècesImpactéesLecture 
+            <EspècesProtégéesGroupéesParImpact 
                 {espècesImpactéesParActivité}
                 {makeFileContentBlob}
             />
