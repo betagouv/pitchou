@@ -575,7 +575,6 @@
             {#if oiseauxAtteints.length > 0 || faunesNonOiseauxAtteintes.length > 0 || floresAtteintes.length > 0}
                 <EspècesProtégéesGroupéesParImpact 
                     {espècesImpactéesParActivité}
-                    makeFileContentBlob={créerOdsBlob}
                 />
             {:else}
                 <p class="fr-mt-4w">Aucune espèce n'a encore été saisie.</p>
@@ -621,20 +620,7 @@
                     </div>
                 </div>
             </div>
-            <div class="fr-grid-row fr-mb-10w">
-                <div class="fr-col-8">
-                    <h2>Fichier de liste d'espèces pour votre dossier</h2>
-                    <p>Une fois la liste des espèces saisie, téléchargez le fichier via le bouton ci-dessous et mettez-le dans votre dossier Démarches Simplifiées.</p>
-
-                    <DownloadButton
-                        classname="fr-btn fr-btn--lg"
-                        label="Télécharger fichier des espèces impactées (.ods)"
-                        makeFilename={() => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
-                        makeFileContentBlob={créerOdsBlob}
-                    />
-                </div>
-            </div>
-        {/if}
+            {/if}
         <footer class="fr-mb-4w">
             <button aria-controls="modale-validation-saisie" data-fr-opened="false" type="button" class="fr-btn fr-btn--lg fr-ml-auto">Valider ma saisie</button>
         </footer>

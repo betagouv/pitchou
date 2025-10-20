@@ -1,32 +1,19 @@
 <script>
     //@ts-check
     import Loader from "./Loader.svelte";
-    import DownloadButton from "./DownloadButton.svelte";
 
     /**
      * @typedef {Object} Props
      * @property {Promise<Array<{activité: string, espèces: Array<{nomVernaculaire: string, nomScientifique: string, détails: any[]}>, impactsQuantifiés: string[]}>> | undefined} espècesImpactéesParActivité
-     * @property {(() => Blob | Promise<Blob>) | undefined} [makeFileContentBlob]
      */
 
     /** @type {Props} */
     let { 
         espècesImpactéesParActivité,
-        makeFileContentBlob = undefined
     } = $props();
-
-    const makeFilename = () => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`;
-    const downloadLabel = "Télécharger le fichier des espèces impactées (.ods)";
 </script>
 
-{#if makeFileContentBlob}
-    <DownloadButton
-        {makeFileContentBlob}
-        {makeFilename}
-        classname="fr-btn fr-btn--secondary"
-        label={downloadLabel}
-    ></DownloadButton>
-{/if}
+
 
 {#await espècesImpactéesParActivité}
     <Loader></Loader>

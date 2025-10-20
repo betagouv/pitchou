@@ -1,5 +1,6 @@
 <script>
     //@ts-check
+    import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
@@ -29,6 +30,10 @@
                     dossier.espècesImpactées.media_type,
             },
         );
+    }
+
+    function makeFilename() {
+        return dossier.espècesImpactées?.nom || "fichier";
     }
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
@@ -126,10 +131,14 @@
 
         <h2>Espèces impactées</h2>
         {#if dossier.espècesImpactées}
-            <EspècesProtégéesGroupéesParImpact 
-                {espècesImpactéesParActivité}
+            <DownloadButton
                 {makeFileContentBlob}
+                {makeFilename}
+                classname="fr-btn fr-btn--secondary"
+                label="Télécharger le fichier des espèces impactées"
             />
+
+            <EspècesProtégéesGroupéesParImpact {espècesImpactéesParActivité} />
         {:else}
             <p>
                 Aucune données sur les espèces impactées n'a été fournie par le
