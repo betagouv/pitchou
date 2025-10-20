@@ -318,11 +318,11 @@
                                                         un document déjà généré avec cet outil
                                                     </li>
                                                     <li>
-                                                        un document .ods qui respecte le format décrite <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page de nomenclature - nouvelle fenêtre" class="fr-link">sur cette page</a>
+                                                        un document .ods qui respecte le format décrit <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d'un fichier espèces - nouvelle fenêtre" class="fr-link fr-text--sm">sur cette page</a>
                                                     </li>
                                                 </ul>
                                             </span>
-											<div class="fr-upload-group">
+											<div class="fr-upload-group fr-mt-6w">
 												<label class="fr-label" for="file-upload">
 													<span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
 												</label>
