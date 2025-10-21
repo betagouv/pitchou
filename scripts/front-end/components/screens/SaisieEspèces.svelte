@@ -516,6 +516,31 @@
                 />
             </div>
         </div>
+
+        <button aria-controls="modale-validation-saisie" data-fr-opened="false" type="button" class="fr-btn">Valider ma saisie</button>
+        <dialog id="modale-validation-saisie" class="fr-modal" aria-labelledby="modale-validation-saisie-title" data-fr-concealing-backdrop="true">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                <div class="fr-modal__body">
+                <div class="fr-modal__header">
+                    <button aria-controls="modale-validation-saisie" title="Fermer" type="button" id="button-fermer-modale-validation-saisie" class="fr-btn--close fr-btn">Fermer</button>
+                </div>
+                <div class="fr-modal__content">
+                    <h2 id="modale-validation-saisie-title" class="fr-modal__title">
+                        Dernière étape : Ajouter votre saisie à votre dossier Démarches Simplifiées
+                    </h2>
+                    <ol>
+                        <li>Télécharger le document récapitulatif de votre saisie.</li>
+                        <li>Ajouter le document récapitulatif dans votre dossier Démarches Simplifiées, section "3b saisie des espèces".</li>
+                        <li>Votre liste d'espèces protégées impactées sera liée à votre dossier.</li>
+                    </ol>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </dialog>
     </article>
 </Squelette>
 
