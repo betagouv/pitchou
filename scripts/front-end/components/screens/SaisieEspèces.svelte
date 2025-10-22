@@ -46,6 +46,8 @@
         floresAtteintes = $bindable()
     } = $props();
 
+    let nombreEspècesSaisies = $derived(oiseauxAtteints.length + faunesNonOiseauxAtteintes.length + floresAtteintes.length)
+
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
@@ -503,19 +505,49 @@
                 </div>
             </div>
         </div>
-        <div class="fr-grid-row fr-mb-10w">
-            <div class="fr-col-8">
-                <h2>Fichier de liste d'espèces pour votre dossier</h2>
-                <p>Une fois la liste des espèces saisie, téléchargez le fichier via le bouton ci-dessous et mettez-le dans votre dossier Démarches Simplifiées.</p>
 
-                <DownloadButton
-                    classname="fr-btn fr-btn--lg"
-                    label="Télécharger fichier des espèces impactées (.ods)"
-                    makeFilename={() => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
-                    makeFileContentBlob={créerOdsBlob}
-                />
+        <footer class="fr-mb-4w">
+            <button aria-controls="modale-validation-saisie" data-fr-opened="false" type="button" class="fr-btn fr-btn--lg fr-ml-auto">Valider ma saisie</button>
+        </footer>
+        <dialog id="modale-validation-saisie" class="fr-modal" aria-labelledby="modale-validation-saisie-title" data-fr-concealing-backdrop="true">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                        </div>
+                        <div class="fr-modal__content">
+                            <h2 id="modale-validation-saisie-title" class="fr-modal__title">
+                                Dernière étape : Ajouter votre saisie à votre dossier Démarches Simplifiées
+                            </h2>
+                            <ol id="liste-des-étapes-pour-ajouter-saisie-à-DS">
+                                <li>
+                                    <span class="fr-text--lg">Télécharger le document récapitulatif de votre saisie.</span>
+                                    <div class="flex-justify-content-center">
+                                        <DownloadButton
+                                            classname="fr-btn fr-mt-4v"
+                                            label={`Télécharger le document récapitulatif (${nombreEspècesSaisies} espèce${nombreEspècesSaisies > 1 ? 's' : ''})`}
+                                            makeFilename={() => `especes-impactées-${(new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)}.ods`}
+                                            makeFileContentBlob={créerOdsBlob}
+                                        />
+                                    </div>
+                                </li>
+                                <li><span class="fr-text--lg">Ajouter le document récapitulatif dans votre dossier Démarches Simplifiées, section "3b saisie des espèces".</span></li>
+                                <li>
+                                    <span class="fr-text--lg">Votre liste d'espèces protégées impactées sera liée à votre dossier.</span>
+
+                                    <div class="fr-mt-1v fr-text--sm">Une fois le document récapitulatif ajouté, vous pouvez fermer cette fenêtre.</div>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="fr-modal__footer">
+                            <button aria-controls="modale-validation-saisie" title="Fermer" type="button" id="button-fermer-modale-validation-saisie" class="fr-btn fr-btn--secondary">Fermer la fenêtre</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        </dialog>
     </article>
 </Squelette>
 
@@ -535,6 +567,27 @@
             h2, h3{
                 display: inline-block;
             }
+        }
+
+        #liste-des-étapes-pour-ajouter-saisie-à-DS{
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        #button-fermer-modale-validation-saisie{
+            margin-inline: auto;
+        }
+
+        .flex-justify-content-center{
+            display:flex;
+            justify-content:center;
+        }
+
+        footer{
+            display: flex;
+            justify-content: end;
+            margin-inline: 4rem;
         }
 
         .préremplir-espèces{
