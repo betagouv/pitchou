@@ -3,7 +3,7 @@
 import {dsv, buffer} from 'd3-fetch'
 import store from "../store"
 import { getURL } from '../getLinkURL.js';
-import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif, constuireActivitésMéthodesTransports } from '../../commun/outils-espèces.js';
+import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif, construireActivitésMéthodesTransports } from '../../commun/outils-espèces.js';
 
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
@@ -84,7 +84,7 @@ export async function chargerActivitésMéthodesTransports(){
 
     const odsData = await buffer(getURL('link#activites-methodes-transports-data'))
     // @ts-ignore
-    const ret = await constuireActivitésMéthodesTransports(odsData)
+    const ret = await construireActivitésMéthodesTransports(odsData)
 
     store.mutations.setActivitésMéthodesTransports(ret)
 

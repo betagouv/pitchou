@@ -18,7 +18,7 @@ interface EtreVivantAtteintOds_V1{
     "nombre individus": string,
     "surface habitat détruit": number,
     "code activité": string,
-    "identifiant pitchou activité": ?string,
+    "identifiant pitchou activité"?: string,
 }
 
 export interface OiseauAtteintOds_V1 extends EtreVivantAtteintOds_V1{

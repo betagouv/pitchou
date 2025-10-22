@@ -347,6 +347,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
             }
 
+            //Si aucun identifiant pitchou activité n'a été trouvé pour la ligne, il s'agit d'un fichier espèce avec un format legacy. Dans ce cas, on essaie de "deviner" l'identifiant Pitchou Activité à partir du code activité.
             if (!identifiantPitchouActivité) {
                 if (codeActivité === '4') {
                     if ((nombreOeufs && nombreOeufs > 0) || (nombreNids && nombreNids > 0)) {
@@ -357,7 +358,6 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                         identifiantPitchouActivité = 'P-4-2'
                     }
                 } else if (codeActivité == '2') {
-                    // TODO: Vérifier si c'est okay d'utiliser cet impact en fallback
                     // Capture pour captivité temporaire ou définitive
                     identifiantPitchouActivité = 'P-2-1'
                 } else {
@@ -402,9 +402,8 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
             if (!identifiantPitchouActivité) {
                 if (codeActivité === '70') {
-                    // TODO: Vérifier si c'est okay d'utiliser cet impact en fallback
-                    // Détention de spécimens vivants ou morts
-                    identifiantPitchouActivité = 'P-70-1'
+                    // Transport de spécimens vivants ou morts
+                    identifiantPitchouActivité = 'P-70-2'
                 } else {
                     identifiantPitchouActivité = `P-${codeActivité}`
                 }
@@ -457,7 +456,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
  * @param {Buffer} odsData
  * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
  */
-export async function constuireActivitésMéthodesTransports(odsData) {
+export async function construireActivitésMéthodesTransports(odsData) {
     const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
 
     // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`

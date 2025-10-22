@@ -5,7 +5,7 @@ import * as csv from 'csv-parse/sync'
 import parseArgs from 'minimist'
 
 import { directDatabaseConnection, closeDatabaseConnection } from '../scripts/server/database.js';
-import { constuireActivitésMéthodesTransports, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
+import { construireActivitésMéthodesTransports, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
 
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import { GeoMceMessage, DossierPourGeoMCE } from '../scripts/types/geomce.ts' */
@@ -19,7 +19,7 @@ const DATA_DIR = path.join(import.meta.dirname, '../data')
  */
 async function chargerActivitésMéthodesTransports() {
     const activitésBuffer = await fs.readFile(path.join(DATA_DIR, 'activites-methodes-moyens-de-poursuite.ods'))
-    return await constuireActivitésMéthodesTransports(activitésBuffer)
+    return await construireActivitésMéthodesTransports(activitésBuffer)
 }
 
 /**

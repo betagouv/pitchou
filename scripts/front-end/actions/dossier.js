@@ -107,7 +107,6 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
 
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans
-    console.log(activités)
 
     return importDescriptionMenacesEspècesFromOdsArrayBuffer(
         fichierArrayBuffer,
