@@ -1,15 +1,14 @@
 //@ts-check
 
 import {dsv, buffer} from 'd3-fetch'
-import { getODSTableRawContent, tableRawContentToObjects } from '@odfjs/odfjs';
 import store from "../store"
 import { getURL } from '../getLinkURL.js';
-import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif } from '../../commun/outils-espèces.js';
+import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif, construireActivitésMéthodesTransports } from '../../commun/outils-espèces.js';
 
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes.d.ts' */
 
 
 /**
@@ -65,7 +64,6 @@ export async function chargerListeEspècesProtégées(){
  * - activités : Map indexée par classification d'espèce (oiseau, faune non-oiseau, flore) contenant les activités menaçantes indexées par leur code
  * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
  * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
- * - activitésNomenclaturePitchou : Map unifiée de toutes les activités (standard + spécifiques Pitchou) indexées par leur code
  *
  * @remarks
  * - La fonction utilise un cache dans le store pour éviter les rechargements inutiles
@@ -74,7 +72,6 @@ export async function chargerListeEspècesProtégées(){
  * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
  *
  * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
- * @see {@link getActivitésNomenclaturePitchou} Pour la création des activités additionnelles Pitchou
  *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
@@ -85,86 +82,11 @@ export async function chargerActivitésMéthodesTransports(){
         return Promise.resolve(store.state.activitésMéthodesTransports)
     }
 
-    const odsData = await buffer(getURL('link#activites-methodes-transports-data'));
-    const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
+    const odsData = await buffer(getURL('link#activites-methodes-transports-data'))
+    // @ts-ignore
+    const ret = await construireActivitésMéthodesTransports(odsData)
 
-    // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
-    // utilisée par Svelte
-
-    /** @type { ActivitéMenançante[] } */
-    const activitésBrutes = activitésMéthodesTransportsBruts.get("Activités").map(
-        // @ts-ignore
-        row => Object.assign({}, row)
-    )
-    /** @type { MéthodeMenançante[] } */
-    const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
-        // @ts-ignore
-        row => Object.assign({}, row)
-    )
-    /** @type { TransportMenançant[] } */
-    const transportsBruts = activitésMéthodesTransportsBruts.get("Transports").map(
-        // @ts-ignore
-        row => Object.assign({}, row)
-    )
-
-    const activitésMéthodesTransports = actMetTransArraysToMapBundle(
-        activitésBrutes,
-        méthodesBrutes,
-        transportsBruts
-    )
-    const activitésNomenclaturePitchou = getActivitésNomenclaturePitchou(activitésMéthodesTransports.activités)
-
-    store.mutations.setActivitésMéthodesTransports({...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou})
-
-    const ret = {...activitésMéthodesTransports, activitésNomenclaturePitchou: activitésNomenclaturePitchou }
+    store.mutations.setActivitésMéthodesTransports(ret)
 
     return ret
-}
-
-/**
- * Récupère et fusionne l'ensemble des activités issues du standard européen
- * ainsi que les activités spécifiques à Pitchou, en les indexant par leur code.
- * @param {ParClassification<Map<CodeActivitéStandard | CodeActivitéPitchou, ActivitéMenançante>>} activités
- * @returns {Map<ActivitéMenançante['Code'], ActivitéMenançante>}
- * Une promesse résolue avec une `Map` contenant toutes les activités,
- * indexées par leur code.
- *
- * @throws {Error} Si l’activité "4" (de base) est absente, ce qui empêche la création
- * des variantes spécifiques à Pitchou.
- *
- * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
- * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
- */
-export function getActivitésNomenclaturePitchou(activités) {
-    const activité4 = activités.oiseau.get('4')
-    if(!activité4){
-        throw Error(`Activité 4 manquante`)
-    }
-
-    /** @type {Map<ActivitéMenançante['Code'], ActivitéMenançante>} */
-    //@ts-ignore
-    const activitésAdditionnelles = new Map([
-        {
-            ...activité4,
-            Code: '4-1-pitchou-aires',
-            "étiquette affichée": `Destruction d’aires de repos ou reproduction`
-        },
-        {
-            ...activité4,
-            Code: '4-2-pitchou-nids',
-            "étiquette affichée": `Destruction de nids`
-        },
-        {
-            ...activité4,
-            Code: '4-3-pitchou-œufs',
-            "étiquette affichée": `Destruction d'œufs`
-        }
-    ].map(a => [a.Code, a]))
-
-    return new Map([
-        ...activités.oiseau,
-        ...activitésAdditionnelles,
-        ...activités['faune non-oiseau'],
-        ...activités.flore
-    ])
 }

@@ -5,7 +5,7 @@ import * as csv from 'csv-parse/sync'
 import parseArgs from 'minimist'
 
 import { directDatabaseConnection, closeDatabaseConnection } from '../scripts/server/database.js';
-import { actMetTransArraysToMapBundle, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
+import { construireActivitésMéthodesTransports, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
 
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import { GeoMceMessage, DossierPourGeoMCE } from '../scripts/types/geomce.ts' */
@@ -15,18 +15,11 @@ import { actMetTransArraysToMapBundle, espèceProtégéeStringToEspèceProtégé
 const DATA_DIR = path.join(import.meta.dirname, '../data')
 
 /**
- * @returns {Promise<Omit<NonNullable<PitchouState['activitésMéthodesTransports']>, 'activitésNomenclaturePitchou'>> }
+ * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
  */
 async function chargerActivitésMéthodesTransports() {
-    const activitésBuffer = await fs.readFile(path.join(DATA_DIR, 'activités.csv'))
-    const méthodesBuffer = await fs.readFile(path.join(DATA_DIR, 'méthodes.csv'))
-    const transportsBuffer = await fs.readFile(path.join(DATA_DIR, 'transports.csv'))
-
-    const activités = csv.parse(activitésBuffer, { columns: true, delimiter: ';', skip_empty_lines: true })
-    const méthodes = csv.parse(méthodesBuffer, { columns: true, delimiter: ';', skip_empty_lines: true })
-    const transports = csv.parse(transportsBuffer, { columns: true, delimiter: ';', skip_empty_lines: true })
-
-    return actMetTransArraysToMapBundle(activités, méthodes, transports)
+    const activitésBuffer = await fs.readFile(path.join(DATA_DIR, 'activites-methodes-moyens-de-poursuite.ods'))
+    return await construireActivitésMéthodesTransports(activitésBuffer)
 }
 
 /**

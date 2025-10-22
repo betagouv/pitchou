@@ -4,7 +4,7 @@
     import { fourchettesIndividus } from "../../espèceFieldset.js";
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
-    
+
     /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
     /**
@@ -40,8 +40,8 @@
     } = $props();
 
     const dupliquerLigne = () => onDupliquerLigne && espèce && onDupliquerLigne(
-        {   
-            espèce,  
+        {
+            espèce,
             activité,
             méthode,
             transport,
@@ -55,8 +55,8 @@
 <tr>
     {#if espècesProtégéesFauneNonOiseau.length >= 1}
     <td>
-        <AutocompleteEspeces 
-            bind:espèceSélectionnée={espèce} 
+        <AutocompleteEspeces
+            bind:espèceSélectionnée={espèce}
             espèces={espècesProtégéesFauneNonOiseau}
         />
     </td>
@@ -66,26 +66,26 @@
             <option value="{undefined}">-</option>
             {#each activitésMenaçantes || [] as act}
             <option value={act}>
-                {act['étiquette affichée']}
+                {act['Libellé Pitchou']}
             </option>
             {/each}
         </select>
     </td>
 
     <td>
-        <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'n'} class="fr-select">
+        <select bind:value={méthode} disabled={activité && activité['Méthode'] === 'Non'} class="fr-select">
             <option value="{undefined}">-</option>
             {#each méthodesMenaçantes as met}
-                <option value={met}>{met['étiquette affichée']}</option>
+                <option value={met}>{met['Libellé Pitchou']}</option>
             {/each}
         </select>
     </td>
 
     <td>
-        <select bind:value={transport} disabled={activité && activité['transport'] === 'n'} class="fr-select">
+        <select bind:value={transport} disabled={activité && activité['Moyen de poursuite'] === 'Non'} class="fr-select">
             <option value="{undefined}">-</option>
             {#each transportMenaçants as trans}
-                <option value={trans}>{trans['étiquette affichée']}</option>
+                <option value={trans}>{trans['Libellé Pitchou']}</option>
             {/each}
         </select>
     </td>
@@ -137,7 +137,7 @@
             all: unset;
             cursor: pointer;
         }
-        
+
         input[type="number"] {
             border-radius: 0.5em;
             padding: 0.4em;
@@ -147,7 +147,7 @@
         select{
             max-width: 10rem;
         }
-        
+
         .icon-cell {
             text-align: center;
             vertical-align: middle;

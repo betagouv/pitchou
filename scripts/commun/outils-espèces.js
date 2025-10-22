@@ -15,9 +15,11 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from '@o
  *    ActivitéMenançante,
  *    MéthodeMenançante,
  *    TransportMenançant,
+ *    ImpactQuantifié,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from '@odfjs/odfjs' */
 /** @import {FauneNonOiseauAtteinteOds_V1, FichierEspècesImpactéesOds_V1, FloreAtteinteOds_V1, OiseauAtteintOds_V1} from '../types/espècesFichierOds.d.ts' */
+/** @import { PitchouState } from '../front-end/store.js' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"])
@@ -112,21 +114,22 @@ function toSheetRawCellContent(x){
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
 
-        const labelActivité = activité && activité['étiquette affichée']
-        const codeActivité = activité && activité.Code
-        const labelMéthode = méthode && méthode['étiquette affichée']
+        const labelActivité = activité && activité['Libellé Pitchou']
+        const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
+        const codeEuropeActivité = activité && activité['Code rapportage européen']
+        const labelMéthode = méthode && méthode['Libellé Pitchou']
         const codeMéthode = méthode && méthode.Code
-        const labelTransport = transport && transport['étiquette affichée']
+        const labelTransport = transport && transport['Libellé Pitchou']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
             .map(toSheetRawCellContent)
         )
     }
@@ -143,20 +146,21 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
  */
 function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
-        const labelActivité = activité && activité['étiquette affichée']
-        const codeActivité = activité && activité.Code
-        const labelMéthode = méthode && méthode['étiquette affichée']
+        const labelActivité = activité && activité['Libellé Pitchou']
+        const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
+        const codeEuropeActivité = activité && activité['Code rapportage européen']
+        const labelMéthode = méthode && méthode['Libellé Pitchou']
         const codeMéthode = méthode && méthode.Code
-        const labelTransport = transport && transport['étiquette affichée']
+        const labelTransport = transport && transport['Libellé Pitchou']
         const codeTransport = transport && transport.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
             .map(toSheetRawCellContent)
         )
     }
@@ -174,16 +178,17 @@ function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
 function floresAtteintesToTableContent(floresAtteintes){
 
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'code activité']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité']
         .map(toSheetRawCellContent)
     ]
 
     for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité} of floresAtteintes){
-        const labelActivité = activité && activité['étiquette affichée']
-        const codeActivité = activité && activité.Code
+        const labelActivité = activité && activité['Libellé Pitchou']
+        const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
+        const codeEuropeActivité = activité && activité['Code rapportage européen']
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, codeActivité]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité]
             .map(toSheetRawCellContent)
         )
     }
@@ -227,7 +232,7 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
 /**
  * @param {DescriptionMenaceEspèceJSON[]} descriptionMenacesEspècesJSON
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
  * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces}
@@ -272,7 +277,7 @@ function b64ToUTF8(s) {
  *
  * @param {URL} url
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
  * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {DescriptionMenacesEspèces | undefined}
@@ -305,7 +310,7 @@ function ligneEspèceImpactéeHasCD_REF(espèceImpactée){
 /**
  * @param {ArrayBuffer} odsFile
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
- * @param {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} activites
+ * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
  * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
  * @returns {Promise<DescriptionMenacesEspèces>}
@@ -332,13 +337,32 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
                 "code méthode": codeMéthode,
-                "code transport": codeTransport
+                "code transport": codeTransport,
             } = ligneOiseauOds
+            let identifiantPitchouActivité = ligneOiseauOds['identifiant pitchou activité']
 
             const espèce = espèceByCD_REF.get(CD_REF)
 
             if(!espèce){
                 throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
+            }
+
+            //Si aucun identifiant pitchou activité n'a été trouvé pour la ligne, il s'agit d'un fichier espèce avec un format legacy. Dans ce cas, on essaie de "deviner" l'identifiant Pitchou Activité à partir du code activité.
+            if (!identifiantPitchouActivité) {
+                if (codeActivité === '4') {
+                    if ((nombreOeufs && nombreOeufs > 0) || (nombreNids && nombreNids > 0)) {
+                        // Destruction de nids/oeufs
+                        identifiantPitchouActivité = 'P-4-1'
+                    } else {
+                        // Dégradation/destruction d’aires de repos/reproduction
+                        identifiantPitchouActivité = 'P-4-2'
+                    }
+                } else if (codeActivité == '2') {
+                    // Capture pour captivité temporaire ou définitive
+                    identifiantPitchouActivité = 'P-2-1'
+                } else {
+                    identifiantPitchouActivité = `P-${codeActivité}`
+                }
             }
 
             return {
@@ -347,8 +371,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 nombreNids,
                 nombreOeufs,
                 surfaceHabitatDétruit,
-                //@ts-ignore
-                activité: activites['oiseau'].get(codeActivité),
+                activité: activites['oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['oiseau'].get(codeMéthode),
                 transport: transports['oiseau'].get(codeTransport),
             }
@@ -369,6 +392,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "code méthode": codeMéthode,
                 "code transport": codeTransport
             } = ligneFauneNonOiseauOds
+            let identifiantPitchouActivité = ligneFauneNonOiseauOds['identifiant pitchou activité']
 
             const espèce = espèceByCD_REF.get(CD_REF)
 
@@ -376,12 +400,20 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 throw new Error(`Espèce avec CD_REF ${CD_REF} manquante`)
             }
 
+            if (!identifiantPitchouActivité) {
+                if (codeActivité === '70') {
+                    // Transport de spécimens vivants ou morts
+                    identifiantPitchouActivité = 'P-70-2'
+                } else {
+                    identifiantPitchouActivité = `P-${codeActivité}`
+                }
+            }
+
             return {
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                //@ts-ignore
-                activité: activites['faune non-oiseau'].get(codeActivité),
+                activité: activites['faune non-oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['faune non-oiseau'].get(codeMéthode),
                 transport: transports['faune non-oiseau'].get(codeTransport),
             }
@@ -399,6 +431,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "nombre individus": nombreIndividus,
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
+                "identifiant pitchou activité": identifiantPitchouActivité,
             } = ligneFloreOds
 
             const espèce = espèceByCD_REF.get(CD_REF)
@@ -411,24 +444,88 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 espèce,
                 nombreIndividus,
                 surfaceHabitatDétruit,
-                //@ts-ignore
-                activité: activites['flore'].get(codeActivité)
+                activité: activites['flore'].get(identifiantPitchouActivité || `P-${codeActivité}`)
             }
         })
     }
-
-
 
     return descriptionMenacesEspèces
 }
 
 /**
- * @param {ActivitéMenançante[]} activitésBrutes
+ * @param {Buffer} odsData
+ * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
+ */
+export async function construireActivitésMéthodesTransports(odsData) {
+    const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
+
+    // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
+    // utilisée par Svelte
+
+    /**  @type {ParClassification<ActivitéMenançante[]>} */
+    const activitésBrutes = {
+        oiseau: activitésMéthodesTransportsBruts.get("Activités oiseau").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+        "faune non-oiseau": activitésMéthodesTransportsBruts.get("Activités faune non oiseau").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+        flore: activitésMéthodesTransportsBruts.get("Activités flore").map(
+            // @ts-ignore
+            row => Object.assign({}, row)
+        ),
+    }
+
+    /** @type { MéthodeMenançante[] } */
+    const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+    /** @type { TransportMenançant[] } */
+    const moyensPoursuite = activitésMéthodesTransportsBruts.get("Moyens de poursuite").map(
+        // @ts-ignore
+        row => Object.assign({}, row)
+    )
+
+    const activitésMéthodesTransports = actMetTransArraysToMapBundle(
+        activitésBrutes,
+        méthodesBrutes,
+        moyensPoursuite
+    )
+
+    const activitéVersImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
+        .flatMap((activités) => {
+            return [...activités.entries().map(([code, activité]) => {
+                /** @type {ImpactQuantifié[]} */
+                const impactsQuantifiés =  [ "Nombre d'individus", "Nids", "Œufs", "Surface habitat détruit (m²)" ]
+
+                const impactsQuantifiésFiltrés = impactsQuantifiés.filter((donnéeSecondaire) => {
+                    return activité[donnéeSecondaire] === 'Oui'
+                });
+
+                /** @type {[ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]]} */
+                const ret = [code, impactsQuantifiésFiltrés]
+                return ret
+            })]
+        }))
+
+    const ret = {
+        activitéVersImpactsQuantifiés: activitéVersImpactsQuantifiés,
+        ...activitésMéthodesTransports
+    }
+
+    return ret
+}
+
+/**
+ * @param {ParClassification<ActivitéMenançante[]>} activitésBrutes
  * @param {MéthodeMenançante[]} méthodesBrutes
  * @param {TransportMenançant[]} transportsBruts
  *
  * @returns {{
-*  activités: ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>,
+*  activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>,
 *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>,
 *  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>
 * }}
@@ -436,34 +533,28 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
 
 export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
-   /** @type {ParClassification<Map<ActivitéMenançante['Code'], ActivitéMenançante>>} */
-   const activités = {
-       oiseau: new Map(),
-       "faune non-oiseau": new Map(),
-       flore: new Map()
-   };
+    /** @type {ParClassification<Map<ActivitéMenançante['Code rapportage européen'], ActivitéMenançante>>} */
+    const activités = {
+        oiseau: new Map(),
+        "faune non-oiseau": new Map(),
+        flore: new Map()
+    };
 
-   for(const activite of activitésBrutes){
-       const classif = activite['Espèces']
+    for (const classification in activitésBrutes) {
+        /** @type {ActivitéMenançante[]} */
+        // @ts-ignore
+        const activitéBruteClassification = activitésBrutes[classification]
+        for(const activité of activitéBruteClassification){
+            if (activité['Identifiant Pitchou'] === undefined || activité['Identifiant Pitchou'] === ''){
+                // ignore empty lines (certainly comments)
+                break;
+            }
 
-       // @ts-expect-error Le Code du fichier ODS est soit une string soit un float (ou peut être pas défini)
-       if(!classif.trim() && (activite['Code'] === undefined || activite['Code'] === '')){
-           // ignore empty lines (certainly comments)
-           break;
-       }
-
-       if(!isClassif(classif)){
-           throw new TypeError(`Classification d'espèce non reconnue : ${classif}}`)
-       }
-
-       // @ts-expect-error
-       activite['Code'] = activite['Code'].toString()
-
-       const classifActivz = activités[classif]
-       Object.freeze(activite)
-       classifActivz.set(activite.Code, activite)
-       activités[classif] = classifActivz
-   }
+            activité['Code rapportage européen'] = activité['Code rapportage européen'].toString()
+            // @ts-ignore
+            activités[classification].set(activité['Identifiant Pitchou'], activité)
+        }
+    }
 
 
    /** @type {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} */

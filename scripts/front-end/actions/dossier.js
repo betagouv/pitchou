@@ -79,7 +79,7 @@ export async function getDossierComplet(id){
 
     const dossierComplet = await store.state.capabilities.recupérerDossierComplet(id)
     store.mutations.setDossierComplet(dossierComplet)
-    
+
     return dossierComplet
 }
 
@@ -93,12 +93,12 @@ export async function refreshDossierComplet(id){
 
     const dossierComplet = await store.state.capabilities.recupérerDossierComplet(id)
     store.mutations.setDossierComplet(dossierComplet)
-    
+
     return dossierComplet
 }
 
 /**
- * @param {ArrayBuffer} fichierArrayBuffer 
+ * @param {ArrayBuffer} fichierArrayBuffer
  * @returns {Promise<DescriptionMenacesEspèces>}
  */
 export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArrayBuffer){
