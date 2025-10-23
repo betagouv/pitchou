@@ -120,7 +120,7 @@
             messageErreurPréRemplirAvecDocumentOds = "Une erreur est survenue au moment de cliquer sur le bouton Pré-remplir.";
             if (erreur instanceof Error) {
                 if (erreur.cause === 'format incorrect') {
-                    messageErreurPréRemplirAvecDocumentOds = `Le fichier ne respecte pas le format décrit dans <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d\'un fichier espèces - nouvelle fenêtre">la documentation des fichiers d'espèces.</a>`
+                    messageErreurPréRemplirAvecDocumentOds = `Le fichier ne respecte pas le format décrit dans <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="documentation des fichiers d'espèces – nouvelle fenêtre">la documentation des fichiers d'espèces.</a>`
                 } else {
                     messageErreurPréRemplirAvecDocumentOds = erreur.message;
                 }
