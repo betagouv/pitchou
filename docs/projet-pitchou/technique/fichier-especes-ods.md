@@ -1,6 +1,6 @@
 # Fichier espèces .ods
 
-Ce document décrit le format du fichier que l'on export sur https://pitchou.beta.gouv.fr/saisie-especes
+Ce document décrit le format du fichier que l'on export sur la page <https://pitchou.beta.gouv.fr/saisie-especes>.
 
 
 ## Contexte et description générale
@@ -15,7 +15,7 @@ Après divers expérimentation, l'équipe Pitchou décide que cette communicatio
 
 ## Description technique
 
-**Version 1.0.0**
+**Version 1.1.0**
 
 ### Versionnage
 
@@ -66,6 +66,7 @@ L'ordre des feuilles n'a aucune importance
 | `œufs`                    | nombre                                                |                                                       |
 | `surface habitat détruit` | nombre                                                | surface en m²                                         |
 | `activité`           | chaînes de caractère                                  | description activité selon la nomenclature européenne        |
+| `identifiant pitchou activité` | chaînes de caractère | code activité selon la [nomenclature de Pitchou](https://github.com/betagouv/pitchou/raw/refs/heads/main/data/activites-methodes-moyens-de-poursuite.ods) |
 | `code activité`           | chaînes de caractère                                  | code activité selon la nomenclature européenne        |
 | `méthode`            | chaînes de caractère                                  | description méthode selon la nomenclature européenne         |
 | `code méthode`            | chaînes de caractère                                  | code méthode selon la nomenclature européenne         |
@@ -83,6 +84,7 @@ L'ordre des feuilles n'a aucune importance
 | `nombre individus`        | chaînes de caractère                                  | fourchette sous la forme `x-y`. Par exemple, `11-100` |
 | `surface habitat détruit` | nombre                                                | surface en m²                                         |
 | `activité`           | chaînes de caractère                                  | description activité selon la nomenclature européenne        |
+| `identifiant pitchou activité` | chaînes de caractère | code activité selon la [nomenclature de Pitchou](https://github.com/betagouv/pitchou/raw/refs/heads/main/data/activites-methodes-moyens-de-poursuite.ods) |
 | `code activité`           | chaînes de caractère                                  | code activité selon la nomenclature européenne        |
 | `méthode`            | chaînes de caractère                                  | description méthode selon la nomenclature européenne         |
 | `code méthode`            | chaînes de caractère                                  | code méthode selon la nomenclature européenne         |
@@ -100,4 +102,5 @@ L'ordre des feuilles n'a aucune importance
 | `nombre individus`        | chaînes de caractère                                  | fourchette sous la forme `x-y`. Par exemple, `11-100` |
 | `surface habitat détruit` | nombre                                                | surface en m²                                         |
 | `activité`           | chaînes de caractère                                  | description activité selon la nomenclature européenne        |
+| `identifiant pitchou activité` | chaînes de caractère | code activité selon la [nomenclature de Pitchou](https://github.com/betagouv/pitchou/raw/refs/heads/main/data/activites-methodes-moyens-de-poursuite.ods) |
 | `code activité`           | chaînes de caractère                                  | code activité selon la nomenclature européenne        |
