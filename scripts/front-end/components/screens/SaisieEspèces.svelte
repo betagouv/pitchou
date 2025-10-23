@@ -78,7 +78,7 @@
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
     let espècesImpactéesParActivité = $derived(
-        modeLecture && promesseRéférentiels
+        modeLecture && promesseRéférentiels //enlever la condition du mode lecture ici
             ? promesseRéférentiels.then(({  activitéVersImpactsQuantifiés }) =>
                 créerEspècesGroupéesParImpact(
                     {
