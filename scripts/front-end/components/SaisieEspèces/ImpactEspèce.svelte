@@ -58,28 +58,32 @@
     )
 </script>
 
-<hr class="fr-hr">
-
 <fieldset class="fr-fieldset fr-input-group fr-fieldset__element">
     <legend class="fr-sr-only">Impact #{indexImpact} de l’espèce #{indexEspèce}</legend>
 
     <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-4">
+        <div class="fr-col-md-5 fr-col-sm-12">
             <label class="fr-label" for="input-espece-{indexEspèce}-impact-{indexImpact}">
                 Type d’impact
             </label>
-            <select bind:value={activité} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
-                <option value={undefined}>-</option>
-                {#each activitésMenaçantes as act}
-                <option value={act}>
-                    {act['Libellé Pitchou']}
-                </option>
-                {/each}
-            </select>
+            <div class="input-button">
+                <select bind:value={activité} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
+                    <option value={undefined}>-</option>
+                    {#each activitésMenaçantes as act}
+                    <option value={act}>
+                        {act['Libellé Pitchou']}
+                    </option>
+                    {/each}
+                </select>
+
+                <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button">
+                    <span class="fr-sr-only">Supprimer l'impact #{indexImpact} de l'espèce #{indexEspèce}</span>
+                </button>
+            </div>
         </div>
 
         {#if activité && activité['Méthode'] === 'Oui'}
-            <div class="fr-col-4">
+            <div class="fr-col-md-4 fr-col-sm-12">
                 <label class="fr-label" for="input-espece-{indexEspèce}-methode-{indexImpact}">
                     Méthode
                 </label>
@@ -95,7 +99,7 @@
         {/if}
 
         {#if activité && activité['Moyen de poursuite'] === 'Oui'}
-            <div class="fr-col-4">
+            <div class="fr-col-md-3 fr-col-sm-12">
                 <label class="fr-label" for="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     Moyen de poursuite
                 </label>
@@ -114,7 +118,7 @@
     {#if activité}
         <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
             {#if activité["Nombre d'individus"] === 'Oui'}
-                <div class="fr-col">
+                <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nombre-individus-{indexImpact}">
                         Nombre d’individus
                     </label>
@@ -128,7 +132,7 @@
             {/if}
 
             {#if activité['Nids'] === 'Oui'}
-                <div class="fr-col">
+                <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nids-{indexImpact}">
                         Nids
                     </label>
@@ -137,7 +141,7 @@
             {/if}
 
             {#if activité['Œufs'] === 'Oui'}
-                <div class="fr-col">
+                <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-oeufs-{indexImpact}">
                         Œufs
                     </label>
@@ -146,7 +150,7 @@
             {/if}
 
             {#if activité['Surface habitat détruit (m²)'] === 'Oui'}
-                <div class="fr-col">
+                <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-surface-{indexImpact}">
                         Surface habitat détruit (m²)
                     </label>
@@ -163,8 +167,15 @@
         padding: 0;
     }
 
-    hr {
-        width: 80%;
-        margin: auto;
+    .input-button {
+        display: flex;
+        margin-top: .5rem;
+        gap: 1rem;
+    }
+
+    @media (min-width: 62em) {
+        .input-button {
+            gap: 1.5rem;
+        }
     }
 </style>
