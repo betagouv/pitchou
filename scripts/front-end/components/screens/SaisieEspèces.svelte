@@ -54,6 +54,9 @@
     /** @type {string | undefined} */
     let messageErreurPréRemplirAvecDocumentOds = $state()
 
+    /** @type {HTMLInputElement | undefined} */
+    let inputFileUpload = $state()
+
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
@@ -97,6 +100,8 @@
 
     async function onClickPréRemplirAvecDocumentOds(){
         try {
+            // Comme le fichier est bien téléchargé avec le bon format quand on arrive ici, on s'assure que la variable contenant le message d'erreur est undefined.
+            messageErreurPréRemplirAvecDocumentOds = undefined
             if(!fichierEspècesOds){
                 throw new Error("Aucun fichier espèces .ods n'a été téléchargé.")
             }
@@ -114,8 +119,6 @@
                     window.dsfr(modale).modal.conceal();
                 }
             }
-            // Comme le fichier est bien téléchargé avec le bon format quand on arrive ici, on s'assure que la variable contenant le message d'erreur est undefined.
-            messageErreurPréRemplirAvecDocumentOds = undefined
         } catch (erreur) {
             messageErreurPréRemplirAvecDocumentOds = "Une erreur est survenue au moment de cliquer sur le bouton Pré-remplir.";
             if (erreur instanceof Error) {
@@ -124,6 +127,10 @@
                 } else {
                     messageErreurPréRemplirAvecDocumentOds = erreur.message;
                 }
+            }
+            // Déplacer le focus sur le champ de fichier en cas d'erreur
+            if (inputFileUpload) {
+                inputFileUpload.focus();
             }
             throw new Error(messageErreurPréRemplirAvecDocumentOds)
         }
@@ -343,6 +350,7 @@
 													<span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
 												</label>
 												<input
+													bind:this={inputFileUpload}
 													aria-label="Importer un fichier d'espèces"
 													oninput={onFileInput}
 													class="fr-upload"
