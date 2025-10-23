@@ -497,7 +497,7 @@ export async function construireActivitésMéthodesTransports(odsData) {
 
     const activitéVersImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
         .flatMap((activités) => {
-            return [...activités.entries().map(([code, activité]) => {
+            return [...activités.entries()].map(([code, activité]) => {
                 /** @type {ImpactQuantifié[]} */
                 const impactsQuantifiés =  [ "Nombre d'individus", "Nids", "Œufs", "Surface habitat détruit (m²)" ]
 
@@ -508,7 +508,7 @@ export async function construireActivitésMéthodesTransports(odsData) {
                 /** @type {[ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]]} */
                 const ret = [code, impactsQuantifiésFiltrés]
                 return ret
-            })]
+            })
         }))
 
     const ret = {
