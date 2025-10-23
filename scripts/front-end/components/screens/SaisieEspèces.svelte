@@ -120,7 +120,7 @@
             messageErreurPréRemplirAvecDocumentOds = "Une erreur est survenue au moment de cliquer sur le bouton Pré-remplir.";
             if (erreur instanceof Error) {
                 if (erreur.cause === 'format incorrect') {
-                    messageErreurPréRemplirAvecDocumentOds = 'Le fichier ne respecte pas le document .ods qui respecte le format décrit <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d\'un fichier espèces - nouvelle fenêtre">sur cette page.</a>'
+                    messageErreurPréRemplirAvecDocumentOds = `Le fichier ne respecte pas le format décrit dans <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d\'un fichier espèces - nouvelle fenêtre">la documentation des fichiers d'espèces.</a>`
                 } else {
                     messageErreurPréRemplirAvecDocumentOds = erreur.message;
                 }
@@ -334,7 +334,7 @@
                                                         un document déjà généré avec cet outil
                                                     </li>
                                                     <li>
-                                                        un document .ods qui respecte le format décrit <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d'un fichier espèces - nouvelle fenêtre" class="fr-link fr-text--sm">sur cette page</a>
+                                                        un document .ods qui respecte le format décrit dans <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d'un fichier espèces - nouvelle fenêtre" class="fr-link fr-text--sm">la documentation des fichiers d'espèces</a>
                                                     </li>
                                                 </ul>
                                             </span>
