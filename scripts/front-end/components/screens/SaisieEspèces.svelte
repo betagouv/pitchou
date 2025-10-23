@@ -93,6 +93,7 @@
      * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
      */
     async function onFileInput(e){
+        messageErreurPréRemplirAvecDocumentOds = undefined
         /** @type {FileList | null} */
         const files = e.currentTarget.files
         fichierEspècesOds = files && files[0] || undefined
@@ -100,8 +101,6 @@
 
     async function onClickPréRemplirAvecDocumentOds(){
         try {
-            // Comme le fichier est bien téléchargé avec le bon format quand on arrive ici, on s'assure que la variable contenant le message d'erreur est undefined.
-            messageErreurPréRemplirAvecDocumentOds = undefined
             if(!fichierEspècesOds){
                 throw new Error("Aucun fichier espèces .ods n'a été téléchargé.")
             }
