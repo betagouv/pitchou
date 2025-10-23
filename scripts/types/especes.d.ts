@@ -143,6 +143,16 @@ export interface OiseauAtteintJSON extends EtreVivantAtteintJSON {
     nombreOeufs?: number,
 }
 
+export interface DescriptionImpact {
+    nombreIndividus?: string,
+    surfaceHabitatDétruit?: number,
+    activité?: ActivitéMenançante,
+    méthode?: MéthodeMenançante,
+    transport?: TransportMenançant,
+    nombreNids?: number,
+    nombreOeufs?: number,
+}
+
 export interface DescriptionMenacesEspèces {
     oiseau: OiseauAtteint[],
     "faune non-oiseau": FauneNonOiseauAtteinte[],

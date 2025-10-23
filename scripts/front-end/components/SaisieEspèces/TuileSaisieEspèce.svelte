@@ -2,36 +2,38 @@
     // @ts-check
 
     import AutocompleteEspeces from './AutocompleteEspèces.svelte'
+    import ImpactEspèce from './ImpactEspèce.svelte'
 
-    /** @import {FloreAtteinte, EspèceProtégée, ActivitéMenançante} from "../../../types/especes.js" */
+    /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionImpact} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
-     * @property {EspèceProtégée | undefined} [espèce]
      * @property {number} [index]
-     * @property {ActivitéMenançante | undefined} [activité]
-     * @property {string | undefined} [nombreIndividus]
-     * @property {number | undefined} [surfaceHabitatDétruit]
-     * @property {undefined | ((f: FloreAtteinte) => void)} [onDupliquerTuile]
+     * @property {EspèceProtégée | undefined} [espèce]
+     * @property {DescriptionImpact[]} [descriptionImpacts]
+     * @property {undefined | ((i: DescriptionImpact[]) => void)} [onDupliquerTuile]
      * @property {undefined | ((e: EspèceProtégée) => void)} [onSupprimerTuile]
      * @property {EspèceProtégée[]} [espècesProtégées]
-     * @property {ActivitéMenançante[]} [activitésMenaçantes]
+     * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
+     * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
+     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */
     let {
+        index,
         espèce = $bindable(undefined),
-        activité = $bindable(undefined),
-        nombreIndividus = $bindable(undefined),
-        surfaceHabitatDétruit = $bindable(undefined),
+        descriptionImpacts = $bindable([{}]),
         onDupliquerLigne = undefined,
         onSupprimerLigne = undefined,
         espècesProtégées = [],
-        activitésMenaçantes = [],
-        index
+        activitesParClassificationEtreVivant,
+        méthodesParClassificationEtreVivant,
+        transportsParClassificationEtreVivant,
+
     } = $props();
 
-    // TODO: utilié dans l'autocomplete, voir pour dédupliquer
+    // TODO: utilisé dans l'autocomplete, voir pour dédupliquer
     /**
      *
      * @param {EspèceProtégée} espèce
@@ -40,14 +42,18 @@
     function espèceLabel(espèce){
         return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
     }
+
+    function ajouterImpact() {
+        descriptionImpacts.push({})
+    }
 </script>
 
 <div class="tuile-espece">
     <fieldset class="fr-fieldset">
         <legend class="fr-sr-only">Espèce impactée #{index} {espèce ? espèceLabel(espèce) : 'Non selectionnée'}</legend>
 
-        <div class="fr-fieldset__element fr-grid-row fr-grid-row--gutters">
-            <div class="fr-input-group fr-col-4">
+        <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-4">
                 <label class="fr-label" for="input-espece-{index}">
                     Espèce
                 </label>
@@ -62,7 +68,7 @@
             </div>
             <div class="fr-col-4 action-buttons">
                 <button class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line" type="button">
-                    <span class="fr-sr-only">Dupliquer l'espèce #{index}</span>
+                    <span class="fr-sr-only">Ajouter une espèce avec les mêmes impacts que l'espèce #{index}</span>
                 </button>
 
                 <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button">
@@ -71,33 +77,33 @@
             </div>
         </div>
 
-        <hr>
+        {#if espèce}
+            {#each descriptionImpacts as impact, indexImpact (impact)}
+                <ImpactEspèce
+                    espèce={espèce}
+                    indexEspèce={index}
+                    indexImpact={indexImpact + 1}
+                    activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                    méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                    transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+                    bind:activité={impact.activité}
+                    bind:méthode={impact.méthode}
+                    bind:transport={impact.transport}
+                    bind:nombreIndividus={impact.nombreIndividus}
+                    bind:surfaceHabitatDétruit={impact.surfaceHabitatDétruit}
+                    bind:nombreNids={impact.nombreNids}
+                    bind:nombreOeufs={impact.nombreOeufs}
+                />
+            {/each}
 
-        <div class="fr-fieldset__element fr-grid-row fr-grid-row--gutters">
-            <div class="fr-input-group fr-col-4">
-                <label class="fr-label" for="input-impact-{index}">
-                    Type d’impact
-                </label>
-                <select class="fr-select" id="input-impact-{index}">
-                </select>
-            </div>
 
-            <div class="fr-input-group fr-col-4">
-                <label class="fr-label" for="input-methode-{index}">
-                    Méthode
-                </label>
-                <select class="fr-select" id="input-methode-{index}">
-                </select>
+            <div class="fr-fieldset__element fr-input-group">
+                <button class="fr-btn fr-btn--secondary" type="button" onclick={ajouterImpact}>
+                    Ajouter un autre impact
+                </button>
             </div>
+        {/if}
 
-            <div class="fr-input-group fr-col-4">
-                <label class="fr-label" for="input-moyen-de-poursuite-{index}">
-                    Moyen de poursuite
-                </label>
-                <select class="fr-select" id="input-moyen-de-poursuite-{index}">
-                </select>
-            </div>
-        </div>
     </fieldset>
 </div>
 
@@ -105,6 +111,7 @@
     .input-info {
         display: flex;
         align-items: center;
+        padding-top: 2.25rem;
     }
 
     .action-buttons {
@@ -112,8 +119,8 @@
         gap: 16px;
         align-items: center;
         justify-content: end;
+        padding-top: 2.25rem;
     }
-
 
     .tuile-espece {
         text-align: inherit;
