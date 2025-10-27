@@ -16,6 +16,7 @@
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
 
+
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
     /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
@@ -47,6 +48,17 @@
     } = $props();
 
     let nombreEspècesSaisies = $derived(oiseauxAtteints.length + faunesNonOiseauxAtteintes.length + floresAtteintes.length)
+    /** @type {File | undefined} */
+    let fichierEspècesOds = $state()
+
+    /** @type {string | undefined} */
+    let messageErreurPréRemplirAvecDocumentOds = $state()
+
+    /** @type {HTMLInputElement | undefined} */
+    let inputFileUpload = $state()
+
+    /** @type {HTMLElement | undefined} */
+    let modale;
 
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
@@ -62,13 +74,13 @@
     }*/
 
     async function créerOdsBlob(){
-        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
-            oiseau: oiseauxAtteints,
-            "faune non-oiseau": faunesNonOiseauxAtteintes,
-            flore: floresAtteintes,
-        })
+            const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
+                oiseau: oiseauxAtteints,
+                "faune non-oiseau": faunesNonOiseauxAtteintes,
+                flore: floresAtteintes,
+            }) 
 
-        return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
+            return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
     }
 
     /**
@@ -84,19 +96,44 @@
      * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
      */
     async function onFileInput(e){
+        messageErreurPréRemplirAvecDocumentOds = undefined
         /** @type {FileList | null} */
         const files = e.currentTarget.files
-        const file = files && files[0]
+        fichierEspècesOds = files && files[0] || undefined
+    }
 
-        if(file){
-            const descriptionMenacesEspèces = await file.arrayBuffer()
+    async function onClickPréRemplirAvecDocumentOds(){
+        try {
+            if(!fichierEspècesOds){
+                throw new Error("Aucun fichier espèces .ods n'a été téléchargé.")
+            }
+            const descriptionMenacesEspèces = await fichierEspècesOds.arrayBuffer()
                 .then(importDescriptionMenacesEspècesFromOds)
 
-            if(descriptionMenacesEspèces){
+            if(Object.keys(descriptionMenacesEspèces).length >= 1){
                 oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
                 faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
                 floresAtteintes = descriptionMenacesEspèces['flore'] || []
+
+                if (modale) {
+                    //@ts-ignore
+                    window.dsfr(modale).modal.conceal();
+                }
             }
+        } catch (erreur) {
+            messageErreurPréRemplirAvecDocumentOds = "Une erreur est survenue au moment de cliquer sur le bouton Pré-remplir.";
+            if (erreur instanceof Error) {
+                if (erreur.cause === 'format incorrect') {
+                    messageErreurPréRemplirAvecDocumentOds = `Le fichier ne respecte pas le format décrit dans <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="documentation des fichiers d'espèces – nouvelle fenêtre">la documentation des fichiers d'espèces.</a>`
+                } else {
+                    messageErreurPréRemplirAvecDocumentOds = erreur.message;
+                }
+            }
+            // Déplacer le focus sur le champ de fichier en cas d'erreur
+            if (inputFileUpload) {
+                inputFileUpload.focus();
+            }
+            throw new Error(messageErreurPréRemplirAvecDocumentOds)
         }
     }
 
@@ -285,7 +322,7 @@
         </header>
         <div class="fr-grid-row">
             <div class="fr-col">
-                <dialog id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
+                <dialog bind:this={modale} id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
                     <div class="fr-container fr-container--fluid fr-container-md">
                         <div class="fr-grid-row fr-grid-row--center">
                             <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
@@ -294,18 +331,49 @@
                                         <button aria-controls="modale-préremplir-depuis-import" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
                                     </div>
                                     <div class="fr-modal__content">
-                                        <h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
-                                            Pré-remplir avec une liste déjà réalisée
-                                        </h2>
-                                        <div class="fr-mb-4w"> 
-                                            <div class="fr-upload-group">
-                                                <label class="fr-label" for="file-upload">Importer un fichier d'espèces
-                                                    <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
-                                                </label>
-                                                <input oninput={onFileInput} class="fr-upload" type="file" accept=".ods" id="file-upload" name="file-upload">
-                                            </div>
-                                        </div>
+										<h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
+											Pré-remplir avec une liste déjà réalisée
+										</h2>
+										<div class="fr-mb-4w">
+                                            <span class="fr-text--sm">
+                                                Vous pouvez choisir : 
+                                                <ul>
+                                                    <li>
+                                                        un document déjà généré avec cet outil
+                                                    </li>
+                                                    <li>
+                                                        un document .ods qui respecte le format décrit dans <a href="https://betagouv.github.io/pitchou/projet-pitchou/technique/fichier-especes-ods" target="_blank" rel="noopener external" title="Lien vers la page qui renseigne sur le format d'un fichier espèces - nouvelle fenêtre" class="fr-link fr-text--sm">la documentation des fichiers d'espèces</a>
+                                                    </li>
+                                                </ul>
+                                            </span>
+											<div class="fr-upload-group fr-mt-6w" class:fr-upload-group--error={messageErreurPréRemplirAvecDocumentOds}>
+												<label class="fr-label" for="file-upload">
+													<span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
+												</label>
+												<input
+													bind:this={inputFileUpload}
+													aria-label="Importer un fichier d'espèces"
+													oninput={onFileInput}
+													class="fr-upload"
+													type="file"
+													accept=".ods"
+													id="file-upload"
+													name="file-upload" />
+                                                <div class="fr-messages-group" id="file-upload-messages" aria-live="polite">
+                                                    {#if messageErreurPréRemplirAvecDocumentOds}
+                                                        <p class="fr-message fr-message--error" id="file-upload-message-error-format-incorrect">
+                                                            {@html messageErreurPréRemplirAvecDocumentOds}
+                                                        </p>
+                                                    {/if}
+                                                </div>
+											</div>
+										</div>
                                     </div>
+									<div class="fr-modal__footer">
+                                        <button class="fr-btn fr-ml-auto" onclick={onClickPréRemplirAvecDocumentOds}>
+                                            Pré-remplir
+                                        </button>
+									</div>
                                 </div>
                             </div>
                         </div>
@@ -594,6 +662,16 @@
             ul{
                 list-style: '- ';
             }
+        }
+
+        #modale-préremplir-depuis-import{
+            ul{
+                list-style: '- ';
+            }
+        }
+
+        #file-upload-message-error-format-incorrect{
+            display:unset
         }
     }
 </style>
