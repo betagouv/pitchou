@@ -2,9 +2,9 @@
     //@ts-check
     import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
-    import { créerEspècesGroupéesParImpact } from "../../actions/créerEspècesGroupéesParImpact.js";
     import { formatDateRelative } from "../../affichageDossier.js";
     import { chargerActivitésMéthodesTransports } from "../../actions/activitésMéthodesTransports.js";
+	import Loader from "../Loader.svelte"
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -37,20 +37,6 @@
     }
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
-
-    let espècesImpactéesParActivité =
-        $derived(espècesImpactées && promesseRéférentiels
-            ? Promise.all([espècesImpactées, promesseRéférentiels])
-                .then(([espècesImpactées, { activitéVersImpactsQuantifiés }]) =>
-                    créerEspècesGroupéesParImpact(espècesImpactées, activitéVersImpactsQuantifiés)
-                )
-            : undefined);
-
-    $effect(() => {
-        espècesImpactéesParActivité?.catch(err => console.error(`erreur lecture espèces`, err))
-    })
-
-
 
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore
@@ -137,8 +123,13 @@
                 classname="fr-btn fr-btn--secondary"
                 label="Télécharger le fichier des espèces impactées"
             />
-
-            <EspècesProtégéesGroupéesParImpact {espècesImpactéesParActivité} />
+            {#if espècesImpactées}
+                {#await Promise.all([espècesImpactées, promesseRéférentiels])}
+                    <Loader></Loader>
+                {:then [espècesImpactées, {activitéVersImpactsQuantifiés}]}
+                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {activitéVersImpactsQuantifiés} />
+                {/await}
+            {/if}
         {:else}
             <p>
                 Aucune données sur les espèces impactées n'a été fournie par le
