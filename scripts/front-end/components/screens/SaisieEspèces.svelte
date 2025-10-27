@@ -16,8 +16,9 @@
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
-    import { créerEspècesGroupéesParImpact } from '../../actions/créerEspècesGroupéesParImpact.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
+	import Loader from '../Loader.svelte'
+
 
 
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
@@ -73,28 +74,13 @@
 
     let modeLecture = $state(false);
 
-    let aucuneEspèceSaisie = $derived(oiseauxAtteints.length === 0 && faunesNonOiseauxAtteintes.length === 0 && floresAtteintes.length === 0)
-
-    const promesseRéférentiels = chargerActivitésMéthodesTransports();
-
-    let espècesImpactéesParActivité = $derived(
-        modeLecture && promesseRéférentiels //enlever la condition du mode lecture ici
-            ? promesseRéférentiels.then(({  activitéVersImpactsQuantifiés }) =>
-                créerEspècesGroupéesParImpact(
-                    {
+    let espècesImpactées = $derived({
                         oiseau: oiseauxAtteints,
                         'faune non-oiseau': faunesNonOiseauxAtteintes,
                         flore: floresAtteintes,
-                    },
-                     activitéVersImpactsQuantifiés
-                )
-            )
-            : undefined
-    );
+                    })
 
-    $effect(() => {
-        espècesImpactéesParActivité?.catch(err => console.error(`erreur lecture espèces`, err))
-    })
+    const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
     /*function isFourchette(str) {
         const regex = /^\d+-\d+$/;
@@ -102,13 +88,8 @@
     }*/
 
     async function créerOdsBlob(){
-            const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer({
-                oiseau: oiseauxAtteints,
-                "faune non-oiseau": faunesNonOiseauxAtteintes,
-                flore: floresAtteintes,
-            }) 
-
-            return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
+        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer(espècesImpactées)
+        return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
     }
 
     /**
@@ -578,7 +559,7 @@
         </div>
 
         {#if modeLecture}
-            {#if aucuneEspèceSaisie}
+            {#if nombreEspècesSaisies === 0}
                 <div class="fr-grid-row fr-mb-2w">
                     <div class="fr-col">
                         <div class="fr-alert fr-alert--warning">
@@ -598,9 +579,11 @@
                         </div>
                     </div>
                 </div>
-                <EspècesProtégéesGroupéesParImpact 
-                    {espècesImpactéesParActivité}
-                />
+                {#await promesseRéférentiels}
+                    <Loader></Loader>
+                {:then {activitéVersImpactsQuantifiés}}
+                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {activitéVersImpactsQuantifiés} />
+                {/await}
             {/if}
         {:else}
             <form class="fr-mb-4w">
