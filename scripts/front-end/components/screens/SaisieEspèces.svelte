@@ -57,6 +57,9 @@
     /** @type {HTMLInputElement | undefined} */
     let inputFileUpload = $state()
 
+    /** @type {HTMLElement | undefined} */
+    let modale;
+
     function rerender(){
         oiseauxAtteints = oiseauxAtteints
         faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
@@ -112,7 +115,6 @@
                 faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
                 floresAtteintes = descriptionMenacesEspèces['flore'] || []
 
-                const modale = document.querySelector('#modale-préremplir-depuis-import');
                 if (modale) {
                     //@ts-ignore
                     window.dsfr(modale).modal.conceal();
@@ -320,7 +322,7 @@
         </header>
         <div class="fr-grid-row">
             <div class="fr-col">
-                <dialog id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
+                <dialog bind:this={modale} id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
                     <div class="fr-container fr-container--fluid fr-container-md">
                         <div class="fr-grid-row fr-grid-row--center">
                             <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
