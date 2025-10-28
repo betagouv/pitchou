@@ -48,15 +48,11 @@
     )
 
     export function focusBoutonSupprimer() {
-        if (boutonSupprimer) {
-            boutonSupprimer.focus()
-        }
+        boutonSupprimer?.focus()
     }
 
     export function focusFormulaireImpact() {
-        if (selectImpact) {
-            selectImpact.focus()
-        }
+        selectImpact?.focus()
     }
 
     /**

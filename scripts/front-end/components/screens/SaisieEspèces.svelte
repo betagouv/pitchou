@@ -5,9 +5,7 @@
     import DownloadButton from '../DownloadButton.svelte'
     import EspècesProtégéesGroupéesParImpact from '../EspècesProtégéesGroupéesParImpact.svelte'
 
-    import FieldsetOiseau from '../SaisieEspèces/FieldsetOiseau.svelte'
-    import FieldsetNonOiseau from '../SaisieEspèces/FieldsetNonOiseau.svelte'
-    import FieldsetFlore from '../SaisieEspèces/FieldsetFlore.svelte'
+    import FormulaireSaisieEspèce from '../SaisieEspèces/FormulaireSaisieEspèce.svelte'
 
     import OiseauAtteintEditRow from '../SaisieEspèces/OiseauAtteintEditRow.svelte'
     import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'
@@ -17,11 +15,11 @@
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
-	import Loader from '../Loader.svelte'
+    import Loader from '../Loader.svelte'
 
 
 
-    /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
+    /** @import { ParClassification, DescriptionImpact, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
     /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
 
@@ -51,7 +49,13 @@
         floresAtteintes = $bindable()
     } = $props();
 
-    let nombreEspècesSaisies = $derived(oiseauxAtteints.length + faunesNonOiseauxAtteintes.length + floresAtteintes.length)
+    /**
+     * @type {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>}
+     */
+    let espècesImpactées = $state([{impacts: []}])
+
+    // TODO: compte les espèces et plu les impacts
+    let nombreEspècesSaisies = $derived(espècesImpactées.length)
     /** @type {File | undefined} */
     let fichierEspècesOds = $state()
 
@@ -74,21 +78,67 @@
 
     let modeLecture = $state(false);
 
-    let espècesImpactées = $derived({
-                        oiseau: oiseauxAtteints,
-                        'faune non-oiseau': faunesNonOiseauxAtteintes,
-                        flore: floresAtteintes,
+    /**
+     * @type {DescriptionMenacesEspèces}
+     */
+    let espècesImpactéesParClassification = $derived.by(() => {
+        /**
+         * @type {DescriptionMenacesEspèces}
+         */
+        let espècesImpactéesParClassification = {
+            oiseau: [],
+            'faune non-oiseau': [],
+            flore: [],
+        }
+
+        for (const espèce of espècesImpactées) {
+            for (const impact of espèce.impacts ?? []) {
+                if (espèce.espèce) {
+                    const classification = espèce.espèce.classification;
+                    espècesImpactéesParClassification[classification].push({
+                        espèce: espèce.espèce,
+                        ...impact
                     })
+                }
+            }
+        }
+
+        return espècesImpactéesParClassification
+    })
 
     const promesseRéférentiels = chargerActivitésMéthodesTransports();
 
-    /*function isFourchette(str) {
-        const regex = /^\d+-\d+$/;
-        return regex.test(str);
-    }*/
+    /**
+     * @param {DescriptionMenacesEspèces} descriptionMenacesEspèces
+     */
+    function impactsParClassificationVerListeEspècesImpactées(descriptionMenacesEspèces) {
+        /**
+         * @type {Map<EspèceProtégée['CD_REF'], { espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>}
+         */
+        const impactParEspèces = new Map()
+        const espèceParCD_REF = new Map()
+        for (const classfication in descriptionMenacesEspèces) {
+            /**
+             * @type {Array<OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte>}
+             */
+            const espèces = descriptionMenacesEspèces[classfication] ?? []
+
+            for (const espèce of espèces) {
+                const espèceEtImpacts = impactParEspèces.get(espèce.espèce.CD_REF) ?? {
+                    espèce: espèce.espèce,
+                    impacts: []
+                }
+                espèceEtImpacts.impacts?.push(espèce)
+                impactParEspèces.set(espèce.espèce.CD_REF, espèceEtImpacts)
+                espèceParCD_REF.set(espèce.espèce.CD_REF, espèce)
+            }
+        }
+
+        return [...impactParEspèces.values()]
+    }
 
     async function créerOdsBlob(){
-        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer(espècesImpactées)
+        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer(espècesImpactéesParClassification)
         return new Blob([odsArrayBuffer], {type: 'application/vnd.oasis.opendocument.spreadsheet'})
     }
 
@@ -119,10 +169,9 @@
             const descriptionMenacesEspèces = await fichierEspècesOds.arrayBuffer()
                 .then(importDescriptionMenacesEspècesFromOds)
 
-            if(Object.keys(descriptionMenacesEspèces).length >= 1){
-                oiseauxAtteints = descriptionMenacesEspèces['oiseau'] || []
-                faunesNonOiseauxAtteintes = descriptionMenacesEspèces['faune non-oiseau'] || []
-                floresAtteintes = descriptionMenacesEspèces['flore'] || []
+            if(Object.keys(descriptionMenacesEspèces).length >= 1) {
+
+                espècesImpactées = impactsParClassificationVerListeEspècesImpactées(descriptionMenacesEspèces)
 
                 if (modale) {
                     //@ts-ignore
@@ -258,8 +307,8 @@
     let surfaceHabitatDétruitFlorePrérempli = $state();
 
     function préremplirFormulaire(){
-        for(const espèce of oiseauxÀPréremplir){
-            oiseauxAtteints.push({
+        espècesImpactées = impactsParClassificationVerListeEspècesImpactées({
+            oiseau: [...oiseauxÀPréremplir].map((espèce) => { return {
                 espèce,
                 activité: activitéOiseauPréremplie,
                 méthode: méthodeOiseauPréremplie,
@@ -268,34 +317,27 @@
                 nombreNids: nombreNidsOiseauPrérempli,
                 nombreOeufs: nombreOeufsOiseauPrérempli,
                 surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
-            })
-        }
-
-        for(const espèce of fauneNonOiseauxÀPréremplir){
-            faunesNonOiseauxAtteintes.push({
+            }}),
+            "faune non-oiseau": [...fauneNonOiseauxÀPréremplir].map((espèce) => { return {
                 espèce,
                 activité: activitéFauneNonOiseauPréremplie,
                 méthode: méthodeFauneNonOiseauPréremplie,
                 transport: transportFauneNonOiseauPréremplie,
                 nombreIndividus: nombreIndividusFauneNonOiseauPréremplie,
                 surfaceHabitatDétruit: surfaceHabitatDétruitFauneNonOiseauPréremplie
-            })
-        }
-
-        for(const espèce of floreÀPréremplir){
-            floresAtteintes.push({
+            }}),
+            flore: [...floreÀPréremplir].map((espèce) => { return {
                 espèce,
                 activité: activitéFlorePréremplie,
                 nombreIndividus: nombreIndividusFlorePrérempli,
                 surfaceHabitatDétruit: surfaceHabitatDétruitFlorePrérempli
-            })
-        }
+            }})
+        })
 
         texteEspèces = ''
 
         rerender()
     }
-
 </script>
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">
@@ -303,14 +345,14 @@
 
         <header>
             <h1>Espèces protégées impactées</h1>
-            
+
             <div class="fr-toggle">
                 <input bind:checked={modeLecture} type="checkbox" class="fr-toggle__input" id="toggle-mode-lecture">
                 <label class="fr-toggle__label" for="toggle-mode-lecture">
                     Mode lecture
                 </label>
             </div>
-            
+
             <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
                 {#if modeLecture}
                     Mode lecture activé. Les espèces sont maintenant affichées regroupées par type d'impact.
@@ -343,7 +385,7 @@
             </div>
         </div>
         </header>
-        
+
         <div class="fr-grid-row">
             <div class="fr-col">
                 <dialog bind:this={modale} id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
@@ -355,12 +397,12 @@
                                         <button aria-controls="modale-préremplir-depuis-import" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
                                     </div>
                                     <div class="fr-modal__content">
-										<h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
-											Pré-remplir avec une liste déjà réalisée
-										</h2>
-										<div class="fr-mb-4w">
+                                        <h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
+                                            Pré-remplir avec une liste déjà réalisée
+                                        </h2>
+                                        <div class="fr-mb-4w">
                                             <span class="fr-text--sm">
-                                                Vous pouvez choisir : 
+                                                Vous pouvez choisir :
                                                 <ul>
                                                     <li>
                                                         un document déjà généré avec cet outil
@@ -370,19 +412,19 @@
                                                     </li>
                                                 </ul>
                                             </span>
-											<div class="fr-upload-group fr-mt-6w" class:fr-upload-group--error={messageErreurPréRemplirAvecDocumentOds}>
-												<label class="fr-label" for="file-upload">
-													<span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
-												</label>
-												<input
-													bind:this={inputFileUpload}
-													aria-label="Importer un fichier d'espèces"
-													oninput={onFileInput}
-													class="fr-upload"
-													type="file"
-													accept=".ods"
-													id="file-upload"
-													name="file-upload" />
+                                            <div class="fr-upload-group fr-mt-6w" class:fr-upload-group--error={messageErreurPréRemplirAvecDocumentOds}>
+                                                <label class="fr-label" for="file-upload">
+                                                    <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : ods</span>
+                                                </label>
+                                                <input
+                                                    bind:this={inputFileUpload}
+                                                    aria-label="Importer un fichier d'espèces"
+                                                    oninput={onFileInput}
+                                                    class="fr-upload"
+                                                    type="file"
+                                                    accept=".ods"
+                                                    id="file-upload"
+                                                    name="file-upload" />
                                                 <div class="fr-messages-group" id="file-upload-messages" aria-live="polite">
                                                     {#if messageErreurPréRemplirAvecDocumentOds}
                                                         <p class="fr-message fr-message--error" id="file-upload-message-error-format-incorrect">
@@ -390,18 +432,18 @@
                                                         </p>
                                                     {/if}
                                                 </div>
-											</div>
-										</div>
+                                            </div>
+                                        </div>
                                     </div>
-									<div class="fr-modal__footer">
+                                    <div class="fr-modal__footer">
                                         <button class="fr-btn fr-ml-auto" onclick={onClickPréRemplirAvecDocumentOds}>
                                             Pré-remplir
                                         </button>
-									</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </dialog>
 
                 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true">
@@ -551,7 +593,7 @@
 
                         <button onclick={préremplirFormulaire} type="button" class="fr-btn">
                             Pré-remplir avec ces espèces
-                        </button>                        
+                        </button>
                     </details>
                 {/if}
             </div>
@@ -581,29 +623,18 @@
                 {#await promesseRéférentiels}
                     <Loader></Loader>
                 {:then {identifiantPitchouVersActivitéEtImpactsQuantifiés}}
-                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {identifiantPitchouVersActivitéEtImpactsQuantifiés} />
+                    <EspècesProtégéesGroupéesParImpact espècesImpactées={espècesImpactéesParClassification} {identifiantPitchouVersActivitéEtImpactsQuantifiés} />
                 {/await}
             {/if}
         {:else}
+
             <form class="fr-mb-4w">
-                <FieldsetOiseau
-                    bind:oiseauxAtteints={oiseauxAtteints}
-                    espècesProtégéesOiseau={espècesProtégéesParClassification["oiseau"]}
-                    activitésMenaçantes={[...activitesParClassificationEtreVivant["oiseau"].values()]}
-                    méthodesMenaçantes={[...méthodesParClassificationEtreVivant["oiseau"].values()]}
-                    transportMenaçants={[...transportsParClassificationEtreVivant["oiseau"].values()]}
-                />
-                <FieldsetNonOiseau
-                    bind:faunesNonOiseauxAtteintes={faunesNonOiseauxAtteintes}
-                    espècesProtégéesFauneNonOiseau={espècesProtégéesParClassification["faune non-oiseau"]}
-                    activitésMenaçantes={[...activitesParClassificationEtreVivant["faune non-oiseau"].values()]}
-                    méthodesMenaçantes={[...méthodesParClassificationEtreVivant["faune non-oiseau"].values()]}
-                    transportMenaçants={[...transportsParClassificationEtreVivant["faune non-oiseau"].values()]}
-                />
-                <FieldsetFlore
-                    bind:floresAtteintes={floresAtteintes}
-                    espècesProtégéesFlore={espècesProtégéesParClassification["flore"]}
-                    activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
+                <FormulaireSaisieEspèce
+                    bind:espècesImpactées={espècesImpactées}
+                    espècesProtégées={[...espècesProtégéesParClassification["oiseau"], ...espècesProtégéesParClassification["faune non-oiseau"], ...espècesProtégéesParClassification["flore"]]}
+                    activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                    méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                    transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
                 />
             </form>
 
@@ -621,7 +652,7 @@
                                         Je ne trouve pas une espèce que je veux saisir
                                     </h2>
                                     <p class="fr-callout__text">
-                                        Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un mail à 
+                                        Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un mail à
                                         <a target="_blank" href={mailto}>pitchou@beta.gouv.fr</a> en
                                         indiquant l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
                                         Le <code>CD_NOM</code> est disponible sur
@@ -683,7 +714,7 @@
 </Squelette>
 
 <style lang="scss">
-	article{
+    article{
         header{
             display: flex;
             flex-direction: row;
