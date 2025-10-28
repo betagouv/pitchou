@@ -1,4 +1,6 @@
 <script>
+    import { tick } from 'svelte';
+
     // @ts-check
 
     import AutocompleteEspeces from './AutocompleteEspèces.svelte'
@@ -42,9 +44,40 @@
         return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
     }
 
-    function ajouterImpact() {
+    async function ajouterImpact() {
         descriptionImpacts.push({})
+        await tick()
+        référencesImpact[référencesImpact.length - 1].focusFormulaireImpact()
     }
+
+    /**
+     * @param {number} indexImpactÀSupprimer
+     */
+    async function supprimerImpact(indexImpactÀSupprimer) {
+        descriptionImpacts.splice(indexImpactÀSupprimer, 1)
+        descriptionImpacts = descriptionImpacts
+        await tick()
+        référencesImpact = référencesImpact.filter(e => e !== null)
+
+        if (référencesImpact[indexImpactÀSupprimer]) {
+            référencesImpact
+        }
+
+        if (descriptionImpacts.length === 0) {
+            ajouterImpact()
+        } else {
+            let indexImpactÀFocus = indexImpactÀSupprimer === descriptionImpacts.length
+            ? descriptionImpacts.length - 1
+            : indexImpactÀSupprimer
+
+            référencesImpact[indexImpactÀFocus].focusBoutonSupprimer()
+        }
+    }
+
+    /**
+     * @type {ImpactEspèce[]}
+     */
+    let référencesImpact = $state([])
 </script>
 
 <div class="tuile-espece">
@@ -84,16 +117,12 @@
                     espèce={espèce}
                     indexEspèce={index}
                     indexImpact={indexImpact + 1}
+                    onSupprimerImpact={async () => supprimerImpact(indexImpact)}
                     activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
                     méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
                     transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
-                    bind:activité={impact.activité}
-                    bind:méthode={impact.méthode}
-                    bind:transport={impact.transport}
-                    bind:nombreIndividus={impact.nombreIndividus}
-                    bind:surfaceHabitatDétruit={impact.surfaceHabitatDétruit}
-                    bind:nombreNids={impact.nombreNids}
-                    bind:nombreOeufs={impact.nombreOeufs}
+                    bind:impact={descriptionImpacts[indexImpact]}
+                    bind:this={référencesImpact[indexImpact]}
                 />
             {/each}
 

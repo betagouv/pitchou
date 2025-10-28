@@ -3,19 +3,14 @@
 
     import { fourchettesIndividus } from "../../espèceFieldset.js";
 
-    /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
+    /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
      * @property {number} [indexEspèce]
      * @property {number} [indexImpact]
-     * @property {ActivitéMenançante | undefined} [activité]
-     * @property {MéthodeMenançante | undefined} [méthode]
-     * @property {TransportMenançant | undefined} [transport]
-     * @property {string | undefined} [nombreIndividus]
-     * @property {number | undefined} [nombreNids]
-     * @property {number | undefined} [nombreOeufs]
-     * @property {number | undefined} [surfaceHabitatDétruit]
+     * @property {DescriptionImpact} [impact]
+     * @property {(() => Promise<void>)} [onSupprimerImpact]
      * @property {EspèceProtégée} [espèce]
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
@@ -26,13 +21,8 @@
     let {
         indexEspèce,
         indexImpact,
-        activité = $bindable(undefined),
-        méthode = $bindable(undefined),
-        transport = $bindable(undefined),
-        nombreIndividus = $bindable(undefined),
-        nombreNids = $bindable(undefined),
-        nombreOeufs = $bindable(undefined),
-        surfaceHabitatDétruit = $bindable(undefined),
+        impact = $bindable({}),
+        onSupprimerImpact,
         espèce,
         activitesParClassificationEtreVivant,
         méthodesParClassificationEtreVivant,
@@ -56,6 +46,28 @@
         ? [...transportsParClassificationEtreVivant[espèce.classification].values()]
         : []
     )
+
+    export function focusBoutonSupprimer() {
+        if (boutonSupprimer) {
+            boutonSupprimer.focus()
+        }
+    }
+
+    export function focusFormulaireImpact() {
+        if (selectImpact) {
+            selectImpact.focus()
+        }
+    }
+
+    /**
+     * @type {HTMLElement}
+     */
+    let boutonSupprimer;
+
+    /**
+     * @type {HTMLElement}
+     */
+    let selectImpact;
 </script>
 
 <fieldset class="fr-fieldset fr-input-group fr-fieldset__element">
@@ -67,7 +79,7 @@
                 Type d’impact
             </label>
             <div class="input-button">
-                <select bind:value={activité} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
+                <select bind:this={selectImpact} bind:value={impact.activité} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
                     <option value={undefined}>-</option>
                     {#each activitésMenaçantes as act}
                     <option value={act}>
@@ -76,18 +88,18 @@
                     {/each}
                 </select>
 
-                <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button">
+                <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button" bind:this={boutonSupprimer} onclick={onSupprimerImpact}>
                     <span class="fr-sr-only">Supprimer l'impact #{indexImpact} de l'espèce #{indexEspèce}</span>
                 </button>
             </div>
         </div>
 
-        {#if activité && activité['Méthode'] === 'Oui'}
+        {#if impact.activité && impact.activité['Méthode'] === 'Oui'}
             <div class="fr-col-md-4 fr-col-sm-12">
                 <label class="fr-label" for="input-espece-{indexEspèce}-methode-{indexImpact}">
                     Méthode
                 </label>
-                <select bind:value={méthode} class="fr-select" id="input-espece-{indexEspèce}-methode-{indexImpact}">
+                <select bind:value={impact.méthode} class="fr-select" id="input-espece-{indexEspèce}-methode-{indexImpact}">
                     <option value={undefined}>-</option>
                     {#each méthodeMenaçantes as met}
                     <option value={met}>
@@ -98,12 +110,12 @@
             </div>
         {/if}
 
-        {#if activité && activité['Moyen de poursuite'] === 'Oui'}
+        {#if impact.activité && impact.activité['Moyen de poursuite'] === 'Oui'}
             <div class="fr-col-md-3 fr-col-sm-12">
                 <label class="fr-label" for="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     Moyen de poursuite
                 </label>
-                <select bind:value={transport} class="fr-select" id="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
+                <select bind:value={impact.transport} class="fr-select" id="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     <option value={undefined}>-</option>
                     {#each transportMenaçants as trans}
                     <option value={trans}>
@@ -115,14 +127,14 @@
         {/if}
     </div>
 
-    {#if activité}
+    {#if impact.activité}
         <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-            {#if activité["Nombre d'individus"] === 'Oui'}
+            {#if impact.activité["Nombre d'individus"] === 'Oui'}
                 <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nombre-individus-{indexImpact}">
                         Nombre d’individus
                     </label>
-                    <select bind:value={nombreIndividus} class="fr-select" id="input-espece-{indexEspèce}-nombre-individus-{indexImpact}">
+                    <select bind:value={impact.nombreIndividus} class="fr-select" id="input-espece-{indexEspèce}-nombre-individus-{indexImpact}">
                         <option value="{undefined}">-</option>
                         {#each fourchettesIndividus as fourchette}
                             <option value={fourchette}>{fourchette}</option>
@@ -131,30 +143,30 @@
                 </div>
             {/if}
 
-            {#if activité['Nids'] === 'Oui'}
+            {#if impact.activité['Nids'] === 'Oui'}
                 <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nids-{indexImpact}">
                         Nids
                     </label>
-                    <input type="number" bind:value={nombreNids} min="0" step="1" class="fr-input" id="input-espece-{indexEspèce}-nids-{indexImpact}">
+                    <input type="number" bind:value={impact.nombreNids} min="0" step="1" class="fr-input" id="input-espece-{indexEspèce}-nids-{indexImpact}">
                 </div>
             {/if}
 
-            {#if activité['Œufs'] === 'Oui'}
+            {#if impact.activité['Œufs'] === 'Oui'}
                 <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-oeufs-{indexImpact}">
                         Œufs
                     </label>
-                    <input type="number" bind:value={nombreOeufs} min="0" step="1" class="fr-input" id="input-espece-{indexEspèce}-oeufs-{indexImpact}">
+                    <input type="number" bind:value={impact.nombreOeufs} min="0" step="1" class="fr-input" id="input-espece-{indexEspèce}-oeufs-{indexImpact}">
                 </div>
             {/if}
 
-            {#if activité['Surface habitat détruit (m²)'] === 'Oui'}
+            {#if impact.activité['Surface habitat détruit (m²)'] === 'Oui'}
                 <div class="fr-col-md-3 fr-col-sm-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-surface-{indexImpact}">
                         Surface habitat détruit (m²)
                     </label>
-                    <input type="number" bind:value={surfaceHabitatDétruit} min="0" step="1" class="fr-input" id="input-espece-{indexEspèce}-surface-{indexImpact}">
+                    <input type="number" bind:value={impact.surfaceHabitatDétruit} min="0" step="1" class="fr-input" id="input-espece-{indexEspèce}-surface-{indexImpact}">
                 </div>
             {/if}
         </div>
