@@ -8,6 +8,7 @@
      * @property {EspèceProtégée[]} espèces
      * @property {EspèceProtégée | undefined} [espèceSélectionnée]
      * @property {function | undefined} [onChange]
+     * @property {string} [id]
      */
 
 
@@ -21,6 +22,7 @@
     let {
         espèces,
         onChange,
+        id,
         espèceSélectionnée = $bindable(undefined)
     } = $props()
 
@@ -95,13 +97,19 @@
         return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
     }
 
-    //$inspect('text', text)
-    //$inspect('espècesPertinentes', espècesPertinentes)
+    export function focus() {
+        input?.focus()
+    }
+
+    /**
+     * @type {HTMLElement}
+     */
+    let input;
 
 </script>
 
 <div class="autocomplete-container" title={text}>
-    <input bind:value={text} {onfocus} {onblur} class="fr-input">
+    <input bind:this={input} bind:value={text} {onfocus} {onblur} id="{id ? id : ''}" class="fr-input">
 
     {#if openChoices && espècesPertinentes.length >= 1}
     <ol>

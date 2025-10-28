@@ -503,7 +503,7 @@ export async function construireActivitésMéthodesTransports(odsData) {
         moyensPoursuite
     )
 
-    const activitéVersImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
+    const identifiantPitchouVersActivitéEtImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
         .flatMap((activités) => {
             return [...activités.entries()].map(([code, activité]) => {
                 /** @type {ImpactQuantifié[]} */
@@ -513,14 +513,14 @@ export async function construireActivitésMéthodesTransports(odsData) {
                     return activité[donnéeSecondaire] === 'Oui'
                 });
 
-                /** @type {[ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]]} */
-                const ret = [code, impactsQuantifiésFiltrés]
+                /** @type {[ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}]} */
+                const ret = [code, {...activité, impactsQuantifiés: impactsQuantifiésFiltrés} ]
                 return ret
             })
         }))
 
     const ret = {
-        activitéVersImpactsQuantifiés: activitéVersImpactsQuantifiés,
+        identifiantPitchouVersActivitéEtImpactsQuantifiés,
         ...activitésMéthodesTransports
     }
 

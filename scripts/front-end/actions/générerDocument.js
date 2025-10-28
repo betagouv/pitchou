@@ -16,11 +16,11 @@ import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpa
 /**
  * @param {DossierComplet} dossier
  * @param {DescriptionMenacesEspèces} espècesImpactées Description des espèces impactées par le dossier
- * @param {Map<ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]>} activitéVersImpactsQuantifiés
+ * @param {Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} identifiantPitchouVersActivitéEtImpactsQuantifiés
  * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
-export function getBalisesGénérationDocument(dossier, espècesImpactées, activitéVersImpactsQuantifiés) {
+export function getBalisesGénérationDocument(dossier, espècesImpactées, identifiantPitchouVersActivitéEtImpactsQuantifiés) {
     const functions = {
         afficher_nombre,
         formatter_date,
@@ -64,7 +64,7 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, acti
 
     /** @type {EspècesParActivité[] | undefined} */
     // Transformer les espèces impactées si elles existent
-    const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, activitéVersImpactsQuantifiés)
+    const espèces_impacts = créerEspècesGroupéesParImpact(espècesImpactées, identifiantPitchouVersActivitéEtImpactsQuantifiés)
 
     /** @type {BalisesGénérationDocument['hirondelles']} */
     const hirondelles = type === 'Hirondelle' ? {

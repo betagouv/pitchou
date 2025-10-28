@@ -1,0 +1,5 @@
+.fr-icon-file-copy-2-line::before,
+.fr-icon-file-copy-2-line::after {
+  -webkit-mask-image: url("../icons/file-copy-2-line.svg");
+  mask-image: url("../icons/file-copy-2-line.svg");
+}
