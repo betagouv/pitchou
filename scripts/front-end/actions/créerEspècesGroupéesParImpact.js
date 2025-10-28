@@ -65,23 +65,23 @@ const getterImpactQuantifié = new Map([
 /**
  *
  * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<ActivitéMenançante['Identifiant Pitchou'], ImpactQuantifié[]>} activitéVersImpactsQuantifiés
+ * @param {Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} identifiantPitchouVersActivitéEtImpactsQuantifiés
  * @returns {EspècesParActivité[]}
  */
-export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVersImpactsQuantifiés) {
+export function créerEspècesGroupéesParImpact(espècesImpactées, identifiantPitchouVersActivitéEtImpactsQuantifiés) {
 
-    /** @type {Map<ActivitéMenançante | undefined, EspèceImpactéeSimplifiée[]>} */
-    const _espècesImpactéesParActivité = new Map()
+    /** @type {Map<ActivitéMenançante['Identifiant Pitchou'] | undefined, EspèceImpactéeSimplifiée[]>} */
+    const _espècesImpactéesParIdentifiantActivité = new Map()
 
     /**
      *
      * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
      */
     function push(espèceImpactée){
-        const activité = espèceImpactée.activité
+        const identifiantPitchou = espèceImpactée.activité ? espèceImpactée.activité['Identifiant Pitchou'] : undefined
 
-        const esps = _espècesImpactéesParActivité.get(activité) || []
-        const impactsQuantifiés = activitéVersImpactsQuantifiés.get(activité ? activité['Identifiant Pitchou'] : '') || []
+        const esps = _espècesImpactéesParIdentifiantActivité.get(identifiantPitchou) || []
+        const impactsQuantifiés = identifiantPitchouVersActivitéEtImpactsQuantifiés.get(identifiantPitchou ?? '')?.impactsQuantifiés || []
 
         esps.push({
             CD_REF: espèceImpactée.espèce.CD_REF,
@@ -98,7 +98,7 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVe
                     return funcDetail(espèceImpactée)
                 })
         })
-        _espècesImpactéesParActivité.set(activité, esps)
+        _espècesImpactéesParIdentifiantActivité.set(identifiantPitchou, esps)
     }
 
 
@@ -110,8 +110,8 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVe
         }
     }
 
-    for(const [activité, esps] of _espècesImpactéesParActivité){
-        _espècesImpactéesParActivité.set(
+    for(const [activité, esps] of _espècesImpactéesParIdentifiantActivité){
+        _espècesImpactéesParIdentifiantActivité.set(
             activité,
             esps.toSorted(({nomScientifique: nom1}, {nomScientifique: nom2}) =>  {
                 if (nom1 < nom2) { return -1; }
@@ -121,10 +121,10 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, activitéVe
         )
     }
 
-    return [..._espècesImpactéesParActivité]
-        .map(([activité, espèces]) => ({
-            activité: activité ? activité['Libellé Pitchou'] : `Type d'impact non-renseignée`,
-            impactsQuantifiés: activitéVersImpactsQuantifiés.get(activité ? activité['Identifiant Pitchou'] : '') || [],
+    return [..._espècesImpactéesParIdentifiantActivité]
+        .map(([identifiant, espèces]) => ({
+            activité: identifiantPitchouVersActivitéEtImpactsQuantifiés.get(identifiant ?? '')?.['Libellé Pitchou'] ?? `Type d'impact non-renseignée`,
+            impactsQuantifiés: identifiantPitchouVersActivitéEtImpactsQuantifiés.get(identifiant ? identifiant : '')?.impactsQuantifiés || [],
             espèces
         }))
 }

@@ -581,8 +581,8 @@
                 </div>
                 {#await promesseRéférentiels}
                     <Loader></Loader>
-                {:then {activitéVersImpactsQuantifiés}}
-                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {activitéVersImpactsQuantifiés} />
+                {:then {identifiantPitchouVersActivitéEtImpactsQuantifiés}}
+                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {identifiantPitchouVersActivitéEtImpactsQuantifiés} />
                 {/await}
             {/if}
         {:else}

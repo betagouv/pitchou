@@ -126,8 +126,8 @@
             {#if espècesImpactées}
                 {#await Promise.all([espècesImpactées, promesseRéférentiels])}
                     <Loader></Loader>
-                {:then [espècesImpactées, {activitéVersImpactsQuantifiés}]}
-                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {activitéVersImpactsQuantifiés} />
+                {:then [espècesImpactées, {identifiantPitchouVersActivitéEtImpactsQuantifiés}]}
+                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {identifiantPitchouVersActivitéEtImpactsQuantifiés} />
                 {/await}
             {/if}
         {:else}
