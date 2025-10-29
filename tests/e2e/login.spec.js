@@ -11,5 +11,3 @@ test('se connecter à Pitchou', async ({ page, baseURL }) => {
 
   await expect(page.getByRole('heading', { level: 1})).toContainText('Tableau de suivi instruction DDEP');
 });
-
-
