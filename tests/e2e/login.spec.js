@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('se connecter à Pitchou', async ({ page, baseURL }) => {
+test(`La connexion à Pitchou fonctionne et le tableau de suivi s'affiche`, async ({ page, baseURL }) => {
   const email = "clemence.fernandez@beta.gouv.fr";
   
   const { créerPersonneOuMettreÀJourCodeAccès } = await import('../../scripts/server/database/personne.js');
