@@ -1,4 +1,7 @@
 <script>
+	import { formatDateAbsolue } from '../../affichageDossier.js'
+	import DownloadButton from '../DownloadButton.svelte'
+
     //@ts-check
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
@@ -21,7 +24,22 @@
     <section>
         <h2>Avis experts</h2>
 
-        <p>(bientôt ici...)</p>
+        {#each dossier.avisExpert as avisExpert}
+            <div class="carte-avis-expert">
+                <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
+                <ul>
+                    <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
+                    {#if avisExpert.avis_fichier}
+                        <DownloadButton 
+                            makeFileContentBlob={() => new Blob(['test'])}
+                            makeFilename={() => 'avis'}
+                            label="Télécharger le fichier de l'avis"
+                            classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
+                        />
+                    {/if}
+                </ul>
+            </div>
+        {/each}
     </section>
 
     <section>
@@ -48,6 +66,22 @@
             flex: 2;
 
             text-align: right;
+        }
+    }
+
+    .carte-avis-expert{
+        display:flex;
+        flex-direction: column;
+        ul {
+            list-style: none;
+            padding-inline-start: 0;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 0.5rem 1rem;
+        }
+        li {
+            display: contents;
         }
     }
 </style>
