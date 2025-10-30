@@ -37,7 +37,7 @@
                             classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
                         />
                     {:else}
-                        Aucun fichier d'avis n'est lié à ce dossier
+                        Aucun fichier de l'avis n'est lié à ce dossier
                     {/if}
                 </ul>
             </div>
