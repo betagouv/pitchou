@@ -4,7 +4,7 @@
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
 
@@ -28,6 +28,39 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
         dossiersDS,
         fichierEspècesImpactéeChampId,
         laTransactionDeSynchronisationDS
+    )
+}
+
+
+/**
+ * Télécharge les pièces jointes au dossier fournies par le pétitionnaire pour la démarche 88444
+ * 
+ * @param {DossierDS88444[]} dossiersDS
+ * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Knex.Transaction | Knex} databaseConnection
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
+ */
+export function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, databaseConnection){
+
+    /** @type {ChampDescriptor['id'] | undefined} */
+    const fichierPiècesJointesChampId = pitchouKeyToChampDS.get('Dépot du dossier complet de demande de dérogation')
+    if(!fichierPiècesJointesChampId){
+        throw new Error('fichierPiècesJointesChampId is undefined')
+    }
+
+    /** @type {ChampDescriptor['id'] | undefined} */
+    const fichierPiècesJointesComplémentairesChampId = pitchouKeyToChampDS.get('Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande')
+    if(!fichierPiècesJointesComplémentairesChampId){
+        throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
+    }
+
+    throw `Voir pour le champ répété comment recups les données`
+
+
+    return téléchargerNouveauxFichiersFromChampId(
+        dossiersDS,
+        fichierEspècesImpactéeChampId,
+        databaseConnection
     )
 }
 
