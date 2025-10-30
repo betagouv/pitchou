@@ -606,26 +606,37 @@
                     activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
                 />
             </form>
-            <div class="fr-grid-row fr-mb-4w">
-                <div class="fr-col-8">
-                    <div class="fr-callout fr-icon-information-line">
-                        <details>
-                            <summary><h3 class="fr-callout__title">Je ne trouve pas l'espèce que je veux saisir</h3></summary>
-                            <p class="fr-callout__text">
-                                Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci
-                                <a target="_blank" href={mailto}>d'envoyer un mail à pitchou@beta.gouv.fr</a>en
-                                indiquant l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
-                                Le <code>CD_NOM</code> est disponible sur
-                                <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
-                                en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
-                                Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
-                                    <code>4221</code></a>.
-                            </p>
-                        </details>
+
+            <button aria-controls="modale-je-ne-trouve-pas-une-espece" data-fr-opened="false" type="button" class="fr-btn fr-btn--sm fr-btn--tertiary">Je ne trouve pas une espèce...</button>
+            <dialog id="modale-je-ne-trouve-pas-une-espece" class="fr-modal" aria-labelledby="modale-je-ne-trouve-pas-une-espece-title" data-fr-concealing-backdrop="true">
+                <div class="fr-container fr-container--fluid fr-container-md">
+                    <div class="fr-grid-row fr-grid-row--center">
+                        <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                            <div class="fr-modal__body">
+                                <div class="fr-modal__header">
+                                    <button aria-controls="modale-je-ne-trouve-pas-une-espece" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+                                </div>
+                                <div class="fr-modal__content">
+                                    <h2 id="modale-je-ne-trouve-pas-une-espece" class="fr-modal__title">
+                                        Je ne trouve pas une espèce que je veux saisir
+                                    </h2>
+                                    <p class="fr-callout__text">
+                                        Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un mail à 
+                                        <a target="_blank" href={mailto}>pitchou@beta.gouv.fr</a> en
+                                        indiquant l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
+                                        Le <code>CD_NOM</code> est disponible sur
+                                        <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
+                                        en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
+                                        Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
+                                            <code>4221</code></a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {/if}
+            </dialog>
+        {/if}
         <footer class="fr-mb-4w">
             <button aria-controls="modale-validation-saisie" data-fr-opened="false" type="button" class="fr-btn fr-btn--lg fr-ml-auto">Valider ma saisie</button>
         </footer>
