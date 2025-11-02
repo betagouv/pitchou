@@ -451,7 +451,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
     const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction)
 
-    /** @type {Promise<(AvisExpert & {fichier_avis_contenu?: Buffer | null, fichier_avis_media_type?: string, fichier_avis_nom?: string})[]>} */
+    /** @type {Promise<(AvisExpert & {fichier_avis_contenu?: Buffer | null, fichier_avis_media_type?: string, fichier_avis_nom?: string, fichier_saisine_contenu?: Buffer | null, fichier_saisine_media_type?: string, fichier_saisine_nom?: string})[]>} */
     const tousLesAvisExpertDossierP = getAvisExpertDossier(dossierId, transaction)
 
     /** @type {Promise<DécisionAdministrative[]>} */
@@ -479,7 +479,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             dossier.évènementsPhase = évènementsPhaseDossier
             dossier.avisExpert = tousLesAvisExpertDossier.map(
-                ({fichier_avis_contenu, fichier_avis_media_type, fichier_avis_nom, ...avisExpert}) => {
+                ({fichier_avis_contenu, fichier_avis_media_type, fichier_avis_nom, fichier_saisine_contenu, fichier_saisine_media_type, fichier_saisine_nom, ...avisExpert}) => {
                     return (
                         {
                             ...avisExpert,
@@ -488,6 +488,13 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
                                 contenu: fichier_avis_contenu,
                                 media_type: fichier_avis_media_type,
                                 nom: fichier_avis_nom
+                            } 
+                            : undefined,
+                            saisine_fichier: fichier_saisine_contenu && fichier_saisine_nom && fichier_saisine_media_type ? 
+                            {
+                                contenu: fichier_saisine_contenu,
+                                media_type: fichier_saisine_media_type,
+                                nom: fichier_saisine_nom
                             } 
                             : undefined
                         }
@@ -799,7 +806,7 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 /**
  * @param {Dossier['id']} idDossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<(AvisExpert & {fichier_avis_contenu?: Buffer | null, fichier_avis_media_type?: string, fichier_avis_nom?: string})[]>}
+ * @returns {Promise<(AvisExpert & {fichier_avis_contenu?: Buffer | null, fichier_avis_media_type?: string, fichier_avis_nom?: string, fichier_saisine_contenu?: Buffer | null, fichier_saisine_media_type?: string, fichier_saisine_nom?: string})[]>}
  */
 async function getAvisExpertDossier(idDossier, databaseConnection = directDatabaseConnection){
     return databaseConnection('avis_expert')
@@ -808,8 +815,13 @@ async function getAvisExpertDossier(idDossier, databaseConnection = directDataba
             'fichier_avis.contenu as fichier_avis_contenu',
             'fichier_avis.media_type as fichier_avis_media_type',
             'fichier_avis.nom as fichier_avis_nom',
+            'fichier_saisine.id as fichier_saisine_id',
+            'fichier_saisine.contenu as fichier_saisine_contenu',
+            'fichier_saisine.media_type as fichier_saisine_media_type',
+            'fichier_saisine.nom as fichier_saisine_nom',
         )
         .leftJoin('fichier as fichier_avis', {'fichier_avis.id': 'avis_expert.avis_fichier'})
+        .leftJoin('fichier as fichier_saisine', {'fichier_saisine.id': 'avis_expert.saisine_fichier'})
         .where({'dossier': idDossier})
 }
 

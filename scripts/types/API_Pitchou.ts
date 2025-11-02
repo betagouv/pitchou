@@ -105,8 +105,15 @@ export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régi
 		évènementsPhase: ÉvènementPhaseDossier[]
 	} & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } & {
 		avisExpert: Array<
-			Omit<AvisExpert, 'avis_fichier'> & {
+			Omit<AvisExpert, 'avis_fichier' | 'saisine_fichier'> & {
 				avis_fichier:
+					| {
+							contenu: Buffer<ArrayBufferLike>;
+                            nom: string;
+                            media_type: string;
+					  }
+					| undefined
+				saisine_fichier:
 					| {
 							contenu: Buffer<ArrayBufferLike>;
                             nom: string;
