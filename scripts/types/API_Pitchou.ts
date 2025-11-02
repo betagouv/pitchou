@@ -98,15 +98,24 @@ export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdminist
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un 
  */
-export type DossierComplet = Omit<Dossier, 
-    'communes' | 'départements' | 'régions' | 'activité_principale'>
-    & DossierLocalisation
-    & DossierPersonnesImpliquéesComplet
-    & DossierActivitéPrincipale
-    & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
-    & { évènementsPhase: ÉvènementPhaseDossier[] }
-    & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}
-    & { avisExpert: AvisExpert[]}
+export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'> &
+	DossierLocalisation &
+	DossierPersonnesImpliquéesComplet &
+	DossierActivitéPrincipale & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined } & {
+		évènementsPhase: ÉvènementPhaseDossier[]
+	} & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } & {
+		avisExpert: Array<
+			Omit<AvisExpert, 'avis_fichier'> & {
+				avis_fichier:
+					| {
+							contenu: Buffer<ArrayBufferLike>;
+                            nom: string;
+                            media_type: string;
+					  }
+					| undefined
+			}
+		>
+	}
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";

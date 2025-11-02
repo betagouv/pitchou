@@ -17,6 +17,28 @@
 
     const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
+    /**
+     * @param {{
+                contenu: Buffer<ArrayBufferLike>;
+                media_type: string;
+			}} avis_fichier
+     */
+    function makeFileContentBlob(avis_fichier) {
+        const contenu = new Uint8Array(avis_fichier.contenu.data)
+        return new Blob(
+            [contenu],
+            { type: avis_fichier.media_type },
+            );
+    }
+
+    /**
+     * @param {{ nom: string }} avis_fichier
+     */
+    function makeFilename(avis_fichier) {
+        return avis_fichier.nom; //Est-ce que tous les fichiers ont un nom ???
+    }
+
+
 </script>
 
 <div class="row">
@@ -31,10 +53,16 @@
                     <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
                     {#if avisExpert.avis_fichier}
                         <DownloadButton 
-                            makeFileContentBlob={() => new Blob(['test'])}
-                            makeFilename={() => 'avis'}
-                            label="Télécharger le fichier de l'avis"
-                            classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
+                        makeFileContentBlob={() => makeFileContentBlob(
+                            // @ts-ignore ts ne comprend pas qu'avis_fichier est défini
+                            avisExpert.avis_fichier
+                        )} 
+                        makeFilename={() => makeFilename(
+                            // @ts-ignore ts ne comprend pas qu'avis_fichier est défini
+                            avisExpert.avis_fichier
+                        )} 
+                        label="Télécharger le fichier de l'avis"
+                        classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
                         />
                     {:else}
                         Aucun fichier de l'avis n'est lié à ce dossier
