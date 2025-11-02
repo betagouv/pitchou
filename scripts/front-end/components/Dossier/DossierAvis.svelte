@@ -73,16 +73,16 @@
                         <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
                         {#if avisExpert.avis_fichier}
                             <DownloadButton 
-                            makeFileContentBlob={() => makeFileContentBlob(
-                                // @ts-ignore ts ne comprend pas qu'avis_fichier est défini
-                                avisExpert.avis_fichier
-                            )} 
-                            makeFilename={() => makeFilename(
-                                // @ts-ignore ts ne comprend pas qu'avis_fichier est défini
-                                avisExpert.avis_fichier
-                            )} 
-                            label="Télécharger le fichier de l'avis"
-                            classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
+                                makeFileContentBlob={() => makeFileContentBlob(
+                                    // @ts-ignore ts ne comprend pas qu'avis_fichier est défini
+                                    avisExpert.avis_fichier
+                                )} 
+                                makeFilename={() => makeFilename(
+                                    // @ts-ignore ts ne comprend pas qu'avis_fichier est défini
+                                    avisExpert.avis_fichier
+                                )} 
+                                label="Télécharger le fichier de l'avis"
+                                classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
                             />
                         {:else}
                             Aucun fichier de l'avis n'est lié à ce dossier
@@ -92,16 +92,16 @@
                         <span><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)} </span>
                         {#if avisExpert.saisine_fichier}
                             <DownloadButton 
-                            makeFileContentBlob={() => makeFileContentBlob(
-                                // @ts-ignore ts ne comprend pas que saisine_fichier est défini
-                                avisExpert.saisine_fichier
-                            )} 
-                            makeFilename={() => makeFilename(
-                                // @ts-ignore ts ne comprend pas que saisine_fichier est défini
-                                avisExpert.saisine_fichier
-                            )} 
-                            label="Télécharger le fichier saisine"
-                            classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
+                                makeFileContentBlob={() => makeFileContentBlob(
+                                    // @ts-ignore ts ne comprend pas que saisine_fichier est défini
+                                    avisExpert.saisine_fichier
+                                )} 
+                                makeFilename={() => makeFilename(
+                                    // @ts-ignore ts ne comprend pas que saisine_fichier est défini
+                                    avisExpert.saisine_fichier
+                                )} 
+                                label="Télécharger le fichier saisine"
+                                classname="fr-btn fr-btn--sm fr-icon-file-download-line fr-btn--icon-left fr-btn--tertiary"
                             />
                         {:else}
                             Aucun fichier de saisine n'est lié à ce dossier
@@ -145,13 +145,13 @@
         ul {
             list-style: none;
             padding-inline-start: 0;
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 0.5rem 1rem;
+            display: flex;
+            flex-direction: column;
         }
         li {
-            display: contents;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
         }
     }
 </style>
