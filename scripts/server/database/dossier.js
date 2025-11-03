@@ -451,7 +451,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
     const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction)
 
-    /** @type {Promise<(AvisExpert & {fichier_avis_contenu?: Buffer | null, fichier_avis_media_type?: string, fichier_avis_nom?: string, fichier_saisine_contenu?: Buffer | null, fichier_saisine_media_type?: string, fichier_saisine_nom?: string})[]>} */
+    /** @type {Promise<AvisExpert[]>} */
     const tousLesAvisExpertDossierP = getAvisExpertDossier(dossierId, transaction)
 
     /** @type {Promise<DécisionAdministrative[]>} */
@@ -478,28 +478,16 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
             delete dossier.demandeur_personne_morale_adresse;
 
             dossier.évènementsPhase = évènementsPhaseDossier
+
             dossier.avisExpert = tousLesAvisExpertDossier.map(
-                ({fichier_avis_contenu, fichier_avis_media_type, fichier_avis_nom, fichier_saisine_contenu, fichier_saisine_media_type, fichier_saisine_nom, ...avisExpert}) => {
-                    return (
-                        {
+                    ({
+                        avis_fichier, saisine_fichier, ...avisExpert
+                    }) => ({ 
                             ...avisExpert,
-                            avis_fichier: fichier_avis_contenu && fichier_avis_nom && fichier_avis_media_type ? 
-                            {
-                                contenu: fichier_avis_contenu,
-                                media_type: fichier_avis_media_type,
-                                nom: fichier_avis_nom
-                            } 
-                            : undefined,
-                            saisine_fichier: fichier_saisine_contenu && fichier_saisine_nom && fichier_saisine_media_type ? 
-                            {
-                                contenu: fichier_saisine_contenu,
-                                media_type: fichier_saisine_media_type,
-                                nom: fichier_saisine_nom
-                            } 
-                            : undefined
-                        }
-                    )
-                })
+                            avis_fichier_url: avis_fichier ? `/avis-expert/fichier/${avis_fichier}` : undefined,
+                            saisine_fichier_url: saisine_fichier ? `/avis-expert/fichier/${saisine_fichier}` : undefined,
+                    })
+                )
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
                 dossier.espècesImpactées = {
@@ -806,22 +794,11 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 /**
  * @param {Dossier['id']} idDossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<(AvisExpert & {fichier_avis_contenu?: Buffer | null, fichier_avis_media_type?: string, fichier_avis_nom?: string, fichier_saisine_contenu?: Buffer | null, fichier_saisine_media_type?: string, fichier_saisine_nom?: string})[]>}
+ * @returns {Promise<AvisExpert[]>}
  */
 async function getAvisExpertDossier(idDossier, databaseConnection = directDatabaseConnection){
     return databaseConnection('avis_expert')
-        .select('avis_expert.*',
-            'fichier_avis.id as fichier_avis_id',
-            'fichier_avis.contenu as fichier_avis_contenu',
-            'fichier_avis.media_type as fichier_avis_media_type',
-            'fichier_avis.nom as fichier_avis_nom',
-            'fichier_saisine.id as fichier_saisine_id',
-            'fichier_saisine.contenu as fichier_saisine_contenu',
-            'fichier_saisine.media_type as fichier_saisine_media_type',
-            'fichier_saisine.nom as fichier_saisine_nom',
-        )
-        .leftJoin('fichier as fichier_avis', {'fichier_avis.id': 'avis_expert.avis_fichier'})
-        .leftJoin('fichier as fichier_saisine', {'fichier_saisine.id': 'avis_expert.saisine_fichier'})
+        .select('*')
         .where({'dossier': idDossier})
 }
 

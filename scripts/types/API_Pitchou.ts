@@ -93,6 +93,11 @@ export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fic
 export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdministrative, 'fichier'> 
     & { fichier_base64: {contenuBase64: string, nom: string, media_type: string} }>
 
+export type FrontEndAvisExpert = Omit<AvisExpert, 'avis_fichier' | 'saisine_fichier'> & {
+    avis_fichier_url: string | undefined;
+    saisine_fichier_url: string | undefined
+}
+
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
@@ -104,24 +109,7 @@ export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régi
 	DossierActivitéPrincipale & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined } & {
 		évènementsPhase: ÉvènementPhaseDossier[]
 	} & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } & {
-		avisExpert: Array<
-			Omit<AvisExpert, 'avis_fichier' | 'saisine_fichier'> & {
-				avis_fichier:
-					| {
-							contenu: Buffer<ArrayBufferLike>;
-                            nom: string;
-                            media_type: string;
-					  }
-					| undefined
-				saisine_fichier:
-					| {
-							contenu: Buffer<ArrayBufferLike>;
-                            nom: string;
-                            media_type: string;
-					  }
-					| undefined
-			}
-		>
+		avisExpert: FrontEndAvisExpert[]
 	}
 
 
