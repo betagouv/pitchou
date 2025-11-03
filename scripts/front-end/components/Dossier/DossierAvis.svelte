@@ -54,7 +54,7 @@
             Demander un avis
         </a>
         <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
-            Voir l'onglet Avis Externes
+            Voir la page Avis sur Démarches Simplifiées
         </a>
     </section>
 
