@@ -131,7 +131,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
                     console.error(`Erreur HTTP ${err.response.status} lors du téléchagement de l'url`, url, `dossier DS`, number)
                 }
                 else{
-                    console.error(`Erreur lors du téléchargement d'un fichier`, err);
+                    console.error(`Erreur lors du téléchargement d'un fichier`, url, `dossier DS`, number, err);
                 }
 
                 return undefined;

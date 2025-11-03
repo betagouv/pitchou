@@ -1,20 +1,27 @@
-/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
-import { isValidDateString } from '../commun/typeFormat.js'
+//@ts-check
 
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
-/** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
+// Fichier avec divers prédicats / type guards
+// https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
+
+
+import {isValidDateString} from '../commun/typeFormat.js'
+
+//@ts-ignore
+/** @import {ChampDSPieceJustificative, ChampRépétéDSPieceJustificative} from '../types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
+//@ts-ignore
 /** @import {OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../types/especes.d.ts' */
 
-
+//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
+const inutile = true;
 
 /** 
  * 
  * @param {any} x 
  * @returns {x is DossierRésumé[]} 
  */
-export function isDossierRésuméArray(x){
-  return Array.isArray(x) && x.every(isDossierRésumé) 
+export function isDossierRésuméArray(x) {
+    return Array.isArray(x) && x.every(isDossierRésumé)
 }
 
 /**
@@ -22,10 +29,10 @@ export function isDossierRésuméArray(x){
  * @returns {value is DossierDémarcheSimplifiée88444Communes}
  */
 const isCommune = (value) => {
-  return value
-      && typeof value.name === 'string'
-      && typeof value.code === 'string'
-      && typeof value.postalCode === 'string';
+    return value
+        && typeof value.name === 'string'
+        && typeof value.code === 'string'
+        && typeof value.postalCode === 'string';
 };
 
 /**
@@ -33,9 +40,9 @@ const isCommune = (value) => {
 * @returns {value is string[] | null | undefined}
 */
 const isOptionalStringArray = (value) => {
-  return value === null 
-      || value === undefined 
-      || (Array.isArray(value) && value.every(item => typeof item === 'string'));
+    return value === null
+        || value === undefined
+        || (Array.isArray(value) && value.every(item => typeof item === 'string'));
 };
 
 /**
@@ -44,56 +51,56 @@ const isOptionalStringArray = (value) => {
 * @returns {x is DossierRésumé} - True if the object matches DossierRésumé structure
 */
 function isDossierRésumé(x) {
-  if (!x || typeof x !== 'object') return false;
+    if(!x || typeof x !== 'object') return false;
 
-  // Basic properties
-  const basicPropsValid = (
-      typeof x.id === 'number'
-      && (typeof x.nom === 'string' || x.nom === null)
-      && (typeof x.number_demarches_simplifiées === 'string' || x.number_demarches_simplifiées === null)
-      && (typeof x.activité_principale === 'string' || x.activité_principale === null)
-      && (typeof x.enjeu_politique === 'boolean' || x.enjeu_politique === null)
-      && (typeof x.enjeu_écologique === 'boolean' || x.enjeu_écologique === null)
-      && (typeof x.rattaché_au_régime_ae === 'boolean' || x.rattaché_au_régime_ae === null)
-      && (typeof x.historique_identifiant_demande_onagre === 'string' || x.historique_identifiant_demande_onagre === null)
-  );
+    // Basic properties
+    const basicPropsValid = (
+        typeof x.id === 'number'
+        && (typeof x.nom === 'string' || x.nom === null)
+        && (typeof x.number_demarches_simplifiées === 'string' || x.number_demarches_simplifiées === null)
+        && (typeof x.activité_principale === 'string' || x.activité_principale === null)
+        && (typeof x.enjeu_politique === 'boolean' || x.enjeu_politique === null)
+        && (typeof x.enjeu_écologique === 'boolean' || x.enjeu_écologique === null)
+        && (typeof x.rattaché_au_régime_ae === 'boolean' || x.rattaché_au_régime_ae === null)
+        && (typeof x.historique_identifiant_demande_onagre === 'string' || x.historique_identifiant_demande_onagre === null)
+    );
 
-  if (!basicPropsValid) return false;
+    if(!basicPropsValid) return false;
 
-  // DossierLocalisation
-  const locationValid = (
-      !x.communes || 
-      (
-        Array.isArray(x.communes) && x.communes.every(isCommune)
-        && isOptionalStringArray(x.départements)
-        && isOptionalStringArray(x.régions)
-      )
-  );
+    // DossierLocalisation
+    const locationValid = (
+        !x.communes ||
+        (
+            Array.isArray(x.communes) && x.communes.every(isCommune)
+            && isOptionalStringArray(x.départements)
+            && isOptionalStringArray(x.régions)
+        )
+    );
 
-  if (!locationValid) return false;
+    if(!locationValid) return false;
 
-  // DossierPersonnesImpliquées
-  const peopleValid = (
-      (typeof x.déposant_nom === 'string' || x.déposant_nom === null)
-      && (typeof x.déposant_prénoms === 'string' || x.déposant_prénoms === null)
-      && (typeof x.demandeur_personne_physique_nom === 'string' || x.demandeur_personne_physique_nom === null)
-      && (typeof x.demandeur_personne_physique_prénoms === 'string' || x.demandeur_personne_physique_prénoms === null)
-      && (typeof x.demandeur_personne_morale_raison_sociale === 'string' || x.demandeur_personne_morale_raison_sociale === null)
-      && (typeof x.demandeur_personne_morale_siret === 'string' || x.demandeur_personne_morale_siret === null)
-  );
+    // DossierPersonnesImpliquées
+    const peopleValid = (
+        (typeof x.déposant_nom === 'string' || x.déposant_nom === null)
+        && (typeof x.déposant_prénoms === 'string' || x.déposant_prénoms === null)
+        && (typeof x.demandeur_personne_physique_nom === 'string' || x.demandeur_personne_physique_nom === null)
+        && (typeof x.demandeur_personne_physique_prénoms === 'string' || x.demandeur_personne_physique_prénoms === null)
+        && (typeof x.demandeur_personne_morale_raison_sociale === 'string' || x.demandeur_personne_morale_raison_sociale === null)
+        && (typeof x.demandeur_personne_morale_siret === 'string' || x.demandeur_personne_morale_siret === null)
+    );
 
-  if (!peopleValid) return false;
+    if(!peopleValid) return false;
 
-  // DossierPhaseEtProchaineAction
-  const phaseValid = typeof x.phase === 'string';
-  const actionValid = x.prochaine_action_attendue_par === null || typeof x.prochaine_action_attendue_par === 'string';
+    // DossierPhaseEtProchaineAction
+    const phaseValid = typeof x.phase === 'string';
+    const actionValid = x.prochaine_action_attendue_par === null || typeof x.prochaine_action_attendue_par === 'string';
 
-  if (!phaseValid || !actionValid) return false;
+    if(!phaseValid || !actionValid) return false;
 
-  // DonnéesDossierPourStats
-  const statsValid = isValidDateString(x.date_dépôt)
+    // DonnéesDossierPourStats
+    const statsValid = isValidDateString(x.date_dépôt)
 
-  return statsValid;
+    return statsValid;
 };
 
 /**
@@ -102,18 +109,18 @@ function isDossierRésumé(x) {
  * @returns {e is OiseauAtteint} 
  */
 export function isOiseauAtteint(e) {
-  return (
-    typeof e === "object" &&
-    e !== null &&
-    typeof e.espèce === "object" && e.espèce.classification === "oiseau" &&
-    (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
-    (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
-    (e.activité === undefined || typeof e.activité === "object") &&
-    (e.méthode === undefined || typeof e.méthode === "object") &&
-    (e.transport === undefined || typeof e.transport === "object") &&
-    (e.nombreNids === undefined || typeof e.nombreNids === "number") &&
-    (e.nombreOeufs === undefined || typeof e.nombreOeufs === "number")
-  )
+    return (
+        typeof e === "object" &&
+        e !== null &&
+        typeof e.espèce === "object" && e.espèce.classification === "oiseau" &&
+        (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
+        (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
+        (e.activité === undefined || typeof e.activité === "object") &&
+        (e.méthode === undefined || typeof e.méthode === "object") &&
+        (e.transport === undefined || typeof e.transport === "object") &&
+        (e.nombreNids === undefined || typeof e.nombreNids === "number") &&
+        (e.nombreOeufs === undefined || typeof e.nombreOeufs === "number")
+    )
 }
 
 /**
@@ -122,16 +129,16 @@ export function isOiseauAtteint(e) {
  * @returns {e is FauneNonOiseauAtteinte} 
  */
 export function isFauneNonOiseauAtteinte(e) {
-  return (
-    typeof e === "object" &&
-    e !== null &&
-    typeof e.espèce === "object" && e.espèce.classification === "faune non-oiseau" &&
-    (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
-    (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
-    (e.activité === undefined || typeof e.activité === "object") &&
-    (e.méthode === undefined || typeof e.méthode === "object") &&
-    (e.transport === undefined || typeof e.transport === "object")
-  )
+    return (
+        typeof e === "object" &&
+        e !== null &&
+        typeof e.espèce === "object" && e.espèce.classification === "faune non-oiseau" &&
+        (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
+        (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
+        (e.activité === undefined || typeof e.activité === "object") &&
+        (e.méthode === undefined || typeof e.méthode === "object") &&
+        (e.transport === undefined || typeof e.transport === "object")
+    )
 }
 
 /**
@@ -140,12 +147,46 @@ export function isFauneNonOiseauAtteinte(e) {
  * @returns {e is FloreAtteinte} 
  */
 export function isFloreAtteinte(e) {
-  return (
-    typeof e === "object" &&
-    e !== null &&
-    typeof e.espèce === "object" && e.espèce.classification === "flore" &&
-    (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
-    (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
-    (e.activité === undefined || typeof e.activité === "object")
-  )
+    return (
+        typeof e === "object" &&
+        e !== null &&
+        typeof e.espèce === "object" && e.espèce.classification === "flore" &&
+        (e.nombreIndividus === undefined || typeof e.nombreIndividus === "string") &&
+        (e.surfaceHabitatDétruit === undefined || typeof e.surfaceHabitatDétruit === "number") &&
+        (e.activité === undefined || typeof e.activité === "object")
+    )
 }
+
+
+/**
+ * 
+ * @param {any} x
+ * @returns {boolean} 
+ */
+export function _isBaseChampDS(x) {
+    return x && typeof x === 'object' &&
+        typeof x.id === 'string' &&
+        typeof x.label === 'string'
+}
+
+/**
+ * 
+ * @param {any} x
+ * @returns {x is ChampDSPieceJustificative} 
+ */
+export function isChampDSPieceJustificative(x) {
+    return _isBaseChampDS(x) && 
+        Array.isArray(x.files)
+}
+
+/**
+ * 
+ * @param {any} x
+ * @returns {x is ChampRépétéDSPieceJustificative} 
+ */
+export function isChampRépétéDSPieceJustificative(x) {
+    return _isBaseChampDS(x) && 
+        Array.isArray(x.rows) &&
+        x.rows.every((/** @type {any} */ r) => r.champs.every(isChampDSPieceJustificative))
+}
+

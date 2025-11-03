@@ -17,7 +17,7 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds/téléchargerNouveauxFichiersParType.js'
-import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
+import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444, récupérerPiècesJointesPétitionnaire88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
 
 import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
@@ -159,6 +159,25 @@ const {
         throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
     }
 })()
+
+
+/** Télécharger les pièces jointes au dossier */
+const fichiersPiècesJointesTéléchargés = await (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return await récupérerPiècesJointesPétitionnaire88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
+
+console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesTéléchargés)
+
+throw `stocker ces fichiers dans le dossier`
+
 
 const {
     getDonnéesPersonnesEntreprises,

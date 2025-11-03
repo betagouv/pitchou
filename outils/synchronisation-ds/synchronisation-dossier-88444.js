@@ -38,9 +38,9 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {Knex.Transaction | Knex} databaseConnection
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>}
  */
-export function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, databaseConnection){
+export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, databaseConnection){
 
     /** @type {ChampDescriptor['id'] | undefined} */
     const fichierPiècesJointesChampId = pitchouKeyToChampDS.get('Dépot du dossier complet de demande de dérogation')
@@ -54,14 +54,38 @@ export function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchou
         throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
     }
 
-    throw `Voir pour le champ répété comment recups les données`
 
-
-    return téléchargerNouveauxFichiersFromChampId(
+    const fichiersPiècesJointesP = téléchargerNouveauxFichiersFromChampId(
         dossiersDS,
-        fichierEspècesImpactéeChampId,
+        fichierPiècesJointesChampId,
         databaseConnection
     )
+
+    const fichiersPiècesJointesComplémentairesP = téléchargerNouveauxFichiersFromChampId(
+        dossiersDS,
+        fichierPiècesJointesComplémentairesChampId,
+        databaseConnection
+    )
+
+    /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
+    const res = new Map()
+
+    const fichiersPiècesJointes = await fichiersPiècesJointesP
+    if(fichiersPiècesJointes){
+        for(const [number, fichierIds] of fichiersPiècesJointes){
+            res.set(number, fichierIds)
+        }
+    }
+
+    const fichiersPiècesJointesComplémentaires = await fichiersPiècesJointesComplémentairesP
+    if(fichiersPiècesJointesComplémentaires){
+        for(const [number, fichierIds] of fichiersPiècesJointesComplémentaires){
+            const fichiersIdsDéjàLà = res.get(number) || []
+            res.set(number, [...fichierIds, ...fichiersIdsDéjàLà])
+        }
+    }
+    
+    return res
 }
 
 
