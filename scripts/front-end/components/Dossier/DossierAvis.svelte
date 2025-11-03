@@ -113,11 +113,11 @@
     </section>
 
     <section>
-        <a class="fr-btn fr-mr-3w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
+        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
             Demander un avis
         </a>
-        <a class="fr-btn" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
-            Voir les avis
+        <a class="fr-btn fr-btn--secondary" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
+            Voir l'onglet Avis Externes
         </a>
     </section>
 
