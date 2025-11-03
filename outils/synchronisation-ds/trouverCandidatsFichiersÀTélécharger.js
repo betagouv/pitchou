@@ -20,10 +20,15 @@ export default function trouverCandidatsFichiersÀTélécharger(dossiers, champD
         // @ts-ignore
         const champFichier = champs.find(c => c.id === champDescriptorId) || annotations.find(c => c.id === champDescriptorId)
 
-        const descriptionFichier = champFichier?.files
+        console.log('champFichier', champFichier)
 
-        return descriptionFichier && descriptionFichier.length >= 1 ?
-            [ number, descriptionFichier ] : 
+        //if(champFichier?.__typename === '')
+
+
+        const descriptionFichiers = champFichier?.files
+
+        return descriptionFichiers && descriptionFichiers.length >= 1 ?
+            [ number, descriptionFichiers ] : 
             undefined
         
     }).filter(x => x !== undefined))
