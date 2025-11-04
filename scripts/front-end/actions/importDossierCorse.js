@@ -3,10 +3,7 @@
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 
-
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
+import { formaterDépartementDepuisValeur } from "./importDossierUtils";
 
 /**
  * @typedef {{
@@ -131,11 +128,19 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
+
+    const départementParDéfaut = {code: '2A', nom: 'Corse-du-Sud'}; // à vérifier
+    const départementsTrouvés = (await formaterDépartementDepuisValeur(ligne['Département']));
+
+    const départementTrouvé = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
+        départementsTrouvés[0] : 
+        undefined
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
         'Nom du projet': créerNomPourDossier(ligne),
         'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444),
+        'Dans quel département se localise majoritairement votre projet ?': départementTrouvé ?? départementParDéfaut,
 
     };
 }
