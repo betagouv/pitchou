@@ -38,7 +38,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'],  MéthodeMenançante>>, transports: ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>, identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} } [activitésMéthodesTransports]
+ * @property { {activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'],  MéthodeMenançante>>, transports: ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>, identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} } [ActivitésMéthodesMoyensDePoursuite]
  * @property { Set<{message: string}> } erreurs
  * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
  */
@@ -136,10 +136,10 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['activitésMéthodesTransports']} activitésMéthodesTransports
+   * @param {PitchouState['ActivitésMéthodesMoyensDePoursuite']} ActivitésMéthodesMoyensDePoursuite
    */
-  setActivitésMéthodesTransports(state, activitésMéthodesTransports) {
-    state.activitésMéthodesTransports = activitésMéthodesTransports
+  setActivitésMéthodesMoyensDePoursuite(state, ActivitésMéthodesMoyensDePoursuite) {
+    state.ActivitésMéthodesMoyensDePoursuite = ActivitésMéthodesMoyensDePoursuite
   },
   /**
    * @param {PitchouState} state

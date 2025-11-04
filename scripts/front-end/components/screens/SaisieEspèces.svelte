@@ -6,10 +6,10 @@
     import ModalePréremplirDepuisTexte from '../SaisieEspèces/ModalePréremplirDepuisTexte.svelte'
     import FormulaireSaisieEspèce from '../SaisieEspèces/FormulaireSaisieEspèce.svelte'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
-    import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
     import Loader from '../Loader.svelte'
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
 	import { tick } from 'svelte'
+	import { chargerActivitésMéthodesMoyensDePoursuite } from '../../actions/activitésMéthodesMoyensDePoursuite.js'
 
 
     /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
@@ -96,7 +96,7 @@
         return espècesImpactéesParClassification
     })
 
-    const promesseRéférentiels = chargerActivitésMéthodesTransports();
+    const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
 
     /**
      * @param {DescriptionMenacesEspèces} descriptionMenacesEspèces

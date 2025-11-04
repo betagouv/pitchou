@@ -470,48 +470,48 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
 /**
  * @param {Buffer} odsData
- * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
+ * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>> }
  */
-export async function construireActivitésMéthodesTransports(odsData) {
-    const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
+export async function construireActivitésMéthodesMoyensDePoursuite(odsData) {
+    const ActivitésMéthodesMoyensDePoursuiteBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
 
     // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
     // utilisée par Svelte
 
     /**  @type {ParClassification<ActivitéMenançante[]>} */
     const activitésBrutes = {
-        oiseau: activitésMéthodesTransportsBruts.get("Activités oiseau").map(
+        oiseau: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités oiseau").map(
             // @ts-ignore
             row => Object.assign({}, row)
         ),
-        "faune non-oiseau": activitésMéthodesTransportsBruts.get("Activités faune non oiseau").map(
+        "faune non-oiseau": ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités faune non oiseau").map(
             // @ts-ignore
             row => Object.assign({}, row)
         ),
-        flore: activitésMéthodesTransportsBruts.get("Activités flore").map(
+        flore: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités flore").map(
             // @ts-ignore
             row => Object.assign({}, row)
         ),
     }
 
     /** @type { MéthodeMenançante[] } */
-    const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
+    const méthodesBrutes = ActivitésMéthodesMoyensDePoursuiteBruts.get("Méthodes").map(
         // @ts-ignore
         row => Object.assign({}, row)
     )
     /** @type { MoyenDePoursuiteMenaçant[] } */
-    const moyensPoursuite = activitésMéthodesTransportsBruts.get("Moyens de poursuite").map(
+    const moyensPoursuite = ActivitésMéthodesMoyensDePoursuiteBruts.get("Moyens de poursuite").map(
         // @ts-ignore
         row => Object.assign({}, row)
     )
 
-    const activitésMéthodesTransports = actMetTransArraysToMapBundle(
+    const ActivitésMéthodesMoyensDePoursuite = actMetTransArraysToMapBundle(
         activitésBrutes,
         méthodesBrutes,
         moyensPoursuite
     )
 
-    const identifiantPitchouVersActivitéEtImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
+    const identifiantPitchouVersActivitéEtImpactsQuantifiés = new Map(Object.values(ActivitésMéthodesMoyensDePoursuite.activités)
         .flatMap((activités) => {
             return [...activités.entries()].map(([code, activité]) => {
                 /** @type {ImpactQuantifié[]} */
@@ -529,7 +529,7 @@ export async function construireActivitésMéthodesTransports(odsData) {
 
     const ret = {
         identifiantPitchouVersActivitéEtImpactsQuantifiés,
-        ...activitésMéthodesTransports
+        ...ActivitésMéthodesMoyensDePoursuite
     }
 
     return ret
