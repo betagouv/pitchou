@@ -5,7 +5,7 @@ import * as csv from 'csv-parse/sync'
 import parseArgs from 'minimist'
 
 import { directDatabaseConnection, closeDatabaseConnection } from '../scripts/server/database.js';
-import { construireActivitésMéthodesTransports, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
+import { construireActivitésMéthodesMoyensDePoursuite, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
 
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import { GeoMceMessage, DossierPourGeoMCE } from '../scripts/types/geomce.ts' */
@@ -15,11 +15,11 @@ import { construireActivitésMéthodesTransports, espèceProtégéeStringToEspè
 const DATA_DIR = path.join(import.meta.dirname, '../data')
 
 /**
- * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
+ * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>> }
  */
-async function chargerActivitésMéthodesTransports() {
+async function chargerActivitésMéthodesMoyensDePoursuite() {
     const activitésBuffer = await fs.readFile(path.join(DATA_DIR, 'activites-methodes-moyens-de-poursuite.ods'))
-    return await construireActivitésMéthodesTransports(activitésBuffer)
+    return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer)
 }
 
 /**
@@ -70,7 +70,7 @@ async function récupérerDossierParId(idDossier) {
     const [dossier, instructeurs] = await Promise.all([dossierP, instructeursP])
 
     const espèceParCD_REF = await chargerListeEspèceParCD_REF()
-    const { activités, méthodes, transports } = await chargerActivitésMéthodesTransports()
+    const { activités, méthodes, transports } = await chargerActivitésMéthodesMoyensDePoursuite()
 
     const descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
         dossier.fichier_contenu,

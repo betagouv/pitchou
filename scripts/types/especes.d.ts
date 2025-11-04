@@ -148,7 +148,7 @@ export interface DescriptionImpact {
     surfaceHabitatDétruit?: number,
     activité?: ActivitéMenançante,
     méthode?: MéthodeMenançante,
-    transport?: TransportMenançant,
+    transport?: MoyenDePoursuiteMenaçant,
     nombreNids?: number,
     nombreOeufs?: number,
 }

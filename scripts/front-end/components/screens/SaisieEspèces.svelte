@@ -14,12 +14,10 @@
 
     import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
-    import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
     import Loader from '../Loader.svelte'
+	import { chargerActivitésMéthodesMoyensDePoursuite } from '../../actions/activitésMéthodesMoyensDePoursuite.js'
 
-
-
-    /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
+    /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, DescriptionImpact} from '../../../types/especes.d.ts' **/
     /** @import { ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
 
@@ -104,7 +102,7 @@
         return espècesImpactéesParClassification
     })
 
-    const promesseRéférentiels = chargerActivitésMéthodesTransports();
+    const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
 
     /**
      * @param {DescriptionMenacesEspèces} descriptionMenacesEspèces

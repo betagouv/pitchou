@@ -3,7 +3,7 @@
 import store from "../store"
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
-import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées } from './activitésMéthodesTransports.js';
+import { chargerActivitésMéthodesMoyensDePoursuite, chargerListeEspècesProtégées } from './activitésMéthodesMoyensDePoursuite.js';
 import { isDossierRésuméArray } from '../../types/typeguards.js';
 import { chargerRelationSuivi } from "./main.js";
 
@@ -103,7 +103,7 @@ export async function refreshDossierComplet(id){
  */
 export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArrayBuffer){
     const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransports()
+    const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite()
 
     const {espèceByCD_REF} = await espècesProtégées
     const { activités, méthodes, transports } = await actMétTrans

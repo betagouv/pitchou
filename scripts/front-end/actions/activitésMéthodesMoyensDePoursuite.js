@@ -1,14 +1,14 @@
 //@ts-check
 
 import {dsv, buffer} from 'd3-fetch'
-import store from "../store"
+import store from "../store.js"
 import { getURL } from '../getLinkURL.js';
-import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif, construireActivitésMéthodesTransports } from '../../commun/outils-espèces.js';
+import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif, construireActivitésMéthodesMoyensDePoursuite } from '../../commun/outils-espèces.js';
 
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes' */
 
 
 /**
@@ -60,7 +60,7 @@ export async function chargerListeEspècesProtégées(){
 
 /**
  * Charge et organise données concernant les activités, méthodes et transports depuis les fichiers CSV externes.
- * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>>}
+ * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>>}
  * - activités : Map indexée par classification d'espèce (oiseau, faune non-oiseau, flore) contenant les activités menaçantes indexées par leur code
  * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
  * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
@@ -76,17 +76,17 @@ export async function chargerListeEspècesProtégées(){
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
-export async function chargerActivitésMéthodesTransports(){
+export async function chargerActivitésMéthodesMoyensDePoursuite(){
 
-    if(store.state.activitésMéthodesTransports){
-        return Promise.resolve(store.state.activitésMéthodesTransports)
+    if(store.state.ActivitésMéthodesMoyensDePoursuite){
+        return Promise.resolve(store.state.ActivitésMéthodesMoyensDePoursuite)
     }
 
     const odsData = await buffer(getURL('link#activites-methodes-moyens-de-poursuite-data'))
     // @ts-ignore
-    const ret = await construireActivitésMéthodesTransports(odsData)
+    const ret = await construireActivitésMéthodesMoyensDePoursuite(odsData)
 
-    store.mutations.setActivitésMéthodesTransports(ret)
+    store.mutations.setActivitésMéthodesMoyensDePoursuite(ret)
 
     return ret
 }
