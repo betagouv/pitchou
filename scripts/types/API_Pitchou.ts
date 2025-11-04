@@ -5,6 +5,7 @@ import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.t
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
 import Prescription from './database/public/Prescription.ts'
 import Contrôle from './database/public/Contrôle.ts'
+import AvisExpert from './database/public/AvisExpert.ts'
 
 
 type DossierPersonnesImpliquéesRésumé = {
@@ -92,19 +93,24 @@ export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fic
 export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdministrative, 'fichier'> 
     & { fichier_base64: {contenuBase64: string, nom: string, media_type: string} }>
 
+export type FrontEndAvisExpert = Omit<AvisExpert, 'avis_fichier' | 'saisine_fichier'> & {
+    avis_fichier_url: string | undefined;
+    saisine_fichier_url: string | undefined
+}
+
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un 
  */
-export type DossierComplet = Omit<Dossier, 
-    'communes' | 'départements' | 'régions' | 'activité_principale'>
-    & DossierLocalisation
-    & DossierPersonnesImpliquéesComplet
-    & DossierActivitéPrincipale
-    & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined }
-    & { évènementsPhase: ÉvènementPhaseDossier[] }
-    & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}
+export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'> &
+	DossierLocalisation &
+	DossierPersonnesImpliquéesComplet &
+	DossierActivitéPrincipale & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined } & {
+		évènementsPhase: ÉvènementPhaseDossier[]
+	} & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } & {
+		avisExpert: FrontEndAvisExpert[]
+	}
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";

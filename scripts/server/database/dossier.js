@@ -4,6 +4,7 @@
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+/** @import {default as AvisExpert} from '../../types/database/public/AvisExpert.ts' */
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
@@ -449,8 +450,11 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
     const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction)
-    /** @type {Promise<DécisionAdministrative[]>} */
 
+    /** @type {Promise<AvisExpert[]>} */
+    const tousLesAvisExpertDossierP = getAvisExpertDossier(dossierId, transaction)
+
+    /** @type {Promise<DécisionAdministrative[]>} */
     const décisionsAdministrativesP = getDécisionAdministratives(dossierId, transaction)
     const decisionIds = (await décisionsAdministrativesP).map(d => d.id)
 
@@ -464,16 +468,26 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     if(!databaseConnection.isTransaction){
         // transaction locale à cette fonction
         // nous la refermons donc manuellement
-        Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
+        Promise.all([dossierP, évènementsPhaseDossierP, tousLesAvisExpertDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
             .then(transaction.commit).catch(transaction.rollback)
     }
 
-    return Promise.all([dossierP, évènementsPhaseDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
-        .then(([dossier, évènementsPhaseDossier, décisionsAdministratives, prescriptions, contrôles]) => {
+    return Promise.all([dossierP, évènementsPhaseDossierP, tousLesAvisExpertDossierP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
+        .then(([dossier, évènementsPhaseDossier, tousLesAvisExpertDossier,décisionsAdministratives, prescriptions, contrôles]) => {
             dossier.demandeur_adresse = dossier.demandeur_personne_morale_adresse || ''
             delete dossier.demandeur_personne_morale_adresse;
 
             dossier.évènementsPhase = évènementsPhaseDossier
+
+            dossier.avisExpert = tousLesAvisExpertDossier.map(
+                    ({
+                        avis_fichier, saisine_fichier, ...avisExpert
+                    }) => ({ 
+                            ...avisExpert,
+                            avis_fichier_url: avis_fichier ? `/avis-expert/fichier/${avis_fichier}` : undefined,
+                            saisine_fichier_url: saisine_fichier ? `/avis-expert/fichier/${saisine_fichier}` : undefined,
+                    })
+                )
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
                 dossier.espècesImpactées = {
@@ -775,7 +789,17 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
             this.whereNotNull('cause_personne').orWhereNotNull('DS_emailAgentTraitant');
         })
         .orderBy('horodatage', 'desc');
+}
 
+/**
+ * @param {Dossier['id']} idDossier
+ * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
+ * @returns {Promise<AvisExpert[]>}
+ */
+async function getAvisExpertDossier(idDossier, databaseConnection = directDatabaseConnection){
+    return databaseConnection('avis_expert')
+        .select('*')
+        .where({'dossier': idDossier})
 }
 
 
