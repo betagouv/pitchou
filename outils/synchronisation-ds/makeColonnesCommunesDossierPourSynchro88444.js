@@ -152,6 +152,18 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     )
     const mesures_erc_prévues = mesures_erc_prévues_champ?.checked
 
+    const etat_des_lieux_ecologique_complet_realise_champ = champById.get(
+        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+    const etat_des_lieux_ecologique_complet_realise = etat_des_lieux_ecologique_complet_realise_champ?.checked
+
+    const presence_especes_dans_aire_influence_champ = champById.get(
+        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+    const presence_especes_dans_aire_influence = presence_especes_dans_aire_influence_champ?.checked
+
+    const risque_malgre_mesures_erc_champ = champById.get(
+        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+    const risque_malgre_mesures_erc = risque_malgre_mesures_erc_champ?.checked
+
     /** Données dossier scientifique */
     /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
     const scientifique_type_demande_values = champById.get(pitchouKeyToChampDS.get('Recherche scientifique - Votre demande concerne :'))?.values
@@ -270,6 +282,10 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         // déposant,
 
         // champs
+        etat_des_lieux_ecologique_complet_realise,
+        presence_especes_dans_aire_influence,
+        risque_malgre_mesures_erc,
+
         nom,
         description,
         activité_principale,
