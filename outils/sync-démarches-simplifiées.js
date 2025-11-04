@@ -162,9 +162,9 @@ const {
 
 
 /** Télécharger les pièces jointes au dossier */
-const fichiersPiècesJointesTéléchargés = await (async () => {
+const fichiersPiècesJointesPétitionnaireTéléchargés = await (async () => {
     if (DEMARCHE_NUMBER === 88444) {
-        return await récupérerPiècesJointesPétitionnaire88444(
+        return récupérerPiècesJointesPétitionnaire88444(
             dossiersDS,
             pitchouKeyToChampDS,
             laTransactionDeSynchronisationDS
@@ -174,9 +174,7 @@ const fichiersPiècesJointesTéléchargés = await (async () => {
     }
 })()
 
-console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesTéléchargés)
-
-throw `stocker ces fichiers dans le dossier`
+console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
 
 
 const {
@@ -204,6 +202,7 @@ const {
     }
 })()
 
+
 const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(
     dossiersDS,
     DEMARCHE_NUMBER,
@@ -212,6 +211,7 @@ const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await ma
     fichiersAvisCSRPN_CNPN_Téléchargés,
     fichiersAvisConformeMinistreTéléchargés,
     fichiersMotivationTéléchargés,
+    fichiersPiècesJointesPétitionnaireTéléchargés,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
     getDonnéesPersonnesEntreprises,

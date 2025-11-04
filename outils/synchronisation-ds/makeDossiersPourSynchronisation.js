@@ -9,6 +9,7 @@
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import AvisExpert, {AvisExpertInitializer} from '../../scripts/types/database/public/AvisExpert.ts' */
 /** @import DCisionAdministrative ,{DCisionAdministrativeInitializer} from '../../scripts/types/database/public/DécisionAdministrative.ts' */
+/** @import ArêteDossierFichierPiècesJointesPétitionnaire ,{ArTeDossierFichierPiCesJointesPTitionnaireInitializer} from '../../scripts/types/database/public/ArêteDossierFichierPiècesJointesPétitionnaire.ts' */
 /** @import { PartialBy }  from '../../scripts/types/tools' */
 /** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
 /** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
@@ -405,6 +406,24 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
     return décisionsAdministratives
 }
 
+/**
+ * Synchronisation des fichiers pièces jointes
+ * Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
+ * des nouvelles pièces jointes pétitionnaire en BDD
+ *
+ * @param {FichierId[] | undefined} fichiersPiècesJointesPétitionnaireTéléchargés
+ * @param {Dossier['id'] } [idPitchouDuDossier] // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est undefined
+ * @returns {PartialBy<ArTeDossierFichierPiCesJointesPTitionnaireInitializer, "dossier">[]}
+ */
+function makeFichierPiècesJointesPétitionnaire(fichiersPiècesJointesPétitionnaireTéléchargés = [], idPitchouDuDossier) {
+    /**@type { ReturnType<makeFichierPiècesJointesPétitionnaire> } */
+    return fichiersPiècesJointesPétitionnaireTéléchargés.map(fichierId => ({
+        fichier: fichierId,
+        dossier: idPitchouDuDossier
+    }))
+
+}
+
 
 /**
  * Récupère les données brutes des dossiers depuis Démarches Simplifiées
@@ -418,6 +437,7 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<number, FichierId[]> | undefined} fichiersAvisConformeMinistreTéléchargés
  * @param {Map<number, FichierId> | undefined} fichiersMotivationTéléchargés
+ * @param {Map<number, FichierId[]> | undefined} fichiersPiècesJointesPétitionnaireTéléchargés
  * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
  * @param {GetDonnéesPersonnesEntreprises} getDonnéesPersonnesEntreprises
@@ -425,7 +445,21 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
  * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>}
  */
-export async function makeDossiersPourSynchronisation(dossiersDS, démarcheNumber, numberDSDossiersDéjàExistantsEnBDD, fichiersSaisinesCSRPN_CNPN_Téléchargés, fichiersAvisCSRPN_CNPN_Téléchargés, fichiersAvisConformeMinistreTéléchargés, fichiersMotivationTéléchargés, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, getDonnéesPersonnesEntreprises, makeAvisExpertFromTraitementsDS, makeColonnesCommunesDossierPourSynchro) {
+export async function makeDossiersPourSynchronisation(
+    dossiersDS, 
+    démarcheNumber, 
+    numberDSDossiersDéjàExistantsEnBDD, 
+    fichiersSaisinesCSRPN_CNPN_Téléchargés, 
+    fichiersAvisCSRPN_CNPN_Téléchargés, 
+    fichiersAvisConformeMinistreTéléchargés, 
+    fichiersMotivationTéléchargés, 
+    fichiersPiècesJointesPétitionnaireTéléchargés = new Map(),
+    pitchouKeyToChampDS, 
+    pitchouKeyToAnnotationDS, 
+    getDonnéesPersonnesEntreprises, 
+    makeAvisExpertFromTraitementsDS, 
+    makeColonnesCommunesDossierPourSynchro
+) {
     const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
 
     /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
@@ -444,6 +478,8 @@ export async function makeDossiersPourSynchronisation(dossiersDS, démarcheNumbe
 
         const décision_administrative = makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, null)
 
+        const arête_fichier_dossier_pétitionnaire = makeFichierPiècesJointesPétitionnaire(fichiersPiècesJointesPétitionnaireTéléchargés.get(dossierDS.number))
+
         return champsDossierPourInitP.then(champsDossierPourInit => ({
             dossier: {
                 ...champsDossierPourInit.dossier,
@@ -460,6 +496,7 @@ export async function makeDossiersPourSynchronisation(dossiersDS, démarcheNumbe
                 ...(champsDossierPourInit.décision_administrative || []),
                 ...décision_administrative
             ],
+            arête_fichier_dossier_pétitionnaire,
             personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent
         }))
     })
@@ -483,6 +520,8 @@ export async function makeDossiersPourSynchronisation(dossiersDS, démarcheNumbe
 
         const décision_administrative = makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, dossierId)
 
+        const arête_fichier_dossier_pétitionnaire = makeFichierPiècesJointesPétitionnaire(fichiersPiècesJointesPétitionnaireTéléchargés.get(dossierDS.number), dossierId)
+
         return ({
             dossier: {
                 ...dossierPartiel,
@@ -491,6 +530,7 @@ export async function makeDossiersPourSynchronisation(dossiersDS, démarcheNumbe
             évènement_phase_dossier,
             avis_expert,
             décision_administrative,
+            arête_fichier_dossier_pétitionnaire
         })
     })
 
