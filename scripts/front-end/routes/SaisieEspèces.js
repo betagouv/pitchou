@@ -21,7 +21,7 @@ export default async () => {
     const {
         activités: activitesParClassificationEtreVivant,
         méthodes: méthodesParClassificationEtreVivant,
-        transports: transportsParClassificationEtreVivant
+        moyensDePoursuite: transportsParClassificationEtreVivant
     } = await actMétTrans
 
     /**

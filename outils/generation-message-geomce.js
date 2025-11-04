@@ -70,14 +70,14 @@ async function récupérerDossierParId(idDossier) {
     const [dossier, instructeurs] = await Promise.all([dossierP, instructeursP])
 
     const espèceParCD_REF = await chargerListeEspèceParCD_REF()
-    const { activités, méthodes, transports } = await chargerActivitésMéthodesMoyensDePoursuite()
+    const { activités, méthodes, moyensDePoursuite } = await chargerActivitésMéthodesMoyensDePoursuite()
 
     const descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
         dossier.fichier_contenu,
         espèceParCD_REF,
         activités,
         méthodes,
-        transports
+        moyensDePoursuite
     )
 
     return {
