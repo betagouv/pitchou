@@ -5,14 +5,14 @@
     import AutocompleteEspeces from "./AutocompleteEspèces.svelte"
     import CopyFileIcon from "../icons/CopyFileIcon.svelte"
 
-    /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
+    /** @import {FauneNonOiseauAtteinte, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
      * @property {EspèceProtégée | undefined} [espèce]
      * @property {ActivitéMenançante | undefined} [activité]
      * @property {MéthodeMenançante | undefined} [méthode]
-     * @property {TransportMenançant | undefined} [transport]
+     * @property {MoyenDePoursuiteMenaçant | undefined} [transport]
      * @property {string | undefined} [nombreIndividus]
      * @property {number | undefined} [surfaceHabitatDétruit]
      * @property {undefined | ((f: FauneNonOiseauAtteinte) => void)} [onDupliquerLigne]
@@ -20,7 +20,7 @@
      * @property {EspèceProtégée[]} [espècesProtégéesFauneNonOiseau]
      * @property {ActivitéMenançante[]} [activitésMenaçantes]
      * @property {MéthodeMenançante[]} méthodesMenaçantes
-     * @property {TransportMenançant[]} transportMenaçants
+     * @property {MoyenDePoursuiteMenaçant[]} transportMenaçants
      */
 
     /** @type {Props} */

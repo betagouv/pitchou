@@ -10,7 +10,7 @@
     import OiseauAtteintEditRow from "./OiseauAtteintEditRow.svelte"
     import TrisDeTh from "../TrisDeTh.svelte"
 
-    /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.d.ts" */
+    /** @import {OiseauAtteint, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant} from "../../../types/especes.d.ts" */
     /** @import { TriTableau } from '../../../types/interfaceUtilisateur.ts' */
 
 
@@ -20,7 +20,7 @@
      * @property {EspèceProtégée[]} espècesProtégéesOiseau
      * @property {ActivitéMenançante[]} activitésMenaçantes
      * @property {MéthodeMenançante[]} méthodesMenaçantes
-     * @property {TransportMenançant[]} transportMenaçants
+     * @property {MoyenDePoursuiteMenaçant[]} transportMenaçants
      */
 
     /** @type {Props} */
