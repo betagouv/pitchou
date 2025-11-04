@@ -82,7 +82,7 @@ export async function chargerActivitésMéthodesTransports(){
         return Promise.resolve(store.state.activitésMéthodesTransports)
     }
 
-    const odsData = await buffer(getURL('link#activites-methodes-transports-data'))
+    const odsData = await buffer(getURL('link#activites-methodes-moyens-de-poursuite-data'))
     // @ts-ignore
     const ret = await construireActivitésMéthodesTransports(odsData)
 
