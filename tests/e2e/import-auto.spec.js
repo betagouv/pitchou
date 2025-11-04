@@ -9,11 +9,8 @@ test(`Outil import automatisé`, async ({ page }) => {
 
   // Se connecter à Démarches Simplifiées
   await page.goto(lienDémarchesSimplifiéesavecToken)
-
   await page.getByRole('textbox', {name: 'Adresse électronique obligatoire Exemple : adresse@mail.com'}).fill(monMail);
-
   await page.getByRole('textbox', {name: 'Mot de passe obligatoire'}).fill(monMotdePasse);
-
   await page.getByRole('button', { name : "Se connecter" }).click();
 
   //TO DO: Récupérer le lien de pré-remplissage
@@ -28,7 +25,8 @@ test(`Outil import automatisé`, async ({ page }) => {
 
   await page.getByRole('button', { name : "Continuer" }).click();
 
-  // Page Dossier n° XXX - En brouillon depuis le XXX
+  // Remplir et déposer le dossier
+  //TODO: générer et rajouter le fichier espèce impactée s'il existe
   await page.getByRole('button', { name : "Déposer le dossier" }).click();
 
   // TODO: Lancer l'outil de synchro
