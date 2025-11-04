@@ -3,7 +3,7 @@
     import NomEspèce from '../../NomEspèce.svelte' 
     import ImpactEspèce from '../../SaisieEspèces/ImpactEspèce.svelte' 
 	import { tick } from "svelte"
-    /** @import { EspèceProtégée, DescriptionImpact, ParClassification, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../../types/especes' **/
+    /** @import { EspèceProtégée, DescriptionImpact, ParClassification, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant } from '../../../../types/especes' **/
 
     /**
      * @typedef {Object} Props
@@ -13,7 +13,7 @@
      * @property {() => void} préremplirAvecCesEspècesImpacts
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      * @property {(impactPourChaqueOiseau: DescriptionImpact, impactPourChaqueFauneNonOiseau: DescriptionImpact, impactPourChaqueFlore: DescriptionImpact) => void} ajouterImpactPourChaqueClassification
      */
     /** @type {Props} */

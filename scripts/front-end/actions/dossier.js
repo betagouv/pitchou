@@ -14,7 +14,7 @@ import { chargerRelationSuivi } from "./main.js";
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
 
 /**
  * @param {DossierComplet} dossier

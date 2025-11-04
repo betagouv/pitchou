@@ -3,7 +3,7 @@
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
 	import { mailtoJeNetrouvePasUneEspèce } from '../../../commun/constantes.js'
 
-    /** @import {ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
+    /** @import {ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant} from "../../../types/especes.js" */
 
 
     /**
@@ -14,7 +14,7 @@
      * @property {TuileSaisieEspèce[]} référencesEspèces
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */

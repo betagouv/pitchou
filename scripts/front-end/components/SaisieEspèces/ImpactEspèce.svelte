@@ -3,7 +3,7 @@
 
     import { fourchettesIndividus } from "../../espèceFieldset.js";
 
-    /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, ClassificationEtreVivant} from "../../../types/especes.js" */
+    /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, ClassificationEtreVivant} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
@@ -15,7 +15,7 @@
      * @property {ClassificationEtreVivant} [espèceClassification]
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */

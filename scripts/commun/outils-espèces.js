@@ -14,7 +14,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from '@o
  *    DescriptionMenaceEspèceJSON,
  *    ActivitéMenançante,
  *    MéthodeMenançante,
- *    TransportMenançant,
+ *    MoyenDePoursuiteMenaçant,
  *    ImpactQuantifié,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from '@odfjs/odfjs' */
@@ -242,7 +242,7 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
  * @returns {DescriptionMenacesEspèces}
  */
 function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
@@ -287,7 +287,7 @@ function b64ToUTF8(s) {
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
  * @returns {DescriptionMenacesEspèces | undefined}
  */
 export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
@@ -320,7 +320,7 @@ function ligneEspèceImpactéeHasCD_REF(espèceImpactée){
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
  * @returns {Promise<DescriptionMenacesEspèces>}
  */
 async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
@@ -499,7 +499,7 @@ export async function construireActivitésMéthodesTransports(odsData) {
         // @ts-ignore
         row => Object.assign({}, row)
     )
-    /** @type { TransportMenançant[] } */
+    /** @type { MoyenDePoursuiteMenaçant[] } */
     const moyensPoursuite = activitésMéthodesTransportsBruts.get("Moyens de poursuite").map(
         // @ts-ignore
         row => Object.assign({}, row)
@@ -538,12 +538,12 @@ export async function construireActivitésMéthodesTransports(odsData) {
 /**
  * @param {ParClassification<ActivitéMenançante[]>} activitésBrutes
  * @param {MéthodeMenançante[]} méthodesBrutes
- * @param {TransportMenançant[]} transportsBruts
+ * @param {MoyenDePoursuiteMenaçant[]} transportsBruts
  *
  * @returns {{
 *  activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>,
 *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>,
-*  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>
+*  transports: ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>
 * }}
 */
 
@@ -600,7 +600,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
        méthodes[classif] = classifMeth
    }
 
-   /** @type {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} */
+   /** @type {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} */
    const transports = {
        oiseau: new Map(),
        "faune non-oiseau": new Map(),

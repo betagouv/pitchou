@@ -21,7 +21,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
 /** @import {DossierComplet, DossierRésumé} from '../types/API_Pitchou.d.ts' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, ImpactQuantifié} from '../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, ImpactQuantifié} from '../types/especes.d.ts' */
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
@@ -38,7 +38,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
  * @property {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} [espèceByCD_REF]
- * @property { {activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'],  MéthodeMenançante>>, transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>, identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} } [activitésMéthodesTransports]
+ * @property { {activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>, méthodes: ParClassification<Map<MéthodeMenançante['Code'],  MéthodeMenançante>>, transports: ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>, identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} } [activitésMéthodesTransports]
  * @property { Set<{message: string}> } erreurs
  * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
  */

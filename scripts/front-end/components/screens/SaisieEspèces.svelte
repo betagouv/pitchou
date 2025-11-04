@@ -12,8 +12,8 @@
 	import { tick } from 'svelte'
 
 
-    /** @import { ParClassification, DescriptionImpact, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
-    /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
+    /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
+    /** @import { ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, DescriptionImpact } from '../../../types/especes.d.ts' **/
 
 
     /**
@@ -22,7 +22,7 @@
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activitesParClassificationEtreVivant
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      * @property {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} importDescriptionMenacesEspècesFromOds
      * @property {OiseauAtteint[]} oiseauxAtteints
      * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes

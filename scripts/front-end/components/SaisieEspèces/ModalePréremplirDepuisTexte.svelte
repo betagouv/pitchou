@@ -3,7 +3,7 @@
     import EcranPréciserImpact from './ModalePréremplirDepuisTexte/EcranPréciserImpact.svelte'
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
     import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings.js'
-    /** @import { ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../types/especes' **/
+    /** @import { ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant } from '../../../types/especes' **/
 
     /**
      * @typedef {Object} Props
@@ -12,7 +12,7 @@
      * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */

@@ -7,7 +7,7 @@
     import ImpactEspèce from './ImpactEspèce.svelte'
     import { espèceLabel } from '../../../commun/outils-espèces.js'
 
-    /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionImpact, ClassificationEtreVivant} from "../../../types/especes.js" */
+    /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionImpact, ClassificationEtreVivant} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
@@ -21,7 +21,7 @@
      * @property {EspèceProtégée[]} [espècesProtégées]
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */

@@ -87,7 +87,7 @@ export interface MéthodeMenançante {
     "Libellé Pitchou": string,
 }
 
-export interface TransportMenançant {
+export interface MoyenDePoursuiteMenaçant {
     Code: string,
     Espèces: ClassificationEtreVivant,
     "Libellé activité directive européenne": string,
@@ -118,7 +118,7 @@ export interface FloreAtteinteJSON extends EtreVivantAtteintJSON {
 export interface FauneNonOiseauAtteinte extends EtreVivantAtteint {
     activité?: ActivitéMenançante,
     méthode?: MéthodeMenançante,
-    transport?: TransportMenançant,
+    transport?: MoyenDePoursuiteMenaçant,
 }
 
 export interface FauneNonOiseauAtteinteJSON extends EtreVivantAtteintJSON {
@@ -130,7 +130,7 @@ export interface FauneNonOiseauAtteinteJSON extends EtreVivantAtteintJSON {
 export interface OiseauAtteint extends EtreVivantAtteint {
     activité?: ActivitéMenançante,
     méthode?: MéthodeMenançante,
-    transport?: TransportMenançant,
+    transport?: MoyenDePoursuiteMenaçant,
     nombreNids?: number,
     nombreOeufs?: number,
 }

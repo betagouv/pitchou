@@ -8,7 +8,7 @@ import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundl
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes.d.ts' */
 
 
 /**
