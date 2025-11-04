@@ -106,14 +106,14 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
     const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite()
 
     const {espèceByCD_REF} = await espècesProtégées
-    const { activités, méthodes, transports } = await actMétTrans
+    const { activités, méthodes, moyensDePoursuite } = await actMétTrans
 
     return importDescriptionMenacesEspècesFromOdsArrayBuffer(
         fichierArrayBuffer,
         espèceByCD_REF,
         activités,
         méthodes,
-        transports
+        moyensDePoursuite
     )
 
 }
