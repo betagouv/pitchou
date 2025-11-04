@@ -9,7 +9,7 @@
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import AvisExpert, {AvisExpertInitializer} from '../../scripts/types/database/public/AvisExpert.ts' */
 /** @import DCisionAdministrative ,{DCisionAdministrativeInitializer} from '../../scripts/types/database/public/DécisionAdministrative.ts' */
-/** @import ArêteDossierFichierPiècesJointesPétitionnaire ,{ArTeDossierFichierPiCesJointesPTitionnaireInitializer} from '../../scripts/types/database/public/ArêteDossierFichierPiècesJointesPétitionnaire.ts' */
+/** @import {ArTeDossierFichierPiCesJointesPTitionnaireInitializer} from '../../scripts/types/database/public/ArêteDossierFichierPiècesJointesPétitionnaire.ts' */
 /** @import { PartialBy }  from '../../scripts/types/tools' */
 /** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
 /** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
