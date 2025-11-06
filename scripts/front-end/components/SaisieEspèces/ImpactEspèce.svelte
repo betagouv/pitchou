@@ -3,7 +3,7 @@
 
     import { fourchettesIndividus } from "../../espèceFieldset.js";
 
-    /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
+    /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, ClassificationEtreVivant} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
@@ -12,6 +12,7 @@
      * @property {DescriptionImpact} [impact]
      * @property {(() => Promise<void>)} [onSupprimerImpact]
      * @property {EspèceProtégée} [espèce]
+     * @property {ClassificationEtreVivant} [espèceClassification]
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
      * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
@@ -24,26 +25,27 @@
         impact = $bindable({}),
         onSupprimerImpact,
         espèce,
+        espèceClassification = espèce?.classification,
         activitesParClassificationEtreVivant,
         méthodesParClassificationEtreVivant,
         transportsParClassificationEtreVivant,
     } = $props();
 
     let activitésMenaçantes = $derived(
-        espèce && activitesParClassificationEtreVivant
-        ? [...activitesParClassificationEtreVivant[espèce.classification].values()]
+        espèceClassification && activitesParClassificationEtreVivant
+        ? [...activitesParClassificationEtreVivant[espèceClassification].values()]
         : []
     )
 
     let méthodeMenaçantes = $derived(
-        espèce && méthodesParClassificationEtreVivant
-        ? [...méthodesParClassificationEtreVivant[espèce.classification].values()]
+        espèceClassification && méthodesParClassificationEtreVivant
+        ? [...méthodesParClassificationEtreVivant[espèceClassification].values()]
         : []
     )
 
     let transportMenaçants = $derived(
-        espèce && transportsParClassificationEtreVivant
-        ? [...transportsParClassificationEtreVivant[espèce.classification].values()]
+        espèceClassification && transportsParClassificationEtreVivant
+        ? [...transportsParClassificationEtreVivant[espèceClassification].values()]
         : []
     )
 

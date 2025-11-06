@@ -28,17 +28,22 @@
         espècesImpactées.push({
             impacts: [{}]
         })
+
         await tick()
+
+        référencesEspèces = référencesEspèces.filter(e => e !== null)
         référencesEspèces[référencesEspèces.length - 1].focusFormulaireEspèce()
     }
 
     /**
      * @param {number} indexEspèceÀSupprimer
      */
-    async function onSuprimerEspèce(indexEspèceÀSupprimer) {
+    async function supprimerEspèce(indexEspèceÀSupprimer) {
         espècesImpactées.splice(indexEspèceÀSupprimer, 1)
         espècesImpactées = espècesImpactées
+
         await tick()
+
         référencesEspèces = référencesEspèces.filter(e => e !== null)
 
         if (espècesImpactées.length === 0) {
@@ -50,6 +55,24 @@
 
             référencesEspèces[indexEspèceÀFocus].focusBoutonSupprimer()
         }
+    }
+
+    /**
+     * @param {number} indexEspèceÀDuppliquer
+     */
+    async function duppliquerEspèce(indexEspèceÀDuppliquer) {
+        const nouvelleEspèceImpactée = {
+            espèce: espècesImpactées[indexEspèceÀDuppliquer].espèce,
+            impacts: espècesImpactées[indexEspèceÀDuppliquer].impacts?.map(i => Object.assign({}, i))
+        }
+        espècesImpactées.splice(indexEspèceÀDuppliquer + 1, 0, nouvelleEspèceImpactée)
+
+        await tick()
+
+        référencesEspèces = référencesEspèces.filter(e => e !== null)
+
+        référencesEspèces[indexEspèceÀDuppliquer + 1].réinitialiserEspèce()
+        référencesEspèces[indexEspèceÀDuppliquer + 1].focusFormulaireEspèce()
     }
 
     /**
@@ -93,7 +116,8 @@
             bind:espèce={espècesImpactées[indexEspècesImpactée].espèce}
             bind:descriptionImpacts={espècesImpactées[indexEspècesImpactée].impacts}
             onOuvertureModale={onOuvertureModale}
-            onSuprimerEspèce={async () => {await onSuprimerEspèce(indexEspècesImpactée) }}
+            onSuprimerEspèce={async () => {await supprimerEspèce(indexEspècesImpactée) }}
+            onDupliquerEspèce={async () => { await duppliquerEspèce(indexEspècesImpactée) }}
             espècesProtégées={espècesProtégées}
             activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
             méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}

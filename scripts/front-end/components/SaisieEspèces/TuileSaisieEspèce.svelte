@@ -6,7 +6,7 @@
     import AutocompleteEspeces from './AutocompleteEspèces.svelte'
     import ImpactEspèce from './ImpactEspèce.svelte'
 
-    /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionImpact} from "../../../types/especes.js" */
+    /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionImpact, ClassificationEtreVivant} from "../../../types/especes.js" */
 
     /**
      * @typedef {Object} Props
@@ -14,8 +14,8 @@
      * @property {string} [idModaleEspèceNonTrouvée]
      * @property {EspèceProtégée | undefined} [espèce]
      * @property {DescriptionImpact[] | undefined} [descriptionImpacts]
-     * @property {undefined | ((i: DescriptionImpact[]) => void)} [onDupliquerEspèce]
-     * @property {undefined | ((e: Event) => void)} [onOuvertureModale]
+     * @property {(() => Promise<void>) | undefined} [onDupliquerEspèce]
+     * @property {((e: Event) => void) | undefined} [onOuvertureModale]
      * @property {(() => Promise<void>) | undefined} [onSuprimerEspèce]
      * @property {EspèceProtégée[]} [espècesProtégées]
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
@@ -29,7 +29,7 @@
         idModaleEspèceNonTrouvée,
         espèce = $bindable(undefined),
         descriptionImpacts = $bindable([{}]),
-        onOuvertureModale = () => {},
+        onOuvertureModale = undefined,
         onDupliquerEspèce = undefined,
         onSuprimerEspèce = undefined,
         espècesProtégées = [],
@@ -37,6 +37,11 @@
         méthodesParClassificationEtreVivant,
         transportsParClassificationEtreVivant,
     } = $props();
+
+    /**
+     * @type ClassificationEtreVivant | undefined
+     */
+    let espèceClassification = $state(espèce?.classification)
 
     // TODO: utilisé dans l'autocomplete, voir pour dédupliquer
     /**
@@ -88,16 +93,23 @@
         autocomplete?.focus()
     }
 
+
+    export function réinitialiserEspèce() {
+        espèce = undefined;
+    }
+
     /**
      *
      * @param {EspèceProtégée} nouvelleEspèce
      */
-    export function changeEspèce(nouvelleEspèce) {
-        if (nouvelleEspèce?.classification !== espèce?.classification) {
+    function onChangeEspèce(nouvelleEspèce) {
+        if (nouvelleEspèce?.classification !== espèceClassification) {
             descriptionImpacts = [{}]
         }
 
-        espèce = nouvelleEspèce
+        if (nouvelleEspèce) {
+            espèceClassification = nouvelleEspèce.classification
+        }
     }
 
     /**
@@ -128,7 +140,8 @@
                 </label>
                 <AutocompleteEspeces
                     bind:this={autocomplete}
-                    onChange={changeEspèce}
+                    onChange={onChangeEspèce}
+                    bind:espèceSélectionnée={espèce}
                     espèces={espècesProtégées}
                     id={'input-espece-' + index}
                 />
@@ -139,7 +152,7 @@
             </div>
 
             <div class="fr-col-md-4 fr-col-sm action-buttons">
-                <button class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line" type="button">
+                <button onclick={onDupliquerEspèce} class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line" type="button">
                     <span class="fr-sr-only">Ajouter une espèce avec les mêmes impacts que l'espèce #{index}</span>
                 </button>
 
@@ -149,13 +162,14 @@
             </div>
         </div>
 
-        {#if espèce}
+        {#if espèceClassification}
             {#each descriptionImpacts as impact, indexImpact (impact)}
                 <hr class="fr-hr">
 
                 <ImpactEspèce
                     bind:this={référencesImpact[indexImpact]}
                     espèce={espèce}
+                    espèceClassification={espèceClassification}
                     indexEspèce={index}
                     indexImpact={indexImpact + 1}
                     onSupprimerImpact={async () => { await supprimerImpact(indexImpact) }}
