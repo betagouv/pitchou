@@ -74,8 +74,6 @@
         floresAtteintes = floresAtteintes
     }
 
-    const mailto = "mailto:pitchou@beta.gouv.fr?subject=Rajouter%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9e%20manquante&body=Bonjour%2C%0D%0A%0D%0AJe%20souhaite%20saisir%20une%20esp%C3%A8ce%20prot%C3%A9g%C3%A9es%20qui%20n'est%20pas%20list%C3%A9e%20dans%20l'outil%20Pitchou.%0D%0AFiche%20descriptive%20de%20l'esp%C3%A8ce%20%3A%0D%0A%0D%0ANom%20vernaculaire%20%3A%0D%0ANom%20latin%20%3A%0D%0ACD_NOM%20(identifiant%20TaxRef)%20%3A%0D%0ACommentaire%20%3A%0D%0A%0D%0AJe%20vous%20remercie%20de%20bien%20vouloir%20ajouter%20cette%20esp%C3%A8ce%0D%0A%0D%0AJe%20vous%20souhaite%20une%20belle%20journ%C3%A9e%20%E2%98%80%EF%B8%8F"
-
     let modeLecture = $state(false);
 
     /**
@@ -628,45 +626,14 @@
             {/if}
         {:else}
 
-            <form class="fr-mb-4w">
-                <FormulaireSaisieEspèce
-                    bind:espècesImpactées={espècesImpactées}
-                    espècesProtégées={[...espècesProtégéesParClassification["oiseau"], ...espècesProtégéesParClassification["faune non-oiseau"], ...espècesProtégéesParClassification["flore"]]}
-                    activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
-                    méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
-                    transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
-                />
-            </form>
 
-            <button aria-controls="modale-je-ne-trouve-pas-une-espece" data-fr-opened="false" type="button" class="fr-btn fr-btn--sm fr-btn--tertiary">Je ne trouve pas une espèce...</button>
-            <dialog id="modale-je-ne-trouve-pas-une-espece" class="fr-modal" aria-labelledby="modale-je-ne-trouve-pas-une-espece-title" data-fr-concealing-backdrop="true">
-                <div class="fr-container fr-container--fluid fr-container-md">
-                    <div class="fr-grid-row fr-grid-row--center">
-                        <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
-                            <div class="fr-modal__body">
-                                <div class="fr-modal__header">
-                                    <button aria-controls="modale-je-ne-trouve-pas-une-espece" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
-                                </div>
-                                <div class="fr-modal__content">
-                                    <h2 id="modale-je-ne-trouve-pas-une-espece" class="fr-modal__title">
-                                        Je ne trouve pas une espèce que je veux saisir
-                                    </h2>
-                                    <p class="fr-callout__text">
-                                        Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un mail à
-                                        <a target="_blank" href={mailto}>pitchou@beta.gouv.fr</a> en
-                                        indiquant l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
-                                        Le <code>CD_NOM</code> est disponible sur
-                                        <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
-                                        en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
-                                        Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
-                                            <code>4221</code></a>.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </dialog>
+            <FormulaireSaisieEspèce
+                bind:espècesImpactées={espècesImpactées}
+                espècesProtégées={[...espècesProtégéesParClassification["oiseau"], ...espècesProtégéesParClassification["faune non-oiseau"], ...espècesProtégéesParClassification["flore"]]}
+                activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+            />
         {/if}
         <footer class="fr-mb-4w">
             <button aria-controls="modale-validation-saisie" data-fr-opened="false" type="button" class="fr-btn fr-btn--lg fr-ml-auto">Valider ma saisie</button>
