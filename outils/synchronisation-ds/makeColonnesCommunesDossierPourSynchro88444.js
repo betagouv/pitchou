@@ -34,8 +34,8 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const number_demarches_simplifiées = String(number)
 
 
-    /** 
-     * Champs 
+    /**
+     * Champs
      */
     /** @type {Map<string | undefined, Champs88444>} */
     /** @type {Map<string | undefined, any>} */
@@ -97,7 +97,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     }
     else {
         if (projetSitué === `d'un ou plusieurs départements` && champDépartements) {
-            départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement?.code))]
+            départements = [... new Set(champDépartements.rows.map(c => c.champs[0].departement?.code))].filter(x => !!x)
         }
         else {
             if (projetSitué === `d'une ou plusieurs régions` && champRégions) {
@@ -246,7 +246,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
 
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
-    
+
     const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
 
     const champ_nombre_nids_compensés_oiseau_simple = champById.get(pitchouKeyToChampDS.get('Indiquer le nombre de nids artificiels posés en compensation'))?.stringValue
@@ -293,8 +293,8 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         // mesurse ERC prévues
         mesures_erc_prévues,
 
-        /** 
-         * Les données de dossier scientifique 
+        /**
+         * Les données de dossier scientifique
          */
         //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
         scientifique_type_demande: scientifique_type_demande_values ? JSON.stringify(scientifique_type_demande_values) : undefined,
