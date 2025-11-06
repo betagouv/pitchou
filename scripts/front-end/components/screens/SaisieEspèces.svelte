@@ -119,6 +119,7 @@
             /**
              * @type {Array<OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte>}
              */
+            //@ts-ignore
             const espèces = descriptionMenacesEspèces[classfication] ?? []
 
             for (const espèce of espèces) {
@@ -717,7 +718,6 @@
         footer{
             display: flex;
             justify-content: end;
-            margin-inline: 4rem;
         }
 
         .préremplir-espèces{

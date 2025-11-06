@@ -81,7 +81,7 @@
     <legend class="fr-sr-only">Impact #{indexImpact} de l’espèce #{indexEspèce}</legend>
 
     <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-md-5 fr-col-sm-12">
+        <div class="fr-col-md-5 fr-col-12">
             <label class="fr-label" for="input-espece-{indexEspèce}-impact-{indexImpact}">
                 Type d’impact
             </label>
@@ -102,7 +102,7 @@
         </div>
 
         {#if impact.activité && impact.activité['Méthode'] === 'Oui'}
-            <div class="fr-col-md-4 fr-col-sm-12">
+            <div class="fr-col-md-4 fr-col-12">
                 <label class="fr-label" for="input-espece-{indexEspèce}-methode-{indexImpact}">
                     Méthode
                 </label>
@@ -118,7 +118,7 @@
         {/if}
 
         {#if impact.activité && impact.activité['Moyen de poursuite'] === 'Oui'}
-            <div class="fr-col-md-3 fr-col-sm-12">
+            <div class="fr-col-md-3 fr-col-12">
                 <label class="fr-label" for="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     Moyen de poursuite
                 </label>
@@ -137,7 +137,7 @@
     {#if impact.activité}
         <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
             {#if impact.activité["Nombre d'individus"] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-sm-12">
+                <div class="fr-col-md-3 fr-col-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nombre-individus-{indexImpact}">
                         Nombre d’individus
                     </label>
@@ -151,7 +151,7 @@
             {/if}
 
             {#if impact.activité['Nids'] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-sm-12">
+                <div class="fr-col-md-3 fr-col-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nids-{indexImpact}">
                         Nids
                     </label>
@@ -160,7 +160,7 @@
             {/if}
 
             {#if impact.activité['Œufs'] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-sm-12">
+                <div class="fr-col-md-3 fr-col-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-oeufs-{indexImpact}">
                         Œufs
                     </label>
@@ -169,7 +169,7 @@
             {/if}
 
             {#if impact.activité['Surface habitat détruit (m²)'] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-sm-12">
+                <div class="fr-col-md-3 fr-col-12">
                     <label class="fr-label" for="input-espece-{indexEspèce}-surface-{indexImpact}">
                         Surface habitat détruit (m²)
                     </label>

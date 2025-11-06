@@ -125,9 +125,11 @@
         />
     {/each}
 
-    <button class="fr-btn fr-btn--secondary" type="button" onclick={ajouterEspèce}>
-        Ajouter une espèce
-    </button>
+    <div class="fr-grid-row">
+        <button class="fr-btn fr-btn--secondary fr-m-auto" type="button" onclick={ajouterEspèce}>
+            Ajouter une espèce
+        </button>
+    </div>
 </form>
 
 <dialog id="modale-je-ne-trouve-pas-une-espece" class="fr-modal" aria-labelledby="modale-je-ne-trouve-pas-une-espece-title" data-fr-concealing-backdrop="true" bind:this={modale}>

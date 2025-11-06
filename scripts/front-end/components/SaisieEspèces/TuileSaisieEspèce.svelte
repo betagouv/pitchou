@@ -134,7 +134,7 @@
         <legend class="fr-sr-only">Espèce impactée #{index} {espèce ? espèceLabel(espèce) : 'Non selectionnée'}</legend>
 
         <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-md-4 fr-col-sm-12">
+            <div class="fr-col-md-4 fr-col-12">
                 <label class="fr-label" for="input-espece-{index}">
                     Espèce
                 </label>
@@ -147,11 +147,11 @@
                 />
             </div>
 
-            <div class="fr-col-md-4 fr-col-sm input-info">
+            <div class="fr-col-md-4 fr-col input-info">
                 <button aria-controls="{idModaleEspèceNonTrouvée}" data-fr-opened="false" type="button" class="fr-btn fr-btn--sm fr-btn--tertiary" onclick={onOuvertureModale}>Je ne trouve pas une espèce…</button>
             </div>
 
-            <div class="fr-col-md-4 fr-col-sm action-buttons">
+            <div class="fr-col-md-4 fr-col action-buttons">
                 <button onclick={onDupliquerEspèce} class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line" type="button">
                     <span class="fr-sr-only">Ajouter une espèce avec les mêmes impacts que l'espèce #{index}</span>
                 </button>
@@ -182,7 +182,7 @@
 
             <hr class="fr-hr">
 
-            <div class="fr-fieldset__element fr-input-group">
+            <div class="fr-fieldset__element fr-input-group container-ajouter-impact">
                 <button class="fr-btn fr-btn--secondary" type="button" onclick={ajouterImpact}>
                     Ajouter un autre impact
                 </button>
@@ -213,6 +213,10 @@
         border: 1px solid var(--border-default-grey);
         border-bottom: .25rem solid var(--border-active-blue-france);
         margin-bottom: 2rem;
+    }
+
+    .container-ajouter-impact {
+        margin-bottom: 0;
     }
 
     hr {
