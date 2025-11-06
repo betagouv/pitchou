@@ -5,7 +5,6 @@
 
     import AutocompleteEspeces from './AutocompleteEspèces.svelte'
     import ImpactEspèce from './ImpactEspèce.svelte'
-    import { derived } from 'svelte/store';
 
     /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionImpact} from "../../../types/especes.js" */
 

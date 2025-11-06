@@ -52,7 +52,7 @@
     /**
      * @type {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>}
      */
-    let espècesImpactées = $state([{impacts: []}])
+    let espècesImpactées = $state([{impacts: [{}]}])
 
     // TODO: compte les espèces et plu les impacts
     let nombreEspècesSaisies = $derived(espècesImpactées.length)

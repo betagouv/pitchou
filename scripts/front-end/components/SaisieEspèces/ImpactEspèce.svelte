@@ -55,6 +55,15 @@
         selectImpact?.focus()
     }
 
+    function réinitialiserDétailsImpact() {
+        impact.méthode = undefined
+        impact.transport = undefined
+        impact.nombreIndividus = undefined
+        impact.surfaceHabitatDétruit = undefined
+        impact.nombreNids = undefined
+        impact.nombreOeufs = undefined
+    }
+
     /**
      * @type {HTMLElement}
      */
@@ -75,7 +84,7 @@
                 Type d’impact
             </label>
             <div class="input-button">
-                <select bind:this={selectImpact} bind:value={impact.activité} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
+                <select bind:this={selectImpact} bind:value={impact.activité} onchange={réinitialiserDétailsImpact} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
                     <option value={undefined}>-</option>
                     {#each activitésMenaçantes as act}
                     <option value={act}>
