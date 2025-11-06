@@ -100,11 +100,6 @@
      * @type {HTMLElement | null}
      */
     let modaleButton;
-
-    /**
-     * @type {HTMLElement}
-     */
-    let modale;
 </script>
 
 <form class="fr-mb-4w">
@@ -132,7 +127,7 @@
     </div>
 </form>
 
-<dialog id="modale-je-ne-trouve-pas-une-espece" class="fr-modal" aria-labelledby="modale-je-ne-trouve-pas-une-espece-title" data-fr-concealing-backdrop="true" bind:this={modale}>
+<dialog id="modale-je-ne-trouve-pas-une-espece" class="fr-modal" aria-labelledby="modale-je-ne-trouve-pas-une-espece-title" data-fr-concealing-backdrop="true">
     <div class="fr-container fr-container--fluid fr-container-md">
         <div class="fr-grid-row fr-grid-row--center">
             <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
