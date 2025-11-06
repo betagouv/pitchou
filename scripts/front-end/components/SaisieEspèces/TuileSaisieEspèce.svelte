@@ -50,7 +50,10 @@
 
     async function ajouterImpact() {
         descriptionImpacts.push({})
+
         await tick()
+
+        référencesImpact = référencesImpact.filter(e => e !== null)
         référencesImpact[référencesImpact.length - 1].focusFormulaireImpact()
     }
 
@@ -60,7 +63,9 @@
     async function supprimerImpact(indexImpactÀSupprimer) {
         descriptionImpacts.splice(indexImpactÀSupprimer, 1)
         descriptionImpacts = descriptionImpacts
+
         await tick()
+
         référencesImpact = référencesImpact.filter(e => e !== null)
 
         if (descriptionImpacts.length === 0) {
@@ -81,6 +86,18 @@
 
     export function focusFormulaireEspèce() {
         autocomplete?.focus()
+    }
+
+    /**
+     *
+     * @param {EspèceProtégée} nouvelleEspèce
+     */
+    export function changeEspèce(nouvelleEspèce) {
+        if (nouvelleEspèce?.classification !== espèce?.classification) {
+            descriptionImpacts = [{}]
+        }
+
+        espèce = nouvelleEspèce
     }
 
     /**
@@ -111,7 +128,7 @@
                 </label>
                 <AutocompleteEspeces
                     bind:this={autocomplete}
-                    bind:espèceSélectionnée={espèce}
+                    onChange={changeEspèce}
                     espèces={espècesProtégées}
                     id={'input-espece-' + index}
                 />
