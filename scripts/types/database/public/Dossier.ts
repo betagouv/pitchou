@@ -143,6 +143,15 @@ export default interface Dossier {
   type: TypeDossier | null;
 
   numéro_démarche: number;
+
+  /** Réponse à la question : "Avez-vous réalisé un état des lieux écologique complet $1" */
+  etat_des_lieux_ecologique_complet_realise: boolean | null;
+
+  /** Réponse à la question : "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet $1" */
+  presence_especes_dans_aire_influence: boolean | null;
+
+  /** Réponse à la question : "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il $1" */
+  risque_malgre_mesures_erc: boolean | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -280,6 +289,15 @@ export interface DossierInitializer {
   type?: TypeDossier | null;
 
   numéro_démarche: number;
+
+  /** Réponse à la question : "Avez-vous réalisé un état des lieux écologique complet $1" */
+  etat_des_lieux_ecologique_complet_realise?: boolean | null;
+
+  /** Réponse à la question : "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet $1" */
+  presence_especes_dans_aire_influence?: boolean | null;
+
+  /** Réponse à la question : "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il $1" */
+  risque_malgre_mesures_erc?: boolean | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -416,4 +434,13 @@ export interface DossierMutator {
   type?: TypeDossier | null;
 
   numéro_démarche?: number;
+
+  /** Réponse à la question : "Avez-vous réalisé un état des lieux écologique complet $1" */
+  etat_des_lieux_ecologique_complet_realise?: boolean | null;
+
+  /** Réponse à la question : "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet $1" */
+  presence_especes_dans_aire_influence?: boolean | null;
+
+  /** Réponse à la question : "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il $1" */
+  risque_malgre_mesures_erc?: boolean | null;
 }

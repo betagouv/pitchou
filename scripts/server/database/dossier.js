@@ -374,6 +374,10 @@ const colonnesDossierComplet = [
     "nombre_nids_détruits_dossier_oiseau_simple",
 
     "type",
+
+    "etat_des_lieux_ecologique_complet_realise",
+    "presence_especes_dans_aire_influence",
+    "risque_malgre_mesures_erc",
 /*
     "historique_date_envoi_dernière_contribution"
 */

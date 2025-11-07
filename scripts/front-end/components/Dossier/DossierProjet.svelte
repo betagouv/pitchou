@@ -55,6 +55,33 @@
             {dossier.id}
         </p>
         <p>
+            <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
+            {#if typeof dossier.etat_des_lieux_ecologique_complet_realise === 'boolean' }
+                {dossier.etat_des_lieux_ecologique_complet_realise ? 'Oui' : 'Non'}
+            {:else}
+                Non renseigné
+            {/if}
+        </p>
+
+        <p>
+            <strong>Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence du projet ?&nbsp;:</strong>
+            {#if typeof dossier.presence_especes_dans_aire_influence === 'boolean' }
+                {dossier.presence_especes_dans_aire_influence ? 'Oui' : 'Non'}
+            {:else}
+                Non renseigné
+            {/if}
+        </p>
+
+        <p>
+            <strong>Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il ?&nbsp;:</strong>
+            {#if typeof dossier.risque_malgre_mesures_erc === 'boolean' }
+                {dossier.risque_malgre_mesures_erc ? 'Oui' : 'Non'}
+            {:else}
+                Non renseigné
+            {/if}
+        </p>
+
+        <p>
             <strong>Description&nbsp;:</strong>
             {dossier.description && dossier.description.length >= 1
                 ? dossier.description
