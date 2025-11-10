@@ -68,6 +68,8 @@
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
+    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444>>}*/
+    let ligneVersDossier = new SvelteMap()
 
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = $state(new SvelteMap());
@@ -143,8 +145,17 @@
                         ? (dossiersDéjàEnBDD.length / totalDossiers) * 100
                         : 0;
 
+
                 // Visualiser en une fois tous les warnings de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
-                // lignesTableauImport.map((ligne) => handleCréerLienPréRemplissage(ligne))
+                await Promise.all(
+                    lignesTableauImport.map(async (ligne) => {
+                        const dossier = await créerDossierDepuisLigne(ligne, activitésPrincipales88444)
+                        ligneVersDossier.set(ligne, dossier)
+                    })
+                )
+
+        
+            
             } catch (error) {
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
@@ -157,10 +168,12 @@
      * @param {LigneDossierCorse} LigneDossierCorse
      */
     async function handleCréerLienPréRemplissage(LigneDossierCorse) {
-        const dossier = await créerDossierDepuisLigne(
-            LigneDossierCorse,
-            activitésPrincipales88444,
-        );
+        const dossier = ligneVersDossier.get(LigneDossierCorse)
+
+        if (!dossier) {
+            console.warn(`La ligne n'existe pas : ${ligneDossierEnBDD}`)
+            return;
+        }
 
         console.log(
             { dossier },
