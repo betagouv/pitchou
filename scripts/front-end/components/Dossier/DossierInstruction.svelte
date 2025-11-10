@@ -149,6 +149,13 @@
                 {/if}
             </div>
         {/if}
+
+        <h2 class="fr-mt-3w">Une DDEP est-elle nécessaire ?</h2>
+        {#if typeof dossier.ddep_nécessaire !== 'string' || dossier.ddep_nécessaire === ''}
+            Non renseigné
+        {:else}
+            {dossier.ddep_nécessaire}
+        {/if}
     </section>
 
     <section>
