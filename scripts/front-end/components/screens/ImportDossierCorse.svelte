@@ -171,6 +171,7 @@
         const dossier = ligneVersDossier.get(LigneDossierCorse)
 
         if (!dossier) {
+            // Ne doit jamais arriver
             console.warn(`La ligne n'existe pas : ${ligneDossierEnBDD}`)
             return;
         }
