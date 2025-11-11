@@ -217,7 +217,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
     const { data: donnéesLocalisations, alertes: alertesLocalisation } =  await générerDonnéesLocalisations(ligne)
-    const { data: activitéPrincipale, alertes: alertesActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
+    const { data: activitéPrincipale88444, alertes: alertesActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
     
     const alertes = [
         ...alertesLocalisation,
@@ -225,7 +225,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     ]
     return {
         'Nom du projet': créerNomPourDossier(ligne),
-        'Activité principale': activitéPrincipale,
+        'Activité principale': activitéPrincipale88444,
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
