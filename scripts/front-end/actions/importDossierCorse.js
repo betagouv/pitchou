@@ -5,6 +5,7 @@
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
 
 import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
@@ -200,6 +201,27 @@ function créerDonnéesAvisExpert(ligne) {
     }
 }
 
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
+ * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesDécisionAdministrative(ligne, warnings) {
+    const valeurDateAP = ligne['Date AP']
+
+    if (!(!valeurDateAP || typeof valeurDateAP === 'string' && valeurDateAP === '')) {
+        if (isValidDateString(valeurDateAP.toString())) {
+            return [{date_signature: new Date(valeurDateAP), type: 'Autre décision', numéro: ligne['Numéro AP']}]
+        } else {
+            const messageWarning = `La date indiquée dans la colonne Date AP est incorrecte : ${valeurDateAP}. On n'importe donc pas de décision administrative.`
+            console.warn(messageWarning)
+            warnings.push(messageWarning)
+        }
+
+    }
+}
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
@@ -208,15 +230,17 @@ function créerDonnéesAvisExpert(ligne) {
  * @returns { DonnéesSupplémentairesPourCréationDossier }d
  */
 function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
-    const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
-    const commentairePhaseInstruction = `Commentaire phase instruction : ${ligne['Commentaires phase instruction']}`
-    const commentairePostAP = `Commentaires post AP : ${ligne['Commentaires post AP']}`
+    const nomDuDemandeur = `Nom du demandeur :  ${ligne['Nom du demandeur']}`
+    const commentairePhaseInstruction = ligne['Commentaires phase instruction'].trim() !== '' ?`Commentaire phase instruction : ${ligne['Commentaires phase instruction']}` : ''
+    const commentairePostAP = ligne['Commentaires post AP'].trim() !== '' ? `Commentaires post AP : ${ligne['Commentaires post AP']}` : ''
     const commentaire_libre = [nomDuDemandeur, commentairePhaseInstruction, commentairePostAP]
         .filter(value => value?.trim())
         .join('\n');
 
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
-    const  avisExpert = créerDonnéesAvisExpert(ligne)
+    const avisExpert = créerDonnéesAvisExpert(ligne)
+
+    const décisionAdministrative = créerDonnéesDécisionAdministrative(ligne, warnings)
 
     const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
 
@@ -231,6 +255,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
         avis_expert: avisExpert,
+        décision_administrative: décisionAdministrative
     }
 }
 
