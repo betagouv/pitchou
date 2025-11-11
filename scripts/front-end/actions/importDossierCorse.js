@@ -226,7 +226,6 @@ function créerDonnéesEvénementPhaseDossier(ligne, warnings) {
 
     if (valeurNormaliséeStatut === `rapport d'instruction`) {
         const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
-
         const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
 
         if (isValidDateString(datePhaseInstruction)) {
@@ -237,6 +236,12 @@ function créerDonnéesEvénementPhaseDossier(ligne, warnings) {
             warnings.push(messageWarning)
 
         }
+    }
+
+    const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
+    const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+    if (isValidDateString(datePhaseInstruction)) {
+        donnéesEvénementPhaseDossier.push({phase: 'Étude recevabilité DDEP', horodatage: new Date(datePhaseInstruction)})
     }
 
     return donnéesEvénementPhaseDossier.length >= 1 ? donnéesEvénementPhaseDossier : undefined
