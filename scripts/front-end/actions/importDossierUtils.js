@@ -14,15 +14,20 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
 /**
  * Récupérer toutes les données de la commune et les données de son département
  * @param {string} nomCommune - Nom de la commune
+ * @param {string[]} [warnings]
  * @returns {Promise< GeoAPICommune & { departement: GeoAPIDépartement } | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 
-export async function getCommuneData(nomCommune) {
+export async function getCommuneData(nomCommune, warnings) {
     const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
-        console.warn(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
+        const messageWarning = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
+        console.warn(messageWarning);
+        if (warnings) {
+            warnings.push(messageWarning)
+        }
         return null;
     }
     //@ts-ignore
