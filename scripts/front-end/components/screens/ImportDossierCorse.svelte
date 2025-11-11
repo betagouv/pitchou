@@ -7,6 +7,7 @@
     /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarches-simplifiées/schema.js"; */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
+    import DéplierReplier from '../common/DéplierReplier.svelte'
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
     import {
@@ -347,9 +348,24 @@
                                                         </button >
                                                     {/snippet}
                                                     {#snippet contenu()}
-                                                        <div>
-                                                            {ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings?.map((warning) => warning)}
-                                                        </div>
+                                                        <h3>Liste des erreurs&nbsp;: </h3>
+                                                        <ul>
+                                                            {#each ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings as warning}
+                                                                <li>{warning}</li>
+                                                            {/each}
+                                                        </ul>
+                                                        <DéplierReplier>
+                                                            {#snippet summary()}
+                                                                <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
+                                                            {/snippet}
+                                                            {#snippet content()}
+                                                                <ul>
+                                                                    {#each Object.entries(ligneVersDossier.get(ligneAffichéeTableauImport) ?? {}) as dossier }
+                                                                    <li>{dossier.join(':')}</li>
+                                                                    {/each}
+                                                                </ul>
+                                                            {/snippet}
+                                                        </DéplierReplier>
                                                     {/snippet}
                                                 </BoutonModale>
                                             {/if}
