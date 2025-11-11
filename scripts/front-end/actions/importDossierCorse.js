@@ -153,7 +153,7 @@ async function générerDonnéesLocalisations(ligne, warnings) {
     const valeursCommunes = extraireCommunes(ligne['Commune'] ?? '');
 
     const communesP = valeursCommunes.map((com) => getCommuneData(com, warnings));
-    const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
+    const départementsP = formaterDépartementDepuisValeur(ligne['Département'], warnings);
 
     const [départementsTrouvés, communesResult] = await Promise.all([
         départementsP,

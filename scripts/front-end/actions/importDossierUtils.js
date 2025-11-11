@@ -37,14 +37,19 @@ export async function getCommuneData(nomCommune, warnings) {
 /**
  *
  * @param {string} code
+ * @param {string[]} [warnings]
  * @returns {Promise<GeoAPIDépartement | null>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
-async function getDépartementData(code) {
+async function getDépartementData(code, warnings) {
     const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
-        console.warn(`Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`);
+        const messageWarning = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`
+        console.warn(messageWarning);
+        if (warnings) {
+            warnings.push(messageWarning)
+        }
         return null
     }
     //@ts-ignore
@@ -85,9 +90,10 @@ export function extraireCommunes(valeur) {
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
  * Renvoie null si pas de département reconnu.
  * @param {string | number} valeur
+ * @param {string[]} [warnings]
  * @returns {Promise<GeoAPIDépartement[] | null>}
  */
-export async function formaterDépartementDepuisValeur(valeur) {
+export async function formaterDépartementDepuisValeur(valeur, warnings) {
     /** @type {string[]} */
     let codes = []
     if (typeof valeur === 'number') {
@@ -101,7 +107,7 @@ export async function formaterDépartementDepuisValeur(valeur) {
         }
     }
 
-    const départementsP = codes.map((code) => getDépartementData(code))
+    const départementsP = codes.map((code) => getDépartementData(code, warnings))
 
     try {
         const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
@@ -113,7 +119,11 @@ export async function formaterDépartementDepuisValeur(valeur) {
             return null;
         }
     } catch (e) {
-        console.warn(`Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`)
+        const messageWarning = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`
+        console.warn(messageWarning);
+        if (warnings) {
+            warnings.push(messageWarning)
+        }
         return null
     }
 }
