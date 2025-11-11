@@ -156,6 +156,13 @@
         {:else}
             {dossier.ddep_nécessaire}
         {/if}
+
+        <h2 class="fr-mt-3w">Dates de consultation du public ou enquête publique</h2>
+        <ul>
+            <li><strong>Date de début&nbsp;:&nbsp;</strong> {dossier.date_debut_consultation_public ?? "Non renseignée"}</li>
+            <li><strong>Date de fin&nbsp;:&nbsp;</strong> {dossier.date_fin_consultation_public ?? "Non renseignée"}</li>
+        </ul>
+
     </section>
 
     <section>
