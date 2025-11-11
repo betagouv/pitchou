@@ -159,8 +159,8 @@
 
         <h2 class="fr-mt-3w">Dates de consultation du public ou enquête publique</h2>
         <ul>
-            <li><strong>Date de début&nbsp;:&nbsp;</strong> {dossier.date_debut_consultation_public ?? "Non renseignée"}</li>
-            <li><strong>Date de fin&nbsp;:&nbsp;</strong> {dossier.date_fin_consultation_public ?? "Non renseignée"}</li>
+            <li><strong>Date de début&nbsp;:&nbsp;</strong> <span title={formatDateAbsolue(dossier.date_debut_consultation_public ?? undefined)}>{dossier.date_debut_consultation_public ? formatDateRelative(dossier.date_debut_consultation_public) : 'Non renseignée'}</span></li>
+            <li><strong>Date de fin&nbsp;:&nbsp;</strong> <span title={formatDateAbsolue(dossier.date_fin_consultation_public ?? undefined)}>{dossier.date_fin_consultation_public ? formatDateRelative(dossier.date_fin_consultation_public) : 'Non renseignée'}</span></li>
         </ul>
 
     </section>
