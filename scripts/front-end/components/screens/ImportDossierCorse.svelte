@@ -80,6 +80,8 @@
 
     /**@type {boolean}*/
     let afficherTousLesDossiers = $state(false);
+    /**@type {boolean}*/
+    let loadingChargementDuFichier = $state(false);
 
     let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
     let nombreDossiersAImporter = $derived(
@@ -90,6 +92,7 @@
      * @param {Event} event
      */
     async function handleFileChange(event) {
+        loadingChargementDuFichier = true
         const target = event.target;
         if (
             !(
@@ -161,7 +164,9 @@
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
                 );
-            }
+            } finally {
+                loadingChargementDuFichier = false
+            } 
         }
     }
 
@@ -251,7 +256,7 @@
 <Squelette {email} nav={true} title={`${DREAL} — Import de dossiers`}>
     <h1>Import de dossiers historiques {DREAL}</h1>
 
-    {#if !lignesTableauImport || lignesTableauImport.length === 0}
+    {#if !lignesTableauImport || lignesTableauImport.length === 0 || loadingChargementDuFichier===true}
         <div class="fr-upload-group fr-mb-4w">
             <label class="fr-label" for="file-upload">
                 Charger un fichier de suivi
@@ -272,9 +277,8 @@
                 aria-live="polite"
             ></div>
         </div>
-    {/if}
 
-    {#if lignesTableauImport.length >= 1}
+    {:else}
         <h2>
             {#if afficherTousLesDossiers}
                 Tous les dossiers du fichier chargé ({lignesTableauImport.length})
@@ -334,7 +338,7 @@
                             <tbody>
                                 {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
                                 {@const warningsDuDossier = ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
-                                    <tr data-row-key="1">
+                                    <tr data-row-key={index}>
                                         <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                         <td>
                                             {#if warningsDuDossier}
