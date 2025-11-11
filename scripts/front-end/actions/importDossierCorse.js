@@ -5,6 +5,7 @@
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
 
 import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
@@ -235,6 +236,25 @@ function créerDonnéesAvisExpert(ligne) {
     }
 }
 
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @returns {{data: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[], alertes: Alerte[]} | undefined}
+ */
+function créerDonnéesDécisionAdministrative(ligne) {
+    const valeurDateAP = ligne['Date AP']
+
+    if (!(!valeurDateAP || typeof valeurDateAP === 'string' && valeurDateAP === '')) {
+        if (isValidDateString(valeurDateAP.toString())) {
+            return {data: [{date_signature: new Date(valeurDateAP), type: 'Autre décision', numéro: ligne['Numéro AP']}], alertes: []}
+        } else {
+            const message = `La date indiquée dans la colonne Date AP est incorrecte : ${valeurDateAP}. On n'importe donc pas de décision administrative.`
+            return {alertes: [{message, type: 'erreur' }], data: []}
+        }
+
+    }
+}
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
@@ -254,6 +274,8 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         .join('\n');
 
 
+    const résultatsDécisionAdministrative = créerDonnéesDécisionAdministrative(ligne)
+
     const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
     const dateFinConsultation = isValidDateString(ligne['Fin de publication']) ? new Date(ligne['Fin de publication']) : undefined
 
@@ -269,6 +291,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         évènement_phase_dossier: résultatsDonnéesEvénementPhaseDossier?.data,
         alertes: résultatsDonnéesEvénementPhaseDossier?.alertes ?? [],
         avis_expert: avisExpert,
+        décision_administrative: résultatsDécisionAdministrative?.data,
     }
 }
 
