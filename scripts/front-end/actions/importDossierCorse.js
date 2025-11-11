@@ -83,10 +83,11 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
 /**
  *
  * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
-function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444) {
+function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444) {
     const typeDeProjet = ligne['Type de projet'].trim()
 
     // Si le type de projet est déjà une valeur pitchou
@@ -101,7 +102,9 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
         return activité
     }
 
-    console.warn(`Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou) On attribue donc l'activité "Autre" à ce projet.`)
+    const messageWarning = `Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou). On attribue donc l'activité "Autre" à ce projet.`
+    console.warn(messageWarning);
+    warnings.push(messageWarning)
 
     return 'Autre';
 }
@@ -186,7 +189,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
         'Nom du projet': créerNomPourDossier(ligne),
-        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444),
+        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444),
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
