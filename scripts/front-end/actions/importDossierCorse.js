@@ -217,12 +217,17 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
 
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
     const  avisExpert = créerDonnéesAvisExpert(ligne)
+
+    const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
+
+    // TODO : mettre aussi la date de fin de consultation quand la base de données Pitchou sera prête.
         
     return {
         dossier: {
             'historique_identifiant_demande_onagre': ligne['N°ONAGRE'],
             'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou),
-            'commentaire_libre': commentaire_libre
+            'commentaire_libre': commentaire_libre,
+            date_consultation_public: dateDébutConsultation
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
         avis_expert: avisExpert,
