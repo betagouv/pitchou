@@ -331,6 +331,7 @@
                             <thead>
                                 <tr>
                                     <th> Nom du projet </th>
+                                    <th> Espèces impactées </th>
                                     <th> Alertes </th>
                                     <th> Actions </th>
                                 </tr>
@@ -340,6 +341,7 @@
                                 {@const warningsDuDossier = ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
                                     <tr data-row-key={index}>
                                         <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
+                                        <td>{ligneAffichéeTableauImport["Espèces impactées"]}</td>
                                         <td>
                                             {#if warningsDuDossier}
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
