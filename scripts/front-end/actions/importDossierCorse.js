@@ -2,6 +2,9 @@
 
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
+/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
+/** @import { PartialBy }  from '../../types/tools' */
+import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 
@@ -184,10 +187,12 @@ async function générerDonnéesLocalisations(ligne, warnings) {
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
  * @returns { DonnéesSupplémentairesPourCréationDossier }d
  */
-function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
     const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
+    const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
 
     const commentaire_libre = [nomDuDemandeur]
         .filter(value => value?.trim())
@@ -198,9 +203,45 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou),
             'commentaire_libre': commentaire_libre
         },
+        évènement_phase_dossier: donnéesEvénementPhaseDossier,
     }
 }
 
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
+ * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesEvénementPhaseDossier(ligne, warnings) {
+    /**@type {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} */
+    const donnéesEvénementPhaseDossier = []
+
+    const valeurNormaliséeStatut = ligne['Statut'].trim().toLowerCase()
+    const valeurDateDébutAccompagnement = ligne[`Date de début d'accompagnement`]
+
+    if (valeurNormaliséeStatut === 'nouveau dossier à venir' || valeurNormaliséeStatut === 'diagnostic préalable' || valeurNormaliséeStatut === 'demande de compléments dossier') {
+        donnéesEvénementPhaseDossier.push({phase: 'Accompagnement amont', horodatage: new Date(valeurDateDébutAccompagnement, 0, 1) })
+    }
+
+    if (valeurNormaliséeStatut === `rapport d'instruction`) {
+        const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
+
+        const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+
+        if (isValidDateString(datePhaseInstruction)) {
+            donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
+        } else {
+            const messageWarning = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : ${datePhaseInstruction}. On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
+            console.warn(messageWarning)
+            warnings.push(messageWarning)
+
+        }
+    }
+
+    return donnéesEvénementPhaseDossier.length >= 1 ? donnéesEvénementPhaseDossier : undefined
+    
+}
 
 /**
  * Crée un objet dossier à partir d'une ligne d'import).
@@ -216,7 +257,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
 
     return {
-        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne, warnings)),
 
         'Nom du projet': créerNomPourDossier(ligne),
         'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444),
@@ -226,6 +267,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": donnéesAutorisationEnvironnementale["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"],
         'À quelle procédure le projet est-il soumis ?': donnéesAutorisationEnvironnementale['À quelle procédure le projet est-il soumis ?'],
+    
 
         warnings: warnings.length>=1 ? warnings : undefined,
 
