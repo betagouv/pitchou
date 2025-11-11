@@ -209,10 +209,13 @@ function créerDonnéesAvisExpert(ligne) {
  */
 function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
     const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
-    const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
-    const commentaire_libre = [nomDuDemandeur]
+    const commentairePhaseInstruction = `Commentaire phase instruction : ${ligne['Commentaires phase instruction']}`
+    const commentairePostAP = `Commentaires post AP : ${ligne['Commentaires post AP']}`
+    const commentaire_libre = [nomDuDemandeur, commentairePhaseInstruction, commentairePostAP]
         .filter(value => value?.trim())
         .join('\n');
+
+    const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
     const  avisExpert = créerDonnéesAvisExpert(ligne)
         
     return {
