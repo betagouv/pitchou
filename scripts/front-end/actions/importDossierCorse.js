@@ -122,6 +122,8 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésP
  *           >}
  */
 async function générerDonnéesLocalisations(ligne, warnings) {
+    const départementParDéfaut = {code: '2A', nom: 'Corse-du-Sud'}
+
     const valeursCommunes = extraireCommunes(ligne['Commune'] ?? '');
 
     const communesP = valeursCommunes.map((com) => getCommuneData(com, warnings));
@@ -148,7 +150,7 @@ async function générerDonnéesLocalisations(ligne, warnings) {
             "Dans quel département se localise majoritairement votre projet ?": départementColonne ?? départementPremièreCommune
         }
     } else {
-        const départements =  Array.isArray(départementsTrouvés) ? départementsTrouvés : [{code: '2A', nom: 'Corse-du-Sud'}]
+        const départements =  Array.isArray(départementsTrouvés) ? départementsTrouvés : [départementParDéfaut]
         return {
             "Commune(s) où se situe le projet": undefined,
             "Département(s) où se situe le projet": départements,
