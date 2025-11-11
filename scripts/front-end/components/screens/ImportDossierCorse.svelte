@@ -343,14 +343,14 @@
                                             {#if ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
                                                     {#snippet boutonOuvrirDétails()}
-                                                        <button type="button">
-                                                            Voir les erreurs
+                                                        <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
+                                                            {`Voir les alertes (${ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings?.length})`}
                                                         </button >
                                                     {/snippet}
                                                     {#snippet contenu()}
-                                                        <h3>Liste des erreurs&nbsp;: </h3>
+                                                        <h3>Liste des alertes&nbsp;: </h3>
                                                         <ul>
-                                                            {#each ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings as warning}
+                                                            {#each ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings ?? [] as warning}
                                                                 <li>{warning}</li>
                                                             {/each}
                                                         </ul>
@@ -361,7 +361,7 @@
                                                             {#snippet content()}
                                                                 <ul>
                                                                     {#each Object.entries(ligneVersDossier.get(ligneAffichéeTableauImport) ?? {}) as dossier }
-                                                                    <li>{dossier.join(':')}</li>
+                                                                        <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
                                                                     {/each}
                                                                 </ul>
                                                             {/snippet}

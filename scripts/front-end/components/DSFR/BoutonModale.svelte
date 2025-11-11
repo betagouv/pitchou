@@ -16,13 +16,13 @@
 
 </script>
 
-<button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line" data-fr-opened="false" aria-controls={id}>
-    {#if boutonOuvrirDétails}
-        {@render boutonOuvrirDétails()}
-    {:else}
+{#if boutonOuvrirDétails}
+    {@render boutonOuvrirDétails()}
+{:else}
+    <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line" data-fr-opened="false" aria-controls={id}>
         Ouvrir
-    {/if}
-</button>
+    </button>
+{/if}
 
 <dialog aria-labelledby="fr-modal-title-modal-1" id={id} class="fr-modal">
     <div class="fr-container fr-container--fluid fr-container-md">
