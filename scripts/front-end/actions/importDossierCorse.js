@@ -110,6 +110,26 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésP
 }
 
 /**
+ * @param {LigneDossierCorse} ligne
+ * @returns {Pick<DossierDemarcheSimplifiee88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
+ */
+function générerDonnéesAutorisationEnvironnementale(ligne) {
+    const type_de_projet = ligne['Type de projet'].toLowerCase();
+
+    if (type_de_projet.includes('icpe')) {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE"]
+        };
+    }
+
+    return {
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Non',
+        "À quelle procédure le projet est-il soumis ?": []
+    };
+}
+
+/**
  *
  * @param {{Commune: string | undefined, Département: number | string}} ligne
  * @param {string[]} [warnings]
@@ -167,10 +187,15 @@ async function générerDonnéesLocalisations(ligne, warnings) {
  * @returns { DonnéesSupplémentairesPourCréationDossier }d
  */
 function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+   const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
+    const commentaire_libre = [nomDuDemandeur]
+        .filter(value => value?.trim())
+        .join('\n');
     return {
         dossier: {
             'historique_identifiant_demande_onagre': ligne['N°ONAGRE'],
-            'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou)
+            'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou),
+            'commentaire_libre': commentaire_libre
         },
     }
 }
@@ -187,6 +212,8 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     let warnings = []
 
     const donnéesLocalisations =  await générerDonnéesLocalisations(ligne, warnings)
+    const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
+
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
@@ -196,6 +223,8 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": donnéesAutorisationEnvironnementale["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"],
+        'À quelle procédure le projet est-il soumis ?': donnéesAutorisationEnvironnementale['À quelle procédure le projet est-il soumis ?'],
 
         warnings: warnings.length>=1 ? warnings : undefined,
 
