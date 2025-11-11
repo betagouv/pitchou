@@ -245,10 +245,14 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
     const résultatsDonnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
-    const commentaire_libre = [nomDuDemandeur]
+
+    const avisExpert = créerDonnéesAvisExpert(ligne)
+    const commentairePhaseInstruction = `Commentaire phase instruction : ${ligne['Commentaires phase instruction']}`
+    const commentairePostAP = `Commentaires post AP : ${ligne['Commentaires post AP']}`
+    const commentaire_libre = [nomDuDemandeur, commentairePhaseInstruction, commentairePostAP]
         .filter(value => value?.trim())
         .join('\n');
-    const avisExpert = créerDonnéesAvisExpert(ligne)
+
         
     return {
         dossier: {
