@@ -4,6 +4,8 @@
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import { PartialBy }  from '../../types/tools' */
+/** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
+
 import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
@@ -183,6 +185,21 @@ async function générerDonnéesLocalisations(ligne, warnings) {
     }
 }
 
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesAvisExpert(ligne) {
+    const expert = ligne['Compétence']
+    const avis = ligne['Avis rendu']
+    const date_avis = new Date(ligne['Date avis'].toString())
+
+    if (expert!=='' || avis!== '') {
+        return [{avis, date_avis, expert}]
+    }
+}
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
@@ -193,10 +210,11 @@ async function générerDonnéesLocalisations(ligne, warnings) {
 function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
     const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
     const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
-
     const commentaire_libre = [nomDuDemandeur]
         .filter(value => value?.trim())
         .join('\n');
+    const  avisExpert = créerDonnéesAvisExpert(ligne)
+        
     return {
         dossier: {
             'historique_identifiant_demande_onagre': ligne['N°ONAGRE'],
@@ -204,6 +222,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
             'commentaire_libre': commentaire_libre
         },
         évènement_phase_dossier: donnéesEvénementPhaseDossier,
+        avis_expert: avisExpert,
     }
 }
 
