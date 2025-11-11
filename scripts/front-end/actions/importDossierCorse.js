@@ -275,10 +275,16 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
         }
     }
 
+    const valeurDateDeRéceptionPremierDossier = ligne['Date de réception 1er dossier']
+    const dateReceptionPremierDossier = valeurDateDeRéceptionPremierDossier.toString()
+    if (isValidDateString(dateReceptionPremierDossier)) {
+        donnéesEvénementPhaseDossier.push({phase: 'Étude recevabilité DDEP', horodatage: new Date(dateReceptionPremierDossier)})
+    }
+
     const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
     const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
     if (isValidDateString(datePhaseInstruction)) {
-        donnéesEvénementPhaseDossier.push({phase: 'Étude recevabilité DDEP', horodatage: new Date(datePhaseInstruction)})
+        donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
     }
     
     return donnéesEvénementPhaseDossier.length >= 1 ? {
