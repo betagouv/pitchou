@@ -68,7 +68,7 @@
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
-    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444>>}*/
+    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { warnings: string[] } >>}*/
     let ligneVersDossier = new SvelteMap()
 
     /** @type {Map<any,string>} */
@@ -339,22 +339,20 @@
                                             )}</td
                                         >
                                         <td>
-                                            <BoutonModale
-                                                id={`dsfr-modale-${index}`}
-                                            >
-                                                {#snippet boutonOuvrirDétails()}
-                                                    <button type="button"
-                                                        >Voir les détails</button
-                                                    >
-                                                {/snippet}
-                                                {#snippet contenu()}
-                                                    <div>
-                                                        {JSON.stringify(
-                                                            ligneAffichéeTableauImport,
-                                                        )}
-                                                    </div>
-                                                {/snippet}
-                                            </BoutonModale>
+                                            {#if ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
+                                                <BoutonModale id={`dsfr-modale-${index}`} >
+                                                    {#snippet boutonOuvrirDétails()}
+                                                        <button type="button">
+                                                            Voir les erreurs
+                                                        </button >
+                                                    {/snippet}
+                                                    {#snippet contenu()}
+                                                        <div>
+                                                            {ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings?.map((warning) => warning)}
+                                                        </div>
+                                                    {/snippet}
+                                                </BoutonModale>
+                                            {/if}
                                         </td>
                                         <td>
                                             {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
