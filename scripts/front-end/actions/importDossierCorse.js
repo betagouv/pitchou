@@ -221,7 +221,8 @@ async function générerDonnéesLocalisations(ligne) {
  * @returns { DonnéesSupplémentairesPourCréationDossier }d
  */
 function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-   const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
+    const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
+
     const commentaire_libre = [nomDuDemandeur]
         .filter(value => value?.trim())
         .join('\n');
