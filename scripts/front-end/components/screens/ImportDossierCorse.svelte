@@ -327,30 +327,27 @@
                             <thead>
                                 <tr>
                                     <th> Nom du projet </th>
-                                    <th> Détails </th>
+                                    <th> Alertes </th>
                                     <th> Actions </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
+                                {@const warningsDuDossier = ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
                                     <tr data-row-key="1">
-                                        <td
-                                            >{créerNomPourDossier(
-                                                ligneAffichéeTableauImport,
-                                            )}</td
-                                        >
+                                        <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                         <td>
-                                            {#if ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
+                                            {#if warningsDuDossier}
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
                                                     {#snippet boutonOuvrirDétails()}
                                                         <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
-                                                            {`Voir les alertes (${ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings?.length})`}
+                                                            {`Voir les alertes (${warningsDuDossier.length})`}
                                                         </button >
                                                     {/snippet}
                                                     {#snippet contenu()}
                                                         <h3>Liste des alertes&nbsp;: </h3>
                                                         <ul>
-                                                            {#each ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings ?? [] as warning}
+                                                            {#each warningsDuDossier ?? [] as warning}
                                                                 <li>{warning}</li>
                                                             {/each}
                                                         </ul>
