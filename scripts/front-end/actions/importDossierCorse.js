@@ -36,7 +36,7 @@ import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } fr
  *   Contribution: string;
  *   "Commentaires phase instruction": string;
  *   "Début consultation": string;
- *   "Fin de publication": string | Date;
+ *   "Fin de publication": string;
  *   "Numéro AP": string;
  *   "Date AP": string | Date;
  *   "Commentaires post AP": string;
@@ -253,12 +253,18 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         .filter(value => value?.trim())
         .join('\n');
 
-        
+
+    const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
+    const dateFinConsultation = isValidDateString(ligne['Fin de publication']) ? new Date(ligne['Fin de publication']) : undefined
+
+
     return {
         dossier: {
             'historique_identifiant_demande_onagre': ligne['N°ONAGRE'],
             'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou),
-            'commentaire_libre': commentaire_libre
+            'commentaire_libre': commentaire_libre,
+            date_debut_consultation_public: dateDébutConsultation,
+            date_fin_consultation_public: dateFinConsultation,
         },
         évènement_phase_dossier: résultatsDonnéesEvénementPhaseDossier?.data,
         alertes: résultatsDonnéesEvénementPhaseDossier?.alertes ?? [],
