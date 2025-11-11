@@ -370,15 +370,10 @@
                                                                             <li><strong>{`${donnéeDossier[0]} :`}</strong> {`${JSON.stringify(donnéeDossier[1])}`}</li>
                                                                         {/if}
                                                                     {/each}
-                                                                </ul>
                                                             {/snippet}
                                                         </DéplierReplier>
                                                     {/snippet}
                                                 </BoutonModale>
-                                            </td>
-                                            <td>
-                                                {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
-                                                    <p
                                                         class="fr-badge fr-badge--success"
                                                     >
                                                         En base de données
