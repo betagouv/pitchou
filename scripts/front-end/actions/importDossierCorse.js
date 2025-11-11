@@ -2,6 +2,12 @@
 
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
+/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
+/** @import { PartialBy }  from '../../types/tools' */
+/** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
+/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
+
+import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 
@@ -110,6 +116,26 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésP
 }
 
 /**
+ * @param {LigneDossierCorse} ligne
+ * @returns {Pick<DossierDemarcheSimplifiee88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
+ */
+function générerDonnéesAutorisationEnvironnementale(ligne) {
+    const type_de_projet = ligne['Type de projet'].toLowerCase();
+
+    if (type_de_projet.includes('icpe')) {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE"]
+        };
+    }
+
+    return {
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Non',
+        "À quelle procédure le projet est-il soumis ?": []
+    };
+}
+
+/**
  *
  * @param {{Commune: string | undefined, Département: number | string}} ligne
  * @param {string[]} [warnings]
@@ -127,7 +153,7 @@ async function générerDonnéesLocalisations(ligne, warnings) {
     const valeursCommunes = extraireCommunes(ligne['Commune'] ?? '');
 
     const communesP = valeursCommunes.map((com) => getCommuneData(com, warnings));
-    const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
+    const départementsP = formaterDépartementDepuisValeur(ligne['Département'], warnings);
 
     const [départementsTrouvés, communesResult] = await Promise.all([
         départementsP,
@@ -160,21 +186,125 @@ async function générerDonnéesLocalisations(ligne, warnings) {
     }
 }
 
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesAvisExpert(ligne) {
+    const expert = ligne['Compétence']
+    const avis = ligne['Avis rendu']
+    const date_avis = new Date(ligne['Date avis'].toString())
+
+    if (expert!=='' || avis!== '') {
+        return [{avis, date_avis, expert}]
+    }
+}
+
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
+ * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesDécisionAdministrative(ligne, warnings) {
+    const valeurDateAP = ligne['Date AP']
+
+    if (!(!valeurDateAP || typeof valeurDateAP === 'string' && valeurDateAP === '')) {
+        if (isValidDateString(valeurDateAP.toString())) {
+            return [{date_signature: new Date(valeurDateAP), type: 'Autre décision', numéro: ligne['Numéro AP']}]
+        } else {
+            const messageWarning = `La date indiquée dans la colonne Date AP est incorrecte : ${valeurDateAP}. On n'importe donc pas de décision administrative.`
+            console.warn(messageWarning)
+            warnings.push(messageWarning)
+        }
+
+    }
+}
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
  * @returns { DonnéesSupplémentairesPourCréationDossier }d
  */
-function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+function créerDonnéesSupplémentairesDepuisLigne(ligne, warnings) {
+    const nomDuDemandeur = `Nom du demandeur :  ${ligne['Nom du demandeur']}`
+    const commentairePhaseInstruction = ligne['Commentaires phase instruction'].trim() !== '' ?`Commentaire phase instruction : ${ligne['Commentaires phase instruction']}` : ''
+    const commentairePostAP = ligne['Commentaires post AP'].trim() !== '' ? `Commentaires post AP : ${ligne['Commentaires post AP']}` : ''
+    const commentaire_libre = [nomDuDemandeur, commentairePhaseInstruction, commentairePostAP]
+        .filter(value => value?.trim())
+        .join('\n');
+
+    const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne, warnings)
+    const avisExpert = créerDonnéesAvisExpert(ligne)
+
+    const décisionAdministrative = créerDonnéesDécisionAdministrative(ligne, warnings)
+
+    const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
+
+    // TODO : mettre aussi la date de fin de consultation quand la base de données Pitchou sera prête.
+        
     return {
         dossier: {
             'historique_identifiant_demande_onagre': ligne['N°ONAGRE'],
-            'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou)
+            'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou),
+            'commentaire_libre': commentaire_libre,
+            date_consultation_public: dateDébutConsultation
         },
+        évènement_phase_dossier: donnéesEvénementPhaseDossier,
+        avis_expert: avisExpert,
+        décision_administrative: décisionAdministrative
     }
 }
 
+/**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
+ * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
+ */
+function créerDonnéesEvénementPhaseDossier(ligne, warnings) {
+    /**@type {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} */
+    const donnéesEvénementPhaseDossier = []
+
+    const valeurNormaliséeStatut = ligne['Statut'].trim().toLowerCase()
+    const valeurDateDébutAccompagnement = ligne[`Date de début d'accompagnement`]
+
+    if (valeurNormaliséeStatut === 'nouveau dossier à venir' || valeurNormaliséeStatut === 'diagnostic préalable' || valeurNormaliséeStatut === 'demande de compléments dossier') {
+        donnéesEvénementPhaseDossier.push({phase: 'Accompagnement amont', horodatage: new Date(valeurDateDébutAccompagnement, 0, 1) })
+    }
+
+    if (valeurNormaliséeStatut === `rapport d'instruction`) {
+        const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
+        const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+
+        if (isValidDateString(datePhaseInstruction)) {
+            donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
+        } else {
+            const messageWarning = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : ${datePhaseInstruction}. On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
+            console.warn(messageWarning)
+            warnings.push(messageWarning)
+
+        }
+    }
+
+    const valeurDateDeRéceptionPremierDossier = ligne['Date de réception 1er dossier']
+    const dateReceptionPremierDossier = valeurDateDeRéceptionPremierDossier.toString()
+    if (isValidDateString(dateReceptionPremierDossier)) {
+        donnéesEvénementPhaseDossier.push({phase: 'Étude recevabilité DDEP', horodatage: new Date(dateReceptionPremierDossier)})
+    }
+
+    const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
+    const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+    if (isValidDateString(datePhaseInstruction)) {
+        donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
+    }
+
+    return donnéesEvénementPhaseDossier.length >= 1 ? donnéesEvénementPhaseDossier : undefined
+    
+}
 
 /**
  * Crée un objet dossier à partir d'une ligne d'import).
@@ -187,8 +317,10 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     let warnings = []
 
     const donnéesLocalisations =  await générerDonnéesLocalisations(ligne, warnings)
+    const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
+
     return {
-        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne, warnings)),
 
         'Nom du projet': créerNomPourDossier(ligne),
         'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444),
@@ -196,6 +328,9 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
+        "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": donnéesAutorisationEnvironnementale["Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"],
+        'À quelle procédure le projet est-il soumis ?': donnéesAutorisationEnvironnementale['À quelle procédure le projet est-il soumis ?'],
+    
 
         warnings: warnings.length>=1 ? warnings : undefined,
 
