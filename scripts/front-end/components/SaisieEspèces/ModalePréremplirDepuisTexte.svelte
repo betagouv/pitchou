@@ -21,9 +21,11 @@
     /** @type {Set<EspèceProtégée>} */
     let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
 
-    let oiseauxÀPréremplir = $derived(new Set([...espècesÀPréremplirParTexte].filter(e => e.classification === 'oiseau')))
-    let fauneNonOiseauxÀPréremplir = $derived(new Set([...espècesÀPréremplirParTexte].filter(e => e.classification === 'faune non-oiseau')))
-    let floreÀPréremplir = $derived(new Set([...espècesÀPréremplirParTexte].filter(e => e.classification === 'flore')))
+    let espècesÀPréremplirTemporaire = $derived([...espècesÀPréremplirParTexte])
+
+    let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplirTemporaire.filter(e => e.classification === 'oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplirTemporaire.filter(e => e.classification === 'faune non-oiseau')))
+    let floreÀPréremplir = $derived(new Set(espècesÀPréremplirTemporaire.filter(e => e.classification === 'flore')))
 
     /**
      * Recheche "à l'arrache"
@@ -82,8 +84,20 @@
     }
 
    function onAjouterLesEspècesPréremplies() {
-        espècesÀPréremplir = [...espècesÀPréremplirParTexte]
+        espècesÀPréremplir = espècesÀPréremplirTemporaire
    }
+
+    /**
+     * @param {EspèceProtégée} espèce
+     */
+    function supprimerEspèce(espèce) {
+        console.log('espècesÀPréremplirParTexte.has(espèce)', espècesÀPréremplirParTexte.has(espèce))
+        espècesÀPréremplirParTexte.delete(espèce)
+        espècesÀPréremplirParTexte = espècesÀPréremplirParTexte
+        espècesÀPréremplirTemporaire = espècesÀPréremplirTemporaire
+        oiseauxÀPréremplir = oiseauxÀPréremplir
+    }
+    $inspect(espècesÀPréremplirParTexte, oiseauxÀPréremplir)
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
@@ -109,7 +123,13 @@
                                     <h3 class="fr-h6">{`${oiseauxÀPréremplir.size} oiseau${oiseauxÀPréremplir.size>=1 ? 'x' : ''}`}</h3>
                                     <ul>
                                         {#each [...oiseauxÀPréremplir] as espèce (espèce)}
-                                            <li><NomEspèce {espèce}/></li>
+                                            <li>
+                                            <NomEspèce {espèce}/> 
+                                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                                    libellé du bouton
+                                                    <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                                </button>
+                                            </li>
                                         {/each}
                                     </ul>
                                 </section>
