@@ -446,7 +446,7 @@
                     </div>
                 </dialog>
 
-                <ModalePréremplirDepuisTexte bind:texteEspèces={texteEspèces} />
+                <ModalePréremplirDepuisTexte bind:texteEspèces={texteEspèces} bind:espècesÀPréremplir={espècesÀPréremplir} />
 
                 {#if !modeLecture && espècesÀPréremplirParTexte.size >= 1}
                     <details open>
