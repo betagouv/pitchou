@@ -43,6 +43,7 @@
 
         await tick()
 
+        // Quand une référence disparaît, elle est mise à "null" par Svelte et n'est pas supprimée du tableau
         référencesEspèces = référencesEspèces.filter(ref => ref !== null)
 
         if (espècesImpactées.length === 0) {
