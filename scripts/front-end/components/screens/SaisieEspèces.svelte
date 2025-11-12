@@ -4,6 +4,7 @@
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
     import EspècesProtégéesGroupéesParImpact from '../EspècesProtégéesGroupéesParImpact.svelte'
+    import ModalePréremplirDepuisTexte from '../SaisieEspèces/ModalePréremplirDepuisTexte.svelte'
 
     import FormulaireSaisieEspèce from '../SaisieEspèces/FormulaireSaisieEspèce.svelte'
 
@@ -445,35 +446,7 @@
                     </div>
                 </dialog>
 
-                <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true">
-                    <div class="fr-container fr-container--fluid fr-container-md">
-                        <div class="fr-grid-row fr-grid-row--center">
-                            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-                                <div class="fr-modal__body">
-                                    <div class="fr-modal__header">
-                                        <button aria-controls="modale-préremplir-depuis-texte" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
-                                    </div>
-                                    <div class="fr-modal__content">
-                                        <h2 id="modale-préremplir-depuis-texte-title" class="fr-modal__title">
-                                            Pré-remplissage des espèces protégées impactées
-                                        </h2>
-                                        <div class="fr-mb-4w">
-                                            <p>
-                                                Dans la boîte de texte ci-dessous, coller du texte approximatif.
-                                                Par exemple, en copiant à partir d'un tableau dans un pdf.
-                                                Les espèces seront reconnues et permettront le pré-remplissage du formulaire
-                                            </p>
-                                            <textarea bind:value={texteEspèces} class="fr-input"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="fr-modal__footer">
-                                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto">Valider le texte</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </dialog>
+                <ModalePréremplirDepuisTexte bind:texteEspèces={texteEspèces} />
 
                 {#if !modeLecture && espècesÀPréremplirParTexte.size >= 1}
                     <details open>
