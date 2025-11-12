@@ -1,22 +1,89 @@
 <script>
+    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings.js'
     import NomEspèce from '../NomEspèce.svelte'
-	/** @import { EspèceProtégée } from "../../../types/especes" */
+
+    /** @import { ParClassification, EspèceProtégée } from '../../../types/especes.d.ts' **/
 
     /**
      * @typedef {Object} Props
      * @property {string} texteEspèces
      * @property {EspèceProtégée[]} espècesÀPréremplir
+    * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      */
 
     /** @type {Props} */
     let {
         texteEspèces = $bindable(),
         espècesÀPréremplir = $bindable(),
+        espècesProtégéesParClassification,
     } = $props();
 
     let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau')))
     let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau')))
     let floreÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'flore')))
+
+    /** @type {Set<EspèceProtégée>} */
+    let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
+
+    /**
+     * Recheche "à l'arrache"
+     * 
+     * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
+     * @returns {Map<string, EspèceProtégée>}
+     */
+    function créerNomVersEspèceClassif(espècesProtégéesParClassification){
+        /** @type {Map<string, EspèceProtégée>}>} */
+        const nomVersEspèceClassif = new Map()
+
+        for(const espèces of Object.values(espècesProtégéesParClassification)){
+            for(const espèce of espèces){
+                const {nomsScientifiques, nomsVernaculaires} = espèce;
+                if(nomsScientifiques.size >= 1){
+                    for(const nom of nomsScientifiques){
+                        const normalized = normalizeNomEspèce(nom)
+                        if(normalized && normalized.length >= 3){
+                            nomVersEspèceClassif.set(normalized, espèce)
+                        }
+                    }
+                }
+
+                if(nomsVernaculaires.size >= 1){
+                    for(const nom of nomsVernaculaires){
+                        const normalized = normalizeNomEspèce(nom)
+                        if(normalized && normalized.length >= 3){
+                            nomVersEspèceClassif.set(normalized, espèce)
+                        }
+                    }
+                }
+            }
+        }
+
+        return nomVersEspèceClassif
+    }
+
+    let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification))
+
+    /**
+     *
+     * @param {string} texte
+     * @returns {Set<EspèceProtégée>}
+     */
+     function chercherEspècesDansTexte(texte){
+        /** @type {Set<EspèceProtégée>}*/
+        const espècesTrouvées = new Set()
+
+        for(const [nom, espClassif] of nomVersEspèceClassif){
+            if(texte.includes(nom)){
+                espècesTrouvées.add(espClassif)
+            }
+        }
+
+        return espècesTrouvées
+    }
+
+   function onAjouterLesEspècesPréremplies() {
+        espècesÀPréremplir = [...espècesÀPréremplirParTexte]
+   }
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true">
@@ -67,7 +134,7 @@
                         </div>
                     </div>
                     <div class="fr-modal__footer">
-                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto">Valider le texte</button>
+                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>Valider le texte</button>
                     </div>
                 </div>
             </div>
