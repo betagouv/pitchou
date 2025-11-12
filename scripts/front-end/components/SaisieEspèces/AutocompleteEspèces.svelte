@@ -1,13 +1,15 @@
 <script>
 	/** @import {EspèceProtégée} from '../../../types/especes' */
 
-    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings'
+    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings'
+    import { espèceLabel } from '../../../commun/outils-espèces.js'
 
     /**
      * @typedef {Object} Props
      * @property {EspèceProtégée[]} espèces
      * @property {EspèceProtégée | undefined} [espèceSélectionnée]
      * @property {function | undefined} [onChange]
+     * @property {string} [id]
      */
 
 
@@ -21,6 +23,7 @@
     let {
         espèces,
         onChange,
+        id,
         espèceSélectionnée = $bindable(undefined)
     } = $props()
 
@@ -39,6 +42,7 @@
         clearTimeout(timeout)
         openChoices = true
     }
+
     let onblur = () => {
         timeout = setTimeout(
             () => {openChoices = false},
@@ -86,22 +90,19 @@
         espèceSélectionnée = espèce
     }
 
-    /**
-     *
-     * @param {EspèceProtégée} espèce
-     * @returns {string}
-     */
-    function espèceLabel(espèce){
-        return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
+    export function focus() {
+        input?.focus()
     }
 
-    //$inspect('text', text)
-    //$inspect('espècesPertinentes', espècesPertinentes)
+    /**
+     * @type {HTMLElement}
+     */
+    let input;
 
 </script>
 
 <div class="autocomplete-container" title={text}>
-    <input bind:value={text} {onfocus} {onblur} class="fr-input">
+    <input bind:this={input} bind:value={text} {onfocus} {onblur} id="{id ? id : ''}" class="fr-input">
 
     {#if openChoices && espècesPertinentes.length >= 1}
     <ol>
