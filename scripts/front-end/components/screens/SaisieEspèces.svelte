@@ -54,8 +54,8 @@
      */
     let espècesImpactées = $state([{impacts: [{}]}])
 
-    // TODO: compte les espèces et plu les impacts
-    let nombreEspècesSaisies = $derived(espècesImpactées.length)
+    let nombreEspècesSaisies = $derived(espècesImpactées.filter((espèce) => !!espèce.espèce).length)
+
     /** @type {File | undefined} */
     let fichierEspècesOds = $state()
 

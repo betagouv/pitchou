@@ -1,7 +1,8 @@
 <script>
 	/** @import {EspèceProtégée} from '../../../types/especes' */
 
-    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings'
+    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings'
+    import { espèceLabel } from '../../../commun/outils-espèces.js'
 
     /**
      * @typedef {Object} Props
@@ -41,6 +42,7 @@
         clearTimeout(timeout)
         openChoices = true
     }
+
     let onblur = () => {
         timeout = setTimeout(
             () => {openChoices = false},
@@ -86,15 +88,6 @@
         }
 
         espèceSélectionnée = espèce
-    }
-
-    /**
-     *
-     * @param {EspèceProtégée} espèce
-     * @returns {string}
-     */
-    function espèceLabel(espèce){
-        return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
     }
 
     export function focus() {

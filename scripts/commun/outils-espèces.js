@@ -69,6 +69,15 @@ export function nomsVernaculaires(NOM_VERN){
 
 /**
  *
+ * @param {EspèceProtégée} espèce
+ * @returns {string}
+ */
+export function espèceLabel(espèce){
+    return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
+}
+
+/**
+ *
  * @param {EspèceProtégéeStrings} _
  * @returns {EspèceProtégée}
  */
@@ -137,7 +146,6 @@ function oiseauxAtteintsToTableContent(oiseauxAtteints){
 
     return sheetRawContent
 }
-
 
 /**
  *

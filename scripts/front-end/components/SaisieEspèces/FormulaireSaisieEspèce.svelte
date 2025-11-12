@@ -31,7 +31,7 @@
 
         await tick()
 
-        référencesEspèces = référencesEspèces.filter(e => e !== null)
+        référencesEspèces = référencesEspèces.filter(ref => ref !== null)
         référencesEspèces[référencesEspèces.length - 1].focusFormulaireEspèce()
     }
 
@@ -40,11 +40,10 @@
      */
     async function supprimerEspèce(indexEspèceÀSupprimer) {
         espècesImpactées.splice(indexEspèceÀSupprimer, 1)
-        espècesImpactées = espècesImpactées
 
         await tick()
 
-        référencesEspèces = référencesEspèces.filter(e => e !== null)
+        référencesEspèces = référencesEspèces.filter(ref => ref !== null)
 
         if (espècesImpactées.length === 0) {
             await ajouterEspèce()
@@ -69,7 +68,7 @@
 
         await tick()
 
-        référencesEspèces = référencesEspèces.filter(e => e !== null)
+        référencesEspèces = référencesEspèces.filter(ref => ref !== null)
 
         référencesEspèces[indexEspèceÀDuppliquer + 1].réinitialiserEspèce()
         référencesEspèces[indexEspèceÀDuppliquer + 1].focusFormulaireEspèce()

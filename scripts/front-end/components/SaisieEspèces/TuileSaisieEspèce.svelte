@@ -5,6 +5,7 @@
 
     import AutocompleteEspeces from './AutocompleteEspèces.svelte'
     import ImpactEspèce from './ImpactEspèce.svelte'
+    import { espèceLabel } from '../../../commun/outils-espèces.js'
 
     /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionImpact, ClassificationEtreVivant} from "../../../types/especes.js" */
 
@@ -42,16 +43,6 @@
      * @type ClassificationEtreVivant | undefined
      */
     let espèceClassification = $state(espèce?.classification)
-
-    // TODO: utilisé dans l'autocomplete, voir pour dédupliquer
-    /**
-     *
-     * @param {EspèceProtégée} espèce
-     * @returns {string}
-     */
-    function espèceLabel(espèce){
-        return `${[...espèce.nomsVernaculaires][0]} (${[...espèce.nomsScientifiques][0]})`
-    }
 
     async function ajouterImpact() {
         descriptionImpacts.push({})
@@ -103,13 +94,11 @@
      * @param {EspèceProtégée} nouvelleEspèce
      */
     function onChangeEspèce(nouvelleEspèce) {
-        if (nouvelleEspèce?.classification !== espèceClassification) {
+        if (nouvelleEspèce.classification !== espèceClassification) {
             descriptionImpacts = [{}]
         }
 
-        if (nouvelleEspèce) {
-            espèceClassification = nouvelleEspèce.classification
-        }
+        espèceClassification = nouvelleEspèce.classification
     }
 
     /**
