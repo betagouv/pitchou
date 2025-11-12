@@ -45,8 +45,7 @@ async function _téléchargerFichierDS(url){
  * mais surcharge + DS
  * 
  */
-const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANNÉES = 10
-
+const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANNÉES = 6
 const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANNÉES)
 
 /**
