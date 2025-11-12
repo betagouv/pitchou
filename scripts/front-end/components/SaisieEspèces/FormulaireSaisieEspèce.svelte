@@ -2,7 +2,7 @@
     import { tick } from 'svelte';
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
 
-    /** @import {ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, TransportMenançant} from "../../../types/especes.js" */
+    /** @import {ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant} from "../../../types/especes.js" */
 
 
     /**
@@ -12,7 +12,7 @@
      * @property {EspèceProtégée[]} [espècesProtégées]
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */
