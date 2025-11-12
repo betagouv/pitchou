@@ -53,52 +53,53 @@ interface FonctionsUtilitaires {
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  **/
 export type BalisesGénérationDocument = {
-  nom: string | null;
-  demandeur: {
-    adresse: string
-    nom: string
-    toString: () => string
-  }
-  activité_principale: string | null;
-  description: string | null;
-  localisation: string;
-  date_dépôt: Date;
-  
-  département_principal: string | undefined
-  liste_départements: string[] | undefined
+	nom: string | null
+	demandeur: {
+		adresse: string
+		nom: string
+		toString: () => string
+	}
+	activité_principale: string | null
+	description: string | null
+	localisation: string
+	date_dépôt: Date
 
-  régime_autorisation_environnementale_renseigné: boolean;
-  régime_autorisation_environnementale: boolean | 'Non renseigné' ;
-  
-  scientifique: DonneesScientifiques;
+	département_principal: string | undefined
+	liste_départements: string[] | undefined
 
-  justification_absence_autre_solution_satisfaisante: string | null;
-  motif_dérogation: string | null;
-  justification_motif_dérogation: string | null;
-  liste_espèces_par_impact: EspeceParImpact[] | undefined;
-  mesures_erc_prévues: boolean | 'Non renseigné';
-  mesures_erc_prévues_renseigné: boolean;
+	régime_autorisation_environnementale_renseigné: boolean
+	régime_autorisation_environnementale: boolean | 'Non renseigné'
 
-  hirondelles?: {
-    nids_détruits: number | null;
-    nids_compensés: number | null;
-  };
+	scientifique: DonneesScientifiques
 
-  cigognes?: {
-    nids_détruits: number | null;
-    nids_compensés: number | null;
-  };
+	justification_absence_autre_solution_satisfaisante: string | null
+	motif_dérogation: string | null
+	justification_motif_dérogation: string | null
+	liste_espèces_par_impact: EspeceParImpact[] | undefined
+	mesures_erc_prévues: boolean | 'Non renseigné'
+	mesures_erc_prévues_renseigné: boolean
 
-  date_début_intervention: Date | null;
-  date_fin_intervention: Date | null;
-  durée_intervention: number | null;
+	hirondelles?: {
+		nids_détruits: number | null
+		nids_compensés: number | null
+	}
 
-  date_début_consultation_public: Date | null;
+	cigognes?: {
+		nids_détruits: number | null
+		nids_compensés: number | null
+	}
 
-  identifiant_onagre: string | null;
-  identifiant_pitchou: number;
+	date_début_intervention: Date | null
+	date_fin_intervention: Date | null
+	durée_intervention: number | null
 
-  commentaire_instruction: string;
-  enjeu_politique: boolean;
-  enjeu_écologique: boolean;
+	date_début_consultation_public: Date | null
+	date_fin_consultation_public: Date | null
+
+	identifiant_onagre: string | null
+	identifiant_pitchou: number
+
+	commentaire_instruction: string
+	enjeu_politique: boolean
+	enjeu_écologique: boolean
 }

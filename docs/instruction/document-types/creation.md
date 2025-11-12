@@ -77,6 +77,11 @@ Les balises ont des types qui peuvent être :
                             <td> Date de début de la consultation du public ou enquête publique. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{date_fin_consultation_public}</code></th>
+                            <td> date</td>
+                            <td> Date de fin de la consultation du public ou enquête publique. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{date_dépôt}</code></th>
                             <td> date</td>
                             <td> Date de dépôt du dossier. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>

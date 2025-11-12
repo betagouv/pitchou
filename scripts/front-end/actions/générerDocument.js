@@ -30,7 +30,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, iden
     const {
         nom,
         commentaire_libre,
-        date_consultation_public,
+        date_debut_consultation_public,
+        date_fin_consultation_public,
         description,
         date_dépôt,
         départements,
@@ -81,7 +82,8 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, iden
     return {
         nom,
         commentaire_instruction: commentaire_libre?.trim() ?? '',
-        date_début_consultation_public: date_consultation_public,
+        date_début_consultation_public: date_debut_consultation_public,
+        date_fin_consultation_public: date_fin_consultation_public,
         description,
         date_dépôt,
         département_principal: Array.isArray(départements) ? départements[0] : undefined,

@@ -259,8 +259,8 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
     const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
 
-    const date_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
-
+    const date_debut_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
+    const date_fin_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de fin de la consultation du public ou enquête publique"))?.date
     const champ_nombre_nids_compensés_oiseau_simple = champById.get(pitchouKeyToChampDS.get('Indiquer le nombre de nids artificiels posés en compensation'))?.stringValue
     const nombre_nids_compensés_dossier_oiseau_simple = champ_nombre_nids_compensés_oiseau_simple ? Number(champ_nombre_nids_compensés_oiseau_simple) : null
 
@@ -335,7 +335,8 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         historique_date_envoi_dernière_contribution,
         historique_identifiant_demande_onagre,
 
-        date_consultation_public,
+        date_debut_consultation_public,
+        date_fin_consultation_public,
 
         nombre_nids_compensés_dossier_oiseau_simple,
         nombre_nids_détruits_dossier_oiseau_simple,

@@ -59,7 +59,7 @@ export default interface Dossier {
   historique_identifiant_demande_onagre: string | null;
 
   /** Date de la consultation publique */
-  date_consultation_public: Date | null;
+  date_debut_consultation_public: Date | null;
 
   /** Indique si le dossier présente un enjeu écologique */
   enjeu_écologique: boolean | null;
@@ -152,6 +152,9 @@ export default interface Dossier {
 
   /** Réponse à la question : "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il $1" */
   risque_malgre_mesures_erc: boolean | null;
+
+  /** Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique" */
+  date_fin_consultation_public: Date | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -205,7 +208,7 @@ export interface DossierInitializer {
   historique_identifiant_demande_onagre?: string | null;
 
   /** Date de la consultation publique */
-  date_consultation_public?: Date | null;
+  date_debut_consultation_public?: Date | null;
 
   /** Indique si le dossier présente un enjeu écologique */
   enjeu_écologique?: boolean | null;
@@ -298,6 +301,9 @@ export interface DossierInitializer {
 
   /** Réponse à la question : "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il $1" */
   risque_malgre_mesures_erc?: boolean | null;
+
+  /** Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique" */
+  date_fin_consultation_public?: Date | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -350,7 +356,7 @@ export interface DossierMutator {
   historique_identifiant_demande_onagre?: string | null;
 
   /** Date de la consultation publique */
-  date_consultation_public?: Date | null;
+  date_debut_consultation_public?: Date | null;
 
   /** Indique si le dossier présente un enjeu écologique */
   enjeu_écologique?: boolean | null;
@@ -443,4 +449,7 @@ export interface DossierMutator {
 
   /** Réponse à la question : "Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il $1" */
   risque_malgre_mesures_erc?: boolean | null;
+
+  /** Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique" */
+  date_fin_consultation_public?: Date | null;
 }
