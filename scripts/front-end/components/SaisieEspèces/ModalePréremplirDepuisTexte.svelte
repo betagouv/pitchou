@@ -18,12 +18,12 @@
         espècesProtégéesParClassification,
     } = $props();
 
-    let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau')))
-    let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau')))
-    let floreÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'flore')))
-
     /** @type {Set<EspèceProtégée>} */
     let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
+
+    let oiseauxÀPréremplir = $derived(new Set([...espècesÀPréremplirParTexte].filter(e => e.classification === 'oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new Set([...espècesÀPréremplirParTexte].filter(e => e.classification === 'faune non-oiseau')))
+    let floreÀPréremplir = $derived(new Set([...espècesÀPréremplirParTexte].filter(e => e.classification === 'flore')))
 
     /**
      * Recheche "à l'arrache"
@@ -86,10 +86,10 @@
    }
 </script>
 
-<dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true">
+<dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
     <div class="fr-container fr-container--fluid fr-container-md">
         <div class="fr-grid-row fr-grid-row--center">
-            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+            <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
                 <div class="fr-modal__body">
                     <div class="fr-modal__header">
                         <button aria-controls="modale-préremplir-depuis-texte" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
@@ -98,43 +98,47 @@
                         <h2 id="modale-préremplir-depuis-texte-title" class="fr-modal__title">
                             Pré-remplissage des espèces protégées impactées
                         </h2>
-                        <div class="fr-mb-4w">
-                            {#if oiseauxÀPréremplir.size >= 1}
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                            <div class='fr-col'>
+                                <label class="fr-label" for="champ-texte-espece"> Votre texte </label>
+                                <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input" rows="10"></textarea>
+                            </div>
+                            <div class='fr-col'>
+                                {#if oiseauxÀPréremplir.size >= 1}
                                 <section class="préremplir-espèces fr-mb-4w">
-                                <h3>{oiseauxÀPréremplir.size} oiseaux</h3>
-                                <ul>
-                                    {#each [...oiseauxÀPréremplir] as espèce (espèce)}
-                                        <li><NomEspèce {espèce}/></li>
-                                    {/each}
-                                </ul>
-
-                            </section>
-                            {/if}
-                            {#if fauneNonOiseauxÀPréremplir.size >= 1}
-                                <section class="préremplir-espèces fr-mb-4w">
-                                    <h3>{fauneNonOiseauxÀPréremplir.size} faunes non-oiseau</h3>
+                                    <h3 class="fr-h6">{`${oiseauxÀPréremplir.size} oiseau${oiseauxÀPréremplir.size>=1 ? 'x' : ''}`}</h3>
                                     <ul>
-                                        {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
+                                        {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                                             <li><NomEspèce {espèce}/></li>
                                         {/each}
                                     </ul>
                                 </section>
-                            {/if}
-                            {#if floreÀPréremplir.size >= 1}
-                                <section class="préremplir-espèces fr-mb-4w">
-                                    <h3>{floreÀPréremplir.size} faunes non-oiseau</h3>
-                                    <ul>
-                                        {#each [...floreÀPréremplir] as espèce (espèce)}
-                                            <li><NomEspèce {espèce}/></li>
-                                        {/each}
-                                    </ul>
-                                </section>
-                            {/if}
-                            <textarea bind:value={texteEspèces} class="fr-input"></textarea>
+                                {/if}
+                                {#if fauneNonOiseauxÀPréremplir.size >= 1}
+                                    <section class="préremplir-espèces fr-mb-4w">
+                                        <h3 class="fr-h6">{`${fauneNonOiseauxÀPréremplir.size} faune${fauneNonOiseauxÀPréremplir.size>=1 ? 's' : ''} non-oiseau`}</h3>
+                                        <ul>
+                                            {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
+                                                <li><NomEspèce {espèce}/></li>
+                                            {/each}
+                                        </ul>
+                                    </section>
+                                {/if}
+                                {#if floreÀPréremplir.size >= 1}
+                                    <section class="préremplir-espèces fr-mb-4w">
+                                        <h3 class="fr-h6">{`${floreÀPréremplir.size} flore${floreÀPréremplir.size>=1 ? 's' : ''}`}</h3>
+                                        <ul>
+                                            {#each [...floreÀPréremplir] as espèce (espèce)}
+                                                <li><NomEspèce {espèce}/></li>
+                                            {/each}
+                                        </ul>
+                                    </section>
+                                {/if}
+                            </div>
                         </div>
                     </div>
                     <div class="fr-modal__footer">
-                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>Valider le texte</button>
+                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesÀPréremplirParTexte.size} espèce${espècesÀPréremplirParTexte.size>=2 ? 's' : ''}`}</button>
                     </div>
                 </div>
             </div>
@@ -143,5 +147,9 @@
 </dialog>
 
 <style>
-
+    .préremplir-espèces{
+        ul{
+            list-style: none;
+        }
+    }
 </style>
