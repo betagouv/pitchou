@@ -65,6 +65,7 @@ export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégion>
 
 export type ChampScientifiqueIntervenants = BaseRepetitionChampsDS<BaseChampDS>
 
+
 export interface DSFile{
     filename: string,
     url: string,
@@ -79,6 +80,7 @@ export interface ChampDSPieceJustificative extends BaseChampDS {
     files: DSFile[]
 }
 
+export type ChampRépétéDSPieceJustificative = BaseRepetitionChampsDS<ChampDSPieceJustificative>
 
 
 export type DeletedDossier = any // PPP

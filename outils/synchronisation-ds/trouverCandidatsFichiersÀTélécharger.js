@@ -1,6 +1,8 @@
 
-/** @import {DossierDS88444, ChampDSPieceJustificative, DSFile} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, ChampDSPieceJustificative, DSFile, ChampRépétéDSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+
+import {isChampDSPieceJustificative, isChampRépétéDSPieceJustificative} from '../../scripts/types/typeguards.js';
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
@@ -16,14 +18,23 @@ export default function trouverCandidatsFichiersÀTélécharger(dossiers, champD
     // @ts-ignore
     const candidatsFichiers = new Map(dossiers.map(({number, champs, annotations}) => {
 
-        /** @type {ChampDSPieceJustificative | undefined} */
+        /** @type {ChampDSPieceJustificative | ChampRépétéDSPieceJustificative | undefined} */
         // @ts-ignore
         const champFichier = champs.find(c => c.id === champDescriptorId) || annotations.find(c => c.id === champDescriptorId)
 
-        const descriptionFichier = champFichier?.files
+        /** @type {DSFile[] | undefined} */
+        let descriptionFichiers;
 
-        return descriptionFichier && descriptionFichier.length >= 1 ?
-            [ number, descriptionFichier ] : 
+        if(isChampDSPieceJustificative(champFichier)){
+            descriptionFichiers = champFichier.files
+        }
+
+        if(isChampRépétéDSPieceJustificative(champFichier)){
+            descriptionFichiers = champFichier.rows.map(r => r.champs.map(c => c.files)).flat(2)
+        }
+
+        return descriptionFichiers && descriptionFichiers.length >= 1 ?
+            [ number, descriptionFichiers ] : 
             undefined
         
     }).filter(x => x !== undefined))
