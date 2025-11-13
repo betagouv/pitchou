@@ -2,10 +2,7 @@
 
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
-
-
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
+import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 
 /**
@@ -86,10 +83,11 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
 /**
  *
  * @param {LigneDossierCorse} ligne
+ * @param {string[]} warnings
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
  * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
  */
-function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444) {
+function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444) {
     const typeDeProjet = ligne['Type de projet'].trim()
 
     // Si le type de projet est déjà une valeur pitchou
@@ -104,10 +102,64 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
         return activité
     }
 
-    console.warn(`Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou) On attribue donc l'activité "Autre" à ce projet.`)
+    const messageWarning = `Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou). On attribue donc l'activité "Autre" à ce projet.`
+    console.warn(messageWarning);
+    warnings.push(messageWarning)
 
     return 'Autre';
 }
+
+/**
+ *
+ * @param {{Commune: string | undefined, Département: number | string}} ligne
+ * @param {string[]} [warnings]
+ * @returns { Promise<
+ *              Partial<Pick<DossierDemarcheSimplifiee88444,
+ *                  "Commune(s) où se situe le projet" |
+ *                  "Département(s) où se situe le projet" |
+ *                  "Le projet se situe au niveau…"
+ *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
+ *           >}
+ */
+async function générerDonnéesLocalisations(ligne, warnings) {
+    const départementParDéfaut = {code: '2A', nom: 'Corse-du-Sud'}
+
+    const valeursCommunes = extraireCommunes(ligne['Commune'] ?? '');
+
+    const communesP = valeursCommunes.map((com) => getCommuneData(com, warnings));
+    const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
+
+    const [départementsTrouvés, communesResult] = await Promise.all([
+        départementsP,
+        Promise.all(communesP),
+    ]);
+
+    const communes = communesResult.filter((commune) => commune !== null);
+
+    const départementColonne = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
+        départementsTrouvés[0] : 
+        undefined
+
+    if (communes.length >= 1) {
+        const départementPremièreCommune = communes[0].departement
+
+        return {
+            "Commune(s) où se situe le projet": communes,
+            "Département(s) où se situe le projet": undefined,
+            "Le projet se situe au niveau…": "d'une ou plusieurs communes",
+            "Dans quel département se localise majoritairement votre projet ?": départementColonne ?? départementPremièreCommune
+        }
+    } else {
+        const départements =  Array.isArray(départementsTrouvés) ? départementsTrouvés : [départementParDéfaut]
+        return {
+            "Commune(s) où se situe le projet": undefined,
+            "Département(s) où se situe le projet": départements,
+            "Le projet se situe au niveau…": "d'un ou plusieurs départements",
+            "Dans quel département se localise majoritairement votre projet ?": départements[0]
+        }
+    }
+}
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
@@ -128,14 +180,24 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
+ * @returns {Promise<Partial<DossierDemarcheSimplifiee88444 & { warnings: string[] }>>}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
+    /** @type {string[]} */
+    let warnings = []
+
+    const donnéesLocalisations =  await générerDonnéesLocalisations(ligne, warnings)
     return {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
 
         'Nom du projet': créerNomPourDossier(ligne),
-        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444),
+        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444),
+        'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
+        'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
+        'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
+        'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
+
+        warnings: warnings.length>=1 ? warnings : undefined,
 
     };
 }
