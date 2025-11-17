@@ -32,7 +32,7 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
  *
  * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
-export async function getCommuneData(nomCommune) {
+async function getCommuneData(nomCommune) {
     const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
@@ -43,6 +43,10 @@ export async function getCommuneData(nomCommune) {
 
     return {data: commune[0]}
 }
+
+const memoizedGetCommuneData = memoize(getCommuneData)
+
+export { memoizedGetCommuneData as getCommuneData }
 
 /**
  *
