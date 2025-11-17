@@ -4,7 +4,7 @@
 /** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
 
 import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
 
@@ -29,6 +29,63 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
         fichierEspècesImpactéeChampId,
         laTransactionDeSynchronisationDS
     )
+}
+
+
+/**
+ * Télécharge les pièces jointes au dossier fournies par le pétitionnaire pour la démarche 88444
+ * 
+ * @param {DossierDS88444[]} dossiersDS
+ * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Knex.Transaction | Knex} databaseConnection
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>}
+ */
+export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, databaseConnection){
+
+    /** @type {ChampDescriptor['id'] | undefined} */
+    const fichierPiècesJointesChampId = pitchouKeyToChampDS.get('Dépot du dossier complet de demande de dérogation')
+    if(!fichierPiècesJointesChampId){
+        throw new Error('fichierPiècesJointesChampId is undefined')
+    }
+
+    /** @type {ChampDescriptor['id'] | undefined} */
+    const fichierPiècesJointesComplémentairesChampId = pitchouKeyToChampDS.get('Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande')
+    if(!fichierPiècesJointesComplémentairesChampId){
+        throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
+    }
+
+
+    const fichiersPiècesJointesP = téléchargerNouveauxFichiersFromChampId(
+        dossiersDS,
+        fichierPiècesJointesChampId,
+        databaseConnection
+    )
+
+    const fichiersPiècesJointesComplémentairesP = téléchargerNouveauxFichiersFromChampId(
+        dossiersDS,
+        fichierPiècesJointesComplémentairesChampId,
+        databaseConnection
+    )
+
+    /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
+    const res = new Map()
+
+    const fichiersPiècesJointes = await fichiersPiècesJointesP
+    if(fichiersPiècesJointes){
+        for(const [number, fichierIds] of fichiersPiècesJointes){
+            res.set(number, fichierIds)
+        }
+    }
+
+    const fichiersPiècesJointesComplémentaires = await fichiersPiècesJointesComplémentairesP
+    if(fichiersPiècesJointesComplémentaires){
+        for(const [number, fichierIds] of fichiersPiècesJointesComplémentaires){
+            const fichiersIdsDéjàLà = res.get(number) || []
+            res.set(number, [...fichierIds, ...fichiersIdsDéjàLà])
+        }
+    }
+    
+    return res
 }
 
 

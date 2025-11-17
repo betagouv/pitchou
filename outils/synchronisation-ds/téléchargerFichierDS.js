@@ -38,16 +38,15 @@ async function _téléchargerFichierDS(url){
 
 
 /**
- * Afin de ne pas surcharger DS, nous limitons le nombre de téléchargements simultannés
+ * Afin de ne pas surcharger DS, nous limitons le nombre de téléchargements simultanés
  * Un petit nombre est plus accomodant pour DS, 
  * mais réduit notre performance
  * Un gros nombre augmente notre parallélisme et sûrement notre performance (jusqu'à une limite), 
  * mais surcharge + DS
  * 
  */
-const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANNÉES = 10
-
-const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANNÉES)
+const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS = 6
+const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS)
 
 /**
  * 

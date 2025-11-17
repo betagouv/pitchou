@@ -17,7 +17,7 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-s
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds/téléchargerNouveauxFichiersParType.js'
-import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
+import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444, récupérerPiècesJointesPétitionnaire88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
 
 import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
@@ -160,6 +160,23 @@ const {
     }
 })()
 
+
+/** Télécharger les pièces jointes au dossier */
+const fichiersPiècesJointesPétitionnaireTéléchargés = await (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return récupérerPiècesJointesPétitionnaire88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
+
+console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
+
+
 const {
     getDonnéesPersonnesEntreprises,
     makeAvisExpertFromTraitementsDS,
@@ -185,6 +202,7 @@ const {
     }
 })()
 
+
 const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await makeDossiersPourSynchronisation(
     dossiersDS,
     DEMARCHE_NUMBER,
@@ -193,6 +211,7 @@ const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await ma
     fichiersAvisCSRPN_CNPN_Téléchargés,
     fichiersAvisConformeMinistreTéléchargés,
     fichiersMotivationTéléchargés,
+    fichiersPiècesJointesPétitionnaireTéléchargés,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
     getDonnéesPersonnesEntreprises,
