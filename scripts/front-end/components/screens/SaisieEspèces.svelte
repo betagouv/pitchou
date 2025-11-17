@@ -190,13 +190,6 @@
         }
     }
 
-        /**
-     * Aide saisie par texte
-     */
-
-    let texteEspèces = $state('');
-
-
     /** @type {EspèceProtégée[]} */
     let espècesÀPréremplir = $state([])
 
@@ -264,8 +257,6 @@
                 surfaceHabitatDétruit: surfaceHabitatDétruitFlorePrérempli
             }})
         })
-
-        texteEspèces = ''
 
         rerender()
     }
@@ -377,7 +368,7 @@
                     </div>
                 </dialog>
 
-                <ModalePréremplirDepuisTexte bind:texteEspèces={texteEspèces} bind:espècesÀPréremplir={espècesÀPréremplir} {espècesProtégéesParClassification} />
+                <ModalePréremplirDepuisTexte bind:espècesÀPréremplir={espècesÀPréremplir} {espècesProtégéesParClassification} />
 
                 {#if !modeLecture && espècesÀPréremplir.length >= 1}
                     <details open>

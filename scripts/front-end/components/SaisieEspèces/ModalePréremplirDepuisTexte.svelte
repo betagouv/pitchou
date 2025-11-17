@@ -7,17 +7,20 @@
 
     /**
      * @typedef {Object} Props
-     * @property {string} texteEspèces
      * @property {EspèceProtégée[]} espècesÀPréremplir
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      */
 
     /** @type {Props} */
     let {
-        texteEspèces = $bindable(),
         espècesÀPréremplir = $bindable(),
         espècesProtégéesParClassification,
     } = $props();
+
+    /**
+     * Aide saisie par texte
+     */
+    let texteEspèces = $state('');
 
     /** @type {Set<EspèceProtégée>} - Source de vérité : espèces trouvées dans le texte */
     let espècesTrouvéesDansTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
@@ -79,7 +82,7 @@
      */
      function chercherEspècesDansTexte(texte){
         /** @type {Set<EspèceProtégée>}*/
-        const espècesTrouvées = new SvelteSet()
+        let espècesTrouvées = new Set()
 
         for(const [nom, espClassif] of nomVersEspèceClassif){
             if(texte.includes(nom)){
