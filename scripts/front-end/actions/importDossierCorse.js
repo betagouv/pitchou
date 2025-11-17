@@ -131,12 +131,12 @@ async function générerDonnéesLocalisations(ligne) {
 
     const valeursCommunes = extraireCommunes(ligne['Commune'] ?? '');
 
-    const communesP = valeursCommunes.map((com) => getCommuneData(com));
+    const communesPs = valeursCommunes.map((com) => getCommuneData(com));
     const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
 
     const [résultatDépartements, communesResult] = await Promise.all([
         départementsP,
-        Promise.all(communesP),
+        Promise.all(communesPs),
     ]);
 
 
