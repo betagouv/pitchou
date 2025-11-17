@@ -2,6 +2,8 @@
 	import { SvelteSet } from 'svelte/reactivity'
     import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings.js'
     import NomEspèce from '../NomEspèce.svelte'
+    import DéplierReplier from '../common/DéplierReplier.svelte'
+	import { mailtoJeNetrouvePasUneEspèce } from '../../../commun/constantes.js'
 
     /** @import { ParClassification, EspèceProtégée } from '../../../types/especes.d.ts' **/
 
@@ -120,7 +122,7 @@
                         <div class="fr-grid-row fr-grid-row--gutters">
                             <div class='fr-col-4'>
                                 <h3 class="fr-h6" id="label-champ-texte-espece"> Votre texte </h3>
-                                <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input" rows="20" aria-labelledby="label-champ-texte-espece"></textarea>
+                                <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input fr-mb-4w" rows="15" aria-labelledby="label-champ-texte-espece"></textarea>
                             </div>
                             <div class='fr-col'>
                                 <h3 class="fr-h6">Les espèces trouvées</h3>
@@ -178,6 +180,23 @@
                                 {/if}
                             </div>
                         </div>
+                        <DéplierReplier>
+                            {#snippet summary()}
+                                Je ne trouve pas une espèce…
+                            {/snippet}
+                            {#snippet content()}
+                                <p class="fr-text--sm">
+                                    Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un mail à
+                                    <a target="_blank" href={mailtoJeNetrouvePasUneEspèce}>pitchou@beta.gouv.fr</a> en
+                                    indiquant l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br>
+                                    Le <code>CD_NOM</code> est disponible sur
+                                    <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees">le site de l'INPN</a>,
+                                    en recherchant l'espèce dans la barre de recherche générale en haut de la page.<br>
+                                    Par exemple, <a target="_blank" href="https://inpn.mnhn.fr/espece/cd_nom/4221">la Fauvette Pitchou a le <code>CD_NOM</code>
+                                        <code>4221</code></a>.
+                                </p>
+                            {/snippet} 
+                        </DéplierReplier>
                     </div>
                     <div class="fr-modal__footer">
                         <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} espèce${espècesModifiables.size>=2 ? 's' : ''}`}</button>
