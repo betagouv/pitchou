@@ -4,15 +4,11 @@
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
     import EspècesProtégéesGroupéesParImpact from '../EspècesProtégéesGroupéesParImpact.svelte'
-
+    import ModalePréremplirDepuisTexte from '../SaisieEspèces/ModalePréremplirDepuisTexte.svelte'
     import FormulaireSaisieEspèce from '../SaisieEspèces/FormulaireSaisieEspèce.svelte'
-
     import OiseauAtteintEditRow from '../SaisieEspèces/OiseauAtteintEditRow.svelte'
     import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'
     import FloreAtteinteEditRow from '../SaisieEspèces/FloreAtteinteEditRow.svelte'
-
-
-    import {normalizeNomEspèce, normalizeTexteEspèce} from '../../../commun/manipulationStrings.js'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
     import Loader from '../Loader.svelte'
@@ -194,79 +190,8 @@
         }
     }
 
-
-
-    /**
-     * Recheche "à l'arrache"
-     */
-
-
-    /**
-     *
-     * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-     * @returns {Map<string, EspèceProtégée>}
-     */
-    function créerNomVersEspèceClassif(espècesProtégéesParClassification){
-        /** @type {Map<string, EspèceProtégée>}>} */
-        const nomVersEspèceClassif = new Map()
-
-        for(const espèces of Object.values(espècesProtégéesParClassification)){
-            for(const espèce of espèces){
-                const {nomsScientifiques, nomsVernaculaires} = espèce;
-                if(nomsScientifiques.size >= 1){
-                    for(const nom of nomsScientifiques){
-                        const normalized = normalizeNomEspèce(nom)
-                        if(normalized && normalized.length >= 3){
-                            nomVersEspèceClassif.set(normalized, espèce)
-                        }
-                    }
-                }
-
-                if(nomsVernaculaires.size >= 1){
-                    for(const nom of nomsVernaculaires){
-                        const normalized = normalizeNomEspèce(nom)
-                        if(normalized && normalized.length >= 3){
-                            nomVersEspèceClassif.set(normalized, espèce)
-                        }
-                    }
-                }
-            }
-        }
-
-        return nomVersEspèceClassif
-    }
-
-    /**
-     * Aide saisie par texte
-     */
-
-    let texteEspèces = $state('');
-
-    let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification))
-
-    /**
-     *
-     * @param {string} texte
-     * @returns {Set<EspèceProtégée>}
-     */
-     function chercherEspècesDansTexte(texte){
-        /** @type {Set<EspèceProtégée>}*/
-        const espècesTrouvées = new Set()
-
-        for(const [nom, espClassif] of nomVersEspèceClassif){
-            if(texte.includes(nom)){
-                espècesTrouvées.add(espClassif)
-            }
-        }
-
-        return espècesTrouvées
-    }
-
-    /** @type {Set<EspèceProtégée>} */
-    let espècesÀPréremplirParTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
-
     /** @type {EspèceProtégée[]} */
-    let espècesÀPréremplir = $derived([...espècesÀPréremplirParTexte])
+    let espècesÀPréremplir = $state([])
 
     let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau')))
     let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau')))
@@ -332,8 +257,6 @@
                 surfaceHabitatDétruit: surfaceHabitatDétruitFlorePrérempli
             }})
         })
-
-        texteEspèces = ''
 
         rerender()
     }
@@ -445,37 +368,9 @@
                     </div>
                 </dialog>
 
-                <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true">
-                    <div class="fr-container fr-container--fluid fr-container-md">
-                        <div class="fr-grid-row fr-grid-row--center">
-                            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-                                <div class="fr-modal__body">
-                                    <div class="fr-modal__header">
-                                        <button aria-controls="modale-préremplir-depuis-texte" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
-                                    </div>
-                                    <div class="fr-modal__content">
-                                        <h2 id="modale-préremplir-depuis-texte-title" class="fr-modal__title">
-                                            Pré-remplissage des espèces protégées impactées
-                                        </h2>
-                                        <div class="fr-mb-4w">
-                                            <p>
-                                                Dans la boîte de texte ci-dessous, coller du texte approximatif.
-                                                Par exemple, en copiant à partir d'un tableau dans un pdf.
-                                                Les espèces seront reconnues et permettront le pré-remplissage du formulaire
-                                            </p>
-                                            <textarea bind:value={texteEspèces} class="fr-input"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="fr-modal__footer">
-                                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto">Valider le texte</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </dialog>
+                <ModalePréremplirDepuisTexte bind:espècesÀPréremplir={espècesÀPréremplir} {espècesProtégéesParClassification} />
 
-                {#if !modeLecture && espècesÀPréremplirParTexte.size >= 1}
+                {#if !modeLecture && espècesÀPréremplir.length >= 1}
                     <details open>
                         <summary>
                             <h2>Pré-remplissage automatique</h2>
