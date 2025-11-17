@@ -82,30 +82,32 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
 /**
  *
  * @param {LigneDossierCorse} ligne
- * @param {string[]} warnings
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
+ * @returns {{ data: DossierDemarcheSimplifiee88444['Activité principale'], warnings: Warning[] }}
  */
-function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444) {
+function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444) {
+    /** @type {Warning[]} */
+    const warnings = []
     const typeDeProjet = ligne['Type de projet'].trim()
 
     // Si le type de projet est déjà une valeur pitchou
     // @ts-ignore
     if (activitésPrincipales88444.has(typeDeProjet)) {
+        // ts ne reconnaît pas le type de typeDeProjet
         // @ts-ignore
-        return typeDeProjet
+        return { data: typeDeProjet, warnings }
     }
 
     const activité = correspondanceTypeDeProjetVersActivitéPrincipale.get(    /** @type {TypeDeProjetOptions} */(typeDeProjet))
     if (activité) {
-        return activité
+        return { data: activité, warnings }
     }
 
     const messageWarning = `Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou). On attribue donc l'activité "Autre" à ce projet.`
     console.warn(messageWarning);
-    warnings.push(messageWarning)
+    warnings.push({ type: 'alerte', message: messageWarning })
 
-    return 'Autre';
+    return { data: 'Autre', warnings };
 }
 
 /**
@@ -132,7 +134,7 @@ async function générerDonnéesLocalisations(ligne) {
     const communesP = valeursCommunes.map((com) => getCommuneData(com));
     const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
 
-    const [départementsTrouvés, communesResult] = await Promise.all([
+    const [résultatDépartements, communesResult] = await Promise.all([
         départementsP,
         Promise.all(communesP),
     ]);
@@ -140,8 +142,13 @@ async function générerDonnéesLocalisations(ligne) {
 
     const communes = communesResult.map((communeResult) => communeResult.data)
                                    .filter((commune) => commune !== null);
-    const warnings = communesResult.map((communeResult) => communeResult.warning)
+    const warningsCommunes = communesResult.map((communeResult) => communeResult.warning)
                                    .filter((warning) => warning!==undefined)
+    const warnings = [
+        ...warningsCommunes,
+        ...résultatDépartements.warnings,
+    ]
+    const départementsTrouvés = résultatDépartements.data
     const départementColonne = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
         départementsTrouvés[0] : 
         undefined
@@ -207,12 +214,17 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; warnings: Warning[];}>}}}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
-    const { data: donnéesLocalisations, warnings } =  await générerDonnéesLocalisations(ligne)
+    const { data: donnéesLocalisations, warnings: warningsLocalisation } =  await générerDonnéesLocalisations(ligne)
+    const { data: activitéPrincipale, warnings: warningsActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
+    const warnings = [
+        ...warningsLocalisation,
+        ...warningsActivité
+    ]
 
     const data = {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
         'Nom du projet': créerNomPourDossier(ligne),
-        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, [], activitésPrincipales88444),
+        'Activité principale': activitéPrincipale,
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],

@@ -346,7 +346,7 @@
                                                                 {`Voir les alertes (${warningsDuDossier.length})`}
                                                             </button >
                                                         {:else}
-                                                            <button type="button" class="fr-btn fr-btn--sm fr-btn--secondary fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
+                                                            <button type="button" class="fr-btn fr-btn--sm fr-btn--secondary" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
                                                                 {`Voir les détails`}
                                                             </button >                                                    
                                                         {/if}
