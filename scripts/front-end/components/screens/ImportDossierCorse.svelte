@@ -91,7 +91,6 @@
      * @param {Event} event
      */
     async function handleFileChange(event) {
-        loadingChargementDuFichier = true
         const target = event.target;
         if (
             !(
@@ -251,7 +250,7 @@
 <Squelette {email} nav={true} title={`${DREAL} — Import de dossiers`}>
     <h1>Import de dossiers historiques {DREAL}</h1>
 
-    {#if !lignesTableauImport || lignesTableauImport.length === 0 || loadingChargementDuFichier===true}
+    {#if !lignesTableauImport || lignesTableauImport.length === 0}
         <div class="fr-upload-group fr-mb-4w">
             <label class="fr-label" for="file-upload">
                 Charger un fichier de suivi
