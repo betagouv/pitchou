@@ -1,7 +1,6 @@
-//@ts-check
-
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-/** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
+/** @import { DonnéesSupplémentairesPourCréationDossier, Warning } from "./importDossierUtils" */
+
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
 
@@ -111,22 +110,26 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésP
 
 /**
  *
- * @param {{Commune: string | undefined, Département: number | string}} ligne
- * @param {string[]} [warnings]
- * @returns { Promise<
- *              Partial<Pick<DossierDemarcheSimplifiee88444,
- *                  "Commune(s) où se situe le projet" |
- *                  "Département(s) où se situe le projet" |
- *                  "Le projet se situe au niveau…"
- *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
- *           >}
+ * @param {{ Commune: string | undefined, Département: number | string }} ligne
+ *
+ * @returns {Promise<{
+ *   data: Partial<Pick<DossierDemarcheSimplifiee88444,
+ *     "Commune(s) où se situe le projet" |
+ *     "Département(s) où se situe le projet" |
+ *     "Le projet se situe au niveau…"
+ *   >> &
+ *   Pick<DossierDemarcheSimplifiee88444,
+ *     "Dans quel département se localise majoritairement votre projet ?"
+ *   >,
+ *   warnings: Warning[]
+ * }>}
  */
-async function générerDonnéesLocalisations(ligne, warnings) {
+async function générerDonnéesLocalisations(ligne) {
     const départementParDéfaut = {code: '2A', nom: 'Corse-du-Sud'}
 
     const valeursCommunes = extraireCommunes(ligne['Commune'] ?? '');
 
-    const communesP = valeursCommunes.map((com) => getCommuneData(com, warnings));
+    const communesP = valeursCommunes.map((com) => getCommuneData(com));
     const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
 
     const [départementsTrouvés, communesResult] = await Promise.all([
@@ -134,16 +137,32 @@ async function générerDonnéesLocalisations(ligne, warnings) {
         Promise.all(communesP),
     ]);
 
-    const communes = communesResult.filter((commune) => commune !== null);
 
+    const communes = communesResult.map((communeResult) => communeResult.data)
+                                   .filter((commune) => commune !== null);
+    const warnings = communesResult.map((communeResult) => communeResult.warning)
+                                   .filter((warning) => warning!==undefined)
     const départementColonne = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
         départementsTrouvés[0] : 
         undefined
 
+    /** @type {(
+     *   Partial<Pick<DossierDemarcheSimplifiee88444,
+     *     "Commune(s) où se situe le projet" |
+     *     "Département(s) où se situe le projet" |
+     *     "Le projet se situe au niveau…"
+     *   >> &
+     *   Pick<DossierDemarcheSimplifiee88444,
+     *     "Dans quel département se localise majoritairement votre projet ?"
+     *   >
+     * )} */
+    // @ts-ignore
+    let data = {};
+
     if (communes.length >= 1) {
         const départementPremièreCommune = communes[0].departement
 
-        return {
+        data = {
             "Commune(s) où se situe le projet": communes,
             "Département(s) où se situe le projet": undefined,
             "Le projet se situe au niveau…": "d'une ou plusieurs communes",
@@ -151,12 +170,17 @@ async function générerDonnéesLocalisations(ligne, warnings) {
         }
     } else {
         const départements =  Array.isArray(départementsTrouvés) ? départementsTrouvés : [départementParDéfaut]
-        return {
+        data = {
             "Commune(s) où se situe le projet": undefined,
             "Département(s) où se situe le projet": départements,
             "Le projet se situe au niveau…": "d'un ou plusieurs départements",
             "Dans quel département se localise majoritairement votre projet ?": départements[0]
         }
+    }
+
+    return {
+        warnings,
+        data
     }
 }
 
@@ -180,26 +204,25 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<Partial<DossierDemarcheSimplifiee88444 & { warnings: string[] }>>}
+ * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; warnings: Warning[];}>}}}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
-    /** @type {string[]} */
-    let warnings = []
+    const { data: donnéesLocalisations, warnings } =  await générerDonnéesLocalisations(ligne)
 
-    const donnéesLocalisations =  await générerDonnéesLocalisations(ligne, warnings)
-    return {
+    const data = {
         'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
-
         'Nom du projet': créerNomPourDossier(ligne),
-        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, warnings, activitésPrincipales88444),
+        'Activité principale': convertirTypeDeProjetEnActivitéPrincipale(ligne, [], activitésPrincipales88444),
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
-
-        warnings: warnings.length>=1 ? warnings : undefined,
-
-    };
+    }
+    return {
+        data,
+        warnings
+        
+    }
 }
 
 /**

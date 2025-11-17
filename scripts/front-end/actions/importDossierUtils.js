@@ -25,26 +25,23 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
  */
 
 /**
- * Récupérer toutes les données de la commune et les données de son département
- * @param {string} nomCommune - Nom de la commune
- * @param {string[]} [warnings]
- * @returns {Promise< GeoAPICommune & { departement: GeoAPIDépartement } | null>}
- * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
+ * Récupère toutes les données de la commune ainsi que celles de son département.
+ *
+ * @param {string} nomCommune - Nom de la commune.
+ * @returns {Promise<{ data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null, warning?: Warning }>}
+ *
+ * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
-
-export async function getCommuneData(nomCommune, warnings) {
+export async function getCommuneData(nomCommune) {
     const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
         const messageWarning = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
         console.warn(messageWarning);
-        if (warnings) {
-            warnings.push(messageWarning)
-        }
-        return null;
+        return {data: null, warning: {type: 'erreur', message: messageWarning}};
     }
-    //@ts-ignore
-    return commune[0]
+
+    return {data: commune[0]}
 }
 
 /**
