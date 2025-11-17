@@ -8,7 +8,7 @@ import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésulta
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
-import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
+import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
 
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
@@ -466,12 +466,11 @@ if(dossiersDS.length >= 1){
 }
 
 /** Synchronisation des fichiers espèces impactées téléchargés */
-
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
         //checkMemory()
 
-        return ajouterFichiersEspècesImpactéesDepuisDS88444(
+        return synchroniserFichiersEspècesImpactéesDepuisDS88444(
             fichiersEspècesImpactéesTéléchargés,
             laTransactionDeSynchronisationDS
         )
