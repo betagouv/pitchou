@@ -612,7 +612,6 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
   const transaction = await créerTransaction()
 
   const relationsSuiviViaCap = await trouverRelationPersonneDepuisCap(cap, personneEmail, dossierId, transaction)
-  console.log('relationsSuiviViaCap', relationsSuiviViaCap.length, relationsSuiviViaCap)
 
   if(relationsSuiviViaCap.length === 0){
     reply.code(403).send(`La capability ${cap} ne permet pas de modifier la relation de suivi entre instructeur.rice ${personneEmail} et dossier ${dossierId}`)
