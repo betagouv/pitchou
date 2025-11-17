@@ -18,6 +18,7 @@ test(`Outil import automatisé`, async ({ page }) => {
 
     // Récupérer les lignes des dossiers sans alerte
     // Pour pouvoir lancer des imports autos sur tous les dossiers sans alertes.
-    page.getByRole('row').filter({hasNot: page.getByTestId('dossier-avec-alerte(s)')})
+    //@ts-ignore
+    const dossiersSansAlertes = page.getByTestId('dossier-sans-alerte(s)')
 
 });
