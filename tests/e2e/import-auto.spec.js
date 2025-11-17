@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const monLienDeConnexionPitchou = 'http://127.0.0.1:2648/?secret=cow03p6l80p'
+const monLienDeConnexionPitchou = 'http://127.0.0.1:2648/?secret=6fa0acklkdk'
 
 
 
@@ -18,7 +18,6 @@ test(`Outil import automatisé`, async ({ page }) => {
 
     // Récupérer les lignes des dossiers sans alerte
     // Pour pouvoir lancer des imports autos sur tous les dossiers sans alertes.
-    // @ts-ignore
-    const dossiersSansAlerte = page.getByRole('row').filter({hasNot: page.getByRole('button', {name : 'Voir les alertes'})})
+    page.getByRole('row').filter({hasNot: page.getByTestId('dossier-avec-alerte(s)')})
 
 });
