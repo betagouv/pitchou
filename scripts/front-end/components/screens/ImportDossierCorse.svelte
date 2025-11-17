@@ -333,9 +333,8 @@
                                 </thead>
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                    {@const dossierEtAlertes = ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport)}
-                                    {@const alertesDuDossier = dossierEtAlertes?.alertes}
-                                        <tr data-row-key={index} data-testid={alertesDuDossier && alertesDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
+                                    {@const warningsDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
+                                        <tr data-row-key={index} data-testid={warningsDuDossier?.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
