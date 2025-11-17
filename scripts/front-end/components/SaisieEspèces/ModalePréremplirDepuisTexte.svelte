@@ -199,7 +199,8 @@
                         </DéplierReplier>
                     </div>
                     <div class="fr-modal__footer">
-                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} ${espècesModifiables.size>=2 ? 'espèces' : 'espèce'}`}</button>
+                        <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto">Préciser l'impact</button>
+                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} ${espècesModifiables.size>=2 ? 'espèces' : 'espèce'}`}</button>
                     </div>
                 </div>
             </div>
