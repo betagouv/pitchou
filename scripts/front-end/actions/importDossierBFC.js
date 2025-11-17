@@ -239,12 +239,16 @@ async function générerDonnéesLocalisations(ligne) {
     const communesP = valeursCommunes.map((com) => getCommuneData(com));
     const départementsP = formaterDépartementDepuisValeur(ligne['Département']);
 
-    const [départementsTrouvés, communesResult] = await Promise.all([
+    const [résultatDépartements, communesResult] = await Promise.all([
         départementsP,
         Promise.all(communesP),
     ]);
 
-    const communes = communesResult.filter((commune) => commune !== null);
+    const communes = communesResult
+        .map((communeRésultat) => communeRésultat.data)
+        .filter((commune) => commune !== null);
+
+    const départementsTrouvés = résultatDépartements.data
 
     const départementColonne = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
         départementsTrouvés[0] : 
