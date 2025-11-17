@@ -11,12 +11,17 @@
      * @typedef {Object} Props
      * @property {EspèceProtégée[]} espècesÀPréremplir
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
+     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
+     * @property {string} idModalePréremplirDepuisTexte
      */
 
     /** @type {Props} */
     let {
         espècesÀPréremplir = $bindable(),
         espècesProtégéesParClassification,
+        écranAffiché = $bindable(),
+        idModalePréremplirDepuisTexte,
+        
     } = $props();
 
     /**
@@ -105,10 +110,14 @@
     function supprimerEspèce(espèce) {
         espècesModifiables.delete(espèce)
     }
+
+    function onClickPréciserLimpact() {
+        écranAffiché = 'préciserLImpact'
+    }
 </script>
 
 <div class="fr-modal__header">
-    <button aria-controls="modale-préremplir-depuis-texte" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+    <button aria-controls={idModalePréremplirDepuisTexte} title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
 </div>
 <div class="fr-modal__content">
     <h2 id="modale-préremplir-depuis-texte-title" class="fr-modal__title">
@@ -194,8 +203,8 @@
     </DéplierReplier>
 </div>
 <div class="fr-modal__footer">
-    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto">Préciser l'impact</button>
-    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} ${espècesModifiables.size>=2 ? 'espèces' : 'espèce'}`}</button>
+    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickPréciserLimpact}>Préciser l'impact</button>
+    <button aria-controls={idModalePréremplirDepuisTexte} type="button" class="fr-btn fr-ml-2w" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} ${espècesModifiables.size>=2 ? 'espèces' : 'espèce'}`}</button>
 </div>
 
 <style>
