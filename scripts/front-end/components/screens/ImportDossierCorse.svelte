@@ -1,6 +1,5 @@
 <script>
-    //@ts-check
-
+    /** @import {  Warning } from "../../actions/importDossierUtils.js" */
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
@@ -69,8 +68,8 @@
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
-    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { warnings: string[] } >>}*/
-    let ligneVersDossier = new SvelteMap()
+    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { warnings: Warning[] } >>}*/
+    let ligneVersDossierAvecWarnings = new SvelteMap()
 
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = $state(new SvelteMap());
@@ -153,7 +152,7 @@
                 const chargementPromesse = Promise.all(
                     lignesTableauImport.map(async (ligne) => {
                         const dossier = await créerDossierDepuisLigne(ligne, activitésPrincipales88444)
-                        ligneVersDossier.set(ligne, dossier)
+                        ligneVersDossierAvecWarnings.set(ligne, dossier)
                     })
                 )
                 loadingChargementDuFichier = chargementPromesse;
@@ -171,7 +170,7 @@
      * @param {LigneDossierCorse} LigneDossierCorse
      */
     async function handleCréerLienPréRemplissage(LigneDossierCorse) {
-        const dossier = ligneVersDossier.get(LigneDossierCorse)
+        const dossier = ligneVersDossierAvecWarnings.get(LigneDossierCorse)
 
         if (!dossier) {
             // Ne doit jamais arriver
@@ -330,45 +329,49 @@
                                 <thead>
                                     <tr>
                                         <th> Nom du projet </th>
-                                        <th> Alertes </th>
+                                        <th> Détails </th>
                                         <th> Actions </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                    {@const warningsDuDossier = ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
+                                    {@const warningsDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
                                         <tr data-row-key={index}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
-                                                {#if warningsDuDossier}
-                                                    <BoutonModale id={`dsfr-modale-${index}`} >
-                                                        {#snippet boutonOuvrirDétails()}
+                                                <BoutonModale id={`dsfr-modale-${index}`} >
+                                                    {#snippet boutonOuvrirDétails()}
+                                                        {#if warningsDuDossier && warningsDuDossier.length >= 1}
                                                             <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
                                                                 {`Voir les alertes (${warningsDuDossier.length})`}
                                                             </button >
-                                                        {/snippet}
-                                                        {#snippet contenu()}
-                                                            <h3>Liste des alertes&nbsp;: </h3>
-                                                            <ul>
-                                                                {#each warningsDuDossier ?? [] as warning}
-                                                                    <li>{warning}</li>
-                                                                {/each}
-                                                            </ul>
-                                                            <DéplierReplier>
-                                                                {#snippet summary()}
-                                                                    <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
-                                                                {/snippet}
-                                                                {#snippet content()}
-                                                                    <ul>
-                                                                        {#each Object.entries(ligneVersDossier.get(ligneAffichéeTableauImport) ?? {}) as dossier }
-                                                                            <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
-                                                                        {/each}
-                                                                    </ul>
-                                                                {/snippet}
-                                                            </DéplierReplier>
-                                                        {/snippet}
-                                                    </BoutonModale>
-                                                {/if}
+                                                        {:else}
+                                                            <button type="button" class="fr-btn fr-btn--sm fr-btn--secondary fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
+                                                                {`Voir les détails`}
+                                                            </button >                                                    
+                                                        {/if}
+                                                    {/snippet}
+                                                    {#snippet contenu()}
+                                                        <h3>Liste des alertes&nbsp;:&nbsp; </h3>
+                                                        <ul>
+                                                            {#each warningsDuDossier ?? [] as warning}
+                                                                <li><strong>type&nbsp;:&nbsp;</strong>{warning.type}, <strong>message&nbsp;:&nbsp;</strong>{warning.message}</li>
+                                                            {/each}
+                                                        </ul>
+                                                        <DéplierReplier>
+                                                            {#snippet summary()}
+                                                                <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
+                                                            {/snippet}
+                                                            {#snippet content()}
+                                                                <ul>
+                                                                    {#each Object.entries(ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport) ?? {}) as dossier }
+                                                                        <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
+                                                                    {/each}
+                                                                </ul>
+                                                            {/snippet}
+                                                        </DéplierReplier>
+                                                    {/snippet}
+                                                </BoutonModale>
                                             </td>
                                             <td>
                                                 {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
