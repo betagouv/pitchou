@@ -336,7 +336,7 @@
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
                                     {@const warningsDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
-                                        <tr data-row-key={index}>
+                                        <tr data-row-key={index} data-testid={warningsDuDossier?.length >= 1 ? 'dossier-avec-alerte(s)' : undefined}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
