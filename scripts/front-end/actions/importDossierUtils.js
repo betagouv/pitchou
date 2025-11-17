@@ -11,6 +11,19 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
  * @typedef {Partial<DossierPourInsertGénérique<Omit<DossierInitializer, 'numéro_démarche'>>>} DonnéesSupplémentairesPourCréationDossier
  */
 
+
+/**
+ * 
+ * Type qui définit les messages :
+ *              - d'alerte (où on peut proposer une alternative correcte)
+ *              - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
+ * 
+ * @typedef {{
+ *   type: 'erreur' | 'alerte';
+ *   message: string;
+ * }} Warning
+ */
+
 /**
  * Récupérer toutes les données de la commune et les données de son département
  * @param {string} nomCommune - Nom de la commune
