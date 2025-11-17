@@ -4,7 +4,7 @@
     import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
     import EspècesProtégéesGroupéesParImpact from '../EspècesProtégéesGroupéesParImpact.svelte'
-    import ModalePréremplirDepuisTexte from '../SaisieEspèces/ModalePréremplirDepuisTexte.svelte'
+    import ModalePréremplirDepuisTexte from '../SaisieEspèces/ModalePréremplirDepuisTexte/ModalePréremplirDepuisTexte.svelte'
     import FormulaireSaisieEspèce from '../SaisieEspèces/FormulaireSaisieEspèce.svelte'
     import OiseauAtteintEditRow from '../SaisieEspèces/OiseauAtteintEditRow.svelte'
     import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'

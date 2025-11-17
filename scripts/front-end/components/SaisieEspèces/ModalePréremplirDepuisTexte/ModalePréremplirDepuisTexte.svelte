@@ -1,11 +1,11 @@
 <script>
 	import { SvelteSet } from 'svelte/reactivity'
-    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings.js'
-    import NomEspèce from '../NomEspèce.svelte'
-    import DéplierReplier from '../common/DéplierReplier.svelte'
-	import { mailtoJeNetrouvePasUneEspèce } from '../../../commun/constantes.js'
+    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../../commun/manipulationStrings.js'
+    import NomEspèce from '../../NomEspèce.svelte'
+    import DéplierReplier from '../../common/DéplierReplier.svelte'
+	import { mailtoJeNetrouvePasUneEspèce } from '../../../../commun/constantes.js'
 
-    /** @import { ParClassification, EspèceProtégée } from '../../../types/especes.d.ts' **/
+    /** @import { ParClassification, EspèceProtégée } from '../../../../types/especes.d.ts' **/
 
     /**
      * @typedef {Object} Props
