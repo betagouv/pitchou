@@ -116,57 +116,62 @@
                         </h2>
                         <div class="fr-grid-row fr-grid-row--gutters">
                             <div class='fr-col-4'>
-                                <label class="fr-label" for="champ-texte-espece"> Votre texte </label>
-                                <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input" rows="10"></textarea>
+                                <h3 class="fr-h6" id="label-champ-texte-espece"> Votre texte </h3>
+                                <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input" rows="20" aria-labelledby="label-champ-texte-espece"></textarea>
                             </div>
                             <div class='fr-col'>
-                                {#if oiseauxÀPréremplir.size >= 1}
-                                <section class="préremplir-espèces fr-mb-4w">
-                                    <h3 class="fr-h6">{`${oiseauxÀPréremplir.size} oiseau${oiseauxÀPréremplir.size>=2 ? 'x' : ''}`}</h3>
-                                    <ul>
-                                        {#each [...oiseauxÀPréremplir] as espèce (espèce)}
-                                            <li>
-                                            <NomEspèce {espèce}/> 
-                                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                                    libellé du bouton
-                                                    <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
-                                                </button>
-                                            </li>
-                                        {/each}
-                                    </ul>
-                                </section>
-                                {/if}
-                                {#if fauneNonOiseauxÀPréremplir.size >= 1}
-                                    <section class="préremplir-espèces fr-mb-4w">
-                                        <h3 class="fr-h6">{`${fauneNonOiseauxÀPréremplir.size} faune${fauneNonOiseauxÀPréremplir.size>=2 ? 's' : ''} non-oiseau`}</h3>
-                                        <ul>
-                                            {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
-                                                <li>
+                                <h3 class="fr-h6">Les espèces trouvées</h3>
+                                {#if texteEspèces !== '' && oiseauxÀPréremplir.size === 0 && fauneNonOiseauxÀPréremplir.size === 0 &&  floreÀPréremplir.size === 0}
+                                    Aucune espèce n'a été trouvée.
+                                {:else}
+                                    {#if oiseauxÀPréremplir.size >= 1}
+                                        <section class="section-préremplir-espèces">
+                                            <h4>{`${oiseauxÀPréremplir.size} oiseau${oiseauxÀPréremplir.size>=2 ? 'x' : ''}`}</h4>
+                                            <ul>
+                                                {#each [...oiseauxÀPréremplir] as espèce (espèce)}
+                                                    <li>
                                                     <NomEspèce {espèce}/> 
-                                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                                        libellé du bouton
-                                                        <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
-                                                    </button>
-                                                </li>
-                                            {/each}
-                                        </ul>
-                                    </section>
-                                {/if}
-                                {#if floreÀPréremplir.size >= 1}
-                                    <section class="préremplir-espèces fr-mb-4w">
-                                        <h3 class="fr-h6">{`${floreÀPréremplir.size} flore${floreÀPréremplir.size>=2 ? 's' : ''}`}</h3>
-                                        <ul>
-                                            {#each [...floreÀPréremplir] as espèce (espèce)}
-                                                <li>
-                                                    <NomEspèce {espèce}/> 
-                                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                                        libellé du bouton
-                                                        <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
-                                                    </button>
-                                                </li>
-                                            {/each}
-                                        </ul>
-                                    </section>
+                                                        <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                                            libellé du bouton
+                                                            <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                                        </button>
+                                                    </li>
+                                                {/each}
+                                            </ul>
+                                        </section>
+                                    {/if}
+                                    {#if fauneNonOiseauxÀPréremplir.size >= 1}
+                                        <section class="section-préremplir-espèces">
+                                            <h4>{`${fauneNonOiseauxÀPréremplir.size} faune${fauneNonOiseauxÀPréremplir.size>=2 ? 's' : ''} non-oiseau`}</h4>
+                                            <ul>
+                                                {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
+                                                    <li>
+                                                        <NomEspèce {espèce}/> 
+                                                        <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                                            libellé du bouton
+                                                            <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                                        </button>
+                                                    </li>
+                                                {/each}
+                                            </ul>
+                                        </section>
+                                    {/if}
+                                    {#if floreÀPréremplir.size >= 1}
+                                        <section class="section-préremplir-espèces">
+                                            <h4>{`${floreÀPréremplir.size} flore${floreÀPréremplir.size>=2 ? 's' : ''}`}</h4>
+                                            <ul>
+                                                {#each [...floreÀPréremplir] as espèce (espèce)}
+                                                    <li>
+                                                        <NomEspèce {espèce}/> 
+                                                        <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                                            libellé du bouton
+                                                            <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                                        </button>
+                                                    </li>
+                                                {/each}
+                                            </ul>
+                                        </section>
+                                    {/if}
                                 {/if}
                             </div>
                         </div>
@@ -181,9 +186,16 @@
 </dialog>
 
 <style>
-    .préremplir-espèces{
+    .section-préremplir-espèces{
+        margin-bottom: 2rem;
+
         ul{
+            margin: 0;
             list-style: none;
+        }
+        h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0;
         }
     }
 </style>
