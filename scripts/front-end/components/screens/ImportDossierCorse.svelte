@@ -80,8 +80,8 @@
 
     /**@type {boolean}*/
     let afficherTousLesDossiers = $state(false);
-    /**@type {boolean}*/
-    let loadingChargementDuFichier = $state(false);
+    /** @type {Promise<void[]>} */
+    let loadingChargementDuFichier = $state(Promise.resolve([]));
 
     let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
     let nombreDossiersAImporter = $derived(
@@ -92,7 +92,6 @@
      * @param {Event} event
      */
     async function handleFileChange(event) {
-        loadingChargementDuFichier = true
         const target = event.target;
         if (
             !(
@@ -151,21 +150,19 @@
 
 
                 // Visualiser en une fois tous les warnings de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
-                await Promise.all(
+                const chargementPromesse = Promise.all(
                     lignesTableauImport.map(async (ligne) => {
                         const dossier = await créerDossierDepuisLigne(ligne, activitésPrincipales88444)
                         ligneVersDossier.set(ligne, dossier)
                     })
                 )
-
-        
+                loadingChargementDuFichier = chargementPromesse;
+                await chargementPromesse;
             
             } catch (error) {
                 console.error(
                     `Une erreur est survenue pendant la lecture du fichier : ${error}`,
                 );
-            } finally {
-                loadingChargementDuFichier = false
             } 
         }
     }
@@ -256,7 +253,7 @@
 <Squelette {email} nav={true} title={`${DREAL} — Import de dossiers`}>
     <h1>Import de dossiers historiques {DREAL}</h1>
 
-    {#if !lignesTableauImport || lignesTableauImport.length === 0 || loadingChargementDuFichier===true}
+    {#if !lignesTableauImport || lignesTableauImport.length === 0}
         <div class="fr-upload-group fr-mb-4w">
             <label class="fr-label" for="file-upload">
                 Charger un fichier de suivi
@@ -322,105 +319,112 @@
                 ></div>
             </div>
         </div>
-
-        <div class="fr-table">
-            <div class="fr-table__wrapper">
-                <div class="fr-table__container">
-                    <div class="fr-table__content">
-                        <table class="tableau-dossier-a-creer">
-                            <thead>
-                                <tr>
-                                    <th> Nom du projet </th>
-                                    <th> Alertes </th>
-                                    <th> Actions </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                {@const warningsDuDossier = ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
-                                    <tr data-row-key={index}>
-                                        <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
-                                        <td>
-                                            {#if warningsDuDossier}
-                                                <BoutonModale id={`dsfr-modale-${index}`} >
-                                                    {#snippet boutonOuvrirDétails()}
-                                                        <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
-                                                            {`Voir les alertes (${warningsDuDossier.length})`}
-                                                        </button >
-                                                    {/snippet}
-                                                    {#snippet contenu()}
-                                                        <h3>Liste des alertes&nbsp;: </h3>
-                                                        <ul>
-                                                            {#each warningsDuDossier ?? [] as warning}
-                                                                <li>{warning}</li>
-                                                            {/each}
-                                                        </ul>
-                                                        <DéplierReplier>
-                                                            {#snippet summary()}
-                                                                <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
-                                                            {/snippet}
-                                                            {#snippet content()}
-                                                                <ul>
-                                                                    {#each Object.entries(ligneVersDossier.get(ligneAffichéeTableauImport) ?? {}) as dossier }
-                                                                        <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
-                                                                    {/each}
-                                                                </ul>
-                                                            {/snippet}
-                                                        </DéplierReplier>
-                                                    {/snippet}
-                                                </BoutonModale>
-                                            {/if}
-                                        </td>
-                                        <td>
-                                            {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
-                                                <p
-                                                    class="fr-badge fr-badge--success"
-                                                >
-                                                    En base de données
-                                                </p>
-                                                <a
-                                                    href={`/dossier/${nomToDossierId.get(créerNomPourDossier(ligneAffichéeTableauImport))}`}
-                                                    target="_blank"
-                                                    class="fr-btn fr-btn--secondary fr-ml-2w"
-                                                >
-                                                    Ouvrir dossier
-                                                </a>
-                                            {:else if ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
-                                                <a
-                                                    href={ligneToLienPréremplissage.get(
-                                                        ligneAffichéeTableauImport,
-                                                    )}
-                                                    target="_blank"
-                                                    class="fr-btn"
-                                                    >Créer dossier</a
-                                                >
-                                            {:else}
-                                                <button
-                                                    type="button"
-                                                    class="fr-btn fr-btn--secondary"
-                                                    onclick={() =>
-                                                        handleCréerLienPréRemplissage(
+        {#await loadingChargementDuFichier}
+            <p class="fr-mt-4w">Préparation du fichier en cours…</p>
+        {:then}
+            <div class="fr-table">
+                <div class="fr-table__wrapper">
+                    <div class="fr-table__container">
+                        <div class="fr-table__content">
+                            <table class="tableau-dossier-a-creer">
+                                <thead>
+                                    <tr>
+                                        <th> Nom du projet </th>
+                                        <th> Alertes </th>
+                                        <th> Actions </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
+                                    {@const warningsDuDossier = ligneVersDossier.get(ligneAffichéeTableauImport)?.warnings}
+                                        <tr data-row-key={index}>
+                                            <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
+                                            <td>
+                                                {#if warningsDuDossier}
+                                                    <BoutonModale id={`dsfr-modale-${index}`} >
+                                                        {#snippet boutonOuvrirDétails()}
+                                                            <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
+                                                                {`Voir les alertes (${warningsDuDossier.length})`}
+                                                            </button >
+                                                        {/snippet}
+                                                        {#snippet contenu()}
+                                                            <h3>Liste des alertes&nbsp;: </h3>
+                                                            <ul>
+                                                                {#each warningsDuDossier ?? [] as warning}
+                                                                    <li>{warning}</li>
+                                                                {/each}
+                                                            </ul>
+                                                            <DéplierReplier>
+                                                                {#snippet summary()}
+                                                                    <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
+                                                                {/snippet}
+                                                                {#snippet content()}
+                                                                    <ul>
+                                                                        {#each Object.entries(ligneVersDossier.get(ligneAffichéeTableauImport) ?? {}) as dossier }
+                                                                            <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
+                                                                        {/each}
+                                                                    </ul>
+                                                                {/snippet}
+                                                            </DéplierReplier>
+                                                        {/snippet}
+                                                    </BoutonModale>
+                                                {/if}
+                                            </td>
+                                            <td>
+                                                {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
+                                                    <p
+                                                        class="fr-badge fr-badge--success"
+                                                    >
+                                                        En base de données
+                                                    </p>
+                                                    <a
+                                                        href={`/dossier/${nomToDossierId.get(créerNomPourDossier(ligneAffichéeTableauImport))}`}
+                                                        target="_blank"
+                                                        class="fr-btn fr-btn--secondary fr-ml-2w"
+                                                    >
+                                                        Ouvrir dossier
+                                                    </a>
+                                                {:else if ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
+                                                    <a
+                                                        href={ligneToLienPréremplissage.get(
                                                             ligneAffichéeTableauImport,
                                                         )}
-                                                    >Préparer préremplissage</button
-                                                >
-                                            {/if}
-                                        </td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
+                                                        target="_blank"
+                                                        class="fr-btn"
+                                                        >Créer dossier</a
+                                                    >
+                                                {:else}
+                                                    <button
+                                                        type="button"
+                                                        class="fr-btn fr-btn--secondary"
+                                                        onclick={() =>
+                                                            handleCréerLienPréRemplissage(
+                                                                ligneAffichéeTableauImport,
+                                                            )}
+                                                        >Préparer préremplissage</button
+                                                    >
+                                                {/if}
+                                            </td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {#if selectionneursPage}
-            <Pagination
-                {selectionneursPage}
-                pageActuelle={selectionneursPage[numéroPageSelectionnée]}
-            ></Pagination>
-        {/if}
+            {#if selectionneursPage}
+                <Pagination
+                    {selectionneursPage}
+                    pageActuelle={selectionneursPage[numéroPageSelectionnée]}
+                ></Pagination>
+            {/if}
+        {:catch erreurChargement}
+            <p class="fr-alert fr-alert--error fr-mt-4w">
+                {`Une erreur est survenue lors de la préparation du fichier : ${erreurChargement instanceof Error ? erreurChargement.message : erreurChargement}`}
+            </p>
+        {/await}
     {/if}
 </Squelette>
 
