@@ -131,7 +131,7 @@
                                 {:else}
                                     {#if oiseauxÀPréremplir.size >= 1}
                                         <section class="section-préremplir-espèces">
-                                            <h4>{`${oiseauxÀPréremplir.size} oiseau${oiseauxÀPréremplir.size>=2 ? 'x' : ''}`}</h4>
+                                            <h4>{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h4>
                                             <ul>
                                                 {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                                                     <li>
@@ -147,7 +147,7 @@
                                     {/if}
                                     {#if fauneNonOiseauxÀPréremplir.size >= 1}
                                         <section class="section-préremplir-espèces">
-                                            <h4>{`${fauneNonOiseauxÀPréremplir.size} faune${fauneNonOiseauxÀPréremplir.size>=2 ? 's' : ''} non-oiseau`}</h4>
+                                            <h4>{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h4>
                                             <ul>
                                                 {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
                                                     <li>
@@ -163,7 +163,7 @@
                                     {/if}
                                     {#if floreÀPréremplir.size >= 1}
                                         <section class="section-préremplir-espèces">
-                                            <h4>{`${floreÀPréremplir.size} flore${floreÀPréremplir.size>=2 ? 's' : ''}`}</h4>
+                                            <h4>{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h4>
                                             <ul>
                                                 {#each [...floreÀPréremplir] as espèce (espèce)}
                                                     <li>
@@ -199,7 +199,7 @@
                         </DéplierReplier>
                     </div>
                     <div class="fr-modal__footer">
-                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} espèce${espècesModifiables.size>=2 ? 's' : ''}`}</button>
+                        <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.size} ${espècesModifiables.size>=2 ? 'espèces' : 'espèce'}`}</button>
                     </div>
                 </div>
             </div>
