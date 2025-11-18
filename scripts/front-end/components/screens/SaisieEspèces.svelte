@@ -200,7 +200,6 @@
             référencesEspèces[référencesEspèces.length - 1].focusFormulaireEspèce()
         }
     }
-    $inspect(référencesEspèces)
 </script>
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">
@@ -309,7 +308,7 @@
                     </div>
                 </dialog>
 
-                <ModalePréremplirDepuisTexte bind:référencesEspèces={référencesEspèces} {espècesProtégéesParClassification} {onClickPréRemplirAvecDocumentTexte} />
+                <ModalePréremplirDepuisTexte bind:référencesEspèces={référencesEspèces} {espècesProtégéesParClassification} {onClickPréRemplirAvecDocumentTexte} {méthodesParClassificationEtreVivant} {transportsParClassificationEtreVivant} {activitesParClassificationEtreVivant} />
             </div>
         </div>
 

@@ -2,13 +2,16 @@
 	import EcranChampTexte from './ModalePréremplirDepuisTexte/EcranChampTexte.svelte'
     import EcranPréciserLImpact from './ModalePréremplirDepuisTexte/EcranPréciserLImpact.svelte'
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
-    /** @import { ParClassification, EspèceProtégée, DescriptionImpact } from '../../../types/especes' **/
+    /** @import { ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../types/especes' **/
 
     /**
      * @typedef {Object} Props
      * @property {TuileSaisieEspèce[]} référencesEspèces
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
+     * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
+     * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
+     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
      */
 
     /** @type {Props} */
@@ -16,6 +19,9 @@
         référencesEspèces = $bindable(),
         espècesProtégéesParClassification,
         onClickPréRemplirAvecDocumentTexte,
+        méthodesParClassificationEtreVivant,
+        transportsParClassificationEtreVivant,
+        activitesParClassificationEtreVivant
     } = $props();
 
    const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
@@ -73,7 +79,7 @@
                             {réinitialiserEspècesModifiables}
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} {onValiderLaListeDesEspèces} />
+                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} {onValiderLaListeDesEspèces} {méthodesParClassificationEtreVivant} {transportsParClassificationEtreVivant} {activitesParClassificationEtreVivant} />
                     {/if}
                 </div>
             </div>

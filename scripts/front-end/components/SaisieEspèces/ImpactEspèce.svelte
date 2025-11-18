@@ -67,9 +67,9 @@
     }
 
     /**
-     * @type {HTMLElement}
+     * @type {HTMLElement | undefined}
      */
-    let boutonSupprimer;
+    let boutonSupprimer = $state();
 
     /**
      * @type {HTMLElement}
@@ -94,10 +94,11 @@
                     </option>
                     {/each}
                 </select>
-
-                <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button" bind:this={boutonSupprimer} onclick={onSupprimerImpact}>
-                    <span class="fr-sr-only">Supprimer l'impact #{indexImpact} de l'espèce #{indexEspèce}</span>
-                </button>
+                {#if onSupprimerImpact}
+                    <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button" bind:this={boutonSupprimer} onclick={onSupprimerImpact}>
+                        <span class="fr-sr-only">Supprimer l'impact #{indexImpact} de l'espèce #{indexEspèce}</span>
+                    </button>
+                {/if}
             </div>
         </div>
 
