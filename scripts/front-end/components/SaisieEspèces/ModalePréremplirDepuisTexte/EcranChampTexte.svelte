@@ -11,7 +11,7 @@
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
-     * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onValiderLaListeDesEspèces
+     * @property {() => void} onValiderLaListeDesEspèces
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
      * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesModifiables // changer le nom
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
@@ -106,9 +106,6 @@
         écranAffiché = 'préciserLImpact'
     }
 
-   function onAjouterLesEspècesPréremplies() {
-    onValiderLaListeDesEspèces(espècesModifiables)
-   }
 
 /**
  * @param {EspèceProtégée} espèce
@@ -206,7 +203,7 @@ function supprimerEspèceDepuisClassification(espèce) {
 </div>
 <div class="fr-modal__footer">
     <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickPréciserLimpact}>Préciser l'impact</button>
-    <button aria-controls={idModalePréremplirDepuisTexte} type="button" class="fr-btn fr-ml-2w" onclick={onAjouterLesEspècesPréremplies}>{`Ajouter ${espècesModifiables.length} ${espècesModifiables.length>=2 ? 'espèces' : 'espèce'}`}</button>
+    <button aria-controls={idModalePréremplirDepuisTexte} type="button" class="fr-btn fr-ml-2w" onclick={onValiderLaListeDesEspèces}>{`Ajouter ${espècesModifiables.length} ${espècesModifiables.length>=2 ? 'espèces' : 'espèce'}`}</button>
 </div>
 
 <style>

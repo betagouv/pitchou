@@ -8,12 +8,14 @@
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
+     * @property {() => void} onValiderLaListeDesEspèces
      */
     /** @type {Props} */
     let {
         écranAffiché = $bindable(),
         espècesModifiables,
         supprimerEspèce,
+        onValiderLaListeDesEspèces,
     } = $props();
 
     let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e.classification === 'oiseau')))
@@ -97,5 +99,5 @@
 
 <div class="fr-modal__footer">
     <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickRetour}>Retour</button>
-    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w">Tout ajouter</button>
+    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onValiderLaListeDesEspèces}>Tout ajouter</button>
 </div>

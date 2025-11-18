@@ -188,8 +188,6 @@
             espècesImpactées = espècesImpactéesPourPréremplissage 
         }
     }
-
-    $inspect(espècesImpactées)
 </script>
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">

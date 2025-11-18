@@ -45,11 +45,8 @@
         espècesModifiables = _espècesImpactées
    }
 
-    /**
-     * @param {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[]}>} _espècesImpactées
-     */
-   function onValiderLaListeDesEspèces(_espècesImpactées) {
-        onClickPréRemplirAvecDocumentTexte(_espècesImpactées)
+   function onValiderLaListeDesEspèces() {
+        onClickPréRemplirAvecDocumentTexte(espècesModifiables)
    }
 </script>
 
@@ -69,7 +66,7 @@
                             {réinitialiserEspècesModifiables}
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} />
+                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} {onValiderLaListeDesEspèces} />
                     {/if}
                 </div>
             </div>
