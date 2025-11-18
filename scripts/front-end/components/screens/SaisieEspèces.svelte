@@ -184,8 +184,9 @@
      * @param {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesImpactéesPourPréremplissage
      */
     function onClickPréRemplirAvecDocumentTexte(espècesImpactéesPourPréremplissage) {
-        console.log({espècesImpactéesPourPréremplissage})
-        espècesImpactées = espècesImpactéesPourPréremplissage 
+        if (espècesImpactéesPourPréremplissage.length >= 1) {
+            espècesImpactées = espècesImpactéesPourPréremplissage 
+        }
     }
 
     $inspect(espècesImpactées)

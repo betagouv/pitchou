@@ -40,7 +40,7 @@
         /** @type { Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}> }*/
         let _espècesImpactées = []
         espèces.forEach((espèce) => {
-            _espècesImpactées.push({espèce, impacts:[]})
+            _espècesImpactées.push({espèce, impacts:[{}]})
         })
         espècesModifiables = _espècesImpactées
    }
