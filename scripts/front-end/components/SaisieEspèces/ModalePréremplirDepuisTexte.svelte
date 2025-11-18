@@ -1,20 +1,19 @@
 <script>
-	import { SvelteSet } from 'svelte/reactivity'
 	import EcranChampTexte from './ModalePréremplirDepuisTexte/EcranChampTexte.svelte'
     import EcranPréciserLImpact from './ModalePréremplirDepuisTexte/EcranPréciserLImpact.svelte'
 
-    /** @import { ParClassification, EspèceProtégée } from '../../../types/especes' **/
+    /** @import { ParClassification, EspèceProtégée, DescriptionImpact } from '../../../types/especes' **/
 
     /**
      * @typedef {Object} Props
-     * @property {EspèceProtégée[]} espècesÀPréremplir
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
+     * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
      */
 
     /** @type {Props} */
     let {
-        espècesÀPréremplir = $bindable(),
         espècesProtégéesParClassification,
+        onClickPréRemplirAvecDocumentTexte,
     } = $props();
 
    const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
@@ -22,28 +21,35 @@
     /** @type {'champTexte' | 'préciserLImpact'}*/
     let écranAffiché = $state('champTexte')
 
-    /** @type {Set<EspèceProtégée>} - État modifiable par l'utilisateur avant validation */
-    let espècesModifiables = $state(new SvelteSet())
+    /**
+     * @type {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>}
+     */
+    let espècesModifiables =  $state([]) // modifier le nom
 
     /**
-     * @param {EspèceProtégée} espèce
+     * @param {number} indexEspèceÀSupprimer
      */
-    function supprimerEspèce(espèce) {
-        espècesModifiables.delete(espèce)
+    async function supprimerEspèce(indexEspèceÀSupprimer) {
+        espècesModifiables.splice(indexEspèceÀSupprimer, 1)
     }
 
     /**
      * @param {Set<EspèceProtégée>} espèces
      */
    function réinitialiserEspècesModifiables(espèces) {
-        espècesModifiables = new SvelteSet(espèces)
+        /** @type { Array<{espèce: EspèceProtégée, impacts?: DescriptionImpact[]}> }*/
+        let _espècesImpactées = []
+        espèces.forEach((espèce) => {
+            _espècesImpactées.push({espèce})
+        })
+        espècesModifiables = _espècesImpactées
    }
 
     /**
-     * @param {EspèceProtégée[]} espèces
+     * @param {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[]}>} espècesImpactées
      */
-   function onValiderLaListeDesEspèces(espèces) {
-        espècesÀPréremplir = espèces
+   function onValiderLaListeDesEspèces(espècesImpactées) {
+        onClickPréRemplirAvecDocumentTexte(espècesImpactées)
    }
 </script>
 
@@ -63,7 +69,7 @@
                             {réinitialiserEspècesModifiables}
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} />
+                        <!-- <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} /> -->
                     {/if}
                 </div>
             </div>

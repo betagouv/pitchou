@@ -1,14 +1,10 @@
 <script>
     // @ts-check
     import Squelette from '../Squelette.svelte'
-    import NomEspèce from '../NomEspèce.svelte'
     import DownloadButton from '../DownloadButton.svelte'
     import EspècesProtégéesGroupéesParImpact from '../EspècesProtégéesGroupéesParImpact.svelte'
     import ModalePréremplirDepuisTexte from '../SaisieEspèces/ModalePréremplirDepuisTexte.svelte'
     import FormulaireSaisieEspèce from '../SaisieEspèces/FormulaireSaisieEspèce.svelte'
-    import OiseauAtteintEditRow from '../SaisieEspèces/OiseauAtteintEditRow.svelte'
-    import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'
-    import FloreAtteinteEditRow from '../SaisieEspèces/FloreAtteinteEditRow.svelte'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
     import Loader from '../Loader.svelte'
@@ -63,12 +59,6 @@
 
     /** @type {HTMLElement | undefined} */
     let modale;
-
-    function rerender(){
-        oiseauxAtteints = oiseauxAtteints
-        faunesNonOiseauxAtteintes = faunesNonOiseauxAtteintes
-        floresAtteintes = floresAtteintes
-    }
 
     let modeLecture = $state(false);
 
@@ -190,75 +180,11 @@
         }
     }
 
-    /** @type {EspèceProtégée[]} */
-    let espècesÀPréremplir = $state([])
-
-    let oiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'oiseau')))
-    let fauneNonOiseauxÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'faune non-oiseau')))
-    let floreÀPréremplir = $derived(new Set(espècesÀPréremplir.filter(e => e.classification === 'flore')))
-
-    /** @type {ActivitéMenançante | undefined} */
-    let activitéOiseauPréremplie = $state();
-    /** @type {MéthodeMenançante | undefined} */
-    let méthodeOiseauPréremplie = $state();
-    /** @type {TransportMenançant | undefined} */
-    let transportOiseauPrérempli = $state();
-    /** @type {string | undefined} */
-    let nombreIndividusOiseauPrérempli = $state();
-    /** @type {number | undefined} */
-    let nombreNidsOiseauPrérempli = $state();
-    /** @type {number | undefined} */
-    let nombreOeufsOiseauPrérempli = $state()
-    /** @type {number | undefined} */
-    let surfaceHabitatDétruitOiseauPrérempli = $state()
-
-    /** @type {ActivitéMenançante | undefined} */
-    let activitéFauneNonOiseauPréremplie = $state();
-    /** @type {MéthodeMenançante | undefined} */
-    let méthodeFauneNonOiseauPréremplie = $state();
-    /** @type {TransportMenançant | undefined} */
-    let transportFauneNonOiseauPréremplie = $state();
-    /** @type {string | undefined} */
-    let nombreIndividusFauneNonOiseauPréremplie = $state();
-    /** @type {number | undefined} */
-    let surfaceHabitatDétruitFauneNonOiseauPréremplie = $state();
-
-    /** @type {ActivitéMenançante | undefined} */
-    let activitéFlorePréremplie = $state();
-    /** @type {string | undefined} */
-    let nombreIndividusFlorePrérempli = $state();
-    /** @type {number | undefined} */
-    let surfaceHabitatDétruitFlorePrérempli = $state();
-
-    function préremplirFormulaire(){
-        espècesImpactées = impactsParClassificationVerListeEspècesImpactées({
-            oiseau: [...oiseauxÀPréremplir].map((espèce) => { return {
-                espèce,
-                activité: activitéOiseauPréremplie,
-                méthode: méthodeOiseauPréremplie,
-                transport: transportOiseauPrérempli,
-                nombreIndividus: nombreIndividusOiseauPrérempli,
-                nombreNids: nombreNidsOiseauPrérempli,
-                nombreOeufs: nombreOeufsOiseauPrérempli,
-                surfaceHabitatDétruit: surfaceHabitatDétruitOiseauPrérempli
-            }}),
-            "faune non-oiseau": [...fauneNonOiseauxÀPréremplir].map((espèce) => { return {
-                espèce,
-                activité: activitéFauneNonOiseauPréremplie,
-                méthode: méthodeFauneNonOiseauPréremplie,
-                transport: transportFauneNonOiseauPréremplie,
-                nombreIndividus: nombreIndividusFauneNonOiseauPréremplie,
-                surfaceHabitatDétruit: surfaceHabitatDétruitFauneNonOiseauPréremplie
-            }}),
-            flore: [...floreÀPréremplir].map((espèce) => { return {
-                espèce,
-                activité: activitéFlorePréremplie,
-                nombreIndividus: nombreIndividusFlorePrérempli,
-                surfaceHabitatDétruit: surfaceHabitatDétruitFlorePrérempli
-            }})
-        })
-
-        rerender()
+    /**
+     * @param {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesImpactéesPourPréremplissage
+     */
+    function onClickPréRemplirAvecDocumentTexte(espècesImpactéesPourPréremplissage) {
+        espècesImpactées = espècesImpactéesPourPréremplissage
     }
 </script>
 
@@ -368,128 +294,7 @@
                     </div>
                 </dialog>
 
-                <ModalePréremplirDepuisTexte bind:espècesÀPréremplir={espècesÀPréremplir} {espècesProtégéesParClassification} />
-
-                {#if !modeLecture && espècesÀPréremplir.length >= 1}
-                    <details open>
-                        <summary>
-                            <h2>Pré-remplissage automatique</h2>
-                        </summary>
-
-                        {#if oiseauxÀPréremplir.size >= 1}
-                        <section class="préremplir-espèces fr-mb-4w">
-                            <h3>{oiseauxÀPréremplir.size} oiseaux</h3>
-                            <ul>
-                                {#each [...oiseauxÀPréremplir] as espèce (espèce)}
-                                    <li><NomEspèce {espèce}/></li>
-                                {/each}
-                            </ul>
-
-                            <div class="fr-table fr-table--bordered">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Type d’impact</th>
-                                            <th>Méthode</th>
-                                            <th>Moyen de poursuite</th>
-                                            <th>Nombre d'individus</th>
-                                            <th>Nids</th>
-                                            <th>Œufs</th>
-                                            <th>Surface habitat détruit (m²)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <OiseauAtteintEditRow
-                                            bind:activité={activitéOiseauPréremplie}
-                                            bind:méthode={méthodeOiseauPréremplie}
-                                            bind:transport={transportOiseauPrérempli}
-                                            bind:nombreIndividus={nombreIndividusOiseauPrérempli}
-                                            bind:nombreNids={nombreNidsOiseauPrérempli}
-                                            bind:nombreOeufs={nombreOeufsOiseauPrérempli}
-                                            bind:surfaceHabitatDétruit={surfaceHabitatDétruitOiseauPrérempli}
-                                            activitésMenaçantes={[...activitesParClassificationEtreVivant["oiseau"].values()]}
-                                            méthodesMenaçantes={[...méthodesParClassificationEtreVivant["oiseau"].values()]}
-                                            transportMenaçants={[...transportsParClassificationEtreVivant["oiseau"].values()]}
-                                        />
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                        {/if}
-
-                        {#if fauneNonOiseauxÀPréremplir.size >= 1}
-                        <section class="préremplir-espèces fr-mb-4w">
-                            <h3>{fauneNonOiseauxÀPréremplir.size} faunes non-oiseau</h3>
-                            <ul>
-                                {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
-                                    <li><NomEspèce {espèce}/></li>
-                                {/each}
-                            </ul>
-
-                            <div class="fr-table fr-table--bordered">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Type d’impact</th>
-                                            <th>Méthode</th>
-                                            <th>Moyen de poursuite</th>
-                                            <th>Nombre d'individus</th>
-                                            <th>Surface habitat détruit (m²)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <FauneNonOiseauAtteinteEditRow
-                                            bind:activité={activitéFauneNonOiseauPréremplie}
-                                            bind:méthode={méthodeFauneNonOiseauPréremplie}
-                                            bind:transport={transportFauneNonOiseauPréremplie}
-                                            bind:nombreIndividus={nombreIndividusFauneNonOiseauPréremplie}
-                                            bind:surfaceHabitatDétruit={surfaceHabitatDétruitFauneNonOiseauPréremplie}
-                                            activitésMenaçantes={[...activitesParClassificationEtreVivant["faune non-oiseau"].values()]}
-                                            méthodesMenaçantes={[...méthodesParClassificationEtreVivant["faune non-oiseau"].values()]}
-                                            transportMenaçants={[...transportsParClassificationEtreVivant["faune non-oiseau"].values()]}
-                                        />
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                        {/if}
-
-                        {#if floreÀPréremplir.size >= 1}
-                        <section class="préremplir-espèces fr-mb-4w">
-                            <h3>{floreÀPréremplir.size} flores</h3>
-                            <ul>
-                                {#each [...floreÀPréremplir] as espèce (espèce)}
-                                    <li><NomEspèce {espèce}/></li>
-                                {/each}
-                            </ul>
-
-                            <div class="fr-table fr-table--bordered">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Type d’impact</th>
-                                            <th>Nombre d'individus</th>
-                                            <th>Surface habitat détruit (m²)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <FloreAtteinteEditRow
-                                            bind:activité={activitéFlorePréremplie}
-                                            bind:nombreIndividus={nombreIndividusFlorePrérempli}
-                                            bind:surfaceHabitatDétruit={surfaceHabitatDétruitFlorePrérempli}
-                                            activitésMenaçantes={[...activitesParClassificationEtreVivant["flore"].values()]}
-                                        />
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                        {/if}
-
-                        <button onclick={préremplirFormulaire} type="button" class="fr-btn">
-                            Pré-remplir avec ces espèces
-                        </button>
-                    </details>
-                {/if}
+                <ModalePréremplirDepuisTexte {espècesProtégéesParClassification} {onClickPréRemplirAvecDocumentTexte} />
             </div>
         </div>
 
