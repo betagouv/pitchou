@@ -23,6 +23,7 @@ import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.js'
 
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
@@ -161,22 +162,6 @@ const {
 })()
 
 
-/** Télécharger les pièces jointes au dossier */
-const fichiersPiècesJointesPétitionnaireTéléchargés = await (async () => {
-    if (DEMARCHE_NUMBER === 88444) {
-        return récupérerPiècesJointesPétitionnaire88444(
-            dossiersDS,
-            pitchouKeyToChampDS,
-            laTransactionDeSynchronisationDS
-        )
-    } else {
-        throw new Error(`La fonction pour récupérer les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
-    }
-})()
-
-console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
-
-
 const {
     getDonnéesPersonnesEntreprises,
     makeAvisExpertFromTraitementsDS,
@@ -211,7 +196,6 @@ const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await ma
     fichiersAvisCSRPN_CNPN_Téléchargés,
     fichiersAvisConformeMinistreTéléchargés,
     fichiersMotivationTéléchargés,
-    fichiersPiècesJointesPétitionnaireTéléchargés,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
     getDonnéesPersonnesEntreprises,
@@ -391,6 +375,22 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
     }
 })()
 
+
+/** Télécharger les pièces jointes au dossier par le pétitionnaire*/
+const fichiersPiècesJointesPétitionnaireTéléchargésP = (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return récupérerPiècesJointesPétitionnaire88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
+
+
+
 /**
  * Synchronisation des dossiers
  */
@@ -468,7 +468,6 @@ if(dossiersDS.length >= 1){
 /** Synchronisation des fichiers espèces impactées téléchargés */
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
-        //checkMemory()
 
         return synchroniserFichiersEspècesImpactéesDepuisDS88444(
             fichiersEspècesImpactéesTéléchargés,
@@ -477,6 +476,20 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
     }
 })
 
+/** Synchronisation des fichiers pièces jointes pétitionnaire téléchargés */
+const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointesPétitionnaireTéléchargésP.then(fichiersPiècesJointesPétitionnaireTéléchargés => {
+    if(fichiersPiècesJointesPétitionnaireTéléchargés && fichiersPiècesJointesPétitionnaireTéléchargés.size >= 1){
+        console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
+
+        return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
+            fichiersPiècesJointesPétitionnaireTéléchargés,
+            laTransactionDeSynchronisationDS
+        )
+    }
+})
+
+
+
 /** Fin de l'outil de synchronisation - fermeture */
 
 Promise.all([
@@ -484,6 +497,7 @@ Promise.all([
     messagesSynchronisés,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
+    fichiersPiècesJointesPétitionnaireSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
