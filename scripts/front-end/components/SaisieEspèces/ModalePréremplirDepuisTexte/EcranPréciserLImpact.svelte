@@ -5,11 +5,13 @@
 
     /**
      * @typedef {Object} Props
+     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Set<EspèceProtégée>} espècesModifiables
      * @property {(espece: EspèceProtégée) => void} supprimerEspèce
      */
     /** @type {Props} */
     let {
+        écranAffiché = $bindable(),
         espècesModifiables,
         supprimerEspèce,
     } = $props();
@@ -17,6 +19,10 @@
     let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'oiseau')))
     let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'faune non-oiseau')))
     let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'flore')))
+
+    function onClickRetour() {
+        écranAffiché = 'champTexte'
+    }
 </script>
 
 <div class="fr-modal__header">
@@ -28,7 +34,7 @@
     </h2>
     <div>
         {#if oiseauxÀPréremplir.size === 0 && fauneNonOiseauxÀPréremplir.size === 0 &&  floreÀPréremplir.size === 0}
-            Aucune espèce n'a été trouvée.
+            Aucune espèce n'a été renseignée.
         {:else}
             {#if oiseauxÀPréremplir.size >= 1}
                 <section class="section-préremplir-espèces">
@@ -78,6 +84,8 @@
         {/if}
     </div>
 </div>
+
 <div class="fr-modal__footer">
-    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto">Tout ajouter</button>
+    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickRetour}>Retour</button>
+    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w">Tout ajouter</button>
 </div>

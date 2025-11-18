@@ -63,7 +63,7 @@
                             {réinitialiserEspècesModifiables}
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact {espècesModifiables} {supprimerEspèce} />
+                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} />
                     {/if}
                 </div>
             </div>

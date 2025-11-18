@@ -9,12 +9,12 @@
     
     /**
      * @typedef {Object} Props
+     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Set<EspèceProtégée>} espècesModifiables
      * @property {(especes: EspèceProtégée[]) => void} onValiderLaListeDesEspèces
      * @property {(espece: EspèceProtégée) => void} supprimerEspèce
      * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesModifiables
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {string} idModalePréremplirDepuisTexte
      */
 
