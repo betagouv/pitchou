@@ -10,6 +10,7 @@
     /**
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
+     * @property {string} texteEspèces
      * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
      * @property {() => void} onValiderLaListeDesEspèces
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
@@ -21,6 +22,7 @@
     /** @type {Props} */
     let {
         écranAffiché = $bindable(),
+        texteEspèces = $bindable(),
         espècesModifiables,
         espècesProtégéesParClassification,
         idModalePréremplirDepuisTexte,
@@ -29,17 +31,12 @@
         réinitialiserEspècesModifiables,
     } = $props();
 
-    /**
-     * Aide saisie par texte
-     */
-    let texteEspèces = $state('');
-
     /** @type {Set<EspèceProtégée>} - Source de vérité : espèces trouvées dans le texte */
     let espècesTrouvéesDansTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
 
     // Réinitialiser les espèces modifiables quand le texte change
     $effect(() => {
-        réinitialiserEspècesModifiables(espècesTrouvéesDansTexte)
+            réinitialiserEspècesModifiables(espècesTrouvéesDansTexte)
     })
 
     /** @type { SvelteSet<EspèceProtégée> }*/

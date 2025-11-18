@@ -35,6 +35,11 @@
     let espècesModifiables =  $state([]) // modifier le nom
 
     /**
+     * Texte saisi par l'utilisateur - conservé entre les changements d'écran
+     */
+    let texteEspèces = $state('')
+
+    /**
      * @param {number} indexEspèceÀSupprimer
      */
     async function supprimerEspèce(indexEspèceÀSupprimer) {
@@ -78,6 +83,8 @@
         })
    }
 
+   $inspect(espècesModifiables)
+
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
@@ -88,7 +95,8 @@
                     {#if écranAffiché === 'champTexte'}
                         <EcranChampTexte 
                             bind:écranAffiché={écranAffiché} 
-                            espècesModifiables={espècesModifiables}
+                            bind:texteEspèces={texteEspèces}
+                            {espècesModifiables}
                             {espècesProtégéesParClassification}  
                             {idModalePréremplirDepuisTexte} 
                             {onValiderLaListeDesEspèces} 
