@@ -10,7 +10,7 @@
     /**
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
-     * @property {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
+     * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
      * @property {() => void} onValiderLaListeDesEspèces
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
      * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesModifiables // changer le nom
@@ -42,9 +42,15 @@
         réinitialiserEspècesModifiables(espècesTrouvéesDansTexte)
     })
 
-    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e.classification === 'oiseau')))
-    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e.classification === 'faune non-oiseau')))
-    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e.classification === 'flore')))
+    /** @type { SvelteSet<EspèceProtégée> }*/
+    //@ts-ignore
+    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'oiseau')))
+    /** @type { SvelteSet<EspèceProtégée> }*/
+    //@ts-ignore
+    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'faune non-oiseau')))
+    /** @type { SvelteSet<EspèceProtégée> }*/
+    //@ts-ignore
+    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'flore')))
 
     /**
      * Recheche "à l'arrache"

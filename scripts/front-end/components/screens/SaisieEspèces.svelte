@@ -8,7 +8,8 @@
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
     import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
     import Loader from '../Loader.svelte'
-
+    import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
+	import { tick } from 'svelte'
 
 
     /** @import { ParClassification, DescriptionImpact, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
@@ -61,6 +62,11 @@
     let modale;
 
     let modeLecture = $state(false);
+
+    /**
+     * @type {TuileSaisieEspèce[]}
+     */
+    let référencesEspèces = $state([])
 
     /**
      * @type {DescriptionMenacesEspèces}
@@ -183,11 +189,18 @@
     /**
      * @param {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesImpactéesPourPréremplissage
      */
-    function onClickPréRemplirAvecDocumentTexte(espècesImpactéesPourPréremplissage) {
+    async function onClickPréRemplirAvecDocumentTexte(espècesImpactéesPourPréremplissage) {
         if (espècesImpactéesPourPréremplissage.length >= 1) {
-            espècesImpactées = espècesImpactéesPourPréremplissage 
+            espècesImpactées = espècesImpactéesPourPréremplissage
+            
+            // Le tick() est nécessaire pour attendre que l'interface se mette à jour et permettre de faire le focus sur la bonne référence
+            await tick()
+
+            référencesEspèces = référencesEspèces.filter(ref => ref !== null)
+            référencesEspèces[référencesEspèces.length - 1].focusFormulaireEspèce()
         }
     }
+    $inspect(référencesEspèces)
 </script>
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">
@@ -296,7 +309,7 @@
                     </div>
                 </dialog>
 
-                <ModalePréremplirDepuisTexte {espècesProtégéesParClassification} {onClickPréRemplirAvecDocumentTexte} />
+                <ModalePréremplirDepuisTexte bind:référencesEspèces={référencesEspèces} {espècesProtégéesParClassification} {onClickPréRemplirAvecDocumentTexte} />
             </div>
         </div>
 
@@ -332,6 +345,7 @@
 
             <FormulaireSaisieEspèce
                 bind:espècesImpactées={espècesImpactées}
+                bind:référencesEspèces={référencesEspèces}
                 espècesProtégées={[...espècesProtégéesParClassification["oiseau"], ...espècesProtégéesParClassification["faune non-oiseau"], ...espècesProtégéesParClassification["flore"]]}
                 activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
                 méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}

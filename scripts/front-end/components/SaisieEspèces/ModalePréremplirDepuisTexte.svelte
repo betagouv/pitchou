@@ -1,17 +1,19 @@
 <script>
 	import EcranChampTexte from './ModalePréremplirDepuisTexte/EcranChampTexte.svelte'
     import EcranPréciserLImpact from './ModalePréremplirDepuisTexte/EcranPréciserLImpact.svelte'
-
+    import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
     /** @import { ParClassification, EspèceProtégée, DescriptionImpact } from '../../../types/especes' **/
 
     /**
      * @typedef {Object} Props
+     * @property {TuileSaisieEspèce[]} référencesEspèces
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
      */
 
     /** @type {Props} */
     let {
+        référencesEspèces = $bindable(),
         espècesProtégéesParClassification,
         onClickPréRemplirAvecDocumentTexte,
     } = $props();
@@ -22,7 +24,7 @@
     let écranAffiché = $state('champTexte')
 
     /**
-     * @type {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>}
+     * @type {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>}
      */
     let espècesModifiables =  $state([]) // modifier le nom
 
@@ -46,8 +48,13 @@
    }
 
    function onValiderLaListeDesEspèces() {
-        onClickPréRemplirAvecDocumentTexte(espècesModifiables)
+        /** @type {Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}>}*/
+        //@ts-ignore
+        let nouvellesEspècesImpactées = espècesModifiables.filter((espèceImpactée) =>  espèceImpactée?.espèce !== undefined)
+
+        onClickPréRemplirAvecDocumentTexte(nouvellesEspècesImpactées)
    }
+
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
