@@ -1,13 +1,13 @@
 <script>
 	import { SvelteSet } from "svelte/reactivity"
     import NomEspèce from '../../NomEspèce.svelte'  
-    /** @import { EspèceProtégée } from '../../../../types/especes' **/
+    /** @import { EspèceProtégée, DescriptionImpact } from '../../../../types/especes' **/
 
     /**
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
-     * @property {Set<EspèceProtégée>} espècesModifiables
-     * @property {(espece: EspèceProtégée) => void} supprimerEspèce
+     * @property {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesModifiables
+     * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
      */
     /** @type {Props} */
     let {
@@ -16,12 +16,22 @@
         supprimerEspèce,
     } = $props();
 
-    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'oiseau')))
-    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'faune non-oiseau')))
-    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'flore')))
+    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e.classification === 'oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e.classification === 'faune non-oiseau')))
+    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e.classification === 'flore')))
 
     function onClickRetour() {
         écranAffiché = 'champTexte'
+    }
+
+    /**
+     * @param {EspèceProtégée} espèce
+     */
+    function supprimerEspèceDepuisClassification(espèce) {
+        const indexDansListe = espècesModifiables.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)
+        if (indexDansListe >= 0) {
+            supprimerEspèce(indexDansListe)
+        }
     }
 </script>
 
@@ -43,7 +53,7 @@
                         {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                             <li>
                             <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
@@ -58,7 +68,7 @@
                         {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
                             <li>
                                 <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
@@ -73,7 +83,7 @@
                         {#each [...floreÀPréremplir] as espèce (espèce)}
                             <li>
                                 <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
+                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
