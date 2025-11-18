@@ -61,6 +61,23 @@
         onClickPréRemplirAvecDocumentTexte(nouvellesEspècesImpactées)
    }
 
+   /**
+    * @param {DescriptionImpact} impactPourChaqueOiseau
+    * @param {DescriptionImpact} impactPourChaqueFauneNonOiseau
+    * @param {DescriptionImpact} impactPourChaqueFlore
+    */
+   function ajouterImpactPourChaqueClassfication(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore) {
+        espècesModifiables.forEach((espèceImpactée) => {
+            if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'oiseau') {
+                espèceImpactée.impacts = [impactPourChaqueOiseau]
+            } else if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'faune non-oiseau') {
+                espèceImpactée.impacts = [impactPourChaqueFauneNonOiseau]
+            } else if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'flore') {
+                espèceImpactée.impacts = [impactPourChaqueFlore]
+            }
+        })
+   }
+
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
@@ -79,7 +96,16 @@
                             {réinitialiserEspècesModifiables}
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact bind:écranAffiché={écranAffiché} {espècesModifiables} {supprimerEspèce} {onValiderLaListeDesEspèces} {méthodesParClassificationEtreVivant} {transportsParClassificationEtreVivant} {activitesParClassificationEtreVivant} />
+                        <EcranPréciserLImpact 
+                            bind:écranAffiché={écranAffiché} 
+                            {espècesModifiables} 
+                            {supprimerEspèce} 
+                            {onValiderLaListeDesEspèces}
+                            {ajouterImpactPourChaqueClassfication} 
+                            {méthodesParClassificationEtreVivant} 
+                            {transportsParClassificationEtreVivant} 
+                            {activitesParClassificationEtreVivant} 
+                        />
                     {/if}
                 </div>
             </div>

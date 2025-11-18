@@ -8,11 +8,12 @@
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
-     * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
+     * @property {(indexEspèceÀSupprimer: number) => Promise<void>} supprimerEspèce
      * @property {() => void} onValiderLaListeDesEspèces
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
      * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {(impactPourChaqueOiseau: DescriptionImpact, impactPourChaqueFauneNonOiseau: DescriptionImpact, impactPourChaqueFlore: DescriptionImpact) => void} ajouterImpactPourChaqueClassfication
      */
     /** @type {Props} */
     let {
@@ -22,8 +23,26 @@
         onValiderLaListeDesEspèces,
         méthodesParClassificationEtreVivant,
         transportsParClassificationEtreVivant,
-        activitesParClassificationEtreVivant
+        activitesParClassificationEtreVivant,
+        ajouterImpactPourChaqueClassfication
     } = $props();
+
+    /**
+     * @type {DescriptionImpact}
+    */
+    let impactPourChaqueOiseau = $state({})
+
+    /**
+     * @type {DescriptionImpact}
+    */
+    let impactPourChaqueFauneNonOiseau = $state({})
+
+    /**
+     * @type {DescriptionImpact}
+    */
+    let impactPourChaqueFlore = $state({})
+
+    
 
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
@@ -47,6 +66,12 @@
         if (indexDansListe >= 0) {
             supprimerEspèce(indexDansListe)
         }
+    }
+
+    function onClickToutAjouter() {
+        ajouterImpactPourChaqueClassfication(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore)
+        onValiderLaListeDesEspèces()
+
     }
 </script>
 
@@ -74,6 +99,7 @@
                             </li>                        
                         {/each}
                         <ImpactEspèce
+                            bind:impact={impactPourChaqueOiseau}
                             espèceClassification={'oiseau'}
                             activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
                             méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
@@ -93,7 +119,14 @@
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
-                        {/each}
+                            {/each}
+                            <ImpactEspèce
+                                bind:impact={impactPourChaqueFauneNonOiseau}
+                                espèceClassification={'faune non-oiseau'}
+                                activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                                méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                                transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+                            />  
                     </ul>
                 </section>
             {/if}
@@ -109,6 +142,13 @@
                                 </button>
                             </li>
                         {/each}
+                        <ImpactEspèce
+                            bind:impact={impactPourChaqueFlore}
+                            espèceClassification={'flore'}
+                            activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                            méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                            transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+                        />
                     </ul>
                 </section>
             {/if}
@@ -118,7 +158,7 @@
 
 <div class="fr-modal__footer">
     <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickRetour}>Retour</button>
-    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onValiderLaListeDesEspèces}>Tout ajouter</button>
+    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onClickToutAjouter}>Tout ajouter</button>
 </div>
 
 
