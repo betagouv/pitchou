@@ -1,4 +1,5 @@
 <script>
+	import { SvelteSet } from 'svelte/reactivity'
 	import EcranChampTexte from './ModalePréremplirDepuisTexte/EcranChampTexte.svelte'
     import EcranPréciserLImpact from './ModalePréremplirDepuisTexte/EcranPréciserLImpact.svelte'
 
@@ -16,11 +17,34 @@
         espècesProtégéesParClassification,
     } = $props();
 
+   const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
 
     /** @type {'champTexte' | 'préciserLImpact'}*/
     let écranAffiché = $state('champTexte')
 
-   const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
+    /** @type {Set<EspèceProtégée>} - État modifiable par l'utilisateur avant validation */
+    let espècesModifiables = $state(new SvelteSet())
+
+    /**
+     * @param {EspèceProtégée} espèce
+     */
+    function supprimerEspèce(espèce) {
+        espècesModifiables.delete(espèce)
+    }
+
+    /**
+     * @param {Set<EspèceProtégée>} espèces
+     */
+   function réinitialiserEspècesModifiables(espèces) {
+        espècesModifiables = new SvelteSet(espèces)
+   }
+
+    /**
+     * @param {EspèceProtégée[]} espèces
+     */
+   function onValiderLaListeDesEspèces(espèces) {
+        espècesÀPréremplir = espèces
+   }
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
@@ -29,9 +53,17 @@
             <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
                 <div class="fr-modal__body">
                     {#if écranAffiché === 'champTexte'}
-                        <EcranChampTexte bind:espècesÀPréremplir={espècesÀPréremplir} bind:écranAffiché={écranAffiché} {espècesProtégéesParClassification}  {idModalePréremplirDepuisTexte} />
+                        <EcranChampTexte 
+                            bind:écranAffiché={écranAffiché} 
+                            espècesModifiables={espècesModifiables}
+                            {espècesProtégéesParClassification}  
+                            {idModalePréremplirDepuisTexte} 
+                            {onValiderLaListeDesEspèces} 
+                            {supprimerEspèce}
+                            {réinitialiserEspècesModifiables}
+                            />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact />
+                        <EcranPréciserLImpact {espècesModifiables} {supprimerEspèce} />
                     {/if}
                 </div>
             </div>

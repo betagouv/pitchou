@@ -9,7 +9,10 @@
     
     /**
      * @typedef {Object} Props
-     * @property {EspèceProtégée[]} espècesÀPréremplir
+     * @property {Set<EspèceProtégée>} espècesModifiables
+     * @property {(especes: EspèceProtégée[]) => void} onValiderLaListeDesEspèces
+     * @property {(espece: EspèceProtégée) => void} supprimerEspèce
+     * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesModifiables
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {string} idModalePréremplirDepuisTexte
@@ -17,11 +20,13 @@
 
     /** @type {Props} */
     let {
-        espècesÀPréremplir = $bindable(),
-        espècesProtégéesParClassification,
         écranAffiché = $bindable(),
+        espècesModifiables,
+        espècesProtégéesParClassification,
         idModalePréremplirDepuisTexte,
-        
+        onValiderLaListeDesEspèces,
+        supprimerEspèce,
+        réinitialiserEspècesModifiables,
     } = $props();
 
     /**
@@ -32,12 +37,9 @@
     /** @type {Set<EspèceProtégée>} - Source de vérité : espèces trouvées dans le texte */
     let espècesTrouvéesDansTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
 
-    /** @type {Set<EspèceProtégée>} - État modifiable par l'utilisateur */
-    let espècesModifiables = $state(new SvelteSet())
-
     // Réinitialiser les espèces modifiables quand le texte change
     $effect(() => {
-        espècesModifiables = new SvelteSet(espècesTrouvéesDansTexte)
+        réinitialiserEspècesModifiables(espècesTrouvéesDansTexte)
     })
 
     let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'oiseau')))
@@ -100,20 +102,13 @@
         return espècesTrouvées
     }
 
-   function onAjouterLesEspècesPréremplies() {
-        espècesÀPréremplir = [...espècesModifiables]
-   }
-
-    /**
-     * @param {EspèceProtégée} espèce
-     */
-    function supprimerEspèce(espèce) {
-        espècesModifiables.delete(espèce)
-    }
-
     function onClickPréciserLimpact() {
         écranAffiché = 'préciserLImpact'
     }
+
+   function onAjouterLesEspècesPréremplies() {
+        onValiderLaListeDesEspèces([...espècesModifiables])
+   }
 </script>
 
 <div class="fr-modal__header">
@@ -141,8 +136,7 @@
                                 <li>
                                 <NomEspèce {espèce}/> 
                                     <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                        libellé du bouton
-                                        <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                        Supprimer l'espèce #{espèce.nomsScientifiques}
                                     </button>
                                 </li>
                             {/each}
@@ -157,8 +151,7 @@
                                 <li>
                                     <NomEspèce {espèce}/> 
                                     <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                        libellé du bouton
-                                        <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                        Supprimer l'espèce #{espèce.nomsScientifiques}
                                     </button>
                                 </li>
                             {/each}
@@ -173,8 +166,7 @@
                                 <li>
                                     <NomEspèce {espèce}/> 
                                     <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                        libellé du bouton
-                                        <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                        Supprimer l'espèce #{espèce.nomsScientifiques}
                                     </button>
                                 </li>
                             {/each}

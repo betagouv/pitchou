@@ -1,14 +1,22 @@
 <script>
 	import { SvelteSet } from "svelte/reactivity"
     import NomEspèce from '../../NomEspèce.svelte'  
+    /** @import { EspèceProtégée } from '../../../../types/especes' **/
 
-    // let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'oiseau')))
-    // let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'faune non-oiseau')))
-    // let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'flore')))
+    /**
+     * @typedef {Object} Props
+     * @property {Set<EspèceProtégée>} espècesModifiables
+     * @property {(espece: EspèceProtégée) => void} supprimerEspèce
+     */
+    /** @type {Props} */
+    let {
+        espècesModifiables,
+        supprimerEspèce,
+    } = $props();
 
-    let oiseauxÀPréremplir = new SvelteSet([])
-    let fauneNonOiseauxÀPréremplir = new SvelteSet([])
-    let floreÀPréremplir = new SvelteSet([])
+    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'faune non-oiseau')))
+    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables].filter(e => e.classification === 'flore')))
 </script>
 
 <div class="fr-modal__header">
@@ -30,8 +38,7 @@
                             <li>
                             <NomEspèce {espèce}/> 
                                 <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                    libellé du bouton
-                                    <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                    Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
                         {/each}
@@ -46,8 +53,7 @@
                             <li>
                                 <NomEspèce {espèce}/> 
                                 <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                    libellé du bouton
-                                    <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                    Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
                         {/each}
@@ -62,8 +68,7 @@
                             <li>
                                 <NomEspèce {espèce}/> 
                                 <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèce(espèce)}>
-                                    libellé du bouton
-                                    <span class="fr-sr-only">Supprimer l'espèce #{espèce.nomsScientifiques}</span>
+                                    Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
                         {/each}
