@@ -3,7 +3,7 @@
 import store from "../store"
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
-import { chargerActivitésMéthodesTransports, chargerListeEspècesProtégées } from './activitésMéthodesTransports.js';
+import { chargerActivitésMéthodesMoyensDePoursuite, chargerListeEspècesProtégées } from './activitésMéthodesMoyensDePoursuite.js';
 import { isDossierRésuméArray } from '../../types/typeguards.js';
 import { chargerRelationSuivi } from "./main.js";
 
@@ -14,7 +14,7 @@ import { chargerRelationSuivi } from "./main.js";
 //@ts-ignore
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
 
 /**
  * @param {DossierComplet} dossier
@@ -103,17 +103,17 @@ export async function refreshDossierComplet(id){
  */
 export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArrayBuffer){
     const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransports()
+    const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite()
 
     const {espèceByCD_REF} = await espècesProtégées
-    const { activités, méthodes, transports } = await actMétTrans
+    const { activités, méthodes, moyensDePoursuite } = await actMétTrans
 
     return importDescriptionMenacesEspècesFromOdsArrayBuffer(
         fichierArrayBuffer,
         espèceByCD_REF,
         activités,
         méthodes,
-        transports
+        moyensDePoursuite
     )
 
 }

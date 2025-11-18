@@ -10,13 +10,11 @@
     import FauneNonOiseauAtteinteEditRow from '../SaisieEspèces/FauneNonOiseauAtteinteEditRow.svelte'
     import FloreAtteinteEditRow from '../SaisieEspèces/FloreAtteinteEditRow.svelte'
     import { descriptionMenacesEspècesToOdsArrayBuffer } from '../../../commun/outils-espèces.js'
-    import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js'
     import Loader from '../Loader.svelte'
+	import { chargerActivitésMéthodesMoyensDePoursuite } from '../../actions/activitésMéthodesMoyensDePoursuite.js'
 
-
-
-    /** @import { ParClassification, DescriptionImpact, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
-    /** @import { ActivitéMenançante, MéthodeMenançante, TransportMenançant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
+    /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte, DescriptionImpact} from '../../../types/especes.d.ts' **/
+    /** @import { ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces } from '../../../types/especes.d.ts' **/
 
 
     /**
@@ -25,7 +23,7 @@
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activitesParClassificationEtreVivant
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-     * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
+     * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
      * @property {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} importDescriptionMenacesEspècesFromOds
      * @property {OiseauAtteint[]} oiseauxAtteints
      * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
@@ -100,7 +98,7 @@
         return espècesImpactéesParClassification
     })
 
-    const promesseRéférentiels = chargerActivitésMéthodesTransports();
+    const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
 
     /**
      * @param {DescriptionMenacesEspèces} descriptionMenacesEspèces
@@ -201,7 +199,7 @@
     let activitéOiseauPréremplie = $state();
     /** @type {MéthodeMenançante | undefined} */
     let méthodeOiseauPréremplie = $state();
-    /** @type {TransportMenançant | undefined} */
+    /** @type {MoyenDePoursuiteMenaçant | undefined} */
     let transportOiseauPrérempli = $state();
     /** @type {string | undefined} */
     let nombreIndividusOiseauPrérempli = $state();
@@ -216,7 +214,7 @@
     let activitéFauneNonOiseauPréremplie = $state();
     /** @type {MéthodeMenançante | undefined} */
     let méthodeFauneNonOiseauPréremplie = $state();
-    /** @type {TransportMenançant | undefined} */
+    /** @type {MoyenDePoursuiteMenaçant | undefined} */
     let transportFauneNonOiseauPréremplie = $state();
     /** @type {string | undefined} */
     let nombreIndividusFauneNonOiseauPréremplie = $state();
