@@ -6,7 +6,7 @@
     /**
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
-     * @property {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesModifiables
+     * @property {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
      */
     /** @type {Props} */

@@ -181,11 +181,14 @@
     }
 
     /**
-     * @param {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesImpactéesPourPréremplissage
+     * @param {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesImpactéesPourPréremplissage
      */
     function onClickPréRemplirAvecDocumentTexte(espècesImpactéesPourPréremplissage) {
-        espècesImpactées = espècesImpactéesPourPréremplissage
+        console.log({espècesImpactéesPourPréremplissage})
+        espècesImpactées = espècesImpactéesPourPréremplissage 
     }
+
+    $inspect(espècesImpactées)
 </script>
 
 <Squelette nav={false} {email} title="Espèces protégées impactées">

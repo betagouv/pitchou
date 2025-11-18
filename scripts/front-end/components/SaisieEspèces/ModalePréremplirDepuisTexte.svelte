@@ -7,7 +7,7 @@
     /**
      * @typedef {Object} Props
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-     * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
+     * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
      */
 
     /** @type {Props} */
@@ -22,7 +22,7 @@
     let écranAffiché = $state('champTexte')
 
     /**
-     * @type {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>}
+     * @type {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>}
      */
     let espècesModifiables =  $state([]) // modifier le nom
 
@@ -37,19 +37,19 @@
      * @param {Set<EspèceProtégée>} espèces
      */
    function réinitialiserEspècesModifiables(espèces) {
-        /** @type { Array<{espèce: EspèceProtégée, impacts?: DescriptionImpact[]}> }*/
+        /** @type { Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}> }*/
         let _espècesImpactées = []
         espèces.forEach((espèce) => {
-            _espècesImpactées.push({espèce})
+            _espècesImpactées.push({espèce, impacts:[]})
         })
         espècesModifiables = _espècesImpactées
    }
 
     /**
-     * @param {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[]}>} espècesImpactées
+     * @param {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[]}>} _espècesImpactées
      */
-   function onValiderLaListeDesEspèces(espècesImpactées) {
-        onClickPréRemplirAvecDocumentTexte(espècesImpactées)
+   function onValiderLaListeDesEspèces(_espècesImpactées) {
+        onClickPréRemplirAvecDocumentTexte(_espècesImpactées)
    }
 </script>
 

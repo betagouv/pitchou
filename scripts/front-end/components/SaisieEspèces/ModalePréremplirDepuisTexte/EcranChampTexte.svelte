@@ -10,8 +10,8 @@
     /**
      * @typedef {Object} Props
      * @property {'champTexte' | 'préciserLImpact'} écranAffiché
-     * @property {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesModifiables
-     * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>) => void} onValiderLaListeDesEspèces
+     * @property {Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
+     * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onValiderLaListeDesEspèces
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
      * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesModifiables // changer le nom
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
@@ -107,7 +107,7 @@
     }
 
    function onAjouterLesEspècesPréremplies() {
-        onValiderLaListeDesEspèces([...espècesModifiables])
+    onValiderLaListeDesEspèces(espècesModifiables)
    }
 
 /**
