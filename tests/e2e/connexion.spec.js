@@ -10,7 +10,7 @@ test.describe('Connexion', () => {
     });
 
     test(`Erreur: le code d'accès est invalide`, async ({ page }) => {
-        await page.goto('/?secret=innexistant');
+        await page.goto('/?secret=inexistant');
 
         await expect(page.getByRole('heading', { level: 1})).toContainText('Connexion');
         await expect(page.getByText(`Erreur : Erreur de connexion - Votre lien de connexion n'est plus valide.`)).toBeVisible();
