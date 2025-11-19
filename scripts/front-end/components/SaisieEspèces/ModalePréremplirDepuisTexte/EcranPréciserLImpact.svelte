@@ -83,52 +83,52 @@
             Aucune espèce n'a été renseignée.
         {:else}
             {#if oiseauxÀPréremplir.size >= 1}
-                <section class="section-préremplir-espèces">
-                    <h4>{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h4>
+                <section class="section-espèce-par-classification">
+                    <h3 class="fr-h4 fr-mb-2w fr-mb-4w">{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h3>
                     <ul>
                         {#each [...oiseauxÀPréremplir] as espèce (espèce)}
-                            <li>
-                                <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline fr-mb-4w" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
-                                    Supprimer l'espèce #{espèce.nomsScientifiques}
-                                </button>
-                            </li>                        
-                        {/each}
-                        <ImpactEspèce
-                            bind:impact={impactPourChaqueOiseau}
-                            espèceClassification={'oiseau'}
-                            activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
-                            méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
-                            transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
-                        />  
-                    </ul>
-                </section>
-            {/if}
-            {#if fauneNonOiseauxÀPréremplir.size >= 1}
-                <section class="section-préremplir-espèces">
-                    <h4>{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h4>
-                    <ul>
-                        {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
                             <li>
                                 <NomEspèce {espèce}/> 
                                 <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
-                            {/each}
-                            <ImpactEspèce
-                                bind:impact={impactPourChaqueFauneNonOiseau}
-                                espèceClassification={'faune non-oiseau'}
-                                activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
-                                méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
-                                transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
-                            />  
+                        {/each}
                     </ul>
+                    <ImpactEspèce
+                        bind:impact={impactPourChaqueOiseau}
+                        espèceClassification={'oiseau'}
+                        activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                        méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                        transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+                    />  
+                </section>
+            {/if}
+            {#if fauneNonOiseauxÀPréremplir.size >= 1}
+                <section class="section-espèce-par-classification">
+                    <h3 class="fr-h4 fr-mb-2w">{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h3>
+                    <ul>
+                    {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
+                        <li>
+                            <NomEspèce {espèce}/> 
+                            <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                                Supprimer l'espèce #{espèce.nomsScientifiques}
+                            </button>
+                        </li>
+                        {/each}
+                    </ul>
+                    <ImpactEspèce
+                        bind:impact={impactPourChaqueFauneNonOiseau}
+                        espèceClassification={'faune non-oiseau'}
+                        activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                        méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                        transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+                    />  
                 </section>
             {/if}
             {#if floreÀPréremplir.size >= 1}
-                <section class="section-préremplir-espèces">
-                    <h4>{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h4>
+                <section class="section-espèce-par-classification fr-mb-4w">
+                    <h3 class="fr-h4 fr-mb-2w">{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h3>
                     <ul>
                         {#each [...floreÀPréremplir] as espèce (espèce)}
                             <li>
@@ -159,10 +159,18 @@
 
 
 <style>
-    .section-préremplir-espèces{
+    .section-espèce-par-classification {
+        margin-bottom: 2rem;
         ul{
             margin: 0;
+            margin-bottom: 2rem;
             list-style: none;
+        }
+        li{
+            display: flex;
+            align-items: center;
+            padding:0 !important;
+            font-size: 0.90rem !important;
         }
     }
 </style>
