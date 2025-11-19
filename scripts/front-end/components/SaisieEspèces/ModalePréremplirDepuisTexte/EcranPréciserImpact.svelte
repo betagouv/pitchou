@@ -90,13 +90,14 @@
                             <li>
                                 <NomEspèce {espèce}/> 
                                 <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                    Supprimer l'espèce #{espèce.nomsScientifiques}
+                                    Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                                 </button>
                             </li>
                         {/each}
                     </ul>
                     <ImpactEspèce
                         bind:impact={impactPourChaqueOiseau}
+                        indexEspèce={0}
                         espèceClassification={'oiseau'}
                         activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
                         méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
@@ -112,13 +113,14 @@
                         <li>
                             <NomEspèce {espèce}/> 
                             <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                Supprimer l'espèce #{espèce.nomsScientifiques}
+                                Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                             </button>
                         </li>
                         {/each}
                     </ul>
                     <ImpactEspèce
                         bind:impact={impactPourChaqueFauneNonOiseau}
+                        indexEspèce={1}
                         espèceClassification={'faune non-oiseau'}
                         activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
                         méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
@@ -134,13 +136,14 @@
                         <li>
                             <NomEspèce {espèce}/> 
                             <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                Supprimer l'espèce #{espèce.nomsScientifiques}
+                                Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                             </button>
                         </li>
                         {/each}
                     </ul>
                     <ImpactEspèce
                         bind:impact={impactPourChaqueFlore}
+                        indexEspèce={2}
                         espèceClassification={'flore'}
                         activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
                         méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}

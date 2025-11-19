@@ -80,7 +80,7 @@ function supprimerEspèceImpactéeDepuisClassification(espèce) {
                                 <li>
                                 <NomEspèce {espèce}/> 
                                     <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                        Supprimer l'espèce #{espèce.nomsScientifiques}
+                                        Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                                     </button>
                                 </li>
                             {/each}
@@ -95,7 +95,7 @@ function supprimerEspèceImpactéeDepuisClassification(espèce) {
                                 <li>
                                     <NomEspèce {espèce}/> 
                                     <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                        Supprimer l'espèce #{espèce.nomsScientifiques}
+                                        Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                                     </button>
                                 </li>
                             {/each}
@@ -110,7 +110,7 @@ function supprimerEspèceImpactéeDepuisClassification(espèce) {
                                 <li>
                                     <NomEspèce {espèce}/> 
                                     <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                        Supprimer l'espèce #{espèce.nomsScientifiques}
+                                        Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                                     </button>
                                 </li>
                             {/each}
