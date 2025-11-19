@@ -35,11 +35,6 @@
     let espècesModifiables =  $state([]) // modifier le nom
 
     /**
-     * Texte saisi par l'utilisateur - conservé entre les changements d'écran
-     */
-    let texteEspèces = $state('')
-
-    /**
      * @param {number} indexEspèceÀSupprimer
      */
     async function supprimerEspèce(indexEspèceÀSupprimer) {
@@ -95,7 +90,6 @@
                     {#if écranAffiché === 'champTexte'}
                         <EcranChampTexte 
                             bind:écranAffiché={écranAffiché} 
-                            bind:texteEspèces={texteEspèces}
                             {espècesModifiables}
                             {espècesProtégéesParClassification}  
                             {idModalePréremplirDepuisTexte} 
@@ -105,7 +99,6 @@
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
                         <EcranPréciserLImpact 
-                            bind:écranAffiché={écranAffiché} 
                             {espècesModifiables} 
                             {supprimerEspèce} 
                             {onValiderLaListeDesEspèces}

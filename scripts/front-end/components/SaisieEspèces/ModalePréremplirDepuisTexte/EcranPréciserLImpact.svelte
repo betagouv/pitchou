@@ -6,7 +6,6 @@
 
     /**
      * @typedef {Object} Props
-     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
      * @property {(indexEspèceÀSupprimer: number) => Promise<void>} supprimerEspèce
      * @property {() => void} onValiderLaListeDesEspèces
@@ -17,7 +16,6 @@
      */
     /** @type {Props} */
     let {
-        écranAffiché = $bindable(),
         espècesModifiables,
         supprimerEspèce,
         onValiderLaListeDesEspèces,
@@ -53,10 +51,6 @@
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
     let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'flore')))
-
-    function onClickRetour() {
-        écranAffiché = 'champTexte'
-    }
 
     /**
      * @param {EspèceProtégée} espèce
@@ -157,8 +151,7 @@
 </div>
 
 <div class="fr-modal__footer">
-    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickRetour}>Retour</button>
-    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onClickToutAjouter}>Tout ajouter</button>
+    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onClickToutAjouter}>Tout ajouter</button>
 </div>
 
 
