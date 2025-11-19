@@ -132,7 +132,7 @@ function supprimerEspèceDepuisClassification(espèce) {
         Pré-remplissage des espèces protégées impactées
     </h2>
     <div class="fr-grid-row fr-grid-row--gutters">
-        <div class='fr-col-12 fr-col-sm-4'>
+        <div class='fr-col-12 fr-col-sm'>
             <h3 class="fr-h6" id="label-champ-texte-espece"> Votre texte </h3>
             <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input fr-mb-4w" rows="15" aria-labelledby="label-champ-texte-espece"></textarea>
         </div>
