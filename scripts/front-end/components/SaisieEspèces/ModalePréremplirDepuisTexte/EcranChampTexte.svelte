@@ -219,8 +219,6 @@ function supprimerEspèceImpactéeDepuisClassification(espèce) {
             list-style: none;
         }
         li{
-            display: flex;
-            align-items: center;
             padding:0 !important;
             font-size: 0.90rem !important;
         }

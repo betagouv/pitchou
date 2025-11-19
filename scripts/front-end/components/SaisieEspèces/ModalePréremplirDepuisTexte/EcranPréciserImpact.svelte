@@ -84,7 +84,7 @@
         {:else}
             {#if oiseauxÀPréremplir.size >= 1}
                 <section class="section-espèce-par-classification">
-                    <h3 class="fr-h4 fr-mb-2w fr-mb-4w">{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h3>
+                    <h3>{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h3>
                     <ul>
                         {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                             <li>
@@ -106,7 +106,7 @@
             {/if}
             {#if fauneNonOiseauxÀPréremplir.size >= 1}
                 <section class="section-espèce-par-classification">
-                    <h3 class="fr-h4 fr-mb-2w">{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h3>
+                    <h3>{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h3>
                     <ul>
                     {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
                         <li>
@@ -127,25 +127,25 @@
                 </section>
             {/if}
             {#if floreÀPréremplir.size >= 1}
-                <section class="section-espèce-par-classification fr-mb-4w">
-                    <h3 class="fr-h4 fr-mb-2w">{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h3>
+                <section class="section-espèce-par-classification">
+                    <h3>{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h3>
                     <ul>
-                        {#each [...floreÀPréremplir] as espèce (espèce)}
-                            <li>
-                                <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
-                                    Supprimer l'espèce #{espèce.nomsScientifiques}
-                                </button>
-                            </li>
+                    {#each [...floreÀPréremplir] as espèce (espèce)}
+                        <li>
+                            <NomEspèce {espèce}/> 
+                            <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
+                                Supprimer l'espèce #{espèce.nomsScientifiques}
+                            </button>
+                        </li>
                         {/each}
-                        <ImpactEspèce
-                            bind:impact={impactPourChaqueFlore}
-                            espèceClassification={'flore'}
-                            activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
-                            méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
-                            transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
-                        />
                     </ul>
+                    <ImpactEspèce
+                        bind:impact={impactPourChaqueFlore}
+                        espèceClassification={'flore'}
+                        activitesParClassificationEtreVivant={activitesParClassificationEtreVivant}
+                        méthodesParClassificationEtreVivant={méthodesParClassificationEtreVivant}
+                        transportsParClassificationEtreVivant={transportsParClassificationEtreVivant}
+                    />  
                 </section>
             {/if}
         {/if}
@@ -161,14 +161,16 @@
 <style>
     .section-espèce-par-classification {
         margin-bottom: 2rem;
+        h3 {
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
         ul{
             margin: 0;
             margin-bottom: 2rem;
             list-style: none;
         }
         li{
-            display: flex;
-            align-items: center;
             padding:0 !important;
             font-size: 0.90rem !important;
         }
