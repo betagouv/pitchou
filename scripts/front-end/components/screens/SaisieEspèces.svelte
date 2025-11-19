@@ -250,7 +250,7 @@
 
         <div class="fr-grid-row">
             <div class="fr-col">
-                <dialog bind:this={modale} id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="Pré-remplir avec une liste déjà réalisée" aria-modal="true">
+                <dialog bind:this={modale} id="modale-préremplir-depuis-import" class="fr-modal" aria-labelledby="modale-préremplir-depuis-import-title-avec-liste" aria-modal="true">
                     <div class="fr-container fr-container--fluid fr-container-md">
                         <div class="fr-grid-row fr-grid-row--center">
                             <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
@@ -259,7 +259,7 @@
                                         <button aria-controls="modale-préremplir-depuis-import" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
                                     </div>
                                     <div class="fr-modal__content">
-                                        <h2 id="modale-préremplir-depuis-import-title" class="fr-modal__title">
+                                        <h2 id="modale-préremplir-depuis-import-title-avec-liste" class="fr-modal__title">
                                             Pré-remplir avec une liste déjà réalisée
                                         </h2>
                                         <div class="fr-mb-4w">
