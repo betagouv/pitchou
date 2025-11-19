@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.serial('Connexion', () => {
+test.describe('Connexion', () => {
     test(`La page de connexion s'affiche`, async ({ page }) => {
         await page.goto('/');
 
