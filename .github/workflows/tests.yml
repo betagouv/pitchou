@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  pull_request:
+
+jobs:
+  e2e:
+    name: Run E2E tests
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Node 22
+          uses: actions/setup-node@v4
+          with:
+                node-version: 22
+                registry-url: https://registry.npmjs.org/
+        - name: Install project dependencies
+          run: npm clean-install
+
+        - name: Install Playwright Browsers
+          run: npx playwright install --with-deps
+
+        - name: Run the tests
+          run: npm run test

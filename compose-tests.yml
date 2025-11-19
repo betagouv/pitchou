@@ -9,6 +9,7 @@ services:
       - "32648:32648"
     volumes:
       - ./:/app
+      - ./tests/env:/app/.env
     working_dir: /app
     command: npm run start:server
     environment:
