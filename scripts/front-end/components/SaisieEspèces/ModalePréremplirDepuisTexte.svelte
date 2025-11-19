@@ -2,6 +2,7 @@
 	import EcranChampTexte from './ModalePréremplirDepuisTexte/EcranChampTexte.svelte'
     import EcranPréciserImpact from './ModalePréremplirDepuisTexte/EcranPréciserImpact.svelte'
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
+    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings.js'
     /** @import { ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../types/especes' **/
 
     /**
@@ -24,10 +25,45 @@
         activitesParClassificationEtreVivant
     } = $props();
 
-   const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
+    const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
+
+
+    /**
+     *
+     * @param {string} texte
+     * @returns {Set<EspèceProtégée>}
+     */
+     function chercherEspècesDansTexte(texte){
+        /** @type {Set<EspèceProtégée>}*/
+        let espècesTrouvées = new Set()
+
+        for(const [nom, espClassif] of nomVersEspèceClassif){
+            if(texte.includes(nom)){
+                espècesTrouvées.add(espClassif)
+            }
+        }
+
+        return espècesTrouvées
+    }
 
     /** @type {'champTexte' | 'préciserImpact'}*/
     let écranAffiché = $state('champTexte')
+
+    let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification))
+
+
+    /**
+     * Texte saisi par l'utilisateur
+     */
+    let texteEspèces = $state('')
+
+    /** @type {Set<EspèceProtégée>} - Source de vérité : espèces trouvées dans le texte */
+    let espècesTrouvéesDansTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
+
+    // Réinitialiser les espèces modifiables quand le texte change
+    $effect(() => {
+            réinitialiserEspècesImpactées(espècesTrouvéesDansTexte)
+    })
 
     /**
      * @type {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>}
@@ -79,6 +115,42 @@
         })
    }
 
+    /**
+     * Recheche "à l'arrache"
+     * 
+     * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
+     * @returns {Map<string, EspèceProtégée>}
+     */
+    function créerNomVersEspèceClassif(espècesProtégéesParClassification){
+        /** @type {Map<string, EspèceProtégée>}>} */
+        const nomVersEspèceClassif = new Map()
+
+        for(const espèces of Object.values(espècesProtégéesParClassification)){
+            for(const espèce of espèces){
+                const {nomsScientifiques, nomsVernaculaires} = espèce;
+                if(nomsScientifiques.size >= 1){
+                    for(const nom of nomsScientifiques){
+                        const normalized = normalizeNomEspèce(nom)
+                        if(normalized && normalized.length >= 3){
+                            nomVersEspèceClassif.set(normalized, espèce)
+                        }
+                    }
+                }
+
+                if(nomsVernaculaires.size >= 1){
+                    for(const nom of nomsVernaculaires){
+                        const normalized = normalizeNomEspèce(nom)
+                        if(normalized && normalized.length >= 3){
+                            nomVersEspèceClassif.set(normalized, espèce)
+                        }
+                    }
+                }
+            }
+        }
+
+        return nomVersEspèceClassif
+    }
+
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
@@ -87,14 +159,15 @@
             <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
                 <div class="fr-modal__body">
                     {#if écranAffiché === 'champTexte'}
-                        <EcranChampTexte 
+                        <EcranChampTexte
+                            bind:texteEspèces={texteEspèces}
+                            bind:espècesTrouvéesDansTexte={espècesTrouvéesDansTexte} 
                             bind:écranAffiché={écranAffiché} 
                             espècesImpactéesPourPréremplir={espècesImpactéesPourPréremplir}
                             {espècesProtégéesParClassification}  
                             {idModalePréremplirDepuisTexte} 
                             préremplirAvecCesEspècesImpacts={préremplirAvecCesEspècesImpacts} 
                             supprimerEspèceImpactée={supprimerEspèceImpactéeImpactée}
-                            réinitialiserEspècesImpactées={réinitialiserEspècesImpactées}
                             />
                     {:else if écranAffiché === 'préciserImpact'}
                         <EcranPréciserImpact

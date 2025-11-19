@@ -1,6 +1,5 @@
 <script>
 	import { SvelteSet } from 'svelte/reactivity'
-    import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../../commun/manipulationStrings.js'
     import NomEspèce from '../../NomEspèce.svelte'
     import DéplierReplier from '../../common/DéplierReplier.svelte'
 	import { mailtoJeNetrouvePasUneEspèce } from '../../../../commun/constantes.js'
@@ -9,38 +8,26 @@
     
     /**
      * @typedef {Object} Props
+     * @property {Set<EspèceProtégée>} espècesTrouvéesDansTexte
+     * @property {string} texteEspèces
      * @property {'champTexte' | 'préciserImpact'} écranAffiché
      * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesImpactéesPourPréremplir
      * @property {() => void} préremplirAvecCesEspècesImpacts
      * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèceImpactée
-     * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesImpactées // changer le nom
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {string} idModalePréremplirDepuisTexte
      */
 
     /** @type {Props} */
     let {
+        espècesTrouvéesDansTexte = $bindable(),
+        texteEspèces = $bindable(),
         écranAffiché = $bindable(),
         espècesImpactéesPourPréremplir,
-        espècesProtégéesParClassification,
         idModalePréremplirDepuisTexte,
         préremplirAvecCesEspècesImpacts,
         supprimerEspèceImpactée,
-        réinitialiserEspècesImpactées,
     } = $props();
-
-    /**
-     * Texte saisi par l'utilisateur
-     */
-    let texteEspèces = $state('')
-
-    /** @type {Set<EspèceProtégée>} - Source de vérité : espèces trouvées dans le texte */
-    let espècesTrouvéesDansTexte = $derived(chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)))
-
-    // Réinitialiser les espèces modifiables quand le texte change
-    $effect(() => {
-            réinitialiserEspècesImpactées(espècesTrouvéesDansTexte)
-    })
 
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
@@ -51,62 +38,6 @@
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
     let floreÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'flore')))
-
-    /**
-     * Recheche "à l'arrache"
-     * 
-     * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-     * @returns {Map<string, EspèceProtégée>}
-     */
-    function créerNomVersEspèceClassif(espècesProtégéesParClassification){
-        /** @type {Map<string, EspèceProtégée>}>} */
-        const nomVersEspèceClassif = new Map()
-
-        for(const espèces of Object.values(espècesProtégéesParClassification)){
-            for(const espèce of espèces){
-                const {nomsScientifiques, nomsVernaculaires} = espèce;
-                if(nomsScientifiques.size >= 1){
-                    for(const nom of nomsScientifiques){
-                        const normalized = normalizeNomEspèce(nom)
-                        if(normalized && normalized.length >= 3){
-                            nomVersEspèceClassif.set(normalized, espèce)
-                        }
-                    }
-                }
-
-                if(nomsVernaculaires.size >= 1){
-                    for(const nom of nomsVernaculaires){
-                        const normalized = normalizeNomEspèce(nom)
-                        if(normalized && normalized.length >= 3){
-                            nomVersEspèceClassif.set(normalized, espèce)
-                        }
-                    }
-                }
-            }
-        }
-
-        return nomVersEspèceClassif
-    }
-
-    let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification))
-
-    /**
-     *
-     * @param {string} texte
-     * @returns {Set<EspèceProtégée>}
-     */
-     function chercherEspècesDansTexte(texte){
-        /** @type {Set<EspèceProtégée>}*/
-        let espècesTrouvées = new Set()
-
-        for(const [nom, espClassif] of nomVersEspèceClassif){
-            if(texte.includes(nom)){
-                espècesTrouvées.add(espClassif)
-            }
-        }
-
-        return espècesTrouvées
-    }
 
     function onClickpréciserImpact() {
         écranAffiché = 'préciserImpact'
