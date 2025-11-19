@@ -1,0 +1,31 @@
+services:
+  test_server:
+    image: node:22
+    depends_on:
+      - test_db
+    restart: on-failure:3
+    ports:
+      - "32648:32648"
+    volumes:
+      - ./:/app
+      - ./tests/env:/app/.env
+    working_dir: /app
+    command: npm run start:server
+    environment:
+      PORT: 32648
+      DATABASE_URL: "postgresql://dev:dev_password@test_db:5432/especes_pro_3731"
+    user: "${DOCKER_UID}:${DOCKER_GID}"
+    stop_grace_period: 2s
+
+  test_db:
+    image: postgres:15.7
+    restart: always
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: especes_pro_3731
+    hostname: localhost
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./tests/fixtures:/docker-entrypoint-initdb.d
