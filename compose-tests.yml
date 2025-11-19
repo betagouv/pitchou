@@ -1,9 +1,8 @@
 services:
-  web:
+  test_server:
     image: node:22
-    container_name: test_server
     depends_on:
-      - db
+      - test_db
     restart: on-failure:3
     ports:
       - "32648:32648"
@@ -18,9 +17,8 @@ services:
     user: "${DOCKER_UID}:${DOCKER_GID}"
     stop_grace_period: 2s
 
-  db:
+  test_db:
     image: postgres:15.7
-    container_name: test_db
     restart: always
     environment:
       POSTGRES_USER: dev

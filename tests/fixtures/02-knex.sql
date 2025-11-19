@@ -170,9 +170,10 @@ COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 51	20250917145054_normalisation-email.js	48	2025-09-17 15:16:52.376+00
 52	20251006123551_supprimer-espèces_protégées_concernées-historique_nom_porteur-historique_localisation-colonnes-csrpn-cnpn.js	49	2025-10-13 06:20:26.157+00
 53	20250929095751_ajout_numéro_démarche.js	50	2025-10-14 13:26:36.744+00
-54	20251104080759_ajouter-3-questions-introductives-de-demarches-simplifiees-d-un-dossier.js	51	2025-11-12 10:10:38.264+00
-55	20251106152328_fix_departements.js	51	2025-11-12 10:10:38.272+00
-56	20251111141823_ajouter-date-fin-consultation-public-et-renommer-date-consultation-public-en-date-debut-consultation-public.js	51	2025-11-12 10:10:38.274+00
+54	20251104080759_ajouter-3-questions-introductives-de-demarches-simplifiees-d-un-dossier.js	51	2025-11-19 15:17:44.056+00
+55	20251104153744_ajout-pièces-jointes-pétitionnaire.js	51	2025-11-19 15:17:44.065+00
+56	20251106152328_fix_departements.js	51	2025-11-19 15:17:44.069+00
+57	20251111141823_ajouter-date-fin-consultation-public-et-renommer-date-consultation-public-en-date-debut-consultation-public.js	51	2025-11-19 15:17:44.071+00
 \.
 
 
@@ -181,7 +182,7 @@ COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 --
 
 COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
-4	0
+3	0
 \.
 
 
@@ -189,14 +190,14 @@ COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
 -- Name: knex_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dev
 --
 
-SELECT pg_catalog.setval('public.knex_migrations_id_seq', 56, true);
+SELECT pg_catalog.setval('public.knex_migrations_id_seq', 57, true);
 
 
 --
 -- Name: knex_migrations_lock_index_seq; Type: SEQUENCE SET; Schema: public; Owner: dev
 --
 
-SELECT pg_catalog.setval('public.knex_migrations_lock_index_seq', 4, true);
+SELECT pg_catalog.setval('public.knex_migrations_lock_index_seq', 3, true);
 
 
 --

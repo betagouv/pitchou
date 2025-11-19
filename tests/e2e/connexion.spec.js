@@ -16,7 +16,7 @@ test.describe('Connexion', () => {
         await expect(page.getByText(`Erreur : Erreur de connexion - Votre lien de connexion n'est plus valide.`)).toBeVisible();
     });
 
-    test(`Erreur: le compte n'est pas associé à un groupe d'intructueurice`, async ({ page }) => {
+    test(`Erreur: le compte n'est pas associé à un groupe d'intructeurice`, async ({ page }) => {
         await page.goto('/?secret=test.pas.de.groupe');
 
         await expect(page.getByRole('heading', { level: 1})).toContainText('Connexion');

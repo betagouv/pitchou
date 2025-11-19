@@ -37,6 +37,8 @@ ALTER TABLE IF EXISTS ONLY public."arête_personne__cap_écriture_annotation" DR
 ALTER TABLE IF EXISTS ONLY public."arête_personne__cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "arête_personne__cap_écriture_annotation_personne_cap_foreign";
 ALTER TABLE IF EXISTS ONLY public."arête_groupe_instructeurs__dossier" DROP CONSTRAINT IF EXISTS "arête_groupe_instructeurs__dossier_groupe_instructeurs_foreign";
 ALTER TABLE IF EXISTS ONLY public."arête_groupe_instructeurs__dossier" DROP CONSTRAINT IF EXISTS "arête_groupe_instructeurs__dossier_dossier_foreign";
+ALTER TABLE IF EXISTS ONLY public."arête_dossier__fichier_pièces_jointes_pétitionnaire" DROP CONSTRAINT IF EXISTS "arête_dossier__fichier_pièces_jointes_pétitionnaire_fichier_";
+ALTER TABLE IF EXISTS ONLY public."arête_dossier__fichier_pièces_jointes_pétitionnaire" DROP CONSTRAINT IF EXISTS "arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_";
 ALTER TABLE IF EXISTS ONLY public."arête_cap_dossier__groupe_instructeurs" DROP CONSTRAINT IF EXISTS "arête_cap_dossier__groupe_instructeurs_groupe_instructeurs_for";
 ALTER TABLE IF EXISTS ONLY public."arête_cap_dossier__groupe_instructeurs" DROP CONSTRAINT IF EXISTS "arête_cap_dossier__groupe_instructeurs_cap_dossier_foreign";
 DROP INDEX IF EXISTS public."évènement_phase_dossier_dossier_index";
@@ -53,6 +55,8 @@ DROP INDEX IF EXISTS public."contrôle_prescription_index";
 DROP INDEX IF EXISTS public.avis_expert_dossier_index;
 DROP INDEX IF EXISTS public."arête_personne_suit_dossier_personne_index";
 DROP INDEX IF EXISTS public."arête_personne_suit_dossier_dossier_index";
+DROP INDEX IF EXISTS public."arête_dossier__fichier_pièces_jointes_pétitionnaire_fichier_";
+DROP INDEX IF EXISTS public."arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_";
 DROP INDEX IF EXISTS public."arête_cap_dossier__groupe_instructeurs_cap_dossier_index";
 ALTER TABLE IF EXISTS ONLY public."évènement_phase_dossier" DROP CONSTRAINT IF EXISTS "évènement_phase_dossier_dossier_phase_horodatage_unique";
 ALTER TABLE IF EXISTS ONLY public."résultat_synchronisation_DS_88444" DROP CONSTRAINT IF EXISTS "résultat_synchronisation_ds_88444_succès_unique";
@@ -62,8 +66,6 @@ ALTER TABLE IF EXISTS ONLY public.personne DROP CONSTRAINT IF EXISTS personne_em
 ALTER TABLE IF EXISTS ONLY public.personne DROP CONSTRAINT IF EXISTS "personne_code_accès_unique";
 ALTER TABLE IF EXISTS ONLY public.message DROP CONSTRAINT IF EXISTS message_pkey;
 ALTER TABLE IF EXISTS ONLY public.message DROP CONSTRAINT IF EXISTS "message_id_démarches_simplifiées_unique";
-ALTER TABLE IF EXISTS ONLY public.knex_migrations DROP CONSTRAINT IF EXISTS knex_migrations_pkey;
-ALTER TABLE IF EXISTS ONLY public.knex_migrations_lock DROP CONSTRAINT IF EXISTS knex_migrations_lock_pkey;
 ALTER TABLE IF EXISTS ONLY public.groupe_instructeurs DROP CONSTRAINT IF EXISTS groupe_instructeurs_pkey;
 ALTER TABLE IF EXISTS ONLY public.groupe_instructeurs DROP CONSTRAINT IF EXISTS groupe_instructeurs_nom_unique;
 ALTER TABLE IF EXISTS ONLY public.fichier DROP CONSTRAINT IF EXISTS "espèces_impactées_pkey";
@@ -83,8 +85,6 @@ ALTER TABLE IF EXISTS ONLY public."arête_personne_suit_dossier" DROP CONSTRAINT
 ALTER TABLE IF EXISTS ONLY public."arête_personne__cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "arête_personne__cap_écriture_annotation_personne_cap_unique";
 ALTER TABLE IF EXISTS ONLY public."arête_groupe_instructeurs__dossier" DROP CONSTRAINT IF EXISTS "arête_groupe_instructeurs__dossier_dossier_unique";
 ALTER TABLE IF EXISTS public.personne ALTER COLUMN id DROP DEFAULT;
-ALTER TABLE IF EXISTS public.knex_migrations_lock ALTER COLUMN index DROP DEFAULT;
-ALTER TABLE IF EXISTS public.knex_migrations ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.dossier ALTER COLUMN id DROP DEFAULT;
 DROP TABLE IF EXISTS public."évènement_phase_dossier";
 DROP TABLE IF EXISTS public."résultat_synchronisation_DS_88444";
@@ -92,10 +92,6 @@ DROP TABLE IF EXISTS public.prescription;
 DROP SEQUENCE IF EXISTS public.personne_id_seq;
 DROP TABLE IF EXISTS public.personne;
 DROP TABLE IF EXISTS public.message;
-DROP SEQUENCE IF EXISTS public.knex_migrations_lock_index_seq;
-DROP TABLE IF EXISTS public.knex_migrations_lock;
-DROP SEQUENCE IF EXISTS public.knex_migrations_id_seq;
-DROP TABLE IF EXISTS public.knex_migrations;
 DROP TABLE IF EXISTS public.groupe_instructeurs;
 DROP TABLE IF EXISTS public.fichier;
 DROP TABLE IF EXISTS public.entreprise;
@@ -109,6 +105,7 @@ DROP TABLE IF EXISTS public.avis_expert;
 DROP TABLE IF EXISTS public."arête_personne_suit_dossier";
 DROP TABLE IF EXISTS public."arête_personne__cap_écriture_annotation";
 DROP TABLE IF EXISTS public."arête_groupe_instructeurs__dossier";
+DROP TABLE IF EXISTS public."arête_dossier__fichier_pièces_jointes_pétitionnaire";
 DROP TABLE IF EXISTS public."arête_cap_dossier__groupe_instructeurs";
 DROP TYPE IF EXISTS public."TypeDossier";
 --
@@ -138,6 +135,18 @@ CREATE TABLE public."arête_cap_dossier__groupe_instructeurs" (
 
 
 ALTER TABLE public."arête_cap_dossier__groupe_instructeurs" OWNER TO dev;
+
+--
+-- Name: arête_dossier__fichier_pièces_jointes_pétitionnaire; Type: TABLE; Schema: public; Owner: dev
+--
+
+CREATE TABLE public."arête_dossier__fichier_pièces_jointes_pétitionnaire" (
+    dossier integer NOT NULL,
+    fichier uuid NOT NULL
+);
+
+
+ALTER TABLE public."arête_dossier__fichier_pièces_jointes_pétitionnaire" OWNER TO dev;
 
 --
 -- Name: arête_groupe_instructeurs__dossier; Type: TABLE; Schema: public; Owner: dev
@@ -845,76 +854,6 @@ CREATE TABLE public.groupe_instructeurs (
 ALTER TABLE public.groupe_instructeurs OWNER TO dev;
 
 --
--- Name: knex_migrations; Type: TABLE; Schema: public; Owner: dev
---
-
-CREATE TABLE public.knex_migrations (
-    id integer NOT NULL,
-    name character varying(255),
-    batch integer,
-    migration_time timestamp with time zone
-);
-
-
-ALTER TABLE public.knex_migrations OWNER TO dev;
-
---
--- Name: knex_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: dev
---
-
-CREATE SEQUENCE public.knex_migrations_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.knex_migrations_id_seq OWNER TO dev;
-
---
--- Name: knex_migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dev
---
-
-ALTER SEQUENCE public.knex_migrations_id_seq OWNED BY public.knex_migrations.id;
-
-
---
--- Name: knex_migrations_lock; Type: TABLE; Schema: public; Owner: dev
---
-
-CREATE TABLE public.knex_migrations_lock (
-    index integer NOT NULL,
-    is_locked integer
-);
-
-
-ALTER TABLE public.knex_migrations_lock OWNER TO dev;
-
---
--- Name: knex_migrations_lock_index_seq; Type: SEQUENCE; Schema: public; Owner: dev
---
-
-CREATE SEQUENCE public.knex_migrations_lock_index_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.knex_migrations_lock_index_seq OWNER TO dev;
-
---
--- Name: knex_migrations_lock_index_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dev
---
-
-ALTER SEQUENCE public.knex_migrations_lock_index_seq OWNED BY public.knex_migrations_lock.index;
-
-
---
 -- Name: message; Type: TABLE; Schema: public; Owner: dev
 --
 
@@ -1123,20 +1062,6 @@ ALTER TABLE ONLY public.dossier ALTER COLUMN id SET DEFAULT nextval('public.doss
 
 
 --
--- Name: knex_migrations id; Type: DEFAULT; Schema: public; Owner: dev
---
-
-ALTER TABLE ONLY public.knex_migrations ALTER COLUMN id SET DEFAULT nextval('public.knex_migrations_id_seq'::regclass);
-
-
---
--- Name: knex_migrations_lock index; Type: DEFAULT; Schema: public; Owner: dev
---
-
-ALTER TABLE ONLY public.knex_migrations_lock ALTER COLUMN index SET DEFAULT nextval('public.knex_migrations_lock_index_seq'::regclass);
-
-
---
 -- Name: personne id; Type: DEFAULT; Schema: public; Owner: dev
 --
 
@@ -1288,22 +1213,6 @@ ALTER TABLE ONLY public.groupe_instructeurs
 
 
 --
--- Name: knex_migrations_lock knex_migrations_lock_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
---
-
-ALTER TABLE ONLY public.knex_migrations_lock
-    ADD CONSTRAINT knex_migrations_lock_pkey PRIMARY KEY (index);
-
-
---
--- Name: knex_migrations knex_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
---
-
-ALTER TABLE ONLY public.knex_migrations
-    ADD CONSTRAINT knex_migrations_pkey PRIMARY KEY (id);
-
-
---
 -- Name: message message_id_démarches_simplifiées_unique; Type: CONSTRAINT; Schema: public; Owner: dev
 --
 
@@ -1372,6 +1281,20 @@ ALTER TABLE ONLY public."évènement_phase_dossier"
 --
 
 CREATE INDEX "arête_cap_dossier__groupe_instructeurs_cap_dossier_index" ON public."arête_cap_dossier__groupe_instructeurs" USING btree (cap_dossier);
+
+
+--
+-- Name: arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX "arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_" ON public."arête_dossier__fichier_pièces_jointes_pétitionnaire" USING btree (dossier);
+
+
+--
+-- Name: arête_dossier__fichier_pièces_jointes_pétitionnaire_fichier_; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX "arête_dossier__fichier_pièces_jointes_pétitionnaire_fichier_" ON public."arête_dossier__fichier_pièces_jointes_pétitionnaire" USING btree (fichier);
 
 
 --
@@ -1486,6 +1409,22 @@ ALTER TABLE ONLY public."arête_cap_dossier__groupe_instructeurs"
 
 ALTER TABLE ONLY public."arête_cap_dossier__groupe_instructeurs"
     ADD CONSTRAINT "arête_cap_dossier__groupe_instructeurs_groupe_instructeurs_for" FOREIGN KEY (groupe_instructeurs) REFERENCES public.groupe_instructeurs(id) ON DELETE CASCADE;
+
+
+--
+-- Name: arête_dossier__fichier_pièces_jointes_pétitionnaire arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."arête_dossier__fichier_pièces_jointes_pétitionnaire"
+    ADD CONSTRAINT "arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_" FOREIGN KEY (dossier) REFERENCES public.dossier(id) ON DELETE CASCADE;
+
+
+--
+-- Name: arête_dossier__fichier_pièces_jointes_pétitionnaire arête_dossier__fichier_pièces_jointes_pétitionnaire_fichier_; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."arête_dossier__fichier_pièces_jointes_pétitionnaire"
+    ADD CONSTRAINT "arête_dossier__fichier_pièces_jointes_pétitionnaire_fichier_" FOREIGN KEY (fichier) REFERENCES public.fichier(id) ON DELETE CASCADE;
 
 
 --
