@@ -135,17 +135,16 @@
                     id={'input-espece-' + index}
                 />
             </div>
-            {#if idModaleEspèceNonTrouvée}
-                <div class="fr-col-md-4 fr-col input-info">
-                    <button aria-controls="{idModaleEspèceNonTrouvée}" data-fr-opened="false" type="button" class="fr-btn fr-btn--sm fr-btn--tertiary" onclick={onOuvertureModale}>Je ne trouve pas une espèce…</button>
-                </div>
-            {/if}
+
+            <div class="fr-col-md-4 fr-col input-info">
+                <button aria-controls="{idModaleEspèceNonTrouvée}" data-fr-opened="false" type="button" class="fr-btn fr-btn--sm fr-btn--tertiary" onclick={onOuvertureModale}>Je ne trouve pas une espèce…</button>
+            </div>
+
             <div class="fr-col-md-4 fr-col action-buttons">
-                {#if onDupliquerEspèce}
-                    <button onclick={onDupliquerEspèce} class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line" type="button">
-                        <span class="fr-sr-only">Ajouter une espèce avec les mêmes impacts que l'espèce #{index}</span>
-                    </button>
-                {/if}
+                <button onclick={onDupliquerEspèce} class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line" type="button">
+                    <span class="fr-sr-only">Ajouter une espèce avec les mêmes impacts que l'espèce #{index}</span>
+                </button>
+
                 <button bind:this={boutonSupprimer} onclick={onSuprimerEspèce} class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button">
                     <span class="fr-sr-only">Supprimer l'espèce #{index}</span>
                 </button>
