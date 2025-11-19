@@ -134,7 +134,7 @@ function supprimerEspèceDepuisClassification(espèce) {
     <div class="fr-grid-row fr-grid-row--gutters">
         <div class='fr-col-12 fr-col-sm'>
             <h3 class="fr-h6" id="label-champ-texte-espece"> Votre texte </h3>
-            <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input fr-mb-4w" rows="15" aria-labelledby="label-champ-texte-espece"></textarea>
+            <textarea id={'champ-texte-espece'} bind:value={texteEspèces} class="fr-input fr-mb-2w" rows="14" aria-labelledby="label-champ-texte-espece"></textarea>
         </div>
         <div class='fr-col'>
             <h3 class="fr-h6">Les espèces trouvées</h3>
@@ -142,7 +142,7 @@ function supprimerEspèceDepuisClassification(espèce) {
                 Aucune espèce n'a été trouvée.
             {:else}
                 {#if oiseauxÀPréremplir.size >= 1}
-                    <section class="section-préremplir-espèces">
+                    <section class="section-espèce-par-classification fr-mb-1w">
                         <h4>{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h4>
                         <ul>
                             {#each [...oiseauxÀPréremplir] as espèce (espèce)}
@@ -157,7 +157,7 @@ function supprimerEspèceDepuisClassification(espèce) {
                     </section>
                 {/if}
                 {#if fauneNonOiseauxÀPréremplir.size >= 1}
-                    <section class="section-préremplir-espèces">
+                    <section class="section-espèce-par-classification fr-mb-1w">
                         <h4>{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h4>
                         <ul>
                             {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
@@ -172,7 +172,7 @@ function supprimerEspèceDepuisClassification(espèce) {
                     </section>
                 {/if}
                 {#if floreÀPréremplir.size >= 1}
-                    <section class="section-préremplir-espèces">
+                    <section class="section-espèce-par-classification fr-mb-1w">
                         <h4>{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h4>
                         <ul>
                             {#each [...floreÀPréremplir] as espèce (espèce)}
@@ -213,12 +213,16 @@ function supprimerEspèceDepuisClassification(espèce) {
 </div>
 
 <style>
-    .section-préremplir-espèces{
-        margin-bottom: 2rem;
-
+    .section-espèce-par-classification{
         ul{
             margin: 0;
             list-style: none;
+        }
+        li{
+            display: flex;
+            align-items: center;
+            padding:0 !important;
+            font-size: 0.90rem !important;
         }
         h4 {
             font-size: 1.125rem;
