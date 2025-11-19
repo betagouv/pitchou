@@ -6,25 +6,25 @@
 
     /**
      * @typedef {Object} Props
-     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
-     * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
-     * @property {(indexEspèceÀSupprimer: number) => Promise<void>} supprimerEspèce
-     * @property {() => void} onValiderLaListeDesEspèces
+     * @property {'champTexte' | 'préciserImpact'} écranAffiché
+     * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesImpactéesPourPréremplir
+     * @property {(indexEspèceÀSupprimer: number) => Promise<void>} supprimerEspèceImpactée
+     * @property {() => void} préremplirAvecCesEspècesImpacts
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
      * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
-     * @property {(impactPourChaqueOiseau: DescriptionImpact, impactPourChaqueFauneNonOiseau: DescriptionImpact, impactPourChaqueFlore: DescriptionImpact) => void} ajouterImpactPourChaqueClassfication
+     * @property {(impactPourChaqueOiseau: DescriptionImpact, impactPourChaqueFauneNonOiseau: DescriptionImpact, impactPourChaqueFlore: DescriptionImpact) => void} ajouterImpactPourChaqueClassification
      */
     /** @type {Props} */
     let {
         écranAffiché = $bindable(),
-        espècesModifiables,
-        supprimerEspèce,
-        onValiderLaListeDesEspèces,
+        espècesImpactéesPourPréremplir,
+        supprimerEspèceImpactée,
+        préremplirAvecCesEspècesImpacts,
         méthodesParClassificationEtreVivant,
         transportsParClassificationEtreVivant,
         activitesParClassificationEtreVivant,
-        ajouterImpactPourChaqueClassfication
+        ajouterImpactPourChaqueClassification
     } = $props();
 
     /**
@@ -46,27 +46,27 @@
 
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
-    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'oiseau')))
+    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'oiseau')))
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
-    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'faune non-oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'faune non-oiseau')))
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
-    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'flore')))
+    let floreÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'flore')))
 
     /**
      * @param {EspèceProtégée} espèce
      */
-    function supprimerEspèceDepuisClassification(espèce) {
-        const indexDansListe = espècesModifiables.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)
+    function supprimerEspèceImpactéeDepuisClassification(espèce) {
+        const indexDansListe = espècesImpactéesPourPréremplir.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)
         if (indexDansListe >= 0) {
-            supprimerEspèce(indexDansListe)
+            supprimerEspèceImpactée(indexDansListe)
         }
     }
 
     function onClickToutAjouter() {
-        ajouterImpactPourChaqueClassfication(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore)
-        onValiderLaListeDesEspèces()
+        ajouterImpactPourChaqueClassification(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore)
+        préremplirAvecCesEspècesImpacts()
 
     }
 </script>
@@ -89,7 +89,7 @@
                         {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                             <li>
                                 <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>
@@ -111,7 +111,7 @@
                     {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
                         <li>
                             <NomEspèce {espèce}/> 
-                            <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                            <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                 Supprimer l'espèce #{espèce.nomsScientifiques}
                             </button>
                         </li>
@@ -133,7 +133,7 @@
                         {#each [...floreÀPréremplir] as espèce (espèce)}
                             <li>
                                 <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                     Supprimer l'espèce #{espèce.nomsScientifiques}
                                 </button>
                             </li>

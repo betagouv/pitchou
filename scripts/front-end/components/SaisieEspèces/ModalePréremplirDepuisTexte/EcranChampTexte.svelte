@@ -9,11 +9,11 @@
     
     /**
      * @typedef {Object} Props
-     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
-     * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
-     * @property {() => void} onValiderLaListeDesEspèces
-     * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèce
-     * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesModifiables // changer le nom
+     * @property {'champTexte' | 'préciserImpact'} écranAffiché
+     * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesImpactéesPourPréremplir
+     * @property {() => void} préremplirAvecCesEspècesImpacts
+     * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèceImpactée
+     * @property {(espece: Set<EspèceProtégée>) => void} réinitialiserEspècesImpactées // changer le nom
      * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @property {string} idModalePréremplirDepuisTexte
      */
@@ -21,12 +21,12 @@
     /** @type {Props} */
     let {
         écranAffiché = $bindable(),
-        espècesModifiables,
+        espècesImpactéesPourPréremplir,
         espècesProtégéesParClassification,
         idModalePréremplirDepuisTexte,
-        onValiderLaListeDesEspèces,
-        supprimerEspèce,
-        réinitialiserEspècesModifiables,
+        préremplirAvecCesEspècesImpacts,
+        supprimerEspèceImpactée,
+        réinitialiserEspècesImpactées,
     } = $props();
 
     /**
@@ -39,18 +39,18 @@
 
     // Réinitialiser les espèces modifiables quand le texte change
     $effect(() => {
-            réinitialiserEspècesModifiables(espècesTrouvéesDansTexte)
+            réinitialiserEspècesImpactées(espècesTrouvéesDansTexte)
     })
 
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
-    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'oiseau')))
+    let oiseauxÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'oiseau')))
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
-    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'faune non-oiseau')))
+    let fauneNonOiseauxÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'faune non-oiseau')))
     /** @type { SvelteSet<EspèceProtégée> }*/
     //@ts-ignore
-    let floreÀPréremplir = $derived(new SvelteSet([...espècesModifiables.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'flore')))
+    let floreÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(e => e && e.classification === 'flore')))
 
     /**
      * Recheche "à l'arrache"
@@ -108,18 +108,18 @@
         return espècesTrouvées
     }
 
-    function onClickPréciserLimpact() {
-        écranAffiché = 'préciserLImpact'
+    function onClickpréciserImpact() {
+        écranAffiché = 'préciserImpact'
     }
 
 
 /**
  * @param {EspèceProtégée} espèce
  */
-function supprimerEspèceDepuisClassification(espèce) {
-    const indexDansListe = espècesModifiables.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)
+function supprimerEspèceImpactéeDepuisClassification(espèce) {
+    const indexDansListe = espècesImpactéesPourPréremplir.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)
     if (indexDansListe >= 0) {
-        supprimerEspèce(indexDansListe)
+        supprimerEspèceImpactée(indexDansListe)
     }
 }
 </script>
@@ -148,7 +148,7 @@ function supprimerEspèceDepuisClassification(espèce) {
                             {#each [...oiseauxÀPréremplir] as espèce (espèce)}
                                 <li>
                                 <NomEspèce {espèce}/> 
-                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                         Supprimer l'espèce #{espèce.nomsScientifiques}
                                     </button>
                                 </li>
@@ -163,7 +163,7 @@ function supprimerEspèceDepuisClassification(espèce) {
                             {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
                                 <li>
                                     <NomEspèce {espèce}/> 
-                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                         Supprimer l'espèce #{espèce.nomsScientifiques}
                                     </button>
                                 </li>
@@ -178,7 +178,7 @@ function supprimerEspèceDepuisClassification(espèce) {
                             {#each [...floreÀPréremplir] as espèce (espèce)}
                                 <li>
                                     <NomEspèce {espèce}/> 
-                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceDepuisClassification(espèce)}>
+                                    <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                         Supprimer l'espèce #{espèce.nomsScientifiques}
                                     </button>
                                 </li>
@@ -208,8 +208,8 @@ function supprimerEspèceDepuisClassification(espèce) {
     </DéplierReplier>
 </div>
 <div class="fr-modal__footer">
-    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickPréciserLimpact}>Préciser l'impact</button>
-    <button aria-controls={idModalePréremplirDepuisTexte} type="button" class="fr-btn fr-ml-2w" onclick={onValiderLaListeDesEspèces}>{`Ajouter ${espècesModifiables.length} ${espècesModifiables.length>=2 ? 'espèces' : 'espèce'}`}</button>
+    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickpréciserImpact}>Préciser l'impact</button>
+    <button aria-controls={idModalePréremplirDepuisTexte} type="button" class="fr-btn fr-ml-2w" onclick={préremplirAvecCesEspècesImpacts}>{`Ajouter ${espècesImpactéesPourPréremplir.length} ${espècesImpactéesPourPréremplir.length>=2 ? 'espèces' : 'espèce'}`}</button>
 </div>
 
 <style>

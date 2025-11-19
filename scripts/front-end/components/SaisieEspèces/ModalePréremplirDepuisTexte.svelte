@@ -1,6 +1,6 @@
 <script>
 	import EcranChampTexte from './ModalePréremplirDepuisTexte/EcranChampTexte.svelte'
-    import EcranPréciserLImpact from './ModalePréremplirDepuisTexte/EcranPréciserLImpact.svelte'
+    import EcranPréciserImpact from './ModalePréremplirDepuisTexte/EcranPréciserImpact.svelte'
     import TuileSaisieEspèce from '../SaisieEspèces/TuileSaisieEspèce.svelte'
     /** @import { ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../types/especes' **/
 
@@ -26,37 +26,38 @@
 
    const idModalePréremplirDepuisTexte = 'modale-préremplir-depuis-texte'
 
-    /** @type {'champTexte' | 'préciserLImpact'}*/
+    /** @type {'champTexte' | 'préciserImpact'}*/
     let écranAffiché = $state('champTexte')
 
     /**
      * @type {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>}
      */
-    let espècesModifiables =  $state([]) // modifier le nom
+    let espècesImpactéesPourPréremplir =  $state([])
 
     /**
      * @param {number} indexEspèceÀSupprimer
      */
-    async function supprimerEspèce(indexEspèceÀSupprimer) {
-        espècesModifiables.splice(indexEspèceÀSupprimer, 1)
+    async function supprimerEspèceImpactéeImpactée(indexEspèceÀSupprimer) {
+        espècesImpactéesPourPréremplir.splice(indexEspèceÀSupprimer, 1)
     }
 
     /**
-     * @param {Set<EspèceProtégée>} espèces
+     * @param {Set<EspèceProtégée>} nouvellesEspècesImpactées
      */
-   function réinitialiserEspècesModifiables(espèces) {
+   function réinitialiserEspècesImpactées(nouvellesEspècesImpactées) {
         /** @type { Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}> }*/
         let _espècesImpactées = []
-        espèces.forEach((espèce) => {
-            _espècesImpactées.push({espèce, impacts:[{}]})
+        nouvellesEspècesImpactées.forEach((espèce) => {
+            _espècesImpactées.push({espèce, impacts:[
+                {}]})
         })
-        espècesModifiables = _espècesImpactées
+        espècesImpactéesPourPréremplir = _espècesImpactées
    }
 
-   function onValiderLaListeDesEspèces() {
+   function préremplirAvecCesEspècesImpacts() {
         /** @type {Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}>}*/
         //@ts-ignore
-        let nouvellesEspècesImpactées = espècesModifiables.filter((espèceImpactée) =>  espèceImpactée?.espèce !== undefined)
+        let nouvellesEspècesImpactées = espècesImpactéesPourPréremplir.filter((espèceImpactée) =>  espèceImpactée?.espèce !== undefined)
 
         onClickPréRemplirAvecDocumentTexte(nouvellesEspècesImpactées)
    }
@@ -66,8 +67,8 @@
     * @param {DescriptionImpact} impactPourChaqueFauneNonOiseau
     * @param {DescriptionImpact} impactPourChaqueFlore
     */
-   function ajouterImpactPourChaqueClassfication(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore) {
-        espècesModifiables.forEach((espèceImpactée) => {
+   function ajouterImpactPourChaqueClassification(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore) {
+        espècesImpactéesPourPréremplir.forEach((espèceImpactée) => {
             if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'oiseau') {
                 espèceImpactée.impacts = [impactPourChaqueOiseau]
             } else if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'faune non-oiseau') {
@@ -88,20 +89,20 @@
                     {#if écranAffiché === 'champTexte'}
                         <EcranChampTexte 
                             bind:écranAffiché={écranAffiché} 
-                            {espècesModifiables}
+                            espècesImpactéesPourPréremplir={espècesImpactéesPourPréremplir}
                             {espècesProtégéesParClassification}  
                             {idModalePréremplirDepuisTexte} 
-                            {onValiderLaListeDesEspèces} 
-                            {supprimerEspèce}
-                            {réinitialiserEspècesModifiables}
+                            préremplirAvecCesEspècesImpacts={préremplirAvecCesEspècesImpacts} 
+                            supprimerEspèceImpactée={supprimerEspèceImpactéeImpactée}
+                            réinitialiserEspècesImpactées={réinitialiserEspècesImpactées}
                             />
-                    {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact
+                    {:else if écranAffiché === 'préciserImpact'}
+                        <EcranPréciserImpact
                             bind:écranAffiché={écranAffiché} 
-                            {espècesModifiables} 
-                            {supprimerEspèce} 
-                            {onValiderLaListeDesEspèces}
-                            {ajouterImpactPourChaqueClassfication} 
+                            espècesImpactéesPourPréremplir={espècesImpactéesPourPréremplir} 
+                            supprimerEspèceImpactée={supprimerEspèceImpactéeImpactée} 
+                            préremplirAvecCesEspècesImpacts={préremplirAvecCesEspècesImpacts}
+                            {ajouterImpactPourChaqueClassification} 
                             {méthodesParClassificationEtreVivant} 
                             {transportsParClassificationEtreVivant} 
                             {activitesParClassificationEtreVivant} 
