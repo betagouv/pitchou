@@ -6,6 +6,7 @@
 
     /**
      * @typedef {Object} Props
+     * @property {'champTexte' | 'préciserLImpact'} écranAffiché
      * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesModifiables
      * @property {(indexEspèceÀSupprimer: number) => Promise<void>} supprimerEspèce
      * @property {() => void} onValiderLaListeDesEspèces
@@ -16,6 +17,7 @@
      */
     /** @type {Props} */
     let {
+        écranAffiché = $bindable(),
         espècesModifiables,
         supprimerEspèce,
         onValiderLaListeDesEspèces,
@@ -151,7 +153,8 @@
 </div>
 
 <div class="fr-modal__footer">
-    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-auto" onclick={onClickToutAjouter}>Tout ajouter</button>
+    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={() => écranAffiché = 'champTexte'}>Recommencer</button>
+    <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onClickToutAjouter}>Tout ajouter</button>
 </div>
 
 

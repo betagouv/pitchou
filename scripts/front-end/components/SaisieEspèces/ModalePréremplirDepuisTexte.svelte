@@ -78,8 +78,6 @@
         })
    }
 
-   $inspect(espècesModifiables)
-
 </script>
 
 <dialog id="modale-préremplir-depuis-texte" class="fr-modal" aria-labelledby="Pré-remplissage des espèces protégées impactées" aria-modal="true" data-fr-concealing-backdrop="false">
@@ -98,7 +96,8 @@
                             {réinitialiserEspècesModifiables}
                             />
                     {:else if écranAffiché === 'préciserLImpact'}
-                        <EcranPréciserLImpact 
+                        <EcranPréciserLImpact
+                            bind:écranAffiché={écranAffiché} 
                             {espècesModifiables} 
                             {supprimerEspèce} 
                             {onValiderLaListeDesEspèces}
