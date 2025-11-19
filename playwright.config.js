@@ -15,7 +15,7 @@ export default defineConfig({
   timeout: 10_000,
 
   use: {
-    baseURL: 'http://127.0.0.1:2648/',
+    baseURL: 'http://127.0.0.1:32648/',
     trace: 'retain-on-failure',
   },
 
@@ -27,4 +27,11 @@ export default defineConfig({
       },
     },
   ],
+
+  webServer: {
+    command: 'docker compose -f compose-tests.yml up',
+    url: 'http://127.0.0.1:32648',
+    reuseExistingServer: true,
+  },
+
 });
