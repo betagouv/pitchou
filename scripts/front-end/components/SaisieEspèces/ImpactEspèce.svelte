@@ -67,9 +67,9 @@
     }
 
     /**
-     * @type {HTMLElement}
+     * @type {HTMLElement | undefined}
      */
-    let boutonSupprimer;
+    let boutonSupprimer = $state();
 
     /**
      * @type {HTMLElement}
@@ -78,8 +78,11 @@
 </script>
 
 <fieldset class="fr-fieldset fr-input-group fr-fieldset__element">
-    <legend class="fr-sr-only">Impact #{indexImpact} de l’espèce #{indexEspèce}</legend>
-
+    {#if indexImpact && indexEspèce}
+        <legend class="fr-sr-only">Impact #{indexImpact} sur l'espèce #{indexEspèce}</legend>
+    {:else}
+        <legend class="fr-sr-only">Impact sur les espèces de type {espèceClassification}</legend>
+    {/if}
     <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-md-5 fr-col-12">
             <label class="fr-label" for="input-espece-{indexEspèce}-impact-{indexImpact}">
@@ -94,10 +97,11 @@
                     </option>
                     {/each}
                 </select>
-
-                <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button" bind:this={boutonSupprimer} onclick={onSupprimerImpact}>
-                    <span class="fr-sr-only">Supprimer l'impact #{indexImpact} de l'espèce #{indexEspèce}</span>
-                </button>
+                {#if onSupprimerImpact}
+                    <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button" bind:this={boutonSupprimer} onclick={onSupprimerImpact}>
+                        <span class="fr-sr-only">Supprimer l'impact #{indexImpact} sur l'espèce #{indexEspèce}</span>
+                    </button>
+                {/if}
             </div>
         </div>
 

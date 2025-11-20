@@ -11,6 +11,7 @@
      * @property {number} [index]
      * @property {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>} [espècesImpactées]
      * @property {EspèceProtégée[]} [espècesProtégées]
+     * @property {TuileSaisieEspèce[]} référencesEspèces
      * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
      * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
      * @property {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transportsParClassificationEtreVivant
@@ -19,6 +20,7 @@
     /** @type {Props} */
     let {
         espècesImpactées = $bindable([{impacts: [{}]}]),
+        référencesEspèces = $bindable(),
         espècesProtégées = [],
         activitesParClassificationEtreVivant,
         méthodesParClassificationEtreVivant,
@@ -75,11 +77,6 @@
         référencesEspèces[indexEspèceÀDuppliquer + 1].réinitialiserEspèce()
         référencesEspèces[indexEspèceÀDuppliquer + 1].focusFormulaireEspèce()
     }
-
-    /**
-     * @type {TuileSaisieEspèce[]}
-     */
-    let référencesEspèces = $state([])
 
     /**
      * @param {Event} e
