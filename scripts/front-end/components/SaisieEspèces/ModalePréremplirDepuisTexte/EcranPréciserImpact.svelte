@@ -2,6 +2,7 @@
 	import { SvelteSet } from "svelte/reactivity"
     import NomEspèce from '../../NomEspèce.svelte' 
     import ImpactEspèce from '../../SaisieEspèces/ImpactEspèce.svelte' 
+	import { tick } from "svelte"
     /** @import { EspèceProtégée, DescriptionImpact, ParClassification, ActivitéMenançante, MéthodeMenançante, TransportMenançant } from '../../../../types/especes' **/
 
     /**
@@ -55,6 +56,35 @@
     let floreÀPréremplir = $derived(new SvelteSet([...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(e => e && e.classification === 'flore')))
 
     /**
+     * @type {HTMLElement}
+     */
+    let titreModale;
+
+$effect.pre(() => {
+    if (écranAffiché === 'préciserImpact') {
+        tick().then(() => {
+            if (!titreModale) {
+                console.error('❌ titreModale est undefined!')
+                return
+            }
+            
+            console.log('✅ titreModale trouvé:', titreModale)
+            console.log('📋 Contenu:', titreModale.textContent)
+            
+            
+            titreModale.focus()
+            
+            // Vérifier après
+            setTimeout(() => {
+                const isFocused = document.activeElement === titreModale
+                console.log(isFocused ? '✅ Focus réussi!' : '❌ Focus échoué')
+                console.log('🎯 Élément actif:', document.activeElement)
+            }, 100)
+        })
+    }
+})
+
+    /**
      * @param {EspèceProtégée} espèce
      */
     function supprimerEspèceImpactéeDepuisClassification(espèce) {
@@ -75,8 +105,8 @@
     <button aria-controls="modale-préremplir-depuis-texte" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
 </div>
 <div class="fr-modal__content">
-    <h2 id="modale-préremplir-depuis-texte-title" class="fr-modal__title">
-        Pré-remplissage des espèces protégées impactées
+    <h2 bind:this={titreModale} id="modale-préremplir-depuis-texte-title" class="fr-modal__title" tabindex="-1">
+        Préciser l'impact pour chaque type d'espèce
     </h2>
     <div>
         {#if oiseauxÀPréremplir.size === 0 && fauneNonOiseauxÀPréremplir.size === 0 &&  floreÀPréremplir.size === 0}
