@@ -419,7 +419,7 @@ await Promise.all([
  * Synchronisation de toutes les choses qui ont besoin d'un Dossier['id']
  */
 
-const dossierIds = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id))
+const dossierIds = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS)
 /** @type {Map<NonNullable<DossierDS88444['id']>, DatabaseDossier['id']>} */
 const dossierIdByDS_id = new Map()
 /** @type {Map<DossierDS88444['number'], DatabaseDossier['id']>} */
@@ -452,7 +452,7 @@ for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
 }
 
 if(messagesÀMettreEnBDDAvecDossierId.size >= 1){
-    messagesSynchronisés = dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+    messagesSynchronisés = dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId, laTransactionDeSynchronisationDS)
 }
 
 
@@ -481,8 +481,22 @@ const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointes
     if(fichiersPiècesJointesPétitionnaireTéléchargés && fichiersPiècesJointesPétitionnaireTéléchargés.size >= 1){
         console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
 
+        const fichiersPiècesJointesPétitionnaireTéléchargésParDossierId = new Map(
+            [...fichiersPiècesJointesPétitionnaireTéléchargés].map(([number, fichiers]) => {
+                const id = dossierIdByDS_number.get(number)
+                if(!id){
+                    console.log('dossierIdByDS_number', dossierIdByDS_number)
+                    throw `Id de dossier manquant pour dossier DS ${number}`
+                }
+
+                return  [id, fichiers]
+            })
+        )
+
         return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
-            fichiersPiècesJointesPétitionnaireTéléchargés,
+            fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
+            dossiersDS,
+            pitchouKeyToChampDS,
             laTransactionDeSynchronisationDS
         )
     }
