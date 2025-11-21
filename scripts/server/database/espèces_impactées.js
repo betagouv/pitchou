@@ -13,7 +13,7 @@ const inutile = true;
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export async function ajouterFichiersEspècesImpactéesDepuisDS88444(espècesImpactéesParNuméroDossier, databaseConnection = directDatabaseConnection){
+export async function synchroniserFichiersEspècesImpactéesDepuisDS88444(espècesImpactéesParNuméroDossier, databaseConnection = directDatabaseConnection){
 
     // Trouver les fichiers déjà en place (pour les supprimer plus bas)
     const fichiersIdPrécédents = await databaseConnection('dossier')
