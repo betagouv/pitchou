@@ -358,7 +358,7 @@
                                                                 <li><strong>type&nbsp;:&nbsp;</strong>{warning.type}, <strong>message&nbsp;:&nbsp;</strong>{warning.message}</li>
                                                             {/each}
                                                         </ul>
-                                                        <DéplierReplier>
+                                                        <DéplierReplier open={warningsDuDossier && warningsDuDossier.length === 0}>
                                                             {#snippet summary()}
                                                                 <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
                                                             {/snippet}
