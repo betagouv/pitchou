@@ -60,29 +60,16 @@
      */
     let titreModale;
 
-$effect.pre(() => {
-    if (écranAffiché === 'préciserImpact') {
-        tick().then(() => {
-            if (!titreModale) {
-                console.error('❌ titreModale est undefined!')
-                return
-            }
-            
-            console.log('✅ titreModale trouvé:', titreModale)
-            console.log('📋 Contenu:', titreModale.textContent)
-            
-            
-            titreModale.focus()
-            
-            // Vérifier après
-            setTimeout(() => {
-                const isFocused = document.activeElement === titreModale
-                console.log(isFocused ? '✅ Focus réussi!' : '❌ Focus échoué')
-                console.log('🎯 Élément actif:', document.activeElement)
-            }, 100)
-        })
-    }
-})
+    $effect.pre(() => {
+        if (écranAffiché === 'préciserImpact') {
+            tick().then(() => {
+                if (!titreModale) {
+                    return
+                }
+                titreModale.focus()
+            })
+        }
+    })
 
     /**
      * @param {EspèceProtégée} espèce
