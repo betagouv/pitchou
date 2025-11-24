@@ -61,20 +61,18 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
             // null correspond au checksum_DS des fichiers qui ne viennent pas de DS
             // et donc que l'on souhaite garder
             null, 
-            ...checksumsDS]
-        )
+            ...checksumsDS
+        ])
 
     await fichierIdsEnBDDMaisPlusDansDSP.then(ids => console.log('fichier ids orphelins', ids))
-    throw "STOP"
 
-    
-
+    //throw "STOP"
 
     // supprimer les fichier 
     // les arêtes correspondantes sont supprimées via un ON DELETE CASCADE
 
 
-    throw 'rajouter les arêtes'
+    throw 'rajouter les arêtes avant de pouvoir tester la suppression'
 
 /*
 
