@@ -405,15 +405,6 @@
             align-items: center;
             margin-top: 2rem;
         }
-        details{
-            cursor: default; // surcharge dsfr parce que c'est bizarre
-        }
-
-        summary{
-            h2, h3{
-                display: inline-block;
-            }
-        }
 
         #liste-des-étapes-pour-ajouter-saisie-à-DS{
             display: flex;
@@ -433,12 +424,6 @@
         footer{
             display: flex;
             justify-content: end;
-        }
-
-        .préremplir-espèces{
-            ul{
-                list-style: '- ';
-            }
         }
 
         #modale-préremplir-depuis-import{
