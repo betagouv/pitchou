@@ -1,4 +1,6 @@
 <script>
+	import { originDémarcheNumérique } from '../../../commun/constantes.js'
+
     //@ts-check
 
     import {formatDateRelative, formatDateAbsolue} from '../../affichageDossier.js'
@@ -29,7 +31,7 @@
 <div class="row">
     <h2>Échanges avec le pétitionnaire</h2>
 
-    <a class="fr-btn fr-mb-w" target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}>
+    <a class="fr-btn fr-mb-w" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}>
         Répondre sur Démarches Simplifiées
     </a>
 </div>

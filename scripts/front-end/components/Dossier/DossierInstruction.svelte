@@ -7,6 +7,7 @@
     import {formatDateRelative, formatDateAbsolue, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
     import { modifierDossier } from '../../actions/dossier.js';
     import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
+	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
@@ -208,7 +209,7 @@
         </div>
 
 
-        <a target="_blank" href={`https://www.demarches-simplifiees.fr/procedures/${numéro_démarche}/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+        <a target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
 
     </section>
 
