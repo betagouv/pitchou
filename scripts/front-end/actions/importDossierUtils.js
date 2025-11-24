@@ -54,7 +54,7 @@ export { memoizedGetCommuneData as getCommuneData }
  * @returns {Promise<{ data: GeoAPIDépartement | null, warning?: Warning }>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
-async function getDépartementData(code) {
+async function _getDépartementData(code) {
     const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
@@ -65,10 +65,6 @@ async function getDépartementData(code) {
     //@ts-ignore
     return { data: département }
 }
-
-const memoizedGetDépartementData = memoize(getDépartementData)
-
-export { memoizedGetDépartementData as getDépartementData }
 
 /**
  * Extrait un tableau de noms de communes à partir d'une chaîne de caractères.
@@ -102,7 +98,7 @@ export function extraireCommunes(valeur) {
  * @param {string | number} valeur
  * @returns {Promise<{ data: GeoAPIDépartement[] | null, warnings: Warning[] }>}
  */
-export async function formaterDépartementDepuisValeur(valeur) {
+async function formaterDépartementDepuisValeur(valeur) {
     /** @type {string[]} */
     let codes = []
     if (typeof valeur === 'number') {
@@ -116,7 +112,7 @@ export async function formaterDépartementDepuisValeur(valeur) {
         }
     }
 
-    const départementsP = codes.map((code) => getDépartementData(code))
+    const départementsP = codes.map((code) => _getDépartementData(code))
     /** @type {Warning[]} */
     const warnings = []
 
@@ -150,6 +146,9 @@ export async function formaterDépartementDepuisValeur(valeur) {
     }
 }
 
+const memoizedFormaterDépartementDepuisValeur = memoize(formaterDépartementDepuisValeur)
+
+export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisValeur }
 
 /**
  * Tente d'extraire un prénom et un nom à partir d'une chaîne de texte.
