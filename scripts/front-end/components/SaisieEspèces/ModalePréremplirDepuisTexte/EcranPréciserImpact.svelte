@@ -60,6 +60,19 @@
      */
     let titreModale;
 
+    /**
+     * Référence vers le bouton retour
+     * @type {HTMLButtonElement | undefined}
+     */
+    let boutonRetour = $state()
+
+    /**
+     * Tableau de références vers les boutons de suppression, indexé par l'index dans espècesImpactéesPourPréremplir
+     * @type {HTMLElement[]}
+     */
+    let référencesBoutonsSupprimer = $state([])
+
+
     $effect.pre(() => {
         if (écranAffiché === 'préciserImpact') {
             tick().then(() => {
@@ -71,10 +84,37 @@
     /**
      * @param {EspèceProtégée} espèce
      */
-    function supprimerEspèceImpactéeDepuisClassification(espèce) {
+    async function supprimerEspèceImpactéeDepuisClassification(espèce) {
         const indexDansListe = espècesImpactéesPourPréremplir.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)
         if (indexDansListe >= 0) {
             supprimerEspèceImpactée(indexDansListe)
+
+            await tick()
+
+            if (espècesImpactéesPourPréremplir.length === 0) {
+                boutonRetour?.focus()
+            } else {
+                let indexAFocuser = indexDansListe === espècesImpactéesPourPréremplir.length ? indexDansListe - 1 : indexDansListe
+
+                let espèceÀFocus = espècesImpactéesPourPréremplir[indexAFocuser]?.espèce
+
+                if (espèceÀFocus) {
+                    const boutonÀFocus = référencesBoutonsSupprimer.find((ref, idx) => {
+                        // Vérifier si la référence existe et si l'espèce à cet index correspond
+                        return ref !== null && espècesImpactéesPourPréremplir[idx]?.espèce === espèceÀFocus
+                    })
+
+                    if (boutonÀFocus) {
+                        boutonÀFocus.focus()
+                    } else {
+                        // Fallback : focus sur le bouton Retour
+                        boutonRetour?.focus
+                    }
+                } else {
+                    // Fallback : focus sur le bouton Retour
+                    boutonRetour?.focus
+                }
+            }
         }
     }
 
@@ -101,9 +141,10 @@
                     <h3>{`${oiseauxÀPréremplir.size} ${oiseauxÀPréremplir.size>=2 ? 'oiseaux' : 'oiseau'}`}</h3>
                     <ul>
                         {#each [...oiseauxÀPréremplir] as espèce (espèce)}
+                            {@const indexDansListe = espècesImpactéesPourPréremplir.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)}
                             <li>
                                 <NomEspèce {espèce}/> 
-                                <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
+                                <button bind:this={référencesBoutonsSupprimer[indexDansListe]} type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                     Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                                 </button>
                             </li>
@@ -124,9 +165,10 @@
                     <h3>{`${fauneNonOiseauxÀPréremplir.size} ${fauneNonOiseauxÀPréremplir.size>=2 ? 'faunes' : 'faune'} non-oiseau`}</h3>
                     <ul>
                     {#each [...fauneNonOiseauxÀPréremplir] as espèce (espèce)}
+                        {@const indexDansListe = espècesImpactéesPourPréremplir.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)}
                         <li>
                             <NomEspèce {espèce}/> 
-                            <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
+                            <button bind:this={référencesBoutonsSupprimer[indexDansListe]}  type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                 Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                             </button>
                         </li>
@@ -147,9 +189,10 @@
                     <h3>{`${floreÀPréremplir.size} ${floreÀPréremplir.size>=2 ? 'flores' : 'flore'}`}</h3>
                     <ul>
                     {#each [...floreÀPréremplir] as espèce (espèce)}
+                        {@const indexDansListe = espècesImpactéesPourPréremplir.findIndex(({ espèce: espèceImpactée }) => espèceImpactée === espèce)}   
                         <li>
                             <NomEspèce {espèce}/> 
-                            <button type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
+                            <button bind:this={référencesBoutonsSupprimer[indexDansListe]}  type="button" class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline" onclick={() => supprimerEspèceImpactéeDepuisClassification(espèce)}>
                                 Supprimer l'espèce {[...espèce.nomsVernaculaires].join(',')}
                             </button>
                         </li>
@@ -170,7 +213,7 @@
 </div>
 
 <div class="fr-modal__footer">
-    <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={() => écranAffiché = 'champTexte'}>Retour</button>
+    <button bind:this={boutonRetour} type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={() => écranAffiché = 'champTexte'}>Retour</button>
     <button aria-controls="modale-préremplir-depuis-texte" type="button" class="fr-btn fr-ml-2w" onclick={onClickToutAjouter}>Tout ajouter</button>
 </div>
 

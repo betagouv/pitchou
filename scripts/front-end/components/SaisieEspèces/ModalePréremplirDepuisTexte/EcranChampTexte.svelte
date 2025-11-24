@@ -74,7 +74,6 @@
             if (espècesImpactéesPourPréremplir.length === 0) {
                 champTexte?.focus()
             } else {
-                // Déterminer quelle espèce focuser
                 let indexAFocuser = indexDansListe === espècesImpactéesPourPréremplir.length ? indexDansListe - 1 : indexDansListe
                 
                 let espèceÀFocus = espècesImpactéesPourPréremplir[indexAFocuser]?.espèce
