@@ -1,5 +1,5 @@
 <script>
-	import { urlDémarchesSimplifiées } from '../../../commun/constantes.js'
+	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 
     //@ts-check
 
@@ -31,7 +31,7 @@
 <div class="row">
     <h2>Échanges avec le pétitionnaire</h2>
 
-    <a class="fr-btn fr-mb-w" target="_blank" href={`${urlDémarchesSimplifiées}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}>
+    <a class="fr-btn fr-mb-w" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}>
         Répondre sur Démarches Simplifiées
     </a>
 </div>

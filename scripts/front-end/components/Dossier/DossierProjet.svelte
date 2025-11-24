@@ -5,7 +5,7 @@
     import { formatDateRelative } from "../../affichageDossier.js";
     import { chargerActivitésMéthodesTransports } from "../../actions/activitésMéthodesTransports.js";
 	import Loader from "../Loader.svelte"
-	import { urlDémarchesSimplifiées } from "../../../commun/constantes.js"
+	import { originDémarcheNumérique } from "../../../commun/constantes.js"
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -256,7 +256,7 @@
         <a
             class="fr-btn fr-mb-1w"
             target="_blank"
-            href={`${urlDémarchesSimplifiées}/procedures/${numéro_démarche}/dossiers/${numdos}`}
+            href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
             >Dossier sur Démarches Simplifiées</a
         >
     </section>

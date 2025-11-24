@@ -1,5 +1,5 @@
 <script>
-	import { urlDémarchesSimplifiées } from '../../../commun/constantes.js'
+	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 	import { formatDateAbsolue } from '../../affichageDossier.js'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
@@ -53,10 +53,10 @@
     </section>
 
     <section>
-        <a class="fr-btn" target="_blank" href={`${urlDémarchesSimplifiées}/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
+        <a class="fr-btn" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
             Demander un avis
         </a>
-        <a class="fr-btn fr-btn--secondary" target="_blank" href={`${urlDémarchesSimplifiées}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
+        <a class="fr-btn fr-btn--secondary" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
             Voir la page Avis sur Démarches Simplifiées
         </a>
     </section>
