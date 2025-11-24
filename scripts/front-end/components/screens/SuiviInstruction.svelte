@@ -626,9 +626,12 @@
                                         <a class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w" href={`/dossier/${id}`}>Voir le dossier</a>
 
                                         {#if commentaire_libre && commentaire_libre.trim().length >= 1}
-                                            <BoutonModale id={`dsfr-modale-${id}`} >
-                                                {#snippet boutonOuvrirDétails()}
-                                                    Commentaire
+                                            {@const dsfrModaleId = `dsfr-modale-${id}`}
+                                            <BoutonModale id={dsfrModaleId} >
+                                                {#snippet boutonOuvrir()}
+                                                    <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line" data-fr-opened="false" aria-controls={dsfrModaleId}>
+                                                        Commentaire
+                                                    </button>
                                                 {/snippet}
                                                 {#snippet contenu()}
                                                     <header class="titre-modale">

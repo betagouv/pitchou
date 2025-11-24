@@ -340,7 +340,7 @@
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
-                                                    {#snippet boutonOuvrirDétails()}
+                                                    {#snippet boutonOuvrir()}
                                                         {#if warningsDuDossier && warningsDuDossier.length >= 1}
                                                             <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
                                                                 {`Voir les alertes (${warningsDuDossier.length})`}
