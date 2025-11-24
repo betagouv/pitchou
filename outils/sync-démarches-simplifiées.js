@@ -496,6 +496,7 @@ const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointes
         return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
             fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
             dossiersDS,
+            dossierIdByDS_number,
             pitchouKeyToChampDS,
             laTransactionDeSynchronisationDS
         )
