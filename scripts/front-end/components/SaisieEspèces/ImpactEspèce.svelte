@@ -196,6 +196,12 @@
         gap: 1rem;
     }
 
+    .fr-fieldset__element div div {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
     @media (min-width: 62em) {
         .input-button {
             gap: 1.5rem;
