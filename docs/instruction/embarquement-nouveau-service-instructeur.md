@@ -7,7 +7,7 @@ Quand un service instructeur (DREAL, DDT) rejoint Pitchou, les étapes suivantes
     - préparer un calendrier d'embarquement du service
 - Suite à cette rencontre, l'équipe Pitchou créé un "groupe instructeur" pour ce service instructeur dans la procédure "démarches simplifiées" dédiée et rajoute le ou les instructeur·rices avec qui iels sont en contact dans ce groupe. Par la suite, les instructeur·rices sont automone et peuvent gérer leur groupe (ajouter ou supprimer des membres).
 - Les instructeur·rices se connectent sur le [lien de connexion Pitchou](https://pitchou.beta.gouv.fr/) obtiennent leur lien de connexion par email
-- L'équipe Pitchou accompagne le service insructeur dans l'ajout de premiers dossiers dans [Démarches Simplifiées](https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees)
+- L'équipe Pitchou accompagne le service insructeur dans l'ajout de premiers dossiers dans [Démarches Simplifiées](https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees)
 - Lorsque des dossiers ont été saisis par le service ou des pétitionnaires, les instructeur·rices se connectent sur Pitchou et peuvent accéder à leurs dossiers
 
 Nous porposons 3 niveaux d'embarquement progressif pour un service :
