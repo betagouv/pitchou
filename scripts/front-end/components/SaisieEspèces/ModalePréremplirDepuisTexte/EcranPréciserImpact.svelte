@@ -63,9 +63,6 @@
     $effect.pre(() => {
         if (écranAffiché === 'préciserImpact') {
             tick().then(() => {
-                if (!titreModale) {
-                    return
-                }
                 titreModale.focus()
             })
         }
