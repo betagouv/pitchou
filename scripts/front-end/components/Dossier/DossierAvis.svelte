@@ -14,6 +14,9 @@
 
     const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
+    /**@type {boolean}*/
+    let afficherFormulaireAjouter = $state(false)
+
 </script>
 
 <div class="row">
@@ -49,6 +52,25 @@
             {/each}
         {:else}
             Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.
+        {/if}
+        {#if afficherFormulaireAjouter === true}
+            <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
+        {:else}
+            <form id="formulaire-ajouter-avis-expert">
+            <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
+                <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
+                <div class="fr-fieldset__element">
+                <div class="fr-input-group" id="champ-expert-group">
+                    <label class="fr-label" for="champ-expert">Expert</label>
+                    <input class="fr-input" aria-describedby="champ-expert-messages" name="input" id="champ-expert" type="text">
+                    <div class="fr-messages-group" id="champ-expert-messages" aria-live="polite">
+                    </div>
+                </div>
+                </div>
+                <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
+                </div>
+            </fieldset>
+            </form>
         {/if}
     </section>
 
