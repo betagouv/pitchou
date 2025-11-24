@@ -67,9 +67,9 @@
     }
 
     /**
-     * @type {HTMLElement}
+     * @type {HTMLElement | undefined}
      */
-    let boutonSupprimer;
+    let boutonSupprimer = $state();
 
     /**
      * @type {HTMLElement}
@@ -78,14 +78,17 @@
 </script>
 
 <fieldset class="fr-fieldset fr-input-group fr-fieldset__element">
-    <legend class="fr-sr-only">Impact #{indexImpact} de l’espèce #{indexEspèce}</legend>
-
+    {#if indexImpact && indexEspèce}
+        <legend class="fr-sr-only">Impact #{indexImpact} sur l'espèce #{indexEspèce}</legend>
+    {:else}
+        <legend class="fr-sr-only">Impact sur les espèces de type {espèceClassification}</legend>
+    {/if}
     <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-md-5 fr-col-12">
+        <div class="fr-col-md-5 fr-col-12 input-select">
             <label class="fr-label" for="input-espece-{indexEspèce}-impact-{indexImpact}">
                 Type d’impact
             </label>
-            <div class="input-button">
+            <div class="input-button-avec-bouton-supprimer">
                 <select bind:this={selectImpact} bind:value={impact.activité} onchange={réinitialiserDétailsImpact} class="fr-select" id="input-espece-{indexEspèce}-impact-{indexImpact}">
                     <option value={undefined}>-</option>
                     {#each activitésMenaçantes as act}
@@ -94,15 +97,16 @@
                     </option>
                     {/each}
                 </select>
-
+                {#if onSupprimerImpact}
                 <button class="fr-btn fr-btn--secondary fr-icon-delete-line" type="button" bind:this={boutonSupprimer} onclick={onSupprimerImpact}>
-                    <span class="fr-sr-only">Supprimer l'impact #{indexImpact} de l'espèce #{indexEspèce}</span>
+                    <span class="fr-sr-only">Supprimer l'impact #{indexImpact} sur l'espèce #{indexEspèce}</span>
                 </button>
+                {/if}
             </div>
         </div>
 
         {#if impact.activité && impact.activité['Méthode'] === 'Oui'}
-            <div class="fr-col-md-4 fr-col-12">
+            <div class="fr-col-md-4 fr-col-12 input-select">
                 <label class="fr-label" for="input-espece-{indexEspèce}-methode-{indexImpact}">
                     Méthode
                 </label>
@@ -118,7 +122,7 @@
         {/if}
 
         {#if impact.activité && impact.activité['Moyen de poursuite'] === 'Oui'}
-            <div class="fr-col-md-3 fr-col-12">
+            <div class="fr-col-md-3 fr-col-12 input-select">
                 <label class="fr-label" for="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     Moyen de poursuite
                 </label>
@@ -137,7 +141,7 @@
     {#if impact.activité}
         <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
             {#if impact.activité["Nombre d'individus"] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-12">
+                <div class="fr-col-md-3 fr-col-12 input-select">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nombre-individus-{indexImpact}">
                         Nombre d’individus
                     </label>
@@ -151,7 +155,7 @@
             {/if}
 
             {#if impact.activité['Nids'] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-12">
+                <div class="fr-col-md-3 fr-col-12 input-button">
                     <label class="fr-label" for="input-espece-{indexEspèce}-nids-{indexImpact}">
                         Nids
                     </label>
@@ -160,7 +164,7 @@
             {/if}
 
             {#if impact.activité['Œufs'] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-12">
+                <div class="fr-col-md-3 fr-col-12 input-button">
                     <label class="fr-label" for="input-espece-{indexEspèce}-oeufs-{indexImpact}">
                         Œufs
                     </label>
@@ -169,7 +173,7 @@
             {/if}
 
             {#if impact.activité['Surface habitat détruit (m²)'] === 'Oui'}
-                <div class="fr-col-md-3 fr-col-12">
+                <div class="fr-col-md-3 fr-col-12 input-button">
                     <label class="fr-label" for="input-espece-{indexEspèce}-surface-{indexImpact}">
                         Surface habitat détruit (m²)
                     </label>
@@ -186,14 +190,20 @@
         padding: 0;
     }
 
-    .input-button {
+    .input-button-avec-bouton-supprimer {
         display: flex;
         margin-top: .5rem;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
+        /* .input-button, .input-select {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        } */
+
     @media (min-width: 62em) {
-        .input-button {
+        .input-button-avec-bouton-supprimer {
             gap: 1.5rem;
         }
     }
