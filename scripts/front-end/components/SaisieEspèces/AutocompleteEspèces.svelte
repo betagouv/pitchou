@@ -132,6 +132,11 @@
                     }
                 }
                 break
+            default:
+                if (e.target !== input && e.key.length === 1) {
+                    input.focus()
+                }
+                break
         }
     }
 
@@ -200,12 +205,12 @@
         aria-expanded="{showListBox && text.length > 0}"
         aria-controls="combobox-suggestion-list-{ id }"
         aria-autocomplete="list"
-        bind:this={input}
-        bind:value={text}
         onfocus={onInputFocus}
         onblur={onInputBlur}
         onkeydown={onKeyDown}
         oninput={onInput}
+        bind:this={input}
+        bind:value={text}
     >
 
     <ul
