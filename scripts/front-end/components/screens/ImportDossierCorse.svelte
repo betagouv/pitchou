@@ -367,8 +367,10 @@
                                                             {/snippet}
                                                             {#snippet content()}
                                                                 <ul>
-                                                                    {#each Object.entries(dossierEtAlertes ?? {}) as dossier }
-                                                                        <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
+                                                                    {#each Object.entries(dossierEtAlertes ?? {}) as donnéeDossier }
+                                                                        {#if donnéeDossier[0] !== 'alertes'}
+                                                                            <li><strong>{`${donnéeDossier[0]} :`}</strong> {`${JSON.stringify(donnéeDossier[1])}`}</li>
+                                                                        {/if}
                                                                     {/each}
                                                                 </ul>
                                                             {/snippet}
