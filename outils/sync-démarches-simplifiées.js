@@ -478,29 +478,27 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 
 /** Synchronisation des fichiers pièces jointes pétitionnaire téléchargés */
 const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointesPétitionnaireTéléchargésP.then(fichiersPiècesJointesPétitionnaireTéléchargés => {
-    if(fichiersPiècesJointesPétitionnaireTéléchargés && fichiersPiècesJointesPétitionnaireTéléchargés.size >= 1){
-        console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
+    console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
 
-        const fichiersPiècesJointesPétitionnaireTéléchargésParDossierId = new Map(
-            [...fichiersPiècesJointesPétitionnaireTéléchargés].map(([number, fichiers]) => {
-                const id = dossierIdByDS_number.get(number)
-                if(!id){
-                    console.log('dossierIdByDS_number', dossierIdByDS_number)
-                    throw `Id de dossier manquant pour dossier DS ${number}`
-                }
+    const fichiersPiècesJointesPétitionnaireTéléchargésParDossierId = new Map(
+        [...fichiersPiècesJointesPétitionnaireTéléchargés].map(([number, fichiers]) => {
+            const id = dossierIdByDS_number.get(number)
+            if(!id){
+                console.log('dossierIdByDS_number', dossierIdByDS_number)
+                throw `Id de dossier manquant pour dossier DS ${number}`
+            }
 
-                return  [id, fichiers]
-            })
-        )
+            return  [id, fichiers]
+        })
+    )
 
-        return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
-            fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
-            dossiersDS,
-            dossierIdByDS_number,
-            pitchouKeyToChampDS,
-            laTransactionDeSynchronisationDS
-        )
-    }
+    return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
+        fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
+        dossiersDS,
+        dossierIdByDS_number,
+        pitchouKeyToChampDS,
+        laTransactionDeSynchronisationDS
+    )
 })
 
 

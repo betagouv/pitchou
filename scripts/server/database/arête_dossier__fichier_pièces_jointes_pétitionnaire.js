@@ -38,10 +38,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
 
     /** @type {Set<DossierId>} */
     // @ts-ignore
-    const dossierIds = new Set([
-        ...descriptionFichiersDansDS_1.keys(),
-        ...descriptionFichiersDansDS_2.keys(),
-    ].map(number => dossierIdByDS_number.get(number) ))
+    const dossierIds = new Set(dossiersDS.map(({number}) => dossierIdByDS_number.get(number) ))
 
     const checksumsDS = new Set([
         ...[...descriptionFichiersDansDS_1.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
@@ -52,48 +49,45 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     console.log('checksumsDS', checksumsDS)
 
     // Trouver les fichiers qui sont en base de données, mais ne sont plus dans DS
-    const fichierIdsEnBDDMaisPlusDansDSP = databaseConnection('dossier')
+    const fichierIdsEnBDDMaisPlusDansDS = await databaseConnection('dossier')
         .select(['fichier.id as id'])
-        .join('arête_dossier__fichier_pièces_jointes_pétitionnaire', {'arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier': 'dossier.id'})
-        .join('fichier', {'fichier.id': 'arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier'})
+        .leftJoin('arête_dossier__fichier_pièces_jointes_pétitionnaire', {'arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier': 'dossier.id'})
+        .leftJoin('fichier', {'fichier.id': 'arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier'})
         .whereIn('dossier.id', [...dossierIds])
-        .whereNotIn('DS_checksum', [
-            // null correspond au checksum_DS des fichiers qui ne viennent pas de DS
-            // et donc que l'on souhaite garder
-            null, 
-            ...checksumsDS
-        ])
+        .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
-    await fichierIdsEnBDDMaisPlusDansDSP.then(ids => console.log('fichier ids orphelins', ids))
-
-    //throw "STOP"
-
-    // supprimer les fichier 
-    // les arêtes correspondantes sont supprimées via un ON DELETE CASCADE
-
-
-    throw 'rajouter les arêtes avant de pouvoir tester la suppression'
-
-/*
-
-    arêtesFichierDossierPiècesJointePétitionnaires.length > 0
-        ? databaseConnection('arête_dossier__fichier_pièces_jointes_pétitionnaire').insert(arêtesFichierDossierPiècesJointePétitionnaires)
-        : Promise.resolve([]),
+    console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
 
     
+    /** @type {Promise<any>} */
+    let fichiersOrphelinsNettoyés = Promise.resolve()
+
+    if(fichierIdsEnBDDMaisPlusDansDS.length >= 1){
+        // supprimer les fichier 
+        // les arêtes correspondantes sont supprimées via le ON DELETE CASCADE
+        fichiersOrphelinsNettoyés = databaseConnection('fichier')
+            .delete()
+            .whereIn('id', fichierIdsEnBDDMaisPlusDansDS.map(f => f.id))
+    }
 
 
-    // Supprimer les fichiers qui étaient attachés à un dossier et ne sont plus pertinents
-    return Promise.all(updatePs).then(() => {
-        const fichiersOrphelinsIds = fichiersIdPrécédents
-            .map(({espèces_impactées}) => espèces_impactées)
+    const arêtesFichierDossierPiècesJointePétitionnaires = [...fichiersPiècesJointesPétitionnaireParNuméroDossier]
+        .map(([dossierId, fichierIds]) => fichierIds.map(fichierId => ({fichier: fichierId, dossier: dossierId})))
+        .flat()
 
-        if(fichiersOrphelinsIds.length >= 1){
-            return databaseConnection('fichier')
-                .delete()
-                .whereIn('id', fichiersOrphelinsIds)
-        }
-    })
-        */
+    console.log('arêtesFichierDossierPiècesJointePétitionnaires', arêtesFichierDossierPiècesJointePétitionnaires)
+
+    /** @type {Promise<any>} */
+    let nouveauxFichiersSynchronisés = Promise.resolve()
+
+    if(arêtesFichierDossierPiècesJointePétitionnaires.length >= 1){
+        nouveauxFichiersSynchronisés = databaseConnection('arête_dossier__fichier_pièces_jointes_pétitionnaire')
+            .insert(arêtesFichierDossierPiècesJointePétitionnaires)
+    }
+
+    return Promise.all([
+        fichiersOrphelinsNettoyés,
+        nouveauxFichiersSynchronisés
+    ])
 
 }
