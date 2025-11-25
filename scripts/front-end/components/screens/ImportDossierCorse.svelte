@@ -357,7 +357,7 @@
                                                             <h3 class="fr-mb-2w">Liste des alertes&nbsp;:&nbsp; </h3>
                                                             <ul>
                                                                 {#each alertesDuDossier ?? [] as alerte}
-                                                                    <li><strong>type&nbsp;:&nbsp;</strong>{alerte.type}, <strong>message&nbsp;:&nbsp;</strong>{alerte.message}</li>
+                                                                    <li><p class="fr-badge {alerte.type==='avertissement' ? 'fr-badge--warning' : 'fr-badge--error'}">{alerte.type}</p>&nbsp;:&nbsp;{alerte.message}</li>
                                                                 {/each}
                                                             </ul>
                                                         {/if}
@@ -435,6 +435,9 @@
 </Squelette>
 
 <style lang="scss">
+    ul {
+        list-style: none;
+    }
     h2 {
         margin-bottom: 1rem;
     }
