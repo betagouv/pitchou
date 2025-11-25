@@ -3,7 +3,7 @@
     import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { formatDateRelative } from "../../affichageDossier.js";
-    import { chargerActivitésMéthodesTransports } from "../../actions/activitésMéthodesTransports.js";
+    import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
 	import Loader from "../Loader.svelte"
 	import { originDémarcheNumérique } from "../../../commun/constantes.js"
 
@@ -37,7 +37,7 @@
         return dossier.espècesImpactées?.nom || "fichier";
     }
 
-    const promesseRéférentiels = chargerActivitésMéthodesTransports();
+    const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
 
     /** @type {{nom_complet:string,qualification:string}[]| undefined} */
     // @ts-ignore

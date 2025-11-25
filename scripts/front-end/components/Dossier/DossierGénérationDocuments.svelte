@@ -1,7 +1,7 @@
 <script>
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
-    import { chargerActivitésMéthodesTransports } from '../../actions/activitésMéthodesTransports.js';
+    import { chargerActivitésMéthodesMoyensDePoursuite } from '../../actions/activitésMéthodesMoyensDePoursuite.js';
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -51,7 +51,7 @@
 
         let espèces_impacts = undefined
 
-        const { identifiantPitchouVersActivitéEtImpactsQuantifiés } = await chargerActivitésMéthodesTransports()
+        const { identifiantPitchouVersActivitéEtImpactsQuantifiés } = await chargerActivitésMéthodesMoyensDePoursuite()
 
         try{
             // on laisse les erreurs sortir silencieusement ici s'il y en a

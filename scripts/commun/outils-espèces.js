@@ -14,7 +14,7 @@ import {createOdsFile, getODSTableRawContent, tableRawContentToObjects} from '@o
  *    DescriptionMenaceEspèceJSON,
  *    ActivitéMenançante,
  *    MéthodeMenançante,
- *    TransportMenançant,
+ *    MoyenDePoursuiteMenaçant,
  *    ImpactQuantifié,
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from '@odfjs/odfjs' */
@@ -242,7 +242,7 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
  * @returns {DescriptionMenacesEspèces}
  */
 function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
@@ -287,7 +287,7 @@ function b64ToUTF8(s) {
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
  * @returns {DescriptionMenacesEspèces | undefined}
  */
 export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
@@ -320,7 +320,7 @@ function ligneEspèceImpactéeHasCD_REF(espèceImpactée){
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
  * @returns {Promise<DescriptionMenacesEspèces>}
  */
 async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
@@ -470,48 +470,48 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
 /**
  * @param {Buffer} odsData
- * @returns {Promise<NonNullable<PitchouState['activitésMéthodesTransports']>> }
+ * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>> }
  */
-export async function construireActivitésMéthodesTransports(odsData) {
-    const activitésMéthodesTransportsBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
+export async function construireActivitésMéthodesMoyensDePoursuite(odsData) {
+    const ActivitésMéthodesMoyensDePoursuiteBruts = await getODSTableRawContent(odsData).then(tableRawContentToObjects)
 
     // Les lignes sont réassignées dans des nouveaux objets pour qu'ils aient la méthode `Object.prototype.toString`
     // utilisée par Svelte
 
     /**  @type {ParClassification<ActivitéMenançante[]>} */
     const activitésBrutes = {
-        oiseau: activitésMéthodesTransportsBruts.get("Activités oiseau").map(
+        oiseau: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités oiseau").map(
             // @ts-ignore
             row => Object.assign({}, row)
         ),
-        "faune non-oiseau": activitésMéthodesTransportsBruts.get("Activités faune non oiseau").map(
+        "faune non-oiseau": ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités faune non oiseau").map(
             // @ts-ignore
             row => Object.assign({}, row)
         ),
-        flore: activitésMéthodesTransportsBruts.get("Activités flore").map(
+        flore: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités flore").map(
             // @ts-ignore
             row => Object.assign({}, row)
         ),
     }
 
     /** @type { MéthodeMenançante[] } */
-    const méthodesBrutes = activitésMéthodesTransportsBruts.get("Méthodes").map(
+    const méthodesBrutes = ActivitésMéthodesMoyensDePoursuiteBruts.get("Méthodes").map(
         // @ts-ignore
         row => Object.assign({}, row)
     )
-    /** @type { TransportMenançant[] } */
-    const moyensPoursuite = activitésMéthodesTransportsBruts.get("Moyens de poursuite").map(
+    /** @type { MoyenDePoursuiteMenaçant[] } */
+    const moyensPoursuite = ActivitésMéthodesMoyensDePoursuiteBruts.get("Moyens de poursuite").map(
         // @ts-ignore
         row => Object.assign({}, row)
     )
 
-    const activitésMéthodesTransports = actMetTransArraysToMapBundle(
+    const ActivitésMéthodesMoyensDePoursuite = actMetTransArraysToMapBundle(
         activitésBrutes,
         méthodesBrutes,
         moyensPoursuite
     )
 
-    const identifiantPitchouVersActivitéEtImpactsQuantifiés = new Map(Object.values(activitésMéthodesTransports.activités)
+    const identifiantPitchouVersActivitéEtImpactsQuantifiés = new Map(Object.values(ActivitésMéthodesMoyensDePoursuite.activités)
         .flatMap((activités) => {
             return [...activités.entries()].map(([code, activité]) => {
                 /** @type {ImpactQuantifié[]} */
@@ -529,7 +529,7 @@ export async function construireActivitésMéthodesTransports(odsData) {
 
     const ret = {
         identifiantPitchouVersActivitéEtImpactsQuantifiés,
-        ...activitésMéthodesTransports
+        ...ActivitésMéthodesMoyensDePoursuite
     }
 
     return ret
@@ -538,17 +538,17 @@ export async function construireActivitésMéthodesTransports(odsData) {
 /**
  * @param {ParClassification<ActivitéMenançante[]>} activitésBrutes
  * @param {MéthodeMenançante[]} méthodesBrutes
- * @param {TransportMenançant[]} transportsBruts
+ * @param {MoyenDePoursuiteMenaçant[]} moyensDePoursuiteBruts
  *
  * @returns {{
 *  activités: ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>,
 *  méthodes: ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>,
-*  transports: ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>
+*  moyensDePoursuite: ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>
 * }}
 */
 
 
-export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, transportsBruts){
+export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, moyensDePoursuiteBruts){
     /** @type {ParClassification<Map<ActivitéMenançante['Code rapportage européen'], ActivitéMenançante>>} */
     const activités = {
         oiseau: new Map(),
@@ -600,14 +600,14 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
        méthodes[classif] = classifMeth
    }
 
-   /** @type {ParClassification<Map<TransportMenançant['Code'], TransportMenançant>>} */
+   /** @type {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} */
    const transports = {
        oiseau: new Map(),
        "faune non-oiseau": new Map(),
        flore: new Map()
    };
 
-   for(const transport of transportsBruts){
+   for(const transport of moyensDePoursuiteBruts){
        const classif = transport['Espèces']
 
        if(!classif.trim() && (transport['Code'] === undefined || transport['Code'] === '')){
@@ -630,7 +630,7 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
    return {
        activités,
        méthodes,
-       transports
+       moyensDePoursuite: transports
    }
 }
 

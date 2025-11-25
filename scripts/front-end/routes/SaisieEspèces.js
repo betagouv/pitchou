@@ -6,7 +6,7 @@ import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import SaisieEspèces from '../components/screens/SaisieEspèces.svelte';
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer, importDescriptionMenacesEspècesFromURL } from '../../commun/outils-espèces.js';
-import { chargerListeEspècesProtégées, chargerActivitésMéthodesTransports } from '../actions/activitésMéthodesTransports.js';
+import { chargerListeEspècesProtégées, chargerActivitésMéthodesMoyensDePoursuite } from '../actions/activitésMéthodesMoyensDePoursuite.js';
 
 /** @import {ComponentProps} from 'svelte' */
 
@@ -14,14 +14,14 @@ import { chargerListeEspècesProtégées, chargerActivitésMéthodesTransports }
 
 export default async () => { 
     const espècesProtégées = chargerListeEspècesProtégées()
-    const actMétTrans = chargerActivitésMéthodesTransports()
+    const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite()
 
     const {espècesProtégéesParClassification, espèceByCD_REF} = await espècesProtégées
 
     const {
         activités: activitesParClassificationEtreVivant,
         méthodes: méthodesParClassificationEtreVivant,
-        transports: transportsParClassificationEtreVivant
+        moyensDePoursuite: transportsParClassificationEtreVivant
     } = await actMétTrans
 
     /**
