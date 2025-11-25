@@ -366,7 +366,27 @@
                                                                 <ul>
                                                                     {#each Object.entries(dossierEtAlertes ?? {}) as donnéeDossier }
                                                                         {#if donnéeDossier[0] !== 'alertes'}
-                                                                            <li><strong>{`${donnéeDossier[0]} :`}</strong> {`${JSON.stringify(donnéeDossier[1])}`}</li>
+                                                                            {#if donnéeDossier[0] === 'NE PAS MODIFIER - Données techniques associées à votre dossier'}
+                                                                                {@const donnéesSupplémentaires =  Object.entries(JSON.parse(/** @type {string} */ (donnéeDossier[1]))) }
+                                                                                {#each donnéesSupplémentaires as donnéeSupplémentaire}
+                                                                                    {#if donnéeSupplémentaire[0] === 'dossier'}
+                                                                                        {@const donnéesDossierDesDonnéesSupplémentaires =  Object.entries(donnéeSupplémentaire[1])}
+                                                                                        {#each donnéesDossierDesDonnéesSupplémentaires as donnéeDossierDesDonnéesSupplémentaires}
+                                                                                            <li>
+                                                                                                <strong>{`${donnéeDossierDesDonnéesSupplémentaires[0]} :`}</strong> {`${JSON.stringify(donnéeDossierDesDonnéesSupplémentaires[1])}`}
+                                                                                            </li>
+                                                                                        {/each}
+                                                                                    {:else}
+                                                                                        <li>
+                                                                                            <strong>{`${donnéeSupplémentaire[0]} :`}</strong> {`${JSON.stringify(donnéeSupplémentaire[1])}`}
+                                                                                        </li>
+                                                                                    {/if}
+                                                                                {/each}
+                                                                            {:else}
+                                                                                <li>
+                                                                                    <strong>{`${donnéeDossier[0]} :`}</strong> {`${JSON.stringify(donnéeDossier[1])}`}
+                                                                                </li>
+                                                                            {/if}
                                                                         {/if}
                                                                     {/each}
                                                             {/snippet}
