@@ -68,8 +68,8 @@
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
-    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { warnings: Alerte[] } >>}*/
-    let ligneVersDossierAvecWarnings = new SvelteMap()
+    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { alertes: Alerte[] } >>}*/
+    let ligneVersDossierAvecAlertes = new SvelteMap()
 
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = $state(new SvelteMap());
@@ -148,11 +148,11 @@
                         : 0;
 
 
-                // Visualiser en une fois tous les warnings de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
+                // Visualiser en une fois toutes les alertes de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
                 const chargementPromesse = Promise.all(
                     lignesTableauImport.map(async (ligne) => {
                         const dossier = await créerDossierDepuisLigne(ligne, activitésPrincipales88444)
-                        ligneVersDossierAvecWarnings.set(ligne, dossier)
+                        ligneVersDossierAvecAlertes.set(ligne, dossier)
                     })
                 )
                 loadingChargementDuFichier = chargementPromesse;
@@ -170,7 +170,7 @@
      * @param {LigneDossierCorse} LigneDossierCorse
      */
     async function handleCréerLienPréRemplissage(LigneDossierCorse) {
-        const dossier = ligneVersDossierAvecWarnings.get(LigneDossierCorse)
+        const dossier = ligneVersDossierAvecAlertes.get(LigneDossierCorse)
 
         if (!dossier) {
             // Ne doit jamais arriver
@@ -335,7 +335,7 @@
                                 </thead>
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                    {@const alertesDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
+                                    {@const alertesDuDossier = (ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport))?.alertes}
                                         <tr data-row-key={index} data-testid={alertesDuDossier && alertesDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
@@ -354,8 +354,8 @@
                                                     {#snippet contenu()}
                                                         <h3>Liste des alertes&nbsp;:&nbsp; </h3>
                                                         <ul>
-                                                            {#each alertesDuDossier ?? [] as warning}
-                                                                <li><strong>type&nbsp;:&nbsp;</strong>{warning.type}, <strong>message&nbsp;:&nbsp;</strong>{warning.message}</li>
+                                                            {#each alertesDuDossier ?? [] as alerte}
+                                                                <li><strong>type&nbsp;:&nbsp;</strong>{alerte.type}, <strong>message&nbsp;:&nbsp;</strong>{alerte.message}</li>
                                                             {/each}
                                                         </ul>
                                                         <DéplierReplier open={alertesDuDossier && alertesDuDossier.length === 0}>
@@ -364,7 +364,7 @@
                                                             {/snippet}
                                                             {#snippet content()}
                                                                 <ul>
-                                                                    {#each Object.entries(ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport) ?? {}) as dossier }
+                                                                    {#each Object.entries(ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport) ?? {}) as dossier }
                                                                         <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
                                                                     {/each}
                                                                 </ul>

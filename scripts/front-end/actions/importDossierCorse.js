@@ -123,7 +123,7 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
  *   Pick<DossierDemarcheSimplifiee88444,
  *     "Dans quel département se localise majoritairement votre projet ?"
  *   >,
- *   warnings: Alerte[]
+ *   alertes: Alerte[]
  * }>}
  */
 async function générerDonnéesLocalisations(ligne) {
@@ -142,10 +142,10 @@ async function générerDonnéesLocalisations(ligne) {
 
     const communes = communesResult.map((communeResult) => communeResult.data)
                                    .filter((commune) => commune !== null);
-    const warningsCommunes = communesResult.map((communeResult) => communeResult.alerte)
-                                   .filter((warning) => warning!==undefined)
-    const warnings = [
-        ...warningsCommunes,
+    const alertesCommunes = communesResult.map((communeResult) => communeResult.alerte)
+                                   .filter((alerte) => alerte!==undefined)
+    const alertes = [
+        ...alertesCommunes,
         ...résultatDépartements.alertes,
     ]
     const départementsTrouvés = résultatDépartements.data
@@ -186,7 +186,7 @@ async function générerDonnéesLocalisations(ligne) {
     }
 
     return {
-        warnings,
+        alertes,
         data
     }
 }
@@ -211,14 +211,14 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; warnings: Alerte[];}>}}}
+ * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; alertes: Alerte[];}>}}}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
-    const { data: donnéesLocalisations, warnings: warningsLocalisation } =  await générerDonnéesLocalisations(ligne)
-    const { data: activitéPrincipale, alertes: warningsActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
-    const warnings = [
-        ...warningsLocalisation,
-        ...warningsActivité
+    const { data: donnéesLocalisations, alertes: alertesLocalisation } =  await générerDonnéesLocalisations(ligne)
+    const { data: activitéPrincipale, alertes: alertesActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
+    const alertes = [
+        ...alertesLocalisation,
+        ...alertesActivité
     ]
 
     const data = {
@@ -232,7 +232,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     }
     return {
         data,
-        warnings
+        alertes
         
     }
 }
