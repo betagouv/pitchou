@@ -79,6 +79,8 @@
 
     /**@type {boolean}*/
     let afficherTousLesDossiers = $state(false);
+    /**@type {number}*/
+    let nombreDossiersAvecAlertes = $state(0);
     /** @type {Promise<void[]>} */
     let loadingChargementDuFichier = $state(Promise.resolve([]));
 
@@ -280,6 +282,7 @@
                 Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
             {/if}
         </h2>
+        <p>Nombre de dossiers avec des alertes : {nombreDossiersAvecAlertes}</p>
 
         <div class="fr-toggle">
             <input
