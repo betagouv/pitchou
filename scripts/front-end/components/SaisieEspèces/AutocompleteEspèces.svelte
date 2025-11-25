@@ -205,7 +205,6 @@
         id="combobox-suggestion-list-{ id }"
         aria-labelledby="{ id }"
         role="listbox"
-        onkeydown={onKeyDown}
         hidden={!(showListBox && text.length > 0)}
     >
         {#each espècesPertinentes as espèce, indexOption}
@@ -218,6 +217,7 @@
                 tabindex="-1"
                 onblur={(e) => onOptionBlur(e, indexOption)}
                 onclick={() => onOptionClick(espèce)}
+                onkeydown={onKeyDown}
                 bind:this={optionsRefs[indexOption]}
             >
                 {espèceLabel(espèce)}
