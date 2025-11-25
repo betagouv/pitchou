@@ -1,9 +1,9 @@
 <script>
-    /** @import {  Warning } from "../../actions/importDossierUtils.js" */
+    /** @import { Alerte } from "../../actions/importDossierUtils.js" */
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
-    /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarches-simplifiées/schema.js"; */
+    /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarches-simplifiées/schema.js"; */
     /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
     import DéplierReplier from '../common/DéplierReplier.svelte'
@@ -68,7 +68,7 @@
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
-    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { warnings: Warning[] } >>}*/
+    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { warnings: Alerte[] } >>}*/
     let ligneVersDossierAvecWarnings = new SvelteMap()
 
     /** @type {Map<any,string>} */
@@ -335,15 +335,15 @@
                                 </thead>
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                    {@const warningsDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
-                                        <tr data-row-key={index} data-testid={warningsDuDossier && warningsDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
+                                    {@const alertesDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
+                                        <tr data-row-key={index} data-testid={alertesDuDossier && alertesDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
                                                     {#snippet boutonOuvrir()}
-                                                        {#if warningsDuDossier && warningsDuDossier.length >= 1}
+                                                        {#if alertesDuDossier && alertesDuDossier.length >= 1}
                                                             <button type="button" class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
-                                                                {`Voir les alertes (${warningsDuDossier.length})`}
+                                                                {`Voir les alertes (${alertesDuDossier.length})`}
                                                             </button >
                                                         {:else}
                                                             <button type="button" class="fr-btn fr-btn--sm fr-btn--secondary" data-fr-opened="false" aria-controls={`dsfr-modale-${index}`}>
@@ -354,11 +354,11 @@
                                                     {#snippet contenu()}
                                                         <h3>Liste des alertes&nbsp;:&nbsp; </h3>
                                                         <ul>
-                                                            {#each warningsDuDossier ?? [] as warning}
+                                                            {#each alertesDuDossier ?? [] as warning}
                                                                 <li><strong>type&nbsp;:&nbsp;</strong>{warning.type}, <strong>message&nbsp;:&nbsp;</strong>{warning.message}</li>
                                                             {/each}
                                                         </ul>
-                                                        <DéplierReplier open={warningsDuDossier && warningsDuDossier.length === 0}>
+                                                        <DéplierReplier open={alertesDuDossier && alertesDuDossier.length === 0}>
                                                             {#snippet summary()}
                                                                 <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
                                                             {/snippet}

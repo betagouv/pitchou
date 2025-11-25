@@ -1,5 +1,5 @@
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-/** @import { DonnéesSupplémentairesPourCréationDossier, Warning } from "./importDossierUtils" */
+/** @import { DonnéesSupplémentairesPourCréationDossier, Alerte } from "./importDossierUtils" */
 
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
@@ -83,11 +83,11 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
  *
  * @param {LigneDossierCorse} ligne
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {{ data: DossierDemarcheSimplifiee88444['Activité principale'], warnings: Warning[] }}
+ * @returns {{ data: DossierDemarcheSimplifiee88444['Activité principale'], alertes: Alerte[] }}
  */
 function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444) {
-    /** @type {Warning[]} */
-    const warnings = []
+    /** @type {Alerte[]} */
+    const alertes = []
     const typeDeProjet = ligne['Type de projet'].trim()
 
     // Si le type de projet est déjà une valeur pitchou
@@ -95,19 +95,19 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
     if (activitésPrincipales88444.has(typeDeProjet)) {
         // ts ne reconnaît pas le type de typeDeProjet
         // @ts-ignore
-        return { data: typeDeProjet, warnings }
+        return { data: typeDeProjet, alertes }
     }
 
     const activité = correspondanceTypeDeProjetVersActivitéPrincipale.get(    /** @type {TypeDeProjetOptions} */(typeDeProjet))
     if (activité) {
-        return { data: activité, warnings }
+        return { data: activité, alertes }
     }
 
-    const messageWarning = `Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou). On attribue donc l'activité "Autre" à ce projet.`
-    console.warn(messageWarning);
-    warnings.push({ type: 'alerte', message: messageWarning })
+    const messageAlerte = `Le type de projet de ce dossier est ${typeDeProjet}. Cette activité n'existe pas dans la liste des Activités Principales de la démarche 88444 (dans Pitchou). On attribue donc l'activité "Autre" à ce projet.`
+    console.warn(messageAlerte);
+    alertes.push({ type: 'avertissement', message: messageAlerte })
 
-    return { data: 'Autre', warnings };
+    return { data: 'Autre', alertes: alertes };
 }
 
 /**
@@ -123,7 +123,7 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
  *   Pick<DossierDemarcheSimplifiee88444,
  *     "Dans quel département se localise majoritairement votre projet ?"
  *   >,
- *   warnings: Warning[]
+ *   warnings: Alerte[]
  * }>}
  */
 async function générerDonnéesLocalisations(ligne) {
@@ -142,11 +142,11 @@ async function générerDonnéesLocalisations(ligne) {
 
     const communes = communesResult.map((communeResult) => communeResult.data)
                                    .filter((commune) => commune !== null);
-    const warningsCommunes = communesResult.map((communeResult) => communeResult.warning)
+    const warningsCommunes = communesResult.map((communeResult) => communeResult.alerte)
                                    .filter((warning) => warning!==undefined)
     const warnings = [
         ...warningsCommunes,
-        ...résultatDépartements.warnings,
+        ...résultatDépartements.alertes,
     ]
     const départementsTrouvés = résultatDépartements.data
     const départementColonne = Array.isArray(départementsTrouvés) && départementsTrouvés[0] ? 
@@ -211,11 +211,11 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; warnings: Warning[];}>}}}
+ * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; warnings: Alerte[];}>}}}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
     const { data: donnéesLocalisations, warnings: warningsLocalisation } =  await générerDonnéesLocalisations(ligne)
-    const { data: activitéPrincipale, warnings: warningsActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
+    const { data: activitéPrincipale, alertes: warningsActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
     const warnings = [
         ...warningsLocalisation,
         ...warningsActivité

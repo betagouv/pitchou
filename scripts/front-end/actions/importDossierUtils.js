@@ -15,20 +15,20 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
 /**
  * 
  * Type qui définit les messages :
- *              - d'alerte (où on peut proposer une alternative correcte)
+ *              - d'avertissement (où on peut proposer une alternative correcte)
  *              - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
  * 
  * @typedef {{
- *   type: 'erreur' | 'alerte';
+ *   type: 'erreur' | 'avertissement';
  *   message: string;
- * }} Warning
+ * }} Alerte
  */
 
 /**
  * Récupère toutes les données de la commune ainsi que celles de son département.
  *
  * @param {string} nomCommune - Nom de la commune.
- * @returns {Promise<{ data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null, warning?: Warning }>}
+ * @returns {Promise<{ data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null, alerte?: Alerte }>}
  *
  * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
@@ -36,9 +36,9 @@ async function getCommuneData(nomCommune) {
     const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
-        const messageWarning = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
-        console.warn(messageWarning);
-        return {data: null, warning: {type: 'erreur', message: messageWarning}};
+        const messageAlerte = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
+        console.warn(messageAlerte);
+        return {data: null, alerte: {type: 'erreur', message: messageAlerte}};
     }
 
     return {data: commune[0]}
@@ -51,16 +51,16 @@ export { memoizedGetCommuneData as getCommuneData }
 /**
  *
  * @param {string} code
- * @returns {Promise<{ data: GeoAPIDépartement | null, warning?: Warning }>}
+ * @returns {Promise<{ data: GeoAPIDépartement | null, alerte?: Alerte }>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 async function _getDépartementData(code) {
     const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
-        const messageWarning = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
-        console.warn(messageWarning);
-        return { data: null, warning: { type: 'erreur', message: messageWarning } };
+        const messageAlerte = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
+        console.warn(messageAlerte);
+        return { data: null, alerte: { type: 'erreur', message: messageAlerte } };
     }
     //@ts-ignore
     return { data: département }
@@ -96,7 +96,7 @@ export function extraireCommunes(valeur) {
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
  * Renvoie null si pas de département reconnu.
  * @param {string | number} valeur
- * @returns {Promise<{ data: GeoAPIDépartement[] | null, warnings: Warning[] }>}
+ * @returns {Promise<{ data: GeoAPIDépartement[] | null, alertes: Alerte[] }>}
  */
 async function formaterDépartementDepuisValeur(valeur) {
     /** @type {string[]} */
@@ -113,15 +113,15 @@ async function formaterDépartementDepuisValeur(valeur) {
     }
 
     const départementsP = codes.map((code) => _getDépartementData(code))
-    /** @type {Warning[]} */
-    const warnings = []
+    /** @type {Alerte[]} */
+    const alertes = []
 
     try {
         const résultats = await Promise.all(départementsP)
 
         for (const résultat of résultats) {
-            if (résultat.warning) {
-                warnings.push(résultat.warning)
+            if (résultat.alerte) {
+                alertes.push(résultat.alerte)
             }
         }
 
@@ -133,16 +133,16 @@ async function formaterDépartementDepuisValeur(valeur) {
             // On force le cast car la logique garantit un tableau non vide
             return {
                 data: /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements),
-                warnings
+                alertes
             };
         } else {
-            return { data: null, warnings };
+            return { data: null, alertes };
         }
     } catch (e) {
-        const messageWarning = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`
-        console.warn(messageWarning)
-        warnings.push({ type: 'erreur', message: messageWarning })
-        return { data: null, warnings }
+        const messageAlerte = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`
+        console.warn(messageAlerte)
+        alertes.push({ type: 'erreur', message: messageAlerte })
+        return { data: null, alertes }
     }
 }
 
