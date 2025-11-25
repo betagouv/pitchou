@@ -23,7 +23,7 @@
     let {
         espèces,
         onChange,
-        id,
+        id = '',
         espèceSélectionnée = $bindable(undefined)
     } = $props()
 
@@ -33,21 +33,99 @@
 
     $inspect('text', text)
 
-    let openChoices = $state(false);
+    /** @type {number | null}*/
+    let selectedOption = $state(null)
 
-    /** @type {ReturnType<setTimeout> | undefined} */
-    let timeout;
+    /** @type {number | null}*/
+    let focusedOption = $state(null)
 
-    let onfocus = () => {
-        clearTimeout(timeout)
-        openChoices = true
+    let showListBox = $state(false)
+
+    function onInputFocus() {
+        showListBox = true
+        selectedOption = null
+        focusedOption = null
     }
 
-    let onblur = () => {
-        timeout = setTimeout(
-            () => {openChoices = false},
-            400
-        )
+    function onInput() {
+        showListBox = true
+    }
+
+    function onInputBlur() {
+        if (focusedOption === null) {
+            showListBox = false
+        }
+    }
+
+    /**
+     * @param {FocusEvent} e
+     * @param {number} indexOption
+     */
+    function onOptionBlur(e, indexOption) {
+        const focusInput = e.relatedTarget === input
+        const focusOtherOption = focusedOption !== indexOption && focusedOption !== null
+
+        if (!focusInput && !focusOtherOption) {
+            showListBox = false
+            focusedOption = null
+            selectedOption = null
+        }
+    }
+
+    /**
+     *
+     * @param {EspèceProtégée} espèce
+     */
+    function onOptionClick(espèce) {
+        selectionnerEspèce(espèce)
+    }
+
+    /**
+     * @param {number | null} focusedOption
+     */
+    function focusElement(focusedOption) {
+        if (focusedOption === null) {
+            input.focus()
+        } else {
+            optionsRefs[focusedOption].focus()
+        }
+    }
+
+    /**
+     * @param {KeyboardEvent} e
+     */
+    function onKeyDown(e) {
+        switch (e.key) {
+            case "ArrowUp":
+                if (showListBox && selectedOption !== null) {
+                    selectedOption = selectedOption === 0 ? null : selectedOption - 1
+                    focusedOption = selectedOption
+                    focusElement(focusedOption)
+                }
+                break
+
+            case "ArrowDown":
+                if (showListBox && espècesPertinentes.length > 0 && selectedOption !== espècesPertinentes.length - 1) {
+                    selectedOption = selectedOption === null ? 0 : selectedOption + 1
+                    focusedOption = selectedOption
+                    focusElement(focusedOption)
+                }
+                break
+            case "Escape":
+                input.focus()
+                showListBox = false
+                break
+            case "Enter":
+                if (showListBox) {
+                    e.preventDefault()
+                    if (selectedOption !== null) {
+                        selectionnerEspèce(espècesPertinentes[selectedOption])
+                        input.focus()
+                        showListBox = false
+                    }
+                }
+                break
+        }
     }
 
     let espècesPertinentes = $derived.by(() => {
@@ -99,52 +177,74 @@
      */
     let input;
 
+    /**
+     * @type {HTMLElement[]}
+     */
+    let optionsRefs = $state([]);
+
 </script>
 
 <div class="autocomplete-container" title={text}>
-    <input bind:this={input} bind:value={text} {onfocus} {onblur} id="{id ? id : ''}" class="fr-input">
+    <input
+        id="{ id }"
+        class="fr-input"
+        role="combobox"
+        autocomplete="off"
+        aria-expanded="{showListBox && text.length > 0}"
+        aria-controls="combobox-suggestion-list-{ id }"
+        aria-autocomplete="list"
+        bind:this={input}
+        bind:value={text}
+        onfocus={onInputFocus}
+        onblur={onInputBlur}
+        onkeydown={onKeyDown}
+        oninput={onInput}
+    >
 
-    {#if openChoices && espècesPertinentes.length >= 1}
-    <ol>
-        {#each espècesPertinentes as espèce}
-            <li><button type="button" onclick={() => selectionnerEspèce(espèce)} {onfocus} {onblur}>
+    <ul
+        id="combobox-suggestion-list-{ id }"
+        aria-labelledby="{ id }"
+        role="listbox"
+        onkeydown={onKeyDown}
+        hidden={!(showListBox && text.length > 0)}
+    >
+        {#each espècesPertinentes as espèce, indexOption}
+            <li
+                id="combobox-{ id }-suggestion-item-{ indexOption }"
+                role="option"
+                aria-selected="{ indexOption === selectedOption }"
+                aria-posinset="{ indexOption + 1 }"
+                aria-setsize="{ espècesPertinentes.length }"
+                tabindex="-1"
+                onblur={(e) => onOptionBlur(e, indexOption)}
+                onclick={() => onOptionClick(espèce)}
+                bind:this={optionsRefs[indexOption]}
+            >
                 {espèceLabel(espèce)}
-            </button></li>
+            </li>
         {/each}
-    </ol>
-    {/if}
+    </ul>
+
 </div>
 
 <style lang="scss">
     .autocomplete-container{
         position: relative;
 
-        ol{
+        ul {
             position: absolute;
             width: 300%;
 
             z-index: 1;
-
             background-color: var(--border-default-grey);
-
             padding-inline-start: 0;
 
             li{
                 width: 100%;
 
                 background-color: var(--background-contrast-grey);
-
-                &::marker{
-                    content: none;
-                }
-
-                button{
-                    width: 100%;
-                    height: 100%;
-                    padding: 0.3rem;
-
-                    text-align: left;
-                }
+                list-style-type: none;
+                padding: 0.3rem;
             }
         }
     }
