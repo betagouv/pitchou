@@ -38,7 +38,7 @@ async function getCommuneData(nomCommune) {
     if (!Array.isArray(commune) || commune.length === 0) {
         const messageAlerte = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
         console.warn(messageAlerte);
-        return {data: null, alerte: {type: 'erreur', message: messageAlerte}};
+        return {data: null, alerte: {type: 'avertissement', message: messageAlerte}};
     }
 
     return {data: commune[0]}

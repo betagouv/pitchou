@@ -144,7 +144,7 @@ async function générerDonnéesLocalisations(ligne) {
                                    .filter((commune) => commune !== null);
     const alertesCommunes = communesResult.map((communeResult) => communeResult.alerte)
                                    .filter((alerte) => alerte!==undefined)
-    const alertes = [
+    let alertes = [
         ...alertesCommunes,
         ...résultatDépartements.alertes,
     ]
@@ -176,6 +176,9 @@ async function générerDonnéesLocalisations(ligne) {
             "Dans quel département se localise majoritairement votre projet ?": départementColonne ?? départementPremièreCommune
         }
     } else {
+        if (alertesCommunes.length >= 1) {
+            alertes.push({message: `Au moins une commune a été spécifiée pour cette ligne, mais aucune n'a été trouvée.`, type: 'erreur'})
+        }
         const départements =  Array.isArray(départementsTrouvés) ? départementsTrouvés : [départementParDéfaut]
         data = {
             "Commune(s) où se situe le projet": undefined,
