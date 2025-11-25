@@ -106,18 +106,18 @@
    function ajouterImpactPourChaqueClassification(impactPourChaqueOiseau, impactPourChaqueFauneNonOiseau, impactPourChaqueFlore) {
         espècesImpactéesPourPréremplir.forEach((espèceImpactée) => {
             if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'oiseau') {
-                espèceImpactée.impacts = [impactPourChaqueOiseau]
+                espèceImpactée.impacts = [{...impactPourChaqueOiseau }]
             } else if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'faune non-oiseau') {
-                espèceImpactée.impacts = [impactPourChaqueFauneNonOiseau]
+                espèceImpactée.impacts = [{...impactPourChaqueFauneNonOiseau}]
             } else if (espèceImpactée.espèce && espèceImpactée.espèce.classification === 'flore') {
-                espèceImpactée.impacts = [impactPourChaqueFlore]
+                espèceImpactée.impacts = [{...impactPourChaqueFlore}]
             }
         })
    }
 
     /**
      * Recheche "à l'arrache"
-     * 
+     *
      * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
      * @returns {Map<string, EspèceProtégée>}
      */
@@ -161,24 +161,24 @@
                     {#if écranAffiché === 'champTexte'}
                         <EcranChampTexte
                             bind:texteEspèces={texteEspèces}
-                            bind:espècesTrouvéesDansTexte={espècesTrouvéesDansTexte} 
-                            bind:écranAffiché={écranAffiché} 
+                            bind:espècesTrouvéesDansTexte={espècesTrouvéesDansTexte}
+                            bind:écranAffiché={écranAffiché}
                             espècesImpactéesPourPréremplir={espècesImpactéesPourPréremplir}
-                            {espècesProtégéesParClassification}  
-                            {idModalePréremplirDepuisTexte} 
-                            préremplirAvecCesEspècesImpacts={préremplirAvecCesEspècesImpacts} 
+                            {espècesProtégéesParClassification}
+                            {idModalePréremplirDepuisTexte}
+                            préremplirAvecCesEspècesImpacts={préremplirAvecCesEspècesImpacts}
                             supprimerEspèceImpactée={supprimerEspèceImpactéeImpactée}
                             />
                     {:else if écranAffiché === 'préciserImpact'}
                         <EcranPréciserImpact
-                            bind:écranAffiché={écranAffiché} 
-                            espècesImpactéesPourPréremplir={espècesImpactéesPourPréremplir} 
-                            supprimerEspèceImpactée={supprimerEspèceImpactéeImpactée} 
+                            bind:écranAffiché={écranAffiché}
+                            espècesImpactéesPourPréremplir={espècesImpactéesPourPréremplir}
+                            supprimerEspèceImpactée={supprimerEspèceImpactéeImpactée}
                             préremplirAvecCesEspècesImpacts={préremplirAvecCesEspècesImpacts}
-                            {ajouterImpactPourChaqueClassification} 
-                            {méthodesParClassificationEtreVivant} 
-                            {transportsParClassificationEtreVivant} 
-                            {activitesParClassificationEtreVivant} 
+                            {ajouterImpactPourChaqueClassification}
+                            {méthodesParClassificationEtreVivant}
+                            {transportsParClassificationEtreVivant}
+                            {activitesParClassificationEtreVivant}
                         />
                     {/if}
                 </div>
@@ -186,4 +186,3 @@
         </div>
     </div>
 </dialog>
-
