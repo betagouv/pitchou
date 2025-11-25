@@ -1,6 +1,7 @@
 <script>
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 	import { formatDateAbsolue } from '../../affichageDossier.js'
+    import FormulaireAjouterAvisExpert from './Avis/FormulaireAjouterAvisExpert.svelte'
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
 
@@ -16,7 +17,6 @@
 
     /**@type {boolean}*/
     let afficherFormulaireAjouter = $state(false)
-
 </script>
 
 <div class="row">
@@ -56,21 +56,7 @@
         {#if afficherFormulaireAjouter === true}
             <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
         {:else}
-            <form id="formulaire-ajouter-avis-expert">
-            <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
-                <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
-                <div class="fr-fieldset__element">
-                <div class="fr-input-group" id="champ-expert-group">
-                    <label class="fr-label" for="champ-expert">Expert</label>
-                    <input class="fr-input" aria-describedby="champ-expert-messages" name="input" id="champ-expert" type="text">
-                    <div class="fr-messages-group" id="champ-expert-messages" aria-live="polite">
-                    </div>
-                </div>
-                </div>
-                <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
-                </div>
-            </fieldset>
-            </form>
+            <FormulaireAjouterAvisExpert onClickRetour={() => afficherFormulaireAjouter = false} />
         {/if}
     </section>
 
