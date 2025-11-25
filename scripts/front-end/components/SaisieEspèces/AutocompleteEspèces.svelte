@@ -73,11 +73,18 @@
     }
 
     /**
-     *
      * @param {EspèceProtégée} espèce
      */
     function onOptionClick(espèce) {
+        console.log(espèce)
         selectionnerEspèce(espèce)
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    function onOptionMouseDown(e) {
+        e.preventDefault()
     }
 
     /**
@@ -218,6 +225,7 @@
                 onblur={(e) => onOptionBlur(e, indexOption)}
                 onclick={() => onOptionClick(espèce)}
                 onkeydown={onKeyDown}
+                onmousedown={onOptionMouseDown}
                 bind:this={optionsRefs[indexOption]}
             >
                 {espèceLabel(espèce)}
@@ -233,7 +241,8 @@
 
         ul {
             position: absolute;
-            width: 300%;
+            width: 100%;
+            margin: 0;
 
             z-index: 1;
             background-color: var(--border-default-grey);
@@ -241,10 +250,15 @@
 
             li{
                 width: 100%;
+                cursor: pointer;
 
                 background-color: var(--background-contrast-grey);
                 list-style-type: none;
                 padding: 0.3rem;
+
+                &[aria-selected="true"], &:hover {
+                    background-color: var(--background-contrast-grey-active);
+                }
             }
         }
     }
