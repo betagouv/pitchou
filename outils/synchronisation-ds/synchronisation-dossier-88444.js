@@ -38,7 +38,7 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {Knex.Transaction | Knex} databaseConnection
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>}
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
 export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, databaseConnection){
 

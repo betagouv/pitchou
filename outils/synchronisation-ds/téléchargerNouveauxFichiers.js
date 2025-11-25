@@ -86,7 +86,8 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
     const fichierHashDéjàEnBDD = new Set( fichiersDéjaEnBDD.map(makeFichierHash) )
 
-    //console.log('fichierHashDéjàEnBDD', fichierHashDéjàEnBDD)
+    //console.log('fichiersDéjaEnBDD', fichiersDéjaEnBDD)
+    //console.log('candidatsFichiersBDD', candidatsFichiersBDD)
 
 
     // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données

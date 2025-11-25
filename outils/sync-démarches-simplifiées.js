@@ -8,7 +8,7 @@ import {dumpEntreprises, closeDatabaseConnection, créerTransaction, addRésulta
 import {dumpDossiers, getDossierIdsFromDS_Ids, dumpDossierMessages, deleteDossierByDSNumber, synchroniserDossierDansGroupeInstructeur} from '../scripts/server/database/dossier.js'
 import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/personne.js'
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
-import { ajouterFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
+import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
 
 import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
 import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
@@ -23,6 +23,7 @@ import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.js'
 
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
@@ -161,22 +162,6 @@ const {
 })()
 
 
-/** Télécharger les pièces jointes au dossier */
-const fichiersPiècesJointesPétitionnaireTéléchargés = await (async () => {
-    if (DEMARCHE_NUMBER === 88444) {
-        return récupérerPiècesJointesPétitionnaire88444(
-            dossiersDS,
-            pitchouKeyToChampDS,
-            laTransactionDeSynchronisationDS
-        )
-    } else {
-        throw new Error(`La fonction pour récupérer les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
-    }
-})()
-
-console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
-
-
 const {
     getDonnéesPersonnesEntreprises,
     makeAvisExpertFromTraitementsDS,
@@ -211,7 +196,6 @@ const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await ma
     fichiersAvisCSRPN_CNPN_Téléchargés,
     fichiersAvisConformeMinistreTéléchargés,
     fichiersMotivationTéléchargés,
-    fichiersPiècesJointesPétitionnaireTéléchargés,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
     getDonnéesPersonnesEntreprises,
@@ -391,6 +375,22 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
     }
 })()
 
+
+/** Télécharger les pièces jointes au dossier par le pétitionnaire*/
+const fichiersPiècesJointesPétitionnaireTéléchargésP = (async () => {
+    if (DEMARCHE_NUMBER === 88444) {
+        return récupérerPiècesJointesPétitionnaire88444(
+            dossiersDS,
+            pitchouKeyToChampDS,
+            laTransactionDeSynchronisationDS
+        )
+    } else {
+        throw new Error(`La fonction pour récupérer les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
+})()
+
+
+
 /**
  * Synchronisation des dossiers
  */
@@ -419,7 +419,7 @@ await Promise.all([
  * Synchronisation de toutes les choses qui ont besoin d'un Dossier['id']
  */
 
-const dossierIds = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id))
+const dossierIds = await getDossierIdsFromDS_Ids(dossiersDS.map(d => d.id), laTransactionDeSynchronisationDS)
 /** @type {Map<NonNullable<DossierDS88444['id']>, DatabaseDossier['id']>} */
 const dossierIdByDS_id = new Map()
 /** @type {Map<DossierDS88444['number'], DatabaseDossier['id']>} */
@@ -452,7 +452,7 @@ for(const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS){
 }
 
 if(messagesÀMettreEnBDDAvecDossierId.size >= 1){
-    messagesSynchronisés = dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId)
+    messagesSynchronisés = dumpDossierMessages(messagesÀMettreEnBDDAvecDossierId, laTransactionDeSynchronisationDS)
 }
 
 
@@ -466,17 +466,42 @@ if(dossiersDS.length >= 1){
 }
 
 /** Synchronisation des fichiers espèces impactées téléchargés */
-
 const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTéléchargésP.then(fichiersEspècesImpactéesTéléchargés => {
     if(fichiersEspècesImpactéesTéléchargés && fichiersEspècesImpactéesTéléchargés.size >= 1){
-        //checkMemory()
 
-        return ajouterFichiersEspècesImpactéesDepuisDS88444(
+        return synchroniserFichiersEspècesImpactéesDepuisDS88444(
             fichiersEspècesImpactéesTéléchargés,
             laTransactionDeSynchronisationDS
         )
     }
 })
+
+/** Synchronisation des fichiers pièces jointes pétitionnaire téléchargés */
+const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointesPétitionnaireTéléchargésP.then(fichiersPiècesJointesPétitionnaireTéléchargés => {
+    console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
+
+    const fichiersPiècesJointesPétitionnaireTéléchargésParDossierId = new Map(
+        [...fichiersPiècesJointesPétitionnaireTéléchargés].map(([number, fichiers]) => {
+            const id = dossierIdByDS_number.get(number)
+            if(!id){
+                console.log('dossierIdByDS_number', dossierIdByDS_number)
+                throw `Id de dossier manquant pour dossier DS ${number}`
+            }
+
+            return  [id, fichiers]
+        })
+    )
+
+    return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
+        fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
+        dossiersDS,
+        dossierIdByDS_number,
+        pitchouKeyToChampDS,
+        laTransactionDeSynchronisationDS
+    )
+})
+
+
 
 /** Fin de l'outil de synchronisation - fermeture */
 
@@ -485,6 +510,7 @@ Promise.all([
     messagesSynchronisés,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
+    fichiersPiècesJointesPétitionnaireSynchronisés
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
