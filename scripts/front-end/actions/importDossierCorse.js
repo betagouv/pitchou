@@ -1,5 +1,5 @@
 /** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
-/** @import { DonnéesSupplémentairesPourCréationDossier, Alerte } from "./importDossierUtils" */
+/** @import { DonnéesSupplémentairesPourCréationDossier, Alerte, DossierAvecAlertes } from "./importDossierUtils" */
 
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
@@ -209,34 +209,30 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     }
 }
 
-
 /**
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
  * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<{ data: Partial<DossierDemarcheSimplifiee88444>; alertes: Alerte[];}>}}}
+ * @returns {Promise<DossierAvecAlertes>}}}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
     const { data: donnéesLocalisations, alertes: alertesLocalisation } =  await générerDonnéesLocalisations(ligne)
     const { data: activitéPrincipale, alertes: alertesActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
+    
     const alertes = [
         ...alertesLocalisation,
         ...alertesActivité
     ]
-
-    const data = {
-        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
+    return {
         'Nom du projet': créerNomPourDossier(ligne),
         'Activité principale': activitéPrincipale,
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
         'Commune(s) où se situe le projet': donnéesLocalisations['Commune(s) où se situe le projet'],
         'Département(s) où se situe le projet': donnéesLocalisations['Département(s) où se situe le projet'],
         'Le projet se situe au niveau…': donnéesLocalisations['Le projet se situe au niveau…'],
-    }
-    return {
-        data,
+        'NE PAS MODIFIER - Données techniques associées à votre dossier': JSON.stringify(créerDonnéesSupplémentairesDepuisLigne(ligne)),
+
         alertes
-        
     }
 }
 

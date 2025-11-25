@@ -1,6 +1,7 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-/** @import { DossierPourInsertGénérique } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import { DossierPourInsertGénérique,  } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import { DossierInitializer } from '../../types/database/public/Dossier.ts' */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
@@ -22,6 +23,14 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
  *   type: 'erreur' | 'avertissement';
  *   message: string;
  * }} Alerte
+ */
+
+/**
+ * @typedef {Partial<
+ *   DossierDemarcheSimplifiee88444 & {
+ *     alertes: Alerte[];
+ *   }
+ * >} DossierAvecAlertes
  */
 
 /**

@@ -1,5 +1,5 @@
 <script>
-    /** @import { Alerte } from "../../actions/importDossierUtils.js" */
+    /** @import { DossierAvecAlertes } from "../../actions/importDossierUtils.js" */
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
@@ -68,7 +68,7 @@
     let lignesFiltréesTableauImport = $state([]);
     /** @type {DossierRésumé[]} */
     let dossiersDéjàEnBDD = $state([]);
-    /** @type {Map<LigneDossierCorse, Partial<DossierDemarcheSimplifiee88444 & { alertes: Alerte[] } >>}*/
+    /** @type {Map<LigneDossierCorse, DossierAvecAlertes>}*/
     let ligneVersDossierAvecAlertes = new SvelteMap()
 
     /** @type {Map<any,string>} */
@@ -335,7 +335,8 @@
                                 </thead>
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                    {@const alertesDuDossier = (ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport))?.alertes}
+                                    {@const dossierEtAlertes = ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport)}
+                                    {@const alertesDuDossier = dossierEtAlertes?.alertes}
                                         <tr data-row-key={index} data-testid={alertesDuDossier && alertesDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
@@ -352,19 +353,21 @@
                                                         {/if}
                                                     {/snippet}
                                                     {#snippet contenu()}
-                                                        <h3>Liste des alertes&nbsp;:&nbsp; </h3>
-                                                        <ul>
-                                                            {#each alertesDuDossier ?? [] as alerte}
-                                                                <li><strong>type&nbsp;:&nbsp;</strong>{alerte.type}, <strong>message&nbsp;:&nbsp;</strong>{alerte.message}</li>
-                                                            {/each}
-                                                        </ul>
+                                                        {#if alertesDuDossier && alertesDuDossier.length >=1}
+                                                            <h3 class="fr-mb-2w">Liste des alertes&nbsp;:&nbsp; </h3>
+                                                            <ul>
+                                                                {#each alertesDuDossier ?? [] as alerte}
+                                                                    <li><strong>type&nbsp;:&nbsp;</strong>{alerte.type}, <strong>message&nbsp;:&nbsp;</strong>{alerte.message}</li>
+                                                                {/each}
+                                                            </ul>
+                                                        {/if}
                                                         <DéplierReplier open={alertesDuDossier && alertesDuDossier.length === 0}>
                                                             {#snippet summary()}
                                                                 <h3>Données du dossier pour le pré-remplissage&nbsp;: </h3>
                                                             {/snippet}
                                                             {#snippet content()}
                                                                 <ul>
-                                                                    {#each Object.entries(ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport) ?? {}) as dossier }
+                                                                    {#each Object.entries(dossierEtAlertes ?? {}) as dossier }
                                                                         <li><strong>{`${dossier[0]} :`}</strong> {`${JSON.stringify(dossier[1])}`}</li>
                                                                     {/each}
                                                                 </ul>
