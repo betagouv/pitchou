@@ -204,9 +204,10 @@
         role="combobox"
         autocomplete="off"
         aria-expanded="{showListBox && espècesPertinentes.length > 0}"
-        aria-controls="combobox-suggestion-list-{ id }"
-        aria-activedescendant="{ selectedOption === null ? '' : `combobox-${ id }-suggestion-item-${ selectedOption }` }"
+        aria-controls="combobox-{ id }-option-list"
+        aria-activedescendant="{ selectedOption === null ? '' : `combobox-${ id }-option-${ selectedOption }` }"
         aria-autocomplete="list"
+        aria-describedby="{text.length > 0 ? '' : `combobox-${ id }-help`}"
         onfocus={onInputFocus}
         onblur={onInputBlur}
         onkeydown={onKeyDown}
@@ -216,14 +217,14 @@
     >
 
     <ul
-        id="combobox-suggestion-list-{ id }"
+        id="combobox-{ id }-option-list"
         aria-labelledby="{ id }"
         role="listbox"
         hidden={!(showListBox && espècesPertinentes.length > 0)}
     >
         {#each espècesPertinentes as espèce, indexOption}
             <li
-                id="combobox-{ id }-suggestion-item-{ indexOption }"
+                id="combobox-{ id }-option-{ indexOption }"
                 role="option"
                 aria-selected="{ indexOption === selectedOption }"
                 aria-posinset="{ indexOption + 1 }"
@@ -239,6 +240,10 @@
             </li>
         {/each}
     </ul>
+
+    <span id="combobox-{ id }-help" hidden>
+        Utilisez les flèches « haut » et « bas » pour naviguer entres les suggestions et « entrer » pour sélectionner.
+    </span>
 
 </div>
 
