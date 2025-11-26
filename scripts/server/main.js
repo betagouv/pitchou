@@ -29,7 +29,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
-import { ajouterAvisExpert } from './database/avis_expert.js'
+import { ajouterAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -531,7 +531,7 @@ fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
  * @type {import('fastify').RouteShorthandOptions}
  * @const
  */
-const optsAvisExpert = {
+const optsAvisExpertPost = {
   schema: {
     body: {
       type: 'object',
@@ -553,11 +553,37 @@ const optsAvisExpert = {
   }
 }
 
-fastify.post('/avis-expert', optsAvisExpert, function(request) {
+fastify.post('/avis-expert', optsAvisExpertPost, function(request) {
   const avisExpert = request.body
+
   /** @ts-ignore */
   return ajouterAvisExpert(avisExpert)
-  
+})
+
+/**
+ * @type {import('fastify').RouteShorthandOptions}
+ * @const
+ */
+const optsAvisExpertDelete = {
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        avisExpertId: {
+          type: 'string',
+          minLength: 2
+        },
+      },
+      required: ['avisExpertId'], // Optional but recommended
+    },
+  },
+};
+
+fastify.delete('/avis-expert/:avisExpertId', optsAvisExpertDelete ,function(request) {
+  //@ts-ignore
+  const {avisExpertId} = request.params
+
+  return supprimerAvisExpert(avisExpertId)
 })
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
