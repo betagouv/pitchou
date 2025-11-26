@@ -3,6 +3,7 @@
 import path from 'node:path'
 
 import Fastify from 'fastify'
+import Ajv from 'ajv'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
@@ -28,6 +29,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
+import { ajouterAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -524,6 +526,39 @@ fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
   return supprimerContrôle(request.params.contrôleId)
 })
 
+
+/**
+ * @type {import('fastify').RouteShorthandOptions}
+ * @const
+ */
+const optsAvisExpert = {
+  schema: {
+    body: {
+      type: 'object',
+      properties: {
+        dossier: { type: 'number' },
+        expert: { type: 'string' }
+      },
+      required: ['dossier'],
+      additionalProperties: false, // voir @link{https://ajv.js.org/json-schema.html#additionalproperties}
+    }
+  },
+  validatorCompiler: ({ schema }) => {
+    // Renvoyer une erreur si on a des propriétés différentes de celles définies dans properties
+    const ajv = new Ajv({
+      allErrors: true,
+      removeAdditional: false,
+    });
+    return ajv.compile(schema);
+  }
+}
+
+fastify.post('/avis-expert', optsAvisExpert, function(request) {
+  const avisExpert = request.body
+  /** @ts-ignore */
+  return ajouterAvisExpert(avisExpert)
+  
+})
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   // @ts-ignore
