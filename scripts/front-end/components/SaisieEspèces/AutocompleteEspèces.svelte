@@ -76,7 +76,6 @@
      * @param {EspèceProtégée} espèce
      */
     function onOptionClick(espèce) {
-        console.log(espèce)
         selectionnerEspèce(espèce)
     }
 
@@ -127,10 +126,14 @@
                     e.preventDefault()
                     if (selectedOption !== null) {
                         selectionnerEspèce(espècesPertinentes[selectedOption])
-                        input.focus()
-                        showListBox = false
                     }
                 }
+                break
+            case "ArrowLeft":
+            case "ArrowRight":
+            case "End":
+            case "Home":
+                input.focus()
                 break
             default:
                 if (e.target !== input && e.key.length === 1) {
@@ -177,7 +180,10 @@
             onChange(espèce)
         }
 
+        // Passage à undefined avant pour forcer le changement dans le cas ou la même espèce est selectionnée à nouveau
+        espèceSélectionnée = undefined
         espèceSélectionnée = espèce
+        input.focus()
     }
 
     export function focus() {
@@ -202,7 +208,7 @@
         class="fr-input"
         role="combobox"
         autocomplete="off"
-        aria-expanded="{showListBox && text.length > 0}"
+        aria-expanded="{showListBox && espècesPertinentes.length > 0}"
         aria-controls="combobox-suggestion-list-{ id }"
         aria-autocomplete="list"
         onfocus={onInputFocus}
@@ -217,7 +223,7 @@
         id="combobox-suggestion-list-{ id }"
         aria-labelledby="{ id }"
         role="listbox"
-        hidden={!(showListBox && text.length > 0)}
+        hidden={!(showListBox && espècesPertinentes.length > 0)}
     >
         {#each espècesPertinentes as espèce, indexOption}
             <li
