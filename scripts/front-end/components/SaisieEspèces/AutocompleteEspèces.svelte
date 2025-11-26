@@ -205,6 +205,7 @@
         autocomplete="off"
         aria-expanded="{showListBox && espècesPertinentes.length > 0}"
         aria-controls="combobox-suggestion-list-{ id }"
+        aria-activedescendant="{ selectedOption === null ? '' : `combobox-${ id }-suggestion-item-${ selectedOption }` }"
         aria-autocomplete="list"
         onfocus={onInputFocus}
         onblur={onInputBlur}
