@@ -36,15 +36,11 @@
     /** @type {number | null}*/
     let selectedOption = $state(null)
 
-    /** @type {number | null}*/
-    let focusedOption = $state(null)
-
     let showListBox = $state(false)
 
     function onInputFocus() {
         showListBox = true
         selectedOption = null
-        focusedOption = null
     }
 
     function onInput() {
@@ -52,7 +48,7 @@
     }
 
     function onInputBlur() {
-        if (focusedOption === null) {
+        if (selectedOption === null) {
             showListBox = false
         }
     }
@@ -63,11 +59,10 @@
      */
     function onOptionBlur(e, indexOption) {
         const focusInput = e.relatedTarget === input
-        const focusOtherOption = focusedOption !== indexOption && focusedOption !== null
+        const focusOtherOption = selectedOption !== indexOption && selectedOption !== null
 
         if (!focusInput && !focusOtherOption) {
             showListBox = false
-            focusedOption = null
             selectedOption = null
         }
     }
@@ -83,17 +78,18 @@
      * @param {MouseEvent} e
      */
     function onOptionMouseDown(e) {
+        // Évite la perte du focus et la fermeture de liste d'option
         e.preventDefault()
     }
 
     /**
-     * @param {number | null} focusedOption
+     * @param {number | null} elementToFocus
      */
-    function focusElement(focusedOption) {
-        if (focusedOption === null) {
+    function focusElement(elementToFocus) {
+        if (elementToFocus === null) {
             input.focus()
         } else {
-            optionsRefs[focusedOption].focus()
+            optionsRefs[elementToFocus].focus()
         }
     }
 
@@ -106,8 +102,7 @@
                 if (showListBox && selectedOption !== null) {
                     e.preventDefault()
                     selectedOption = selectedOption === 0 ? null : selectedOption - 1
-                    focusedOption = selectedOption
-                    focusElement(focusedOption)
+                    focusElement(selectedOption)
                 }
                 break
 
@@ -115,8 +110,7 @@
                 if (showListBox && espècesPertinentes.length > 0 && selectedOption !== espècesPertinentes.length - 1) {
                     e.preventDefault()
                     selectedOption = selectedOption === null ? 0 : selectedOption + 1
-                    focusedOption = selectedOption
-                    focusElement(focusedOption)
+                    focusElement(selectedOption)
                 }
                 break
             case "Escape":
