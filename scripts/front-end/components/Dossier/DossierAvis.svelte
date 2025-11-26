@@ -1,5 +1,6 @@
 <script>
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
+	import { supprimerAvisExpert } from '../../actions/avisExpert.js'
 	import { formatDateAbsolue } from '../../affichageDossier.js'
     import FormulaireAjouterAvisExpert from './Avis/FormulaireAjouterAvisExpert.svelte'
 
@@ -26,6 +27,7 @@
             {#each dossier.avisExpert as avisExpert}
                 <div class="carte-avis-expert">
                 <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
+                <button class="fr-btn fr-btn--secondary" type="button" onclick={() => supprimerAvisExpert(avisExpert)}>Supprimer</button>
                     <ul>
                         <li>
                             <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
