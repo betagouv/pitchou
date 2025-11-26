@@ -104,6 +104,7 @@
         switch (e.key) {
             case "ArrowUp":
                 if (showListBox && selectedOption !== null) {
+                    e.preventDefault()
                     selectedOption = selectedOption === 0 ? null : selectedOption - 1
                     focusedOption = selectedOption
                     focusElement(focusedOption)
@@ -112,6 +113,7 @@
 
             case "ArrowDown":
                 if (showListBox && espècesPertinentes.length > 0 && selectedOption !== espècesPertinentes.length - 1) {
+                    e.preventDefault()
                     selectedOption = selectedOption === null ? 0 : selectedOption + 1
                     focusedOption = selectedOption
                     focusElement(focusedOption)
