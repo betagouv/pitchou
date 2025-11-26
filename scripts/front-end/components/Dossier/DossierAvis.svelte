@@ -56,7 +56,7 @@
         {#if afficherFormulaireAjouter === true}
             <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
         {:else}
-            <FormulaireAjouterAvisExpert onClickRetour={() => afficherFormulaireAjouter = false} />
+            <FormulaireAjouterAvisExpert {dossier} onClickRetour={() => afficherFormulaireAjouter = false} />
         {/if}
     </section>
 

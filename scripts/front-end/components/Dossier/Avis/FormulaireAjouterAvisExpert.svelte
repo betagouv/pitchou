@@ -1,14 +1,17 @@
 <script>
 	/** @import { EventHandler } from "svelte/elements" */
+    /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
 
+    import { ajouterAvisExpert as _ajouterAvisExpert } from "../../../actions/avisExpert"
 
     /**
      * @typedef {Object} Props
+     * @property {Pick<Dossier, "id">} dossier
      * @property {() => void} onClickRetour
      */
 
     /** @type {Props} */
-    let { onClickRetour } = $props();
+    let { onClickRetour, dossier } = $props();
 
     /** @import { AvisExpertInitializer } from "../../../../types/database/public/AvisExpert" */
 
@@ -17,13 +20,17 @@
 
 
     /** @type {EventHandler<SubmitEvent, EventTarget>}*/
-    function ajouterUnAvisExpert(e) {
+    function ajouterAvisExpert(e) {
         e.preventDefault()
-        console.log({expert})
+
+        /** @type { AvisExpertInitializer } */
+        const nouvelAvisExpert = { dossier: dossier.id, expert: expert ?? '' }
+        
+        _ajouterAvisExpert(nouvelAvisExpert)
     }
 </script>
 
-<form id="formulaire-ajouter-avis-expert" onsubmit="{ajouterUnAvisExpert}">
+<form id="formulaire-ajouter-avis-expert" onsubmit="{ajouterAvisExpert}">
     <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
         <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
         <div class="fr-fieldset__element">
