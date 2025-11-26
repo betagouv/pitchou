@@ -27,11 +27,11 @@
         espèceSélectionnée = $bindable(undefined)
     } = $props()
 
-    $inspect('espèceSélectionnée', espèceSélectionnée)
+    //$inspect('espèceSélectionnée', espèceSélectionnée)
 
     let text = $derived(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : '')
 
-    $inspect('text', text)
+    //$inspect('text', text)
 
     /** @type {number | null}*/
     let selectedOption = $state(null)
@@ -146,7 +146,6 @@
     let espècesPertinentes = $derived.by(() => {
         if(text.trim().length === 0)
             return []
-
 
         return espèces
             .filter(({nomsScientifiques, nomsVernaculaires}) => {
