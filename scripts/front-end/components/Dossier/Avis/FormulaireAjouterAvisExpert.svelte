@@ -1,8 +1,9 @@
 <script>
-	/** @import { EventHandler } from "svelte/elements" */
-    /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
 
+    /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
+    /** @import { AvisExpertInitializer } from "../../../../types/database/public/AvisExpert" */
     import { ajouterAvisExpert as _ajouterAvisExpert } from "../../../actions/avisExpert"
+	import { refreshDossierComplet } from "../../../actions/dossier.js"
 
     /**
      * @typedef {Object} Props
@@ -13,20 +14,31 @@
     /** @type {Props} */
     let { onClickRetour, dossier } = $props();
 
-    /** @import { AvisExpertInitializer } from "../../../../types/database/public/AvisExpert" */
-
     /** @type {AvisExpertInitializer['expert']}*/
     let expert = $state()
 
+    /** @type {string | null} */
+    let messageErreur = $state(null)
 
-    /** @type {EventHandler<SubmitEvent, EventTarget>}*/
-    function ajouterAvisExpert(e) {
+
+    /**
+     * 
+     * @param {SubmitEvent} e
+     */
+    async function ajouterAvisExpert(e) {
         e.preventDefault()
 
         /** @type { AvisExpertInitializer } */
         const nouvelAvisExpert = { dossier: dossier.id, expert: expert ?? '' }
         
-        _ajouterAvisExpert(nouvelAvisExpert)
+        try {
+            await _ajouterAvisExpert(nouvelAvisExpert)
+            await refreshDossierComplet(dossier.id)
+        } catch (e) {
+            //@ts-ignore
+            messageErreur = e.message 
+        }
+        
     }
 </script>
 
@@ -52,4 +64,9 @@
             </li>
         </ul>
     </fieldset>
+    {#if messageErreur}
+        <div class="fr-alert fr-alert--error fr-alert--sm">
+            <p>{messageErreur}</p>
+        </div>
+     {/if}
 </form>
