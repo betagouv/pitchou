@@ -1,10 +1,11 @@
 <script>
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
-	import { supprimerAvisExpert } from '../../actions/avisExpert.js'
+	import { supprimerAvisExpert as _supprimerAvisExpert  } from '../../actions/avisExpert.js'
+	import { refreshDossierComplet } from '../../actions/dossier.js'
 	import { formatDateAbsolue } from '../../affichageDossier.js'
     import FormulaireAjouterAvisExpert from './Avis/FormulaireAjouterAvisExpert.svelte'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
+    /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
 
     /**
      * @typedef {Object} Props
@@ -18,11 +19,19 @@
 
     /**@type {boolean}*/
     let afficherFormulaireAjouter = $state(false)
+
+    /**
+     * @param {FrontEndAvisExpert} avisExpert
+     */
+    async function supprimerAvisExpert(avisExpert) {
+        await _supprimerAvisExpert(avisExpert)
+        await refreshDossierComplet(dossier.id)
+    }
 </script>
 
 <div class="row">
     <section>
-        <h2>Avis experts</h2>
+        <h2>Avis d'experts</h2>
         {#if dossier.avisExpert.length >= 1}
             {#each dossier.avisExpert as avisExpert}
                 <div class="carte-avis-expert">
@@ -55,7 +64,7 @@
         {:else}
             Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.
         {/if}
-        {#if afficherFormulaireAjouter === true}
+        {#if afficherFormulaireAjouter === false}
             <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
         {:else}
             <FormulaireAjouterAvisExpert {dossier} onClickRetour={() => afficherFormulaireAjouter = false} />
