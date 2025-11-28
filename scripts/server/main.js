@@ -3,7 +3,6 @@
 import path from 'node:path'
 
 import Fastify from 'fastify'
-import Ajv from 'ajv'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
@@ -541,38 +540,38 @@ fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
 })
 
 
+
 /**
  * @type {import('fastify').RouteShorthandOptions}
  * @const
  */
 const optsAvisExpertPost = {
+  
   schema: {
     body: {
-      type: 'object',
-      properties: {
-        dossier: { type: 'number' },
-        expert: { type: 'string' }
-      },
-      required: ['dossier'],
-      additionalProperties: false, // voir @link{https://ajv.js.org/json-schema.html#additionalproperties}
+    type: 'object',
+    properties: {
+      avisExpert: { type: 'object'},
+      blobFichierSaisine: { type: 'object' }
+    },
     }
   },
-  validatorCompiler: ({ schema }) => {
-    // Renvoyer une erreur si on a des propriétés différentes de celles définies dans properties
-    const ajv = new Ajv({
-      allErrors: true,
-      removeAdditional: false,
-    });
-    return ajv.compile(schema);
-  }
 }
 
-fastify.post('/avis-expert', optsAvisExpertPost, function(request) {
-  const avisExpert = request.body
+fastify.post('/avis-expert', optsAvisExpertPost, async (request) => {
+    const body = request.body;
+
+    //TODO : faire un type guard, sachant que dossier est obligatoire
+    const avisExpert = JSON.parse(body.avisExpert.value);
+
+    //TODO: Typeguard avec un nom défini, un content type défini
+    const fichierSaisine = body.blobFichierSaisine;
+
+    console.log("fichier:", fichierSaisine);
 
   /** @ts-ignore */
   return ajouterAvisExpert(avisExpert)
-})
+});
 
 /**
  * @type {import('fastify').RouteShorthandOptions}
