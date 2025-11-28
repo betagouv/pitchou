@@ -28,21 +28,14 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v4
 
-        # You can replace these steps with your specific setup steps
-        # This example assumes Node 22 and pnpm 8
         - name: Setup Node 22
           uses: actions/setup-node@v4
           with:
               node-version: 22
               registry-url: https://registry.npmjs.org/
 
-        - name: Setup PNPM
-          uses: pnpm/action-setup@v3.0.0
-          with:
-              version: 8.12.1
-
         - name: Install
-          run: pnpm install
+          run: npm clean-install --ignore-scripts
 
         # Run the svelte check action
         - name: Svelte Check
@@ -65,5 +58,5 @@ jobs:
           with:
                 node-version: 22
                 registry-url: https://registry.npmjs.org/
-        - run: npm ci
+        - run: npm clean-install --ignore-scripts
         - run: npm run build
