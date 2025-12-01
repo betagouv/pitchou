@@ -320,7 +320,7 @@
                                         <td>{créerNomPourDossier(LigneDossierBFC)}</td>
                                         <td>
                                             <BoutonModale id={`dsfr-modale-${index}`}>
-                                                {#snippet boutonOuvrirDétails()}
+                                                {#snippet boutonOuvrir()}
                                                     <button type='button'>Voir les détails</button>
                                                 {/snippet}
                                                 {#snippet contenu()}

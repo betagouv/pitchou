@@ -1,6 +1,7 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-/** @import { DossierPourInsertGénérique } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import { DossierPourInsertGénérique,  } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
 /** @import { DossierInitializer } from '../../types/database/public/Dossier.ts' */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'
@@ -11,44 +12,68 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
  * @typedef {Partial<DossierPourInsertGénérique<Omit<DossierInitializer, 'numéro_démarche'>>>} DonnéesSupplémentairesPourCréationDossier
  */
 
+
 /**
- * Récupérer toutes les données de la commune et les données de son département
- * @param {string} nomCommune - Nom de la commune
- * @returns {Promise< GeoAPICommune & { departement: GeoAPIDépartement } | null>}
- * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
+ * 
+ * Type qui définit les messages :
+ *              - d'avertissement (où on peut proposer une alternative correcte)
+ *              - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
+ * 
+ * @typedef {{
+ *   type: 'erreur' | 'avertissement';
+ *   message: string;
+ * }} Alerte
  */
 
-export async function getCommuneData(nomCommune) {
+/**
+ * @typedef {Partial<
+ *   DossierDemarcheSimplifiee88444 & {
+ *     alertes: Alerte[];
+ *   }
+ * >} DossierAvecAlertes
+ */
+
+/**
+ * Récupère toutes les données de la commune ainsi que celles de son département.
+ *
+ * @param {string} nomCommune - Nom de la commune.
+ * @returns {Promise<{ data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null, alerte?: Alerte }>}
+ *
+ * @see https://geo.api.gouv.fr/decoupage-administratif/communes
+ */
+async function getCommuneData(nomCommune) {
     const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
 
     if (!Array.isArray(commune) || commune.length === 0) {
-        console.warn(`La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`);
-        return null;
+        const messageAlerte = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
+        console.warn(messageAlerte);
+        return {data: null, alerte: {type: 'avertissement', message: messageAlerte}};
     }
-    //@ts-ignore
-    return commune[0]
+
+    return {data: commune[0]}
 }
+
+const memoizedGetCommuneData = memoize(getCommuneData)
+
+export { memoizedGetCommuneData as getCommuneData }
 
 /**
  *
  * @param {string} code
- * @returns {Promise<GeoAPIDépartement | null>}
+ * @returns {Promise<{ data: GeoAPIDépartement | null, alerte?: Alerte }>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
-async function getDépartementData(code) {
+async function _getDépartementData(code) {
     const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
 
     if (!département) {
-        console.warn(`Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`);
-        return null
+        const messageAlerte = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
+        console.warn(messageAlerte);
+        return { data: null, alerte: { type: 'erreur', message: messageAlerte } };
     }
     //@ts-ignore
-    return département
+    return { data: département }
 }
-
-const memoizedGetDépartementData = memoize(getDépartementData)
-
-export { memoizedGetDépartementData as getDépartementData }
 
 /**
  * Extrait un tableau de noms de communes à partir d'une chaîne de caractères.
@@ -80,9 +105,9 @@ export function extraireCommunes(valeur) {
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
  * Renvoie null si pas de département reconnu.
  * @param {string | number} valeur
- * @returns {Promise<GeoAPIDépartement[] | null>}
+ * @returns {Promise<{ data: GeoAPIDépartement[] | null, alertes: Alerte[] }>}
  */
-export async function formaterDépartementDepuisValeur(valeur) {
+async function formaterDépartementDepuisValeur(valeur) {
     /** @type {string[]} */
     let codes = []
     if (typeof valeur === 'number') {
@@ -96,23 +121,43 @@ export async function formaterDépartementDepuisValeur(valeur) {
         }
     }
 
-    const départementsP = codes.map((code) => getDépartementData(code))
+    const départementsP = codes.map((code) => _getDépartementData(code))
+    /** @type {Alerte[]} */
+    const alertes = []
 
     try {
-        const départements = (await Promise.all(départementsP)).filter((dep) => dep !== null)
+        const résultats = await Promise.all(départementsP)
+
+        for (const résultat of résultats) {
+            if (résultat.alerte) {
+                alertes.push(résultat.alerte)
+            }
+        }
+
+        const départements = résultats
+            .map((résultat) => résultat.data)
+            .filter((dep) => dep !== null)
 
         if (départements.length >= 1) {
             // On force le cast car la logique garantit un tableau non vide
-            return /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements);
+            return {
+                data: /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements),
+                alertes
+            };
         } else {
-            return null;
+            return { data: null, alertes };
         }
     } catch (e) {
-        console.warn(`Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`)
-        return null
+        const messageAlerte = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`
+        console.warn(messageAlerte)
+        alertes.push({ type: 'erreur', message: messageAlerte })
+        return { data: null, alertes }
     }
 }
 
+const memoizedFormaterDépartementDepuisValeur = memoize(formaterDépartementDepuisValeur)
+
+export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisValeur }
 
 /**
  * Tente d'extraire un prénom et un nom à partir d'une chaîne de texte.
