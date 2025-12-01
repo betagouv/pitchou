@@ -3,7 +3,8 @@
       "scripts/**/*.js", 
       "scripts/**/*.ts", 
       "scripts/**/*.d.ts",
-      "outils/**/*.js"
+      "outils/**/*.js",
+      "tests/**/*.js"
     ],
     "exclude": [
       "node_modules"
