@@ -5,16 +5,22 @@ import { json, text } from "d3-fetch";
 
 /**
  * Ajoute un avis d'expert.
+ * 
  * @param {AvisExpertInitializer} avisExpert
  * @param {File | undefined} [fileFichierSaisine]
+ * @param {File | undefined} [fileFichierAvis]
  */
-export function ajouterAvisExpert(avisExpert, fileFichierSaisine) {
+export function ajouterAvisExpert(avisExpert, fileFichierSaisine, fileFichierAvis) {
     const form = new FormData();
 
     form.append("stringifyAvisExpert", JSON.stringify(avisExpert));
 
     if (fileFichierSaisine) {
         form.append("blobFichierSaisine", fileFichierSaisine);
+    }
+
+    if (fileFichierAvis) {
+        form.append("blobFichierAvis", fileFichierAvis);
     }
 
     return json('/avis-expert', 
