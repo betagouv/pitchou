@@ -1,6 +1,6 @@
 /** @import { default as AvisExpert, AvisExpertInitializer } from "../../types/database/public/AvisExpert" */
 
-import { text } from "d3-fetch";
+import { json, text } from "d3-fetch";
 
 
 /**
@@ -11,18 +11,17 @@ import { text } from "d3-fetch";
 export function ajouterAvisExpert(avisExpert, fileFichierSaisine) {
     const form = new FormData();
 
-    form.append("avisExpert", JSON.stringify(avisExpert));
+    form.append("stringifyAvisExpert", JSON.stringify(avisExpert));
 
     if (fileFichierSaisine) {
         form.append("blobFichierSaisine", fileFichierSaisine);
     }
 
-    return fetch('/avis-expert', {
-        
-        method: 'POST',
-                body: form
-            }
-        )
+    return json('/avis-expert', 
+        { 
+            method: 'POST',
+            body: form 
+        })
 }
 
 /**
