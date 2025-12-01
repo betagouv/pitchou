@@ -149,14 +149,12 @@
 
 
                 // Visualiser en une fois toutes les alertes de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
-                const chargementPromesse = Promise.all(
+                loadingChargementDuFichier = Promise.all(
                     lignesTableauImport.map(async (ligne) => {
                         const dossier = await créerDossierDepuisLigne(ligne, activitésPrincipales88444)
                         ligneVersDossierAvecAlertes.set(ligne, dossier)
                     })
                 )
-                loadingChargementDuFichier = chargementPromesse;
-                await chargementPromesse;
             
             } catch (error) {
                 console.error(
