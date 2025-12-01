@@ -19,7 +19,7 @@ export async function ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, 
 
         return ajouterAvisExpert( {... avisExpert, saisine_fichier: fichierSaisineAjouté?.id ?? undefined, avis_fichier : fichierAvisAjouté?.id ?? undefined}, databaseConnection)
     } catch (e) {
-        throw new Error(`Une erreur est survenue lors de l'ajout du fichier de saisine : ${e}.`)
+        throw new Error(`Une erreur est survenue lors de l'ajout de l'avis d'expert avec les fichiers de saisine et d'avis : ${e}.`)
     }
 }
 
@@ -37,7 +37,6 @@ export function ajouterAvisExpert(avisExpert, databaseConnection = directDatabas
  * @param { Knex.Transaction | Knex } [databaseConnection]
  */
 export function supprimerAvisExpert(avisExpertId, databaseConnection = directDatabaseConnection) {
-    console.log("avisExpertId dans database", avisExpertId)
     const idsÀSupprimer = Array.isArray(avisExpertId) ? avisExpertId : [avisExpertId]
     return databaseConnection('avis_expert').whereIn('id', idsÀSupprimer).delete()
 }
