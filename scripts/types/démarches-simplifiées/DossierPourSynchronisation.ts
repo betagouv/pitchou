@@ -5,7 +5,6 @@ import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } 
 import { PartialBy } from "../tools"
 import { AvisExpertInitializer } from "../database/public/AvisExpert.ts"
 import { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts"
-import { ArTeDossierFichierPiCesJointesPTitionnaireInitializer as ArêteDossierFichierPiècesJointesPétitionnaire } from "../database/public/ArêteDossierFichierPiècesJointesPétitionnaire.ts"
 
 export type DonnéesPersonnesEntreprisesInitializer = {
     déposant: PersonneInitializer,
@@ -35,7 +34,6 @@ export type DossierPourSynchronisation<DossierType> = {
     évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
     avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[]
     décision_administrative: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]
-    arête_fichier_dossier_pétitionnaire: PartialBy<ArêteDossierFichierPiècesJointesPétitionnaire, "dossier">[]
 }
 
 export type DossierEntreprisesPersonneInitializersPourInsert =

@@ -171,7 +171,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         insertedDossierIds.forEach((dossierInséréId, index) => {
             
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
-            const {évènement_phase_dossier, avis_expert, décision_administrative, arête_fichier_dossier_pétitionnaire} = dossiersPourInsert[index]
+            const {évènement_phase_dossier, avis_expert, décision_administrative} = dossiersPourInsert[index]
 
             if(Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1){
                 évènement_phase_dossier.forEach(ev => ev.dossier = dossierInséréId.id)
@@ -181,9 +181,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             }
             if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
                 décision_administrative.forEach(da => da.dossier = dossierInséréId.id)
-            }
-            if (Array.isArray(arête_fichier_dossier_pétitionnaire) && arête_fichier_dossier_pétitionnaire.length >= 1) {
-                arête_fichier_dossier_pétitionnaire.forEach(ar => ar.dossier = dossierInséréId.id)
             }
         })
     }
@@ -206,11 +203,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .filter(x => x !== undefined)
         .flat()
 
-    const arêtesFichierDossierPiècesJointePétitionnaires = tousLesDossiers
-        .map(tables => tables.arête_fichier_dossier_pétitionnaire)
-        .filter(x => x !== undefined)
-        .flat()
-
 
     const databaseOperations = [
         évènementsPhaseDossier.length > 0
@@ -228,9 +220,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             ? databaseConnection('décision_administrative').insert(décisionAdministrativeDossier)
             : Promise.resolve([]),
 
-        arêtesFichierDossierPiècesJointePétitionnaires.length > 0
-            ? databaseConnection('arête_dossier__fichier_pièces_jointes_pétitionnaire').insert(arêtesFichierDossierPiècesJointePétitionnaires)
-            : Promise.resolve([]),
 
         arêtePersonneSuitDossierDossier.length > 0
             ? databaseConnection('arête_personne_suit_dossier')
