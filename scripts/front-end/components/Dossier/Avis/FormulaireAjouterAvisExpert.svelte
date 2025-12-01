@@ -1,4 +1,5 @@
 <script>
+	import { tick } from "svelte"
     /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
     /** @import { AvisExpertInitializer } from "../../../../types/database/public/AvisExpert" */
     import { ajouterAvisExpert as _ajouterAvisExpert } from "../../../actions/avisExpert"
@@ -25,6 +26,14 @@
     /** @type {string | null} */
     let messageErreur = $state(null)
 
+    function réinitialiserFormulaire() {
+        avisExpertÀAjouter = {}
+        fileListFichierSaisine = undefined
+        fileListFichierAvis = undefined
+        messageErreur = null
+    }
+
+    $inspect('fileListFichierSaisine', fileListFichierSaisine)
 
     /**
      * 
@@ -53,6 +62,7 @@
         try {
             await _ajouterAvisExpert(nouvelAvisExpert, fichierSaisine, fichierAvis)
             await refreshDossierComplet(dossier.id)
+            réinitialiserFormulaire()
         } catch (e) {
             //@ts-ignore
             messageErreur = e.message 
