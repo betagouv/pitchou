@@ -92,7 +92,7 @@
         </div>
         <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
             {#if messageErreur}
-                <div class="fr-alert fr-alert--error fr-alert--sm">
+                <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
                     <p>{messageErreur}</p>
                 </div>
             {/if}
