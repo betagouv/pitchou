@@ -79,10 +79,12 @@
 
     /**@type {boolean}*/
     let afficherTousLesDossiers = $state(false);
-    /**@type {number}*/
-    let nombreDossiersAvecAlertes = $state(0);
+
     /** @type {Promise<void[]>} */
     let loadingChargementDuFichier = $state(Promise.resolve([]));
+
+    /**@type {number | undefined}*/
+    let nombreDossiersAvecAlertes = $derived(Array.from(ligneVersDossierAvecAlertes).filter((ligneEtDossierAvecAlertes) => ligneEtDossierAvecAlertes[1].alertes && ligneEtDossierAvecAlertes[1].alertes.length >= 1).length)
 
     let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
     let nombreDossiersAImporter = $derived(
@@ -336,8 +338,9 @@
                                 </thead>
                                 <tbody>
                                     {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                                    {@const warningsDuDossier = (ligneVersDossierAvecWarnings.get(ligneAffichéeTableauImport))?.warnings}
-                                        <tr data-row-key={index} data-testid={warningsDuDossier && warningsDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
+                                    {@const dossierEtAlertes = ligneVersDossierAvecAlertes.get(ligneAffichéeTableauImport)}
+                                    {@const alertesDuDossier = dossierEtAlertes?.alertes}
+                                        <tr data-row-key={index} data-testid={alertesDuDossier && alertesDuDossier.length >= 1 ? undefined : 'dossier-sans-alerte(s)'}>
                                             <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
                                             <td>
                                                 <BoutonModale id={`dsfr-modale-${index}`} >
@@ -392,10 +395,15 @@
                                                                             {/if}
                                                                         {/if}
                                                                     {/each}
+                                                                </ul>
                                                             {/snippet}
                                                         </DéplierReplier>
                                                     {/snippet}
                                                 </BoutonModale>
+                                            </td>
+                                            <td>
+                                                {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
+                                                    <p
                                                         class="fr-badge fr-badge--success"
                                                     >
                                                         En base de données

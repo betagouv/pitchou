@@ -279,6 +279,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
     const dateFinConsultation = isValidDateString(ligne['Fin de publication']) ? new Date(ligne['Fin de publication']) : undefined
 
+    const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), ...(résultatsDécisionAdministrative?.alertes ?? [])] 
 
     return {
         dossier: {
@@ -289,7 +290,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             date_fin_consultation_public: dateFinConsultation,
         },
         évènement_phase_dossier: résultatsDonnéesEvénementPhaseDossier?.data,
-        alertes: résultatsDonnéesEvénementPhaseDossier?.alertes ?? [],
+        alertes,
         avis_expert: avisExpert,
         décision_administrative: résultatsDécisionAdministrative?.data,
     }
@@ -321,7 +322,7 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
         if (isValidDateString(datePhaseInstruction)) {
             donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
         } else {
-            const messageAlerte = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : ${datePhaseInstruction}. On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
+            const messageAlerte = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : "${datePhaseInstruction}". On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
             console.warn(messageAlerte)
             alertes.push({message: messageAlerte, type: 'erreur'})
 
