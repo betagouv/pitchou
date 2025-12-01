@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const monCheminnDuDocTableauDeSuivi = '/Users/clemencefernandez/Desktop/pitchou/tests/e2e/24-2B_TDB_DOSSIERS_DEP.ods'
+const monCheminDuDocTableauDeSuivi = '/Users/clemencefernandez/Desktop/pitchou/tests/e2e/24-2B_TDB_DOSSIERS_DEP.ods'
 const monLienDeConnexionPitchou = 'http://127.0.0.1:2648/?secret=6fa0acklkdk'
 
 test.use({baseURL: 'http://127.0.0.1:2648'})
@@ -14,7 +14,7 @@ test(`Outil import automatisé`, async ({ page, }) => {
     // Se rendre sur la page des imports
     await page.goto('/import-dossier-historique/corse');
     // Charger le tableau de suivi
-    await page.locator('input[type="file"]').setInputFiles(monCheminnDuDocTableauDeSuivi);
+    await page.locator('input[type="file"]').setInputFiles(monCheminDuDocTableauDeSuivi);
     // Attendre que le tableau s'affiche bien
     await expect(page.getByRole('heading', { level: 2 })).toContainText('Dossiers restants à importer');
 
