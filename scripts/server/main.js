@@ -535,12 +535,15 @@ fastify.post('/avis-expert', {
       type: 'object',
       required: ['stringifyAvisExpert'],
       properties: {
+        stringifyAvisExpert: {
+          type: 'object',
+        },
         blobFichierSaisine: {
           type: 'object',
         },
-        stringifyAvisExpert: {
+        blobFichierAvis: {
           type: 'object',
-        }
+        },
       }
     }
   }
@@ -561,13 +564,24 @@ fastify.post('/avis-expert', {
       throw new Error(`L'objet avisExpert n'a pas un type correct. avisExpert reçu : ${JSON.stringify(avisExpert)}`)
   }
 
-  let fichierSaisine
+  if ('blobFichierSaisine' in body || 'blobFichierAvis' in body) {
+    /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+    let fichierSaisine
+    /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+    let fichierAvis
 
-  if ('blobFichierSaisine' in body) {
-    /** @type {any} */
-    const fileFichierSaisine = body.blobFichierSaisine
-    fichierSaisine = {nom: fileFichierSaisine.filename, media_type: fileFichierSaisine.mimetype, contenu: await fileFichierSaisine.toBuffer()}
-    return ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine)
+    if ('blobFichierSaisine' in body) {
+      /** @type {any} */
+      const blobFichierSaisine = body.blobFichierSaisine
+      fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
+    }
+    if ('blobFichierAvis' in body) {
+      /** @type {any} */
+      const blobFichierAvis = body.blobFichierAvis
+      fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
+    }
+    
+    return ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
   }
 
   return ajouterAvisExpert(avisExpert)

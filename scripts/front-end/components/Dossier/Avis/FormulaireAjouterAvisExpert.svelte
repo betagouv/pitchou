@@ -17,7 +17,10 @@
     let avisExpertÀAjouter = $state({})
 
     /** @type {FileList | undefined} */
-    let filesFichierSaisine = $state()
+    let fileListFichierSaisine = $state()
+
+    /** @type {FileList | undefined} */
+    let fileListFichierAvis = $state()
 
     /** @type {string | null} */
     let messageErreur = $state(null)
@@ -29,19 +32,26 @@
      */
     async function ajouterAvisExpert(e) {
         e.preventDefault()
-        console.log("click sur ajouter AvisExpert")
+
         /** @type { AvisExpertInitializer } */
         const nouvelAvisExpert = { dossier: dossier.id, ...avisExpertÀAjouter }
 
         /** @type {File | undefined} */
         let fichierSaisine
 
-        if (filesFichierSaisine && filesFichierSaisine.length >= 1) {
-            fichierSaisine = filesFichierSaisine[0]
+        if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
+            fichierSaisine = fileListFichierSaisine[0]
+        }
+
+        /** @type {File | undefined} */
+        let fichierAvis
+
+        if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
+            fichierAvis = fileListFichierAvis[0]
         }
 
         try {
-            await _ajouterAvisExpert(nouvelAvisExpert, fichierSaisine)
+            await _ajouterAvisExpert(nouvelAvisExpert, fichierSaisine, fichierAvis)
             await refreshDossierComplet(dossier.id)
         } catch (e) {
             //@ts-ignore
@@ -67,7 +77,7 @@
                     Taille maximale&nbsp;: 15 Mo. 
                     Formats supportés&nbsp;: pdf</span>
             </label>
-            <input accept=".pdf" bind:files="{filesFichierSaisine}" class="fr-upload" aria-describedby="upload-fichier-saisine-messages" type="file" id="upload-fichier-saisine" name="upload">
+            <input accept=".pdf" bind:files="{fileListFichierSaisine}" class="fr-upload" aria-describedby="upload-fichier-saisine-messages" type="file" id="upload-fichier-saisine" name="upload">
             <div class="fr-messages-group" id="upload-fichier-saisine-messages" aria-live="polite">
             </div>
         </div>
@@ -81,6 +91,16 @@
             <label class="fr-label" for="champ-avis">Avis</label>
             <input bind:value={avisExpertÀAjouter.avis} class="fr-input" aria-describedby="champ-avis-messages" name="input" id="champ-avis" type="text">
             <div class="fr-messages-group" id="champ-avis-messages" aria-live="polite">
+            </div>
+        </div>
+        <div class="fr-upload-fichier-avis-group">
+            <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
+                <span class="fr-hint-text">Indication : 
+                    Taille maximale&nbsp;: 15 Mo. 
+                    Formats supportés&nbsp;: pdf</span>
+            </label>
+            <input accept=".pdf" bind:files="{fileListFichierAvis}" class="fr-upload" aria-describedby="upload-fichier-avis-messages" type="file" id="upload-fichier-avis" name="upload">
+            <div class="fr-messages-group" id="upload-fichier-avis-messages" aria-live="polite">
             </div>
         </div>
         <div class="fr-input-group" id="champ-date-avis-group">
