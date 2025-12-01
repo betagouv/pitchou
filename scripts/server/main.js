@@ -28,7 +28,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
-import { ajouterAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
+import { ajouterAvisExpert, ajouterAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -527,37 +527,53 @@ fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
 
 
 
-/**
- * @type {import('fastify').RouteShorthandOptions}
- * @const
- */
-const optsAvisExpertPost = {
-  
+
+fastify.post('/avis-expert', {
   schema: {
+    consumes: ['multipart/form-data'],
     body: {
-    type: 'object',
-    properties: {
-      avisExpert: { type: 'object'},
-      blobFichierSaisine: { type: 'object' }
-    },
+      type: 'object',
+      required: ['stringifyAvisExpert'],
+      properties: {
+        blobFichierSaisine: {
+          type: 'object',
+        },
+        stringifyAvisExpert: {
+          type: 'object',
+        }
+      }
     }
-  },
-}
+  }
+}, async function (req) {
+  /** @type {any} */
+  const body = req.body
 
-fastify.post('/avis-expert', optsAvisExpertPost, async (request) => {
-    const body = request.body;
+  const avisExpert = JSON.parse(body.stringifyAvisExpert.value);
+  if (typeof avisExpert !== 'object') {
+    throw new Error("avisExpert n'est pas un objet.")
+  }
 
-    //TODO : faire un type guard, sachant que dossier est obligatoire
-    const avisExpert = JSON.parse(body.avisExpert.value);
+  if (!('dossier' in avisExpert)) {
+      throw new Error("L'identifiant du dossier n'a pas été défini.")
+  }
 
-    //TODO: Typeguard avec un nom défini, un content type défini
-    const fichierSaisine = body.blobFichierSaisine;
+  if (Object.getOwnPropertyNames(avisExpert).filter((property) => !['dossier', 'expert', 'date_saisine', 'date_avis', 'avis'].includes(property)).length !== 0) {
+      throw new Error(`L'objet avisExpert n'a pas un type correct. avisExpert reçu : ${JSON.stringify(avisExpert)}`)
+  }
 
-    console.log("fichier:", fichierSaisine);
+  let fichierSaisine
 
-  /** @ts-ignore */
+  if ('blobFichierSaisine' in body) {
+    /** @type {any} */
+    const fileFichierSaisine = body.blobFichierSaisine
+    fichierSaisine = {nom: fileFichierSaisine.filename, media_type: fileFichierSaisine.mimetype, contenu: await fileFichierSaisine.toBuffer()}
+    return ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine)
+  }
+
   return ajouterAvisExpert(avisExpert)
-});
+})
+
+
 
 /**
  * @type {import('fastify').RouteShorthandOptions}
@@ -573,7 +589,7 @@ const optsAvisExpertDelete = {
           minLength: 2
         },
       },
-      required: ['avisExpertId'], // Optional but recommended
+      required: ['avisExpertId'],
     },
   },
 };
