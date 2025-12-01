@@ -21,7 +21,7 @@ jobs:
                 node-version: 22
                 registry-url: https://registry.npmjs.org/
         - name: Install project dependencies
-          run: npm clean-install
+          run: npm clean-install --ignore-scripts
 
         - name: Install Playwright Browsers
           run: npx playwright install --with-deps
