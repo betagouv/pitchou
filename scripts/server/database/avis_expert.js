@@ -6,14 +6,18 @@ import { ajouterFichier } from './fichier.js'
 
 /**
  * @param { AvisExpertInitializer | AvisExpertInitializer[] } avisExpert
- * @param { {nom: string, media_type: string, contenu: Buffer} } fichierSaisine
+ * @param { {nom: string, media_type: string, contenu: Buffer} } [fichierSaisine]
+ * @param { {nom: string, media_type: string, contenu: Buffer} } [fichierAvis]
  * @param { Knex.Transaction | Knex } [databaseConnection]
  */
-export async function ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, databaseConnection = directDatabaseConnection) {
+export async function ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis, databaseConnection = directDatabaseConnection) {
     try {
-        const fichierSaisineAjouté = await ajouterFichier(fichierSaisine, databaseConnection)
-        
-        return ajouterAvisExpert( {... avisExpert, saisine_fichier: fichierSaisineAjouté.id}, databaseConnection)
+        const fichierSaisineAjoutéP = fichierSaisine ? ajouterFichier(fichierSaisine, databaseConnection) : Promise.resolve()
+        const fichierAvisAjoutéP = fichierAvis ? ajouterFichier(fichierAvis, databaseConnection) : Promise.resolve()
+
+        const [fichierSaisineAjouté, fichierAvisAjouté] = await Promise.all([fichierSaisineAjoutéP, fichierAvisAjoutéP])
+
+        return ajouterAvisExpert( {... avisExpert, saisine_fichier: fichierSaisineAjouté?.id ?? undefined, avis_fichier : fichierAvisAjouté?.id ?? undefined}, databaseConnection)
     } catch (e) {
         throw new Error(`Une erreur est survenue lors de l'ajout du fichier de saisine : ${e}.`)
     }
