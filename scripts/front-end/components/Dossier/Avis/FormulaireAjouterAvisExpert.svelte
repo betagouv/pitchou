@@ -1,5 +1,4 @@
 <script>
-	import { tick } from "svelte"
     /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
     /** @import { AvisExpertInitializer } from "../../../../types/database/public/AvisExpert" */
     import { ajouterAvisExpert as _ajouterAvisExpert } from "../../../actions/avisExpert"
@@ -25,6 +24,9 @@
 
     /** @type {string | null} */
     let messageErreur = $state(null)
+
+    /** @type {boolean} */
+    let loadingChargementAjouterAvisExpert = $state(false);
 
     function réinitialiserFormulaire() {
         avisExpertÀAjouter = {}
@@ -60,12 +62,15 @@
         }
 
         try {
+            loadingChargementAjouterAvisExpert = true
             await _ajouterAvisExpert(nouvelAvisExpert, fichierSaisine, fichierAvis)
             await refreshDossierComplet(dossier.id)
             réinitialiserFormulaire()
         } catch (e) {
             //@ts-ignore
             messageErreur = e.message 
+        } finally {
+            loadingChargementAjouterAvisExpert = false
         }
         
     }
@@ -132,7 +137,12 @@
                 <button type="button" class="fr-btn fr-btn--secondary" onclick={onClickRetour}>Annuler</button>
             </li>
             <li>
-                <button type="submit" class="fr-btn">Sauvegarder</button>
+                {#if loadingChargementAjouterAvisExpert}
+                    <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">Sauvegarde en cours</p>
+                    <button id="sauvegarde-en-cours" type="submit" class="fr-btn">Sauvegarde en cours...</button>
+                {:else}
+                    <button type="submit" class="fr-btn">Sauvegarder</button>
+                {/if}
             </li>
         </ul>
     </fieldset>
