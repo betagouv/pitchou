@@ -99,7 +99,7 @@ fastify.register(fastifyMultipart, {
   attachFieldsToBody: true,
   limits: {
     fieldNameSize: 100, // Max field name size in bytes
-    fieldSize: 100,     // Max field value size in bytes
+    fieldSize: 1000,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
     fileSize: 1000000,  // For multipart forms, the max file size in bytes
     files: 5,           // Max number of file fields
@@ -564,11 +564,14 @@ fastify.post('/avis-expert', {
 }, async function (req) {
   /** @type {any} */
   const body = req.body
-
+  console.log('body', body)
   const avisExpert = JSON.parse(body.stringifyAvisExpert.value);
+  console.log('hihihi')
   if (typeof avisExpert !== 'object') {
     throw new Error("avisExpert n'est pas un objet.")
   }
+
+  console.log('avisExpert', avisExpert)
 
   if (!('dossier' in avisExpert)) {
       throw new Error("L'identifiant du dossier n'a pas été défini.")
