@@ -6,7 +6,7 @@ import { json, text } from "d3-fetch";
 /**
  * Ajoute un avis d'expert.
  * 
- * @param {AvisExpertInitializer} avisExpert
+ * @param {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} avisExpert
  * @param {File | undefined} [fileFichierSaisine]
  * @param {File | undefined} [fileFichierAvis]
  */

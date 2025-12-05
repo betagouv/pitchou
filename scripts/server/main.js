@@ -28,7 +28,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
-import { ajouterAvisExpert, ajouterAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
+import { ajouterAvisExpert, ajouterAvisExpertAvecFichiers, modifierAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -548,46 +548,51 @@ fastify.post('/avis-expert', {
     }
   }
 }, async function (req) {
+  // Récupérer les données du corps de la requête.
   /** @type {any} */
   const body = req.body
-  console.log('body', body)
   const avisExpert = JSON.parse(body.stringifyAvisExpert.value);
-  console.log('hihihi')
+
+  // Vérifier que les données sont correctement typése.
   if (typeof avisExpert !== 'object') {
     throw new Error("avisExpert n'est pas un objet.")
   }
-
-  console.log('avisExpert', avisExpert)
-
   if (!('dossier' in avisExpert)) {
       throw new Error("L'identifiant du dossier n'a pas été défini.")
   }
-
-  if (Object.getOwnPropertyNames(avisExpert).filter((property) => !['dossier', 'expert', 'date_saisine', 'date_avis', 'avis'].includes(property)).length !== 0) {
+  if (Object.getOwnPropertyNames(avisExpert).filter((property) => !['dossier', 'expert', 'date_saisine', 'date_avis', 'avis', "id"].includes(property)).length !== 0) {
       throw new Error(`L'objet avisExpert n'a pas un type correct. avisExpert reçu : ${JSON.stringify(avisExpert)}`)
   }
 
-  if ('blobFichierSaisine' in body || 'blobFichierAvis' in body) {
-    /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
-    let fichierSaisine
-    /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
-    let fichierAvis
+  // Insérer ou mettre à jour l'avis expert dans la base de données
+  if ('id' in avisExpert) {
+    // Il s'agit d'une modification/mise à jour d'un avis expert
+    return modifierAvisExpert(avisExpert)
+  } else {
+    // Il s'agit d'un ajout/d'une insertion d'un avis expert
 
-    if ('blobFichierSaisine' in body) {
-      /** @type {any} */
-      const blobFichierSaisine = body.blobFichierSaisine
-      fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
+    // Ajouter un avis expert avec des fichiers
+    if ('blobFichierSaisine' in body || 'blobFichierAvis' in body) {
+      /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+      let fichierSaisine
+      /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+      let fichierAvis
+  
+      if ('blobFichierSaisine' in body) {
+        /** @type {any} */
+        const blobFichierSaisine = body.blobFichierSaisine
+        fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
+      }
+      if ('blobFichierAvis' in body) {
+        /** @type {any} */
+        const blobFichierAvis = body.blobFichierAvis
+        fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
+      } 
+      return ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
+    } else {
+        return ajouterAvisExpert(avisExpert)
     }
-    if ('blobFichierAvis' in body) {
-      /** @type {any} */
-      const blobFichierAvis = body.blobFichierAvis
-      fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
-    }
-    
-    return ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
   }
-
-  return ajouterAvisExpert(avisExpert)
 })
 
 
