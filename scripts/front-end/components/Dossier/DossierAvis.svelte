@@ -1,8 +1,11 @@
 <script>
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
-	import { formatDateAbsolue } from '../../affichageDossier.js'
+	import { supprimerAvisExpert as _supprimerAvisExpert  } from '../../actions/avisExpert.js'
+	import { refreshDossierComplet } from '../../actions/dossier.js'
+    import FormulaireAvisExpert from './Avis/FormulaireAvisExpert.svelte'
+    import AvisExpert from './Avis/AvisExpert.svelte'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
+    /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
 
     /**
      * @typedef {Object} Props
@@ -14,41 +17,32 @@
 
     const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
+    /**@type {boolean}*/
+    let afficherFormulaireAjouter = $state(false)
+
+    /**
+     * @param {FrontEndAvisExpert} avisExpert
+     */
+    async function supprimerAvisExpert(avisExpert) {
+        await _supprimerAvisExpert(avisExpert)
+        await refreshDossierComplet(dossier.id)
+    }
 </script>
 
 <div class="row">
     <section>
-        <h2>Avis experts</h2>
+        <h2>Avis d'experts</h2>
         {#if dossier.avisExpert.length >= 1}
             {#each dossier.avisExpert as avisExpert}
-                <div class="carte-avis-expert">
-                <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
-                    <ul>
-                        <li>
-                            <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
-                            {#if avisExpert.avis_fichier_url}
-                                <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.avis_fichier_url}>
-                                    Télécharger le fichier de l'avis
-                                </a>
-                            {:else}
-                                Aucun fichier de l'avis n'est lié à ce dossier
-                            {/if}
-                        </li>
-                        <li>
-                            <span><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)} </span>
-                            {#if avisExpert.saisine_fichier_url}
-                                <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.saisine_fichier_url}>
-                                    Télécharger le fichier saisine
-                                </a>
-                            {:else}
-                                Aucun fichier de saisine n'est lié à ce dossier
-                            {/if}
-                        </li>
-                    </ul>
-                </div>
+                <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
             {/each}
         {:else}
             Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.
+        {/if}
+        {#if afficherFormulaireAjouter === false}
+            <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
+        {:else}
+            <FormulaireAvisExpert {dossier} fermerLeFormulaire={() => afficherFormulaireAjouter = false} />
         {/if}
     </section>
 
@@ -76,22 +70,6 @@
             flex: 2;
 
             text-align: right;
-        }
-    }
-
-    .carte-avis-expert{
-        display:flex;
-        flex-direction: column;
-        ul {
-            list-style: none;
-            padding-inline-start: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        li {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.5rem;
         }
     }
 </style>
