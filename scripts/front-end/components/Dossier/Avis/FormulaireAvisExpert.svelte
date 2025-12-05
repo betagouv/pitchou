@@ -1,88 +1,103 @@
 <script>
+	import { tick } from "svelte"
     /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
-    /** @import { AvisExpertInitializer } from "../../../../types/database/public/AvisExpert" */
-    import { ajouterAvisExpert as _ajouterAvisExpert } from "../../../actions/avisExpert"
+    /** @import { AvisExpertInitializer, AvisExpertMutator, default as AvisExpert } from "../../../../types/database/public/AvisExpert.ts" */
+    import { ajouterAvisExpert } from "../../../actions/avisExpert.js"
 	import { refreshDossierComplet } from "../../../actions/dossier.js"
+
 
     /**
      * @typedef {Object} Props
      * @property {Pick<Dossier, "id">} dossier
-     * @property {() => void} onClickRetour
+     * @property {() => void} fermerLeFormulaire
+     * @property {AvisExpertInitializer | AvisExpertMutator} [avisExpertInitial]
      */
 
     /** @type {Props} */
-    let { onClickRetour, dossier } = $props();
+    let { fermerLeFormulaire, dossier, avisExpertInitial = $bindable() } = $props();
 
-    /** @type {Pick<AvisExpertInitializer, "expert" | "date_saisine" | "avis" | "date_avis">} */
-    let avisExpertÀAjouter = $state({})
-
-    /** @type {FileList | undefined} */
-    let fileListFichierSaisine = $state()
+    /** @type {Pick<AvisExpertInitializer | AvisExpertMutator, "id" | "expert" | "date_saisine" | "avis" | "date_avis">} */
+    let avisExpert = $state(avisExpertInitial ?? {})
 
     /** @type {FileList | undefined} */
-    let fileListFichierAvis = $state()
+    let fileListFichierSaisine = $state() // TODO: s'il existe déjà pour l'avis, le mettre. 
+
+    /** @type {FileList | undefined} */ 
+    let fileListFichierAvis = $state() // TODO: s'il existe déjà pour l'avis, le mettre. 
 
     /** @type {string | null} */
     let messageErreur = $state(null)
 
     /** @type {boolean} */
-    let loadingChargementAjouterAvisExpert = $state(false);
+    let chargementAjouterOuModifierAvisExpert = $state(false);
 
     function réinitialiserFormulaire() {
-        avisExpertÀAjouter = {}
-        fileListFichierSaisine = undefined
-        fileListFichierAvis = undefined
+        avisExpert = avisExpertInitial ?? {}
+        fileListFichierSaisine = undefined // TODO: changer dans le cas de la modif
+        fileListFichierAvis = undefined // TODO: changer dans le cas de la modif
         messageErreur = null
     }
-
-    $inspect('fileListFichierSaisine', fileListFichierSaisine)
 
     /**
      * 
      * @param {SubmitEvent} e
      */
-    async function ajouterAvisExpert(e) {
+    async function sauvegarderAvisExpert(e) {
         e.preventDefault()
 
-        /** @type { AvisExpertInitializer } */
-        const nouvelAvisExpert = { dossier: dossier.id, ...avisExpertÀAjouter }
+        /** @type {Pick<AvisExpert, "dossier"> & AvisExpertInitializer | undefined} */
+        let avisExpertÀAjouterOuModifier
 
         /** @type {File | undefined} */
         let fichierSaisine
 
-        if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
-            fichierSaisine = fileListFichierSaisine[0]
-        }
-
         /** @type {File | undefined} */
         let fichierAvis
 
-        if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
-            fichierAvis = fileListFichierAvis[0]
+        if (avisExpertInitial?.id) {
+            // Il s'agit d'une modification d'un avis expert
+            avisExpertÀAjouterOuModifier = { dossier: dossier.id, id: avisExpertInitial.id, ...avisExpert }
+        } else {
+            // Il s'agit d'un ajout d'un avis expert
+            avisExpertÀAjouterOuModifier = { dossier: dossier.id, ...avisExpert }
+
+            if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
+                fichierSaisine = fileListFichierSaisine[0]
+            }
+
+            if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
+                fichierAvis = fileListFichierAvis[0]
+            }
         }
 
-        try {
-            loadingChargementAjouterAvisExpert = true
-            await _ajouterAvisExpert(nouvelAvisExpert, fichierSaisine, fichierAvis)
-            await refreshDossierComplet(dossier.id)
-            réinitialiserFormulaire()
-        } catch (e) {
-            //@ts-ignore
-            messageErreur = e.message 
-        } finally {
-            loadingChargementAjouterAvisExpert = false
+        if (avisExpertÀAjouterOuModifier) {
+            try {
+                chargementAjouterOuModifierAvisExpert = true
+                await ajouterAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis)
+                await refreshDossierComplet(dossier.id)
+                await tick() // permet de mettre à jour correctement les champs dans le cas d'une modification
+                réinitialiserFormulaire()
+                fermerLeFormulaire()
+            } catch (e) {
+                //@ts-ignore
+                messageErreur = e.message 
+            } finally {
+                chargementAjouterOuModifierAvisExpert = false
+            }
+
         }
+
         
     }
 </script>
 
-<form id="formulaire-ajouter-avis-expert" onsubmit="{ajouterAvisExpert}">
+<form id="formulaire-ajouter-avis-expert" onsubmit="{sauvegarderAvisExpert}">
     <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
         <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
         <div class="fr-fieldset__element">
         <div class="fr-input-group" id="champ-expert-group">
             <label class="fr-label" for="champ-expert">Expert</label>
-            <input bind:value={avisExpertÀAjouter.expert} class="fr-input" aria-describedby="champ-expert-messages" name="input" id="champ-expert" type="text">
+            <input bind:value={avisExpert.expert} class="fr-input" aria-describedby="champ-expert-messages" name="input" id="champ-expert" type="text">
             <div class="fr-messages-group" id="champ-expert-messages" aria-live="polite">
             </div>
         </div>
@@ -97,14 +112,14 @@
             </div>
         </div>
         <div class="fr-input-group" id="champ-date-saisine-group">
-            <label class="fr-label" for="input-champ-date-saisine"> Date saisine </label>
-            <input bind:value={avisExpertÀAjouter.date_saisine} class="fr-input" aria-describedby="input-champ-date-saisine-messages" id="input-champ-date-saisine" type="date">
+            <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
+            <input bind:value={avisExpert.date_saisine} class="fr-input" aria-describedby="input-champ-date-saisine-messages" id="input-champ-date-saisine" type="date">
             <div class="fr-messages-group" id="input-champ-date-saisine-messages" aria-live="polite">
             </div>
         </div>
         <div class="fr-input-group" id="champ-avis-group">
             <label class="fr-label" for="champ-avis">Avis</label>
-            <input bind:value={avisExpertÀAjouter.avis} class="fr-input" aria-describedby="champ-avis-messages" name="input" id="champ-avis" type="text">
+            <input bind:value={avisExpert.avis} class="fr-input" aria-describedby="champ-avis-messages" name="input" id="champ-avis" type="text">
             <div class="fr-messages-group" id="champ-avis-messages" aria-live="polite">
             </div>
         </div>
@@ -119,8 +134,8 @@
             </div>
         </div>
         <div class="fr-input-group" id="champ-date-avis-group">
-            <label class="fr-label" for="input-champ-date-avis"> Date avis </label>
-            <input bind:value={avisExpertÀAjouter.date_avis} class="fr-input" aria-describedby="input-champ-date-avis-messages" id="input-champ-date-avis" type="date">
+            <label class="fr-label" for="input-champ-date-avis">Date avis</label>
+            <input bind:value={avisExpert.date_avis} class="fr-input" aria-describedby="input-champ-date-avis-messages" id="input-champ-date-avis" type="date">
             <div class="fr-messages-group" id="input-champ-date-avis-messages" aria-live="polite">
             </div>
         </div>
@@ -134,10 +149,10 @@
         </div>
         <ul class="fr-btns-group fr-btns-group--inline">
             <li>
-                <button type="button" class="fr-btn fr-btn--secondary" onclick={onClickRetour}>Annuler</button>
+                <button type="button" class="fr-btn fr-btn--secondary" onclick={fermerLeFormulaire}>Annuler</button>
             </li>
             <li>
-                {#if loadingChargementAjouterAvisExpert}
+                {#if chargementAjouterOuModifierAvisExpert}
                     <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">Sauvegarde en cours</p>
                     <button id="sauvegarde-en-cours" type="submit" class="fr-btn">Sauvegarde en cours...</button>
                 {:else}
