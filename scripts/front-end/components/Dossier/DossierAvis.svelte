@@ -38,47 +38,39 @@
     }
 </script>
 
-<div class="row">
-    <section>
+<div class="fr-grid-row">
+    <section class="fr-col section-liste-avis-expert">
         <h2>Avis d'experts</h2>
         {#if avisExpertTriés.length >= 1}
-            {#each dossier.avisExpert as avisExpert}
+            {#each avisExpertTriés as avisExpert}
                 <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
             {/each}
         {:else}
-            Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.
+            <span class="fr-mb-3w">Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</span>
         {/if}
         {#if afficherFormulaireAjouter === false}
-            <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
+            <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary fr-mt-4w' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
         {:else}
             <FormulaireAvisExpert {dossier} fermerLeFormulaire={() => afficherFormulaireAjouter = false} />
         {/if}
     </section>
 
-    <section>
+    <section class="fr-col-5 section-boutons-démarche-numérique">
         <a class="fr-btn" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
             Demander un avis
         </a>
-        <a class="fr-btn fr-btn--secondary" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
+        <a class="fr-btn fr-btn--secondary fr-mt-1w" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
             Voir la page Avis sur Démarche Numérique
         </a>
     </section>
-
 </div>
 
 <style lang="scss">
-    .row{
-        display: flex;
-        flex-direction: row;
-
-        &>:nth-child(1){
-            flex: 3;
-        }
-
-        &>:nth-child(2){
-            flex: 2;
-
-            text-align: right;
-        }
+    .section-liste-avis-expert {
+        display: flex; 
+        flex-direction: column;
+    }
+    .section-boutons-démarche-numérique {
+        text-align: right;
     }
 </style>
