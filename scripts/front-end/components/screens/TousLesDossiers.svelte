@@ -13,7 +13,19 @@
 </script>
 
 <Squelette {email}>
-    <div>
-        coucou
+    <h1>Mes dossiers</h1>
+    <div class="liste-des-dossiers">
+        <ul>
+            <li>Carte 1</li>
+            <li>Carte 2</li>
+            <li>Carte 3</li>
+        </ul>
     </div>
 </Squelette>
+
+<style>
+    .liste-des-dossiers {
+        background: var(--background-contrast-grey);
+        padding: 1rem;
+    }
+</style>
