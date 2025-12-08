@@ -1,8 +1,9 @@
 <script>
 	import { tick } from "svelte"
     /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
-    /** @import { AvisExpertInitializer, AvisExpertMutator, default as AvisExpert } from "../../../../types/database/public/AvisExpert.ts" */
-    import { ajouterAvisExpert } from "../../../actions/avisExpert.js"
+    /** @import { FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
+    /** @import { AvisExpertInitializer, default as AvisExpert } from "../../../../types/database/public/AvisExpert.ts" */
+    import { ajouterOuModifierAvisExpert } from "../../../actions/avisExpert.js"
 	import { refreshDossierComplet } from "../../../actions/dossier.js"
 
 
@@ -10,20 +11,20 @@
      * @typedef {Object} Props
      * @property {Pick<Dossier, "id">} dossier
      * @property {() => void} fermerLeFormulaire
-     * @property {AvisExpertInitializer | AvisExpertMutator} [avisExpertInitial]
+     * @property {FrontEndAvisExpert} [avisExpertInitial]
      */
 
     /** @type {Props} */
     let { fermerLeFormulaire, dossier, avisExpertInitial = $bindable() } = $props();
 
-    /** @type {Pick<AvisExpertInitializer | AvisExpertMutator, "id" | "expert" | "date_saisine" | "avis" | "date_avis">} */
+    /** @type {Partial<Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">>} */
     let avisExpert = $state(avisExpertInitial ?? {})
 
     /** @type {FileList | undefined} */
-    let fileListFichierSaisine = $state() // TODO: s'il existe déjà pour l'avis, le mettre. 
+    let fileListFichierSaisine = $state()
 
     /** @type {FileList | undefined} */ 
-    let fileListFichierAvis = $state() // TODO: s'il existe déjà pour l'avis, le mettre. 
+    let fileListFichierAvis = $state()
 
     /** @type {string | null} */
     let messageErreur = $state(null)
@@ -33,8 +34,8 @@
 
     function réinitialiserFormulaire() {
         avisExpert = avisExpertInitial ?? {}
-        fileListFichierSaisine = undefined // TODO: changer dans le cas de la modif
-        fileListFichierAvis = undefined // TODO: changer dans le cas de la modif
+        fileListFichierSaisine = undefined
+        fileListFichierAvis = undefined
         messageErreur = null
     }
 
@@ -50,30 +51,30 @@
 
         /** @type {File | undefined} */
         let fichierSaisine
-
         /** @type {File | undefined} */
         let fichierAvis
 
+
+        if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
+            fichierSaisine = fileListFichierSaisine[0]
+        }
+
+        if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
+            fichierAvis = fileListFichierAvis[0]
+        }
+
         if (avisExpertInitial?.id) {
             // Il s'agit d'une modification d'un avis expert
-            avisExpertÀAjouterOuModifier = { dossier: dossier.id, id: avisExpertInitial.id, ...avisExpert }
+            avisExpertÀAjouterOuModifier = { id: avisExpertInitial.id, dossier: dossier.id, ...avisExpert }
         } else {
             // Il s'agit d'un ajout d'un avis expert
             avisExpertÀAjouterOuModifier = { dossier: dossier.id, ...avisExpert }
-
-            if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
-                fichierSaisine = fileListFichierSaisine[0]
-            }
-
-            if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
-                fichierAvis = fileListFichierAvis[0]
-            }
         }
-
+        
         if (avisExpertÀAjouterOuModifier) {
             try {
                 chargementAjouterOuModifierAvisExpert = true
-                await ajouterAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis)
+                await ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis)
                 await refreshDossierComplet(dossier.id)
                 await tick() // permet de mettre à jour correctement les champs dans le cas d'une modification
                 réinitialiserFormulaire()
