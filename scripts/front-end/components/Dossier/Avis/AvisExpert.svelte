@@ -31,9 +31,13 @@
 </script>
 
 <div class="carte-avis-expert">
-    <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
+    <div class="titre">
+        <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
+        {#if !avisExpertEnModification}
+            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" type="button" onclick={() => avisExpertEnModification = true}>Modifier</button>
+        {/if}
+    </div>
     {#if !avisExpertEnModification}
-        <button class="fr-btn fr-btn--secondary" type="button" onclick={() => avisExpertEnModification = true}>Modifier</button>
         <ul>
             <li>
                 <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
@@ -57,12 +61,18 @@
             </li>
         </ul>
     {:else}
-        <button class="fr-btn fr-btn--secondary" type="button" onclick={() => onClickSupprimer(avisExpert)}>Supprimer</button>
         <FormulaireAvisExpert {dossier} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />
+        <button class="fr-btn fr-btn--secondary fr-mt-1w" type="button" onclick={() => onClickSupprimer(avisExpert)}>Supprimer cet avis d'expert</button>
     {/if}
 </div>
 
 <style>
+    .titre {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: start;
+    } 
     .carte-avis-expert{
         display:flex;
         flex-direction: column;
