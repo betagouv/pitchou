@@ -15,6 +15,18 @@
     /** @type {boolean} */
     let avisExpertEnModification = $state(false)
 
+    function fermerLeFormulaire() {
+        avisExpertEnModification = false
+    }
+
+    /**
+     * @param {FrontEndAvisExpert} avisExpert
+     */
+    function onClickSupprimer(avisExpert) {
+        supprimerAvisExpert(avisExpert)
+        fermerLeFormulaire()
+    }
+
 
 </script>
 
@@ -45,8 +57,8 @@
             </li>
         </ul>
     {:else}
-        <button class="fr-btn fr-btn--secondary" type="button" onclick={() => supprimerAvisExpert(avisExpert)}>Supprimer</button>
-        <FormulaireAvisExpert {dossier} bind:avisExpertInitial={avisExpert} fermerLeFormulaire={() => avisExpertEnModification = false} />
+        <button class="fr-btn fr-btn--secondary" type="button" onclick={() => onClickSupprimer(avisExpert)}>Supprimer</button>
+        <FormulaireAvisExpert {dossier} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />
     {/if}
 </div>
 
