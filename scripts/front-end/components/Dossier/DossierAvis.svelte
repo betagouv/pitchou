@@ -4,6 +4,7 @@
 	import { refreshDossierComplet } from '../../actions/dossier.js'
     import FormulaireAvisExpert from './Avis/FormulaireAvisExpert.svelte'
     import AvisExpert from './Avis/AvisExpert.svelte'
+	import { differenceInDays } from 'date-fns'
 
     /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
 
@@ -15,7 +16,15 @@
     /** @type {Props} */
     let { dossier } = $props();
 
-    const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
+    const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier
+
+    let avisExpertTriés = $derived( [...dossier.avisExpert].sort((a,b) => {
+        const dateA = new Date(a.date_avis ?? a.date_saisine ?? 0)
+        const dateB = new Date(b.date_avis ?? b.date_saisine ?? 0)
+        return differenceInDays(dateB, dateA)
+    }
+
+))
 
     /**@type {boolean}*/
     let afficherFormulaireAjouter = $state(false)
@@ -32,7 +41,7 @@
 <div class="row">
     <section>
         <h2>Avis d'experts</h2>
-        {#if dossier.avisExpert.length >= 1}
+        {#if avisExpertTriés.length >= 1}
             {#each dossier.avisExpert as avisExpert}
                 <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
             {/each}
