@@ -2,7 +2,7 @@
 /** @import { Knex } from 'knex' */
 
 import { directDatabaseConnection } from '../database.js'
-import { ajouterFichier, supprimerFichier } from './fichier.js'
+import { ajouterFichier } from './fichier.js'
 
 /**
  * @param { AvisExpertInitializer | {id: string} & AvisExpertMutator } avisExpert
@@ -30,20 +30,21 @@ export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichie
             //@ts-ignore
             const avisExpertÀMaj = avisExpert
 
-            // Supprimer les fichiers orphelins
-            const fichiersAvisExpertÀMaj = await getFichiersAvisSaisineAvisExpert(avisExpertÀMaj.id, databaseConnection)
-            const fichierSaisineIdPrécédent = fichiersAvisExpertÀMaj.length === 1 && fichiersAvisExpertÀMaj[0].saisine_fichier
-            const fichierAvisIdPrécédent = fichiersAvisExpertÀMaj.length === 1 && fichiersAvisExpertÀMaj[0].saisine_fichier
+            // // Supprimer les fichiers orphelins
+            // const fichiersAvisExpertÀMaj = await getFichiersAvisSaisineAvisExpert(avisExpertÀMaj.id, databaseConnection)
+            // const fichierSaisineIdPrécédent = fichiersAvisExpertÀMaj.length === 1 && fichiersAvisExpertÀMaj[0].saisine_fichier
+            // const fichierAvisIdPrécédent = fichiersAvisExpertÀMaj.length === 1 && fichiersAvisExpertÀMaj[0].saisine_fichier
 
-            
-           if (fichierSaisineAjouté && fichierSaisineIdPrécédent) {
-               supprimerFichier(fichierSaisineIdPrécédent, databaseConnection)
-           }
-           if (fichierAvisAjouté && fichierAvisIdPrécédent) {
-               supprimerFichier(fichierAvisIdPrécédent, databaseConnection)
-           }
-            
-            return modifierAvisExpert( {...avisExpertÀMaj, id: avisExpertÀMaj.id, saisine_fichier: fichierSaisineAjouté?.id ?? undefined, avis_fichier : fichierAvisAjouté?.id ?? undefined}, databaseConnection)
+            return modifierAvisExpert(
+            {
+                ...avisExpertÀMaj,
+                id: avisExpertÀMaj.id,
+                saisine_fichier: fichierSaisineAjouté?.id ?? undefined,
+                avis_fichier: fichierAvisAjouté?.id ?? undefined,
+            },
+            databaseConnection
+            )
+
         } else {
             /** @type {AvisExpertInitializer} */
             //@ts-ignore
