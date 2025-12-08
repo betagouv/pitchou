@@ -30,7 +30,7 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
 import { indicateursAARRI } from './database/aarri.js'
-import { ajouterAvisExpert, ajouterAvisExpertAvecFichiers, modifierAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
+import { ajouterAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, estUnAvisExpertÀModifier, modifierAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
@@ -101,7 +101,7 @@ fastify.register(fastifyMultipart, {
     fieldNameSize: 100, // Max field name size in bytes
     fieldSize: 1000,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
-    fileSize: 1000000,  // For multipart forms, the max file size in bytes
+    fileSize: 100000000,  // For multipart forms, the max file size in bytes
     files: 5,           // Max number of file fields
     headerPairs: 2000,  // Max number of header key=>value pairs
     parts: 1000         // For multipart forms, the max number of parts (fields + files)
@@ -562,12 +562,12 @@ fastify.post('/avis-expert', {
     }
   }
 }, async function (req) {
-  // Récupérer les données du corps de la requête.
+  // Récupérer les données du corps de la requête
   /** @type {any} */
   const body = req.body
   const avisExpert = JSON.parse(body.stringifyAvisExpert.value);
 
-  // Vérifier que les données sont correctement typése.
+  // Vérifier que les données avis expert (sans les fichiers) sont correctement typées
   if (typeof avisExpert !== 'object') {
     throw new Error("avisExpert n'est pas un objet.")
   }
@@ -578,34 +578,26 @@ fastify.post('/avis-expert', {
       throw new Error(`L'objet avisExpert n'a pas un type correct. avisExpert reçu : ${JSON.stringify(avisExpert)}`)
   }
 
-  // Insérer ou mettre à jour l'avis expert dans la base de données
-  if ('id' in avisExpert) {
-    // Il s'agit d'une modification/mise à jour d'un avis expert
-    return modifierAvisExpert(avisExpert)
-  } else {
-    // Il s'agit d'un ajout/d'une insertion d'un avis expert
+  /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+  let fichierSaisine
+  /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+  let fichierAvis
 
-    // Ajouter un avis expert avec des fichiers
-    if ('blobFichierSaisine' in body || 'blobFichierAvis' in body) {
-      /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
-      let fichierSaisine
-      /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
-      let fichierAvis
-  
-      if ('blobFichierSaisine' in body) {
-        /** @type {any} */
-        const blobFichierSaisine = body.blobFichierSaisine
-        fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
-      }
-      if ('blobFichierAvis' in body) {
-        /** @type {any} */
-        const blobFichierAvis = body.blobFichierAvis
-        fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
-      } 
-      return ajouterAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
-    } else {
-        return ajouterAvisExpert(avisExpert)
-    }
+  if ('blobFichierSaisine' in body) {
+    /** @type {any} */
+    const blobFichierSaisine = body.blobFichierSaisine
+    fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
+  }
+  if ('blobFichierAvis' in body) {
+    /** @type {any} */
+    const blobFichierAvis = body.blobFichierAvis
+    fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
+  } 
+
+  if (fichierAvis || fichierSaisine) {
+    return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
+  } else {
+    return estUnAvisExpertÀModifier(avisExpert) ? modifierAvisExpert(avisExpert) : ajouterAvisExpert(avisExpert)
   }
 })
 

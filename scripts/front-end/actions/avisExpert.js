@@ -1,4 +1,5 @@
 /** @import { default as AvisExpert, AvisExpertInitializer } from "../../types/database/public/AvisExpert" */
+/** @import { FrontEndAvisExpert } from '../../types/API_Pitchou.js' */
 
 import { json, text } from "d3-fetch";
 
@@ -6,12 +7,20 @@ import { json, text } from "d3-fetch";
 /**
  * Ajoute un avis d'expert.
  * 
- * @param {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} avisExpert
+ * @param {Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>} frontEndAvisExpert
  * @param {File | undefined} [fileFichierSaisine]
  * @param {File | undefined} [fileFichierAvis]
  */
-export function ajouterAvisExpert(avisExpert, fileFichierSaisine, fileFichierAvis) {
+export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisine, fileFichierAvis) {
     const form = new FormData();
+
+    const copyFrontEndAvisExpert = Object.assign({}, frontEndAvisExpert)
+
+    delete copyFrontEndAvisExpert.avis_fichier_url
+    delete copyFrontEndAvisExpert.saisine_fichier_url
+    
+    /**@type {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} */
+    const avisExpert = {...copyFrontEndAvisExpert}
 
     form.append("stringifyAvisExpert", JSON.stringify(avisExpert));
 
