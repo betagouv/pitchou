@@ -5,6 +5,7 @@
     /** @import { AvisExpertInitializer, default as AvisExpert } from "../../../../types/database/public/AvisExpert.ts" */
     import { ajouterOuModifierAvisExpert } from "../../../actions/avisExpert.js"
 	import { refreshDossierComplet } from "../../../actions/dossier.js"
+	import DateInput from "../../common/DateInput.svelte"
 
 
     /**
@@ -19,6 +20,8 @@
 
     /** @type {Partial<Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">>} */
     let avisExpert = $state(avisExpertInitial ?? {})
+
+    $inspect('avisExpertInitial avisExpert', avisExpert)
 
     /** @type {FileList | undefined} */
     let fileListFichierSaisine = $state()
@@ -114,9 +117,7 @@
         </div>
         <div class="fr-input-group" id="champ-date-saisine-group">
             <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
-            <input bind:value={avisExpert.date_saisine} class="fr-input" aria-describedby="input-champ-date-saisine-messages" id="input-champ-date-saisine" type="date">
-            <div class="fr-messages-group" id="input-champ-date-saisine-messages" aria-live="polite">
-            </div>
+            <DateInput bind:date={avisExpert.date_saisine}/>
         </div>
         <div class="fr-input-group" id="champ-avis-group">
             <label class="fr-label" for="champ-avis">Avis</label>
@@ -136,9 +137,7 @@
         </div>
         <div class="fr-input-group" id="champ-date-avis-group">
             <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-            <input bind:value={avisExpert.date_avis} class="fr-input" aria-describedby="input-champ-date-avis-messages" id="input-champ-date-avis" type="date">
-            <div class="fr-messages-group" id="input-champ-date-avis-messages" aria-live="polite">
-            </div>
+            <DateInput bind:date={avisExpert.date_avis}/>
         </div>
         </div>
         <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
