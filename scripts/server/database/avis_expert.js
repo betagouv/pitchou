@@ -30,11 +30,6 @@ export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichie
             //@ts-ignore
             const avisExpertÀMaj = avisExpert
 
-            // // Supprimer les fichiers orphelins
-            // const fichiersAvisExpertÀMaj = await getFichiersAvisSaisineAvisExpert(avisExpertÀMaj.id, databaseConnection)
-            // const fichierSaisineIdPrécédent = fichiersAvisExpertÀMaj.length === 1 && fichiersAvisExpertÀMaj[0].saisine_fichier
-            // const fichierAvisIdPrécédent = fichiersAvisExpertÀMaj.length === 1 && fichiersAvisExpertÀMaj[0].saisine_fichier
-
             return modifierAvisExpert(
             {
                 ...avisExpertÀMaj,

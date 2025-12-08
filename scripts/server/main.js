@@ -101,7 +101,7 @@ fastify.register(fastifyMultipart, {
     fieldNameSize: 100, // Max field name size in bytes
     fieldSize: 1000,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
-    fileSize: 100000000,  // For multipart forms, the max file size in bytes
+    fileSize: 200000000,  // For multipart forms, the max file size in bytes
     files: 5,           // Max number of file fields
     headerPairs: 2000,  // Max number of header key=>value pairs
     parts: 1000         // For multipart forms, the max number of parts (fields + files)
