@@ -19,8 +19,8 @@
 
     let numéroDeLaPageSélectionnée = $state(1)
 
-    /** @type {HTMLHeadingElement | undefined} */
-    let refTitreH1 = $state()
+    /** @type {HTMLLIElement | undefined} */
+    let refPremierDossierAffiché = $state()
 
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
@@ -31,8 +31,8 @@
             /** @type {SelectionneurPage[]} */
             const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => {
                 numéroDeLaPageSélectionnée = i+1
-                if (refTitreH1) {
-                    refTitreH1.scrollIntoView()
+                if (refPremierDossierAffiché) {
+                    refPremierDossierAffiché.scrollIntoView()
                 }
             })]
             return [undefined, ...sélectionneurs]
@@ -54,14 +54,22 @@
     })  
 </script>
 
-<Squelette {email}>
-    <h1 bind:this={refTitreH1} >Mes dossiers</h1>
+<Squelette {email} title="Tous les dossiers">
+    <h1>Tous les dossiers</h1>
     <div class="liste-des-dossiers fr-mb-2w fr-p-1w">
-        {#each dossiersAffichés as dossier}
-            <ul>
-                <li><CarteDossier {dossier} /></li>
-            </ul>
-        {/each}
+        <ul>
+            {#each dossiersAffichés as dossier, i}
+                {#if i === 0}
+                    <li bind:this={refPremierDossierAffiché}>
+                        <CarteDossier {dossier} />
+                    </li>
+                {:else}
+                    <li>
+                        <CarteDossier {dossier} />
+                    </li>
+                {/if}
+            {/each}
+        </ul>
     </div>
     {#if selectionneursPage}
         <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroDeLaPageSélectionnée]}></Pagination>
