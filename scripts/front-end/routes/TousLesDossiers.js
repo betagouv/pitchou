@@ -21,8 +21,6 @@ export default async () => {
         function mapStateToProps(state) {
             /** @type {DossierRésumé[]} */
             const dossiers = [...state.dossiersRésumés.values()]
-
-            console.log('dossiers dans TousLesDossiers.js', dossiers, state)
             
             const { email } = mapStateToSqueletteProps(state);
             return {
