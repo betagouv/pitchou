@@ -1,33 +1,59 @@
 <script>
-	import { formatDateAbsolue } from "../affichageDossier"
 	/** @import { DossierRésumé } from "../../types/API_Pitchou" **/
+	import { formatDateAbsolue, formatLocalisation, formatPorteurDeProjet } from "../affichageDossier"
 	import TagPhase from "./TagPhase.svelte"
 
     /**
      * @typedef Props
-     * @property {Pick<DossierRésumé, "phase" | "date_dépôt">} dossier
+     * @property {DossierRésumé} dossier
     */
     /** @type {Props}*/
     let { dossier } = $props()
-
-
 </script>
+
 <div class="carte fr-p-2w">
     <div class="en-tête">
-        <p>Lotissement Pocomitis Le Moussot IMMORCORPORATION</p>
+        <h2>
+            <a href={`/dossier/${dossier.id}`} class="fr-link">
+                {dossier.nom || '(sans nom)'}
+                <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
+            </a>
+        </h2>
+
+        <button type="button" class="fr-btn fr-icon-chat-3-line fr-btn--secondary  fr-btn--sm">
+            Commentaire
+        </button>
     </div>
 
     <div class="contenu">
-        <TagPhase phase={dossier.phase}  />
-        <div>
-            <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true">
-                Instructeur.ice
-            </span>
+        <div class="première-ligne">
+            <div>
+                <TagPhase phase={dossier.phase}  />
+                <div>
+                    <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+                    {dossier.prochaine_action_attendue_par || '(non renseignée)'}
+                </div>
+            </div>
+            <div>
+                <p class="numéro-dossier fr-text--sm">Dossier n°{dossier.id} (DN&nbsp;:&nbsp;{dossier.number_demarches_simplifiées})</p>
+                {#if dossier.enjeu_politique || dossier.enjeu_écologique}
+                    <p class="fr-badge fr-badge--orange-terre-battue">Dossier à enjeu</p>
+                {/if}
+            </div>
         </div>
-        <div>
-            <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true">
-                {formatDateAbsolue(dossier.date_dépôt)}
-            </span>
+        <div class="deuxième-ligne">
+            <div class="date-dépôt">
+                <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
+                {formatDateAbsolue(dossier.date_dépôt, 'd/MM/yyyy')}
+            </div>
+            <div class="truncate">
+                <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
+                {formatPorteurDeProjet(dossier) || '(non renseigné)'}
+            </div>
+            <div class="truncate">
+                <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
+                {formatLocalisation(dossier) || '(non renseignée)'}
+            </div>
         </div>
     </div>
 </div>
@@ -41,11 +67,66 @@
     .en-tête {
         display: flex;
         flex-direction: row;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        h2 {
+            margin: 0;
+            /* Permet d'aligner verticalement le titre avec les boutons d'actions */
+            line-height: 1.2rem;
+            text-overflow: ellipsis; 
+            overflow: hidden;
+            white-space: nowrap;
+
+            a {
+                color: var(--text-title-grey);
+                font-size: 1.25rem;
+                line-height: 1.25rem;
+            }
+        }
     }
 
     .contenu {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1rem;
+
+        .première-ligne {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .première-ligne > div {      
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .deuxième-ligne {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 1rem;
+            /* flex-wrap: wrap; */
+
+            .date-dépôt {
+                white-space: nowrap;
+            }
+
+            .truncate {
+                max-width: 50%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    .numéro-dossier {
+        margin-bottom: 0;
+        color: var(--text-mention-grey);
     }
 </style>
