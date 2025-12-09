@@ -1,6 +1,6 @@
 <script>
     import Squelette from "../Squelette.svelte"
-
+    import CarteDossier from "../CarteDossier.svelte"
     /**
     * @typedef {Object} Props
     * @property {string | undefined} [email]
@@ -16,9 +16,8 @@
     <h1>Mes dossiers</h1>
     <div class="liste-des-dossiers">
         <ul>
-            <li>Carte 1</li>
-            <li>Carte 2</li>
-            <li>Carte 3</li>
+            <li><CarteDossier /></li>
+            <li><CarteDossier /></li>
         </ul>
     </div>
 </Squelette>
@@ -27,5 +26,13 @@
     .liste-des-dossiers {
         background: var(--background-contrast-grey);
         padding: 1rem;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    li:not(:last-child) {
+      margin-bottom: 1rem;
     }
 </style>
