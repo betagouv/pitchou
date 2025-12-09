@@ -92,7 +92,7 @@ export function formatPorteurDeProjet(dossier){
 
 
 /**
- *
+ * Formate une Date au format 'd MMMM yyyy'
  * @param {Date | undefined | null} date
  * @returns {string}
  */

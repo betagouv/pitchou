@@ -1,5 +1,15 @@
 <script>
+	import { formatDateAbsolue } from "../affichageDossier"
+	/** @import { DossierRésumé } from "../../types/API_Pitchou" **/
 	import TagPhase from "./TagPhase.svelte"
+
+    /**
+     * @typedef Props
+     * @property {Pick<DossierRésumé, "phase" | "date_dépôt">} dossier
+    */
+    /** @type {Props}*/
+    let { dossier } = $props()
+
 
 </script>
 <div class="carte fr-p-2w">
@@ -8,7 +18,7 @@
     </div>
 
     <div class="contenu">
-        <TagPhase phase={'Accompagnement amont'} />
+        <TagPhase phase={dossier.phase}  />
         <div>
             <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true">
                 Instructeur.ice
@@ -16,7 +26,7 @@
         </div>
         <div>
             <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true">
-                17/08/2024
+                {formatDateAbsolue(dossier.date_dépôt)}
             </span>
         </div>
     </div>
