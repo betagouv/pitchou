@@ -269,7 +269,9 @@
 
         {#if espècesPertinentes.length === 0}
             <li
-                aria-hidden="true"
+                role="option"
+                aria-disabled="true"
+                aria-selected="false"
             >
                 Pas de résultat
             </li>
