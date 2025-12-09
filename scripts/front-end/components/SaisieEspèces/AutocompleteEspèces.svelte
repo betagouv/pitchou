@@ -1,5 +1,5 @@
 <script>
-	/** @import {EspèceProtégée} from '../../../types/especes' */
+    /** @import {EspèceProtégée} from '../../../types/especes' */
 
     import { normalizeNomEspèce, normalizeTexteEspèce } from '../../../commun/manipulationStrings'
     import { espèceLabel } from '../../../commun/outils-espèces.js'
@@ -14,11 +14,13 @@
 
 
     /**
-     * il y a 1000 opportunités d'optimizations en temps
-     * (notamment des memoization). Une autre fois
-     */
+     * Ressources utilisées / inspirations:
+     * - https://a11y-guidelines.orange.com/fr/articles/recommandations-autocompletion/
+     * - https://alphagov.github.io/accessible-autocomplete/examples/
+     * - https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-autocomplete-list/
+    */
 
-	/** @type {Props} */
+    /** @type {Props} */
 
     let {
         espèces,
@@ -29,7 +31,8 @@
 
     //$inspect('espèceSélectionnée', espèceSélectionnée)
 
-    let text = $derived(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : '')
+    let text = $state('')
+    let statusMessage = $state('')
 
     //$inspect('text', text)
 
@@ -39,12 +42,25 @@
     let showListBox = $state(false)
 
     function onInputFocus() {
-        showListBox = true
+        showListBox = text.length > 0 && espèceSélectionnée === undefined
         selectedOption = null
     }
 
     function onInput() {
         showListBox = true
+        espèceSélectionnée = undefined
+
+        if (text.length === 0) {
+            showListBox = false
+            espècesPertinentes = []
+        } else {
+            espècesPertinentes = filtrerEspeces(text)
+            if (espècesPertinentes.length === 0) {
+                messageLive('Pas de résultat')
+            } else {
+                messageLive(`${espècesPertinentes.length} résultats disponibles`)
+            }
+        }
     }
 
     function onInputBlur() {
@@ -139,7 +155,11 @@
         }
     }
 
-    let espècesPertinentes = $derived.by(() => {
+    /** @type {EspèceProtégée[]} */
+    let espècesPertinentes = $state([])
+
+    /** @param {string} text */
+    function filtrerEspeces(text) {
         if(text.trim().length === 0)
             return []
 
@@ -164,7 +184,15 @@
                 })
             })
             .slice(0, 12)
-    })
+    }
+
+    /**
+     * @param {string} text
+     */
+    function messageLive(text) {
+        statusMessage = text
+        setTimeout(() => { statusMessage = ''}, 100)
+    }
 
     /**
      *
@@ -175,10 +203,11 @@
             onChange(espèce)
         }
 
-        // Passage à undefined avant pour forcer le changement dans le cas ou la même espèce est selectionnée à nouveau
-        espèceSélectionnée = undefined
         espèceSélectionnée = espèce
+        text = espèceLabel(espèceSélectionnée)
+        espècesPertinentes = []
         input.focus()
+        showListBox = false
     }
 
     export function focus() {
@@ -205,7 +234,6 @@
         autocomplete="off"
         aria-expanded="{showListBox && espècesPertinentes.length > 0}"
         aria-controls="combobox-{ id }-option-list"
-        aria-activedescendant="{ selectedOption === null ? '' : `combobox-${ id }-option-${ selectedOption }` }"
         aria-autocomplete="list"
         aria-describedby="{text.length > 0 ? '' : `combobox-${ id }-help`}"
         onfocus={onInputFocus}
@@ -220,11 +248,10 @@
         id="combobox-{ id }-option-list"
         aria-labelledby="{ id }"
         role="listbox"
-        hidden={!(showListBox && espècesPertinentes.length > 0)}
+        hidden={!showListBox}
     >
         {#each espècesPertinentes as espèce, indexOption}
             <li
-                id="combobox-{ id }-option-{ indexOption }"
                 role="option"
                 aria-selected="{ indexOption === selectedOption }"
                 aria-posinset="{ indexOption + 1 }"
@@ -239,7 +266,21 @@
                 {espèceLabel(espèce)}
             </li>
         {/each}
+
+        {#if espècesPertinentes.length === 0}
+            <li
+                aria-hidden="true"
+            >
+                Pas de résultat
+            </li>
+        {/if}
     </ul>
+
+    <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
+        {#if statusMessage }
+            {statusMessage}
+        {/if}
+    </div>
 
     <span id="combobox-{ id }-help" hidden>
         Utilisez les flèches « haut » et « bas » pour naviguer entres les suggestions et « entrer » pour sélectionner.
@@ -274,6 +315,4 @@
             }
         }
     }
-
-
 </style>
