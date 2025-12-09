@@ -19,6 +19,9 @@
 
     let numéroDeLaPageSélectionnée = $state(1)
 
+    /** @type {HTMLHeadingElement | undefined} */
+    let refTitreH1 = $state()
+
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
     let selectionneursPage = $derived.by(() => {
@@ -26,8 +29,12 @@
             const nombreDePages = Math.ceil(dossiers.length/NOMBRE_DOSSIERS_PAR_PAGE)
 
             /** @type {SelectionneurPage[]} */
-            const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => numéroDeLaPageSélectionnée = i+1)]
-
+            const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => {
+                numéroDeLaPageSélectionnée = i+1
+                if (refTitreH1) {
+                    refTitreH1.scrollIntoView()
+                }
+            })]
             return [undefined, ...sélectionneurs]
         } else {
             return undefined
@@ -44,14 +51,11 @@
                 NOMBRE_DOSSIERS_PAR_PAGE*numéroDeLaPageSélectionnée
             )
         }
-    })
-
-
-        
+    })  
 </script>
 
 <Squelette {email}>
-    <h1>Mes dossiers</h1>
+    <h1 bind:this={refTitreH1} >Mes dossiers</h1>
     <div class="liste-des-dossiers fr-mb-2w fr-p-1w">
         {#each dossiersAffichés as dossier}
             <ul>
@@ -59,7 +63,6 @@
             </ul>
         {/each}
     </div>
-    <!-- TODO: changer le selectionneursPage -->
     {#if selectionneursPage}
         <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroDeLaPageSélectionnée]}></Pagination>
     {/if}
