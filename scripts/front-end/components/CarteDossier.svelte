@@ -1,6 +1,7 @@
 <script>
 	/** @import { DossierRésumé } from "../../types/API_Pitchou" **/
 	import { formatDateAbsolue, formatLocalisation, formatPorteurDeProjet } from "../affichageDossier"
+	import BoutonModale from "./DSFR/BoutonModale.svelte"
 	import TagPhase from "./TagPhase.svelte"
 
     /**
@@ -19,10 +20,31 @@
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
         </h2>
-
-        <button type="button" class="fr-btn fr-icon-chat-3-line fr-btn--secondary  fr-btn--sm">
-            Commentaire
-        </button>
+        {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
+            {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
+            <BoutonModale id={dsfrModaleId} >
+                {#snippet boutonOuvrir()}
+                    <button type="button" class="fr-btn fr-icon-chat-3-line fr-btn--secondary fr-btn--sm" aria-controls={dsfrModaleId} data-fr-opened="false" >
+                        Commentaire
+                    </button>
+                {/snippet}
+                {#snippet contenu()}
+                    <header class="titre-modale">
+                        <h1 class="fr-modal__title">
+                            Commentaire dossier {dossier.nom}
+                        </h1>
+                        <h2 class="fr-modal__title">
+                            {formatPorteurDeProjet(dossier)}
+                            &nbsp;-&nbsp;
+                            {formatLocalisation(dossier)}
+                        </h2>
+                    </header>
+                    <div class="contenu-modale">
+                        {dossier.commentaire_libre}
+                    </div>
+                {/snippet}
+            </BoutonModale>
+         {/if}
     </div>
 
     <div class="contenu">
@@ -136,5 +158,18 @@
     .numéro-dossier {
         margin-bottom: 0;
         color: var(--text-mention-grey);
+    }
+
+    .titre-modale{
+        h1{
+            margin-bottom: 0.8rem;
+        }
+        h2{
+            margin-bottom: 0.6rem;
+            font-size: 1.1rem;
+        }
+    }
+    .contenu-modale{
+        white-space: preserve;
     }
 </style>
