@@ -28,6 +28,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
+import { ajouterAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, estUnAvisExpertÀModifier, modifierAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -96,9 +97,9 @@ fastify.register(fastifyMultipart, {
   attachFieldsToBody: true,
   limits: {
     fieldNameSize: 100, // Max field name size in bytes
-    fieldSize: 100,     // Max field value size in bytes
+    fieldSize: 1000,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
-    fileSize: 1000000,  // For multipart forms, the max file size in bytes
+    fileSize: 200000000,  // For multipart forms, the max file size in bytes
     files: 5,           // Max number of file fields
     headerPairs: 2000,  // Max number of header key=>value pairs
     parts: 1000         // For multipart forms, the max number of parts (fields + files)
@@ -524,6 +525,95 @@ fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
   return supprimerContrôle(request.params.contrôleId)
 })
 
+
+
+
+fastify.post('/avis-expert', {
+  schema: {
+    consumes: ['multipart/form-data'],
+    body: {
+      type: 'object',
+      required: ['stringifyAvisExpert'],
+      properties: {
+        stringifyAvisExpert: {
+          type: 'object',
+        },
+        blobFichierSaisine: {
+          type: 'object',
+        },
+        blobFichierAvis: {
+          type: 'object',
+        },
+      }
+    }
+  }
+}, async function (req) {
+  // Récupérer les données du corps de la requête
+  /** @type {any} */
+  const body = req.body
+  const avisExpert = JSON.parse(body.stringifyAvisExpert.value);
+
+  // Vérifier que les données avis expert (sans les fichiers) sont correctement typées
+  if (typeof avisExpert !== 'object') {
+    throw new Error("avisExpert n'est pas un objet.")
+  }
+  if (!('dossier' in avisExpert)) {
+      throw new Error("L'identifiant du dossier n'a pas été défini.")
+  }
+  if (Object.getOwnPropertyNames(avisExpert).filter((property) => !['dossier', 'expert', 'date_saisine', 'date_avis', 'avis', "id"].includes(property)).length !== 0) {
+      throw new Error(`L'objet avisExpert n'a pas un type correct. avisExpert reçu : ${JSON.stringify(avisExpert)}`)
+  }
+
+  /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+  let fichierSaisine
+  /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+  let fichierAvis
+
+  if ('blobFichierSaisine' in body) {
+    /** @type {any} */
+    const blobFichierSaisine = body.blobFichierSaisine
+    fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
+  }
+  if ('blobFichierAvis' in body) {
+    /** @type {any} */
+    const blobFichierAvis = body.blobFichierAvis
+    fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
+  } 
+
+  if (fichierAvis || fichierSaisine) {
+    return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
+  } else {
+    return estUnAvisExpertÀModifier(avisExpert) ? modifierAvisExpert(avisExpert) : ajouterAvisExpert(avisExpert)
+  }
+})
+
+
+
+/**
+ * @type {import('fastify').RouteShorthandOptions}
+ * @const
+ */
+const optsAvisExpertDelete = {
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        avisExpertId: {
+          type: 'string',
+          minLength: 2
+        },
+      },
+      required: ['avisExpertId'],
+    },
+  },
+};
+
+fastify.delete('/avis-expert/:avisExpertId', optsAvisExpertDelete ,function(request) {
+  //@ts-ignore
+  const {avisExpertId} = request.params
+
+  return supprimerAvisExpert(avisExpertId)
+})
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   // @ts-ignore
