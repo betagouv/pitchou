@@ -52,7 +52,7 @@
             <div>
                 <TagPhase phase={dossier.phase}  />
                 <div>
-                    <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+                    <span class="fr-icon-user-shared-2-line fr-icon--sm" aria-hidden="true"></span>
                     {dossier.prochaine_action_attendue_par || '(non renseignée)'}
                 </div>
             </div>
