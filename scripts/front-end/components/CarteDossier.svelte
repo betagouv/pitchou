@@ -15,7 +15,7 @@
     <div class="en-tête">
         <h2>
             <a href={`/dossier/${dossier.id}`} class="fr-link">
-                {dossier.nom || '(sans nom)'}
+                <span class="truncate">{dossier.nom || '(sans nom)'}</span>
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
         </h2>
@@ -46,11 +46,11 @@
                 <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
                 {formatDateAbsolue(dossier.date_dépôt, 'd/MM/yyyy')}
             </div>
-            <div class="truncate">
+            <div class="porteur-et-localisation">
                 <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
                 {formatPorteurDeProjet(dossier) || '(non renseigné)'}
             </div>
-            <div class="truncate">
+            <div class="porteur-et-localisation">
                 <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
                 {formatLocalisation(dossier) || '(non renseignée)'}
             </div>
@@ -75,14 +75,23 @@
             margin: 0;
             /* Permet d'aligner verticalement le titre avec les boutons d'actions */
             line-height: 1.2rem;
-            text-overflow: ellipsis; 
-            overflow: hidden;
-            white-space: nowrap;
+            min-width: 0;
 
             a {
                 color: var(--text-title-grey);
                 font-size: 1.25rem;
                 line-height: 1.25rem;
+                min-width: 0;
+
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+                
+                .truncate {
+                    text-overflow: ellipsis; 
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
             }
         }
     }
@@ -110,13 +119,12 @@
             flex-direction: row;
             justify-content: space-between;
             gap: 1rem;
-            /* flex-wrap: wrap; */
 
             .date-dépôt {
                 white-space: nowrap;
             }
 
-            .truncate {
+            .porteur-et-localisation {
                 max-width: 50%;
                 white-space: nowrap;
                 overflow: hidden;

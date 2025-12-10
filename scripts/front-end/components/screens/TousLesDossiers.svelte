@@ -19,9 +19,6 @@
 
     let numéroDeLaPageSélectionnée = $state(1)
 
-    /** @type {HTMLLIElement | undefined} */
-    let refPremierDossierAffiché = $state()
-
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
     let selectionneursPage = $derived.by(() => {
@@ -31,9 +28,7 @@
             /** @type {SelectionneurPage[]} */
             const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => {
                 numéroDeLaPageSélectionnée = i+1
-                if (refPremierDossierAffiché) {
-                    refPremierDossierAffiché.scrollIntoView()
-                }
+                window.scrollTo(0,0)
             })]
             return [undefined, ...sélectionneurs]
         } else {
@@ -63,18 +58,12 @@
 
 <Squelette {email} title="Tous les dossiers">
     <h1>Tous les dossiers</h1>
-    <div class="liste-des-dossiers fr-mb-2w fr-p-1w">
+    <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-15w">
         <ul>
-            {#each dossiersAffichés as dossier, i}
-                {#if i === 0}
-                    <li bind:this={refPremierDossierAffiché}>
-                        <CarteDossier {dossier} />
-                    </li>
-                {:else}
-                    <li>
-                        <CarteDossier {dossier} />
-                    </li>
-                {/if}
+            {#each dossiersAffichés as dossier}
+                <li>
+                    <CarteDossier {dossier} />
+                </li>   
             {/each}
         </ul>
     </div>
@@ -90,6 +79,8 @@
 
     ul {
         list-style: none;
+        padding: 0;
+        margin: 0;
     }
 
     li:not(:last-child) {
