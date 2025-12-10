@@ -43,16 +43,17 @@
 
     /** @type {typeof dossiers} */
     let dossiersAffichés = $derived.by(() => {
-        const dossiersTriésParDateDeDépôt = [...dossiers].sort((a,b) => {
+        // On affiche les dossiers triés par date de dépôt la plus récente
+        const dossiersTriés = [...dossiers].sort((a,b) => {
             const dateA = a.date_dépôt ?? new Date(0);
             const dateB = b.date_dépôt ?? new Date(0);
             return dateA < dateB ? 1 : -1;
         })
 
         if(!selectionneursPage)
-            return dossiersTriésParDateDeDépôt
+            return dossiersTriés
         else{
-            return dossiersTriésParDateDeDépôt.slice(
+            return dossiersTriés.slice(
                 NOMBRE_DOSSIERS_PAR_PAGE*(numéroDeLaPageSélectionnée-1),
                 NOMBRE_DOSSIERS_PAR_PAGE*numéroDeLaPageSélectionnée
             )
