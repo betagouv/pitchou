@@ -16,7 +16,7 @@
     <div class="en-tête">
         <h2>
             <a href={`/dossier/${dossier.id}`} class="fr-link">
-                <span class="truncate">{dossier.nom || '(sans nom)'}</span>
+                <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
         </h2>
@@ -127,6 +127,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
 
         .première-ligne > div {      
@@ -134,6 +135,7 @@
             flex-direction: row;
             align-items: center;
             gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .deuxième-ligne {
@@ -141,7 +143,7 @@
             flex-direction: row;
             justify-content: space-between;
             gap: 1rem;
-
+            flex-wrap: wrap;
             .date-dépôt {
                 white-space: nowrap;
             }

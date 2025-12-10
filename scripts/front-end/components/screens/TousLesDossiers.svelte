@@ -58,7 +58,7 @@
 
 <Squelette {email} title="Tous les dossiers">
     <h1>Tous les dossiers</h1>
-    <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-15w">
+    <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
         <ul>
             {#each dossiersAffichés as dossier}
                 <li>
