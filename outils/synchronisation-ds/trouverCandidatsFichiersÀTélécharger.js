@@ -1,6 +1,6 @@
 
-/** @import {DossierDS88444, ChampDSPieceJustificative, DSFile, ChampRépétéDSPieceJustificative} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {DossierDS88444, ChampDSPieceJustificative, DSFile, ChampRépétéDSPieceJustificative} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 
 import {isChampDSPieceJustificative, isChampRépétéDSPieceJustificative} from '../../scripts/types/typeguards.js';
 

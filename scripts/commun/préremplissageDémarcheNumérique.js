@@ -23,8 +23,8 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 */
 
 /** @import {GeoAPICommune, GeoAPIDépartement} from "../types/GeoAPI.ts" */
-/** @import {DossierDemarcheSimplifiee88444} from "../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
+/** @import {DossierDemarcheSimplifiee88444} from "../types/démarche-numérique/DémarcheSimplifiée88444.js" */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 
 /** @type {keyof DossierDemarcheSimplifiee88444} */
 export const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"

@@ -2,7 +2,7 @@
 
 import graphQLQuery from './queryGraphQL.js'
 
-/** @import {GroupeInstructeurs} from '../../types/démarches-simplifiées/apiSchema.ts' */
+/** @import {GroupeInstructeurs} from '../../types/démarche-numérique/apiSchema.ts' */
 
 import {GroupeInstructeursQuery} from './graphQLqueries.js'
 import { normalisationEmail } from '../../commun/manipulationStrings.js'

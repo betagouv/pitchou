@@ -8,7 +8,7 @@ import { makeFichierHash } from '../../scripts/server/database/fichier.js';
 import téléchargerFichierDS from './téléchargerFichierDS.js';
 
 
-/** @import {DossierDS88444, DSFile} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444, DSFile} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
 

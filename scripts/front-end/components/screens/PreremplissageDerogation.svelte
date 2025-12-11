@@ -1,6 +1,6 @@
 <script>
-    /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-    /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarches-simplifiées/schema.js' */
+    /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarche-numérique/DémarcheSimplifiée88444.js" */
+    /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarche-numérique/schema.js' */
     import { créerLienGETPréremplissageDémarche } from '../../../commun/préremplissageDémarcheNumérique.js';
     import Squelette from '../Squelette.svelte'
     import CopyButton from '../CopyButton.svelte'

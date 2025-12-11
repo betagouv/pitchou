@@ -1,8 +1,8 @@
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier, DossierId} from '../../../scripts/types/database/public/Dossier.ts' */
-/** @import {DossierDS88444, DSFile} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {ChampDescriptor} from '../../../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierDemarcheSimplifiee88444} from '../../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {DossierDS88444, DSFile} from '../../types/démarche-numérique/apiSchema.ts' */
+/** @import {ChampDescriptor} from '../../types/démarche-numérique/schema.ts' */
+/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarche-numérique/DémarcheSimplifiée88444.ts' */
 /** @import {Knex} from 'knex' */
 
 import trouverCandidatsFichiersÀTélécharger from '../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js'
