@@ -123,7 +123,7 @@ function toSheetRawCellContent(x){
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport'] // TODO: change that
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
         .map(toSheetRawCellContent)
     ]
 
@@ -409,7 +409,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
                 "code méthode": codeMéthode,
-                "code transport": codeMoyenDePoursuite //TODO.: changer le nom du code
+                "code transport": codeMoyenDePoursuite
             } = ligneFauneNonOiseauOds
             let identifiantPitchouActivité = ligneFauneNonOiseauOds['identifiant pitchou activité']
 
