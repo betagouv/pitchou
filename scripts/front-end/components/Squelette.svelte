@@ -185,7 +185,7 @@
     {@render children?.()}
 </main>
 
-<footer class="fr-footer" id="footer">
+<footer class="fr-footer fr-mt-2w" id="footer">
     <div class="fr-container">
         <div class="fr-footer__body">
             <div class="fr-footer__brand fr-enlarge-link">

@@ -223,29 +223,29 @@
                 {/if}
             </div>
 
-        <!--
-            Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
-            ne fournit pas de ciomposant plus générique pour le moment
-            Ce morceau sera à revisiter soit avec un composant fait par nous
-            soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
-        -->
-        <div class="fr-translate fr-nav">
-            <div class="fr-nav__item">
-                <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">
-                    Pré-remplir
-                </button>
-                <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
-                    <ul class="fr-menu__list">
-                        <li>
-                            <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-import" >Importer un document .ods</button>
-                        </li>
-                        <li>
-                            <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button>
-                        </li>
-                    </ul>
+            <!--
+                Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
+                ne fournit pas de composant plus générique pour le moment
+                Ce morceau sera à revisiter soit avec un composant fait par nous
+                soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
+            -->
+            <div class="fr-translate fr-nav">
+                <div class="fr-nav__item">
+                    <button aria-controls="methodes-preremplissage" aria-expanded="false" title="Choisir une méthode de pré-remplissage" type="button" class="fr-btn fr-btn--tertiary">
+                        Pré-remplir
+                    </button>
+                    <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
+                        <ul class="fr-menu__list">
+                            <li>
+                                <button class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-import" >Importer un document .ods</button>
+                            </li>
+                            <li>
+                                <button class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link" type="button" data-fr-opened="false" aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
         </header>
 
         <div class="fr-grid-row">

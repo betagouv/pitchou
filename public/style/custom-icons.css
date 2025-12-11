@@ -3,3 +3,9 @@
   -webkit-mask-image: url("../icons/file-copy-2-line.svg");
   mask-image: url("../icons/file-copy-2-line.svg");
 }
+
+.fr-icon-user-shared-2-line::before,
+.fr-icon-user-shared-2-line::after {
+  -webkit-mask-image: url("/docs/style/dsfr/icons/user/user-shared-2-line.svg");
+  mask-image: url("/docs/style/dsfr/icons/user/user-shared-2-line.svg");
+}
