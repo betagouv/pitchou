@@ -23,8 +23,8 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 */
 
 /** @import {GeoAPICommune, GeoAPIDépartement} from "../types/GeoAPI.ts" */
-/** @import {DossierDemarcheSimplifiee88444} from "../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
+/** @import {DossierDemarcheSimplifiee88444} from "../types/démarche-numérique/DémarcheSimplifiée88444.js" */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 
 /** @type {keyof DossierDemarcheSimplifiee88444} */
 export const clefAE = "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
@@ -43,7 +43,7 @@ export function schemaToChampLabelToChampId(schema){
 
 /**
  * Buggé, mais on sait pas encore pourquoi 
- * Sûrement un bug côté Démarches Simplifiées
+ * Sûrement un bug côté Démarche Numérique
  * https://mattermost.incubateur.net/betagouv/pl/tipfbemo1tfymr6qoguggag4gc
  * 
  * @param {GeoAPICommune} _ 
@@ -74,7 +74,7 @@ function makeDépartementParam({code}, démarcheDossierLabelToId){
 const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?`
 
 /**
- * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction créé un lien GET
  * 
  * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel
@@ -98,7 +98,7 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel, schema8844
             /** @type {DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444] | undefined} */
             const valeur = dossierPartiel[champ]
             if (valeur !== undefined && valeur !== null && valeur !== "") {
-                // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+                // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
         }

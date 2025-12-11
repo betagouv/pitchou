@@ -15,7 +15,7 @@ Front-end en Svelte
 Back-end en Node.js
 Base de données Postgres
 
-Le serveur récupère les données des dossiers via [l'API Démarches Simplifiées](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
+Le serveur récupère les données des dossiers via [l'API Démarche Numérique](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
 
 
 ## En dév
@@ -176,18 +176,18 @@ Dans le fichier `data/sources_especes/espèces_manquantes.ods` ajouter l'espèce
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces complétée.
 
 
-### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
+### Synchroniser dossiers récemment modifiés de Démarche Numérique
 
 #### En dev
 
 depuis le container du serveur
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees` (dernières heures par défaut)
+`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees` (dernières heures par défaut)
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
+`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
 
 
-`docker exec tooling node --env-file=.env outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
+`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 
 #### En prod
@@ -206,7 +206,7 @@ Parfois, notamment après des changements dans le modèle de données, il est n�
 Pour le faire, on peut utiliser un [*one-off container*}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
-scalingo --app especes-protegees run node outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01
+scalingo --app especes-protegees run node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01
 ```
 
 

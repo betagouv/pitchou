@@ -19,7 +19,7 @@
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 
     /** @import {ComponentProps} from 'svelte' */
-    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
+    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarche-numérique/DémarcheSimplifiée88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
@@ -697,7 +697,7 @@
                 <div class="fr-mb-5w">
                     Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
                     <br>
-                    Vous pouvez <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}>créer des dossiers sur démarches simplifiées</a>.
+                    Vous pouvez <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}>créer des dossiers sur Démarche Numérique</a>.
                     Et répondre un département correspondant à votre département ou région à la question
                     "Dans quel département se localise majoritairement votre projet ?"
                     <br>

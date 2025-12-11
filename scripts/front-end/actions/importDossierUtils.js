@@ -1,7 +1,7 @@
 /** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-/** @import { DossierPourInsertGénérique,  } from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import { DossierPourInsertGénérique,  } from '../../types/démarche-numérique/DossierPourSynchronisation.ts' */
 /** @import { DossierInitializer } from '../../types/database/public/Dossier.ts' */
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarche-numérique/DémarcheSimplifiée88444.ts" */
 
 import { json } from "d3-fetch";
 import memoize from 'just-memoize'

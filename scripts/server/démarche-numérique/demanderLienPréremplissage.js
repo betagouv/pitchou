@@ -1,10 +1,10 @@
 //@ts-check
 
 import ky from "ky"
-import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheSimplifiée.js";
+import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheNumérique.js";
 
-/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../../types/démarches-simplifiées/schema.js' */
+/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarche-numérique/DémarcheSimplifiée88444.js" */
+/** @import {SchemaDémarcheSimplifiée} from '../../types/démarche-numérique/schema.js' */
 
 const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`
@@ -35,7 +35,7 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
             // @ts-ignore
             const valeur = dossierPartiel[champ]
             if (valeur) {
-                // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+                // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
         }
