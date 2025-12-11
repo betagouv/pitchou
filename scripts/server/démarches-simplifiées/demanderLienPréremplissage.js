@@ -35,7 +35,7 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
             // @ts-ignore
             const valeur = dossierPartiel[champ]
             if (valeur) {
-                // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+                // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
         }

@@ -663,7 +663,7 @@
                 <div class="fr-mb-5w">
                     Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
                     <br>
-                    Vous pouvez <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}>créer des dossiers sur démarches simplifiées</a>.
+                    Vous pouvez <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}>créer des dossiers sur Démarche Numérique</a>.
                     Et répondre un département correspondant à votre département ou région à la question
                     "Dans quel département se localise majoritairement votre projet ?"
                     <br>

@@ -1,7 +1,7 @@
 # FAQ (issue des questions du webinaire du 04/10)
 
 - **Quelle articulation avec GUN ENV pour éviter les doubles saisies ?**
-À ce jour, et temporairement, les instructeur·ices de Nouvelle Aquitaine saisissent à la main les dossiers en Autorisation Environnementale dans Démarches-numériques.
+À ce jour, et temporairement, les instructeur·ices de Nouvelle Aquitaine saisissent à la main les dossiers en Autorisation Environnementale dans Démarche Numérique.
 Le lien n’est pas encore fait avec GUNEnv, mais les discussions sont en cours.
 
 - **Quel calendrier de déploiement de Pitchou ?**
@@ -95,7 +95,7 @@ Quand toutes les données seront saisies dans Pitchou et qu’on alimentera GeoM
 - **Des liens avec Licorne également ?**
 Ça sera peut-être plus compliqué avec Licorne car on attend que ça se stabilise aussi de leur côté pour commencer à parler avec eux.
 
-- **Par expérience d’une autre démarche sous Démarches Simplifiées, le RGPD oblige à archiver les dossiers de plus de trois ans. Je vois mal comment ce délai va rester compatible avec le délai de traitement des autorisations espèces pro, ni avec la durée de vie des installations (environ 30 ans). Est ce que vous leur avez posé la question ?**
+- **Par expérience d’une autre démarche sous Démarche Numérique, le RGPD oblige à archiver les dossiers de plus de trois ans. Je vois mal comment ce délai va rester compatible avec le délai de traitement des autorisations espèces pro, ni avec la durée de vie des installations (environ 30 ans). Est ce que vous leur avez posé la question ?**
 On va sortir les dossiers de DN et les stocker de manière autonome dans notre propre environnement.
 DN est l’interface avec les petitionnaires mais nous sommes responsables des données saisies.
 On récupère pour le moment les données toutes les 10 minutes.
@@ -124,7 +124,7 @@ On ne pourra pas couvrir tous les cas et tous les types de dossiers à travers u
 Cela dit, on l’a adapté pour les dérogations scientifiques, les destructions de nids d’Hirondelles ou de Cigognes et les suivis mortalité dans les parcs éoliens.
 Si des besoins partagés remontent sur d’autres types de dossiers, nous pourrons à nouveau adapter le formulaire, mais il est déjà très loiurd à ce stade.
 
-- **Le formulaire démarche-simplifiée que vous avez créé pour la Dordogne devra être cloné pour les autres départements /Régions pour être utilisé ?**
+- **Le formulaire démarche numérique que vous avez créé pour la Dordogne devra être cloné pour les autres départements /Régions pour être utilisé ?**
 Non, tout le monde utilise le même puis on peut créer des groupes d’instructeur·ices pour que les dossiers soient rédirigés vers les bonnes personnes.
 
 - **Y aura -t'il une assistance au niveau national pour répondre aux questions des pétitionnaires au sujet de DN ?**
@@ -145,11 +145,11 @@ Ce qui manque, c’est le morceau de code qui extrait les données de la base de
 - **Peut-on saisir l’avis de la DREAL via Pitchou ?**
 Oui, tout comme la saisie des experts.
 
-- **Les consultations (CSRPN / CNPN) passent ou passeront par démarches simplifiées. L’avis produit en retour est-il stocké dans Pitchou ?**
+- **Les consultations (CSRPN / CNPN) passent ou passeront par Démarche Numérique. L’avis produit en retour est-il stocké dans Pitchou ?**
 Tout à fait. Les échanges seront faits via l’onglet “avis d’expert” et donc stockés.
 
-- **Si démarche simplifiée indique au porteur de projet qu’une DEP ne semble pas nécessaire, est-ce que le service instructeur reçoit les éléments de la saisie ?**
-Oui tout à fait, l’idée est de pouvoir aussi suivre ces demandes. Mais le pétitionnaire doit déposer la demande. Et le formulaire démarches-simplifiées n’est volontairement pas conclusif.
+- **Si démarche numérique indique au porteur de projet qu’une DEP ne semble pas nécessaire, est-ce que le service instructeur reçoit les éléments de la saisie ?**
+Oui tout à fait, l’idée est de pouvoir aussi suivre ces demandes. Mais le pétitionnaire doit déposer la demande. Et le formulaire démarche numérique n’est volontairement pas conclusif.
 
 - **Comment se passe l’affectation d’un dossier à un instructeur ?**
 C’est une fonctionnalité de DN où les administrateurs peuvent affecter des dossiers avec des instructeurs. A terme cette fonctionnalité sera intégrée au tableau de bord de Pitchou.
@@ -157,13 +157,13 @@ C’est une fonctionnalité de DN où les administrateurs peuvent affecter des d
 - **On peut faire en sorte de bloquer le dépôt du dossier s’il manque des infos (la liste d’espèces par exemple) ?**
 Ce n’est pas vraiment dans la philosophie du produit. L’idée est plutôt de demander des compléments si besoin plutôt que de bloquer le dépôt.
 
-- **Si je comprends bien, l’ensemble des échanges doivent se faire sur mes démarches simplifiées ?**
+- **Si je comprends bien, l’ensemble des échanges doivent se faire sur mes Démarche Numérique ?**
 Oui, modulo la messagerie cf plus haut, dont l’utilisation est encore en test.
 
-- **Est-ce que Démarches simplifiée garde un historique des dossiers ?**
+- **Est-ce que Démarche Numérique garde un historique des dossiers ?**
 Oui, pendant 5 ans le temps de l’instruction. Après ça, Pitchou recupère automatiquement les données qui sont stockées aussi longtemps que nécessaire.
 
-- **Est-ce que l’outil Démarches simplifiés permet une instruction conjointe entre plusieurs Régions ? ou est-ce un outil DS par région ?**
+- **Est-ce que l’outil Démarche Numérique permet une instruction conjointe entre plusieurs Régions ? ou est-ce un outil DS par région ?**
 DS permet pour le même formulaire qu’il y ait plusieurs groupes d’instructeurs. Nous avons décidé qu’il y ait un groupe par unité administrative pertinente.
 Et on va ajouter un groupe pour les dossiers interrégionaux.
 Les instructeur·ices seront invité·es à ce groupe le temps que vous avez un dossier inter-régionnal.

@@ -15,7 +15,7 @@ Front-end en Svelte
 Back-end en Node.js
 Base de données Postgres
 
-Le serveur récupère les données des dossiers via [l'API Démarches Simplifiées](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
+Le serveur récupère les données des dossiers via [l'API Démarche Numérique](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
 
 
 ## En dév
@@ -176,7 +176,7 @@ Dans le fichier `data/sources_especes/espèces_manquantes.ods` ajouter l'espèce
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces complétée.
 
 
-### Synchroniser dossiers récemment modifiés de Démarches Simplifiées
+### Synchroniser dossiers récemment modifiés de Démarche Numérique
 
 #### En dev
 

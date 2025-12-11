@@ -221,7 +221,7 @@
         </div>
 
 
-        <a target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarches Simplifiées</a>
+        <a target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/annotations-privees`}>Annotations privées sur Démarche Numérique</a>
 
     </section>
 

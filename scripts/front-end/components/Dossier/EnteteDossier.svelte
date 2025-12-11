@@ -74,7 +74,7 @@
         {#if dossier.number_demarches_simplifiées}
             <div>
                 <span class="fr-icon-folder-2-fill" aria-hidden="true"></span>
-                Numéro dossier Démarches Simplifiées&nbsp:&nbsp{dossier.number_demarches_simplifiées}
+                Numéro dossier Démarche Numérique&nbsp:&nbsp{dossier.number_demarches_simplifiées}
             </div>
         {/if}
     </section>

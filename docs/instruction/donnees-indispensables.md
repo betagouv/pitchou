@@ -1,4 +1,4 @@
-# Quelles sont les données à remplir dans Démarches Numériques (DN) et indispensables pour l'instruction ?
+# Quelles sont les données à remplir dans Démarche Numérique (DN) et indispensables pour l'instruction ?
   
 Un certain nombre de champs doivent être remplis dans le formulaire DN par le pétitionnaire, afin de considérer que le dossier est **complet et permettre son instruction.**
 
