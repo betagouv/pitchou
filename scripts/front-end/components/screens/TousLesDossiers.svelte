@@ -11,13 +11,13 @@
 
     /**
     * @typedef {Object} Props
-    * @property {string} email
+    * @property {string} [email]
     * @property {DossierRésumé[]} dossiers
     * @property {Set<Dossier['id']>} [dossierIdsSuivisParInstructeurActuel]
     */
     /** @type {Props} */
     let { 
-            email,
+            email = '',
             dossiers,
             dossierIdsSuivisParInstructeurActuel,
         } = $props();

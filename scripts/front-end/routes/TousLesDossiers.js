@@ -26,7 +26,7 @@ export default async () => {
 
 
 
-            const dossierIdsSuivisParInstructeurActuel = state?.relationSuivis?.get(email)
+            const dossierIdsSuivisParInstructeurActuel = state?.relationSuivis?.get(email ?? '')
             return {
                 email,
                 dossiers,
