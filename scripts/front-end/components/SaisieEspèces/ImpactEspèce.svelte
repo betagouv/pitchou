@@ -59,7 +59,7 @@
 
     function réinitialiserDétailsImpact() {
         impact.méthode = undefined
-        impact.transport = undefined
+        impact.moyenDePoursuite = undefined
         impact.nombreIndividus = undefined
         impact.surfaceHabitatDétruit = undefined
         impact.nombreNids = undefined
@@ -126,7 +126,7 @@
                 <label class="fr-label" for="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     Moyen de poursuite
                 </label>
-                <select bind:value={impact.transport} class="fr-select" id="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
+                <select bind:value={impact.moyenDePoursuite} class="fr-select" id="input-espece-{indexEspèce}-moyen-de-poursuite-{indexImpact}">
                     <option value={undefined}>-</option>
                     {#each transportMenaçants as trans}
                     <option value={trans}>

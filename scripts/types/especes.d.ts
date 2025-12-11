@@ -118,19 +118,19 @@ export interface FloreAtteinteJSON extends EtreVivantAtteintJSON {
 export interface FauneNonOiseauAtteinte extends EtreVivantAtteint {
     activité?: ActivitéMenançante,
     méthode?: MéthodeMenançante,
-    transport?: MoyenDePoursuiteMenaçant,
+    moyenDePoursuite?: MoyenDePoursuiteMenaçant,
 }
 
 export interface FauneNonOiseauAtteinteJSON extends EtreVivantAtteintJSON {
     activité?: string,
     méthode?: string,
-    transport?: string,
+    moyenDePoursuite?: string,
 }
 
 export interface OiseauAtteint extends EtreVivantAtteint {
     activité?: ActivitéMenançante,
     méthode?: MéthodeMenançante,
-    transport?: MoyenDePoursuiteMenaçant,
+    moyenDePoursuite?: MoyenDePoursuiteMenaçant,
     nombreNids?: number,
     nombreOeufs?: number,
 }
@@ -138,7 +138,7 @@ export interface OiseauAtteint extends EtreVivantAtteint {
 export interface OiseauAtteintJSON extends EtreVivantAtteintJSON {
     activité?: string,
     méthode?: string,
-    transport?: string,
+    moyenDePoursuite?: string,
     nombreNids?: number,
     nombreOeufs?: number,
 }
@@ -148,7 +148,7 @@ export interface DescriptionImpact {
     surfaceHabitatDétruit?: number,
     activité?: ActivitéMenançante,
     méthode?: MéthodeMenançante,
-    transport?: MoyenDePoursuiteMenaçant,
+    moyenDePoursuite?: MoyenDePoursuiteMenaçant,
     nombreNids?: number,
     nombreOeufs?: number,
 }

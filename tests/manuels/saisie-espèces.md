@@ -2,7 +2,7 @@
 
 ## Description
 
-Il s'agit du formulaire où le pétitionnaire saisit les données associées aux espèces protégées dérangées par ses opérations (espèces, surfaces d'habitat, nombre d'individus, de nids et données pour le reportage européen, activité, méthodes, transport)
+Il s'agit du formulaire où le pétitionnaire saisit les données associées aux espèces protégées dérangées par ses opérations (espèces, surfaces d'habitat, nombre d'individus, de nids et données pour le rapportage européen, activité, méthodes, moyen de poursuite)
 
 
 ## Test manuel

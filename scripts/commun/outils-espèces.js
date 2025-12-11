@@ -123,22 +123,22 @@ function toSheetRawCellContent(x){
  */
 function oiseauxAtteintsToTableContent(oiseauxAtteints){
     const sheetRawContent = [
-        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport']
+        ['noms vernaculaires', 'noms scientifique', 'CD_REF', 'nombre individus', 'nids', 'œufs', 'surface habitat détruit', 'activité', 'identifiant pitchou activité', 'code activité', 'méthode', 'code méthode', 'transport', 'code transport'] // TODO: change that
         .map(toSheetRawCellContent)
     ]
 
-    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, transport} of oiseauxAtteints){
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, activité, méthode, moyenDePoursuite} of oiseauxAtteints){
 
         const labelActivité = activité && activité['Libellé Pitchou']
         const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
         const codeEuropeActivité = activité && activité['Code rapportage européen']
         const labelMéthode = méthode && méthode['Libellé Pitchou']
         const codeMéthode = méthode && méthode.Code
-        const labelTransport = transport && transport['Libellé Pitchou']
-        const codeTransport = transport && transport.Code
+        const labelMoyenDePoursuite = moyenDePoursuite && moyenDePoursuite['Libellé Pitchou']
+        const codeMoyenDePoursuite = moyenDePoursuite && moyenDePoursuite.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, nombreNids, nombreOeufs, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelMoyenDePoursuite, codeMoyenDePoursuite]
             .map(toSheetRawCellContent)
         )
     }
@@ -158,17 +158,17 @@ function faunesNonOiseauAtteintesToTableContent(faunesNonOiseauAtteintes){
         .map(toSheetRawCellContent)
     ]
 
-    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, transport} of faunesNonOiseauAtteintes){
+    for(const {espèce: {nomsScientifiques, nomsVernaculaires, CD_REF}, nombreIndividus, surfaceHabitatDétruit, activité, méthode, moyenDePoursuite} of faunesNonOiseauAtteintes){
         const labelActivité = activité && activité['Libellé Pitchou']
         const identifiantPitchouActivité = activité && activité['Identifiant Pitchou']
         const codeEuropeActivité = activité && activité['Code rapportage européen']
         const labelMéthode = méthode && méthode['Libellé Pitchou']
         const codeMéthode = méthode && méthode.Code
-        const labelTransport = transport && transport['Libellé Pitchou']
-        const codeTransport = transport && transport.Code
+        const labelMoyenDePoursuite = moyenDePoursuite && moyenDePoursuite['Libellé Pitchou']
+        const codeMoyenDePoursuite = moyenDePoursuite && moyenDePoursuite.Code
 
         sheetRawContent.push(
-            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelTransport, codeTransport]
+            [[...nomsVernaculaires].join(', '), [...nomsScientifiques].join(', '), CD_REF, nombreIndividus, surfaceHabitatDétruit, labelActivité, identifiantPitchouActivité, codeEuropeActivité, labelMéthode, codeMéthode, labelMoyenDePoursuite, codeMoyenDePoursuite]
             .map(toSheetRawCellContent)
         )
     }
@@ -242,10 +242,10 @@ export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEsp
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} moyensDePoursuite
  * @returns {DescriptionMenacesEspèces}
  */
-function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, transports){
+function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, espèceByCD_REF, activites, methodes, moyensDePoursuite){
     /** @type {DescriptionMenacesEspèces} */
     const descriptionMenacesEspèces = Object.create(null)
 
@@ -253,7 +253,7 @@ function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, esp�
         //@ts-ignore
         descriptionMenacesEspèces[classification] =
             //@ts-ignore
-            etresVivantsAtteints.map(({espèce, espece, activité, méthode, transport, ...rest}) => {
+            etresVivantsAtteints.map(({espèce, espece, activité, méthode, moyenDePoursuite, ...rest}) => {
                 //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas
                 // renseigné alors `espece` l'est forcément
                 const espèceParamDéprécié = espèceByCD_REF.get(espece)
@@ -263,7 +263,7 @@ function descriptionMenacesEspècesFromJSON(descriptionMenacesEspècesJSON, esp�
                     // @ts-ignore
                     activité: activites[classification].get(activité),
                     méthode: methodes[classification].get(méthode),
-                    transport: transports[classification].get(transport),
+                    moyenDePoursuite: moyensDePoursuite[classification].get(moyenDePoursuite),
                     ...rest
                 }
             })
@@ -287,15 +287,15 @@ function b64ToUTF8(s) {
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} moyensDePoursuite
  * @returns {DescriptionMenacesEspèces | undefined}
  */
-export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, transports){
+export function importDescriptionMenacesEspècesFromURL(url, espèceByCD_REF, activites, methodes, moyensDePoursuite){
     const urlData = url.searchParams.get('data')
     if(urlData){
         try{
             const data = JSON.parse(b64ToUTF8(urlData))
-            const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, transports)
+            const desc = descriptionMenacesEspècesFromJSON(data, espèceByCD_REF, activites, methodes, moyensDePoursuite)
             return desc
         }
         catch(e){
@@ -320,10 +320,10 @@ function ligneEspèceImpactéeHasCD_REF(espèceImpactée){
  * @param {Map<EspèceProtégée['CD_REF'], EspèceProtégée>} espèceByCD_REF
  * @param {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activites
  * @param {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} methodes
- * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transports
+ * @param {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} moyensDePoursuite
  * @returns {Promise<DescriptionMenacesEspèces>}
  */
-async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, transports){
+async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsFile, espèceByCD_REF, activites, methodes, moyensDePoursuite){
     /** @type {DescriptionMenacesEspèces} */
     const descriptionMenacesEspèces = Object.create(null)
 
@@ -359,7 +359,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
                 "code méthode": codeMéthode,
-                "code transport": codeTransport,
+                "code transport": moyenDePoursuite,
             } = ligneOiseauOds
             let identifiantPitchouActivité = ligneOiseauOds['identifiant pitchou activité']
 
@@ -395,7 +395,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 surfaceHabitatDétruit,
                 activité: activites['oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['oiseau'].get(codeMéthode),
-                transport: transports['oiseau'].get(codeTransport),
+                moyenDePoursuite: moyensDePoursuite['oiseau'].get(moyenDePoursuite),
             }
         })
     }
@@ -409,7 +409,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 "surface habitat détruit": surfaceHabitatDétruit,
                 "code activité": codeActivité,
                 "code méthode": codeMéthode,
-                "code transport": codeTransport
+                "code transport": codeMoyenDePoursuite //TODO.: changer le nom du code
             } = ligneFauneNonOiseauOds
             let identifiantPitchouActivité = ligneFauneNonOiseauOds['identifiant pitchou activité']
 
@@ -421,7 +421,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
             if (!identifiantPitchouActivité) {
                 if (codeActivité === '70') {
-                    // Transport de spécimens vivants ou morts
+                    // Moyen de poursuite de spécimens vivants ou morts
                     identifiantPitchouActivité = 'P-70-2'
                 } else {
                     identifiantPitchouActivité = `P-${codeActivité}`
@@ -434,7 +434,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
                 surfaceHabitatDétruit,
                 activité: activites['faune non-oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['faune non-oiseau'].get(codeMéthode),
-                transport: transports['faune non-oiseau'].get(codeTransport),
+                moyenDePoursuite: moyensDePoursuite['faune non-oiseau'].get(codeMoyenDePoursuite),
             }
         })
     }
@@ -601,16 +601,16 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
    }
 
    /** @type {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} */
-   const transports = {
+   const moyensDePoursuite = {
        oiseau: new Map(),
        "faune non-oiseau": new Map(),
        flore: new Map()
    };
 
-   for(const transport of moyensDePoursuiteBruts){
-       const classif = transport['Espèces']
+   for(const moyenDePoursuite of moyensDePoursuiteBruts){
+       const classif = moyenDePoursuite['Espèces']
 
-       if(!classif.trim() && (transport['Code'] === undefined || transport['Code'] === '')){
+       if(!classif.trim() && (moyenDePoursuite['Code'] === undefined || moyenDePoursuite['Code'] === '')){
            // ignore empty lines (certainly comments)
            break;
        }
@@ -619,18 +619,18 @@ export function actMetTransArraysToMapBundle(activitésBrutes, méthodesBrutes, 
            throw new TypeError(`Classification d'espèce non reconnue : ${classif}.}`)
        }
 
-       transport['Code'] = transport['Code'].toString()
+       moyenDePoursuite['Code'] = moyenDePoursuite['Code'].toString()
 
-       const classifTrans = transports[classif]
-       Object.freeze(transport)
-       classifTrans.set(transport.Code, transport)
-       transports[classif] = classifTrans
+       const classifTrans = moyensDePoursuite[classif]
+       Object.freeze(moyenDePoursuite)
+       classifTrans.set(moyenDePoursuite.Code, moyenDePoursuite)
+       moyensDePoursuite[classif] = classifTrans
    }
 
    return {
        activités,
        méthodes,
-       moyensDePoursuite: transports
+       moyensDePoursuite
    }
 }
 
