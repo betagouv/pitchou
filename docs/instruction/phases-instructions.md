@@ -3,7 +3,7 @@
 Un dossier se trouve dans une des phases suivantes :
 - "**Accompagnement amont**"
     - Le pétitionnaire n'est pas sûr de la nécessité d'une DDEP et l'instructeur l'accompagne vers la réponse.
-    - Afin d'obtenir une réponse officielle du service instructeur, le pétitionnaire doit déposer son projet sur démarches-numériques (DN) :
+    - Afin d'obtenir une réponse officielle du service instructeur, le pétitionnaire doit déposer son projet sur démarche-numériques (DN) :
         - Si aucune DDEP n'est nécessaire, l'instructeur passe le dossier en phase "Classé sans suite" dans DN,
         - Si une DDEP est nécessaire, le pétitionnaire complète sa demande, et celle-ci passe en phase...
 - "**Étude recevabilité DDEP**"
@@ -22,5 +22,5 @@ Un dossier se trouve dans une des phases suivantes :
 - "**Classé sans suite**"
     - Cette phase a lieu après la phase amont, si l'instructeur a conclu qu'une DDEP n'est pas nécessaire, ou si le pétitionnaire abandonne son projet et donc sa DDEP, etc.
 
-NB: Dans le schéma ci-dessous, "Démarches Numériques" est mentionné sous son ancien nom "Démarches Simplifiées"
+NB: Dans le schéma ci-dessous, "Démarche Numérique" est mentionné sous son ancien nom "Démarches Simplifiées"
 ![Tableau récapitulatif](phases_pitchou.png)
