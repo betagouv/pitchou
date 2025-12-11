@@ -43,7 +43,7 @@ export function schemaToChampLabelToChampId(schema){
 
 /**
  * Buggé, mais on sait pas encore pourquoi 
- * Sûrement un bug côté Démarches Simplifiées
+ * Sûrement un bug côté Démarche Numérique
  * https://mattermost.incubateur.net/betagouv/pl/tipfbemo1tfymr6qoguggag4gc
  * 
  * @param {GeoAPICommune} _ 
@@ -98,7 +98,7 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel, schema8844
             /** @type {DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444] | undefined} */
             const valeur = dossierPartiel[champ]
             if (valeur !== undefined && valeur !== null && valeur !== "") {
-                // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+                // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
         }

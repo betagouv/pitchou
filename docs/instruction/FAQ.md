@@ -95,7 +95,7 @@ Quand toutes les données seront saisies dans Pitchou et qu’on alimentera GeoM
 - **Des liens avec Licorne également ?**
 Ça sera peut-être plus compliqué avec Licorne car on attend que ça se stabilise aussi de leur côté pour commencer à parler avec eux.
 
-- **Par expérience d’une autre démarche sous Démarches Simplifiées, le RGPD oblige à archiver les dossiers de plus de trois ans. Je vois mal comment ce délai va rester compatible avec le délai de traitement des autorisations espèces pro, ni avec la durée de vie des installations (environ 30 ans). Est ce que vous leur avez posé la question ?**
+- **Par expérience d’une autre démarche sous Démarche Numérique, le RGPD oblige à archiver les dossiers de plus de trois ans. Je vois mal comment ce délai va rester compatible avec le délai de traitement des autorisations espèces pro, ni avec la durée de vie des installations (environ 30 ans). Est ce que vous leur avez posé la question ?**
 On va sortir les dossiers de DS et les stocker de manière autonome dans notre propre environnement.
 DS est l’interface avec les petitionnaires mais nous sommes responsables des données saisies.
 On récupère pour le moment les données toutes les 10 minutes.
@@ -145,7 +145,7 @@ Ce qui manque, c’est le morceau de code qui extrait les données de la base de
 - **Peut-on saisir l’avis de la DREAL via Pitchou ?**
 Oui, tout comme la saisie des experts.
 
-- **Les consultations (CSRPN / CNPN) passent ou passeront par démarches simplifiées. L’avis produit en retour est-il stocké dans Pitchou ?**
+- **Les consultations (CSRPN / CNPN) passent ou passeront par Démarche Numérique. L’avis produit en retour est-il stocké dans Pitchou ?**
 Tout à fait. Les échanges seront faits via l’onglet “avis d’expert” et donc stockés.
 
 - **Si démarche simplifiée indique au porteur de projet qu’une DEP ne semble pas nécessaire, est-ce que le service instructeur reçoit les éléments de la saisie ?**
@@ -157,7 +157,7 @@ C’est une fonctionnalité de DS où les administrateurs peuvent affecter des d
 - **On peut faire en sorte de bloquer le dépôt du dossier s’il manque des infos (la liste d’espèces par exemple) ?**
 Ce n’est pas vraiment dans la philosophie du produit. L’idée est plutôt de demander des compléments si besoin plutôt que de bloquer le dépôt.
 
-- **Si je comprends bien, l’ensemble des échanges doivent se faire sur mes démarches simplifiées ?**
+- **Si je comprends bien, l’ensemble des échanges doivent se faire sur mes Démarche Numérique ?**
 Oui, modulo la messagerie cf plus haut, dont l’utilisation est encore en test.
 
 - **Est-ce que Démarches simplifiée garde un historique des dossiers ?**
