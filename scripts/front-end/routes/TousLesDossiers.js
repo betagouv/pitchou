@@ -23,9 +23,14 @@ export default async () => {
             const dossiers = [...state.dossiersRésumés.values()]
             
             const { email } = mapStateToSqueletteProps(state);
+
+
+
+            const dossierIdsSuivisParInstructeurActuel = state?.relationSuivis?.get(email)
             return {
                 email,
                 dossiers,
+                dossierIdsSuivisParInstructeurActuel
             };
         }  
 

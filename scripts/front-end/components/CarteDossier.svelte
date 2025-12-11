@@ -1,5 +1,6 @@
 <script>
-	/** @import { DossierRésumé } from "../../types/API_Pitchou" **/
+    /** @import { DossierRésumé } from "../../types/API_Pitchou" **/
+    /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 	import { formatDateAbsolue, formatLocalisation, formatPorteurDeProjet } from "../affichageDossier"
 	import BoutonModale from "./DSFR/BoutonModale.svelte"
 	import TagPhase from "./TagPhase.svelte"
@@ -7,9 +8,19 @@
     /**
      * @typedef Props
      * @property {DossierRésumé} dossier
+     * @property {boolean} [dossierSuiviParInstructeurActuel]
+     * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelSuitDossier
+     * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
     */
     /** @type {Props}*/
-    let { dossier } = $props()
+    let { 
+            dossier, 
+            dossierSuiviParInstructeurActuel, 
+            instructeurActuelSuitDossier, 
+            instructeurActuelLaisseDossier 
+        } = $props()
+
+
 </script>
 
 <div class="carte fr-p-2w">
@@ -20,31 +31,40 @@
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
         </h2>
-        {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
-            {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
-            <BoutonModale id={dsfrModaleId} >
-                {#snippet boutonOuvrir()}
-                    <button type="button" class="fr-btn fr-icon-chat-3-line fr-btn--secondary fr-btn--sm" aria-controls={dsfrModaleId} data-fr-opened="false" >
-                        Commentaire
-                    </button>
-                {/snippet}
-                {#snippet contenu()}
-                    <header class="titre-modale">
-                        <h1 class="fr-modal__title">
-                            Commentaire dossier {dossier.nom}
-                        </h1>
-                        <h2 class="fr-modal__title">
-                            {formatPorteurDeProjet(dossier)}
-                            &nbsp;-&nbsp;
-                            {formatLocalisation(dossier)}
-                        </h2>
-                    </header>
-                    <div class="contenu-modale">
-                        {dossier.commentaire_libre}
-                    </div>
-                {/snippet}
-            </BoutonModale>
-         {/if}
+        <div>
+            {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
+                {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
+                <BoutonModale id={dsfrModaleId} >
+                    {#snippet boutonOuvrir()}
+                        <button type="button" class="fr-btn fr-icon-chat-3-line fr-btn--secondary fr-btn--sm" aria-controls={dsfrModaleId} data-fr-opened="false" >
+                            Commentaire
+                        </button>
+                    {/snippet}
+                    {#snippet contenu()}
+                        <header class="titre-modale">
+                            <h1 class="fr-modal__title">
+                                Commentaire dossier {dossier.nom}
+                            </h1>
+                            <h2 class="fr-modal__title">
+                                {formatPorteurDeProjet(dossier)}
+                                &nbsp;-&nbsp;
+                                {formatLocalisation(dossier)}
+                            </h2>
+                        </header>
+                        <div class="contenu-modale">
+                            {dossier.commentaire_libre}
+                        </div>
+                    {/snippet}
+                </BoutonModale>
+            {/if}
+            {#if typeof dossierSuiviParInstructeurActuel === 'boolean'}
+                {#if dossierSuiviParInstructeurActuel}
+                    <button type="button" class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm" onclick={() => instructeurActuelLaisseDossier(dossier.id)}>Ne plus suivre</button>
+                {:else}
+                    <button type="button" class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm" onclick={() => instructeurActuelSuitDossier(dossier.id)}>Suivre</button>
+                {/if}
+            {/if}
+         </div>
     </div>
 
     <div class="contenu">

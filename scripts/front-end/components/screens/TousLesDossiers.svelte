@@ -1,6 +1,8 @@
 <script>
     /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
 	/** @import { EventHandler } from "svelte/elements" */
+    /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
+	import { instructeurSuitDossier, instructeurLaisseDossier } from "../../actions/suiviDossier"
     import Squelette from "../Squelette.svelte"
     import CarteDossier from "../CarteDossier.svelte"
     import Pagination from '../DSFR/Pagination.svelte'
@@ -9,13 +11,15 @@
 
     /**
     * @typedef {Object} Props
-    * @property {string | undefined} [email]
+    * @property {string} email
     * @property {DossierRésumé[]} dossiers
+    * @property {Set<Dossier['id']>} [dossierIdsSuivisParInstructeurActuel]
     */
     /** @type {Props} */
     let { 
-            email = undefined,
+            email,
             dossiers,
+            dossierIdsSuivisParInstructeurActuel,
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -82,6 +86,22 @@
         }
         e.currentTarget.reset()
     }
+
+    /**
+     *
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelSuitDossier(id) {
+        return instructeurSuitDossier(email, id)
+    }
+
+    /**
+     *
+     * @param {Dossier['id']} id
+     */
+    function instructeurActuelLaisseDossier(id) {
+        return instructeurLaisseDossier(email, id)
+    }
 </script>
 
 <Squelette {email} title="Tous les dossiers">
@@ -102,7 +122,7 @@
             <ul>
                 {#each dossiersAffichés as dossier}
                     <li>
-                        <CarteDossier {dossier} />
+                        <CarteDossier {dossier} {instructeurActuelSuitDossier} {instructeurActuelLaisseDossier} dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} />
                     </li>   
                 {/each}
             </ul>
