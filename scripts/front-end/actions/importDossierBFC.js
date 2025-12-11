@@ -1,6 +1,6 @@
 //@ts-check
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarche-numérique/DémarcheSimplifiée88444" */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */

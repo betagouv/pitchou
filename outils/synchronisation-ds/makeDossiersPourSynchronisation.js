@@ -1,7 +1,7 @@
-/** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/DémarcheSimplifiée88444.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
+/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
@@ -16,7 +16,7 @@
 
 
 import assert from 'node:assert/strict'
-import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
+import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { isAfter } from 'date-fns'
 import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 

@@ -3,8 +3,8 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
-    /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarches-simplifiées/schema.js"; */
-    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+    /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js"; */
+    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarche-numérique/DémarcheSimplifiée88444.js" */
 
     import DéplierReplier from '../common/DéplierReplier.svelte'
     import { SvelteMap } from "svelte/reactivity";

@@ -10,9 +10,9 @@ import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/pers
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
 
-import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
-import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
-import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
+import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.js'
+import {recupérerGroupesInstructeurs} from '../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.js'
+import récupérerTousLesDossiersSupprimés from '../scripts/server/démarche-numérique/recupérerListeDossiersSupprimés.js'
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
@@ -33,11 +33,11 @@ import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {Message} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {DossierDS88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {Message} from '../scripts/types/démarche-numérique/apiSchema.ts' */
+/** @import {DossierDS88444} from '../scripts/types/démarche-numérique/apiSchema.ts' */
+/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarche-numérique/schema.ts' */
+/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarche-numérique/DémarcheSimplifiée88444.ts' */
 
 /** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 /** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
@@ -59,7 +59,7 @@ const args = parseArgs(process.argv)
 const ID_SCHEMA_DS = args.IdSchemaDS
 
 if (!ID_SCHEMA_DS) {
-    const liste_fichiers = await readdir(join(import.meta.dirname,`../data/démarches-simplifiées/schema-DS`))
+    const liste_fichiers = await readdir(join(import.meta.dirname,`../data/démarche-numérique/schema-DS`))
     console.error(`
 Aucun argument --IdSchemaDS n'a été fourni.
 Voici la liste des ids des schémas DS disponibles :
@@ -78,7 +78,7 @@ else{
     lastModified = sub(new Date(), {hours: 12})
 }
 /** @type {SchemaDémarcheSimplifiée} */
-const schema = (await import(`../data/démarches-simplifiées/schema-DS/${ID_SCHEMA_DS}.json`, {with: {type: 'json'}})).default
+const schema = (await import(`../data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`, {with: {type: 'json'}})).default
 
 const DEMARCHE_NUMBER = schema.number
 

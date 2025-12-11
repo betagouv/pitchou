@@ -18,7 +18,7 @@
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 
     /** @import {ComponentProps} from 'svelte' */
-    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts'*/
+    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarche-numérique/DémarcheSimplifiée88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */

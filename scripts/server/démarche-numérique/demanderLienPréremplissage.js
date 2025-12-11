@@ -3,8 +3,8 @@
 import ky from "ky"
 import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheNumérique.js";
 
-/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../../types/démarches-simplifiées/schema.js' */
+/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarche-numérique/DémarcheSimplifiée88444.js" */
+/** @import {SchemaDémarcheSimplifiée} from '../../types/démarche-numérique/schema.js' */
 
 const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`

@@ -1,4 +1,6 @@
 //@ts-check
+/** @import {SchemaDémarcheSimplifiée, ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarche-numérique/schema.ts' */
+/** @import {JSONSchema} from 'json-schema-to-typescript' */
 
 import {writeFile, readFile} from 'node:fs/promises'
 
@@ -6,8 +8,6 @@ import parseArgs from 'minimist'
 import { compile } from 'json-schema-to-typescript'
 import ky from 'ky'
 
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {JSONSchema} from 'json-schema-to-typescript' */
 
 const args = parseArgs(process.argv)
 
@@ -22,7 +22,7 @@ const urlSchema = `https://www.demarches-simplifiees.fr/preremplir/${ID_SCHEMA_D
 /** @type {SchemaDémarcheSimplifiée} */
 let schema;
 
-const schemaPath = `data/démarches-simplifiées/schema-DS/${ID_SCHEMA_DS}.json`
+const schemaPath = `data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`
 
 if(args.skipDownload){
     /** @type {string} */
@@ -293,7 +293,7 @@ const imports = [
     `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join('\n')
 
-const outPath = `scripts/types/démarches-simplifiées/DémarcheSimplifiée${schema.number}.ts`
+const outPath = `scripts/types/démarche-numérique/DémarcheSimplifiée${schema.number}.ts`
 await Promise.all([
     dossierDémarcheSimplifiéeInterfaceP,
     annotationsDémarcheSimplifiéeInterfaceP

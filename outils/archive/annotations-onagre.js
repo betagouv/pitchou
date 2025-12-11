@@ -9,7 +9,7 @@ import {getODSTableRawContent, sheetRawContentToObjects} from '@odfjs/odfjs'
 import {toDossierTableauSuiviNouvelleAquitaine2023, dossierSuiviNAVersDossierDS88444, dossierSuiviNAVersAnnotationsDS88444} from '../scripts/import-dossiers-historiques/nouvelle-aquitaine/conversions.js'
 import { normalizeNomCommune } from '../scripts/commun/typeFormat.js';
 import {listAllDossiersComplets} from '../scripts/server/database/dossier.js'
-import remplirAnnotations from '../scripts/server/démarches-simplifiées/remplirAnnotations.js'
+import remplirAnnotations from '../scripts/server/démarche-numérique/remplirAnnotations.js'
 
 
 /** @import { DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, DossierComplet} from "../scripts/types.js" */

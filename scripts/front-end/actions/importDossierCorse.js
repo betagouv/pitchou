@@ -1,4 +1,4 @@
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarche-numérique/DémarcheSimplifiée88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier, Alerte, DossierAvecAlertes } from "./importDossierUtils" */
 
 
