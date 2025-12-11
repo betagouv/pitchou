@@ -1,7 +1,7 @@
 # FAQ (issue des questions du webinaire du 04/10)
 
 - **Quelle articulation avec GUN ENV pour éviter les doubles saisies ?**
-À ce jour, et temporairement, les instructeur·ices de Nouvelle Aquitaine saisissent à la main les dossiers en Autorisation Environnementale dans Démarches-simplifiées.
+À ce jour, et temporairement, les instructeur·ices de Nouvelle Aquitaine saisissent à la main les dossiers en Autorisation Environnementale dans Démarche Numérique.
 Le lien n’est pas encore fait avec GUNEnv, mais les discussions sont en cours.
 
 - **Quel calendrier de déploiement de Pitchou ?**
@@ -149,7 +149,7 @@ Oui, tout comme la saisie des experts.
 Tout à fait. Les échanges seront faits via l’onglet “avis d’expert” et donc stockés.
 
 - **Si démarche simplifiée indique au porteur de projet qu’une DEP ne semble pas nécessaire, est-ce que le service instructeur reçoit les éléments de la saisie ?**
-Oui tout à fait, l’idée est de pouvoir aussi suivre ces demandes. Mais le pétitionnaire doit déposer la demande. Et le formulaire démarches-simplifiées n’est volontairement pas conclusif.
+Oui tout à fait, l’idée est de pouvoir aussi suivre ces demandes. Mais le pétitionnaire doit déposer la demande. Et le formulaire démarche numérique n’est volontairement pas conclusif.
 
 - **Comment se passe l’affectation d’un dossier à un instructeur ?**
 C’est une fonctionnalité de DS où les administrateurs peuvent affecter des dossiers avec des instructeurs. A terme cette fonctionnalité sera intégrée au tableau de bord de Pitchou.

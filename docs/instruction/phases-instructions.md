@@ -3,7 +3,7 @@
 Un dossier se trouve dans une des phases suivantes :
 - "**Accompagnement amont**"
     - Le pétitionnaire n'est pas sûr de la nécessité d'une DDEP et l'instructeur l'accompagne vers la réponse.
-    - Afin d'obtenir une réponse officielle du service instructeur, le pétitionnaire doit déposer son projet sur démarches-simplifiées :
+    - Afin d'obtenir une réponse officielle du service instructeur, le pétitionnaire doit déposer son projet sur démarche numérique :
         - Si aucune DDEP n'est nécessaire, l'instructeur passe le dossier en phase "Classé sans suite" dans DS,
         - Si une DDEP est nécessaire, le pétitionnaire complète sa demande, et celle-ci passe en phase...
 - "**Étude recevabilité DDEP**"

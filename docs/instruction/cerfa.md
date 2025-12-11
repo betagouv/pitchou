@@ -17,7 +17,7 @@ L’identification doit contenir :
 - Pour une personne physique : nom, prénom et adresse e-mail.
 
 ## La date et la preuve de dépôt
-Comme la documentation de démarches-simplifiées le mentionne : "Un accusé de réception est envoyé automatiquement, ce qui implique qu’il est possible de se dispenser de l’accusé d’enregistrement prévu à l’article R. 112-11-2 du code des relations avec le public.". Le contenu de cet AR est paramétrable sur l'outil , aussi l'accusé de réception pourra donc répondre aux exigences de formalisme de l'accusé de réception électronique prévues par l'article R. 112-11-1 du CRPA."
+Comme la documentation de déamrche numérique le mentionne : "Un accusé de réception est envoyé automatiquement, ce qui implique qu’il est possible de se dispenser de l’accusé d’enregistrement prévu à l’article R. 112-11-2 du code des relations avec le public.". Le contenu de cet AR est paramétrable sur l'outil , aussi l'accusé de réception pourra donc répondre aux exigences de formalisme de l'accusé de réception électronique prévues par l'article R. 112-11-1 du CRPA."
 
 Cet **accusé réception confère date certaine** au dépôt de la demande et permet l'ouverture du délai d'acquisition d'une décision implicite.
 
