@@ -31,6 +31,7 @@
     let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
 
     let phase = $derived(phaseActuelle)
+    let ddep_nécessaire = $state(dossier.ddep_nécessaire)
     let commentaire_libre = $state(dossier.commentaire_libre)
     let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
 
@@ -74,6 +75,10 @@
 
         if(dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par){
             modifs.prochaine_action_attendue_par = prochaine_action_attendue_par
+        }
+
+        if(dossier.ddep_nécessaire !== ddep_nécessaire){
+            modifs.ddep_nécessaire = ddep_nécessaire
         }
 
         if (Object.keys(modifs).length>=1){
@@ -151,13 +156,6 @@
             </div>
         {/if}
 
-        <h2 class="fr-mt-3w">Une DDEP est-elle nécessaire ?</h2>
-        {#if typeof dossier.ddep_nécessaire !== 'string' || dossier.ddep_nécessaire === ''}
-            Non renseigné
-        {:else}
-            {dossier.ddep_nécessaire}
-        {/if}
-
         <h2 class="fr-mt-3w">Dates de consultation du public ou enquête publique</h2>
         <ul>
             <li><strong>Date de début&nbsp;:&nbsp;</strong> <span title={formatDateAbsolue(dossier.date_debut_consultation_public ?? undefined)}>{dossier.date_debut_consultation_public ? formatDateRelative(dossier.date_debut_consultation_public) : 'Non renseignée'}</span></li>
@@ -178,12 +176,30 @@
                 <p>Le dossier a bien été mis à jour.</p>
             </div>
         {/if}
+    
 
         <div class="fr-input-group" id="input-group-commentaitre-libre">
             <strong><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong>
             <textarea onfocus={retirerAlert} class="fr-input resize-vertical" aria-describedby="input-commentaire-libre-messages" id="input-commentaire-libre" bind:value={commentaire_libre} rows={8}></textarea>
             <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite">
             </div>
+        </div>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="ddep-nécessaire">
+                <strong>Une DDEP est-elle nécessaire ?</strong>
+            </label>
+            <select onfocus={retirerAlert} bind:value={ddep_nécessaire} class="fr-select" id="ddep-nécessaire">
+                {#each ['Oui', 'Non', 'A déterminer', null] as ddep_nécessaire_option}
+                    <option value={ddep_nécessaire_option}>
+                        {#if ddep_nécessaire_option === null}
+                            {"Non renseigné"}
+                        {:else}
+                            {ddep_nécessaire_option}
+                        {/if}
+                    </option>
+                {/each}
+            </select>
         </div>
 
         <div class="fr-input-group">
