@@ -74,7 +74,7 @@ function makeDépartementParam({code}, démarcheDossierLabelToId){
 const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?`
 
 /**
- * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction créé un lien GET
  * 
  * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel

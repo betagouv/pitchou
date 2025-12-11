@@ -1,7 +1,7 @@
 //@ts-check
 
 import ky from "ky"
-import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheSimplifiée.js";
+import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheNumérique.js";
 
 /** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
 /** @import {SchemaDémarcheSimplifiée} from '../../types/démarches-simplifiées/schema.js' */
