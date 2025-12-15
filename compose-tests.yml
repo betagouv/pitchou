@@ -10,7 +10,7 @@ services:
       - ./:/app
       - ./tests/env:/app/.env
     working_dir: /app
-    command: npm run start:server
+    command: npx pnpm run start:server
     environment:
       PORT: 32648
       DATABASE_URL: "postgresql://dev:dev_password@test_db:5432/especes_pro_3731"
