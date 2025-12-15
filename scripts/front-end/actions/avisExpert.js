@@ -10,6 +10,7 @@ import { json, text } from "d3-fetch";
  * @param {Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>} frontEndAvisExpert
  * @param {File | undefined} [fileFichierSaisine]
  * @param {File | undefined} [fileFichierAvis]
+ * @returns {Promise<void>}
  */
 export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisine, fileFichierAvis) {
     const form = new FormData();
