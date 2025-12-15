@@ -15,8 +15,6 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_trigger on public.avis_expert;
-
 CREATE TRIGGER supprimer_fichiers_avis_expert_trigger
 	AFTER DELETE
 	ON "avis_expert"
@@ -39,8 +37,6 @@ BEGIN
 	return OLD;
 END;
 $$;
-
-DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_orphelins_trigger on public.avis_expert;
 
 CREATE TRIGGER supprimer_fichiers_avis_expert_orphelins_trigger
 	AFTER UPDATE
