@@ -246,5 +246,5 @@ Pour générer un message pour GeoMCE pour un id
 
 Trouver les instructrices qui sont dans Pitchou et l'ont utilisé récemment
 
-`docker exec tooling node outils outils/instructrices-actives.js`
+`docker exec tooling node outils/instructrices-actives.js`
 
