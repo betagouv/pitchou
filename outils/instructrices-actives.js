@@ -33,6 +33,8 @@ const dateDernièreUtilisationParInstructriceEntries = [...dateDernièreUtilisat
 console.info('Dernière utilisation par instructrice')
 console.warn('⚠️ Pitchou ne mesure pas encore quand les gens utilisent vraiment, alors les délais sont sous-estimés')
 
+console.log('dateDernièreUtilisationParInstructrice', dateDernièreUtilisationParInstructrice)
+
 const moinsUneSemaine = dateDernièreUtilisationParInstructriceEntries.filter(([_email, date]) => {
     return differenceInWeeks(new Date(), date) < 1
 })

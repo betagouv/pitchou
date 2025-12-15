@@ -12,29 +12,32 @@ import {directDatabaseConnection} from '../database.js'
  * 
  * @returns {Promise<Map<NonNullable<Personne['email']>, Date>>}
  */
-export function getDateDernièreUtilisationParInstructrice(){
+export async function getDateDernièreUtilisationParInstructrice(databaseConnection = directDatabaseConnection){
 
-    throw 'recups la Map<email, date de dépôt>'
+    //throw 'recups la Map<email, date de dépôt>'
 
     // date de dépôt
-    const yo = databaseConnection('cap_dossier')
-        .select(['arête_groupe_instructeurs__dossier.dossier as dossier_id', 'personne.id as personne_id'])
-        .leftJoin(
-            'arête_cap_dossier__groupe_instructeurs',
-            {'arête_cap_dossier__groupe_instructeurs.cap_dossier': 'cap_dossier.cap'}
+    const emailsDateDépôts = await databaseConnection('personne')
+        .select(['email'])
+        .max('date_dépôt as dépôt_le_plus_récent')
+        .join(
+            'arête_personne_suit_dossier', 
+            {'arête_personne_suit_dossier.personne': 'personne.id'}
         )
-        .leftJoin(
-            'arête_groupe_instructeurs__dossier', 
-            {'arête_groupe_instructeurs__dossier.groupe_instructeurs': 'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs'}
+        .join(
+            'dossier',
+            {'dossier.id': 'arête_personne_suit_dossier.dossier'}
         )
-        .leftJoin(
-            'personne', 
-            {'personne.code_accès': 'cap_dossier.personne_cap'}
-        )
-        .where({
-            'cap_dossier.cap': cap,
-            'personne.email': personneEmail, 
-            'arête_groupe_instructeurs__dossier.dossier': dossierId
-        }) 
+        .groupBy('email')
+
+
+    /** @type {Awaited<ReturnType<getDateDernièreUtilisationParInstructrice>>} */
+    const dateDernièreUtilisationParInstructrice = new Map(
+        emailsDateDépôts.map(({email, dépôt_le_plus_récent}) => [email, dépôt_le_plus_récent])
+    )
+
+
+    return dateDernièreUtilisationParInstructrice;
+
     // date de dernière phase
 }
