@@ -29,12 +29,8 @@
         espèceSélectionnée = $bindable(undefined)
     } = $props()
 
-    //$inspect('espèceSélectionnée', espèceSélectionnée)
-
     let text = $state('')
     let statusMessage = $state('')
-
-    //$inspect('text', text)
 
     /** @type {number | null}*/
     let selectedOption = $state(null)
