@@ -33,13 +33,6 @@
     /** @type {boolean} */
     let chargementAjouterOuModifierAvisExpert = $state(false);
 
-    function réinitialiserFormulaire() {
-        avisExpert = avisExpertInitial ?? {}
-        fileListFichierSaisine = undefined
-        fileListFichierAvis = undefined
-        messageErreur = null
-    }
-
     /**
      * 
      * @param {SubmitEvent} e
@@ -69,7 +62,6 @@
                 await ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis)
                 await refreshDossierComplet(dossier.id)
                 await tick() // Permet de mettre à jour correctement les champs dans le cas d'une modification
-                réinitialiserFormulaire()
                 fermerLeFormulaire()
             } catch (e) {
                 //@ts-ignore
