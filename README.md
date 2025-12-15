@@ -236,3 +236,15 @@ Pour lister les ids de dossiers pour lesquels on peut générer des messages pou
 Pour générer un message pour GeoMCE pour un id
 
 `docker exec tooling node outils/generation-message-geomce.js --dossier <dossierId>`
+
+
+
+
+### Outils AARRI
+
+#### Activation
+
+Trouver les instructrices qui sont dans Pitchou et l'ont utilisé récemment
+
+`docker exec tooling node outils/instructrices-actives.js`
+
