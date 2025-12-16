@@ -101,10 +101,29 @@
                 <DateInput bind:date={avisExpert.date_saisine}/>
             </div>
             <div class="fr-input-group" id="champ-avis-group">
-                <label class="fr-label" for="champ-avis">Avis</label>
-                <input bind:value={avisExpert.avis} class="fr-input" aria-describedby="champ-avis-messages" name="input" id="champ-avis" type="text">
-                <div class="fr-messages-group" id="champ-avis-messages" aria-live="polite">
-                </div>
+                <p class="fr-label fr-mb-2w">Avis de l’expert</p>
+
+                {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as value}
+                    {@const id = `avis-${value.replace(/\s+/g, '-').toLowerCase()}`}
+
+                    <div class="fr-radio-group">
+                        <input
+                            type="radio"
+                            id={id}
+                            name="champ-avis"
+                            value={value}
+                            bind:group={avisExpert.avis}
+                        />
+                        <label class="fr-label" for={id}>
+                            {value}
+                        </label>
+                    </div>
+                {/each}
+
+                <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite"></div>
+            </div>
+            <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite">
+         </div>
             </div>
             <div class="fr-upload-fichier-avis-group">
                 <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
@@ -140,6 +159,5 @@
                     {/if}
                 </li>
             </ul>
-        </div>
     </fieldset>
 </form>
