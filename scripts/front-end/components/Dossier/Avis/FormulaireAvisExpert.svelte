@@ -89,7 +89,7 @@
             <div class="fr-upload-fichier-saisine-group">
                 <label class="fr-label" for="upload-fichier-saisine">Fichier de la saisine
                     <span class="fr-hint-text">Indication : 
-                        Taille maximale&nbsp;: 15 Mo. 
+                        Taille maximale&nbsp;: 20 Mo. 
                         Formats supportés&nbsp;: pdf</span>
                 </label>
                 <input accept=".pdf" bind:files="{fileListFichierSaisine}" class="fr-upload" aria-describedby="upload-fichier-saisine-messages" type="file" id="upload-fichier-saisine" name="upload">
@@ -128,7 +128,7 @@
             <div class="fr-upload-fichier-avis-group">
                 <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
                     <span class="fr-hint-text">Indication : 
-                        Taille maximale&nbsp;: 15 Mo. 
+                        Taille maximale&nbsp;: 20 Mo. 
                         Formats supportés&nbsp;: pdf</span>
                 </label>
                 <input accept=".pdf" bind:files="{fileListFichierAvis}" class="fr-upload" aria-describedby="upload-fichier-avis-messages" type="file" id="upload-fichier-avis" name="upload">
