@@ -12,8 +12,7 @@
     import Pagination from '../DSFR/Pagination.svelte'
     import IndicateurDélaiPhase from '../IndicateurDélaiPhase.svelte'
     import {formatLocalisation, formatPorteurDeProjet, phases, prochaineActionAttenduePar} from '../../affichageDossier.js'
-    import {trouverDossiersIdCorrespondantsÀTexte} from '../../rechercherDansDossier.js'
-    import {retirerAccents} from '../../../commun/manipulationStrings.js'
+    import {créerFiltreTexte} from '../../filtresTexte.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
     import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
@@ -221,40 +220,7 @@
      */
     function ajouterFiltreTexte(_texteÀChercher) {
         texteÀChercher = _texteÀChercher.trim()
-
-        // cf. https://github.com/MihaiValentin/lunr-languages/issues/66
-        // lunr.fr n'indexe pas les chiffres. On gère donc la recherche sur
-        // les nombres avec une fonction séparée.
-        if (texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
-            tousLesFiltres.set('texte', dossier => {
-                const {
-                    id,
-                    départements,
-                    communes,
-                    number_demarches_simplifiées,
-                    historique_identifiant_demande_onagre,
-                } = dossier
-                const communesCodes = communes?.map(({postalCode}) => postalCode).filter(c => c) || []
-
-                return String(id) === texteÀChercher ||
-                    départements?.includes(texteÀChercher || '') ||
-                    communesCodes?.includes(texteÀChercher || '') ||
-                    number_demarches_simplifiées === texteÀChercher ||
-                    historique_identifiant_demande_onagre === texteÀChercher
-            })
-        } else {
-            const texteSansAccents = retirerAccents(texteÀChercher)
-            // Pour chercher les communes qui contiennent des tirets avec lunr,
-            // on a besoin de passer la chaîne de caractères entre "".
-            const aRechercher = texteSansAccents.match(/(\w-)+/) ?
-                `"${texteSansAccents}"` :
-                texteSansAccents
-            const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(aRechercher, dossiers)
-
-            tousLesFiltres.set('texte', dossier => {
-                return dossiersIdCorrespondantsÀTexte.has(dossier.id)
-            })
-        }
+        tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
     }
 
     /**

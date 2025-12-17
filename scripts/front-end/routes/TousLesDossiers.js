@@ -1,0 +1,41 @@
+/** @import { PitchouState } from '../store.js' */
+/** @import { ComponentProps } from 'svelte' */
+/** @import { DossierRésumé } from '../../types/API_Pitchou.js' */
+
+import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
+import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
+import TousLesDossiers from '../components/screens/TousLesDossiers.svelte';
+import { chargerDossiers } from '../actions/dossier.js';
+
+
+export default async () => {
+    try {
+
+        await chargerDossiers()
+
+        /**
+         * 
+         * @param {PitchouState} state 
+         * @returns {ComponentProps<typeof TousLesDossiers>}
+         */
+        function mapStateToProps(state) {
+            /** @type {DossierRésumé[]} */
+            const dossiers = [...state.dossiersRésumés.values()]
+            
+            const { email } = mapStateToSqueletteProps(state);
+
+
+
+            const dossierIdsSuivisParInstructeurActuel = state?.relationSuivis?.get(email ?? '')
+            return {
+                email,
+                dossiers,
+                dossierIdsSuivisParInstructeurActuel
+            };
+        }  
+
+        replaceComponent(TousLesDossiers, mapStateToProps)
+    } catch (error) {
+        console.error('Erreur lors du chargement de la page Tous les dossiers :', error)
+    }
+}
