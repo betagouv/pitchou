@@ -98,7 +98,7 @@ export function formatPorteurDeProjet(dossier){
  * Si la date est `null` ou `undefined`, la fonction retourne la chaîne "(date inconnue)".
  *
  * @param {Date | undefined | null} date
- * @param {'d/MM/yyyy' | 'd MMMM yyyy'} [formatDemandé]
+ * @param {string} [formatDemandé]
  * @returns {string}
  */
 export function formatDateAbsolue(date, formatDemandé = 'd MMMM yyyy') {
