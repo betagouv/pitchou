@@ -1,5 +1,5 @@
 <script>
-    //@ts-check
+    import byteSize from 'byte-size'
     import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { formatDateRelative } from "../../affichageDossier.js";
@@ -46,6 +46,16 @@
     /** @type {string[] | undefined} */
     // @ts-ignore
     let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
+
+    const piècesJointesPétitionnaires = [
+        {
+            url: '/yo',
+            nom: 'Notre super projet', 
+            media_type: 'application/pdf', 
+            taille: 1234567
+        }
+    ]
+
 </script>
 
 <section class="row">
@@ -249,6 +259,21 @@
                     "Non renseignées"}
             </p>
         {/if}
+
+        
+        <h2>{piècesJointesPétitionnaires.length} pièces jointes</h2>
+        <section class="pièces-jointes-pétitionnaire">
+        {#each piècesJointesPétitionnaires as {url, nom, media_type, taille}}
+            <section>
+                <a href={url}>{nom}</a>
+                <span>
+                    {media_type} - {byteSize(taille, {locale: 'fr'})}
+                </span>
+            </section>
+        {/each}
+        </section>
+
+
     </section>
 
     <section>
