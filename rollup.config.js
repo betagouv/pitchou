@@ -7,6 +7,7 @@ import sveltePreprocess from 'svelte-preprocess'
 
 const production = !process.env.ROLLUP_WATCH;
 
+// @ts-ignore
 const plugins = ({cssOutput}) => ([
 	svelte({
 		compilerOptions: {
