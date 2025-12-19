@@ -51,31 +51,8 @@
         notation: "compact",
         style: 'unit', 
         unit: 'byte',
-        unitDisplay: 'narrow' 
+        unitDisplay: 'narrow'
     })
-
-    const piècesJointesPétitionnaires = [
-        {
-            url: '/yo',
-            nom: 'super-fichier.pdf', 
-            media_type: 'application/pdf', 
-            taille: 1234567
-        },
-        {
-            url: '/yo',
-            nom: 'super-fichier2.pdf', 
-            media_type: 'application/pdf', 
-            taille: 12345
-        },
-        {
-            url: '/yo',
-            nom: 'super-fichier3.pdf', 
-            media_type: 'application/pdf', 
-            taille: 123
-        },
-
-    ]
-
 
 </script>
 
@@ -284,17 +261,16 @@
 
     <section class="column">
 
-        <h2>{piècesJointesPétitionnaires.length} pièces jointes</h2>
+        <h2>{dossier.piècesJointesPétitionnaires.length} pièces jointes</h2>
         <ul class="pièces-jointes-pétitionnaire">
-        {#each piècesJointesPétitionnaires as {url, nom, media_type, taille}}
+        {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
             <li>
                 <a class="fr-link fr-link--download" href={url}>
                     {nom}
-
-                    <span class="fr-link__detail">
-                        {media_type} - {byteFormat.format(taille)}
-                    </span>
                 </a>
+                <div class="fr-link__detail">
+                    {media_type} - {byteFormat.format(taille)}
+                </div>
             </li>
         {/each}
         </ul>

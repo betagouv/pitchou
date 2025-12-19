@@ -425,6 +425,7 @@ async function téléchargementFichierRouteHandler(request, reply) {
   }
 }
 
+fastify.get('/piece-jointe-petitionnaire/fichier/:fichierId', téléchargementFichierRouteHandler)
 fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler)
 fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichierRouteHandler)
 fastify.get('/avis-expert/fichier/:fichierId', téléchargementFichierRouteHandler)
