@@ -363,7 +363,7 @@
                             </div>
                             <div class="fr-modal__content">
                                 <h2 id="modale-validation-saisie-title" class="fr-modal__title">
-                                    Dernière étape : Ajouter votre saisie à votre dossier Démarches Simplifiées
+                                    Dernière étape : Ajouter votre saisie à votre dossier Démarche Numérique
                                 </h2>
                                 <ol id="liste-des-étapes-pour-ajouter-saisie-à-DS">
                                     <li>
@@ -377,7 +377,7 @@
                                             />
                                         </div>
                                     </li>
-                                    <li><span class="fr-text--lg">Ajouter le document récapitulatif dans votre dossier Démarches Simplifiées, section "3b saisie des espèces".</span></li>
+                                    <li><span class="fr-text--lg">Ajouter le document récapitulatif dans votre dossier Démarche Numérique, section "3b saisie des espèces".</span></li>
                                     <li>
                                         <span class="fr-text--lg">Votre liste d'espèces protégées impactées sera liée à votre dossier.</span>
 
