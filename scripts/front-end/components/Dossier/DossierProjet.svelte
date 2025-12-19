@@ -54,6 +54,28 @@
         unitDisplay: 'narrow'
     })
 
+    /**
+     * @param {string | null} filename
+     */
+    function raccourcirNomFichier(filename, maxLength = 43, ellipsis = '(…)') {
+        if(!filename){
+            return '(fichier sans nom)'
+        }
+
+        if (filename.length <= maxLength) { 
+            return filename
+        }
+
+        const lastDotIndex = filename.lastIndexOf('.');
+        
+        const extension = filename.substring(lastDotIndex);
+        const nameWithoutExt = filename.substring(0, lastDotIndex);
+        
+        const availableLength = maxLength - extension.length - ellipsis.length;
+        
+        return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
+    }
+
 </script>
 
 <section class="row">
@@ -265,12 +287,12 @@
         <ul class="pièces-jointes-pétitionnaire">
         {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
             <li>
-                <a class="fr-link fr-link--download" href={url}>
-                    {nom}
+                <a class="fr-link fr-link--download" href={url} title={nom}>
+                    {raccourcirNomFichier(nom)}
+                    <span class="fr-link__detail">
+                        {media_type} - {byteFormat.format(taille)}
+                    </span>
                 </a>
-                <div class="fr-link__detail">
-                    {media_type} - {byteFormat.format(taille)}
-                </div>
             </li>
         {/each}
         </ul>
