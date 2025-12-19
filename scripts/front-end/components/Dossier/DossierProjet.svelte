@@ -47,7 +47,7 @@
     let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
 
     // https://stackoverflow.com/a/73974452
-    const byteFormat = new Intl.NumberFormat("fr", { 
+    const byteFormat = new Intl.NumberFormat(document.documentElement.lang || "fr", { 
         notation: "compact",
         style: 'unit', 
         unit: 'byte',
