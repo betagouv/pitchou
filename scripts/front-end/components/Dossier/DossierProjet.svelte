@@ -1,5 +1,4 @@
 <script>
-    import byteSize from 'byte-size'
     import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { formatDateRelative } from "../../affichageDossier.js";
@@ -47,14 +46,36 @@
     // @ts-ignore
     let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
 
+    // https://stackoverflow.com/a/73974452
+    const byteFormat = new Intl.NumberFormat("fr", { 
+        notation: "compact",
+        style: 'unit', 
+        unit: 'byte',
+        unitDisplay: 'narrow' 
+    })
+
     const piècesJointesPétitionnaires = [
         {
             url: '/yo',
-            nom: 'Notre super projet', 
+            nom: 'super-fichier.pdf', 
             media_type: 'application/pdf', 
             taille: 1234567
-        }
+        },
+        {
+            url: '/yo',
+            nom: 'super-fichier2.pdf', 
+            media_type: 'application/pdf', 
+            taille: 12345
+        },
+        {
+            url: '/yo',
+            nom: 'super-fichier3.pdf', 
+            media_type: 'application/pdf', 
+            taille: 123
+        },
+
     ]
+
 
 </script>
 
@@ -259,24 +280,25 @@
                     "Non renseignées"}
             </p>
         {/if}
-
-        
-        <h2>{piècesJointesPétitionnaires.length} pièces jointes</h2>
-        <section class="pièces-jointes-pétitionnaire">
-        {#each piècesJointesPétitionnaires as {url, nom, media_type, taille}}
-            <section>
-                <a href={url}>{nom}</a>
-                <span>
-                    {media_type} - {byteSize(taille, {locale: 'fr'})}
-                </span>
-            </section>
-        {/each}
-        </section>
-
-
     </section>
 
-    <section>
+    <section class="column">
+
+        <h2>{piècesJointesPétitionnaires.length} pièces jointes</h2>
+        <ul class="pièces-jointes-pétitionnaire">
+        {#each piècesJointesPétitionnaires as {url, nom, media_type, taille}}
+            <li>
+                <a class="fr-link fr-link--download" href={url}>
+                    {nom}
+
+                    <span class="fr-link__detail">
+                        {media_type} - {byteFormat.format(taille)}
+                    </span>
+                </a>
+            </li>
+        {/each}
+        </ul>
+
         <h2>Dossier déposé</h2>
         <a
             class="fr-btn fr-mb-1w"
@@ -301,11 +323,21 @@
         flex-direction: row;
 
         & > :nth-child(1) {
-            flex: 3;
+            flex: 3;;
+            margin-right: 1rem;
         }
 
         & > :nth-child(2) {
             flex: 2;
+        }
+    }
+
+    .pièces-jointes-pétitionnaire{
+        list-style: none;
+        padding: 0;
+
+        li{
+            margin-bottom: 0.3rem;
         }
     }
 
