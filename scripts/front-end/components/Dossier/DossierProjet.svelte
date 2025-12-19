@@ -288,6 +288,10 @@
         {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
             <li>
                 <a class="fr-link fr-link--download" href={url} title={nom}>
+                    <!--
+                        On coupe le nom parce que s'il se met sur 2 lignes, le DSFR fait que la deuxième
+                        ligne se superpose avec les détails en-dessous
+                    -->
                     {raccourcirNomFichier(nom)}
                     <span class="fr-link__detail">
                         {media_type} - {byteFormat.format(taille)}
