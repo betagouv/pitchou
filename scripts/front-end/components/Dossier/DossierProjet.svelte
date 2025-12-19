@@ -343,7 +343,4 @@
         }
     }
 
-    pre {
-        white-space: pre-wrap;
-    }
 </style>
