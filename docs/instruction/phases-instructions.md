@@ -22,5 +22,5 @@ Un dossier se trouve dans une des phases suivantes :
 - "**Classé sans suite**"
     - Cette phase a lieu après la phase amont, si l'instructeur a conclu qu'une DDEP n'est pas nécessaire, ou si le pétitionnaire abandonne son projet et donc sa DDEP, etc.
 
-
+NB: Dans le schéma ci-dessous, "Démarches Numériques" est mentionné sous son ancien nom "Démarches Simplifiées"
 ![Tableau récapitulatif](phases_pitchou.png)
