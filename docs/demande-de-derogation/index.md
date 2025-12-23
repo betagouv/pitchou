@@ -7,6 +7,6 @@ Cet espace fournit quelques rappels légaux, explications pratiques et conseils 
 les chances de faire aboutir votre demande de dérogation espèces protégées
 
 Selon votre département, votre demande est à déposer à un endroit différent.
-Et vous pouvez la déposer en format numérique [via le formulaire sur la plateforme Démarches Simplifiées](https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees)
+Et vous pouvez la déposer en format numérique [via le formulaire sur la plateforme Démarches Numériques](https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees)
 
 
