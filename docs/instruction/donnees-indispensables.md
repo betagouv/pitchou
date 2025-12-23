@@ -1,6 +1,6 @@
-# Quelles sont les données à remplir dans Démarches Simplifiées (DS) et indispensables pour l'instruction ?
+# Quelles sont les données à remplir dans Démarches Numériques (DN) et indispensables pour l'instruction ?
   
-Un certain nombre de champs doivent être remplis dans le formulaire DS par le pétitionnaire, afin de considérer que le dossier est **complet et permettre son instruction.**
+Un certain nombre de champs doivent être remplis dans le formulaire DN par le pétitionnaire, afin de considérer que le dossier est **complet et permettre son instruction.**
 
 Ces données vont notamment permettre :
 * le bon rapportage européen,
@@ -37,4 +37,4 @@ Si une espèce est concernée par plusieurs impacts, il convient de créer une l
 * Durée de la dérogation
 * Des mesures ERC sont-elles prévues
 
-  L'ensemble des ces données sont à remplir par le porteur de projet (hors AE) au moment du dépôt de son dossier ou dès la phase amont. En cas d'erreur, l'instructeur peut utiliser la fonction "Demander une correction" de DS , qui permet d'avertir le pétitionnaire et de repasser le dossier en mode "construction".
+  L'ensemble des ces données sont à remplir par le porteur de projet (hors AE) au moment du dépôt de son dossier ou dès la phase amont. En cas d'erreur, l'instructeur peut utiliser la fonction "Demander une correction" de DN , qui permet d'avertir le pétitionnaire et de repasser le dossier en mode "construction".
