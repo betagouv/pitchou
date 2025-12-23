@@ -1,7 +1,7 @@
 # FAQ (issue des questions du webinaire du 04/10)
 
 - **Quelle articulation avec GUN ENV pour éviter les doubles saisies ?**
-À ce jour, et temporairement, les instructeur·ices de Nouvelle Aquitaine saisissent à la main les dossiers en Autorisation Environnementale dans Démarches-simplifiées.
+À ce jour, et temporairement, les instructeur·ices de Nouvelle Aquitaine saisissent à la main les dossiers en Autorisation Environnementale dans Démarches-numériques.
 Le lien n’est pas encore fait avec GUNEnv, mais les discussions sont en cours.
 
 - **Quel calendrier de déploiement de Pitchou ?**
@@ -25,15 +25,15 @@ C’est en effet une discussion à avoir pour savoir où mettre le curseur pour 
 Une proposition de phases est disponible ici : docs/instruction/phases-instructions.md
 Quant au délais légal, qui est particulièrement important dans le cas des dossiers en Autorisation environnemebtale, il démarre lorqsue le dossier est jugé complet et régulier et qu’il passe en phase d’instruction.
 
-- **La meessagerie de DS est-elle une messagerie de plus ou est-ce un relais de MEL ?**
-On est en train de tester la messagerie DS de manière pour voir s’il est pertinent de sortir des boites mail et d’intégrer cette messagerie dans l’interface Pitchou pour la suite.
+- **La messagerie de DN est-elle une messagerie de plus ou est-ce un relais de MEL ?**
+On est en train de tester la messagerie DN de manière pour voir s’il est pertinent de sortir des boites mail et d’intégrer cette messagerie dans l’interface Pitchou pour la suite.
 On est sur une méthode itérative : Si après ces tests nous estimons la solution peu pertinente par rapport aux usages actuels alors nous abandonnerons cette fonctionnalité.
 
 - **Est-ce que Pitchou va remplacer Onagre ?**
 Oui.
 Les deux fonctions incontournables d’onagre sont de :
-    - récupérer les données nécessaires au rapportage européen et saisir le CNPN. Dans la mesure où on remplace le CERFA papier par DS, notre objectif est de récupérer les données numériquement directement et de pouvoir produire le rapportage européen.
-    - L’objectif est de passer aussi par DS pour la saisine du CNPN.
+    - récupérer les données nécessaires au rapportage européen et saisir le CNPN. Dans la mesure où on remplace le CERFA papier par DN, notre objectif est de récupérer les données numériquement directement et de pouvoir produire le rapportage européen.
+    - L’objectif est de passer aussi par DN pour la saisine du CNPN.
 
 - **On n’a plus besoin de stocker les informations sur le réseau du coup ?**
 C’est un choix personnel.
@@ -96,8 +96,8 @@ Quand toutes les données seront saisies dans Pitchou et qu’on alimentera GeoM
 Ça sera peut-être plus compliqué avec Licorne car on attend que ça se stabilise aussi de leur côté pour commencer à parler avec eux.
 
 - **Par expérience d’une autre démarche sous Démarches Simplifiées, le RGPD oblige à archiver les dossiers de plus de trois ans. Je vois mal comment ce délai va rester compatible avec le délai de traitement des autorisations espèces pro, ni avec la durée de vie des installations (environ 30 ans). Est ce que vous leur avez posé la question ?**
-On va sortir les dossiers de DS et les stocker de manière autonome dans notre propre environnement.
-DS est l’interface avec les petitionnaires mais nous sommes responsables des données saisies.
+On va sortir les dossiers de DN et les stocker de manière autonome dans notre propre environnement.
+DN est l’interface avec les petitionnaires mais nous sommes responsables des données saisies.
 On récupère pour le moment les données toutes les 10 minutes.
 Pour le RGPD on est dans le cas particulier des données de personnes morales et dans ce cas RGPD ne s’applique pas.
 On a besoin de garder les dossiers en cas de contentieux.
@@ -114,24 +114,24 @@ C’est une chose via le lien aves Depobio, mais pas priorisée à ce stade.
 - **La DEB pourra-t-elle avoir une saisie de dossier pour l’ensemble du territoire national et pour l’ensemble de la faune existante ?**
 Oui, on peut faire un groupe France Entière ou un Groupe DEB auquel on pourra attribuer ces dossiers.
 
-- **Dans le cas de projets impactant des espèces protégées avec compétences ministérielles et préfectorale, est-ce que DS permet de faire deux types d’arrêtés (ministériel et préfectoral en discriminant les espèces qui appartiennent à l’un ou à l’autre) ?**
+- **Dans le cas de projets impactant des espèces protégées avec compétences ministérielles et préfectorale, est-ce que DN permet de faire deux types d’arrêtés (ministériel et préfectoral en discriminant les espèces qui appartiennent à l’un ou à l’autre) ?**
 Il suffit qu’on fasse le lien entre TAXREF et le statut de l’espèce.
 On pourra avoir une alerte pour les espèces qui sont de compétence CNPN ou ministérielle.
 Il n’y a pas de problématique technique à le faire.
 
 - **N’est-il pas prévu de créer des onglets à compléter, de manière à ce que le pétitionnaire n’oublie pas des éléments essentiels (joindre la cartographie des nids d’oiseaux impactés et des nids compensatoires, données bibliographiques existantes, zonages environnementaux, matériel employé pour la méthodologie inventaires, conditions météorologiques d’observation…)**
-On ne pourra pas couvrir tous les cas et tous les types de dossiers à travers un formulaire DS.
+On ne pourra pas couvrir tous les cas et tous les types de dossiers à travers un formulaire DN.
 Cela dit, on l’a adapté pour les dérogations scientifiques, les destructions de nids d’Hirondelles ou de Cigognes et les suivis mortalité dans les parcs éoliens.
 Si des besoins partagés remontent sur d’autres types de dossiers, nous pourrons à nouveau adapter le formulaire, mais il est déjà très loiurd à ce stade.
 
 - **Le formulaire démarche-simplifiée que vous avez créé pour la Dordogne devra être cloné pour les autres départements /Régions pour être utilisé ?**
 Non, tout le monde utilise le même puis on peut créer des groupes d’instructeur·ices pour que les dossiers soient rédirigés vers les bonnes personnes.
 
-- **Y aura -t'il une assistance au niveau national pour répondre aux questions des pétitionnaires au sujet de DS ?**
+- **Y aura -t'il une assistance au niveau national pour répondre aux questions des pétitionnaires au sujet de DN ?**
 L’équipe Pitchou se charge du support.
 
 - **Pourra-t-on saisir pour avis l’OFB , le CBNBP ou autres organismes via pitchou ou passer par mail ?**
-On peut demander l’avis d’experts dans DS à partir d’une adresse mail. L’idée est de tout centraliser et de ne pas sortir de l’outil.
+On peut demander l’avis d’experts dans DN à partir d’une adresse mail. L’idée est de tout centraliser et de ne pas sortir de l’outil.
 
 - **Le suivi de l’instruction DDEP permet-il de rendre compte de la vie du dossier autre que l’instruction (contentieux…) ?**
 Oui tout à fait, le suivi des phases est prévue, ainsi que pour le contrôle par la suite cf : docs/instruction/phases-instructions.md.
@@ -152,7 +152,7 @@ Tout à fait. Les échanges seront faits via l’onglet “avis d’expert” et
 Oui tout à fait, l’idée est de pouvoir aussi suivre ces demandes. Mais le pétitionnaire doit déposer la demande. Et le formulaire démarches-simplifiées n’est volontairement pas conclusif.
 
 - **Comment se passe l’affectation d’un dossier à un instructeur ?**
-C’est une fonctionnalité de DS où les administrateurs peuvent affecter des dossiers avec des instructeurs. A terme cette fonctionnalité sera intégrée au tableau de bord de Pitchou.
+C’est une fonctionnalité de DN où les administrateurs peuvent affecter des dossiers avec des instructeurs. A terme cette fonctionnalité sera intégrée au tableau de bord de Pitchou.
 
 - **On peut faire en sorte de bloquer le dépôt du dossier s’il manque des infos (la liste d’espèces par exemple) ?**
 Ce n’est pas vraiment dans la philosophie du produit. L’idée est plutôt de demander des compléments si besoin plutôt que de bloquer le dépôt.
