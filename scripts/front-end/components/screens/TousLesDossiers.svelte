@@ -14,20 +14,20 @@
     * @typedef {Object} Props
     * @property {string} [email]
     * @property {DossierRésumé[]} dossiers
-    * @property {Set<Dossier['id']>} [dossierIdsSuivisParInstructeurActuel]
+    * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {PitchouState['erreurs']} [erreurs]
     */
     /** @type {Props} */
     let { 
             email = '',
             dossiers,
-            dossierIdsSuivisParInstructeurActuel,
+            relationSuivis,
             erreurs = new Set(),
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -41,6 +41,8 @@
 })
 
     let numéroDeLaPageSélectionnée = $state(1)
+
+    const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
 
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
@@ -91,6 +93,31 @@
     }
 
     /**
+     * Vérifie si un dossier est suivi par au moins une personne
+     * @param {Dossier['id']} dossierId 
+     * @returns {boolean}
+     */
+    function dossierEstSuivi(dossierId) {
+        if (!relationSuivis) return false
+        for (const dossiersSuivis of relationSuivis.values()) {
+            if (dossiersSuivis.has(dossierId)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function toggleFiltreSansInstructeurice() {
+        if (!tousLesFiltres.has('sansInstructeurice')) {
+            tousLesFiltres.set('sansInstructeurice', (dossier) => !dossierEstSuivi(dossier.id))
+        } else {
+            tousLesFiltres.delete('sansInstructeurice')
+        }
+        // Réinitialiser la page à 1 quand on change le filtre
+        numéroDeLaPageSélectionnée = 1
+    }
+
+    /**
      *
      * @param {Dossier['id']} id
      */
@@ -109,16 +136,29 @@
 
 <Squelette {email} {erreurs} title="Tous les dossiers">
     <div class="en-tête">
-        <h1>Tous les dossiers</h1>
-        <form onsubmit="{soumettreTextePourRecherche}">
-            <div class="fr-search-bar barre-de-recherche" role="search">
-                <label class="fr-label" for="search-input"> Rechercher un dossier</label>
-                <input name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
-                <div class="fr-messages-group" id="search-input-messages" aria-live="polite">
+        <div class="titre-et-barre-de-recherche">
+            <h1>Tous les dossiers</h1>
+            <form onsubmit="{soumettreTextePourRecherche}">
+                <div class="fr-search-bar barre-de-recherche" role="search">
+                    <label class="fr-label" for="search-input">Rechercher un dossier</label>
+                    <input name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
+                    <div class="fr-messages-group" id="search-input-messages" aria-live="polite">
                 </div>
                 <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher un dossier</button>
-            </div>
-        </form>
+                </div>
+            </form>
+        </div>
+        <div>
+            <button 
+                type="button"
+                class="fr-tag"
+                onclick={toggleFiltreSansInstructeurice}
+                aria-pressed={tousLesFiltres.has('sansInstructeurice')}
+            >
+                Dossier sans instructeur·ice
+            </button>
+            <span class="compteur-dossiers">{dossiersFiltrés.length}/{dossiers.length} dossiers</span>
+        </div>
     </div>
     {#if dossiersAffichés.length >= 1}
         <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
@@ -160,18 +200,27 @@
 
     .en-tête {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
         margin-bottom: 2rem;
-        @media (max-width: 768px) {
-            flex-direction: column;
-            justify-content: stretch;
-
+        .titre-et-barre-de-recherche {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            @media (max-width: 768px) {
+                flex-direction: column;
+                justify-content: stretch;
+            }
         }
     }
 
     .barre-de-recherche {
         min-width: 28rem;
+    }
+
+    .compteur-dossiers {
+        color: var(--text-mention-grey);
+        font-size: 0.875rem;
+        font-weight: 400;
     }
 </style>
