@@ -148,16 +148,21 @@
                 </div>
             </form>
         </div>
-        <div>
-            <button 
-                type="button"
-                class="fr-tag"
-                onclick={toggleFiltreSansInstructeurice}
-                aria-pressed={tousLesFiltres.has('sansInstructeurice')}
-            >
-                Dossier sans instructeur·ice
-            </button>
-            <span class="compteur-dossiers">{dossiersFiltrés.length}/{dossiers.length} dossiers</span>
+        <div class="filtres-et-compteur-dossiers">
+            <div class="filtres">
+                <span class="fr-h4 texte-filtrer">Filtrer...</span>
+                <button 
+                    type="button"
+                    class="fr-tag"
+                    onclick={toggleFiltreSansInstructeurice}
+                    aria-pressed={tousLesFiltres.has('sansInstructeurice')}
+                >
+                    Dossier sans instructeur·ice
+                </button>
+            </div>
+            <div>
+            <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
+            </div>
         </div>
     </div>
     {#if dossiersAffichés.length >= 1}
@@ -201,7 +206,9 @@
     .en-tête {
         display: flex;
         flex-direction: column;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
+        gap: 2rem;
+
         .titre-et-barre-de-recherche {
             display: flex;
             flex-direction: row;
@@ -212,15 +219,26 @@
                 justify-content: stretch;
             }
         }
+
+        .filtres-et-compteur-dossiers {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            .filtres {
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+                align-items: center;
+                .texte-filtrer {
+                    margin: 0;
+                }
+            }
+        }
     }
 
     .barre-de-recherche {
         min-width: 28rem;
-    }
-
-    .compteur-dossiers {
-        color: var(--text-mention-grey);
-        font-size: 0.875rem;
-        font-weight: 400;
     }
 </style>
