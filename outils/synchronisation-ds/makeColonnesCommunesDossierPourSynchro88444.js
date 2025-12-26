@@ -251,7 +251,9 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         annotationById.set(annotation.id, annotation)
     }
 
-    const ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue
+    const champ_ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue.trim()
+
+    const ddep_nécessaire = ['Oui', 'Non', 'A déterminer'].includes(champ_ddep_nécessaire) ? champ_ddep_nécessaire : 'A déterminer';
 
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
