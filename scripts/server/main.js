@@ -99,7 +99,7 @@ fastify.register(fastifyMultipart, {
   attachFieldsToBody: true,
   limits: {
     fieldNameSize: 100, // Max field name size in bytes
-    fieldSize: 1000,     // Max field value size in bytes
+    fieldSize: 100,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
     fileSize: 20_000_000,  // For multipart forms, the max file size in bytes
     files: 2,           // Max number of file fields
@@ -547,37 +547,55 @@ fastify.post('/avis-expert', {
     consumes: ['multipart/form-data'],
     body: {
       type: 'object',
-      required: ['stringifyAvisExpert'],
-      properties: {
-        stringifyAvisExpert: {
-          type: 'object',
-        },
-        blobFichierSaisine: {
-          type: 'object',
-        },
-        blobFichierAvis: {
-          type: 'object',
-        },
-      }
+      required: ['dossier'],
+      properties: 
+        {
+          body : {
+            type: 'object',
+                  properties: 
+                    {
+                      dossier: {
+                        type: 'string',
+                      },
+                      id: {
+                        type: 'string',
+                      },
+                      expert: {
+                        type: 'string'
+                      },
+                      avis: {
+                        type: 'string',
+                      },
+                      date_avis: {
+                        type: 'string',
+                      }
+                    }
+                },
+          blobFichierSaisine: {
+            type: 'object',
+          },
+          blobFichierAvis: {
+            type: 'object',
+          },
+        }
     }
   }
 }, async function (req) {
   // Récupérer les données du corps de la requête
   /** @type {any} */
   const body = req.body
-  const avisExpert = JSON.parse(body.stringifyAvisExpert.value);
+  const dossier = JSON.parse(body.dossier.value);
+  const id = body.id ? body.id.value : undefined;
+  const expert = body.expert ? body.expert.value : undefined
+  const avis = body.avis ? body.avis.value : undefined
+  
+  const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
 
-  // Vérifier que les données avis expert (sans les fichiers) sont correctement typées
-  if (typeof avisExpert !== 'object') {
-    throw new Error("avisExpert n'est pas un objet.")
-  }
-  if (!('dossier' in avisExpert)) {
-      throw new Error("L'identifiant du dossier n'a pas été défini.")
-  }
-  if (Object.getOwnPropertyNames(avisExpert).filter((property) => !['dossier', 'expert', 'date_saisine', 'date_avis', 'avis', "id"].includes(property)).length !== 0) {
-      throw new Error(`L'objet avisExpert n'a pas un type correct. avisExpert reçu : ${JSON.stringify(avisExpert)}`)
-  }
+  console.log('date_avis', date_avis)
 
+  const avisExpert = { dossier, id, expert, avis, date_avis }
+
+  // Récupérer les fichiers d'avis et de saisine
   /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
   let fichierSaisine
   /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
@@ -594,6 +612,7 @@ fastify.post('/avis-expert', {
     fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
   } 
 
+  // Ajouter ou modifier l'avis d'expert en base de données
   if (fichierAvis || fichierSaisine) {
     return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
   } else {

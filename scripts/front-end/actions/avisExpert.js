@@ -23,7 +23,32 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
     /**@type {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} */
     const avisExpert = {...copyFrontEndAvisExpert}
 
-    form.append("stringifyAvisExpert", JSON.stringify(avisExpert));
+    // Dans un objet FormData, la valeur de la clef ne peut être qu'un string ou un Blob,
+    // et dossier est de type number & {__brand: "public.dossier";}
+    // @ts-ignore
+    form.append("dossier", avisExpert.dossier);
+
+    // Dans le cas d'une modification, 
+    // on fournit l'id de l'avis d'expert
+    if (avisExpert.id) {
+        form.append("id", avisExpert.id);
+    }
+
+    if (avisExpert.avis) {
+        form.append("avis", avisExpert.avis);
+    }
+
+    if (avisExpert.date_avis) {
+        form.append("date_avis", avisExpert.date_avis.toString());
+    }
+
+    if (avisExpert.expert) {
+        form.append("expert", avisExpert.expert);
+    }
+
+    if (avisExpert.date_saisine) {
+        form.append("date_saisine", avisExpert.date_saisine.toString());
+    }
 
     if (fileFichierSaisine) {
         form.append("blobFichierSaisine", fileFichierSaisine);
