@@ -1,5 +1,5 @@
 <script>
-    /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
+    /** @import { DossierRésumé, DossierPhase } from '../../../types/API_Pitchou.ts' */
 	/** @import { EventHandler } from "svelte/elements" */
     /** @import { PitchouState } from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
@@ -27,7 +27,7 @@
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte' | 'sansInstructeurice', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -46,6 +46,19 @@
 
     /** @type {HTMLDivElement | undefined} */
     let compteurDossiersElement = $state()
+
+    /** @type {DossierPhase | undefined} */
+    let phaseSélectionnée = $state()
+
+    /** @type {DossierPhase[]} */
+    const toutesLesPhases = [
+        "Accompagnement amont",
+        "Étude recevabilité DDEP",
+        "Instruction",
+        "Contrôle",
+        "Classé sans suite",
+        "Obligations terminées"
+    ]
 
     const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
 
@@ -123,6 +136,23 @@
     }
 
     /**
+     * @param {DossierPhase} phase
+     */
+    function sélectionnerPhase(phase) {
+        if (phaseSélectionnée === phase) {
+            // Désélectionner la phase
+            phaseSélectionnée = undefined
+            tousLesFiltres.delete('phase')
+        } else {
+            // Sélectionner la phase
+            phaseSélectionnée = phase
+            tousLesFiltres.set('phase', (dossier) => dossier.phase === phase)
+        }
+        // Réinitialiser la page à 1 quand on change le filtre
+        numéroDeLaPageSélectionnée = 1 //TODO: mettre cette action dans une fonction
+    }
+
+    /**
      *
      * @param {Dossier['id']} id
      */
@@ -156,6 +186,40 @@
         <div class="filtres-et-compteur-dossiers">
             <div class="filtres">
                 <span class="fr-h4 texte-filtrer">Filtrer...</span>
+                <!--
+                    Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
+                    ne fournit pas de composant plus générique pour le moment
+                    Ce morceau sera à revisiter soit avec un composant fait par nous
+                    soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
+                -->
+                <div class="fr-translate fr-nav">
+                    <div class="fr-nav__item">
+                        <button 
+                            aria-controls="filtre-par-phase" 
+                            aria-expanded="false"
+                            title="Choisir une phase" 
+                            type="button" 
+                            class="fr-btn fr-btn--tertiary"
+                        >
+                            {phaseSélectionnée ? `Phase : ${phaseSélectionnée}` : 'par phase'}
+                        </button>
+                        <div class="fr-collapse fr-translate__menu fr-menu" id="filtre-par-phase">
+                            <ul class="fr-menu__list">
+                                {#each toutesLesPhases as phase}
+                                    <li>
+                                        <button 
+                                            class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false"
+                                            onclick={() => sélectionnerPhase(phase)}
+                                            aria-pressed={phaseSélectionnée === phase}
+                                        >
+                                            {phase}
+                                        </button>
+                                    </li>
+                                {/each}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <button 
                     type="button"
                     class="fr-tag"
@@ -222,6 +286,7 @@
             @media (max-width: 768px) {
                 flex-direction: column;
                 justify-content: stretch;
+                align-items: start;
             }
         }
 
@@ -231,6 +296,11 @@
             justify-content: space-between;
             align-items: center;
 
+            @media (max-width: 768px) {
+                flex-direction: column;
+                align-items: start;
+            }
+
             .filtres {
                 display: flex;
                 flex-direction: row;
@@ -239,11 +309,19 @@
                 .texte-filtrer {
                     margin: 0;
                 }
+
+                @media (max-width: 768px) {
+                    flex-direction: column;
+                    align-items: start;
+                }
             }
         }
     }
 
     .barre-de-recherche {
         min-width: 28rem;
+        @media (max-width: 768px) {
+            min-width: unset;
+        }
     }
 </style>
