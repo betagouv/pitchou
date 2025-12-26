@@ -1,6 +1,7 @@
 <script>
     /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
 	/** @import { EventHandler } from "svelte/elements" */
+    /** @import { PitchouState } from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
 	import { instructeurSuitDossier, instructeurLaisseDossier } from "../../actions/suiviDossier"
     import Squelette from "../Squelette.svelte"
@@ -14,12 +15,14 @@
     * @property {string} [email]
     * @property {DossierRésumé[]} dossiers
     * @property {Set<Dossier['id']>} [dossierIdsSuivisParInstructeurActuel]
+    * @property {PitchouState['erreurs']} [erreurs]
     */
     /** @type {Props} */
     let { 
             email = '',
             dossiers,
             dossierIdsSuivisParInstructeurActuel,
+            erreurs = new Set(),
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -104,7 +107,7 @@
     }
 </script>
 
-<Squelette {email} title="Tous les dossiers">
+<Squelette {email} {erreurs} title="Tous les dossiers">
     <div class="en-tête">
         <h1>Tous les dossiers</h1>
         <form onsubmit="{soumettreTextePourRecherche}">
