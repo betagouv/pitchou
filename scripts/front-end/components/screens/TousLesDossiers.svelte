@@ -1,6 +1,7 @@
 <script>
-    /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
+    /** @import { DossierRésumé, DossierPhase } from '../../../types/API_Pitchou.ts' */
 	/** @import { EventHandler } from "svelte/elements" */
+    /** @import { PitchouState } from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
 	import { instructeurSuitDossier, instructeurLaisseDossier } from "../../actions/suiviDossier"
     import Squelette from "../Squelette.svelte"
@@ -13,18 +14,20 @@
     * @typedef {Object} Props
     * @property {string} [email]
     * @property {DossierRésumé[]} dossiers
-    * @property {Set<Dossier['id']>} [dossierIdsSuivisParInstructeurActuel]
+    * @property {PitchouState['relationSuivis']} [relationSuivis]
+    * @property {PitchouState['erreurs']} [erreurs]
     */
     /** @type {Props} */
     let { 
             email = '',
             dossiers,
-            dossierIdsSuivisParInstructeurActuel,
+            relationSuivis,
+            erreurs = new Set(),
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -38,6 +41,26 @@
 })
 
     let numéroDeLaPageSélectionnée = $state(1)
+
+    let texteÀChercher = $state()
+
+    /** @type {HTMLDivElement | undefined} */
+    let compteurDossiersElement = $state()
+
+    /** @type {DossierPhase | undefined} */
+    let phaseSélectionnée = $state()
+
+    /** @type {DossierPhase[]} */
+    const toutesLesPhases = [
+        "Accompagnement amont",
+        "Étude recevabilité DDEP",
+        "Instruction",
+        "Contrôle",
+        "Classé sans suite",
+        "Obligations terminées"
+    ]
+
+    const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
 
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
@@ -78,13 +101,55 @@
     /** @type {EventHandler<SubmitEvent, HTMLFormElement>}*/
     function soumettreTextePourRecherche (e) {
         e.preventDefault()
-        const data = new FormData(e.currentTarget)
-        const texteÀChercher = data.get("texte-de-recherche")?.valueOf();
-
-        if (typeof texteÀChercher === 'string') {
+        if (texteÀChercher) {
             tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
+            if (dossiersFiltrés.length > 0 && compteurDossiersElement) {
+                compteurDossiersElement.focus()
+            }
         }
-        e.currentTarget.reset()
+
+    }
+
+    /**
+     * Vérifie si un dossier est suivi par au moins une personne
+     * @param {Dossier['id']} dossierId 
+     * @returns {boolean}
+     */
+    function dossierEstSuivi(dossierId) {
+        if (!relationSuivis) return false
+        for (const dossiersSuivis of relationSuivis.values()) {
+            if (dossiersSuivis.has(dossierId)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function toggleFiltreSansInstructeurice() {
+        if (!tousLesFiltres.has('sansInstructeurice')) {
+            tousLesFiltres.set('sansInstructeurice', (dossier) => !dossierEstSuivi(dossier.id))
+        } else {
+            tousLesFiltres.delete('sansInstructeurice')
+        }
+        // Réinitialiser la page à 1 quand on change le filtre
+        numéroDeLaPageSélectionnée = 1
+    }
+
+    /**
+     * @param {DossierPhase} phase
+     */
+    function sélectionnerPhase(phase) {
+        if (phaseSélectionnée === phase) {
+            // Désélectionner la phase
+            phaseSélectionnée = undefined
+            tousLesFiltres.delete('phase')
+        } else {
+            // Sélectionner la phase
+            phaseSélectionnée = phase
+            tousLesFiltres.set('phase', (dossier) => dossier.phase === phase)
+        }
+        // Réinitialiser la page à 1 quand on change le filtre
+        numéroDeLaPageSélectionnée = 1 //TODO: mettre cette action dans une fonction
     }
 
     /**
@@ -104,18 +169,70 @@
     }
 </script>
 
-<Squelette {email} title="Tous les dossiers">
+<Squelette {email} {erreurs} title="Tous les dossiers">
     <div class="en-tête">
-        <h1>Tous les dossiers</h1>
-        <form onsubmit="{soumettreTextePourRecherche}">
-            <div class="fr-search-bar barre-de-recherche" role="search">
-                <label class="fr-label" for="search-input"> Rechercher un dossier</label>
-                <input name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
-                <div class="fr-messages-group" id="search-input-messages" aria-live="polite">
+        <div class="titre-et-barre-de-recherche">
+            <h1>Tous les dossiers</h1>
+            <form onsubmit="{soumettreTextePourRecherche}">
+                <div class="fr-search-bar barre-de-recherche" role="search">
+                    <label class="fr-label" for="search-input">Rechercher un dossier</label>
+                    <input bind:value="{texteÀChercher}" name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
+                    <div class="fr-messages-group" id="search-input-messages" aria-live="polite">
                 </div>
                 <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher un dossier</button>
+                </div>
+            </form>
+        </div>
+        <div class="filtres-et-compteur-dossiers">
+            <div class="filtres">
+                <span class="fr-h4 texte-filtrer">Filtrer...</span>
+                <!--
+                    Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
+                    ne fournit pas de composant plus générique pour le moment
+                    Ce morceau sera à revisiter soit avec un composant fait par nous
+                    soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
+                -->
+                <div class="fr-translate fr-nav">
+                    <div class="fr-nav__item">
+                        <button 
+                            aria-controls="filtre-par-phase" 
+                            aria-expanded="false"
+                            title="Choisir une phase" 
+                            type="button" 
+                            class="fr-btn fr-btn--tertiary"
+                        >
+                            {phaseSélectionnée ? `Phase : ${phaseSélectionnée}` : 'par phase'}
+                        </button>
+                        <div class="fr-collapse fr-translate__menu fr-menu" id="filtre-par-phase">
+                            <ul class="fr-menu__list">
+                                {#each toutesLesPhases as phase}
+                                    <li>
+                                        <button 
+                                            class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false"
+                                            onclick={() => sélectionnerPhase(phase)}
+                                            aria-pressed={phaseSélectionnée === phase}
+                                        >
+                                            {phase}
+                                        </button>
+                                    </li>
+                                {/each}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <button 
+                    type="button"
+                    class="fr-tag"
+                    onclick={toggleFiltreSansInstructeurice}
+                    aria-pressed={tousLesFiltres.has('sansInstructeurice')}
+                >
+                    Dossier sans instructeur·ice
+                </button>
             </div>
-        </form>
+            <div bind:this={compteurDossiersElement} tabindex="-1">
+            <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
+            </div>
+        </div>
     </div>
     {#if dossiersAffichés.length >= 1}
         <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
@@ -157,18 +274,54 @@
 
     .en-tête {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        @media (max-width: 768px) {
-            flex-direction: column;
-            justify-content: stretch;
+        flex-direction: column;
+        margin-bottom: 1rem;
+        gap: 2rem;
 
+        .titre-et-barre-de-recherche {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            @media (max-width: 768px) {
+                flex-direction: column;
+                justify-content: stretch;
+                align-items: start;
+            }
+        }
+
+        .filtres-et-compteur-dossiers {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            @media (max-width: 768px) {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .filtres {
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+                align-items: center;
+                .texte-filtrer {
+                    margin: 0;
+                }
+
+                @media (max-width: 768px) {
+                    flex-direction: column;
+                    align-items: start;
+                }
+            }
         }
     }
 
     .barre-de-recherche {
         min-width: 28rem;
+        @media (max-width: 768px) {
+            min-width: unset;
+        }
     }
 </style>
