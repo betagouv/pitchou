@@ -42,6 +42,11 @@
 
     let numéroDeLaPageSélectionnée = $state(1)
 
+    let texteÀChercher = $state()
+
+    /** @type {HTMLDivElement | undefined} */
+    let compteurDossiersElement = $state()
+
     const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
 
     /** @typedef {() => void} SelectionneurPage */
@@ -83,13 +88,13 @@
     /** @type {EventHandler<SubmitEvent, HTMLFormElement>}*/
     function soumettreTextePourRecherche (e) {
         e.preventDefault()
-        const data = new FormData(e.currentTarget)
-        const texteÀChercher = data.get("texte-de-recherche")?.valueOf();
-
-        if (typeof texteÀChercher === 'string') {
+        if (texteÀChercher) {
             tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
+            if (dossiersFiltrés.length > 0 && compteurDossiersElement) {
+                compteurDossiersElement.focus()
+            }
         }
-        e.currentTarget.reset()
+
     }
 
     /**
@@ -141,7 +146,7 @@
             <form onsubmit="{soumettreTextePourRecherche}">
                 <div class="fr-search-bar barre-de-recherche" role="search">
                     <label class="fr-label" for="search-input">Rechercher un dossier</label>
-                    <input name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
+                    <input bind:value="{texteÀChercher}" name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
                     <div class="fr-messages-group" id="search-input-messages" aria-live="polite">
                 </div>
                 <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher un dossier</button>
@@ -160,7 +165,7 @@
                     Dossier sans instructeur·ice
                 </button>
             </div>
-            <div>
+            <div bind:this={compteurDossiersElement} tabindex="-1">
             <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
             </div>
         </div>
