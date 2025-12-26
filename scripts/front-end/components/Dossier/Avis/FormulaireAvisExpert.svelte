@@ -80,9 +80,14 @@
     <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
         <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
         <div class="fr-fieldset__element">
-            <div class="fr-input-group" id="champ-expert-group">
+            <div class="fr-select-group" id="champ-expert-group">
                 <label class="fr-label" for="champ-expert">Expert</label>
-                <input bind:value={avisExpert.expert} class="fr-input" aria-describedby="champ-expert-messages" name="input" id="champ-expert" type="text">
+                <select bind:value={avisExpert.expert} class="fr-select" aria-describedby="champ-expert-messages" id="champ-expert" name="champ-expert" placeholder="Sélectionnez un expert">
+                    <option value={null}>Sélectionnez un expert</option>
+                    <option value="CNPN">CNPN</option>
+                    <option value="CSRPN">CSRPN</option>
+                    <option value="Ministre">Ministre</option>
+                </select>
                 <div class="fr-messages-group" id="champ-expert-messages" aria-live="polite">
                 </div>
             </div>
