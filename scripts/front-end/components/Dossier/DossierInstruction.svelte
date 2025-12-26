@@ -190,13 +190,9 @@
                 <strong>Une DDEP est-elle nécessaire ?</strong>
             </label>
             <select onfocus={retirerAlert} bind:value={ddep_nécessaire} class="fr-select" id="ddep-nécessaire">
-                {#each ['Oui', 'Non', 'A déterminer', null] as ddep_nécessaire_option}
+                {#each ['Oui', 'Non', 'A déterminer'] as ddep_nécessaire_option}
                     <option value={ddep_nécessaire_option}>
-                        {#if ddep_nécessaire_option === null}
-                            {"Non renseigné"}
-                        {:else}
-                            {ddep_nécessaire_option}
-                        {/if}
+                        {ddep_nécessaire_option}
                     </option>
                 {/each}
             </select>
