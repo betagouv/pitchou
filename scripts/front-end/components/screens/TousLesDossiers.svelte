@@ -42,6 +42,7 @@
 
     let numéroDeLaPageSélectionnée = $state(1)
 
+    /** @type {string | undefined} */
     let texteÀChercher = $state()
 
     /** @type {HTMLDivElement | undefined} */
@@ -101,7 +102,10 @@
     /** @type {EventHandler<SubmitEvent, HTMLFormElement>}*/
     function soumettreTextePourRecherche (e) {
         e.preventDefault()
-        if (texteÀChercher) {
+        if (!texteÀChercher || texteÀChercher.trim() === '') {
+            tousLesFiltres.delete('texte')
+        }
+        if (texteÀChercher && texteÀChercher.trim() !== '') {
             tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
             if (dossiersFiltrés.length > 0 && compteurDossiersElement) {
                 compteurDossiersElement.focus()
@@ -169,7 +173,7 @@
     }
 </script>
 
-<Squelette {email} {erreurs} title="Tous les dossiers">
+<Squelette {email} {erreurs} title="Tous les dddddossiers">
     <div class="en-tête">
         <div class="titre-et-barre-de-recherche">
             <h1>Tous les dossiers</h1>
