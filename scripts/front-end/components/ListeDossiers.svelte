@@ -15,13 +15,15 @@
     * @property {string} [email]
     * @property {DossierRésumé[]} dossiers
     * @property {PitchouState['relationSuivis']} [relationSuivis]
+    * @property {boolean} [afficherFiltreSansInstructeurice]
     */
     /** @type {Props} */
     let { 
             titre,
             email = '',
             dossiers,
-            relationSuivis
+            relationSuivis,
+            afficherFiltreSansInstructeurice = false
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -197,14 +199,16 @@
             <div class="fr-messages-group" id="select-hint-messages" aria-live="polite">
             </div>
         </div>
-            <button 
-                type="button"
-                class="fr-tag"
-                onclick={toggleFiltreSansInstructeurice}
-                aria-pressed={tousLesFiltres.has('sansInstructeurice')}
-            >
-                Dossier sans instructeur·ice
-            </button>
+            {#if afficherFiltreSansInstructeurice}
+                <button 
+                    type="button"
+                    class="fr-tag"
+                    onclick={toggleFiltreSansInstructeurice}
+                    aria-pressed={tousLesFiltres.has('sansInstructeurice')}
+                >
+                    Dossier sans instructeur·ice
+                </button>
+            {/if}
         </div>
         <div bind:this={compteurDossiersElement} tabindex="-1">
         <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
