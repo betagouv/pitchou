@@ -1,10 +1,12 @@
 /** @import { PitchouState } from '../store.js' */
 /** @import { ComponentProps } from 'svelte' */
+/** @import { DossierRésumé } from '../../types/API_Pitchou.js' */
 
 import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import MesDossiers from '../components/screens/MesDossiers.svelte';
 import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
+import { chargerDossiers } from '../actions/dossier.js';
 import store from '../store.js';
 
 
@@ -19,14 +21,29 @@ export default async () => {
     function mapStateToProps(state) {
         const { email, erreurs, résultatsSynchronisationDS88444 } = mapStateToSqueletteProps(state);
         
+        /** @type {DossierRésumé[]} */
+        const tousLesDossiers = [...state.dossiersRésumés.values()]
+        
+        // Filtrer pour ne garder que les dossiers suivis par l'instructeur actuel
+        /** @type {DossierRésumé[]} */
+        const dossiers = email && state.relationSuivis
+            ? tousLesDossiers.filter(dossier => {
+                const dossiersSuivis = state.relationSuivis?.get(email)
+                return dossiersSuivis && dossiersSuivis.has(dossier.id)
+            })
+            : []
+        
         return {
             email,
+            dossiers,
+            relationSuivis: state.relationSuivis,
             erreurs,
             résultatsSynchronisationDS88444
         };
     }
 
     try {
+        await chargerDossiers()
         replaceComponent(MesDossiers, mapStateToProps)
     } catch (error) {
         console.error('Erreur lors du chargement de la page Mes dossiers :', error)
