@@ -15,6 +15,7 @@ import Accessibilite from './routes/Accessibilite.js';
 import { init } from './actions/main.js';
 import Stats from './routes/Stats.js';
 import TousLesDossiers from './routes/TousLesDossiers.js';
+import MesDossiers from './routes/MesDossiers.js';
 
 // Évite l'appel du routeur sur les liens dont le chemain est le même que la page courante mais l'ancre (#) est différente
 page((ctx, next) => {
@@ -27,6 +28,7 @@ page((ctx, next) => {
 page('/', Accueil)
 
 page('/tous-les-dossiers', TousLesDossiers)
+page('/mes-dossiers', MesDossiers)
 
 page('/dossier/:dossierId', Dossier)
 
