@@ -1,6 +1,8 @@
 <script>
-    //@ts-check
-  
+  /**
+   * @deprecated Utiliser BadgePhase à la place.
+   */
+
 	/** @import { MouseEventHandler } from 'svelte/elements' */
     /** @import { DossierPhase } from '../../types/API_Pitchou.ts' */
 	

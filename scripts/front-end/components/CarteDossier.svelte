@@ -1,9 +1,9 @@
 <script>
     /** @import { DossierRésumé } from "../../types/API_Pitchou" **/
-    /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+    /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
 	import { formatDateAbsolue, formatLocalisation, formatPorteurDeProjet } from "../affichageDossier"
 	import BoutonModale from "./DSFR/BoutonModale.svelte"
-	import TagPhase from "./TagPhase.svelte"
+    import BadgePhase from "./BadgePhase.svelte"
 
     /**
      * @typedef Props
@@ -70,7 +70,7 @@
     <div class="contenu">
         <div class="première-ligne">
             <div>
-                <TagPhase phase={dossier.phase}  />
+                <BadgePhase phase={dossier.phase}  />
                 <div>
                     <span class="fr-icon-user-shared-2-line fr-icon--sm" aria-hidden="true"></span>
                     {dossier.prochaine_action_attendue_par || '(non renseignée)'}
