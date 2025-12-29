@@ -16,6 +16,7 @@
     * @property {DossierRésumé[]} dossiers
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {boolean} [afficherFiltreSansInstructeurice]
+    * @property {boolean} [afficherFiltreActionInstructeur]
     */
     /** @type {Props} */
     let { 
@@ -23,12 +24,13 @@
             email = '',
             dossiers,
             relationSuivis,
-            afficherFiltreSansInstructeurice = false
+            afficherFiltreSansInstructeurice = false,
+            afficherFiltreActionInstructeur = false
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -140,6 +142,16 @@
         numéroDeLaPageSélectionnée = 1
     }
 
+    function toggleFiltreActionInstructeur() {
+        if (!tousLesFiltres.has('actionInstructeur')) {
+            tousLesFiltres.set('actionInstructeur', (dossier) => dossier.prochaine_action_attendue_par === 'Instructeur')
+        } else {
+            tousLesFiltres.delete('actionInstructeur')
+        }
+        // Réinitialiser la page à 1 quand on change le filtre
+        numéroDeLaPageSélectionnée = 1
+    }
+
     /**
      * @type {ChangeEventHandler<HTMLSelectElement>}
      */
@@ -207,6 +219,16 @@
                     aria-pressed={tousLesFiltres.has('sansInstructeurice')}
                 >
                     Dossier sans instructeur·ice
+                </button>
+            {/if}
+            {#if afficherFiltreActionInstructeur}
+                <button 
+                    type="button"
+                    class="fr-tag"
+                    onclick={toggleFiltreActionInstructeur}
+                    aria-pressed={tousLesFiltres.has('actionInstructeur')}
+                >
+                    Action : Instructeur·ice
                 </button>
             {/if}
         </div>
