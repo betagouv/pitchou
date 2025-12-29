@@ -31,7 +31,7 @@
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
         </h2>
-        <div>
+        <div class="boutons-action">
             {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
                 {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
                 <BoutonModale id={dsfrModaleId} >
@@ -142,6 +142,11 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+
+        .boutons-action {
+            display: flex;
+            flex-direction: row;
+        }
 
         .première-ligne {
             display: flex;
