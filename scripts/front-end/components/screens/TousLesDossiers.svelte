@@ -1,6 +1,6 @@
 <script>
     /** @import { DossierRésumé, DossierPhase } from '../../../types/API_Pitchou.ts' */
-	/** @import { EventHandler } from "svelte/elements" */
+	/** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
     /** @import { PitchouState } from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
 	import { instructeurSuitDossier, instructeurLaisseDossier } from "../../actions/suiviDossier"
@@ -140,16 +140,15 @@
     }
 
     /**
-     * @param {DossierPhase} phase
+     * @type {ChangeEventHandler<HTMLSelectElement>}
      */
-    function sélectionnerPhase(phase) {
-        if (phaseSélectionnée === phase) {
-            // Désélectionner la phase
-            phaseSélectionnée = undefined
+    function sélectionnerPhase(e) {
+        e.preventDefault()
+        const phase =  e.currentTarget.value
+        if (phase === "") {
             tousLesFiltres.delete('phase')
         } else {
             // Sélectionner la phase
-            phaseSélectionnée = phase
             tousLesFiltres.set('phase', (dossier) => dossier.phase === phase)
         }
         // Réinitialiser la page à 1 quand on change le filtre
@@ -190,40 +189,16 @@
         <div class="filtres-et-compteur-dossiers">
             <div class="filtres">
                 <span class="fr-h4 texte-filtrer">Filtrer...</span>
-                <!--
-                    Ce composant avec la classe fr-translate est là pour qu'on aie un menu déroulant et le dsfr
-                    ne fournit pas de composant plus générique pour le moment
-                    Ce morceau sera à revisiter soit avec un composant fait par nous
-                    soit par une mise à jour du DSFR s'il contient un jour un composant qui nous convient
-                -->
-                <div class="fr-translate fr-nav">
-                    <div class="fr-nav__item">
-                        <button 
-                            aria-controls="filtre-par-phase" 
-                            aria-expanded="false"
-                            title="Choisir une phase" 
-                            type="button" 
-                            class="fr-btn fr-btn--tertiary"
-                        >
-                            {phaseSélectionnée ? `Phase : ${phaseSélectionnée}` : 'par phase'}
-                        </button>
-                        <div class="fr-collapse fr-translate__menu fr-menu" id="filtre-par-phase">
-                            <ul class="fr-menu__list">
-                                {#each toutesLesPhases as phase}
-                                    <li>
-                                        <button 
-                                            class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link" type="button" data-fr-opened="false"
-                                            onclick={() => sélectionnerPhase(phase)}
-                                            aria-pressed={phaseSélectionnée === phase}
-                                        >
-                                            {phase}
-                                        </button>
-                                    </li>
-                                {/each}
-                            </ul>
-                        </div>
-                    </div>
+            <div class="fr-select-group div-select-phase">
+                <select aria-label="Phase" class="fr-select select-phase" aria-describedby="select-hint-messages" id="select-hint" name="select-hint" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+                    <option value="" selected aria-label={'Sélectionner une phase'}>par phase</option>
+                    {#each toutesLesPhases as phase}
+                        <option value={phase}>{phase}</option>
+                    {/each}
+                </select>
+                <div class="fr-messages-group" id="select-hint-messages" aria-live="polite">
                 </div>
+            </div>
                 <button 
                     type="button"
                     class="fr-tag"
@@ -326,6 +301,15 @@
         min-width: 28rem;
         @media (max-width: 768px) {
             min-width: unset;
+        }
+    }
+
+    .div-select-phase {
+        margin-bottom: unset;
+        box-shadow: inset 0 0 0 1px var(--border-default-grey);
+        .select-phase {
+            background-color: unset;
+            box-shadow: unset;
         }
     }
 </style>
