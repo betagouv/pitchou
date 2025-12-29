@@ -116,6 +116,7 @@ function sendIndexHTMLFile(_request, reply){
 }
 
 fastify.get('/tous-les-dossiers', sendIndexHTMLFile)
+fastify.get('/mes-dossiers', sendIndexHTMLFile)
 fastify.get('/saisie-especes', sendIndexHTMLFile)
 // fastify.get('/dossier/:dossierId', sendIndexHTMLFile) géré plus bas avec une route dédiée qui peut retourner aussi du JSON
 fastify.get('/preremplissage-derogation', sendIndexHTMLFile)
