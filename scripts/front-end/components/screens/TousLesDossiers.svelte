@@ -255,6 +255,7 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 1rem;
+        margin-top: 2rem;
         gap: 2rem;
 
         .titre-et-barre-de-recherche {
