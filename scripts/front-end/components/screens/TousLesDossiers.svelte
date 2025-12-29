@@ -2,7 +2,8 @@
     /** @import { DossierRésumé, DossierPhase } from '../../../types/API_Pitchou.ts' */
 	/** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
     /** @import { PitchouState } from '../../store.js' */
-    /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
+    /** @import { default as Dossier } from '../../../types/database/public/Dossier.ts' */
+	/** @import { ComponentProps } from "svelte" */
 	import { instructeurSuitDossier, instructeurLaisseDossier } from "../../actions/suiviDossier"
     import Squelette from "../Squelette.svelte"
     import CarteDossier from "../CarteDossier.svelte"
@@ -16,6 +17,7 @@
     * @property {DossierRésumé[]} dossiers
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {PitchouState['erreurs']} [erreurs]
+    * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
     */
     /** @type {Props} */
     let { 
@@ -23,6 +25,8 @@
             dossiers,
             relationSuivis,
             erreurs = new Set(),
+            résultatsSynchronisationDS88444
+            
         } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -172,7 +176,7 @@
     }
 </script>
 
-<Squelette {email} {erreurs} title="Tous les dossiers">
+<Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Tous les dossiers">
     <div class="en-tête">
         <div class="titre-et-barre-de-recherche">
             <h1>Tous les dossiers</h1>

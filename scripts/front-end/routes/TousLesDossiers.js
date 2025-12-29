@@ -22,13 +22,14 @@ export default async () => {
         /** @type {DossierRésumé[]} */
         const dossiers = [...state.dossiersRésumés.values()]
         
-        const { email, erreurs } = mapStateToSqueletteProps(state);
+        const { email, erreurs, résultatsSynchronisationDS88444 } = mapStateToSqueletteProps(state);
         
         return {
             email,
             dossiers,
             relationSuivis: state.relationSuivis,
-            erreurs
+            erreurs,
+            résultatsSynchronisationDS88444
         };
     }
 
