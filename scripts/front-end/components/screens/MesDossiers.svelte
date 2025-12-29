@@ -24,6 +24,6 @@
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Mes dossiers">
-    <ListeDossiers titre="Mes dossiers" {email} {dossiers} {relationSuivis} afficherFiltreActionInstructeur={true} />
+    <ListeDossiers titre="Mes dossiers" {email} {dossiers} {relationSuivis} afficherFiltreActionInstructeur />
 </Squelette>
 

@@ -132,14 +132,20 @@
         return false
     }
 
+    /**
+     * Réinitialise la page à 1 quand on change un filtre
+     */
+    function réinitialiserPage() {
+        numéroDeLaPageSélectionnée = 1
+    }
+
     function toggleFiltreSansInstructeurice() {
         if (!tousLesFiltres.has('sansInstructeurice')) {
             tousLesFiltres.set('sansInstructeurice', (dossier) => !dossierEstSuivi(dossier.id))
         } else {
             tousLesFiltres.delete('sansInstructeurice')
         }
-        // Réinitialiser la page à 1 quand on change le filtre
-        numéroDeLaPageSélectionnée = 1
+        réinitialiserPage()
     }
 
     function toggleFiltreActionInstructeur() {
@@ -148,8 +154,7 @@
         } else {
             tousLesFiltres.delete('actionInstructeur')
         }
-        // Réinitialiser la page à 1 quand on change le filtre
-        numéroDeLaPageSélectionnée = 1
+        réinitialiserPage()
     }
 
     /**
@@ -164,8 +169,7 @@
             // Sélectionner la phase
             tousLesFiltres.set('phase', (dossier) => dossier.phase === phase)
         }
-        // Réinitialiser la page à 1 quand on change le filtre
-        numéroDeLaPageSélectionnée = 1 //TODO: mettre cette action dans une fonction
+        réinitialiserPage()
     }
 
     /**
