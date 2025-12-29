@@ -173,7 +173,7 @@
     }
 </script>
 
-<Squelette {email} {erreurs} title="Tous les dddddossiers">
+<Squelette {email} {erreurs} title="Tous les dossiers">
     <div class="en-tête">
         <div class="titre-et-barre-de-recherche">
             <h1>Tous les dossiers</h1>
