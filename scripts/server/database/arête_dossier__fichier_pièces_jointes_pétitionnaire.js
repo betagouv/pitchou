@@ -2,7 +2,7 @@
 /** @import {default as Dossier, DossierId} from '../../../scripts/types/database/public/Dossier.ts' */
 /** @import {DossierDS88444, DSFile} from '../../types/démarche-numérique/apiSchema.ts' */
 /** @import {ChampDescriptor} from '../../types/démarche-numérique/schema.ts' */
-/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarche-numérique/DémarcheSimplifiée88444.ts' */
+/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarche-numérique/Démarche88444.ts' */
 /** @import {Knex} from 'knex' */
 
 import trouverCandidatsFichiersÀTélécharger from '../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js'

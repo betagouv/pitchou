@@ -4,7 +4,7 @@
 /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/DémarcheSimplifiée88444.ts' */
+/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
 
 import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
 

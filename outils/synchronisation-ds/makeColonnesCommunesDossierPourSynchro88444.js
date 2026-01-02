@@ -1,5 +1,5 @@
 /** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/DémarcheSimplifiée88444.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 
 /** @import TypeDossier from '../../scripts/types/database/public/TypeDossier.ts' */

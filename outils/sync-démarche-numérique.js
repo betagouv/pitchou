@@ -37,7 +37,7 @@ import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../
 /** @import {DossierDS88444} from '../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarche-numérique/schema.ts' */
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarche-numérique/DémarcheSimplifiée88444.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarche-numérique/Démarche88444.ts' */
 
 /** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 /** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */

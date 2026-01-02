@@ -23,7 +23,7 @@ await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-
 */
 
 /** @import {GeoAPICommune, GeoAPIDépartement} from "../types/GeoAPI.ts" */
-/** @import {DossierDemarcheSimplifiee88444} from "../types/démarche-numérique/DémarcheSimplifiée88444.js" */
+/** @import {DossierDemarcheSimplifiee88444} from "../types/démarche-numérique/Démarche88444.js" */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 
 /** @type {keyof DossierDemarcheSimplifiee88444} */

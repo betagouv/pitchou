@@ -30,7 +30,7 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 
 
-/** @import {DossierDemarcheSimplifiee88444} from '../types/démarche-numérique/DémarcheSimplifiée88444.js' */
+/** @import {DossierDemarcheSimplifiee88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
 /** @import {StringValues} from '../types/tools.ts' */

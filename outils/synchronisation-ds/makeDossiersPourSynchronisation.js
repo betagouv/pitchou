@@ -1,5 +1,5 @@
 /** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/DémarcheSimplifiée88444.ts' */
+/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 /** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */

@@ -1,4 +1,4 @@
-import { DossierDemarcheSimplifiee88444 } from "./DémarcheSimplifiée88444";
+import { DossierDemarcheSimplifiee88444 } from "./Démarche88444";
 
 export type ChampDescriptorTypename = 
     | 'TextChampDescriptor' 

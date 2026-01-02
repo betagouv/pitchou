@@ -1,5 +1,5 @@
 import Dossier from './database/public/Dossier.ts'
-import { DossierDemarcheSimplifiee88444 } from './démarche-numérique/DémarcheSimplifiée88444.ts'
+import { DossierDemarcheSimplifiee88444 } from './démarche-numérique/Démarche88444.ts'
 import Fichier from './database/public/Fichier.ts'
 import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
