@@ -20,6 +20,7 @@ import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajout
 import { ajouterContrôles, modifierContrôle, supprimerContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
 import { getStatsPubliques } from './database/stats.js'
+import { getIndicateursAARRI } from './database/aarri.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -182,6 +183,10 @@ fastify.get('/résultats-synchronisation', async function () {
 
 fastify.get('/api/stats-publiques', async function () {
   return getStatsPubliques()
+})
+
+fastify.get('/api/aarri', async function () {
+  return getIndicateursAARRI()
 })
 
 

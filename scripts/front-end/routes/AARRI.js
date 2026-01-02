@@ -4,20 +4,30 @@
 import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import AARRI from '../components/screens/AARRI.svelte';
+import { chargerIndicateursAARRI } from '../actions/aarri.js';
 
 export default async () => {
-    /**
-     * 
-     * @param {PitchouState} state 
-     * @returns {ComponentProps<typeof AARRI>}
-     */
-    function mapStateToProps(state) {
-        const props = mapStateToSqueletteProps(state);
-        // le type de ComponentProps<typeof Squelette> imposent que les propriétés props sont peut-être undefined
-        // @ts-ignore
-        return props;
-    } 
+    try {
+        const indicateursP = chargerIndicateursAARRI()
+        
+        /**
+         * 
+         * @param {PitchouState} state 
+         * @returns {ComponentProps<typeof AARRI>}
+         */
+        function mapStateToProps(state) {
+            const { email, erreurs, résultatsSynchronisationDS88444 } = mapStateToSqueletteProps(state);
+            return {
+                email,
+                erreurs,
+                résultatsSynchronisationDS88444,
+                indicateursP
+            };
+        } 
 
-    replaceComponent(AARRI, mapStateToProps)
+        replaceComponent(AARRI, mapStateToProps)
+    } catch (error) {
+        console.error('Erreur lors du chargement de la page AARRI :', error)
+    }
 }
 

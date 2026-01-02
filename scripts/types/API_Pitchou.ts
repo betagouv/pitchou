@@ -181,3 +181,11 @@ export interface StatsImpactBiodiversité {
   /** Le nombre total d'individus compensés */
   total_individus_compensés: number;
 }
+
+/**
+ * AARRI (indicateurs de suivi).
+ */
+export interface IndicateursAARRI {
+    /** Le nombre total de personnes uniques dans tous les groupes d'instructeurs */
+    nbPersonnesAyantRejointGroupeInstructeur: number
+}

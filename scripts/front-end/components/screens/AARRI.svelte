@@ -1,17 +1,35 @@
 <script>
+    /** @import { IndicateursAARRI } from '../../..//types/API_Pitchou.ts' */
 	/** @import { ComponentProps } from 'svelte' */
     import Squelette from '../Squelette.svelte'
+    import Loader from '../Loader.svelte'
 
-    /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'>} Props */
+    /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'> & {indicateursP: Promise<IndicateursAARRI>}} Props */
         
-    /** @type Props */
-    let { email, erreurs, résultatsSynchronisationDS88444 } = $props();
+    /** @type {Props} */
+    let { email, erreurs, résultatsSynchronisationDS88444, indicateursP } = $props();
 </script>
 
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
-    <div class="fr-container fr-my-6w">
-        <h1>Suivi des indicateurs AARRI</h1>
-        <p>Contenu de la page AARRI à venir.</p>
-    </div>
+    {#await indicateursP}
+        <Loader></Loader>
+    {:then resultat}
+        <div class="fr-container fr-my-6w">
+            <h1>Suivi des indicateurs AARRI</h1>
+            <section class="fr-mt-4w">
+                <h2>Passage de "ne nous connait pas" à acquis</h2>
+                    <p>
+                    <p class="fr-text--lg">
+                        <strong>Nombre de personnes qui rejoignent pour la première fois un groupe d’instructeur DN&nbsp;:&nbsp;{resultat.nbPersonnesAyantRejointGroupeInstructeur}</strong> personne{resultat.nbPersonnesAyantRejointGroupeInstructeur > 1 ? 's' : ''}
+                    </p>
+
+            </section>
+        </div>
+    {:catch error}
+        <div class="fr-alert fr-alert--error fr-mb-3w">
+            <h3 class="fr-alert__title">Une erreur est survenue lors du chargement des groupes d'instructeurs :</h3>
+            <p>{error.message}</p>
+        </div>
+    {/await}
 </Squelette>
 
