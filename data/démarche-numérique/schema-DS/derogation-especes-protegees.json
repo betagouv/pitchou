@@ -7,16 +7,16 @@
     "declarative": null,
     "dateCreation": "2024-01-30T10:32:06+01:00",
     "datePublication": "2024-04-19T08:38:45+02:00",
-    "dateDerniereModification": "2025-09-23T10:05:07+02:00",
+    "dateDerniereModification": "2025-12-29T10:21:36+01:00",
     "dateDepublication": null,
     "dateFermeture": null,
     "notice": null,
     "deliberation": null,
-    "demarcheURL": "https://demarches.numerique.gouv.fr/commencer/derogation-especes-protegees",
+    "demarcheURL": "https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees",
     "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
     "revision": {
-        "id": "UHJvY2VkdXJlUmV2aXNpb24tMjEzNDgz",
-        "datePublication": "2025-08-27T16:52:22+02:00",
+        "id": "UHJvY2VkdXJlUmV2aXNpb24tMjI5NDY0",
+        "datePublication": "2025-11-19T17:20:51+01:00",
         "champDescriptors": [
             {
                 "__typename": "ExplicationChampDescriptor",
@@ -188,7 +188,8 @@
                 "id": "Q2hhbXAtMzg5NzM1Ng==",
                 "label": "Porteur de projet",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "DropDownListChampDescriptor",
@@ -263,7 +264,8 @@
                 "id": "Q2hhbXAtMzg5NzQwNw==",
                 "label": "Description du projet",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "TextareaChampDescriptor",
@@ -377,7 +379,8 @@
                 "id": "Q2hhbXAtNDI2NzA5OQ==",
                 "label": "Espèces concernées par la dérogation",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "PieceJustificativeChampDescriptor",
@@ -392,7 +395,8 @@
                 "id": "Q2hhbXAtMzg5NzQwMQ==",
                 "label": "Justifications de la demande de dérogation",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "TextareaChampDescriptor",
@@ -443,7 +447,8 @@
                 "id": "Q2hhbXAtNDUxNjk4NQ==",
                 "label": "Détails du projet",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "DropDownListChampDescriptor",
@@ -522,7 +527,8 @@
                 "id": "Q2hhbXAtNDM2ODY5NQ==",
                 "label": "Description du parc éolien concerné",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "IntegerNumberChampDescriptor",
@@ -572,7 +578,8 @@
                 "id": "Q2hhbXAtNDM2ODE2NA==",
                 "label": "Période de l'opération",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "DateChampDescriptor",
@@ -607,7 +614,8 @@
                 "id": "Q2hhbXAtNDUxNzEwMQ==",
                 "label": "Périmètre d'intervention",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "TextareaChampDescriptor",
@@ -629,7 +637,8 @@
                 "id": "Q2hhbXAtNDM2ODA3NQ==",
                 "label": "Modalités de l'opération",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "TextareaChampDescriptor",
@@ -691,7 +700,8 @@
                 "id": "Q2hhbXAtNDM3MjY3Ng==",
                 "label": "Précisions sur le transport des cadavres pour analyse au bureau",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 3
             },
             {
                 "__typename": "TextareaChampDescriptor",
@@ -767,7 +777,8 @@
                 "id": "Q2hhbXAtNDM2ODE1MA==",
                 "label": "Personnes amenées à intervenir",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "RepetitionChampDescriptor",
@@ -812,7 +823,8 @@
                 "id": "Q2hhbXAtNDM3Mjc3NQ==",
                 "label": "Mesures d'évitement, réduction et/ou compensation",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "YesNoChampDescriptor",
@@ -842,7 +854,8 @@
                 "id": "Q2hhbXAtNDM2ODIzMQ==",
                 "label": "Pièces jointes",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 2
             },
             {
                 "__typename": "PieceJustificativeChampDescriptor",
@@ -896,31 +909,11 @@
         "annotationDescriptors": [
             {
                 "__typename": "HeaderSectionChampDescriptor",
-                "id": "Q2hhbXAtNDM4MDE5MA==",
-                "label": "Identification du projet",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDM3OTk5Mg==",
-                "label": "Nom du porteur de projet",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDM3OTk5NA==",
-                "label": "Localisation du projet",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false
-            },
-            {
-                "__typename": "HeaderSectionChampDescriptor",
                 "id": "Q2hhbXAtNDM3NTA2Mg==",
                 "label": "DDEP",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "DropDownListChampDescriptor",
@@ -940,7 +933,8 @@
                 "id": "Q2hhbXAtNDI2MDQ4MQ==",
                 "label": "Enjeux",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "YesNoChampDescriptor",
@@ -961,7 +955,8 @@
                 "id": "Q2hhbXAtNDI2MDQ4Mw==",
                 "label": "Instruction DDEP",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "DateChampDescriptor",
@@ -969,14 +964,6 @@
                 "label": "Date de réception DDEP",
                 "description": "Pour les dossiers historiques en cours de saisie dans DS",
                 "required": false
-            },
-            {
-                "__typename": "PieceJustificativeChampDescriptor",
-                "id": "Q2hhbXAtNDE0NzkzMg==",
-                "label": "Dernière contribution en lien avec l'instruction DDEP",
-                "description": "Pour les dossiers historiques en cours de saisie dans DS",
-                "required": false,
-                "fileTemplate": null
             },
             {
                 "__typename": "DateChampDescriptor",
@@ -998,7 +985,8 @@
                 "id": "Q2hhbXAtNDI2MDQ4NQ==",
                 "label": "Saisine CNPN/CSRPN/Avis conforme",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "TextChampDescriptor",
@@ -1091,7 +1079,8 @@
                 "id": "Q2hhbXAtNDI2MDQ4Nw==",
                 "label": "Consultation du public",
                 "description": "",
-                "required": false
+                "required": false,
+                "level": 1
             },
             {
                 "__typename": "DateChampDescriptor",
@@ -1104,54 +1093,6 @@
                 "__typename": "DateChampDescriptor",
                 "id": "Q2hhbXAtNDYxMDIxNQ==",
                 "label": "Date de fin de la consultation du public ou enquête publique",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "HeaderSectionChampDescriptor",
-                "id": "Q2hhbXAtNDY5ODI3NA==",
-                "label": "GeoMCE",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "DropDownListChampDescriptor",
-                "id": "Q2hhbXAtNDY5ODI3OQ==",
-                "label": "Dépôt GeoMCE effectué ?",
-                "description": "",
-                "required": false,
-                "options": [
-                    "Oui",
-                    "Non",
-                    "Partiel"
-                ],
-                "otherOption": false
-            },
-            {
-                "__typename": "DateChampDescriptor",
-                "id": "Q2hhbXAtNDY5ODI4Mw==",
-                "label": "Date dépôt GeoMCE",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextChampDescriptor",
-                "id": "Q2hhbXAtNDY5ODI4Ng==",
-                "label": "Id projet GeoMCE",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "TextareaChampDescriptor",
-                "id": "Q2hhbXAtNDY5ODI4OA==",
-                "label": "GeoMCE - commentaire libre",
-                "description": "",
-                "required": false
-            },
-            {
-                "__typename": "CarteChampDescriptor",
-                "id": "Q2hhbXAtNTA2NTIwOA==",
-                "label": "Nouvelle annotation",
                 "description": "",
                 "required": false
             }

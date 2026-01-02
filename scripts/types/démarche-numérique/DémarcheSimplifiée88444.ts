@@ -1,10 +1,10 @@
 /**
 * Ce fichier a été généré automatiquement par outils/genere-types-schema-DS.js
-* en prenant data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json comme source
+* en prenant data/démarche-numérique/schema-DS/derogation-especes-protegees.json comme source
 * 
 * Ne pas le modifier à la main
 * 
-* À la place, mettre à jour data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json
+* À la place, mettre à jour data/démarche-numérique/schema-DS/derogation-especes-protegees.json
 * d'après https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
 * et relancer outils/genere-types-schema-DS.js
 */
@@ -244,14 +244,6 @@ export interface DossierDemarcheSimplifiee88444 {
 
 
 export interface AnnotationsPriveesDemarcheSimplifiee88444 {
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Nom du porteur de projet": string;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Localisation du projet": string;
   "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer";
   "Enjeu écologique": boolean;
   "Enjeu politique": boolean;
@@ -259,10 +251,6 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Date de réception DDEP": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Dernière contribution en lien avec l'instruction DDEP": ChampDSPieceJustificative;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */
@@ -291,8 +279,4 @@ export interface AnnotationsPriveesDemarcheSimplifiee88444 {
   "Avis conforme Ministre": ChampDSPieceJustificative;
   "Date de début de la consultation du public ou enquête publique": Date;
   "Date de fin de la consultation du public ou enquête publique": Date;
-  "Dépôt GeoMCE effectué ?": "Oui" | "Non" | "Partiel";
-  "Date dépôt GeoMCE": Date;
-  "Id projet GeoMCE": string;
-  "GeoMCE - commentaire libre": string;
 }
