@@ -249,14 +249,14 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors){
 
 
 
-const dossierDémarcheSimplifiéeJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
+const dossierDémarcheNumériqueJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
 
 
 
-const dossierDémarcheSimplifiéeInterfaceP = compile(
+const dossierDémarcheNumériqueInterfaceP = compile(
     //@ts-ignore
-    dossierDémarcheSimplifiéeJSONSchema, 
-    `DossierDemarcheSimplifiee${schema.number}`, 
+    dossierDémarcheNumériqueJSONSchema, 
+    `DossierDemarcheNumerique${schema.number}`, 
     { bannerComment: '' }
 )
 
@@ -266,13 +266,13 @@ const dossierDémarcheSimplifiéeInterfaceP = compile(
  * annotationDescriptors vers JSONSchema
  */
 
-const annotationsDémarcheSimplifiéeJSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
+const annotationsDémarcheNumériqueJSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
 
 
-const annotationsDémarcheSimplifiéeInterfaceP = compile(
+const annotationsDémarcheNumériqueInterfaceP = compile(
     //@ts-ignore
-    annotationsDémarcheSimplifiéeJSONSchema, 
-    `AnnotationsPriveesDemarcheSimplifiee${schema.number}`, 
+    annotationsDémarcheNumériqueJSONSchema, 
+    `AnnotationsPriveesDemarcheNumerique${schema.number}`, 
     { bannerComment: '' }
 )
 
@@ -293,19 +293,19 @@ const imports = [
     `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join('\n')
 
-const outPath = `scripts/types/démarche-numérique/DémarcheSimplifiée${schema.number}.ts`
+const outPath = `scripts/types/démarche-numérique/Démarche${schema.number}.ts`
 await Promise.all([
-    dossierDémarcheSimplifiéeInterfaceP,
-    annotationsDémarcheSimplifiéeInterfaceP
+    dossierDémarcheNumériqueInterfaceP,
+    annotationsDémarcheNumériqueInterfaceP
 ])
 .then(([
-    dossierDémarcheSimplifiéeInterface,
-    annotationsDémarcheSimplifiéeInterface
+    dossierDémarcheNumériqueInterface,
+    annotationsDémarcheNumériqueInterface
 ]) => [
     commentaireInitial, 
     imports,
-    dossierDémarcheSimplifiéeInterface,
-    annotationsDémarcheSimplifiéeInterface
+    dossierDémarcheNumériqueInterface,
+    annotationsDémarcheNumériqueInterface
 ].join('\n\n'))
 .then(str => writeFile(outPath, str))
 

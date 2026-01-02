@@ -12,7 +12,7 @@
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 import { ChampDSPieceJustificative } from "./apiSchema.ts";
 
-export interface DossierDemarcheSimplifiee128114 {
+export interface DossierDemarcheNumerique128114 {
   /**
    * Indiquer le nom <strong> précis </strong> de votre projet
    */
@@ -243,7 +243,7 @@ export interface DossierDemarcheSimplifiee128114 {
 }
 
 
-export interface AnnotationsPriveesDemarcheSimplifiee128114 {
+export interface AnnotationsPriveesDemarcheNumerique128114 {
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */

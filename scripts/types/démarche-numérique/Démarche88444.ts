@@ -12,7 +12,7 @@
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 import { ChampDSPieceJustificative } from "./apiSchema.ts";
 
-export interface DossierDemarcheSimplifiee88444 {
+export interface DossierDemarcheNumerique88444 {
   /**
    * Indiquer le nom <strong> précis </strong> de votre projet
    */
@@ -243,7 +243,7 @@ export interface DossierDemarcheSimplifiee88444 {
 }
 
 
-export interface AnnotationsPriveesDemarcheSimplifiee88444 {
+export interface AnnotationsPriveesDemarcheNumerique88444 {
   "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer";
   "Enjeu écologique": boolean;
   "Enjeu politique": boolean;
