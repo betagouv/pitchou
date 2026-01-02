@@ -2,6 +2,7 @@
     import { run } from 'svelte/legacy';
 
     import { format, parse } from "date-fns";
+	import toJSONPerserveDate from '../../../commun/DateToJSON'
 
     
     /**
@@ -17,7 +18,13 @@
     let internal = $state();
 
     const input = (/** @type {Date | null | undefined} */ x) => (internal = x && format(x, YYYYMMDD));
-    const output = (/** @type {string | null | undefined} */ x) => (date = typeof x === 'string' ? parse(x, YYYYMMDD, new Date()) : undefined);
+    const output = (/** @type {string | null | undefined} */ x) => {
+        date = typeof x === 'string' ? parse(x, YYYYMMDD, new Date()) : undefined;
+        if (date) {
+            Object.defineProperty(date, 'toJSON', {value: toJSONPerserveDate})
+        }
+        return date
+    }
 
     run(() => {
         input(date);
