@@ -91,7 +91,7 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
 
 
 /**
- * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction demande un lien via POST
  * 
  * @param {Partial<DossierDemarcheNumerique88444>} dossierPartiel

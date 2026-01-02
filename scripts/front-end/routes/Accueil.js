@@ -149,7 +149,7 @@ export default async () => {
             // cette personne fait sûrement parti d'un service instructeur, mais pas d'un groupe d'instructeur sur DS
 
             store.mutations.ajouterErreur({
-                message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Simplifiée de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
+                message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
             })
         }
 
