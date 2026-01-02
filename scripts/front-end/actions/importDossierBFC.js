@@ -1,6 +1,6 @@
 //@ts-check
 /** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarche-numérique/Démarche88444" */
+/** @import { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444" */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
@@ -69,7 +69,7 @@ import { extrairePremierMail, extraireNom, extraireNomDunMail, formaterDépartem
  */
 
 
-/** @type {Map<ThématiquesOptions, DossierDemarcheSimplifiee88444['Activité principale']>} */
+/** @type {Map<ThématiquesOptions, DossierDemarcheNumerique88444['Activité principale']>} */
 const correspondanceThématiqueVersActivitéPrincipale = new Map([
     ["Autres", "Autre"],
     ["Autres EnR", "Production énergie renouvelable - Méthaniseur, biomasse"],
@@ -94,8 +94,8 @@ const correspondanceThématiqueVersActivitéPrincipale = new Map([
 /**
  *
  * @param {string} thématiqueBFC
- * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {DossierDemarcheSimplifiee88444['Activité principale']}
+ * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
+ * @returns {DossierDemarcheNumerique88444['Activité principale']}
  */
 function convertirThématiqueEnActivitéPrincipale(thématiqueBFC, activitésPrincipales88444) {
 
@@ -127,8 +127,8 @@ export function créerNomPourDossier(ligne) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
  * @param {LigneDossierBFC} ligne
- * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<Partial<DossierDemarcheSimplifiee88444>>}
+ * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
+ * @returns {Promise<Partial<DossierDemarcheNumerique88444>>}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
     const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
@@ -164,7 +164,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
  * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
  *
  * @param {LigneDossierBFC} ligne Ligne d'import contenant les informations du demandeur
- * @returns {Pick<DossierDemarcheSimplifiee88444, "Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact" | 'Qualité du représentant'>}
+ * @returns {Pick<DossierDemarcheNumerique88444, "Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact" | 'Qualité du représentant'>}
  *   Objet contenant le type de demandeur, le nom/prénom du représentant (si applicable), et l'adresse mail de contact.
  */
 function générerDonnéesDemandeurs(ligne) {
@@ -204,7 +204,7 @@ function générerDonnéesDemandeurs(ligne) {
 
 /**
  * @param {LigneDossierBFC} ligne
- * @returns {Pick<DossierDemarcheSimplifiee88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
+ * @returns {Pick<DossierDemarcheNumerique88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
  */
 function générerDonnéesAutorisationEnvironnementale(ligne) {
     const procedure_associée = ligne['Procédure associée'].toLowerCase();
@@ -226,11 +226,11 @@ function générerDonnéesAutorisationEnvironnementale(ligne) {
  *
  * @param {{Communes: string | undefined, Département: number | string}} ligne
  * @returns { Promise<
- *              Partial<Pick<DossierDemarcheSimplifiee88444,
+ *              Partial<Pick<DossierDemarcheNumerique88444,
  *                  "Commune(s) où se situe le projet" |
  *                  "Département(s) où se situe le projet" |
  *                  "Le projet se situe au niveau…"
- *              >> & Pick<DossierDemarcheSimplifiee88444, "Dans quel département se localise majoritairement votre projet ?">
+ *              >> & Pick<DossierDemarcheNumerique88444, "Dans quel département se localise majoritairement votre projet ?">
  *           >}
  */
 async function générerDonnéesLocalisations(ligne) {

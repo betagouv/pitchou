@@ -5,7 +5,7 @@
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
     /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarche-numérique/schema.js"; */
-    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
+    /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
 
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
@@ -44,7 +44,7 @@
     );
 
 
-    /** @type {Set<DossierDemarcheSimplifiee88444['Activité principale']>} } */
+    /** @type {Set<DossierDemarcheNumerique88444['Activité principale']>} } */
     // @ts-ignore
     const activitésPrincipales88444 = $derived(
         schema ?

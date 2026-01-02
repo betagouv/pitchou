@@ -30,7 +30,7 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 
 
-/** @import {DossierDemarcheSimplifiee88444} from '../types/démarche-numérique/Démarche88444.js' */
+/** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
 /** @import {StringValues} from '../types/tools.ts' */
@@ -128,7 +128,7 @@ fastify.get('/accessibilite', sendIndexHTMLFile)
 
 
 fastify.post('/lien-preremplissage', async function (request) {
-  /** @type {Partial<DossierDemarcheSimplifiee88444>} */
+  /** @type {Partial<DossierDemarcheNumerique88444>} */
   // @ts-ignore
   let donnéesPreRemplissage = request.body
 

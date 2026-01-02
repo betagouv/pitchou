@@ -1,5 +1,5 @@
 /** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
+/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
 /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 /** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
@@ -40,7 +40,7 @@ import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 
 /**
  * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
 export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToChampDS) {
@@ -86,7 +86,7 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
 
-    /** @type {DossierDemarcheSimplifiee88444['Le demandeur est…'] | undefined} */
+    /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
     const personneMoraleOuPhysique = champById.get(pitchouKeyToChampDS.get('Le demandeur est…'))?.stringValue
 
     if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === 'une personne physique') {
@@ -106,7 +106,7 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
     if (personneMoraleOuPhysique === "une personne physique") {
         const {prenom, nom} = demandeur
 
-        /** @type {DossierDemarcheSimplifiee88444['Adresse mail de contact'] | undefined} */
+        /** @type {DossierDemarcheNumerique88444['Adresse mail de contact'] | undefined} */
         const adresseEmailDeContact = champById.get(pitchouKeyToChampDS.get('Adresse mail de contact'))?.stringValue
 
         let email = adresseEmailDeContact || demandeur.email || déposant.email
@@ -278,7 +278,7 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
+ * @param {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
  * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
  * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
  */

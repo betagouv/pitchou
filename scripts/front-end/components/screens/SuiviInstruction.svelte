@@ -18,7 +18,7 @@
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 
     /** @import {ComponentProps} from 'svelte' */
-    /** @import {DossierDemarcheSimplifiee88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
+    /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
     /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
     /** @import {PitchouState} from '../../store.js' */
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
@@ -32,7 +32,7 @@
      * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
      * @property {DossierRésumé[]} [dossiers]
      * @property {PitchouState['relationSuivis']} relationSuivis
-     * @property {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} [activitésPrincipales]
+     * @property {DossierDemarcheNumerique88444["Activité principale"][] | undefined} [activitésPrincipales]
      * @property {TriTableau['id'] | undefined} [triIdSélectionné]
      * @property {Partial<FiltresLocalStorage>} [filtresSélectionnés]
      * @property {any} rememberTriFiltres
@@ -296,7 +296,7 @@
     // @ts-ignore
     const activitésPrincipalesOptions = new SvelteSet([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales])
 
-    /** @type {Set<DossierDemarcheSimplifiee88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
+    /** @type {Set<DossierDemarcheNumerique88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
     // @ts-ignore
     let activitésPrincipalesSélectionnées = $state(new SvelteSet(filtresSélectionnés.activitésPrincipales ?
         filtresSélectionnés.activitésPrincipales :
@@ -312,7 +312,7 @@
 
     /**
      *
-     * @param {Set<DossierDemarcheSimplifiee88444["Activité principale"]>} _activitésPrincipalesSélectionnées
+     * @param {Set<DossierDemarcheNumerique88444["Activité principale"]>} _activitésPrincipalesSélectionnées
      */
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
         activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)

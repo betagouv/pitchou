@@ -1,4 +1,4 @@
-import { DossierDemarcheSimplifiee88444 } from "./Démarche88444";
+import { DossierDemarcheNumerique88444 } from "./Démarche88444";
 
 export type ChampDescriptorTypename = 
     | 'TextChampDescriptor' 
@@ -43,7 +43,7 @@ export interface SchemaDémarcheSimplifiée {
 }
 
 
-export type Dossier88444ChampDescriptor = Omit<ChampDescriptor, 'label'> & {label: keyof DossierDemarcheSimplifiee88444}
+export type Dossier88444ChampDescriptor = Omit<ChampDescriptor, 'label'> & {label: keyof DossierDemarcheNumerique88444}
 
 
 

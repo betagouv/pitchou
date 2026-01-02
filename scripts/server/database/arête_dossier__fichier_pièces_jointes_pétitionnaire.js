@@ -2,7 +2,7 @@
 /** @import {default as Dossier, DossierId} from '../../../scripts/types/database/public/Dossier.ts' */
 /** @import {DossierDS88444, DSFile} from '../../types/démarche-numérique/apiSchema.ts' */
 /** @import {ChampDescriptor} from '../../types/démarche-numérique/schema.ts' */
-/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarche-numérique/Démarche88444.ts' */
+/** @import {DossierDemarcheNumerique88444} from '../../types/démarche-numérique/Démarche88444.ts' */
 /** @import {Knex} from 'knex' */
 
 import trouverCandidatsFichiersÀTélécharger from '../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js'
@@ -13,7 +13,7 @@ import {directDatabaseConnection} from '../database.js'
  * @param {Map<Dossier['id'], Fichier['id'][]>} fichiersPiècesJointesPétitionnaireParNuméroDossier
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number 
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */

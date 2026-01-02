@@ -16,7 +16,7 @@ import { chargerDossiers } from '../actions/dossier.js';
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
 /** @import {ChampDescriptor} from '../../types/démarche-numérique/schema.ts' */
-/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarche-numérique/Démarche88444.ts' */
+/** @import {DossierDemarcheNumerique88444} from '../../types/démarche-numérique/Démarche88444.ts' */
 /** @import {FiltresLocalStorage, TriTableau, TriFiltreLocalStorage} from '../../types/interfaceUtilisateur.ts' */
 
 const TRI_FILTRE_CLEF_LOCALSTORAGE = 'tri-filtres-tableau-suivi'
@@ -55,7 +55,7 @@ function mapStateToPropsSuiviInstruction(state){
         ...mapStateToSqueletteProps(state),
         dossiers: [...dossiersById.values()],
         relationSuivis: state.relationSuivis,
-        /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
+        /** @type {DossierDemarcheNumerique88444["Activité principale"][] | undefined} */
         //@ts-expect-error TS ne sait pas que les activités principales possibles proviennent du schema
         activitésPrincipales: activitésPrincipalesChamp?.options,
         triIdSélectionné: trisFiltresSélectionnés?.tri,

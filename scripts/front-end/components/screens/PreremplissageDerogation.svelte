@@ -1,5 +1,5 @@
 <script>
-    /** @import {DossierDemarcheSimplifiee88444} from "../../../types/démarche-numérique/Démarche88444.js" */
+    /** @import {DossierDemarcheNumerique88444} from "../../../types/démarche-numérique/Démarche88444.js" */
     /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarche-numérique/schema.js' */
     import { créerLienGETPréremplissageDémarche } from '../../../commun/préremplissageDémarcheNumérique.js';
     import Squelette from '../Squelette.svelte'
@@ -22,12 +22,12 @@
     /** @type {Props} */
     let { schemaDS88444, email = undefined } = $props();
 
-    /** @type {Partial<DossierDemarcheSimplifiee88444>} */
+    /** @type {Partial<DossierDemarcheNumerique88444>} */
     let nouveauDossierPartiel = $state({})
     let lienDePreremplissage = $state("")
 
-    /** @type { (keyof DossierDemarcheSimplifiee88444)[] } */
-    //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
+    /** @type { (keyof DossierDemarcheNumerique88444)[] } */
+    //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
     let champsPreremplis = $derived(Object.keys(nouveauDossierPartiel).filter(champ => {
         //@ts-expect-error pareil
         return nouveauDossierPartiel[champ] !== ""
@@ -46,7 +46,7 @@
     ]
 
     /** @type {Dossier88444ChampDescriptor[]} */
-    //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheSimplifiee88444
+    //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
     let champsRemplissables = schemaDS88444["revision"]["champDescriptors"].filter((champ) => {
         return champsPossibles.includes(champ["__typename"])
     }).filter((champ, i, tableauActuel) => {

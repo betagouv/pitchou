@@ -37,7 +37,7 @@ import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../
 /** @import {DossierDS88444} from '../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarche-numérique/schema.ts' */
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarche-numérique/Démarche88444.ts' */
+/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../scripts/types/démarche-numérique/Démarche88444.ts' */
 
 /** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 /** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
@@ -117,14 +117,14 @@ console.info('Nombre de dossiers', dossiersDS.length)
 
 // stocker les dossiers en BDD
 
-/** @type {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} */
-//@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheSimplifiee88444 sont les schema88444.revision.champDescriptors.map(label)
+/** @type {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} */
+//@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheNumerique88444 sont les schema88444.revision.champDescriptors.map(label)
 const pitchouKeyToChampDS = new Map(schema.revision.champDescriptors.map(
     ({label, id}) => [label, id])
 )
 
-/** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
-//@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
+/** @type {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>} */
+//@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheNumerique88444 sont les schema88444.revision.annotationDescriptors.map(label)
 export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescriptors.map(
     ({label, id}) => [label, id])
 )
@@ -171,15 +171,15 @@ const {
         return {
             /** @type {GetDonnéesPersonnesEntreprises} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheSimplifiee88444
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheNumerique88444
             getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444,
             /** @type {MakeAvisExpertFromTraitementsDS} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type MakeAvisExpertFromTraitementsDS soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            // ici, on voudrait que le type MakeAvisExpertFromTraitementsDS soit fonction de keyof AnnotationsPriveesDemarcheNumerique88444
             makeAvisExpertFromTraitementsDS: makeAvisExpertFromTraitementsDS88444,
             /** @type {MakeColonnesCommunesDossierPourSynchro} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheNumerique88444
             makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
         }
     } else {

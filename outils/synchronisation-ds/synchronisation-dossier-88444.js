@@ -4,7 +4,7 @@
 /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
-/** @import {AnnotationsPriveesDemarcheSimplifiee88444, DossierDemarcheSimplifiee88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
+/** @import {AnnotationsPriveesDemarcheNumerique88444, DossierDemarcheNumerique88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
 
 import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
 
@@ -36,7 +36,7 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
  * Télécharge les pièces jointes au dossier fournies par le pétitionnaire pour la démarche 88444
  * 
  * @param {DossierDS88444[]} dossiersDS
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {Knex.Transaction | Knex} databaseConnection
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
@@ -93,7 +93,7 @@ export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, p
 /**
  * Télécharge les nouveaux fichiers pour 88444: Avis CSRPN/CNPN, Saisines, Avis conforme Ministre pour les dossiers 
  * @param {DossierDS88444[]} dossiersDS
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
+ * @param {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<{
  *  fichiersAvisCSRPN_CNPN_Téléchargés: Map<DossierDS88444['number'], Fichier['id'][]> | undefined,
