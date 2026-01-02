@@ -1,4 +1,4 @@
-/** @import { DossierDemarcheSimplifiee88444 } from "../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+/** @import { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier, Alerte, DossierAvecAlertes } from "./importDossierUtils" */
 
 
@@ -69,7 +69,7 @@ export function créerNomPourDossier(ligne) {
  */
 
 /**
- * @type {Map<TypeDeProjetOptions,  DossierDemarcheSimplifiee88444['Activité principale']>}
+ * @type {Map<TypeDeProjetOptions,  DossierDemarcheNumerique88444['Activité principale']>}
  */
 const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
     ["ZAE", "ZAC"],
@@ -89,8 +89,8 @@ const correspondanceTypeDeProjetVersActivitéPrincipale = new Map([
 /**
  *
  * @param {LigneDossierCorse} ligne
- * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
- * @returns {{ data: DossierDemarcheSimplifiee88444['Activité principale'], alertes: Alerte[] }}
+ * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
+ * @returns {{ data: DossierDemarcheNumerique88444['Activité principale'], alertes: Alerte[] }}
  */
 function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444) {
     /** @type {Alerte[]} */
@@ -119,7 +119,7 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
 
 /**
  * @param {LigneDossierCorse} ligne
- * @returns {Pick<DossierDemarcheSimplifiee88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
+ * @returns {Pick<DossierDemarcheNumerique88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
  */
 function générerDonnéesAutorisationEnvironnementale(ligne) {
     const type_de_projet = ligne['Type de projet'].toLowerCase();
@@ -142,12 +142,12 @@ function générerDonnéesAutorisationEnvironnementale(ligne) {
  * @param {{ Commune: string | undefined, Département: number | string }} ligne
  *
  * @returns {Promise<{
- *   data: Partial<Pick<DossierDemarcheSimplifiee88444,
+ *   data: Partial<Pick<DossierDemarcheNumerique88444,
  *     "Commune(s) où se situe le projet" |
  *     "Département(s) où se situe le projet" |
  *     "Le projet se situe au niveau…"
  *   >> &
- *   Pick<DossierDemarcheSimplifiee88444,
+ *   Pick<DossierDemarcheNumerique88444,
  *     "Dans quel département se localise majoritairement votre projet ?"
  *   >,
  *   alertes: Alerte[]
@@ -181,12 +181,12 @@ async function générerDonnéesLocalisations(ligne) {
         undefined
 
     /** @type {(
-     *   Partial<Pick<DossierDemarcheSimplifiee88444,
+     *   Partial<Pick<DossierDemarcheNumerique88444,
      *     "Commune(s) où se situe le projet" |
      *     "Département(s) où se situe le projet" |
      *     "Le projet se situe au niveau…"
      *   >> &
-     *   Pick<DossierDemarcheSimplifiee88444,
+     *   Pick<DossierDemarcheNumerique88444,
      *     "Dans quel département se localise majoritairement votre projet ?"
      *   >
      * )} */
@@ -351,7 +351,7 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
- * @param {Set<DossierDemarcheSimplifiee88444['Activité principale']>} activitésPrincipales88444
+ * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
  * @returns {Promise<DossierAvecAlertes>}}}
  */
 export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {

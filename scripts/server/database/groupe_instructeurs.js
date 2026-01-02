@@ -9,7 +9,7 @@ import {directDatabaseConnection} from '../database.js'
 //@ts-ignore
 /** @import {default as CapÉcritureAnnotation} from '../../types/database/public/CapÉcritureAnnotation.ts' */
 //@ts-ignore
-/** @import * as API_DS from '../../types/démarches-simplifiées/apiSchema.ts' */
+/** @import * as API_DS from '../../types/démarche-numérique/apiSchema.ts' */
 
 /**
  * @param {number} demarcheNumber

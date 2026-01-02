@@ -17,7 +17,7 @@ type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | Do
         & DonnéesPersonnesEntreprisesInitializer
 
 /**
- * Représente le format des données issues de Démarches Simplifiées (DS)
+ * Représente le format des données issues de Démarche Numérique (DN)
  * avant leur insertion ou mise à jour dans la base de données.
  *
  * Problème technique actuel :

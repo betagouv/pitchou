@@ -1,17 +1,17 @@
 //@ts-check
 
 import ky from "ky"
-import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheSimplifiée.js";
+import { clefAE, schemaToChampLabelToChampId } from "../../commun/préremplissageDémarcheNumérique.js";
 
-/** @import {DossierDemarcheSimplifiee88444} from "../../types/démarches-simplifiées/DémarcheSimplifiée88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../../types/démarches-simplifiées/schema.js' */
+/** @import {DossierDemarcheNumerique88444} from "../../types/démarche-numérique/Démarche88444.js" */
+/** @import {SchemaDémarcheSimplifiée} from '../../types/démarche-numérique/schema.js' */
 
 const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
 const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`
 
 /**
  * 
- * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel
+ * @param {Partial<DossierDemarcheNumerique88444>} dossierPartiel
  * @param {SchemaDémarcheSimplifiée} schema88444
  * @returns {Record<string, string | string[] | any[]>}
  */
@@ -31,11 +31,11 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
         ].includes(champ)
         ) {
 
-            /** @type {DossierDemarcheSimplifiee88444[keyof DossierDemarcheSimplifiee88444] | undefined} */
+            /** @type {DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined} */
             // @ts-ignore
             const valeur = dossierPartiel[champ]
             if (valeur) {
-                // le `champ_` est une convention pour le pré-remplissage de Démarches Simplifiées
+                // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
                 objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString()
             }
         }
@@ -91,10 +91,10 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
 
 
 /**
- * Démarche simplifiée propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction demande un lien via POST
  * 
- * @param {Partial<DossierDemarcheSimplifiee88444>} dossierPartiel
+ * @param {Partial<DossierDemarcheNumerique88444>} dossierPartiel
  * @param {SchemaDémarcheSimplifiée} schema88444
  * @returns {Promise<{dossier_url: string}>}
  */

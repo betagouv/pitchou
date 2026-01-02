@@ -257,7 +257,7 @@
             class="fr-btn fr-mb-1w"
             target="_blank"
             href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
-            >Dossier sur Démarches Simplifiées</a
+            >Dossier sur Démarche Numérique</a
         >
     </section>
 </section>

@@ -15,8 +15,8 @@ import { chargerDossiers } from '../actions/dossier.js';
 
 /** @import {ComponentProps} from 'svelte' */
 /** @import {PitchouState} from '../store.js' */
-/** @import {ChampDescriptor} from '../../types/démarches-simplifiées/schema.ts' */
-/** @import {DossierDemarcheSimplifiee88444} from '../../types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {ChampDescriptor} from '../../types/démarche-numérique/schema.ts' */
+/** @import {DossierDemarcheNumerique88444} from '../../types/démarche-numérique/Démarche88444.ts' */
 /** @import {FiltresLocalStorage, TriTableau, TriFiltreLocalStorage} from '../../types/interfaceUtilisateur.ts' */
 
 const TRI_FILTRE_CLEF_LOCALSTORAGE = 'tri-filtres-tableau-suivi'
@@ -55,7 +55,7 @@ function mapStateToPropsSuiviInstruction(state){
         ...mapStateToSqueletteProps(state),
         dossiers: [...dossiersById.values()],
         relationSuivis: state.relationSuivis,
-        /** @type {DossierDemarcheSimplifiee88444["Activité principale"][] | undefined} */
+        /** @type {DossierDemarcheNumerique88444["Activité principale"][] | undefined} */
         //@ts-expect-error TS ne sait pas que les activités principales possibles proviennent du schema
         activitésPrincipales: activitésPrincipalesChamp?.options,
         triIdSélectionné: trisFiltresSélectionnés?.tri,
@@ -149,7 +149,7 @@ export default async () => {
             // cette personne fait sûrement parti d'un service instructeur, mais pas d'un groupe d'instructeur sur DS
 
             store.mutations.ajouterErreur({
-                message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Simplifiée de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
+                message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`
             })
         }
 

@@ -3,8 +3,8 @@
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
-    /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarches-simplifiées/schema.js"; */
-    /** @import { DossierDemarcheSimplifiee88444 } from "../../../types/démarches-simplifiées/DémarcheSimplifiée88444" */
+    /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js"; */
+    /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
 
     import DéplierReplier from '../common/DéplierReplier.svelte'
     import { SvelteMap } from "svelte/reactivity";
@@ -51,7 +51,7 @@
         ),
     );
 
-    /** @type {Set<DossierDemarcheSimplifiee88444['Activité principale']>} } */
+    /** @type {Set<DossierDemarcheNumerique88444['Activité principale']>} } */
     // @ts-ignore
     const activitésPrincipales88444 = $derived(
         schema
