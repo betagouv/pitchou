@@ -3,13 +3,19 @@
 	/** @import { ComponentProps } from 'svelte' */
     import Squelette from '../Squelette.svelte'
     import Loader from '../Loader.svelte'
+	import { formatDateAbsolue } from '../../affichageDossier.js'
+	import { isSameDay } from 'date-fns'
 
     /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'> & {indicateursParDateP: Promise<IndicateursAARRI[]>}} Props */
         
     /** @type {Props} */
     let { email, erreurs, résultatsSynchronisationDS88444, indicateursParDateP } = $props();
 
-    let indicateursAujourdhuiP = $derived(indicateursParDateP.then((indicateursParDate) => indicateursParDate.filter((indicateurs) => indicateurs.date)[0]))
+    let indicateursAujourdhuiP = $derived(indicateursParDateP.then((indicateursParDate) => indicateursParDate[0]))
+
+    let dateChoisie = $state()
+
+    indicateursParDateP.then((indicateursParDate) => dateChoisie = indicateursParDate[1].date)
 
     const largeurBarreBase = 80;
     
@@ -17,29 +23,29 @@
 </script>
 
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
-    {#await indicateursAujourdhuiP}
-        <Loader></Loader>
-    {:then indicateurs}
-        <div class="fr-container fr-my-6w">
-            <h1>Suivi des indicateurs AARRI</h1>
+    <div class="fr-container fr-my-6w">
+        <h1>Suivi des indicateurs AARRI</h1>
+        {#await indicateursAujourdhuiP}
+            <Loader></Loader>
+        {:then indicateursAujourdhui}
             <section class="fr-mt-4w">
                 <h2>État des lieux</h2>
                 <div class="conteneur-barres">
                     <div class="conteneur-barre">
                         <span class="étiquette-barre">Impact</span>
-                        <div class="barre barre-impact" style={`width:${indicateurs.nombreUtilisateuriceImpact/indicateurs.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <div class="barre barre-impact" style={`width:${indicateursAujourdhui.nombreUtilisateuriceImpact/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
                     </div>
                     <div class="conteneur-barre">
                         <span class="étiquette-barre">Retenu.es</span>
-                        <div class="barre barre-retenu" style={`width:${indicateurs.nombreUtilisateuriceRetenu/indicateurs.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <div class="barre barre-retenu" style={`width:${indicateursAujourdhui.nombreUtilisateuriceRetenu/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
                     </div>
                     <div class="conteneur-barre">
                         <span class="étiquette-barre">Actif.v.es</span>
-                        <div class="barre barre-actif" style={`width:${indicateurs.nombreUtilisateuriceActif/indicateurs.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <div class="barre barre-actif" style={`width:${indicateursAujourdhui.nombreUtilisateuriceActif/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
                     </div>
                     <div class="conteneur-barre">
                         <span class="étiquette-barre">Acquis.es</span>
-                        <div class="barre barre-acquis" style={`width:${indicateurs.nombreUtilisateuriceAcquis/indicateurs.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <div class="barre barre-acquis" style={`width:${indicateursAujourdhui.nombreUtilisateuriceAcquis/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
                     </div>
                     <div class="conteneur-barre">
                         <span class="étiquette-barre">Base</span>
@@ -51,51 +57,88 @@
                 <h2>Notre démarche</h2>
                 <p>À compléter</p>
             </section>
-            <section class="fr-mt-4w">
-                <h2>Évolution</h2>
-            <div class="fr-table" id="table-0-component">
-            <div class="fr-table__wrapper">
-                <div class="fr-table__container">
-                <div class="fr-table__content">
-                    <table id="table-0">
-                    <caption> Titre du tableau (caption) </caption>
-                    <thead>
-                        <tr>
-                        <th> th0 </th>
-                        <th> th1 </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="table-0-row-key-1" data-row-key="1">
-                        <td> Lorem ipsum dolor sit ame </td>
-                        <td> Lorem ipsum dolor sit ame </td>
-                        </tr>
-                        <tr id="table-0-row-key-2" data-row-key="2">
-                        <td> Lorem ipsum dolor sit ame </td>
-                        <td> Lorem ipsum dolor sit ame </td>
-                        </tr>
-                        <tr id="table-0-row-key-3" data-row-key="3">
-                        <td> Lorem ipsum dolor sit ame </td>
-                        <td> Lorem ipsum dolor sit ame </td>
-                        </tr>
-                        <tr id="table-0-row-key-4" data-row-key="4">
-                        <td> Lorem ipsum dolor sit ame </td>
-                        <td> Lorem ipsum dolor sit ame </td>
-                        </tr>
-                    </tbody>
-                    </table>
-                </div>
-                </div>
-            </div>
-            </div>
-            </section>
-        </div>
-    {:catch error}
-        <div class="fr-alert fr-alert--error fr-mb-3w">
-            <h3 class="fr-alert__title">Une erreur est survenue lors du chargement des groupes d'instructeurs :</h3>
-            <p>{error.message}</p>
-        </div>
-    {/await}
+            {#await indicateursParDateP}
+                <Loader></Loader>
+            {:then indicateursParDate}
+                {@const dates = indicateursParDate.slice(1).map((indicateurs) => indicateurs.date)}
+                {@const indicateurDateChoisie = indicateursParDate.find((indicateurs) => isSameDay(indicateurs.date, dateChoisie))} 
+                {@const diffIndicateurImpact = indicateursAujourdhui.nombreUtilisateuriceImpact-(indicateurDateChoisie?.nombreUtilisateuriceImpact ?? 0)}
+                {@const diffIndicateurRetenu = indicateursAujourdhui.nombreUtilisateuriceRetenu-(indicateurDateChoisie?.nombreUtilisateuriceRetenu ?? 0)}
+                {@const diffIndicateurActif = indicateursAujourdhui.nombreUtilisateuriceActif-(indicateurDateChoisie?.nombreUtilisateuriceActif ?? 0)}
+                {@const diffIndicateurAcquis = indicateursAujourdhui.nombreUtilisateuriceAcquis-(indicateurDateChoisie?.nombreUtilisateuriceAcquis ?? 0)}
+                                                                
+                <section class="fr-mt-4w">
+                    <h2>Évolution</h2>
+                    <div class="fr-select-group">
+                    <label class="fr-label" for="select-1"> Liste des dates possibles </label>
+                    <select bind:value="{dateChoisie}" class="fr-select" aria-describedby="select-1-messages" id="select-1" name="select-1">
+                        <option value="" selected disabled>Sélectionnez une date</option>
+                        {#each dates as date}
+                            <option value={date}>{formatDateAbsolue(date)}</option>
+                        {/each}
+                    </select>
+                    <div class="fr-messages-group" id="select-1-messages" aria-live="polite">
+                    </div>
+                    </div>
+
+                    {#if dateChoisie}
+                        <div class="fr-table" id="table-0-component">
+                        <div class="fr-table__wrapper">
+                            <div class="fr-table__container">
+                            <div class="fr-table__content">
+                                <table id="table-0">
+                                <caption> Évolution du nombre d'utilisateurice par phase </caption>
+                                <thead>
+                                    <tr>
+                                    <th>Phase</th>
+                                    <th> {formatDateAbsolue(dateChoisie)} </th>
+                                    <th> Aujourd'hui </th>
+                                    <th> Évolution </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="table-0-row-key-1" data-row-key="1">
+                                    <td> Impact </td>
+                                    <td> {indicateurDateChoisie?.nombreUtilisateuriceImpact} </td>
+                                    <td> {indicateursAujourdhui.nombreUtilisateuriceImpact} </td>
+                                    <td> {`${diffIndicateurImpact > 0 ? '+' : ''} ${diffIndicateurImpact}`} </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr id="table-0-row-key-2" data-row-key="2">
+                                    <td> Retenu </td>
+                                    <td> {indicateurDateChoisie?.nombreUtilisateuriceRetenu} </td>
+                                    <td> {indicateursAujourdhui.nombreUtilisateuriceRetenu} </td>
+                                    <td> {`${diffIndicateurRetenu > 0 ? '+' : ''} ${diffIndicateurRetenu}`} </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr id="table-0-row-key-3" data-row-key="3">
+                                    <td> Actif </td>
+                                    <td> {indicateurDateChoisie?.nombreUtilisateuriceActif} </td>
+                                    <td> {indicateursAujourdhui.nombreUtilisateuriceActif} </td>
+                                    <td> {`${diffIndicateurActif > 0 ? '+' : ''} ${diffIndicateurActif}`} </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr id="table-0-row-key-4" data-row-key="4">
+                                    <td> Acquis </td>
+                                    <td> {indicateurDateChoisie?.nombreUtilisateuriceAcquis} </td>
+                                    <td> {indicateursAujourdhui.nombreUtilisateuriceAcquis} </td>
+                                    <td> {`${diffIndicateurAcquis > 0 ? '+' : ''} ${diffIndicateurAcquis}`} </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    {/if}
+
+                </section>
+            {/await}
+        {/await}
+    </div>
 </Squelette>
 
 <style lang="scss">
