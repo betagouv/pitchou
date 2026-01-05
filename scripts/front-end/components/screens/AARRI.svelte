@@ -13,16 +13,12 @@
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
     {#await indicateursP}
         <Loader></Loader>
-    {:then resultat}
+    {:then indicateurs}
         <div class="fr-container fr-my-6w">
-            <h1>Suivi des indicateurs AARRI</h1>
+            <h1>Etat des lieux</h1>
             <section class="fr-mt-4w">
                 <h2>Passage de "ne nous connait pas" à acquis</h2>
-                    <p>
-                    <p class="fr-text--lg">
-                        <strong>Nombre de personnes qui rejoignent pour la première fois un groupe d’instructeur DN&nbsp;:&nbsp;{resultat.nbPersonnesAyantRejointGroupeInstructeur}</strong> personne{resultat.nbPersonnesAyantRejointGroupeInstructeur > 1 ? 's' : ''}
-                    </p>
-
+                {JSON.stringify(indicateurs)}
             </section>
         </div>
     {:catch error}

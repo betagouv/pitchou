@@ -20,7 +20,6 @@ import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajout
 import { ajouterContrôles, modifierContrôle, supprimerContrôle } from './database/controle.js'
 import {getFichier} from './database/fichier.js'
 import { getStatsPubliques } from './database/stats.js'
-import { getIndicateursAARRI } from './database/aarri.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
@@ -40,7 +39,7 @@ import { créerÉvènementMétrique } from './évènements_métriques.js'
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription, IndicateursAARRI} from '../types/API_Pitchou.ts' */
 
 
 
@@ -186,7 +185,14 @@ fastify.get('/api/stats-publiques', async function () {
 })
 
 fastify.get('/api/aarri', async function () {
-  return getIndicateursAARRI()
+  /** @type {IndicateursAARRI} */
+  const indicateurs = {nombreBaseUtilisateuricePotentielle: 300,
+    nombreUtilisateuriceAcquis: 100,
+    nombreUtilisateuriceActif: 50,
+    nombreUtilisateuriceRetenu: 25,
+    nombreUtilisateuriceImpact: 5
+  }
+  return indicateurs
 })
 
 

@@ -25,7 +25,11 @@ export async function chargerIndicateursAARRI() {
 function isIndicateursAARRI(indicateurs) {
     if (
         Object(indicateurs) === indicateurs  &&
-        typeof indicateurs.nbPersonnesAyantRejointGroupeInstructeur === 'number'
+        typeof indicateurs.nombreBaseUtilisateuricePotentielle === 'number' &&
+        typeof indicateurs.nombreUtilisateuriceAcquis === 'number'&&
+        typeof indicateurs.nombreUtilisateuriceActif === 'number'&&
+        typeof indicateurs.nombreUtilisateuriceRetenu === 'number'&&
+        typeof indicateurs.nombreUtilisateuriceImpact === 'number'
     ) {
         return true;
     }
