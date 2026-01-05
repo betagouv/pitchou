@@ -20,7 +20,7 @@
         <div class="fr-container fr-my-6w">
             <h1>Suivi des indicateurs AARRI</h1>
             <section class="fr-mt-4w">
-                <h2>Etat des lieux</h2>
+                <h2>État des lieux</h2>
                 <div class="conteneur-barres">
                     <div class="conteneur-barre">
                         <span class="étiquette-barre">Impact</span>
@@ -43,6 +43,13 @@
                         <div class="barre barre-base" style={`width:${largeurBarreBase}%`}></div>
                     </div>
                 </div>
+            </section>
+            <section class="fr-mt-4w">
+                <h2>Notre démarche</h2>
+                <p>À compléter</p>
+            </section>
+            <section class="fr-mt-4w">
+                <h2>Évolution</h2>
             </section>
         </div>
     {:catch error}
