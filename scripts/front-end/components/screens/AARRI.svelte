@@ -25,6 +25,7 @@
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-container fr-my-6w">
         <h1>Suivi des indicateurs AARRI</h1>
+        <p> Attention, pour l'instant les chiffres affichés sont fictifs. Mais cela donne une idée que l'on affichera.</p>
         {#await indicateursAujourdhuiP}
             <Loader></Loader>
         {:then indicateursAujourdhui}
