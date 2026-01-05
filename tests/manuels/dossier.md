@@ -38,7 +38,7 @@
   Résultat attendu :  
   - Modifications enregistrées et persistantes après rechargement.
 
-- **Accès aux annotations privées sur Démarche Numérique (DS)**  
+- **Accès aux annotations privées sur Démarche Numérique (DN)**  
   Étapes :  
   1. Cliquer sur *Annotations privées*.  
   2. Vérifier la redirection vers la page DS correspondant au dossier.  
