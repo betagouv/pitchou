@@ -191,4 +191,5 @@ export interface IndicateursAARRI {
     nombreUtilisateuriceActif: number;
     nombreUtilisateuriceRetenu: number;
     nombreUtilisateuriceImpact: number;
+    date: Date,
 }

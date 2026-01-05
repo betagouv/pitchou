@@ -21,7 +21,7 @@ export default async () => {
                 email,
                 erreurs,
                 résultatsSynchronisationDS88444,
-                indicateursP
+                indicateursParDateP: indicateursP
             };
         } 
 

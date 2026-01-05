@@ -4,17 +4,20 @@
     import Squelette from '../Squelette.svelte'
     import Loader from '../Loader.svelte'
 
-    /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'> & {indicateursP: Promise<IndicateursAARRI>}} Props */
+    /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'> & {indicateursParDateP: Promise<IndicateursAARRI[]>}} Props */
         
     /** @type {Props} */
-    let { email, erreurs, résultatsSynchronisationDS88444, indicateursP } = $props();
+    let { email, erreurs, résultatsSynchronisationDS88444, indicateursParDateP } = $props();
+
+    let indicateursAujourdhuiP = $derived(indicateursParDateP.then((indicateursParDate) => indicateursParDate.filter((indicateurs) => indicateurs.date)[0]))
 
     const largeurBarreBase = 80;
+    
 
 </script>
 
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
-    {#await indicateursP}
+    {#await indicateursAujourdhuiP}
         <Loader></Loader>
     {:then indicateurs}
         <div class="fr-container fr-my-6w">
@@ -50,6 +53,41 @@
             </section>
             <section class="fr-mt-4w">
                 <h2>Évolution</h2>
+            <div class="fr-table" id="table-0-component">
+            <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                <div class="fr-table__content">
+                    <table id="table-0">
+                    <caption> Titre du tableau (caption) </caption>
+                    <thead>
+                        <tr>
+                        <th> th0 </th>
+                        <th> th1 </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="table-0-row-key-1" data-row-key="1">
+                        <td> Lorem ipsum dolor sit ame </td>
+                        <td> Lorem ipsum dolor sit ame </td>
+                        </tr>
+                        <tr id="table-0-row-key-2" data-row-key="2">
+                        <td> Lorem ipsum dolor sit ame </td>
+                        <td> Lorem ipsum dolor sit ame </td>
+                        </tr>
+                        <tr id="table-0-row-key-3" data-row-key="3">
+                        <td> Lorem ipsum dolor sit ame </td>
+                        <td> Lorem ipsum dolor sit ame </td>
+                        </tr>
+                        <tr id="table-0-row-key-4" data-row-key="4">
+                        <td> Lorem ipsum dolor sit ame </td>
+                        <td> Lorem ipsum dolor sit ame </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+            </div>
             </section>
         </div>
     {:catch error}
