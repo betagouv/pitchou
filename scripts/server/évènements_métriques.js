@@ -56,6 +56,6 @@ export async function créerÉvènementMétrique(request, reply) {
       console.error(e)
     }
 
-    reply.code(202).send({succès: true})
+    reply.send({succès: true})
 
 }
