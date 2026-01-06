@@ -47,6 +47,23 @@
     
     let statusMessage = $state('')
 
+    /** @type {HTMLHeadingElement | undefined} */
+    let titrePageElement = $state()
+
+    /** Nombre total de pages */
+    const nombreDePages = $derived.by(() => {
+        if (dossiersFiltrés.length === 0) return 1
+        return Math.ceil(dossiersFiltrés.length / NOMBRE_DOSSIERS_PAR_PAGE)
+    })
+
+    /** Texte à afficher pour la page */
+    const textePage = $derived.by(() => {
+        if (tousLesFiltres.has('texte') && texteÀChercher && texteÀChercher.trim() !== '') {
+            return `Résultats de recherche pour «${texteÀChercher}» : page n°${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
+        }
+        return `Page n°${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
+    })
+
     /**
      * Met à jour le message aria-live avec le nombre de dossiers filtrés
      */
@@ -84,6 +101,15 @@
         mettreÀJourMessageFiltres()
     })
 
+    // Mettre le focus sur le titre de page quand la page change ou quand les filtres changent
+    $effect(() => {
+        numéroDeLaPageSélectionnée
+        tousLesFiltres.size
+        if (titrePageElement) {
+            titrePageElement?.focus()
+        }
+    })
+
     /** @type {string | undefined} */
     let texteÀChercher = $state()
 
@@ -106,7 +132,6 @@
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
     let selectionneursPage = $derived.by(() => {
         if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
-            const nombreDePages = Math.ceil(dossiersFiltrés.length/NOMBRE_DOSSIERS_PAR_PAGE)
 
             /** @type {SelectionneurPage[]} */
             const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => {
@@ -274,11 +299,9 @@
                     </button>
                 {/if}
             </div>
-            <div bind:this={compteurDossiersElement} tabindex="-1">
-            <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
-            </div>
         </div>
     </fieldset>
+    <h2 bind:this={titrePageElement} tabindex="-1" class="titre-page">{textePage}</h2>
 </div>
 {#if dossiersAffichés.length >= 1}
     <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
@@ -370,6 +393,18 @@
         @media (max-width: 768px) {
             min-width: unset;
         }
+    }
+
+    .titre-page {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: normal;
+    }
+
+    .titre-page:focus {
+        outline: 2px solid var(--bf500);
+        outline-offset: 2px;
     }
 </style>
 
