@@ -44,12 +44,48 @@
 })
 
     let numéroDeLaPageSélectionnée = $state(1)
+    
+    let statusMessage = $state('')
+
+    /**
+     * Met à jour le message aria-live avec le nombre de dossiers filtrés
+     */
+    function mettreÀJourMessageFiltres() {
+        const nombreFiltrés = dossiersFiltrés.length
+        const nombreTotal = dossiers.length
+        const nombreFiltresActifs = tousLesFiltres.size
+        
+        const filtresActifs = []
+        if (tousLesFiltres.has('texte')) {
+            filtresActifs.push('recherche texte')
+        }
+        if (tousLesFiltres.has('phase')) {
+            filtresActifs.push(`phase "${phaseSélectionnée}"`)
+        }
+        if (tousLesFiltres.has('sansInstructeurice')) {
+            filtresActifs.push('dossier sans instructeur·ice')
+        }
+        if (tousLesFiltres.has('actionInstructeur')) {
+            filtresActifs.push('action : instructeur·ice')
+        }
+        
+        if (nombreFiltresActifs === 0) {
+            statusMessage = `${nombreTotal} dossier${nombreTotal > 1 ? 's' : ''} affiché${nombreTotal > 1 ? 's' : ''}`
+        } else {
+            const listeFiltres = filtresActifs.length === 1 
+                ? filtresActifs[0]
+                : filtresActifs.slice(0, -1).join(', ') + ' et ' + filtresActifs[filtresActifs.length - 1]
+            statusMessage = `${nombreFiltrés} dossier${nombreFiltrés > 1 ? 's' : ''} avec ${nombreFiltresActifs} filtre${nombreFiltresActifs > 1 ? 's' : ''} : ${listeFiltres} sur ${nombreTotal} dossiers`
+        }
+    }
+
+    // Mettre à jour le message à chaque changement de filtres
+    $effect(() => {
+        mettreÀJourMessageFiltres()
+    })
 
     /** @type {string | undefined} */
     let texteÀChercher = $state()
-
-    /** @type {HTMLDivElement | undefined} */
-    let compteurDossiersElement = $state()
 
     /** @type {DossierPhase | undefined} */
     let phaseSélectionnée = $state()
@@ -110,9 +146,6 @@
         }
         if (texteÀChercher && texteÀChercher.trim() !== '') {
             tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
-            if (dossiersFiltrés.length > 0 && compteurDossiersElement) {
-                compteurDossiersElement.focus()
-            }
         }
 
     }
@@ -201,6 +234,11 @@
             <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher un dossier</button>
             </div>
         </form>
+    </div>
+    <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
+        {#if statusMessage }
+            {statusMessage}
+        {/if}
     </div>
     <fieldset>
         <legend class="fr-h4 texte-filtrer">Filtrer…</legend>
