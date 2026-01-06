@@ -45,7 +45,7 @@ export async function créerÉvènementMétrique(request, reply) {
     const évènement = request.body
 
     if (!évènementMétriqueGuard(évènement)) {
-      reply.code(400).send({succès: false, erreur: `Object évènement mal formé`})
+      reply.code(400).send({succès: false, erreur: `Objet évènement mal formé`})
       return
     }
 

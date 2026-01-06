@@ -6,7 +6,7 @@ export async function up(knex) {
   await knex.schema.createTable('évènement_métrique', function (table) {
         table.uuid('id').primary().defaultTo(knex.fn.uuid());
 
-        // Lien vers la personne lié à l’évènement
+        // Lien vers la personne liée à l’évènement
         table.integer('personne').notNullable().index();
         table.foreign('personne')
             .references('id').inTable('personne').onDelete('CASCADE');
