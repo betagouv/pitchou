@@ -25,32 +25,40 @@
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-container fr-my-6w">
         <h1>Suivi des indicateurs AARRI</h1>
-        <p> Attention, pour l'instant les chiffres affichés sont fictifs. Mais cela donne une idée que l'on affichera.</p>
+        <div class="fr-alert fr-alert--warning">
+            <h2 class="fr-alert__title">Attention, les valeurs affichées sur cette page sont fictives. </h2>
+        </div>
         {#await indicateursAujourdhuiP}
             <Loader></Loader>
         {:then indicateursAujourdhui}
             <section class="fr-mt-4w">
                 <h2>État des lieux</h2>
+                <p>Voici la valeur des nombres d'utilisateurices par Phase dans Pitchou.</p>
                 <div class="conteneur-barres">
-                    <div class="conteneur-barre">
-                        <span class="étiquette-barre">Impact</span>
+                    <div class="fr-grid-row fr-grid-row--middle">
+                        <span class="fr-col-1">Impact</span>
                         <div class="barre barre-impact" style={`width:${indicateursAujourdhui.nombreUtilisateuriceImpact/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceImpact}</span>
                     </div>
-                    <div class="conteneur-barre">
-                        <span class="étiquette-barre">Retenu.es</span>
+                    <div class="fr-grid-row fr-grid-row--middle">
+                        <span class="fr-col-1">Retenu</span>
                         <div class="barre barre-retenu" style={`width:${indicateursAujourdhui.nombreUtilisateuriceRetenu/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceRetenu}</span>
                     </div>
-                    <div class="conteneur-barre">
-                        <span class="étiquette-barre">Actif.v.es</span>
+                    <div class="fr-grid-row fr-grid-row--middle">
+                        <span class="fr-col-1">Actif</span>
                         <div class="barre barre-actif" style={`width:${indicateursAujourdhui.nombreUtilisateuriceActif/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceActif}</span>
                     </div>
-                    <div class="conteneur-barre">
-                        <span class="étiquette-barre">Acquis.es</span>
+                    <div class="fr-grid-row fr-grid-row--middle">
+                        <span class="fr-col-1">Acquis</span>
                         <div class="barre barre-acquis" style={`width:${indicateursAujourdhui.nombreUtilisateuriceAcquis/indicateursAujourdhui.nombreBaseUtilisateuricePotentielle*largeurBarreBase}%`}></div>
+                        <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceAcquis}</span>
                     </div>
-                    <div class="conteneur-barre">
-                        <span class="étiquette-barre">Base</span>
+                    <div class="fr-grid-row fr-grid-row--middle">
+                        <span class="fr-col-1">Base</span>
                         <div class="barre barre-base" style={`width:${largeurBarreBase}%`}></div>
+                        <span class="fr-ml-1w">{indicateursAujourdhui.nombreBaseUtilisateuricePotentielle}</span>
                     </div>
                 </div>
             </section>
