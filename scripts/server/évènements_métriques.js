@@ -1,8 +1,10 @@
 //@ts-check
 
-import { ajouterÉvènementDepuisCap } from './database/évènements_métriques.js';
-
 /** @import { ÉvènementMétrique } from '../types/évènement' */
+/** @import { FastifyReply, FastifyRequest } from 'fastify' */
+
+
+import { ajouterÉvènementDepuisCap } from './database/évènements_métriques.js';
 
 /**
  * @param {any} évènement
@@ -25,7 +27,12 @@ function évènementMétriqueGuard(évènement) {
   return false
 }
 
+/**
+ * @param {FastifyRequest} request
+ * @param {FastifyReply} reply
+ */
 export async function créerÉvènementMétrique(request, reply) {
+    // @ts-ignore
     const { cap } = request.query
 
     if(!cap){
