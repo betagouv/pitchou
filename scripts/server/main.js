@@ -29,6 +29,7 @@ import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogatio
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
+import { subWeeks } from 'date-fns'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -39,7 +40,7 @@ import { créerÉvènementMétrique } from './évènements_métriques.js'
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription, IndicateursAARRI} from '../types/API_Pitchou.ts' */
 
 
 
@@ -125,6 +126,7 @@ fastify.get('/stats', sendIndexHTMLFile)
 fastify.get('/import-dossier-historique/bourgogne-franche-comte', sendIndexHTMLFile)
 fastify.get('/import-dossier-historique/corse', sendIndexHTMLFile)
 fastify.get('/accessibilite', sendIndexHTMLFile)
+fastify.get('/aarri', sendIndexHTMLFile)
 
 
 
@@ -181,6 +183,53 @@ fastify.get('/résultats-synchronisation', async function () {
 
 fastify.get('/api/stats-publiques', async function () {
   return getStatsPubliques()
+})
+
+fastify.get('/api/aarri', async function () {
+  /** @type {IndicateursAARRI[]} */
+  const indicateurs = [
+   {
+    date: new Date(),
+    nombreBaseUtilisateuricePotentielle: 300,
+    nombreUtilisateuriceAcquis: 100,
+    nombreUtilisateuriceActif: 50,
+    nombreUtilisateuriceRetenu: 25,
+    nombreUtilisateuriceImpact: 5,
+   },
+   {
+    date: subWeeks(new Date(), 1),
+    nombreBaseUtilisateuricePotentielle: 300,
+    nombreUtilisateuriceAcquis: 99,
+    nombreUtilisateuriceActif: 49,
+    nombreUtilisateuriceRetenu: 24,
+    nombreUtilisateuriceImpact: 4,
+   },
+   {
+    date: subWeeks(new Date(), 2),
+    nombreBaseUtilisateuricePotentielle: 300,
+    nombreUtilisateuriceAcquis: 97,
+    nombreUtilisateuriceActif: 47,
+    nombreUtilisateuriceRetenu: 24,
+    nombreUtilisateuriceImpact: 4,
+   },
+    {
+    date: subWeeks(new Date(), 4),
+    nombreBaseUtilisateuricePotentielle: 300,
+    nombreUtilisateuriceAcquis: 92,
+    nombreUtilisateuriceActif: 44,
+    nombreUtilisateuriceRetenu: 16,
+    nombreUtilisateuriceImpact: 3,
+   },
+  {
+    date: subWeeks(new Date(), 5),
+    nombreBaseUtilisateuricePotentielle: 300,
+    nombreUtilisateuriceAcquis: 88,
+    nombreUtilisateuriceActif: 38,
+    nombreUtilisateuriceRetenu: 15,
+    nombreUtilisateuriceImpact: 0,
+   }
+  ]
+  return indicateurs
 })
 
 
