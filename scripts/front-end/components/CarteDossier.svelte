@@ -143,11 +143,6 @@
         flex-direction: column;
         gap: 1rem;
 
-        .boutons-action {
-            display: flex;
-            flex-direction: row;
-        }
-
         .première-ligne {
             display: flex;
             flex-direction: row;
@@ -166,7 +161,6 @@
         .deuxième-ligne {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
             .date-dépôt {
@@ -174,10 +168,14 @@
             }
 
             .porteur-et-localisation {
-                max-width: 50%;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                flex: 1;
+
+                @media (max-width: 768px) {
+                    flex-basis: 100%;
+                }
             }
         }
     }
