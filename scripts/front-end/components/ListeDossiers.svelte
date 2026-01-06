@@ -206,14 +206,12 @@
         <div class="filtres">
             <span class="fr-h4 texte-filtrer">Filtrer...</span>
         <div class="fr-select-group div-select-phase">
-            <select aria-label="Phase" class="fr-select select-phase" aria-describedby="select-hint-messages" id="select-hint" name="select-hint" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+            <select aria-label="Phase choisie" class="fr-select select-phase" id="select-hint" name="select-hint" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
                 <option value="" selected aria-label={'Sélectionner une phase'}>par phase</option>
                 {#each toutesLesPhases as phase}
                     <option value={phase}>{phase}</option>
                 {/each}
             </select>
-            <div class="fr-messages-group" id="select-hint-messages" aria-live="polite">
-            </div>
         </div>
             {#if afficherFiltreSansInstructeurice}
                 <button 
