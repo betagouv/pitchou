@@ -2,6 +2,7 @@ import { DossierComplet, DossierRésumé, DécisionAdministrativePourTransfer } 
 import Dossier from "./database/public/Dossier.ts"
 import Personne from "./database/public/Personne.ts"
 import Message from "./database/public/Message.ts"
+import { ÉvènementMétrique } from './évènement.ts'
 
 export interface PitchouInstructeurCapabilities{
     listerDossiers: () => Promise<DossierRésumé[]>
@@ -10,9 +11,10 @@ export interface PitchouInstructeurCapabilities{
     modifierRelationSuivi: (direction: 'suivre' | 'laisser', personneEmail: NonNullable<Personne['email']>, dossierId: Dossier['id']) => Promise<void>
     listerMessages: (dossierId: DossierRésumé['id']) => Promise<Message[]>
     listerÉvènementsPhaseDossier: () => Promise<any[]>
-    modifierDossier: (dossierId: Dossier['id'], dossier: Partial<DossierComplet>) => Promise<void> 
+    modifierDossier: (dossierId: Dossier['id'], dossier: Partial<DossierComplet>) => Promise<void>
     remplirAnnotations: (annotations: any) => Promise<void>
-    modifierDécisionAdministrativeDansDossier: (décisionAdministrative: DécisionAdministrativePourTransfer) => Promise<void> 
+    modifierDécisionAdministrativeDansDossier: (décisionAdministrative: DécisionAdministrativePourTransfer) => Promise<void>
+    créerÉvènementMetrique: (évènement: ÉvènementMétrique) => Promise<void>
 }
 
 export interface IdentitéInstructeurPitchou{

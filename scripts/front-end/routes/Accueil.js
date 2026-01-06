@@ -34,8 +34,8 @@ let trisFiltresSélectionnés = _trisFiltresSélectionnés
 
 
 /**
- * 
- * @param {PitchouState} state 
+ *
+ * @param {PitchouState} state
  * @returns {ComponentProps<SuiviInstruction>}
  */
 function mapStateToPropsSuiviInstruction(state){
@@ -61,9 +61,9 @@ function mapStateToPropsSuiviInstruction(state){
         triIdSélectionné: trisFiltresSélectionnés?.tri,
         filtresSélectionnés: trisFiltresSélectionnés?.filtres,
         /**
-         * 
-         * @param {TriTableau} tri 
-         * @param {Partial<FiltresLocalStorage>} filtres 
+         *
+         * @param {TriTableau} tri
+         * @param {Partial<FiltresLocalStorage>} filtres
          */
         rememberTriFiltres(tri, filtres){
             /** @type {TriFiltreLocalStorage} */
@@ -83,7 +83,7 @@ function mapStateToPropsSuiviInstruction(state){
             trisFiltresSélectionnés = nouveauxTrisFiltresSélectionnés
         }
     }
-} 
+}
 
 
 export default async () => {
@@ -92,9 +92,9 @@ export default async () => {
     replaceComponent(SqueletteContenuVide, () => {})
 
     /**
-     * 
+     *
      * @param {{message: string}} [erreur]
-     * @returns 
+     * @returns
      */
     function logoutEtAfficherLoginParEmail(erreur){
         if(erreur){
