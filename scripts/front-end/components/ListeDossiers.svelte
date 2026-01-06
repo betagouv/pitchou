@@ -202,7 +202,7 @@
             </div>
         </form>
     </div>
-    <span class="fr-h4 texte-filtrer">Filtrer...</span>
+    <span class="fr-h4 texte-filtrer">Filtrer…</span>
     <div class="filtres-et-compteur-dossiers">
         <div class="filtres">
         <div class="fr-select-group">
