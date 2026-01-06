@@ -73,6 +73,7 @@
                 <BadgePhase phase={dossier.phase}  />
                 <div>
                     <span class="fr-icon-user-shared-2-line fr-icon--sm" aria-hidden="true"></span>
+                    <span class="fr-sr-only">Prochaine action attendue par</span>
                     {dossier.prochaine_action_attendue_par || '(non renseignée)'}
                 </div>
             </div>
@@ -86,14 +87,17 @@
         <div class="deuxième-ligne">
             <div class="date-dépôt">
                 <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
+                <span class="fr-sr-only">Date de dépôt</span>
                 {formatDateAbsolue(dossier.date_dépôt, 'd/MM/yyyy')}
             </div>
             <div class="porteur-et-localisation">
                 <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
+                <span class="fr-sr-only">Porteur de projet</span>
                 {formatPorteurDeProjet(dossier) || '(non renseigné)'}
             </div>
             <div class="porteur-et-localisation">
                 <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
+                <span class="fr-sr-only">Localisation</span>
                 {formatLocalisation(dossier) || '(non renseignée)'}
             </div>
         </div>
