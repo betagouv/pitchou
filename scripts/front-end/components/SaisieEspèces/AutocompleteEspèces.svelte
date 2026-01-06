@@ -29,7 +29,7 @@
         espèceSélectionnée = $bindable(undefined)
     } = $props()
 
-    let text = $state('')
+    let text = $state(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : '')
     let statusMessage = $state('')
 
     /** @type {number | null}*/
