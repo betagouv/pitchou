@@ -19,7 +19,7 @@ export const directDatabaseConnection = knex({
 });
 
 /**
- * 
+ *
  * @returns {ReturnType<knex.Knex['destroy']>}
  */
 export function closeDatabaseConnection(){
@@ -27,7 +27,7 @@ export function closeDatabaseConnection(){
 }
 
 /**
- * @param {knex.Knex.TransactionConfig} [config] 
+ * @param {knex.Knex.TransactionConfig} [config]
  * @returns {Promise<knex.Knex.Transaction>}
  */
 export function créerTransaction(config){
@@ -58,17 +58,17 @@ export function dumpEntreprises(entreprises, databaseConnection = directDatabase
 
 
 /**
- * 
- * @param {NonNullable<Personne['code_accès']>} code_accès 
+ *
+ * @param {NonNullable<Personne['code_accès']>} code_accès
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Partial<StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}>>}
  */
 export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
-    
+
     const remplirAnnotationsP = databaseConnection('arête_personne__cap_écriture_annotation')
         .select('cap')
         .leftJoin('cap_écriture_annotation', {
-            'cap_écriture_annotation.cap': 
+            'cap_écriture_annotation.cap':
             'arête_personne__cap_écriture_annotation.écriture_annotation_cap'
         })
         .where({personne_cap: code_accès})
@@ -85,7 +85,13 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
         .first()
         .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
 
-    // Pour le moment, les droits associés à tout un tas de capabilities la même partie secrète 
+    const créerÉvènementMetriqueP = databaseConnection('cap_évènement_métrique')
+        .select('cap')
+        .where({personne_cap: code_accès})
+        .first()
+        .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
+
+    // Pour le moment, les droits associés à tout un tas de capabilities la même partie secrète
     // de la capability que pour lister les dossiers
     const recupérerDossierCompletP = listerDossiersP
     const listerRelationSuiviP = listerDossiersP
@@ -95,19 +101,20 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     const modifierDossierP = listerDossiersP
     const modifierDécisionAdministrativeDansDossierP = listerDossiersP
 
-    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, identitéP])
-        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, identité]) => {
+    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, créerÉvènementMetriqueP, identitéP])
+        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, créerÉvènementMetrique, identité]) => {
             /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
             const ret = {
-                remplirAnnotations: undefined, 
+                remplirAnnotations: undefined,
                 listerDossiers,
                 recupérerDossierComplet,
                 listerRelationSuivi,
                 modifierRelationSuivi,
                 listerÉvènementsPhaseDossier,
-                listerMessages, 
-                modifierDossier, 
+                listerMessages,
+                modifierDossier,
                 identité,
+                créerÉvènementMetrique,
                 modifierDécisionAdministrativeDansDossier
             }
 
@@ -120,8 +127,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
 }
 
 /**
- * 
- * @param {NonNullable<Personne['code_accès']>} listeDossiersCap 
+ *
+ * @param {NonNullable<Personne['code_accès']>} listeDossiersCap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ReturnType<PitchouInstructeurCapabilities['listerRelationSuivi']>>}
  */
@@ -130,19 +137,19 @@ export async function getRelationSuivis(listeDossiersCap, databaseConnection = d
         .select(['dossier.id as dossier', 'personne.email as email'])
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs', 
+            'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": listeDossiersCap})
         .leftJoin(
-            'arête_personne_suit_dossier', 
+            'arête_personne_suit_dossier',
             {'arête_personne_suit_dossier.dossier': 'dossier.id'}
         )
         .leftJoin('personne', {
             'personne.id': 'arête_personne_suit_dossier.personne'
         })
         .whereNotNull('email')
-   
+
     //console.log('relsBDD', relsBDD)
 
     const retMap = new Map();
@@ -153,7 +160,7 @@ export async function getRelationSuivis(listeDossiersCap, databaseConnection = d
         retMap.set(email, dossiersSuivisIds)
     }
 
-    return [...retMap].map(([email, dossiersSuivisIds]) => 
+    return [...retMap].map(([email, dossiersSuivisIds]) =>
         ({personneEmail: email, dossiersSuivisIds: [...dossiersSuivisIds]})
     )
 }
@@ -161,7 +168,7 @@ export async function getRelationSuivis(listeDossiersCap, databaseConnection = d
 
 
 /**
- * 
+ *
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<RésultatSynchronisationDS88444[]>}
  */
@@ -171,8 +178,8 @@ export async function getRésultatsSynchronisationDS88444(databaseConnection = d
 }
 
 /**
- * 
- * @param {RésultatSynchronisationDS88444} résultatSynchro 
+ *
+ * @param {RésultatSynchronisationDS88444} résultatSynchro
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */

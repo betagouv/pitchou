@@ -28,6 +28,7 @@ import { demanderLienPréremplissage } from './démarches-simplifiées/demanderL
 import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
+import { créerÉvènementMétrique } from './évènements_métriques.js'
 
 
 /** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
@@ -229,6 +230,9 @@ fastify.get('/caps', async function (request, reply) {
   }
   if(capBundle.modifierDécisionAdministrativeDansDossier){
     ret.modifierDécisionAdministrativeDansDossier = `/decision-administrative?cap=${capBundle.modifierDécisionAdministrativeDansDossier}`
+  }
+  if (capBundle.créerÉvènementMetrique) {
+    ret.créerÉvènementMetrique = `/api/métriques/évènements?cap=${capBundle.créerÉvènementMetrique}`
   }
   if(capBundle.identité){
     ret.identité = capBundle.identité
@@ -652,6 +656,8 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
           reply.code(500).send(`Erreur lors du changement de suivi du dossier ${dossierId} par ${personneEmail}. ${err}`)
       })
 })
+
+fastify.post('/api/métriques/évènements', créerÉvènementMétrique)
 
 
 // Lancer le serveur HTTP

@@ -285,7 +285,17 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
             .ignore();
     })
 
+    // Rajouter les cap_dossier pour les nouveaux instructeurId s'il y en a
+    const instructeurÉvènementMétriqueCapsP = personnesAvecCodeP.then(personnesAvecCode => {
+        /** @type {string[]} */
+        // @ts-ignore
+        const codes = personnesAvecCode.map(({code_accès}) => code_accès)
 
+        return databaseConnection('cap_évènement_métrique')
+            .insert(codes.map(code => ({personne_cap: code})))
+            .onConflict('personne_cap')
+            .ignore();
+    })
 
     const instructeurIdToÉcritureAnnotationCapP = Promise.all([deleteAbsentInstructeurIdsP, instructeurIdAndÉcritureCapsP])
         .then(() => databaseConnection('cap_écriture_annotation')
@@ -303,7 +313,7 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(instructeurEmailT
             return map
         })
 
-    return Promise.all([personnesAvecCodeP, instructeurIdToÉcritureAnnotationCapP, deleteAbsentInstructeurCapDossier, instructeurDossierCapsP])
+    return Promise.all([personnesAvecCodeP, instructeurIdToÉcritureAnnotationCapP, deleteAbsentInstructeurCapDossier, instructeurDossierCapsP, instructeurÉvènementMétriqueCapsP])
         .then(([personnesAvecCode, instructeurIdToCaps]) => {
             //console.log('personnesAvecCode', personnesAvecCode)
             //console.log('instructeurIdToCaps', instructeurIdToCaps)

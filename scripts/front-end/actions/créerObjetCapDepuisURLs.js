@@ -16,8 +16,8 @@ const commonHeaders = {
 const commonRequestInit = {headers: commonHeaders}
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {(() => Promise<any>) | undefined}
  */
 function wrapGETUrl(url){
@@ -28,8 +28,8 @@ function wrapGETUrl(url){
 }
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {((body: any) => Promise<any>) | undefined}
  */
 function wrapPOSTUrl(url){
@@ -44,8 +44,8 @@ function wrapPOSTUrl(url){
 }
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {((body: any) => Promise<any>) | undefined}
  */
 /*function wrapDELETEUrl(url){
@@ -60,8 +60,8 @@ function wrapPOSTUrl(url){
 const dossierIdURLParam = ':dossierId'
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {((dossierId: Dossier['id'], body: any) => Promise<any>) | undefined}
  */
 function wrapModifierDossier(url){
@@ -73,17 +73,17 @@ function wrapModifierDossier(url){
     }
 
     /**
-     * 
-     * @param {Dossier['id']} dossierId 
-     * @param {any} args 
-     * @returns 
+     *
+     * @param {Dossier['id']} dossierId
+     * @param {any} args
+     * @returns
      */
     function modifierDossier(dossierId, args){
         console.log('modifierDossier cap', args)
 
         return json(
             // @ts-ignore
-            url.replace(dossierIdURLParam, dossierId), 
+            url.replace(dossierIdURLParam, dossierId),
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -97,8 +97,8 @@ function wrapModifierDossier(url){
 
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {((dossierId: Dossier['id']) => Promise<Message[]>) | undefined}
  */
 function wrapListerMessages(url){
@@ -110,7 +110,7 @@ function wrapListerMessages(url){
     }
 
     /**
-     * 
+     *
      * @param {Dossier['id']} dossierId
      * @returns {Promise<Message[]>}
      */
@@ -121,8 +121,8 @@ function wrapListerMessages(url){
 }
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {((dossierId: Dossier['id']) => Promise<DossierComplet>) | undefined}
  */
 function wrapRecupérerDossierComplet(url){
@@ -142,7 +142,7 @@ function wrapRecupérerDossierComplet(url){
         /** @type {Awaited<ReturnType<getDossierComplet>> | undefined} */
         const ret = await json(
             // @ts-ignore
-            url.replace(dossierIdURLParam, dossierId), 
+            url.replace(dossierIdURLParam, dossierId),
             commonRequestInit
         )
 
@@ -218,8 +218,8 @@ function wrapRecupérerDossierComplet(url){
 }
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {((body: any) => Promise<any>) | undefined}
  */
 function wrapModifierDécisionAdministrative(url){
@@ -235,8 +235,8 @@ function wrapModifierDécisionAdministrative(url){
 }
 
 /**
- * 
- * @param {string | undefined} url 
+ *
+ * @param {string | undefined} url
  * @returns {PitchouInstructeurCapabilities['modifierRelationSuivi'] | undefined}
  */
 function wrapModifierRelationSuivi(url){
@@ -260,8 +260,8 @@ function wrapModifierRelationSuivi(url){
 }
 
 /**
- * 
- * @param {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} capURLs 
+ *
+ * @param {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} capURLs
  * @returns {Partial<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}}
  */
 export default function(capURLs){
@@ -276,6 +276,7 @@ export default function(capURLs){
         modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
         modifierDécisionAdministrativeDansDossier: wrapModifierDécisionAdministrative(capURLs.modifierDécisionAdministrativeDansDossier),
+        créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
         identité: capURLs.identité
     }
 

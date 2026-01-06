@@ -34,7 +34,7 @@ export function chargerRelationSuivi(){
 }
 
 export function chargerSchemaDS88444() {
-    return json(getURL("link#schema-DS8844")).then((schema) => { 
+    return json(getURL("link#schema-DS8844")).then((schema) => {
         //@ts-ignore
         store.mutations.setSchemaDS88444(schema)
         return schema
@@ -54,7 +54,7 @@ export function chargerRésultatsSynchronisation(){
 
 export async function secretFromURL(){
     const secret = new URLSearchParams(location.search).get("secret")
-    
+
     if(secret){
         const newURL = new URL(location.href)
         newURL.searchParams.delete("secret")
@@ -65,6 +65,11 @@ export async function secretFromURL(){
         return Promise.all([
             remember(PITCHOU_SECRET_STORAGE_KEY, secret),
             initCapabilities(secret)
+                .then(() => {
+                    if (store.state.capabilities.créerÉvènementMetrique) {
+                        return store.state.capabilities.créerÉvènementMetrique({ type: 'seConnecter', détails: undefined })
+                    }
+                })
         ])
     }
 }
@@ -83,9 +88,9 @@ export async function logout(){
 
 
 /**
- * 
+ *
  * @param {{message: string}} [erreur]
- * @returns 
+ * @returns
  */
 export async function logoutEtRedirigerVersAccueil(erreur){
     if(erreur){
@@ -96,9 +101,9 @@ export async function logoutEtRedirigerVersAccueil(erreur){
 }
 
 /**
- * 
- * @param {string} secret 
- * @returns 
+ *
+ * @param {string} secret
+ * @returns
  */
 function initCapabilities(secret){
     return json(`/caps?secret=${secret}`)
@@ -135,5 +140,5 @@ export function init(){
         chargerSchemaDS88444(),
         chargerRésultatsSynchronisation()
     ])
-        
+
 }
