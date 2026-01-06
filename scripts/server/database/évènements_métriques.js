@@ -1,5 +1,3 @@
-//@ts-check
-
 import {directDatabaseConnection} from '../database.js'
 
 /** @import { ÉvènementMétrique } from '../../types/évènement.js' */
