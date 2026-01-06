@@ -60,7 +60,6 @@
                 class="fr-pagination__link fr-pagination__link--first"
                 disabled={pageActuelle === selectionnerPremièrePage}
                 onclick={selectionnerPremièrePage}
-                role="link"
             >
                 Première page
             </button>
@@ -70,7 +69,6 @@
                 class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
                 disabled={pageActuelle === selectionnerPremièrePage}
                 onclick={selectionnerPagePrécédente}
-                role="link"
             >
                 Page précédente
             </button>
@@ -104,7 +102,6 @@
                 class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
                 disabled={pageActuelle === selectionnerDernièrePage}
                 onclick={selectionnerPageSuivante}
-                role="link"
             >
                 Page suivante
             </button>
@@ -114,7 +111,6 @@
                 class="fr-pagination__link fr-pagination__link--last"
                 disabled={pageActuelle === selectionnerDernièrePage}
                 onclick={selectionnerDernièrePage}
-                role="link"
             >
                 Dernière page
             </button>
