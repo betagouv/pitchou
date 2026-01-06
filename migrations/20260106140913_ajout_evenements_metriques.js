@@ -20,7 +20,7 @@ export async function up(knex) {
 
     await knex.schema.createTable('cap_évènement_métrique', function (table) {
         table.uuid('cap').primary().defaultTo(knex.fn.uuid());
-        table.string('personne_cap').notNullable().index();
+        table.string('personne_cap').unique().notNullable().index();
         table.foreign('personne_cap')
             .references('code_accès').inTable('personne').onDelete('CASCADE').onUpdate('CASCADE');
     });
