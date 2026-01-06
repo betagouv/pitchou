@@ -202,12 +202,13 @@
             </div>
         </form>
     </div>
+    <span class="fr-h4 texte-filtrer">Filtrer...</span>
     <div class="filtres-et-compteur-dossiers">
         <div class="filtres">
-            <span class="fr-h4 texte-filtrer">Filtrer...</span>
-        <div class="fr-select-group div-select-phase">
-            <select aria-label="Phase choisie" class="fr-select select-phase" id="select-hint" name="select-hint" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
-                <option value="" selected aria-label={'Sélectionner une phase'}>par phase</option>
+        <div class="fr-select-group">
+            <label class="fr-label" for="select-phase"> Filtrer par phase </label>
+            <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+                <option value="" selected>Toutes les phases</option>
                 {#each toutesLesPhases as phase}
                     <option value={phase}>{phase}</option>
                 {/each}
@@ -259,9 +260,6 @@
 {/if}
 
 <style>
-    h1 {
-        margin-bottom: 0;
-    }
     .liste-des-dossiers {
         background: var(--background-contrast-grey);
     }
@@ -275,13 +273,14 @@
     li:not(:last-child) {
       margin-bottom: 1rem;
     }
-
+    .texte-filtrer {
+        margin-bottom: 1rem;
+    }
     .en-tête {
         display: flex;
         flex-direction: column;
         margin-bottom: 1rem;
         margin-top: 2rem;
-        gap: 2rem;
 
         .titre-et-barre-de-recherche {
             display: flex;
@@ -311,9 +310,6 @@
                 flex-direction: row;
                 gap: 1rem;
                 align-items: center;
-                .texte-filtrer {
-                    margin: 0;
-                }
 
                 @media (max-width: 768px) {
                     flex-direction: column;
@@ -327,15 +323,6 @@
         min-width: 28rem;
         @media (max-width: 768px) {
             min-width: unset;
-        }
-    }
-
-    .div-select-phase {
-        margin-bottom: unset;
-        box-shadow: inset 0 0 0 1px var(--border-default-grey);
-        .select-phase {
-            background-color: unset;
-            box-shadow: unset;
         }
     }
 </style>
