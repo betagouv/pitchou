@@ -202,43 +202,45 @@
             </div>
         </form>
     </div>
-    <span class="fr-h4 texte-filtrer">Filtrer…</span>
-    <div class="filtres-et-compteur-dossiers">
-        <div class="filtres">
-        <div class="fr-select-group">
-            <label class="fr-label" for="select-phase"> Filtrer par phase </label>
-            <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
-                <option value="" selected>Toutes les phases</option>
-                {#each toutesLesPhases as phase}
-                    <option value={phase}>{phase}</option>
-                {/each}
-            </select>
+    <fieldset>
+        <legend class="fr-h4 texte-filtrer">Filtrer…</legend>
+        <div class="filtres-et-compteur-dossiers">
+            <div class="filtres">
+            <div class="fr-select-group">
+                <label class="fr-label" for="select-phase"> Filtrer par phase </label>
+                <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+                    <option value="" selected>Toutes les phases</option>
+                    {#each toutesLesPhases as phase}
+                        <option value={phase}>{phase}</option>
+                    {/each}
+                </select>
+            </div>
+                {#if afficherFiltreSansInstructeurice}
+                    <button 
+                        type="button"
+                        class="fr-tag"
+                        onclick={toggleFiltreSansInstructeurice}
+                        aria-pressed={tousLesFiltres.has('sansInstructeurice')}
+                    >
+                        Dossier sans instructeur·ice
+                    </button>
+                {/if}
+                {#if afficherFiltreActionInstructeur}
+                    <button 
+                        type="button"
+                        class="fr-tag"
+                        onclick={toggleFiltreActionInstructeur}
+                        aria-pressed={tousLesFiltres.has('actionInstructeur')}
+                    >
+                        Action : Instructeur·ice
+                    </button>
+                {/if}
+            </div>
+            <div bind:this={compteurDossiersElement} tabindex="-1">
+            <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
+            </div>
         </div>
-            {#if afficherFiltreSansInstructeurice}
-                <button 
-                    type="button"
-                    class="fr-tag"
-                    onclick={toggleFiltreSansInstructeurice}
-                    aria-pressed={tousLesFiltres.has('sansInstructeurice')}
-                >
-                    Dossier sans instructeur·ice
-                </button>
-            {/if}
-            {#if afficherFiltreActionInstructeur}
-                <button 
-                    type="button"
-                    class="fr-tag"
-                    onclick={toggleFiltreActionInstructeur}
-                    aria-pressed={tousLesFiltres.has('actionInstructeur')}
-                >
-                    Action : Instructeur·ice
-                </button>
-            {/if}
-        </div>
-        <div bind:this={compteurDossiersElement} tabindex="-1">
-        <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
-        </div>
-    </div>
+    </fieldset>
 </div>
 {#if dossiersAffichés.length >= 1}
     <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
@@ -262,6 +264,12 @@
 <style>
     .liste-des-dossiers {
         background: var(--background-contrast-grey);
+    }
+
+    fieldset, legend {
+        border: 0;
+        margin: 0;
+        padding: 0;
     }
 
     ul {
