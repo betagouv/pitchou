@@ -88,7 +88,7 @@
             <div class="date-dépôt">
                 <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
                 <span class="fr-sr-only">Date de dépôt</span>
-                {formatDateAbsolue(dossier.date_dépôt, 'd/MM/yyyy')}
+                <time datetime="{ formatDateAbsolue(dossier.date_dépôt, 'yyyy-MM-dd') }">{formatDateAbsolue(dossier.date_dépôt, 'dd/MM/yyyy')}</time>
             </div>
             <div class="porteur-et-localisation">
                 <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
