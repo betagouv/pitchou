@@ -3,17 +3,17 @@
 /*
     Dans ce fichier, on s'intéresse spécifiquement à la démarche 88444
 
-    https://www.demarches-simplifiees.fr/admin/procedures/88444
-    https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees
-    https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
+    https://demarche.numerique.gouv.fr/admin/procedures/88444
+    https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees
+    https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
 
 */
 
-// Créée à partir du schema https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
+// Créée à partir du schema https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees/schema
 // qui a été copié ici : data/schema-DS-88444.json (et devrait être mis à jour)
 /* 
 
-await fetch('https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema')
+await fetch('https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees/schema')
     .then(r => r.json())
     .then(schema => schema.revision.champDescriptors
         .filter(c => c.__typename !== 'HeaderSectionChampDescriptor')
@@ -51,7 +51,7 @@ export function schemaToChampLabelToChampId(schema){
  */
 function makeCommuneParam({ code: codeInsee, codesPostaux: [codePostal] }, démarcheDossierLabelToId) {
     const communeChamp = `champ_${démarcheDossierLabelToId.get('Commune(s) où se situe le projet')}`
-    // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
+    // Voir https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
     const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`
     const champCommuneRépétéURLParamKey = `${encodeURIComponent(communeChamp)}[][${communeChampRépété}]`
 
@@ -65,13 +65,13 @@ function makeCommuneParam({ code: codeInsee, codesPostaux: [codePostal] }, déma
  */
 function makeDépartementParam({code}, démarcheDossierLabelToId){
     const départementChamp = `champ_${démarcheDossierLabelToId.get('Département(s) où se situe le projet')}`
-    // Voir https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees
+    // Voir https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
     const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`
 
     return `${encodeURIComponent(départementChamp)}[][${départementChampRépété}]=${code}`
 }
 
-const basePréremplissage = `https://www.demarches-simplifiees.fr/commencer/derogation-especes-protegees?`
+const basePréremplissage = `https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees?`
 
 /**
  * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
