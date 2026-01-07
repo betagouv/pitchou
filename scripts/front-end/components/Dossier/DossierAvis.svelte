@@ -57,7 +57,7 @@
             Demander un avis
         </a>
         <a class="fr-btn fr-btn--secondary" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
-            Voir la page Avis sur Démarches Simplifiées
+            Voir la page Avis sur Démarche Numérique
         </a>
     </section>
 

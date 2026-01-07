@@ -1,7 +1,7 @@
 
 /** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
 //@ts-expect-error https://github.com/microsoft/TypeScript/issues/60908
-/** @import {DossierDS88444} from '../../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DossierDS88444} from '../../types/démarche-numérique/apiSchema.ts' */
 /** @import {Knex} from 'knex' */
 
 import {directDatabaseConnection} from '../database.js'

@@ -19,7 +19,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
 
 
 /** @import {DossierComplet, DossierRésumé} from '../types/API_Pitchou.d.ts' */
-/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.ts' */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, ImpactQuantifié} from '../types/especes.d.ts' */
 /** @import {default as Message} from '../types/database/public/Message.ts' */

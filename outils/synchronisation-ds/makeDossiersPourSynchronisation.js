@@ -1,7 +1,7 @@
-/** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
+/** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
+/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
+/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
@@ -16,7 +16,7 @@
 
 
 import assert from 'node:assert/strict'
-import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
+import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import { isAfter } from 'date-fns'
 import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 
@@ -40,7 +40,7 @@ import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
 
 /**
  * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
 export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToChampDS) {
@@ -86,7 +86,7 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
     /** @type {Entreprise | undefined} */
     let demandeur_personne_morale = undefined
 
-    /** @type {DossierDemarcheSimplifiee88444['Le demandeur est…'] | undefined} */
+    /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
     const personneMoraleOuPhysique = champById.get(pitchouKeyToChampDS.get('Le demandeur est…'))?.stringValue
 
     if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === 'une personne physique') {
@@ -106,7 +106,7 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
     if (personneMoraleOuPhysique === "une personne physique") {
         const {prenom, nom} = demandeur
 
-        /** @type {DossierDemarcheSimplifiee88444['Adresse mail de contact'] | undefined} */
+        /** @type {DossierDemarcheNumerique88444['Adresse mail de contact'] | undefined} */
         const adresseEmailDeContact = champById.get(pitchouKeyToChampDS.get('Adresse mail de contact'))?.stringValue
 
         let email = adresseEmailDeContact || demandeur.email || déposant.email
@@ -146,7 +146,7 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
 
 /**
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
- * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarches Simplifiées du dossier n'existe pas déjà en base de données.
+ * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarche Numérique du dossier n'existe pas déjà en base de données.
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} dossierNumberToDossierId
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }}
@@ -278,7 +278,7 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
  * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
+ * @param {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
  * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
  * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
  */
@@ -408,7 +408,7 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
 
 
 /**
- * Récupère les données brutes des dossiers depuis Démarches Simplifiées
+ * Récupère les données brutes des dossiers depuis Démarche Numérique
  * puis les transforme au format attendu par l'application
  * afin de permettre leur insertion ou mise à jour en base de données.
  *

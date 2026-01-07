@@ -1,10 +1,10 @@
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
+/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 
 /** @import TypeDossier from '../../scripts/types/database/public/TypeDossier.ts' */
 
-/** @import {ChampDescriptor} from '../../scripts/types/démarches-simplifiées/schema.ts' */
+/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 
 //@ts-ignore
 const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
@@ -12,8 +12,8 @@ const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
 /**
  * Renvoie le dossier rempli des champs communs aux dossiers DS issus de la Démarche 88444 à initialiser et aux dossiers DS à modifier pour la synchronisation.
  * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
+ * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
+ * @param {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
  * @returns {DossierInitializer| DossierMutator}
  */
 export function makeColonnesCommunesDossierPourSynchro88444(
@@ -44,32 +44,32 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         champById.set(champ.id, champ)
     }
 
-    /** @type {DossierDemarcheSimplifiee88444['Nom du projet']} */
+    /** @type {DossierDemarcheNumerique88444['Nom du projet']} */
     const nom = champById.get(pitchouKeyToChampDS.get('Nom du projet'))?.stringValue
-    /** @type {DossierDemarcheSimplifiee88444['Description synthétique du projet']} */
+    /** @type {DossierDemarcheNumerique88444['Description synthétique du projet']} */
     const description = champById.get(pitchouKeyToChampDS.get('Description synthétique du projet'))?.stringValue
-    /** @type {DossierDemarcheSimplifiee88444['Activité principale']} */
+    /** @type {DossierDemarcheNumerique88444['Activité principale']} */
     const activité_principale = champById.get(pitchouKeyToChampDS.get('Activité principale'))?.stringValue
 
-    /** @type {DossierDemarcheSimplifiee88444['Date de début d’intervention']} */
+    /** @type {DossierDemarcheNumerique88444['Date de début d’intervention']} */
     const date_début_intervention = champById.get(pitchouKeyToChampDS.get('Date de début d’intervention'))?.date
-    /** @type {DossierDemarcheSimplifiee88444['Date de fin d’intervention']} */
+    /** @type {DossierDemarcheNumerique88444['Date de fin d’intervention']} */
     const date_fin_intervention = champById.get(pitchouKeyToChampDS.get('Date de fin d’intervention'))?.date
-    /** @type {DossierDemarcheSimplifiee88444['Durée de la dérogation']} */
+    /** @type {DossierDemarcheNumerique88444['Durée de la dérogation']} */
     const durée_intervention = Number(champById.get(pitchouKeyToChampDS.get('Durée de la dérogation'))?.stringValue)
 
-    /** @type {DossierDemarcheSimplifiee88444[`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`]} */
+    /** @type {DossierDemarcheNumerique88444[`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`]} */
     const justification_absence_autre_solution_satisfaisante = champById.get(pitchouKeyToChampDS.get(`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`))?.stringValue.trim()
-    /** @type {DossierDemarcheSimplifiee88444[`Motif de la dérogation`]} */
+    /** @type {DossierDemarcheNumerique88444[`Motif de la dérogation`]} */
     const motif_dérogation = champById.get(pitchouKeyToChampDS.get(`Motif de la dérogation`))?.stringValue
-    /** @type {DossierDemarcheSimplifiee88444[`Synthèse des éléments justifiant le motif de la dérogation`]} */
+    /** @type {DossierDemarcheNumerique88444[`Synthèse des éléments justifiant le motif de la dérogation`]} */
     const justification_motif_dérogation = champById.get(pitchouKeyToChampDS.get(`Synthèse des éléments justifiant le motif de la dérogation`))?.stringValue.trim()
 
 
 
 
     /* localisation */
-    /** @type {DossierDemarcheSimplifiee88444['Le projet se situe au niveau…'] | ''} */
+    /** @type {DossierDemarcheNumerique88444['Le projet se situe au niveau…'] | ''} */
     const projetSitué = champById.get(pitchouKeyToChampDS.get('Le projet se situe au niveau…'))?.stringValue
     /** @type {ChampDSCommunes} */
     const champCommunes = champById.get(pitchouKeyToChampDS.get('Commune(s) où se situe le projet'))
@@ -165,26 +165,26 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const risque_malgre_mesures_erc = risque_malgre_mesures_erc_champ?.checked
 
     /** Données dossier scientifique */
-    /** @type {DossierDemarcheSimplifiee88444['Recherche scientifique - Votre demande concerne :']} */
+    /** @type {DossierDemarcheNumerique88444['Recherche scientifique - Votre demande concerne :']} */
     const scientifique_type_demande_values = champById.get(pitchouKeyToChampDS.get('Recherche scientifique - Votre demande concerne :'))?.values
 
-    /** @type {DossierDemarcheSimplifiee88444['Captures/Relâchers/Prélèvement - Finalité(s) de la demande']} */
+    /** @type {DossierDemarcheNumerique88444['Captures/Relâchers/Prélèvement - Finalité(s) de la demande']} */
     const scientifique_finalité_demande = champById.get(pitchouKeyToChampDS.get('Captures/Relâchers/Prélèvement - Finalité(s) de la demande'))?.values
 
-    /** @type {DossierDemarcheSimplifiee88444['Cette demande concerne un programme de suivi déjà existant']} */
+    /** @type {DossierDemarcheNumerique88444['Cette demande concerne un programme de suivi déjà existant']} */
     const scientifique_bilan_antérieur = champById.get(pitchouKeyToChampDS.get('Cette demande concerne un programme de suivi déjà existant'))?.checked
     // "Non renseigné" est tranformé en 'false'
 
-    /** @type {DossierDemarcheSimplifiee88444['Description du protocole de suivi']} */
+    /** @type {DossierDemarcheNumerique88444['Description du protocole de suivi']} */
     const scientifique_description_protocole_suivi = champById.get(pitchouKeyToChampDS.get('Description du protocole de suivi'))?.stringValue
 
-    /** @type {DossierDemarcheSimplifiee88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`][]} */
+    /** @type {DossierDemarcheNumerique88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`][]} */
     const scientifique_précisez_mode_capture_values = champById.get(pitchouKeyToChampDS.get(`En cas de nécessité de capture d'individus, précisez le mode de capture`))?.values
 
-    /** @type {DossierDemarcheSimplifiee88444[`Préciser le(s) autre(s) moyen(s) de capture`]} */
+    /** @type {DossierDemarcheNumerique88444[`Préciser le(s) autre(s) moyen(s) de capture`]} */
     const scientifique_precisez_autre_capture = champById.get(pitchouKeyToChampDS.get(`Préciser le(s) autre(s) moyen(s) de capture`))?.stringValue
 
-    /** @type {Set<DossierDemarcheSimplifiee88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`] | DossierDemarcheSimplifiee88444[`Préciser le(s) autre(s) moyen(s) de capture`]>} */
+    /** @type {Set<DossierDemarcheNumerique88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`] | DossierDemarcheNumerique88444[`Préciser le(s) autre(s) moyen(s) de capture`]>} */
     const scientifique_mode_capture_set = scientifique_précisez_mode_capture_values ? new Set(scientifique_précisez_mode_capture_values) : new Set()
 
     if (scientifique_precisez_autre_capture) {
@@ -195,10 +195,10 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const scientifique_mode_capture = JSON.stringify([...scientifique_mode_capture_set])
 
 
-    /** @type {DossierDemarcheSimplifiee88444[`Utilisez-vous des sources lumineuses ?`]} */
+    /** @type {DossierDemarcheNumerique88444[`Utilisez-vous des sources lumineuses ?`]} */
     const scientifique_modalités_source_lumineuses_boolean = champById.get(pitchouKeyToChampDS.get(`Utilisez-vous des sources lumineuses ?`))?.checked
 
-    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de l'utilisation des sources lumineuses`]} */
+    /** @type {DossierDemarcheNumerique88444[`Précisez les modalités de l'utilisation des sources lumineuses`]} */
     const scientifique_modalités_source_lumineuses_précisez = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de l'utilisation des sources lumineuses`))?.stringValue
 
 
@@ -206,14 +206,14 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         scientifique_modalités_source_lumineuses_précisez :
         undefined
 
-    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de marquage pour chaque taxon`]} */
+    /** @type {DossierDemarcheNumerique88444[`Précisez les modalités de marquage pour chaque taxon`]} */
     const scientifique_modalités_marquage = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de marquage pour chaque taxon`))?.stringValue || undefined
 
 
-    /** @type {DossierDemarcheSimplifiee88444[`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`]} */
+    /** @type {DossierDemarcheNumerique88444[`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`]} */
     const scientifique_modalités_transport = champById.get(pitchouKeyToChampDS.get(`Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`))?.stringValue || undefined
 
-    /** @type {DossierDemarcheSimplifiee88444[`Précisez le périmètre d'intervention`]} */
+    /** @type {DossierDemarcheNumerique88444[`Précisez le périmètre d'intervention`]} */
     const scientifique_périmètre_intervention = champById.get(pitchouKeyToChampDS.get(`Précisez le périmètre d'intervention`))?.stringValue || undefined
 
     /** @type {ChampScientifiqueIntervenants | undefined} */
@@ -238,7 +238,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         })
     }
 
-    /** @type {DossierDemarcheSimplifiee88444[`Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)`]} */
+    /** @type {DossierDemarcheNumerique88444[`Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)`]} */
     const scientifique_précisions_autres_intervenants = champById.get(pitchouKeyToChampDS.get(`Apporter des précisions complémentaires sur la possible intervention de stagiaire(s)/vacataire(s)/bénévole(s)`))?.stringValue || undefined;
 
     /**

@@ -7,7 +7,7 @@
 import {isValidDateString} from '../commun/typeFormat.js'
 
 //@ts-ignore
-/** @import {ChampDSPieceJustificative, ChampRépétéDSPieceJustificative} from '../types/démarches-simplifiées/apiSchema.ts' */
+/** @import {ChampDSPieceJustificative, ChampRépétéDSPieceJustificative} from './démarche-numérique/apiSchema.ts' */
 /** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
 //@ts-ignore
 /** @import {OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../types/especes.d.ts' */

@@ -1,10 +1,10 @@
 /**
 * Ce fichier a été généré automatiquement par outils/genere-types-schema-DS.js
-* en prenant data/démarches-simplifiées/schema-DS/7f52a348-fd16-4fcd-8a6f-2e78ddafaee4.json comme source
+* en prenant data/démarche-numérique/schema-DS/7f52a348-fd16-4fcd-8a6f-2e78ddafaee4.json comme source
 * 
 * Ne pas le modifier à la main
 * 
-* À la place, mettre à jour data/démarches-simplifiées/schema-DS/7f52a348-fd16-4fcd-8a6f-2e78ddafaee4.json
+* À la place, mettre à jour data/démarche-numérique/schema-DS/7f52a348-fd16-4fcd-8a6f-2e78ddafaee4.json
 * d'après https://www.demarches-simplifiees.fr/preremplir/7f52a348-fd16-4fcd-8a6f-2e78ddafaee4/schema
 * et relancer outils/genere-types-schema-DS.js
 */
@@ -12,7 +12,7 @@
 import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 import { ChampDSPieceJustificative } from "./apiSchema.ts";
 
-export interface DossierDemarcheSimplifiee128114 {
+export interface DossierDemarcheNumerique128114 {
   /**
    * Indiquer le nom <strong> précis </strong> de votre projet
    */
@@ -243,7 +243,7 @@ export interface DossierDemarcheSimplifiee128114 {
 }
 
 
-export interface AnnotationsPriveesDemarcheSimplifiee128114 {
+export interface AnnotationsPriveesDemarcheNumerique128114 {
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
    */

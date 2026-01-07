@@ -6,7 +6,7 @@ import ky from 'ky';
 
 import {dossiersQuery, GroupeInstructeursQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery, annotationTextMutationQuery, deletedDossiersQuery, pendingDeletedDossiersQuery} from './graphQLqueries.js'
 
-/** @import {demarcheQueryResult, demarcheQueryResultDemarche, AnnotationMutationResult} from '../../types/démarches-simplifiées/api.js' */
+/** @import {demarcheQueryResult, demarcheQueryResultDemarche, AnnotationMutationResult} from '../../types/démarche-numérique/api.js' */
 
 const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
 

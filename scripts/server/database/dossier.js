@@ -9,8 +9,8 @@
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
-/** @import * as API_DS_SCHEMA from '../../types/démarches-simplifiées/apiSchema.js' */
-/** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarches-simplifiées/DossierPourSynchronisation.ts' */
+/** @import * as API_DS_SCHEMA from '../../types/démarche-numérique/apiSchema.js' */
+/** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarche-numérique/DossierPourSynchronisation.ts' */
 /** @import ArTePersonneSuitDossier from '../../types/database/public/ArêtePersonneSuitDossier.ts' */
 
 import knex from 'knex';

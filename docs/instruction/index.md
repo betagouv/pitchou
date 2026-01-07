@@ -9,5 +9,5 @@ Vous y trouverez :
 - Une [explication des différentes phases de l'instruction d'un dossier DDEP](./phases-instructions)
 - [Pourquoi le CERFA n'est-il plus nécessaire ?](./cerfa)
 - [Quand et comment le pétitionnaire doit-il déposer son dossier sur Pitchou ?](./depot-dossier-petitionnaires)
-- [Quelles sont les **données** à remplir dans Démarches Simplifiées et **indispensables pour l'instruction** ?](./donnees-indispensables)
+- [Quelles sont les **données** à remplir dans Démarche Numérique et **indispensables pour l'instruction** ?](./donnees-indispensables)
 - [Utiliser et créer des **document-types** pour la génération de documents](./document-types)

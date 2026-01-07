@@ -32,7 +32,7 @@
     <h2>Échanges avec le pétitionnaire</h2>
 
     <a class="fr-btn fr-mb-w" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}>
-        Répondre sur Démarches Simplifiées
+        Répondre sur Démarche Numérique
     </a>
 </div>
 
@@ -49,7 +49,7 @@
         <div class="contenu-message fr-collapse" id={accordionId}>
             <!--
                 Avertissement : Source de problèmes de sécurité potentiels
-                Actuellement, les contenus viennent de Démarches Simplifiées et on
+                Actuellement, les contenus viennent de Démarche Numérique et on
                 leur fait confiance pour assainir le HTML, mais
             -->
             {@html contenu}

@@ -23,17 +23,17 @@ import { getStatsPubliques } from './database/stats.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'
 import { envoyerEmailConnexion } from './emails.js'
-import { demanderLienPréremplissage } from './démarches-simplifiées/demanderLienPréremplissage.js'
+import { demanderLienPréremplissage } from './démarche-numérique/demanderLienPréremplissage.js'
 
-import _schema88444 from '../../data/démarches-simplifiées/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
-import { chiffrerDonnéesSupplémentairesDossiers } from './démarches-simplifiées/chiffrerDéchiffrerDonnéesSupplémentaires.js'
+import _schema88444 from '../../data/démarche-numérique/schema-DS/derogation-especes-protegees.json' with {type: 'json'}
+import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
 import { subWeeks } from 'date-fns'
 
 
-/** @import {DossierDemarcheSimplifiee88444} from '../types/démarches-simplifiées/DémarcheSimplifiée88444.js' */
-/** @import {SchemaDémarcheSimplifiée} from '../types/démarches-simplifiées/schema.js' */
+/** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
+/** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
 /** @import {StringValues} from '../types/tools.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
@@ -131,7 +131,7 @@ fastify.get('/aarri', sendIndexHTMLFile)
 
 
 fastify.post('/lien-preremplissage', async function (request) {
-  /** @type {Partial<DossierDemarcheSimplifiee88444>} */
+  /** @type {Partial<DossierDemarcheNumerique88444>} */
   // @ts-ignore
   let donnéesPreRemplissage = request.body
 

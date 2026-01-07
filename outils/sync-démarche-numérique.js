@@ -10,9 +10,9 @@ import {listAllPersonnes, créerPersonnes} from '../scripts/server/database/pers
 import {synchroniserGroupesInstructeurs} from '../scripts/server/database/groupe_instructeurs.js'
 import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from '../scripts/server/database/espèces_impactées.js'
 
-import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarches-simplifiées/recupérerDossiersRécemmentModifiés.js'
-import {recupérerGroupesInstructeurs} from '../scripts/server/démarches-simplifiées/recupérerGroupesInstructeurs.js'
-import récupérerTousLesDossiersSupprimés from '../scripts/server/démarches-simplifiées/recupérerListeDossiersSupprimés.js'
+import {recupérerDossiersRécemmentModifiés} from '../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.js'
+import {recupérerGroupesInstructeurs} from '../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.js'
+import récupérerTousLesDossiersSupprimés from '../scripts/server/démarche-numérique/recupérerListeDossiersSupprimés.js'
 
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
@@ -33,11 +33,11 @@ import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../
 /** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
 /** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
 
-/** @import {Message} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {DossierDS88444} from '../scripts/types/démarches-simplifiées/apiSchema.ts' */
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarches-simplifiées/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheSimplifiee88444, AnnotationsPriveesDemarcheSimplifiee88444} from '../scripts/types/démarches-simplifiées/DémarcheSimplifiée88444.ts' */
+/** @import {Message} from '../scripts/types/démarche-numérique/apiSchema.ts' */
+/** @import {DossierDS88444} from '../scripts/types/démarche-numérique/apiSchema.ts' */
+/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarche-numérique/schema.ts' */
+/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
+/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../scripts/types/démarche-numérique/Démarche88444.ts' */
 
 /** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 /** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
@@ -59,7 +59,7 @@ const args = parseArgs(process.argv)
 const ID_SCHEMA_DS = args.IdSchemaDS
 
 if (!ID_SCHEMA_DS) {
-    const liste_fichiers = await readdir(join(import.meta.dirname,`../data/démarches-simplifiées/schema-DS`))
+    const liste_fichiers = await readdir(join(import.meta.dirname,`../data/démarche-numérique/schema-DS`))
     console.error(`
 Aucun argument --IdSchemaDS n'a été fourni.
 Voici la liste des ids des schémas DS disponibles :
@@ -78,7 +78,7 @@ else{
     lastModified = sub(new Date(), {hours: 12})
 }
 /** @type {SchemaDémarcheSimplifiée} */
-const schema = (await import(`../data/démarches-simplifiées/schema-DS/${ID_SCHEMA_DS}.json`, {with: {type: 'json'}})).default
+const schema = (await import(`../data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`, {with: {type: 'json'}})).default
 
 const DEMARCHE_NUMBER = schema.number
 
@@ -117,14 +117,14 @@ console.info('Nombre de dossiers', dossiersDS.length)
 
 // stocker les dossiers en BDD
 
-/** @type {Map<keyof DossierDemarcheSimplifiee88444, ChampDescriptor['id']>} */
-//@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheSimplifiee88444 sont les schema88444.revision.champDescriptors.map(label)
+/** @type {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} */
+//@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheNumerique88444 sont les schema88444.revision.champDescriptors.map(label)
 const pitchouKeyToChampDS = new Map(schema.revision.champDescriptors.map(
     ({label, id}) => [label, id])
 )
 
-/** @type {Map<keyof AnnotationsPriveesDemarcheSimplifiee88444, ChampDescriptor['id']>} */
-//@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheSimplifiee88444 sont les schema88444.revision.annotationDescriptors.map(label)
+/** @type {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>} */
+//@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheNumerique88444 sont les schema88444.revision.annotationDescriptors.map(label)
 export const pitchouKeyToAnnotationDS = new Map(schema.revision.annotationDescriptors.map(
     ({label, id}) => [label, id])
 )
@@ -171,15 +171,15 @@ const {
         return {
             /** @type {GetDonnéesPersonnesEntreprises} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheSimplifiee88444
+            // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheNumerique88444
             getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444,
             /** @type {MakeAvisExpertFromTraitementsDS} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type MakeAvisExpertFromTraitementsDS soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            // ici, on voudrait que le type MakeAvisExpertFromTraitementsDS soit fonction de keyof AnnotationsPriveesDemarcheNumerique88444
             makeAvisExpertFromTraitementsDS: makeAvisExpertFromTraitementsDS88444,
             /** @type {MakeColonnesCommunesDossierPourSynchro} **/
             //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-            // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheSimplifiee88444
+            // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheNumerique88444
             makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444
         }
     } else {

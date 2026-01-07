@@ -1,4 +1,6 @@
 //@ts-check
+/** @import {SchemaDémarcheSimplifiée, ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarche-numérique/schema.ts' */
+/** @import {JSONSchema} from 'json-schema-to-typescript' */
 
 import {writeFile, readFile} from 'node:fs/promises'
 
@@ -6,8 +8,6 @@ import parseArgs from 'minimist'
 import { compile } from 'json-schema-to-typescript'
 import ky from 'ky'
 
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarches-simplifiées/schema.ts' */
-/** @import {JSONSchema} from 'json-schema-to-typescript' */
 
 const args = parseArgs(process.argv)
 
@@ -22,7 +22,7 @@ const urlSchema = `https://www.demarches-simplifiees.fr/preremplir/${ID_SCHEMA_D
 /** @type {SchemaDémarcheSimplifiée} */
 let schema;
 
-const schemaPath = `data/démarches-simplifiées/schema-DS/${ID_SCHEMA_DS}.json`
+const schemaPath = `data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`
 
 if(args.skipDownload){
     /** @type {string} */
@@ -249,14 +249,14 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors){
 
 
 
-const dossierDémarcheSimplifiéeJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
+const dossierDémarcheNumériqueJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors)
 
 
 
-const dossierDémarcheSimplifiéeInterfaceP = compile(
+const dossierDémarcheNumériqueInterfaceP = compile(
     //@ts-ignore
-    dossierDémarcheSimplifiéeJSONSchema, 
-    `DossierDemarcheSimplifiee${schema.number}`, 
+    dossierDémarcheNumériqueJSONSchema, 
+    `DossierDemarcheNumerique${schema.number}`, 
     { bannerComment: '' }
 )
 
@@ -266,13 +266,13 @@ const dossierDémarcheSimplifiéeInterfaceP = compile(
  * annotationDescriptors vers JSONSchema
  */
 
-const annotationsDémarcheSimplifiéeJSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
+const annotationsDémarcheNumériqueJSONSchema = champDescriptorsToJSONSchemaObjectType(annotationDescriptors)
 
 
-const annotationsDémarcheSimplifiéeInterfaceP = compile(
+const annotationsDémarcheNumériqueInterfaceP = compile(
     //@ts-ignore
-    annotationsDémarcheSimplifiéeJSONSchema, 
-    `AnnotationsPriveesDemarcheSimplifiee${schema.number}`, 
+    annotationsDémarcheNumériqueJSONSchema, 
+    `AnnotationsPriveesDemarcheNumerique${schema.number}`, 
     { bannerComment: '' }
 )
 
@@ -293,19 +293,19 @@ const imports = [
     `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join('\n')
 
-const outPath = `scripts/types/démarches-simplifiées/DémarcheSimplifiée${schema.number}.ts`
+const outPath = `scripts/types/démarche-numérique/Démarche${schema.number}.ts`
 await Promise.all([
-    dossierDémarcheSimplifiéeInterfaceP,
-    annotationsDémarcheSimplifiéeInterfaceP
+    dossierDémarcheNumériqueInterfaceP,
+    annotationsDémarcheNumériqueInterfaceP
 ])
 .then(([
-    dossierDémarcheSimplifiéeInterface,
-    annotationsDémarcheSimplifiéeInterface
+    dossierDémarcheNumériqueInterface,
+    annotationsDémarcheNumériqueInterface
 ]) => [
     commentaireInitial, 
     imports,
-    dossierDémarcheSimplifiéeInterface,
-    annotationsDémarcheSimplifiéeInterface
+    dossierDémarcheNumériqueInterface,
+    annotationsDémarcheNumériqueInterface
 ].join('\n\n'))
 .then(str => writeFile(outPath, str))
 

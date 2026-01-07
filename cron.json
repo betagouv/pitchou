@@ -1,7 +1,7 @@
 {
     "jobs": [
       {
-        "command": "*/10 * * * * node outils/sync-démarches-simplifiées.js --IdSchemaDS derogation-especes-protegees",
+        "command": "*/10 * * * * node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees",
         "size": "M"
       }
     ]

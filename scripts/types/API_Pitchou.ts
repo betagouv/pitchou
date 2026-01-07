@@ -1,5 +1,5 @@
 import Dossier from './database/public/Dossier.ts'
-import { DossierDemarcheSimplifiee88444 } from './démarches-simplifiées/DémarcheSimplifiée88444.ts'
+import { DossierDemarcheNumerique88444 } from './démarche-numérique/Démarche88444.ts'
 import Fichier from './database/public/Fichier.ts'
 import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
 import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
@@ -57,7 +57,7 @@ type DossierLocalisation = {
 
  
 type DossierActivitéPrincipale = {
-    activité_principale: DossierDemarcheSimplifiee88444["Activité principale"] | null
+    activité_principale: DossierDemarcheNumerique88444["Activité principale"] | null
 } 
 
 type DonnéesDossierPourStats = { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}

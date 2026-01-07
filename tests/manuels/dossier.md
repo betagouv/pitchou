@@ -38,7 +38,7 @@
   Résultat attendu :  
   - Modifications enregistrées et persistantes après rechargement.
 
-- **Accès aux annotations privées sur Démarches Simplifiées (DS)**  
+- **Accès aux annotations privées sur Démarche Numérique (DN)**  
   Étapes :  
   1. Cliquer sur *Annotations privées*.  
   2. Vérifier la redirection vers la page DS correspondant au dossier.  
@@ -69,13 +69,13 @@
   Résultat attendu :  
   - Liste correcte ou absence affichée si aucune espèce impactée.
 
-- **Accès au dossier déposé sur Démarches Simplifiées**  
+- **Accès au dossier déposé sur Démarche Numérique**  
 
 
   Étapes :  
-  1. Repérer le bouton *Dossier déposé sur Démarches Simplifiées*.  
+  1. Repérer le bouton *Dossier déposé sur Démarche Numérique*.  
   2. Cliquer dessus.  
-  3. Vérifier la redirection vers la bonne page sur Démarches Simplifiées.  
+  3. Vérifier la redirection vers la bonne page sur Démarche Numérique.  
 
 
   Résultat attendu :  
@@ -83,12 +83,12 @@
 
 ### Onglet Échanges
 
-- **Répondre sur Démarches Simplifiées**  
+- **Répondre sur Démarche Numérique**  
 
 
   Étapes :  
-  1. Appuyer sur le bouton *Répondre sur Démarches Simplifiées*.  
-  2. Vérifier la redirection vers la bonne page sur Démarches Simplifiées.  
+  1. Appuyer sur le bouton *Répondre sur Démarche Numérique*.  
+  2. Vérifier la redirection vers la bonne page sur Démarche Numérique.  
 
 
   Résultat attendu :  
