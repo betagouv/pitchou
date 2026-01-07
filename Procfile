@@ -1,1 +1,1 @@
-web: npm run start:prod-server
+web: pnpm run start:prod-server
