@@ -1,5 +1,4 @@
 <script>
-    //@ts-check
     import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { formatDateRelative } from "../../affichageDossier.js";
@@ -46,6 +45,37 @@
     /** @type {string[] | undefined} */
     // @ts-ignore
     let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
+
+    // https://stackoverflow.com/a/73974452
+    const byteFormat = new Intl.NumberFormat(document.documentElement.lang || "fr", { 
+        notation: "compact",
+        style: 'unit', 
+        unit: 'byte',
+        unitDisplay: 'narrow'
+    })
+
+    /**
+     * @param {string | null} filename
+     */
+    function raccourcirNomFichier(filename, maxLength = 43, ellipsis = '(…)') {
+        if(!filename){
+            return '(fichier sans nom)'
+        }
+
+        if (filename.length <= maxLength) { 
+            return filename
+        }
+
+        const lastDotIndex = filename.lastIndexOf('.');
+        
+        const extension = filename.substring(lastDotIndex);
+        const nameWithoutExt = filename.substring(0, lastDotIndex);
+        
+        const availableLength = maxLength - extension.length - ellipsis.length;
+        
+        return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
+    }
+
 </script>
 
 <section class="row">
@@ -251,7 +281,26 @@
         {/if}
     </section>
 
-    <section>
+    <section class="column">
+
+        <h2>{dossier.piècesJointesPétitionnaires.length} pièces jointes</h2>
+        <ul class="pièces-jointes-pétitionnaire">
+        {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
+            <li>
+                <a class="fr-link fr-link--download" href={url} title={nom}>
+                    <!--
+                        On coupe le nom parce que s'il se met sur 2 lignes, le DSFR fait que la deuxième
+                        ligne se superpose avec les détails en-dessous
+                    -->
+                    {raccourcirNomFichier(nom)}
+                    <span class="fr-link__detail">
+                        {media_type} - {byteFormat.format(taille)}
+                    </span>
+                </a>
+            </li>
+        {/each}
+        </ul>
+
         <h2>Dossier déposé</h2>
         <a
             class="fr-btn fr-mb-1w"
@@ -276,7 +325,8 @@
         flex-direction: row;
 
         & > :nth-child(1) {
-            flex: 3;
+            flex: 3;;
+            margin-right: 1rem;
         }
 
         & > :nth-child(2) {
@@ -284,7 +334,13 @@
         }
     }
 
-    pre {
-        white-space: pre-wrap;
+    .pièces-jointes-pétitionnaire{
+        list-style: none;
+        padding: 0;
+
+        li{
+            margin-bottom: 0.3rem;
+        }
     }
+
 </style>
