@@ -8,6 +8,7 @@
     import { modifierDossier } from '../../actions/dossier.js';
     import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
+    import ModaleAjouterPieceJointe from './ModaleAjouterPieceJointe.svelte'
 
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
@@ -25,6 +26,8 @@
 
     /** @type {Props} */
     let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } = $props();
+
+    const idModaleAjouterPieceJointe = 'modale-ajouter-piece-jointe'
 
     const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
@@ -166,16 +169,27 @@
             mesures_er_suffisantes = null
         }
     }
-
-
-
-
 </script>
 
 <section class="row">
 
     <section>
-        <h2>Historique</h2>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+            <h2 style="margin: 0;">Historique</h2>
+            <div style="display: flex; gap: 0.5rem;">
+                <!-- <button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-calendar-line" onclick={() => console.log('Ajouter une date')}>
+                    Ajouter une date
+                </button> -->
+                <button 
+                    type="button" 
+                    class="fr-btn fr-btn--icon-left fr-icon-attachment-line" 
+                    aria-controls={idModaleAjouterPieceJointe}
+                    data-fr-opened="false"
+                >
+                    Ajouter une pièce jointe
+                </button>
+            </div>
+        </div>
         <ol>
         {#each dossier.évènementsPhase as {phase, horodatage}}
             <li>
@@ -282,6 +296,8 @@
     </section>
 
 </section>
+
+<ModaleAjouterPieceJointe id={idModaleAjouterPieceJointe} />
 
 <style lang="scss">
     .row{
