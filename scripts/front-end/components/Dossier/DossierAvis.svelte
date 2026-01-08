@@ -2,7 +2,6 @@
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
 	import { supprimerAvisExpert as _supprimerAvisExpert  } from '../../actions/avisExpert.js'
 	import { refreshDossierComplet } from '../../actions/dossier.js'
-    import FormulaireAvisExpert from './Avis/FormulaireAvisExpert.svelte'
     import AvisExpert from './Avis/AvisExpert.svelte'
 	import { differenceInDays } from 'date-fns'
 
@@ -18,16 +17,11 @@
 
     const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier
 
-    let avisExpertTriés = $derived( [...dossier.avisExpert].sort((a,b) => {
+    let avisExpertTriés = $derived([...dossier.avisExpert].sort((a,b) => {
         const dateA = new Date(a.date_avis ?? a.date_saisine ?? 0)
         const dateB = new Date(b.date_avis ?? b.date_saisine ?? 0)
         return differenceInDays(dateB, dateA)
-    }
-
-))
-
-    /**@type {boolean}*/
-    let afficherFormulaireAjouter = $state(false)
+    }))
 
     /**
      * @param {FrontEndAvisExpert} avisExpert
@@ -46,12 +40,9 @@
                 <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
             {/each}
         {:else}
-            <span class="fr-mb-3w">Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</span>
-        {/if}
-        {#if afficherFormulaireAjouter === false}
-            <button onclick={() => afficherFormulaireAjouter = true} class="fr-btn fr-btn--icon-left fr-icon-add-line {dossier.avisExpert.length >= 1 ? 'fr-btn--secondary fr-mt-4w' : 'fr-btn--primary'}">Ajouter un avis d'expert</button>
-        {:else}
-            <FormulaireAvisExpert {dossier} fermerLeFormulaire={() => afficherFormulaireAjouter = false} />
+            <p>
+                <span class="fr-mb-3w">Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</span>
+            </p>
         {/if}
     </section>
 
