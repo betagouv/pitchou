@@ -59,9 +59,9 @@
     /** Texte à afficher pour la page */
     const textePage = $derived.by(() => {
         if (tousLesFiltres.has('texte') && texteÀChercher && texteÀChercher.trim() !== '') {
-            return `Résultats de recherche pour «${texteÀChercher}» : page n°${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
+            return `Résultats de recherche pour «${texteÀChercher}» : Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
         }
-        return `Page n°${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
+        return `Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
     })
 
     /**
@@ -266,39 +266,42 @@
         {/if}
     </div>
     <fieldset>
-        <legend class="fr-h4 texte-filtrer">Filtrer…</legend>
+        <legend class="fr-sr-only">Filtrer…</legend>
         <div class="filtres-et-compteur-dossiers">
             <div class="filtres">
-            <div class="fr-select-group">
-                <label class="fr-label" for="select-phase"> Filtrer par phase </label>
-                <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
-                    <option value="" selected>Toutes les phases</option>
-                    {#each toutesLesPhases as phase}
-                        <option value={phase}>{phase}</option>
-                    {/each}
-                </select>
+                <div class="fr-select-group">
+                    <label class="fr-label" for="select-phase"> Filtrer par phase </label>
+                    <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+                        <option value="" selected>Toutes les phases</option>
+                        {#each toutesLesPhases as phase}
+                            <option value={phase}>{phase}</option>
+                        {/each}
+                    </select>
+                </div>
+                    {#if afficherFiltreSansInstructeurice}
+                        <button 
+                            type="button"
+                            class="fr-tag"
+                            onclick={toggleFiltreSansInstructeurice}
+                            aria-pressed={tousLesFiltres.has('sansInstructeurice')}
+                        >
+                            Dossier sans instructeur·ice
+                        </button>
+                    {/if}
+                    {#if afficherFiltreActionInstructeur}
+                        <button 
+                            type="button"
+                            class="fr-tag"
+                            onclick={toggleFiltreActionInstructeur}
+                            aria-pressed={tousLesFiltres.has('actionInstructeur')}
+                        >
+                            Action : Instructeur·ice
+                        </button>
+                    {/if}
             </div>
-                {#if afficherFiltreSansInstructeurice}
-                    <button 
-                        type="button"
-                        class="fr-tag"
-                        onclick={toggleFiltreSansInstructeurice}
-                        aria-pressed={tousLesFiltres.has('sansInstructeurice')}
-                    >
-                        Dossier sans instructeur·ice
-                    </button>
-                {/if}
-                {#if afficherFiltreActionInstructeur}
-                    <button 
-                        type="button"
-                        class="fr-tag"
-                        onclick={toggleFiltreActionInstructeur}
-                        aria-pressed={tousLesFiltres.has('actionInstructeur')}
-                    >
-                        Action : Instructeur·ice
-                    </button>
-                {/if}
-            </div>
+            <p>
+                <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
+            </p>
         </div>
     </fieldset>
     <h2 bind:this={titrePageElement} tabindex="-1" class="titre-page">{textePage}</h2>
@@ -327,10 +330,14 @@
         background: var(--background-contrast-grey);
     }
 
-    fieldset, legend {
+    fieldset {
         border: 0;
         margin: 0;
         padding: 0;
+    }
+
+    h2 {
+        margin-left: auto;
     }
 
     ul {
@@ -342,13 +349,9 @@
     li:not(:last-child) {
       margin-bottom: 1rem;
     }
-    .texte-filtrer {
-        margin-bottom: 1rem;
-    }
     .en-tête {
         display: flex;
         flex-direction: column;
-        margin-bottom: 1rem;
         margin-top: 2rem;
 
         .titre-et-barre-de-recherche {
@@ -360,6 +363,10 @@
                 flex-direction: column;
                 justify-content: stretch;
                 align-items: start;
+                form {
+                    width: 100%;
+                    margin-bottom: 2rem;
+                }
             }
         }
 
@@ -371,7 +378,8 @@
 
             @media (max-width: 768px) {
                 flex-direction: column;
-                align-items: start;
+                align-items: center;
+                gap: 1rem;
             }
 
             .filtres {
@@ -382,7 +390,7 @@
 
                 @media (max-width: 768px) {
                     flex-direction: column;
-                    align-items: start;
+                    gap: 0;
                 }
             }
         }
@@ -396,8 +404,6 @@
     }
 
     .titre-page {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
         font-size: 1rem;
         font-weight: normal;
     }
