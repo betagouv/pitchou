@@ -243,7 +243,7 @@
 
 </section>
 
-<ModaleAjouterPieceJointe id={idModaleAjouterPieceJointe} />
+<ModaleAjouterPieceJointe id={idModaleAjouterPieceJointe} {dossier} />
 
 <style lang="scss">
     .row{
