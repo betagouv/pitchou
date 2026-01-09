@@ -1,6 +1,6 @@
 <script>
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
-	import { supprimerAvisExpert as _supprimerAvisExpert  } from '../../actions/avisExpert.js'
+	import { supprimerAvisExpert as supprimerAvisExpertServeur  } from '../../actions/avisExpert.js'
 	import { refreshDossierComplet } from '../../actions/dossier.js'
     import AvisExpert from './Avis/AvisExpert.svelte'
 	import { differenceInDays } from 'date-fns'
@@ -29,7 +29,7 @@
      * @param {FrontEndAvisExpert} avisExpert
      */
     async function supprimerAvisExpert(avisExpert) {
-        await _supprimerAvisExpert(avisExpert)
+        await supprimerAvisExpertServeur(avisExpert)
         await refreshDossierComplet(dossier.id)
     }
 </script>
@@ -39,9 +39,9 @@
         <h2>Avis d'experts</h2>
         {#if avisExpertTriés.length >= 1}
             <div class="liste-avis-expert">
-                {#each avisExpertTriés as avisExpert}
-                    <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
-                {/each}
+            {#each avisExpertTriés as avisExpert}
+                <AvisExpert dossierId={dossier.id} {avisExpert} {supprimerAvisExpert} />
+            {/each}
             </div>
         {:else}
             <p>

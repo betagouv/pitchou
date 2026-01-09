@@ -601,15 +601,19 @@ fastify.post('/avis-expert', {
   /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
   let fichierAvis
 
+  const [blobFichierSaisineContenu, blobFichierAvisContenu] = await Promise.all(['blobFichierSaisine' in body ? await body.blobFichierSaisine.toBuffer() : Promise.resolve([]),
+  'blobFichierAvis' in body ? await body.blobFichierAvis.toBuffer() : Promise.resolve([])
+])
+
   if ('blobFichierSaisine' in body) {
     /** @type {any} */
     const blobFichierSaisine = body.blobFichierSaisine
-    fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: await blobFichierSaisine.toBuffer()}
+    fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: blobFichierSaisineContenu}
   }
   if ('blobFichierAvis' in body) {
     /** @type {any} */
     const blobFichierAvis = body.blobFichierAvis
-    fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: await blobFichierAvis.toBuffer()}
+    fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
   } 
 
   // Ajouter ou modifier l'avis d'expert en base de données
