@@ -140,10 +140,10 @@
 
     function fermerModale() {
         // Réinitialiser les états
+        fileListPièceJointe = undefined
         if (fileInput) {
             fileInput.value = ''
         }
-        fileListPièceJointe = undefined
         typePièceJointe = null
         serviceOuPersonneExperte = null
         autreExpertTexte = null
