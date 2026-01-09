@@ -75,6 +75,7 @@
         if(prescription.date_échéance){
             Object.defineProperty(prescription.date_échéance, 'toJSON', {value: toJSONPerserveDate})
         }
+        console.log('prescription.date_échéance', prescription.date_échéance)
 
         if (prescription.id) {
             // "contrôles" est une proprété du type FrontEndPrescription pas une propriété du type Prescription

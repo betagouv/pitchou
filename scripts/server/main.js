@@ -594,7 +594,7 @@ fastify.post('/avis-expert', {
   
   const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
 
-  console.log('date_avis', date_avis)
+  console.log('xxxxxxxxxxxxxxxdate_avis', date_avis, body['date_avis'].value)
 
   const avisExpert = { dossier, id, expert, avis, date_avis }
 

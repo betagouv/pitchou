@@ -39,7 +39,7 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
     }
 
     if (avisExpert.date_avis) {
-        form.append("date_avis", avisExpert.date_avis.toString());
+        form.append("date_avis", avisExpert.date_avis.toJSON());
     }
 
     if (avisExpert.expert) {
@@ -47,7 +47,7 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
     }
 
     if (avisExpert.date_saisine) {
-        form.append("date_saisine", avisExpert.date_saisine.toString());
+        form.append("date_saisine", avisExpert.date_saisine.toJSON());
     }
 
     if (fileFichierSaisine) {
