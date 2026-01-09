@@ -251,10 +251,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         annotationById.set(annotation.id, annotation)
     }
 
-    const champ_ddep_nécessaire = annotationById.get(pitchouKeyToAnnotationDS.get("DDEP nécessaire ?"))?.stringValue
-
-    const ddep_nécessaire = champ_ddep_nécessaire === 'Oui' ? true : champ_ddep_nécessaire === 'Non' ? false : null;
-
     const enjeu_écologique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu écologique")).checked
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
 
@@ -327,9 +323,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         scientifique_périmètre_intervention,
         scientifique_intervenants: JSON.stringify(scientifique_intervenants),
         scientifique_précisions_autres_intervenants,
-
-        // annotations privées
-        ddep_nécessaire,
 
         enjeu_écologique,
         enjeu_politique,
