@@ -108,7 +108,7 @@
                         dossier: dossier.id,
                         expert: expert,
                         avis: avisExpert,
-                        date_avis: new Date()
+                        date_avis: undefined,
                     }
                     await ajouterOuModifierAvisExpert(avisExpertÀCréer, undefined, fichierAvis)
                 } else if (avisExpertSélectionné) {
@@ -120,7 +120,7 @@
                             dossier: dossier.id,
                             expert: saisineExistant.expert,
                             avis: avisExpert,
-                            date_avis: new Date()
+                            date_avis: undefined,
                         }
                         await ajouterOuModifierAvisExpert(avisExpertÀModifier, undefined, fichierAvis)
                     }
