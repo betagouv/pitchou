@@ -43,8 +43,8 @@ export default interface Dossier {
   /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées: string | null;
 
-  /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
-  ddep_nécessaire: string | null;
+  /** Indique si une demande de dérogation est nécessaire pour ce dossier. */
+  ddep_nécessaire: boolean | null;
 
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique: boolean | null;
@@ -192,8 +192,8 @@ export interface DossierInitializer {
   /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées?: string | null;
 
-  /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
-  ddep_nécessaire?: string | null;
+  /** Indique si une demande de dérogation est nécessaire pour ce dossier. */
+  ddep_nécessaire?: boolean | null;
 
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
@@ -340,8 +340,8 @@ export interface DossierMutator {
   /** Numéro du dossier dans Démarches Simplifiées */
   number_demarches_simplifiées?: string | null;
 
-  /** Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer). */
-  ddep_nécessaire?: string | null;
+  /** Indique si une demande de dérogation est nécessaire pour ce dossier. */
+  ddep_nécessaire?: boolean | null;
 
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
