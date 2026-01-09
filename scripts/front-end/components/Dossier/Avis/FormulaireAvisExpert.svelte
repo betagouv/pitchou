@@ -7,7 +7,6 @@
 	import { refreshDossierComplet } from "../../../actions/dossier.js"
 	import DateInput from "../../common/DateInput.svelte"
 
-
     /**
      * @typedef {Object} Props
      * @property {Pick<Dossier, "id">} dossier
@@ -91,20 +90,32 @@
                 <div class="fr-messages-group" id="champ-expert-messages" aria-live="polite">
                 </div>
             </div>
+        </div>
+        <div class="fr-fieldset__element">
             <div class="fr-upload-fichier-saisine-group">
                 <label class="fr-label" for="upload-fichier-saisine">Fichier de la saisine
                     <span class="fr-hint-text">Indication : 
                         Taille maximale&nbsp;: 20 Mo. 
                         Formats supportés&nbsp;: pdf</span>
                 </label>
-                <input accept=".pdf" bind:files="{fileListFichierSaisine}" class="fr-upload" aria-describedby="upload-fichier-saisine-messages" type="file" id="upload-fichier-saisine" name="upload">
-                <div class="fr-messages-group" id="upload-fichier-saisine-messages" aria-live="polite">
-                </div>
+                {#if avisExpertInitial?.saisine_fichier_url}
+                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpertInitial.saisine_fichier_url}>
+                        Télécharger le fichier de la saisine
+                    </a>
+                {:else}
+                    <input accept=".pdf" bind:files="{fileListFichierSaisine}" class="fr-upload" aria-describedby="upload-fichier-saisine-messages" type="file" id="upload-fichier-saisine" name="upload">
+                    <div class="fr-messages-group" id="upload-fichier-saisine-messages" aria-live="polite">
+                    </div>
+                {/if}
             </div>
+        </div>
+        <div class="fr-fieldset__element">
             <div class="fr-input-group fr-mt-3w" id="champ-date-saisine-group">
                 <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
                 <DateInput bind:date={avisExpert.date_saisine}/>
             </div>
+        </div>
+        <div class="fr-fieldset__element">
             <div class="fr-input-group" id="champ-avis-group">
                 <p class="fr-label fr-mb-2w">Avis de l’expert</p>
 
@@ -127,42 +138,50 @@
 
                 <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite"></div>
             </div>
-            <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite">
-         </div>
-            </div>
+        </div>
+        <div class="fr-fieldset__element">
             <div class="fr-upload-fichier-avis-group">
                 <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
                     <span class="fr-hint-text">Indication : 
                         Taille maximale&nbsp;: 20 Mo. 
                         Formats supportés&nbsp;: pdf</span>
                 </label>
-                <input accept=".pdf" bind:files="{fileListFichierAvis}" class="fr-upload" aria-describedby="upload-fichier-avis-messages" type="file" id="upload-fichier-avis" name="upload">
-                <div class="fr-messages-group" id="upload-fichier-avis-messages" aria-live="polite">
-                </div>
+                {#if avisExpertInitial?.avis_fichier_url}
+                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpertInitial.avis_fichier_url}>
+                        Télécharger le fichier de l'avis
+                    </a>
+                {:else}
+                    <input accept=".pdf" bind:files="{fileListFichierAvis}" class="fr-upload" aria-describedby="upload-fichier-avis-messages" type="file" id="upload-fichier-avis" name="upload">
+                    <div class="fr-messages-group" id="upload-fichier-avis-messages" aria-live="polite">
+                    </div>
+                {/if}
             </div>
+        </div>
+        <div class="fr-fieldset__element">
             <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
                 <label class="fr-label" for="input-champ-date-avis">Date avis</label>
                 <DateInput bind:date={avisExpert.date_avis}/>
             </div>
-            <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
-                {#if messageErreur}
-                    <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
-                        <p>{messageErreur}</p>
-                    </div>
+        </div>
+        <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
+            {#if messageErreur}
+                <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+                    <p>{messageErreur}</p>
+                </div>
+            {/if}
+        </div>
+        <ul style={'width: 100%;'} class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-4w">
+            <li>
+                <button type="button" class="fr-btn fr-btn--secondary" onclick={fermerLeFormulaire}>Annuler</button>
+            </li>
+            <li>
+                {#if chargementAjouterOuModifierAvisExpert}
+                    <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">Sauvegarde en cours</p>
+                    <button id="sauvegarde-en-cours" type="submit" class="fr-btn">Sauvegarde en cours...</button>
+                {:else}
+                    <button type="submit" class="fr-btn">Sauvegarder</button>
                 {/if}
-            </div>
-            <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-4w">
-                <li>
-                    <button type="button" class="fr-btn fr-btn--secondary" onclick={fermerLeFormulaire}>Annuler</button>
-                </li>
-                <li>
-                    {#if chargementAjouterOuModifierAvisExpert}
-                        <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">Sauvegarde en cours</p>
-                        <button id="sauvegarde-en-cours" type="submit" class="fr-btn">Sauvegarde en cours...</button>
-                    {:else}
-                        <button type="submit" class="fr-btn">Sauvegarder</button>
-                    {/if}
-                </li>
-            </ul>
+            </li>
+        </ul>
     </fieldset>
 </form>

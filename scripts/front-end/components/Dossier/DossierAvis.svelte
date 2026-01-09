@@ -38,9 +38,11 @@
     <section class="fr-col section-liste-avis-expert">
         <h2>Avis d'experts</h2>
         {#if avisExpertTriés.length >= 1}
-            {#each avisExpertTriés as avisExpert}
-                <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
-            {/each}
+            <div class="liste-avis-expert">
+                {#each avisExpertTriés as avisExpert}
+                    <AvisExpert {dossier} {avisExpert} {supprimerAvisExpert} />
+                {/each}
+            </div>
         {:else}
             <p>
                 <span class="fr-mb-3w">Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</span>
@@ -75,5 +77,10 @@
     }
     .section-boutons-démarche-numérique {
         text-align: right;
+    }
+    .liste-avis-expert {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 </style>

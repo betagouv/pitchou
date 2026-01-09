@@ -66,26 +66,43 @@
     {/if}
 </div>
 
-<style>
+<style lang="scss">
     .titre {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: start;
+        margin-bottom: 1rem;
     } 
-    .carte-avis-expert{
-        display:flex;
+    .carte-avis-expert {
+        display: flex;
         flex-direction: column;
+        padding: 1.5rem;
+        border: 1px solid var(--border-default-grey);
+        border-radius: 4px;
+        background-color: var(--background-default-grey);
+        
         ul {
             list-style: none;
             padding-inline-start: 0;
             display: flex;
             flex-direction: column;
+            gap: 0.75rem;
+            margin: 0;
         }
+        
         li {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        h3 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 700;
         }
     }
 </style>
