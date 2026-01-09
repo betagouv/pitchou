@@ -4,13 +4,13 @@
     /** @import { DossierComplet, FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
     /**
      * @typedef {Object} Props
-     * @property {Pick<DossierComplet, 'id'>} dossier
+     * @property {DossierComplet['id']} dossierId
      * @property {FrontEndAvisExpert} avisExpert
      * @property {(avisExpert: FrontEndAvisExpert) => void} supprimerAvisExpert
     */
 
     /** @type {Props} */
-    let { dossier, avisExpert, supprimerAvisExpert } = $props()
+    let { dossierId, avisExpert, supprimerAvisExpert } = $props()
 
     /** @type {boolean} */
     let avisExpertEnModification = $state(false)
@@ -61,7 +61,7 @@
             </li>
         </ul>
     {:else}
-        <FormulaireAvisExpert {dossier} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />
+        <FormulaireAvisExpert dossierId={dossierId} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />
         <button class="fr-btn fr-btn--secondary fr-mt-1w" type="button" onclick={() => onClickSupprimer(avisExpert)}>Supprimer cet avis d'expert</button>
     {/if}
 </div>

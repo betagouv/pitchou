@@ -1,7 +1,6 @@
 <script>
 	import { tick } from "svelte"
-    /** @import Dossier from "../../../../types/database/public/Dossier.ts" */
-    /** @import { FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
+    /** @import { DossierComplet, FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
 
     import { ajouterOuModifierAvisExpert } from "../../../actions/avisExpert.js"
 	import { refreshDossierComplet } from "../../../actions/dossier.js"
@@ -9,13 +8,13 @@
 
     /**
      * @typedef {Object} Props
-     * @property {Pick<Dossier, "id">} dossier
+     * @property {DossierComplet['id']} dossierId
      * @property {() => void} fermerLeFormulaire
      * @property {FrontEndAvisExpert} [avisExpertInitial]
      */
 
     /** @type {Props} */
-    let { fermerLeFormulaire, dossier, avisExpertInitial = $bindable() } = $props();
+    let { fermerLeFormulaire, dossierId, avisExpertInitial = $bindable() } = $props();
 
     /** @type {Partial<Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">>} */
     let avisExpert = $state(avisExpertInitial ?? {})
@@ -53,13 +52,13 @@
             fichierAvis = fileListFichierAvis[0]
         }
 
-        const avisExpertÀAjouterOuModifier = avisExpertInitial?.id ? { id: avisExpertInitial.id, dossier: dossier.id, ...avisExpert } : { dossier: dossier.id, ...avisExpert }
+        const avisExpertÀAjouterOuModifier = avisExpertInitial?.id ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert } : { dossier: dossierId, ...avisExpert }
         
         if (avisExpertÀAjouterOuModifier) {
             try {
                 chargementAjouterOuModifierAvisExpert = true
                 await ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis)
-                await refreshDossierComplet(dossier.id)
+                await refreshDossierComplet(dossierId)
                 await tick() // Permet de mettre à jour correctement les champs dans le cas d'une modification
                 fermerLeFormulaire()
             } catch (e) {
