@@ -8,7 +8,7 @@
     import { modifierDossier } from '../../actions/dossier.js';
     import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
-    import ModaleAjouterPieceJointe from './ModaleAjouterPieceJointe.svelte'
+    import ModaleAjouterPièceJointe from './ModaleAjouterPièceJointe.svelte'
 
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
@@ -297,7 +297,7 @@
 
 </section>
 
-<ModaleAjouterPieceJointe id={idModaleAjouterPieceJointe} {dossier} />
+<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointe} {dossier} />
 
 <style lang="scss">
     .row{
