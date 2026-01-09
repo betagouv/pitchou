@@ -1,11 +1,14 @@
 //@ts-check
 
+/** @import {RouteShorthandOptions} from 'fastify' */
+
 import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
+
 
 import { closeDatabaseConnection,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -30,7 +33,7 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
 import { indicateursAARRI } from './database/aarri.js'
-import { ajouterAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, estUnAvisExpertÀModifier, modifierAvisExpert, supprimerAvisExpert } from './database/avis_expert.js'
+import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
@@ -620,14 +623,14 @@ fastify.post('/avis-expert', {
   if (fichierAvis || fichierSaisine) {
     return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
   } else {
-    return estUnAvisExpertÀModifier(avisExpert) ? modifierAvisExpert(avisExpert) : ajouterAvisExpert(avisExpert)
+    return ajouterOuModifierAvisExpert(avisExpert)
   }
 })
 
 
 
 /**
- * @type {import('fastify').RouteShorthandOptions}
+ * @type {RouteShorthandOptions}
  * @const
  */
 const optsAvisExpertDelete = {

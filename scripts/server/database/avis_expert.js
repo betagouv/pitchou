@@ -8,7 +8,7 @@ import { ajouterFichier } from './fichier.js'
  * @param { AvisExpertInitializer | {id: string} & AvisExpertMutator } avisExpert
  * @returns {boolean}
  */
-export function estUnAvisExpertÀModifier(avisExpert) {
+function estUnAvisExpertÀModifier(avisExpert) {
     return avisExpert.id !== undefined
 }
 
@@ -49,6 +49,24 @@ export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichie
         }
     } catch (e) {
         throw new Error(`Une erreur est survenue lors de l'ajout ou de la modification de l'avis d'expert avec les fichiers de saisine et d'avis : ${e}.`)
+    }
+}
+
+/**
+ * @param { AvisExpertInitializer | {id: string} & AvisExpertMutator } avisExpert
+ * @param { Knex.Transaction | Knex } [databaseConnection]
+ */
+export function ajouterOuModifierAvisExpert(avisExpert, databaseConnection = directDatabaseConnection) {
+    if (estUnAvisExpertÀModifier(avisExpert)) {
+        /** @type {{id: string} & AvisExpertMutator } */
+        //@ts-ignore
+        const avisExpertÀMaj = avisExpert
+        return modifierAvisExpert(avisExpertÀMaj, databaseConnection)
+    } else {
+        /** @type {AvisExpertInitializer} */
+        //@ts-ignore
+        const avisExpertÀInsérer = avisExpert
+        return ajouterAvisExpert(avisExpertÀInsérer, databaseConnection)
     }
 }
 
