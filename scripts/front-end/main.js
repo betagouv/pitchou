@@ -11,6 +11,7 @@ import TmpStats from './routes/TmpStats.js';
 import ImportDossierBFC from './routes/importDossierBFC.js';
 import ImportDossierCorse from './routes/importDossierCorse.js';
 import Accessibilite from './routes/Accessibilite.js';
+import DonnéesPersonnelles from './routes/DonnéesPersonnelles.js'; 
 import AARRI from './routes/AARRI.js';
 
 import { init } from './actions/main.js';
@@ -38,6 +39,7 @@ page('/stats', Stats)
 page('/import-dossier-historique/bourgogne-franche-comte', ImportDossierBFC)
 page('/import-dossier-historique/corse', ImportDossierCorse)
 page('/accessibilite', Accessibilite)
+page('/donnees-personnelles', DonnéesPersonnelles)
 page('/aarri', AARRI)
 
 

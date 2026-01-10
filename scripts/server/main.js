@@ -126,6 +126,7 @@ fastify.get('/stats', sendIndexHTMLFile)
 fastify.get('/import-dossier-historique/bourgogne-franche-comte', sendIndexHTMLFile)
 fastify.get('/import-dossier-historique/corse', sendIndexHTMLFile)
 fastify.get('/accessibilite', sendIndexHTMLFile)
+fastify.get('/donnees-personnelles', sendIndexHTMLFile)
 fastify.get('/aarri', sendIndexHTMLFile)
 
 
