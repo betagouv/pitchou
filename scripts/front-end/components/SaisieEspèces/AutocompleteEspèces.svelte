@@ -187,7 +187,7 @@
      */
     function messageLive(text) {
         statusMessage = text
-        setTimeout(() => { statusMessage = ''}, 100)
+        setTimeout(() => { statusMessage = ''}, 400)
     }
 
     /**

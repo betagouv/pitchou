@@ -73,7 +73,7 @@
         const nombreTotal = dossiers.length
         
         statusMessage = `${nombreFiltrés} dossiers affichés sur ${nombreTotal}`
-        setTimeout(() => { statusMessage = ''}, 100)
+        setTimeout(() => { statusMessage = ''}, 400)
     }
 
     /** @type {string | undefined} */
