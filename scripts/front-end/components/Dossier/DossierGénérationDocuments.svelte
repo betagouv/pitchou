@@ -88,6 +88,8 @@
         }
 	}
 
+    erreurGénérationDocument = 5
+
 </script>
 
 <div class="row">
