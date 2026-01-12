@@ -101,15 +101,6 @@
         mettreÀJourMessageFiltres()
     })
 
-    // Mettre le focus sur le titre de page quand la page change ou quand les filtres changent
-    $effect(() => {
-        numéroDeLaPageSélectionnée
-        tousLesFiltres.size
-        if (titrePageElement) {
-            titrePageElement?.focus()
-        }
-    })
-
     /** @type {string | undefined} */
     let texteÀChercher = $state()
 
@@ -131,13 +122,18 @@
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
     let selectionneursPage = $derived.by(() => {
+        console.log('selectionneurPage', 'coucou','titrePageElement:', titrePageElement)
+
         if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
 
             /** @type {SelectionneurPage[]} */
             const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => {
                 numéroDeLaPageSélectionnée = i+1
-                window.scrollTo(0,0)
+                if (titrePageElement) {
+                    titrePageElement.focus()
+                }
             })]
+
             return [undefined, ...sélectionneurs]
         } else {
             return undefined
@@ -254,8 +250,6 @@
             <div class="fr-search-bar barre-de-recherche" role="search">
                 <label class="fr-label" for="search-input">Rechercher un dossier</label>
                 <input bind:value="{texteÀChercher}" name="texte-de-recherche" class="fr-input" aria-describedby="search-input-messages" placeholder="Rechercher" id="search-input" type="search">
-                <div class="fr-messages-group" id="search-input-messages" aria-live="polite">
-            </div>
             <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher un dossier</button>
             </div>
         </form>
