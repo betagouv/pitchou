@@ -4,7 +4,7 @@
 </script>
 
 {#snippet DDEP()}
-<abbr title="Demande de Dérogation Espèces Protégées">DDEP</abbr>
+DDEP (Demande de Dérogation Espèces Protégées)
 {/snippet}
 
 <Squelette nav={false} title="Données personnelles">
@@ -15,12 +15,12 @@
             <a href="https://beta.gouv.fr/startups/pitchou.html">Pitchou est une startup d'État</a> qui 
             fabrique notamment un produit numérique à destination des pétitionnaires
             (personnes physiques ou morales qui déposent des demandes de dérogation espèces protégées (DDEP))
-            et des instructeur.rices espèces protégées dans différentes DREAL et DDT(M) qui gèrent instruisent 
+            et des instructeurs·rices espèces protégées dans différentes DREAL et DDT(M) qui gèrent instruisent 
             ces demandes.
         </p>
         <p>Ce produit numérique collecte et traite des données à caractère personnelles (au sens de 
-            <a href="https://www.cnil.fr/fr/reglement-europeen-protection-donnees/chapitre1#Article4">l'article 4.1 du 
-                <abbr title="Règlement Général sur la Protection des Données">RGPD</abbr></a>)
+            <a href="https://www.cnil.fr/fr/reglement-europeen-protection-donnees/chapitre1#Article4">l'article 4.1 
+                du RGPD (Règlement Général sur la Protection des Données)</a>)
 
         <p>Cette page liste les données collectées pour les pétitionnaires et les instructrices et explique leur traitement</p>
 
@@ -30,7 +30,7 @@
         <h4>Données collectées</h4>
         <p>
             Pour les pétitionaires, les données personnelles collectées se restreignent strictement aux données du 
-            dossier déposé et aux échanges par messagerie avec les instructeur.rices {@render DDEP()}.
+            dossier déposé et aux échanges par messagerie avec les instructeurs·rices {@render DDEP()}.
             
         </p>
 
@@ -42,7 +42,7 @@
 
         <h4>Licéité</h4>
         <p>
-            Les traitements sont nécessaire à l'execution de la mission de service publique qu'est l'instruction des dossiers
+            Les traitements sont nécessaires à l'execution de la mission de service publique qu'est l'instruction des dossiers
             {@render DDEP()}
         </p>
 
@@ -88,8 +88,8 @@
             <li>envoyer une demande de complément</li>
         </ul>
         <p>
-            Pour chacune de ces activités, nous stockons l'instructrice, le type d'action, et la date à laquelle l'action a eu lieu 
-            (uniquement la date, pas l'heure).
+            Pour chacune de ces activités, nous stockons l'instructrice qui a effectué l'action, 
+            le type d'action, et la date à laquelle l'action a eu lieu (uniquement la date, pas l'heure).
         </p>
 
         <h4>Traitement</h4>
@@ -100,17 +100,17 @@
         <p>
             Les données d'activités sont utilisées par l'équipe Pitchou pour nourrir la 
             <a href="https://doc.incubateur.net/communaute/gerer-son-produit/aide-a-la-mise-en-application-des-standards/pourquoi-le-deploiement-dun-service-public-en-ligne-est-il-important/methode-aarri">méthodologie AARRI</a>.
-            Elles sont <a href="pitchou.beta.gouv.fr/aarri">agrégées sous forme d'indicateurs anonymisées</a> pour comprendre l'évolution de l'usage de la plateforme Pitchou.
+            Elles sont <a href="pitchou.beta.gouv.fr/aarri">agrégées sous forme d'indicateurs</a> pour comprendre l'évolution de l'usage de la plateforme Pitchou.
             Ces données peuvent aussi être réutilsées pour contacter les instructrices afin de mieux comprendre leur utilisation de la plateforme
         </p>
 
         <h4>Licéité</h4>
         <p>
             Les données et traitement d'instructions sont nécessaires à l'execution du contrat 
-            entre les instructrice et Pitchou
+            entre les instructrices et Pitchou
         </p>
         <p>
-            Les données et traitements liés à l'activité sont nécessaire à l'execution de la 
+            Les données et traitements liés à l'activité sont nécessaires à l'execution de la 
             mission de service publique poursuivie par l'équipe Pitchou
         </p>
 
@@ -128,7 +128,7 @@
         <p>Les données personnelles sont stockées dans une base de données dont l'accès direct est restreint
             aux personnes compétentes à manipuler une base de données de l'équipe Pitchou.
         </p>
-        <p>Les accès indirect aux données (via l'interface pitchou) ont lieu via connexion HTTPS 
+        <p>Les accès indirects aux données (via l'interface pitchou) ont lieu via connexion HTTPS 
             uniquement pour les personnes qui ont un droit d'accès</p>
 
         <h2>Exercice des droits</h2>
