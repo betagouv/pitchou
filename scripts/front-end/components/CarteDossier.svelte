@@ -117,7 +117,7 @@
         gap: 1rem;
         margin-bottom: 1.5rem;
 
-        h2 {
+        h3 {
             margin: 0;
             /* Permet d'aligner verticalement le titre avec les boutons d'actions */
             line-height: 1.2rem;
