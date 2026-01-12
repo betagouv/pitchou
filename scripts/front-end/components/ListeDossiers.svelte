@@ -70,36 +70,10 @@
     function mettreÀJourMessageFiltres() {
         const nombreFiltrés = dossiersFiltrés.length
         const nombreTotal = dossiers.length
-        const nombreFiltresActifs = tousLesFiltres.size
         
-        const filtresActifs = []
-        if (tousLesFiltres.has('texte')) {
-            filtresActifs.push('recherche texte')
-        }
-        if (tousLesFiltres.has('phase')) {
-            filtresActifs.push(`phase "${phaseSélectionnée}"`)
-        }
-        if (tousLesFiltres.has('sansInstructeurice')) {
-            filtresActifs.push('dossier sans instructeur·ice')
-        }
-        if (tousLesFiltres.has('actionInstructeur')) {
-            filtresActifs.push('action : instructeur·ice')
-        }
-        
-        if (nombreFiltresActifs === 0) {
-            statusMessage = `${nombreTotal} dossier${nombreTotal > 1 ? 's' : ''} affiché${nombreTotal > 1 ? 's' : ''}`
-        } else {
-            const listeFiltres = filtresActifs.length === 1 
-                ? filtresActifs[0]
-                : filtresActifs.slice(0, -1).join(', ') + ' et ' + filtresActifs[filtresActifs.length - 1]
-            statusMessage = `${nombreFiltrés} dossier${nombreFiltrés > 1 ? 's' : ''} avec ${nombreFiltresActifs} filtre${nombreFiltresActifs > 1 ? 's' : ''} : ${listeFiltres} sur ${nombreTotal} dossiers`
-        }
+        statusMessage = `${nombreFiltrés} dossiers affichés sur ${nombreTotal}`
+        setTimeout(() => { statusMessage = ''}, 100)
     }
-
-    // Mettre à jour le message à chaque changement de filtres
-    $effect(() => {
-        mettreÀJourMessageFiltres()
-    })
 
     /** @type {string | undefined} */
     let texteÀChercher = $state()
@@ -191,6 +165,7 @@
      */
     function réinitialiserPage() {
         numéroDeLaPageSélectionnée = 1
+        mettreÀJourMessageFiltres()
     }
 
     function toggleFiltreSansInstructeurice() {
