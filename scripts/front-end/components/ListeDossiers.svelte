@@ -8,6 +8,7 @@
     import Pagination from './DSFR/Pagination.svelte'
 	import { créerFiltreTexte } from "../filtresTexte.js"
 	import { SvelteMap } from "svelte/reactivity"
+	import { tick } from "svelte"
 
     /**
     * @typedef {Object} Props
@@ -96,16 +97,12 @@
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
     let selectionneursPage = $derived.by(() => {
-        console.log('selectionneurPage', 'coucou','titrePageElement:', titrePageElement)
-
         if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
 
             /** @type {SelectionneurPage[]} */
             const sélectionneurs = [...Array.from({ length: nombreDePages }, (_v,i) => () => {
                 numéroDeLaPageSélectionnée = i+1
-                if (titrePageElement) {
-                    titrePageElement.focus()
-                }
+                tick().then(() => titrePageElement?.focus())
             })]
 
             return [undefined, ...sélectionneurs]

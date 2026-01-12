@@ -25,12 +25,12 @@
 
 <div class="carte fr-p-2w">
     <div class="en-tête">
-        <h2>
+        <h3>
             <a href={`/dossier/${dossier.id}`} class="fr-link">
                 <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
-        </h2>
+        </h3>
         <div class="boutons-action">
             {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
                 {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
