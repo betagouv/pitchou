@@ -18,6 +18,7 @@ SET row_security = off;
 
 ALTER TABLE IF EXISTS ONLY public."évènement_phase_dossier" DROP CONSTRAINT IF EXISTS "évènement_phase_dossier_dossier_foreign";
 ALTER TABLE IF EXISTS ONLY public."évènement_phase_dossier" DROP CONSTRAINT IF EXISTS "évènement_phase_dossier_cause_personne_foreign";
+ALTER TABLE IF EXISTS ONLY public."évènement_métrique" DROP CONSTRAINT IF EXISTS "évènement_métrique_personne_foreign";
 ALTER TABLE IF EXISTS ONLY public.prescription DROP CONSTRAINT IF EXISTS "prescription_décision_administrative_foreign";
 ALTER TABLE IF EXISTS ONLY public.message DROP CONSTRAINT IF EXISTS message_dossier_foreign;
 ALTER TABLE IF EXISTS ONLY public."décision_administrative" DROP CONSTRAINT IF EXISTS "décision_administrative_fichier_foreign";
@@ -27,6 +28,7 @@ ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS "dossier_dé
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS dossier_demandeur_personne_physique_foreign;
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS dossier_demandeur_personne_morale_foreign;
 ALTER TABLE IF EXISTS ONLY public."contrôle" DROP CONSTRAINT IF EXISTS "contrôle_prescription_foreign";
+ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_personne_cap_foreign";
 ALTER TABLE IF EXISTS ONLY public.cap_dossier DROP CONSTRAINT IF EXISTS cap_dossier_personne_cap_foreign;
 ALTER TABLE IF EXISTS ONLY public.avis_expert DROP CONSTRAINT IF EXISTS avis_expert_saisine_fichier_foreign;
 ALTER TABLE IF EXISTS ONLY public.avis_expert DROP CONSTRAINT IF EXISTS avis_expert_dossier_foreign;
@@ -42,6 +44,9 @@ ALTER TABLE IF EXISTS ONLY public."arête_dossier__fichier_pièces_jointes_péti
 ALTER TABLE IF EXISTS ONLY public."arête_cap_dossier__groupe_instructeurs" DROP CONSTRAINT IF EXISTS "arête_cap_dossier__groupe_instructeurs_groupe_instructeurs_for";
 ALTER TABLE IF EXISTS ONLY public."arête_cap_dossier__groupe_instructeurs" DROP CONSTRAINT IF EXISTS "arête_cap_dossier__groupe_instructeurs_cap_dossier_foreign";
 DROP INDEX IF EXISTS public."évènement_phase_dossier_dossier_index";
+DROP INDEX IF EXISTS public."évènement_métrique_évènement_index";
+DROP INDEX IF EXISTS public."évènement_métrique_personne_index";
+DROP INDEX IF EXISTS public."évènement_métrique_date_index";
 DROP INDEX IF EXISTS public."prescription_décision_administrative_index";
 DROP INDEX IF EXISTS public.message_dossier_index;
 DROP INDEX IF EXISTS public."espèces_impactées_ds_createdat_index";
@@ -52,6 +57,7 @@ DROP INDEX IF EXISTS public."dossier_déposant_index";
 DROP INDEX IF EXISTS public.dossier_demandeur_personne_physique_index;
 DROP INDEX IF EXISTS public.dossier_demandeur_personne_morale_index;
 DROP INDEX IF EXISTS public."contrôle_prescription_index";
+DROP INDEX IF EXISTS public."cap_évènement_métrique_personne_cap_index";
 DROP INDEX IF EXISTS public.avis_expert_dossier_index;
 DROP INDEX IF EXISTS public."arête_personne_suit_dossier_personne_index";
 DROP INDEX IF EXISTS public."arête_personne_suit_dossier_dossier_index";
@@ -59,6 +65,7 @@ DROP INDEX IF EXISTS public."arête_dossier__fichier_pièces_jointes_pétitionna
 DROP INDEX IF EXISTS public."arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_";
 DROP INDEX IF EXISTS public."arête_cap_dossier__groupe_instructeurs_cap_dossier_index";
 ALTER TABLE IF EXISTS ONLY public."évènement_phase_dossier" DROP CONSTRAINT IF EXISTS "évènement_phase_dossier_dossier_phase_horodatage_unique";
+ALTER TABLE IF EXISTS ONLY public."évènement_métrique" DROP CONSTRAINT IF EXISTS "évènement_métrique_pkey";
 ALTER TABLE IF EXISTS ONLY public."résultat_synchronisation_DS_88444" DROP CONSTRAINT IF EXISTS "résultat_synchronisation_ds_88444_succès_unique";
 ALTER TABLE IF EXISTS ONLY public.prescription DROP CONSTRAINT IF EXISTS prescription_pkey;
 ALTER TABLE IF EXISTS ONLY public.personne DROP CONSTRAINT IF EXISTS personne_pkey;
@@ -76,6 +83,8 @@ ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS dossier_pkey
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS "dossier_number_demarches_simplifiées_unique";
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS "dossier_id_demarches_simplifiées_unique";
 ALTER TABLE IF EXISTS ONLY public."contrôle" DROP CONSTRAINT IF EXISTS "contrôle_pkey";
+ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_pkey";
+ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_personne_cap_unique";
 ALTER TABLE IF EXISTS ONLY public."cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "cap_écriture_annotation_pkey";
 ALTER TABLE IF EXISTS ONLY public."cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "cap_écriture_annotation_instructeur_id_unique";
 ALTER TABLE IF EXISTS ONLY public.cap_dossier DROP CONSTRAINT IF EXISTS cap_dossier_pkey;
@@ -87,6 +96,7 @@ ALTER TABLE IF EXISTS ONLY public."arête_groupe_instructeurs__dossier" DROP CON
 ALTER TABLE IF EXISTS public.personne ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.dossier ALTER COLUMN id DROP DEFAULT;
 DROP TABLE IF EXISTS public."évènement_phase_dossier";
+DROP TABLE IF EXISTS public."évènement_métrique";
 DROP TABLE IF EXISTS public."résultat_synchronisation_DS_88444";
 DROP TABLE IF EXISTS public.prescription;
 DROP SEQUENCE IF EXISTS public.personne_id_seq;
@@ -99,6 +109,7 @@ DROP TABLE IF EXISTS public."décision_administrative";
 DROP SEQUENCE IF EXISTS public.dossier_id_seq;
 DROP TABLE IF EXISTS public.dossier;
 DROP TABLE IF EXISTS public."contrôle";
+DROP TABLE IF EXISTS public."cap_évènement_métrique";
 DROP TABLE IF EXISTS public."cap_écriture_annotation";
 DROP TABLE IF EXISTS public.cap_dossier;
 DROP TABLE IF EXISTS public.avis_expert;
@@ -276,6 +287,18 @@ COMMENT ON COLUMN public."cap_écriture_annotation".instructeur_id IS 'Identifia
 
 
 --
+-- Name: cap_évènement_métrique; Type: TABLE; Schema: public; Owner: dev
+--
+
+CREATE TABLE public."cap_évènement_métrique" (
+    cap uuid DEFAULT gen_random_uuid() NOT NULL,
+    personne_cap character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public."cap_évènement_métrique" OWNER TO dev;
+
+--
 -- Name: contrôle; Type: TABLE; Schema: public; Owner: dev
 --
 
@@ -358,7 +381,7 @@ CREATE TABLE public.dossier (
     "régions" json,
     nom character varying(1023),
     "number_demarches_simplifiées" bigint,
-    "ddep_nécessaire" character varying(255),
+    "ddep_nécessaire" boolean,
     enjeu_politique boolean,
     commentaire_libre text,
     "historique_date_envoi_dernière_contribution" date,
@@ -475,7 +498,7 @@ COMMENT ON COLUMN public.dossier."number_demarches_simplifiées" IS 'Numéro du 
 -- Name: COLUMN dossier."ddep_nécessaire"; Type: COMMENT; Schema: public; Owner: dev
 --
 
-COMMENT ON COLUMN public.dossier."ddep_nécessaire" IS 'Indique si une demande de dérogation est nécessaire pour ce dossier (Oui, Non, à déterminer).';
+COMMENT ON COLUMN public.dossier."ddep_nécessaire" IS 'Indique si une demande de dérogation est nécessaire pour ce dossier.';
 
 
 --
@@ -1039,6 +1062,42 @@ CREATE TABLE public."résultat_synchronisation_DS_88444" (
 ALTER TABLE public."résultat_synchronisation_DS_88444" OWNER TO dev;
 
 --
+-- Name: évènement_métrique; Type: TABLE; Schema: public; Owner: dev
+--
+
+CREATE TABLE public."évènement_métrique" (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    personne integer NOT NULL,
+    date date DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "évènement" character varying(255) NOT NULL,
+    "détails" jsonb
+);
+
+
+ALTER TABLE public."évènement_métrique" OWNER TO dev;
+
+--
+-- Name: COLUMN "évènement_métrique".date; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public."évènement_métrique".date IS 'Date de l’évènement';
+
+
+--
+-- Name: COLUMN "évènement_métrique"."évènement"; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public."évènement_métrique"."évènement" IS 'Type de l’évènement';
+
+
+--
+-- Name: COLUMN "évènement_métrique"."détails"; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public."évènement_métrique"."détails" IS 'Données structurées liées donnant des détails sur l’évènement';
+
+
+--
 -- Name: évènement_phase_dossier; Type: TABLE; Schema: public; Owner: dev
 --
 
@@ -1130,6 +1189,22 @@ ALTER TABLE ONLY public."cap_écriture_annotation"
 
 ALTER TABLE ONLY public."cap_écriture_annotation"
     ADD CONSTRAINT "cap_écriture_annotation_pkey" PRIMARY KEY (cap);
+
+
+--
+-- Name: cap_évènement_métrique cap_évènement_métrique_personne_cap_unique; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."cap_évènement_métrique"
+    ADD CONSTRAINT "cap_évènement_métrique_personne_cap_unique" UNIQUE (personne_cap);
+
+
+--
+-- Name: cap_évènement_métrique cap_évènement_métrique_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."cap_évènement_métrique"
+    ADD CONSTRAINT "cap_évènement_métrique_pkey" PRIMARY KEY (cap);
 
 
 --
@@ -1269,6 +1344,14 @@ ALTER TABLE ONLY public."résultat_synchronisation_DS_88444"
 
 
 --
+-- Name: évènement_métrique évènement_métrique_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."évènement_métrique"
+    ADD CONSTRAINT "évènement_métrique_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: évènement_phase_dossier évènement_phase_dossier_dossier_phase_horodatage_unique; Type: CONSTRAINT; Schema: public; Owner: dev
 --
 
@@ -1316,6 +1399,13 @@ CREATE INDEX "arête_personne_suit_dossier_personne_index" ON public."arête_per
 --
 
 CREATE INDEX avis_expert_dossier_index ON public.avis_expert USING btree (dossier);
+
+
+--
+-- Name: cap_évènement_métrique_personne_cap_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX "cap_évènement_métrique_personne_cap_index" ON public."cap_évènement_métrique" USING btree (personne_cap);
 
 
 --
@@ -1386,6 +1476,27 @@ CREATE INDEX message_dossier_index ON public.message USING btree (dossier);
 --
 
 CREATE INDEX "prescription_décision_administrative_index" ON public.prescription USING btree ("décision_administrative");
+
+
+--
+-- Name: évènement_métrique_date_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX "évènement_métrique_date_index" ON public."évènement_métrique" USING btree (date);
+
+
+--
+-- Name: évènement_métrique_personne_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX "évènement_métrique_personne_index" ON public."évènement_métrique" USING btree (personne);
+
+
+--
+-- Name: évènement_métrique_évènement_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX "évènement_métrique_évènement_index" ON public."évènement_métrique" USING btree ("évènement");
 
 
 --
@@ -1508,6 +1619,14 @@ ALTER TABLE ONLY public.cap_dossier
 
 
 --
+-- Name: cap_évènement_métrique cap_évènement_métrique_personne_cap_foreign; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."cap_évènement_métrique"
+    ADD CONSTRAINT "cap_évènement_métrique_personne_cap_foreign" FOREIGN KEY (personne_cap) REFERENCES public.personne("code_accès") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: contrôle contrôle_prescription_foreign; Type: FK CONSTRAINT; Schema: public; Owner: dev
 --
 
@@ -1577,6 +1696,14 @@ ALTER TABLE ONLY public.message
 
 ALTER TABLE ONLY public.prescription
     ADD CONSTRAINT "prescription_décision_administrative_foreign" FOREIGN KEY ("décision_administrative") REFERENCES public."décision_administrative"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: évènement_métrique évènement_métrique_personne_foreign; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."évènement_métrique"
+    ADD CONSTRAINT "évènement_métrique_personne_foreign" FOREIGN KEY (personne) REFERENCES public.personne(id) ON DELETE CASCADE;
 
 
 --
