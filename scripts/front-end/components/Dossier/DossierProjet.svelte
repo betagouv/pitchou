@@ -284,22 +284,27 @@
     <section class="column">
 
         <h2>{dossier.piècesJointesPétitionnaires.length} pièces jointes</h2>
-        <ul class="pièces-jointes-pétitionnaire">
-        {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
-            <li>
-                <a class="fr-link fr-link--download" href={url} title={nom}>
-                    <!--
-                        On coupe le nom parce que s'il se met sur 2 lignes, le DSFR fait que la deuxième
-                        ligne se superpose avec les détails en-dessous
-                    -->
-                    {raccourcirNomFichier(nom)}
-                    <span class="fr-link__detail">
-                        {media_type} - {byteFormat.format(taille)}
-                    </span>
-                </a>
-            </li>
-        {/each}
-        </ul>
+        {#if dossier.piècesJointesPétitionnaires.length === 0}
+            (aucune pièce jointe n'a été déposée par le pétitionnaire)
+        {:else}
+            <ul class="pièces-jointes-pétitionnaire">
+            {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
+                <li>
+                    <a class="fr-link fr-link--download" href={url} title={nom}>
+                        <!--
+                            On coupe le nom parce que s'il se met sur 2 lignes, le DSFR fait que la deuxième
+                            ligne se superpose avec les détails en-dessous
+                        -->
+                        {raccourcirNomFichier(nom)}
+                        <span class="fr-link__detail">
+                            {media_type} - {byteFormat.format(taille)}
+                        </span>
+                    </a>
+                </li>
+            {/each}
+            </ul>
+
+        {/if}
 
         <h2>Dossier déposé</h2>
         <a
