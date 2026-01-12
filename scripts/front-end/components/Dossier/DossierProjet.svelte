@@ -308,7 +308,7 @@
 
         <h2>Dossier déposé</h2>
         <a
-            class="fr-btn fr-mb-1w"
+            class="fr-btn fr-btn--secondary fr-mb-1w"
             target="_blank"
             href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
             >Dossier sur Démarche Numérique</a
