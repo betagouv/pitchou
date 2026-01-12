@@ -76,7 +76,7 @@
 
         {#each listeNumérosPage as numéroPage, i}
             {#if numéroPage === numéroDernièrePage && listeNumérosPage[i] - listeNumérosPage[i-1] >= 2}
-            <li><span class="fr-pagination__link fr-displayed-lg"> … </span></li>
+                <li><span aria-hidden="true" class="fr-pagination__link fr-displayed-lg"> … </span></li>
             {/if}
 
             <li>
@@ -92,7 +92,7 @@
             </li>
 
             {#if numéroPage === 1 && listeNumérosPage[i+1] - listeNumérosPage[i] >= 2}
-            <li><span class="fr-pagination__link fr-displayed-lg"> … </span></li>
+                <li><span aria-hidden="true"  class="fr-pagination__link fr-displayed-lg"> … </span></li>
             {/if}
         {/each}
         
