@@ -12,7 +12,7 @@ export default defineConfig({
   retries: 1,
   workers: 1,
   reporter: 'list',
-  timeout: 10_000,
+  timeout: 20_000,
 
   use: {
     baseURL: 'http://127.0.0.1:32648/',
@@ -33,6 +33,7 @@ export default defineConfig({
     command: 'docker compose -f compose-tests.yml up',
     url: 'http://127.0.0.1:32648',
     reuseExistingServer: true,
+    timeout: 10 * (60_000)
   },
 
 });

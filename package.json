@@ -4,7 +4,7 @@
   "type": "module",
   "engines": {
     "node": "22",
-    "pnpm": "10.25.0"
+    "pnpm": "10.27.0"
   },
   "scripts": {
     "build": "rollup -c",
