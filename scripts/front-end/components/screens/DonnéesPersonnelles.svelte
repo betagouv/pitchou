@@ -106,7 +106,8 @@
 
         <h4>Licéité</h4>
         <p>
-            Les données et traitement d'instructions sont nécessaires à l'execution du contrat entre les instructrice et Pitchou
+            Les données et traitement d'instructions sont nécessaires à l'execution du contrat 
+            entre les instructrice et Pitchou
         </p>
         <p>
             Les données et traitements liés à l'activité sont nécessaire à l'execution de la 
@@ -123,6 +124,23 @@
             Les données d'activités sont supprimées 1 an après avoir été collectées
         </p>
 
+        <h2>Protection des données personnelles</h2>
+        <p>Les données personnelles sont stockées dans une base de données dont l'accès direct est restreint
+            aux personnes compétentes à manipuler une base de données de l'équipe Pitchou.
+        </p>
+        <p>Les accès indirect aux données (via l'interface pitchou) ont lieu via connexion HTTPS 
+            uniquement pour les personnes qui ont un droit d'accès</p>
+
+        <h2>Exercice des droits</h2>
+        <p>Vous pouvez demander à <a href="mailto:pitchou@beta.gouv.fr">l'équipe Pitchou</a> la suppression 
+            de vos données personnelles</p>
+
+        <h2>Délégué à la protection des données (DPO)</h2>
+        <p>
+            Au sein de l'équipe Pitchou, <a href="mailto:david.bruant@beta.gouv.fr"></a>David Bruant joue le 
+            rôle de DPO. Vous pouvez le contacter pour toute demande liée aux données personnelles stockées 
+            et traitées dans Pitchou
+        </p>
 
     </div>
 </Squelette>
