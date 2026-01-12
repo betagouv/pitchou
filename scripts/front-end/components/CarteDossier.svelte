@@ -1,9 +1,9 @@
 <script>
     /** @import { DossierRésumé } from "../../types/API_Pitchou" **/
-    /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
+    /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
 	import { formatDateAbsolue, formatLocalisation, formatPorteurDeProjet } from "../affichageDossier"
 	import BoutonModale from "./DSFR/BoutonModale.svelte"
-	import TagPhase from "./TagPhase.svelte"
+    import BadgePhase from "./BadgePhase.svelte"
 
     /**
      * @typedef Props
@@ -25,13 +25,13 @@
 
 <div class="carte fr-p-2w">
     <div class="en-tête">
-        <h2>
+        <h3>
             <a href={`/dossier/${dossier.id}`} class="fr-link">
                 <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
                 <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
             </a>
-        </h2>
-        <div>
+        </h3>
+        <div class="boutons-action">
             {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
                 {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
                 <BoutonModale id={dsfrModaleId} >
@@ -70,9 +70,10 @@
     <div class="contenu">
         <div class="première-ligne">
             <div>
-                <TagPhase phase={dossier.phase}  />
+                <BadgePhase phase={dossier.phase}  />
                 <div>
                     <span class="fr-icon-user-shared-2-line fr-icon--sm" aria-hidden="true"></span>
+                    <span class="fr-sr-only">Prochaine action attendue par</span>
                     {dossier.prochaine_action_attendue_par || '(non renseignée)'}
                 </div>
             </div>
@@ -86,14 +87,17 @@
         <div class="deuxième-ligne">
             <div class="date-dépôt">
                 <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
-                {formatDateAbsolue(dossier.date_dépôt, 'd/MM/yyyy')}
+                <span class="fr-sr-only">Date de dépôt</span>
+                <time datetime="{ formatDateAbsolue(dossier.date_dépôt, 'yyyy-MM-dd') }">{formatDateAbsolue(dossier.date_dépôt, 'dd/MM/yyyy')}</time>
             </div>
             <div class="porteur-et-localisation">
                 <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
+                <span class="fr-sr-only">Porteur de projet</span>
                 {formatPorteurDeProjet(dossier) || '(non renseigné)'}
             </div>
             <div class="porteur-et-localisation">
                 <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
+                <span class="fr-sr-only">Localisation</span>
                 {formatLocalisation(dossier) || '(non renseignée)'}
             </div>
         </div>
@@ -113,7 +117,7 @@
         gap: 1rem;
         margin-bottom: 1.5rem;
 
-        h2 {
+        h3 {
             margin: 0;
             /* Permet d'aligner verticalement le titre avec les boutons d'actions */
             line-height: 1.2rem;
@@ -161,7 +165,6 @@
         .deuxième-ligne {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
             .date-dépôt {
@@ -169,10 +172,14 @@
             }
 
             .porteur-et-localisation {
-                max-width: 50%;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                flex: 1;
+
+                @media (max-width: 768px) {
+                    flex-basis: 100%;
+                }
             }
         }
     }

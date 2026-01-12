@@ -16,13 +16,14 @@
     /** @type {Props} */
     let { 
             email = '',
-            dossiers,
+            dossiers = [],
             relationSuivis,
             erreurs = new Set(),
             résultatsSynchronisationDS88444
         } = $props();
 </script>
 
-<Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Tous les dossiers">
-    <ListeDossiers titre="Tous les dossiers" {email} {dossiers} {relationSuivis} afficherFiltreSansInstructeurice />
+<Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Mes dossiers">
+    <ListeDossiers titre="Mes dossiers" {email} {dossiers} {relationSuivis} afficherFiltreActionInstructeur />
 </Squelette>
+
