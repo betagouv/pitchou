@@ -137,7 +137,7 @@
 
         <h2>Délégué à la protection des données (DPO)</h2>
         <p>
-            Au sein de l'équipe Pitchou, <a href="mailto:david.bruant@beta.gouv.fr"></a>David Bruant joue le 
+            Au sein de l'équipe Pitchou, <a href="mailto:david.bruant@beta.gouv.fr">David Bruant</a> joue le 
             rôle de DPO. Vous pouvez le contacter pour toute demande liée aux données personnelles stockées 
             et traitées dans Pitchou
         </p>
