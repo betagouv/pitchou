@@ -24,6 +24,7 @@ import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-d
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.js'
+import { créerÉvènementRejoindreGroupeInstructrice } from '../scripts/server/database/évènements_métriques.js'
 
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
@@ -510,7 +511,8 @@ Promise.all([
     messagesSynchronisés,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
-    fichiersPiècesJointesPétitionnaireSynchronisés
+    fichiersPiècesJointesPétitionnaireSynchronisés, 
+    créerÉvènementRejoindreGroupeInstructrice(DEMARCHE_NUMBER, laTransactionDeSynchronisationDS)
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')

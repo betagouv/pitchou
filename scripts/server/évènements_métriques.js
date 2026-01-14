@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @import { ÉvènementMétrique } from '../types/évènement' */
 /** @import { FastifyReply, FastifyRequest } from 'fastify' */
 
@@ -24,6 +22,11 @@ function évènementMétriqueGuard(évènement) {
       }
     case 'rechercherDesDossiers':
       return !('details' in évènement)
+    case 'rejoindreUnGroupeInstructeurs':
+      if (typeof évènement.détails === 'object') {
+        return Number.isInteger(évènement.détails.numéro_démarche)
+      }
+      return false;
   }
 
   return false
