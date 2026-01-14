@@ -1,5 +1,4 @@
 <script>
-    //@ts-check
     import Squelette from '../Squelette.svelte'
 </script>
 
