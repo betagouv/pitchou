@@ -29,7 +29,7 @@ DDEP (Demande de Dérogation Espèces Protégées)
         <h3>Pour les pétitionnaires</h3>
         <h4>Données collectées</h4>
         <p>
-            Pour les pétitionaires, les données personnelles collectées se restreignent strictement aux données du 
+            Pour les pétitionnaires, les données personnelles collectées se restreignent strictement aux données du 
             dossier déposé et aux échanges par messagerie avec les instructeurs·rices {@render DDEP()}.
             
         </p>
