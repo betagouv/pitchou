@@ -155,6 +155,9 @@ export default interface Dossier {
 
   /** Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique" */
   date_fin_consultation_public: Date | null;
+
+  /** Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
+  mesures_er_suffisantes: boolean | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -304,6 +307,9 @@ export interface DossierInitializer {
 
   /** Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique" */
   date_fin_consultation_public?: Date | null;
+
+  /** Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
+  mesures_er_suffisantes?: boolean | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -452,4 +458,7 @@ export interface DossierMutator {
 
   /** Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique" */
   date_fin_consultation_public?: Date | null;
+
+  /** Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
+  mesures_er_suffisantes?: boolean | null;
 }

@@ -32,24 +32,24 @@
 
     let phase = $derived(phaseActuelle)
     let ddep_nécessaire = $state(dossier.ddep_nécessaire)
-    let mesures_erc_prévues = $state(dossier.mesures_erc_prévues)
+    let mesures_er_suffisantes = $state(dossier.mesures_er_suffisantes)
     let commentaire_libre = $state(dossier.commentaire_libre)
     let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
 
     /**
-     * Convertit les deux champs ddep_nécessaire et mesures_erc_prévues en une valeur composite pour le select
+     * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select
      * @returns {'oui' | 'non_sans_objet' | 'non_mesures_er_suffisantes' | 'a_determiner'}
      */
     function getDDEPValeurComposite() {
         if (ddep_nécessaire === true) {
             return 'oui'
         } else if (ddep_nécessaire === false) {
-            if (mesures_erc_prévues === false) {
+            if (mesures_er_suffisantes === false) {
                 return 'non_sans_objet'
-            } else if (mesures_erc_prévues === true) {
+            } else if (mesures_er_suffisantes === true) {
                 return 'non_mesures_er_suffisantes'
             } else {
-                // Par défaut, si mesures_erc_prévues est null et ddep_nécessaire est false, on considère que c'est "sans objet"
+                // Par défaut, si mesures_er_suffisantes est null et ddep_nécessaire est false, on considère que c'est "sans objet"
                 return 'non_sans_objet'
             }
         } else {
@@ -104,8 +104,16 @@
             modifs.ddep_nécessaire = ddep_nécessaire
         }
 
-        if(dossier.mesures_erc_prévues !== mesures_erc_prévues){
-            modifs.mesures_erc_prévues = mesures_erc_prévues
+        if(dossier.mesures_er_suffisantes !== mesures_er_suffisantes){
+            modifs.mesures_er_suffisantes = mesures_er_suffisantes
+        }
+
+        // Règle métier: mesures_er_suffisantes est toujours NULL si ddep_nécessaire est true ou null
+        if (ddep_nécessaire !== false) {
+            mesures_er_suffisantes = null
+            if (dossier.mesures_er_suffisantes !== null) {
+                modifs.mesures_er_suffisantes = null
+            }
         }
 
         if (Object.keys(modifs).length>=1){
@@ -139,7 +147,7 @@
     }
 
     /**
-     * Met à jour les deux champs ddep_nécessaire et mesures_erc_prévues à partir de la valeur composite
+     * Met à jour les deux champs ddep_nécessaire et mesures_er_suffisantes à partir de la valeur composite
      * @param {Event & {currentTarget: EventTarget & HTMLSelectElement; }} e
      * @returns {void}
      */
@@ -147,16 +155,16 @@
         const valeur = e.currentTarget.value
         if (valeur === 'oui') {
             ddep_nécessaire = true
-            mesures_erc_prévues = null
+            mesures_er_suffisantes = null
         } else if (valeur === 'non_sans_objet') {
             ddep_nécessaire = false
-            mesures_erc_prévues = false
+            mesures_er_suffisantes = false
         } else if (valeur === 'non_mesures_er_suffisantes') {
             ddep_nécessaire = false
-            mesures_erc_prévues = true
+            mesures_er_suffisantes = true
         } else if (valeur === 'a_determiner') {
             ddep_nécessaire = null
-            mesures_erc_prévues = null
+            mesures_er_suffisantes = null
         }
     }
 
