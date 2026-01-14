@@ -68,7 +68,7 @@ function isIndicateursAARRI(indicateurs) {
 export function envoyerÉvènement(évènement) {
     if (store.state.capabilities.créerÉvènementMetrique) {
         store.state.capabilities.créerÉvènementMetrique(évènement)
-            .catch(e => console.warn(`Échec lors de la création de l’évènement: ${e}`))
+            .catch(e => console.warn(`Échec lors de la création de l’évènement:`, e, évènement))
     }
 }
 
