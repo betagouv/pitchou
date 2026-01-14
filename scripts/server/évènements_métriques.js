@@ -22,7 +22,7 @@ function évènementMétriqueGuard(évènement) {
       }
     case 'rechercherDesDossiers':
       return !('details' in évènement)
-    case 'rejoindreUnGroupeInstructeurs':
+    case 'rejoindreGroupeInstructricePourLaPremièreFois':
       if (typeof évènement.détails === 'object') {
         return Number.isInteger(évènement.détails.numéro_démarche)
       }
