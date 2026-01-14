@@ -1,9 +1,10 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.ts' */
+/**  @import { ÉvènementMétrique } from '../../types/évènement' */
+
 import { json } from 'd3-fetch'
 import { isValidDate } from '../../commun/typeFormat.js';
 import store from '../store.js'
 
-/**  @import { ÉvènementMétrique } from '../../types/évènement' */
 
 /**
  * Charge les indicateurs AARRI depuis le backend
