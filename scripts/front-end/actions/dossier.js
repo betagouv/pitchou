@@ -5,6 +5,7 @@ import store from "../store"
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 import { chargerActivitésMéthodesMoyensDePoursuite, chargerListeEspècesProtégées } from './activitésMéthodesMoyensDePoursuite.js';
 import { isDossierRésuméArray } from '../../types/typeguards.js';
+import { envoyerÉvènementModifierCommentaire } from './aarri.js'
 import { chargerRelationSuivi } from "./main.js";
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
@@ -15,6 +16,7 @@ import { chargerRelationSuivi } from "./main.js";
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+
 
 /**
  * @param {DossierComplet} dossier
@@ -33,6 +35,10 @@ export function modifierDossier(dossier, modifs) {
             ...modifs.évènementsPhase,
             ...dossier.évènementsPhase
         ]
+    }
+    
+    if(modifs.commentaire_libre){
+        envoyerÉvènementModifierCommentaire()
     }
 
     store.mutations.setDossierComplet(dossierModifié)

@@ -15,18 +15,37 @@ function évènementMétriqueGuard(évènement) {
     return false
   }
 
-  switch (évènement.type) {
+  /** @type {ÉvènementMétrique['type']} */
+  const type = évènement.type
+
+  switch (type) {
     case 'seConnecter':
       return !('details' in évènement)
     case 'suivreUnDossier':
       if (typeof évènement.détails === 'object') {
         return Number.isInteger(évènement.détails.dossierId)
       }
+      else{
+        return false
+      }
     case 'rechercherDesDossiers':
       return !('details' in évènement)
+    case 'modifierCommentaireInstruction': {
+      return !('details' in évènement)
+    }
+    default: {
+      // Pour que TypeScript détecte si on a oublié un 'case'
+      /** @type {never} */
+      const neverType = type
+
+      // faire semblant d'utiliser pour pour satisfaire TypeScript
+      void neverType
+
+      console.error(`le type d'événement '${type}' est inconnu`)
+      return false
+    }
   }
 
-  return false
 }
 
 /**
