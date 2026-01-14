@@ -15,7 +15,8 @@ export type ÉvènementMétrique = {
 
 
 // Événements de consultation
-// Rechercher des dossiers
+// Utiliser la fonctionnalité de recherche et de filtre dans la liste des dossiers
 | { type: 'rechercherDesDossiers' }
 
-
+// Afficher la liste des dossiers que l’utilisataire suit
+| { type: 'afficherLesDossiersSuivis' }
