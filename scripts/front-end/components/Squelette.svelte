@@ -259,11 +259,11 @@
                         Accessibilité : non conforme
                     </a>
                 </li>
-                <!--<li class="fr-footer__bottom-item">
-                    <a class="fr-footer__bottom-link" href="#"
-                        >Mentions légales</a
-                    >
-                </li>-->
+                <li class="fr-footer__bottom-item">
+                     <a href="/donnees-personnelles" class="fr-footer__bottom-link">
+                        Données personnelles
+                    </a>
+                </li>
                 {#if dernièreSynchronisationRéussie}
                 <li class="fr-footer__bottom-item">
                     <span class="fr-footer__bottom-link">
