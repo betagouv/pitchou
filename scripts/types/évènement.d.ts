@@ -9,7 +9,8 @@ export type ÉvènementMétrique = {
     }
 } | {
     type: 'rechercherDesDossiers'
-} | {
-    // Modifier le commentaire d'instruction
-    type: 'modifierCommentaireInstruction'
 }
+
+
+// Modifier le commentaire d'instruction
+| { type: 'modifierCommentaireInstruction'}
