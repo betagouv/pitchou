@@ -23,3 +23,6 @@ export type ÉvènementMétrique = {
 
 // Accèder à l’onglet “Projet” d’un dossier
 | { type: 'consulterUnDossier', détails: { dossierId: number } }
+
+// Télécharger la liste des éspèces impactées d’un dossier
+| { type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: number } }

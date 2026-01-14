@@ -7,6 +7,19 @@
 import { ajouterÉvènementDepuisCap } from './database/évènements_métriques.js';
 
 /**
+ * @param {any} détails
+ * @returns { boolean }
+ */
+function estDétailsDossier(détails) {
+    if (typeof détails === 'object') {
+      return Number.isInteger(détails.dossierId)
+    }
+    else{
+      return false
+    }
+}
+
+/**
  * @param {any} évènement
  * @returns { évènement is ÉvènementMétrique }
  */
@@ -22,12 +35,7 @@ function évènementMétriqueGuard(évènement) {
     case 'seConnecter':
       return !('details' in évènement)
     case 'suivreUnDossier':
-      if (typeof évènement.détails === 'object') {
-        return Number.isInteger(évènement.détails.dossierId)
-      }
-      else{
-        return false
-      }
+      return estDétailsDossier(évènement.détails)
     case 'rechercherDesDossiers':
       return !('details' in évènement)
     case 'modifierCommentaireInstruction': {
@@ -36,12 +44,9 @@ function évènementMétriqueGuard(évènement) {
     case 'afficherLesDossiersSuivis':
       return !('details' in évènement)
     case 'consulterUnDossier':
-      if (typeof évènement.détails === 'object') {
-        return Number.isInteger(évènement.détails.dossierId)
-      }
-      else{
-        return false
-      }
+      return estDétailsDossier(évènement.détails)
+    case 'téléchargerListeÉspècesImpactées':
+      return estDétailsDossier(évènement.détails)
     default: {
       // Pour que TypeScript détecte si on a oublié un 'case'
       /** @type {never} */
