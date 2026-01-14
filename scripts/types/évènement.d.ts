@@ -7,10 +7,15 @@ export type ÉvènementMétrique = {
     détails: {
         dossierId: number
     }
-} | {
-    type: 'rechercherDesDossiers'
 }
 
-
+// Événéments de modification
 // Modifier le commentaire d'instruction
 | { type: 'modifierCommentaireInstruction'}
+
+
+// Événements de consultation
+// Rechercher des dossiers
+| { type: 'rechercherDesDossiers' }
+
+

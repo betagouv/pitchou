@@ -1,11 +1,11 @@
 //@ts-check
 /** @import {PitchouState} from '../store.js' */
-import debounce from "just-debounce-it"
 import store from "../store"
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 import { chargerActivitésMéthodesMoyensDePoursuite, chargerListeEspècesProtégées } from './activitésMéthodesMoyensDePoursuite.js';
 import { isDossierRésuméArray } from '../../types/typeguards.js';
+import { envoyerÉvènementDebounced15Minutes } from './aarri.js'
 import { chargerRelationSuivi } from "./main.js";
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
@@ -16,13 +16,6 @@ import { chargerRelationSuivi } from "./main.js";
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
-
-const créerÉvénementMétriqueCommentaire = debounce(function(){
-    if(store.state.capabilities.créerÉvènementMetrique){
-        store.state.capabilities.créerÉvènementMetrique({type: 'modifierCommentaireInstruction'})
-    }
-
-}, 15 * 60 * 1000, true)
 
 
 /**
@@ -45,7 +38,7 @@ export function modifierDossier(dossier, modifs) {
     }
     
     if(modifs.commentaire_libre){
-        créerÉvénementMétriqueCommentaire()
+        envoyerÉvènementDebounced15Minutes({type: 'modifierCommentaireInstruction'})
     }
 
     store.mutations.setDossierComplet(dossierModifié)
