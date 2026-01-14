@@ -6,7 +6,11 @@ export async function up(knex) {
     await knex.schema.alterTable('dossier', (table) => {
         table
             .boolean('mesures_er_suffisantes')
-            .comment(`Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire.`)
+            .comment(`Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire.`)
+
+        table.boolean('mesures_erc_prévues')
+            .comment(`Appréciation du pétitionnaire. Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues`)
+            .alter({ alterNullable: false, alterType: false });
     });
 
     await knex('dossier')
@@ -19,13 +23,6 @@ export async function up(knex) {
                 END
             `),
         });
-
-    // Contrainte métier: mesures_er_suffisantes doit être NULL si ddep_nécessaire est TRUE ou NULL
-    await knex.raw(`
-        ALTER TABLE public.dossier
-        ADD CONSTRAINT dossier_mesures_er_suffisantes_si_ddep_false
-        CHECK (ddep_nécessaire IS FALSE OR mesures_er_suffisantes IS NULL)
-    `);
 }
 
 /**
@@ -33,13 +30,12 @@ export async function up(knex) {
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-    await knex.raw(`
-        ALTER TABLE public.dossier
-        DROP CONSTRAINT IF EXISTS dossier_mesures_er_suffisantes_si_ddep_false
-    `);
-
     await knex.schema.alterTable('dossier', (table) => {
         table.dropColumn('mesures_er_suffisantes');
+
+        table.boolean('mesures_erc_prévues')
+            .comment(`Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues`)
+            .alter({ alterNullable: false, alterType: false });
     });
 }
 

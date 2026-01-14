@@ -108,9 +108,8 @@
             modifs.mesures_er_suffisantes = mesures_er_suffisantes
         }
 
-        // Règle métier: mesures_er_suffisantes est toujours NULL si ddep_nécessaire est true ou null
-        if (ddep_nécessaire !== false) {
-            mesures_er_suffisantes = null
+        // Règle métier: mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
+        if (ddep_nécessaire === null) {
             if (dossier.mesures_er_suffisantes !== null) {
                 modifs.mesures_er_suffisantes = null
             }
@@ -155,7 +154,7 @@
         const valeur = e.currentTarget.value
         if (valeur === 'oui') {
             ddep_nécessaire = true
-            mesures_er_suffisantes = null
+            mesures_er_suffisantes = false
         } else if (valeur === 'non_sans_objet') {
             ddep_nécessaire = false
             mesures_er_suffisantes = false
@@ -249,8 +248,8 @@
             </label>
             <select onfocus={retirerAlert} bind:value={ddepValeurComposite} onchange={setDDEPValeurComposite} class="fr-select" id="ddep-nécessaire">
                 <option value="oui">Oui</option>
-                <option value="non_sans_objet">Non, sans objet</option>
                 <option value="non_mesures_er_suffisantes">Non, mesures Éviter, Réduire (ER) suffisantes</option>
+                <option value="non_sans_objet">Non, sans objet</option>
                 <option value="a_determiner">À déterminer</option>
             </select>
         </div>
