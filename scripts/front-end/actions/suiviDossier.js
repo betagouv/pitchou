@@ -27,6 +27,10 @@ export function instructeurSuitDossier(instructeurEmail, dossierId){
     relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur)
     store.mutations.setRelationSuivis(relationsSuivi)
 
+    if(store.state.capabilities.créerÉvènementMetrique){
+        store.state.capabilities.créerÉvènementMetrique({type: 'suivreUnDossier', détails: {dossierId}})
+    }
+
     return modifierRelationSuivi("suivre", instructeurEmail, dossierId)
 }
 
