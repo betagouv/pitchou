@@ -19,5 +19,9 @@ export async function ajouterÉvènementDepuisCap(cap, évènement) {
     }
 
     await directDatabaseConnection('évènement_métrique')
-        .insert({ évènement: évènement.type, détails: évènement.détails, personne: personne.id })
+        .insert({
+            évènement: évènement.type,
+            détails: 'détails' in évènement ? évènement.détails : null,
+            personne: personne.id
+        })
 }

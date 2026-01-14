@@ -1,6 +1,11 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.ts' */
+/**  @import { ÉvènementMétrique } from '../../types/évènement' */
+
 import { json } from 'd3-fetch'
 import { isValidDate } from '../../commun/typeFormat.js';
+import store from '../store.js'
+import debounce from 'just-debounce-it';
+
 
 /**
  * Charge les indicateurs AARRI depuis le backend
@@ -24,7 +29,7 @@ export async function chargerIndicateursAARRI() {
         console.error('Erreur lors du chargement des indicateurs AARRI :', error)
         throw new Error(`${error}`)
     }
-} 
+}
 
 /**
  * @param {any} indicateursParDate
@@ -57,3 +62,18 @@ function isIndicateursAARRI(indicateurs) {
     return false;
 }
 
+/**
+ * @param {ÉvènementMétrique} évènement
+ */
+export function envoyerÉvènement(évènement) {
+    if (store.state.capabilities.créerÉvènementMetrique) {
+        store.state.capabilities.créerÉvènementMetrique(évènement)
+            .catch(e => console.warn(`Échec lors de la création de l’évènement:`, e, évènement))
+    }
+}
+
+export const envoyerÉvènementRechercherUnDossier = debounce(
+    () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),
+    15 * 60 * 1000,
+    true
+)

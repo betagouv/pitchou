@@ -1,14 +1,15 @@
 <script>
     /** @import { DossierRésumé, DossierPhase } from '../../types/API_Pitchou.ts' */
-	/** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
+    /** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
     /** @import { PitchouState } from '../store.js' */
     /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
-	import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier"
+    import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier"
     import CarteDossier from "./CarteDossier.svelte"
     import Pagination from './DSFR/Pagination.svelte'
-	import { créerFiltreTexte } from "../filtresTexte.js"
-	import { SvelteMap } from "svelte/reactivity"
-	import { tick } from "svelte"
+    import { créerFiltreTexte } from "../filtresTexte.js"
+    import { SvelteMap } from "svelte/reactivity"
+    import { tick } from "svelte"
+    import { envoyerÉvènementRechercherUnDossier } from '../actions/aarri.js'
 
     /**
     * @typedef {Object} Props
@@ -20,7 +21,7 @@
     * @property {boolean} [afficherFiltreActionInstructeur]
     */
     /** @type {Props} */
-    let { 
+    let {
             titre,
             email = '',
             dossiers,
@@ -36,16 +37,16 @@
 
     const dossiersFiltrés = $derived.by(() => {
     let resultat = [...dossiers];
-    
+
     for(const filtre of tousLesFiltres.values()){
         resultat = resultat.filter(filtre)
     }
-    
+
     return resultat;
 })
 
     let numéroDeLaPageSélectionnée = $state(1)
-    
+
     let statusMessage = $state('')
 
     /** @type {HTMLHeadingElement | undefined} */
@@ -71,7 +72,7 @@
     function mettreÀJourMessageFiltres() {
         const nombreFiltrés = dossiersFiltrés.length
         const nombreTotal = dossiers.length
-        
+
         statusMessage = `${nombreFiltrés} dossiers affichés sur ${nombreTotal}`
         setTimeout(() => { statusMessage = ''}, 400)
     }
@@ -128,7 +129,7 @@
                 NOMBRE_DOSSIERS_PAR_PAGE*numéroDeLaPageSélectionnée
             )
         }
-    })  
+    })
 
     /** @type {EventHandler<SubmitEvent, HTMLFormElement>}*/
     function soumettreTextePourRecherche (e) {
@@ -138,13 +139,14 @@
         }
         if (texteÀChercher && texteÀChercher.trim() !== '') {
             tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
+            envoyerÉvènementRechercherUnDossier()
         }
 
     }
 
     /**
      * Vérifie si un dossier est suivi par au moins une personne
-     * @param {Dossier['id']} dossierId 
+     * @param {Dossier['id']} dossierId
      * @returns {boolean}
      */
     function dossierEstSuivi(dossierId) {
@@ -168,6 +170,7 @@
     function toggleFiltreSansInstructeurice() {
         if (!tousLesFiltres.has('sansInstructeurice')) {
             tousLesFiltres.set('sansInstructeurice', (dossier) => !dossierEstSuivi(dossier.id))
+            envoyerÉvènementRechercherUnDossier()
         } else {
             tousLesFiltres.delete('sansInstructeurice')
         }
@@ -177,6 +180,7 @@
     function toggleFiltreActionInstructeur() {
         if (!tousLesFiltres.has('actionInstructeur')) {
             tousLesFiltres.set('actionInstructeur', (dossier) => dossier.prochaine_action_attendue_par === 'Instructeur')
+            envoyerÉvènementRechercherUnDossier()
         } else {
             tousLesFiltres.delete('actionInstructeur')
         }
@@ -194,6 +198,7 @@
         } else {
             // Sélectionner la phase
             tousLesFiltres.set('phase', (dossier) => dossier.phase === phase)
+            envoyerÉvènementRechercherUnDossier()
         }
         réinitialiserPage()
     }
@@ -245,7 +250,7 @@
                     </select>
                 </div>
                     {#if afficherFiltreSansInstructeurice}
-                        <button 
+                        <button
                             type="button"
                             class="fr-tag"
                             onclick={toggleFiltreSansInstructeurice}
@@ -255,7 +260,7 @@
                         </button>
                     {/if}
                     {#if afficherFiltreActionInstructeur}
-                        <button 
+                        <button
                             type="button"
                             class="fr-tag"
                             onclick={toggleFiltreActionInstructeur}
@@ -278,14 +283,14 @@
             {#each dossiersAffichés as dossier}
                 <li>
                     <CarteDossier {dossier} {instructeurActuelSuitDossier} {instructeurActuelLaisseDossier} dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} />
-                </li>   
+                </li>
             {/each}
         </ul>
     </div>
 {:else}
     <p>
         Aucun dossier n'a été trouvé.
-    </p>    
+    </p>
 {/if}
 {#if selectionneursPage}
     <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroDeLaPageSélectionnée]}></Pagination>
@@ -379,4 +384,3 @@
         outline-offset: 2px;
     }
 </style>
-

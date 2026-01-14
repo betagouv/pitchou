@@ -17,11 +17,13 @@ function évènementMétriqueGuard(évènement) {
 
   switch (évènement.type) {
     case 'seConnecter':
-      return true;
+      return !('details' in évènement)
     case 'suivreUnDossier':
       if (typeof évènement.détails === 'object') {
         return Number.isInteger(évènement.détails.dossierId)
       }
+    case 'rechercherDesDossiers':
+      return !('details' in évènement)
   }
 
   return false
