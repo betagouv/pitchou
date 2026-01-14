@@ -4,6 +4,7 @@
 import { json } from 'd3-fetch'
 import { isValidDate } from '../../commun/typeFormat.js';
 import store from '../store.js'
+import debounce from 'just-debounce-it';
 
 
 /**
@@ -70,3 +71,9 @@ export function envoyerÉvènement(évènement) {
             .catch(e => console.warn(`Échec lors de la création de l’évènement: ${e}`))
     }
 }
+
+export const envoyerÉvènementRechercherUnDossier = debounce(
+    () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),
+    15 * 60 * 1000,
+    true
+)

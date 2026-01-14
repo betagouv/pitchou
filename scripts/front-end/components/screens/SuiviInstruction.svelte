@@ -16,8 +16,7 @@
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
     import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
     import { originDémarcheNumérique } from '../../../commun/constantes.js'
-    import debounce from 'just-debounce-it';
-    import { envoyerÉvènement } from '../../actions/aarri.js';
+    import { envoyerÉvènementRechercherUnDossier } from '../../actions/aarri.js';
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
@@ -128,12 +127,6 @@
 
     /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
-
-    const envoyerÉvènementRechercherUnDossier = debounce(
-        () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),
-        15 * 60 * 1000,
-        true
-    )
 
     function filtrerDossiers(){
         let nouveauxDossiersSélectionnés = dossiers;

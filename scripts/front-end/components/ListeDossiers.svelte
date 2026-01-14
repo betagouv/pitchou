@@ -9,8 +9,7 @@
     import { créerFiltreTexte } from "../filtresTexte.js"
     import { SvelteMap } from "svelte/reactivity"
     import { tick } from "svelte"
-    import { envoyerÉvènement } from '../actions/aarri.js'
-    import debounce from "just-debounce-it";
+    import { envoyerÉvènementRechercherUnDossier } from '../actions/aarri.js'
 
     /**
     * @typedef {Object} Props
@@ -66,12 +65,6 @@
         }
         return `Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`
     })
-
-    const envoyerÉvènementRechercherUnDossier = debounce(
-        () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),
-        15 * 60 * 1000,
-        true
-    )
 
     /**
      * Met à jour le message aria-live avec le nombre de dossiers filtrés
