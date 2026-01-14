@@ -35,6 +35,13 @@ function évènementMétriqueGuard(évènement) {
     }
     case 'afficherLesDossiersSuivis':
       return !('details' in évènement)
+    case 'consulterUnDossier':
+      if (typeof évènement.détails === 'object') {
+        return Number.isInteger(évènement.détails.dossierId)
+      }
+      else{
+        return false
+      }
     default: {
       // Pour que TypeScript détecte si on a oublié un 'case'
       /** @type {never} */

@@ -20,3 +20,6 @@ export type ÉvènementMétrique = {
 
 // Afficher la liste des dossiers que l’utilisataire suit
 | { type: 'afficherLesDossiersSuivis' }
+
+// Accèder à l’onglet “Projet” d’un dossier
+| { type: 'consulterUnDossier', détails: { dossierId: number } }
