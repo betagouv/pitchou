@@ -32,9 +32,32 @@
 
     let phase = $derived(phaseActuelle)
     let ddep_nécessaire = $state(dossier.ddep_nécessaire)
+    let mesures_erc_prévues = $state(dossier.mesures_erc_prévues)
     let commentaire_libre = $state(dossier.commentaire_libre)
     let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
 
+    /**
+     * Convertit les deux champs ddep_nécessaire et mesures_erc_prévues en une valeur composite pour le select
+     * @returns {'oui' | 'non_sans_objet' | 'non_mesures_er_suffisantes' | 'a_determiner'}
+     */
+    function getDDEPValeurComposite() {
+        if (ddep_nécessaire === true) {
+            return 'oui'
+        } else if (ddep_nécessaire === false) {
+            if (mesures_erc_prévues === false) {
+                return 'non_sans_objet'
+            } else if (mesures_erc_prévues === true) {
+                return 'non_mesures_er_suffisantes'
+            } else {
+                // Par défaut, si mesures_erc_prévues est null et ddep_nécessaire est false, on considère que c'est "sans objet"
+                return 'non_sans_objet'
+            }
+        } else {
+            // ddep_nécessaire est null ou undefined
+            return 'a_determiner'
+        }
+    }
+    let ddepValeurComposite = $state(getDDEPValeurComposite())
 
     let messageErreur = $state("")
     let afficherMessageSucces = $state(false)
@@ -81,6 +104,10 @@
             modifs.ddep_nécessaire = ddep_nécessaire
         }
 
+        if(dossier.mesures_erc_prévues !== mesures_erc_prévues){
+            modifs.mesures_erc_prévues = mesures_erc_prévues
+        }
+
         if (Object.keys(modifs).length>=1){
             if (modifs.commentaire_libre) {
                 modifierChampAvecDebounce(modifs)
@@ -110,6 +137,29 @@
     function instructeurActuelLaisseDossier(id) {
         return instructeurLaisseDossier(email, id)
     }
+
+    /**
+     * Met à jour les deux champs ddep_nécessaire et mesures_erc_prévues à partir de la valeur composite
+     * @param {Event & {currentTarget: EventTarget & HTMLSelectElement; }} e
+     * @returns {void}
+     */
+    function setDDEPValeurComposite(e) {
+        const valeur = e.currentTarget.value
+        if (valeur === 'oui') {
+            ddep_nécessaire = true
+            mesures_erc_prévues = null
+        } else if (valeur === 'non_sans_objet') {
+            ddep_nécessaire = false
+            mesures_erc_prévues = false
+        } else if (valeur === 'non_mesures_er_suffisantes') {
+            ddep_nécessaire = false
+            mesures_erc_prévues = true
+        } else if (valeur === 'a_determiner') {
+            ddep_nécessaire = null
+            mesures_erc_prévues = null
+        }
+    }
+
 
 
 
@@ -189,18 +239,11 @@
             <label class="fr-label" for="ddep-nécessaire">
                 <strong>Une DDEP est-elle nécessaire ?</strong>
             </label>
-            <select onfocus={retirerAlert} bind:value={ddep_nécessaire} class="fr-select" id="ddep-nécessaire">
-                {#each [true, false, null] as ddep_nécessaire_option}
-                    <option value={ddep_nécessaire_option}>
-                        {#if ddep_nécessaire_option === true}
-                            Oui
-                        {:else if ddep_nécessaire_option === false}
-                            Non
-                        {:else}
-                            A déterminer
-                        {/if}
-                    </option>
-                {/each}
+            <select onfocus={retirerAlert} bind:value={ddepValeurComposite} onchange={setDDEPValeurComposite} class="fr-select" id="ddep-nécessaire">
+                <option value="oui">Oui</option>
+                <option value="non_sans_objet">Non, sans objet</option>
+                <option value="non_mesures_er_suffisantes">Non, mesures Éviter, Réduire (ER) suffisantes</option>
+                <option value="a_determiner">À déterminer</option>
             </select>
         </div>
 
