@@ -1,5 +1,6 @@
 import {SvelteMap, SvelteSet} from 'svelte/reactivity'
 import store from '../store.js'
+import {envoyerÉvènement} from './aarri.js'
 
 /** @import Dossier from '../../types/database/public/Dossier.ts' */
 /** @import Personne from '../../types/database/public/Personne.ts' */
@@ -27,9 +28,7 @@ export function instructeurSuitDossier(instructeurEmail, dossierId){
     relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur)
     store.mutations.setRelationSuivis(relationsSuivi)
 
-    if(store.state.capabilities.créerÉvènementMetrique){
-        store.state.capabilities.créerÉvènementMetrique({type: 'suivreUnDossier', détails: {dossierId}})
-    }
+    envoyerÉvènement({type: 'suivreUnDossier', détails: {dossierId}})
 
     return modifierRelationSuivi("suivre", instructeurEmail, dossierId)
 }
