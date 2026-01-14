@@ -70,6 +70,8 @@ DDEP (Demande de Dérogation Espèces Protégées)
             Pitchou collecte aussi des données d'activité des actions suivantes : 
         </p>
         <ul>
+            <li>Se connecter</li>
+            <li>Rejoindre ou être ajouté à un groupe d'instructeurs </li>
             <li>chercher un dossier (recherche + filtres)</li>
             <li>accéder aux nouveaux dossiers déposés</li>
             <li>afficher les dossiers que je suis</li>
