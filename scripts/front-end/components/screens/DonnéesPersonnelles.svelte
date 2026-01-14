@@ -15,7 +15,7 @@ DDEP (Demande de Dérogation Espèces Protégées)
             <a href="https://beta.gouv.fr/startups/pitchou.html">Pitchou est une startup d'État</a> qui 
             fabrique notamment un produit numérique à destination des pétitionnaires
             (personnes physiques ou morales qui déposent des demandes de dérogation espèces protégées (DDEP))
-            et des instructeurs·rices espèces protégées dans différentes DREAL et DDT(M) qui gèrent instruisent 
+            et des instructeurs·rices espèces protégées dans différentes DREAL et DDT(M) qui gèrent et instruisent 
             ces demandes.
         </p>
         <p>Ce produit numérique collecte et traite des données à caractère personnelles (au sens de 
