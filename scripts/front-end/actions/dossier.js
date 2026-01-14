@@ -1,5 +1,6 @@
 //@ts-check
 /** @import {PitchouState} from '../store.js' */
+import debounce from "just-debounce-it"
 import store from "../store"
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
@@ -15,6 +16,14 @@ import { chargerRelationSuivi } from "./main.js";
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 //@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+
+const créerÉvénementMétriqueCommentaire = debounce(function(){
+    if(store.state.capabilities.créerÉvènementMetrique){
+        store.state.capabilities.créerÉvènementMetrique({type: 'modifierCommentaireInstruction'})
+    }
+
+}, 15 * 60 * 1000, true)
+
 
 /**
  * @param {DossierComplet} dossier
@@ -33,6 +42,10 @@ export function modifierDossier(dossier, modifs) {
             ...modifs.évènementsPhase,
             ...dossier.évènementsPhase
         ]
+    }
+    
+    if(modifs.commentaire_libre){
+        créerÉvénementMétriqueCommentaire()
     }
 
     store.mutations.setDossierComplet(dossierModifié)
