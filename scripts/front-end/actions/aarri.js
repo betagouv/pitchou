@@ -72,7 +72,11 @@ export function envoyerÉvènement(évènement) {
     }
 }
 
-export const envoyerÉvènementDebounced15Minutes = debounce(envoyerÉvènement, 15 * 60 * 1000, true)
+export const envoyerÉvènementModifierCommentaire = debounce(
+    () => envoyerÉvènement({type: 'modifierCommentaireInstruction'}), 
+    15 * 60 * 1000, 
+    true
+)
 
 export const envoyerÉvènementRechercherUnDossier = debounce(
     () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),

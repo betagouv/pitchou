@@ -5,7 +5,7 @@ import store from "../store"
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
 import { chargerActivitésMéthodesMoyensDePoursuite, chargerListeEspècesProtégées } from './activitésMéthodesMoyensDePoursuite.js';
 import { isDossierRésuméArray } from '../../types/typeguards.js';
-import { envoyerÉvènementDebounced15Minutes } from './aarri.js'
+import { envoyerÉvènementModifierCommentaire } from './aarri.js'
 import { chargerRelationSuivi } from "./main.js";
 
 //@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
@@ -38,7 +38,7 @@ export function modifierDossier(dossier, modifs) {
     }
     
     if(modifs.commentaire_libre){
-        envoyerÉvènementDebounced15Minutes({type: 'modifierCommentaireInstruction'})
+        envoyerÉvènementModifierCommentaire()
     }
 
     store.mutations.setDossierComplet(dossierModifié)
