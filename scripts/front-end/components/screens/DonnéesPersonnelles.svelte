@@ -106,11 +106,11 @@ DDEP (Demande de Dérogation Espèces Protégées)
 
         <h4>Licéité</h4>
         <p>
-            Les données et traitement d'instructions sont nécessaires à l'execution du contrat 
+            Les données et traitement d'instructions sont nécessaires à l'exécution du contrat 
             entre les instructrices et Pitchou
         </p>
         <p>
-            Les données et traitements liés à l'activité sont nécessaires à l'execution de la 
+            Les données et traitements liés à l'activité sont nécessaires à l'exécution de la 
             mission de service publique poursuivie par l'équipe Pitchou
         </p>
 
