@@ -42,7 +42,7 @@ DDEP (Demande de Dérogation Espèces Protégées)
 
         <h4>Licéité</h4>
         <p>
-            Les traitements sont nécessaires à l'execution de la mission de service publique qu'est l'instruction des dossiers
+            Les traitements sont nécessaires à l'exécution de la mission de service publique qu'est l'instruction des dossiers
             {@render DDEP()}
         </p>
 
