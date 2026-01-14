@@ -9,6 +9,7 @@ import store from '../store.js';
 import { getURL } from '../getLinkURL.js';
 
 import créerObjetCapDepuisURLs from './créerObjetCapDepuisURLs.js';
+import { envoyerÉvènement } from './aarri.js';
 
 /** @import {default as RésultatSynchronisationDS88444} from '../../types/database/public/RésultatSynchronisationDS88444.js' */
 
@@ -66,9 +67,7 @@ export async function secretFromURL(){
             remember(PITCHOU_SECRET_STORAGE_KEY, secret),
             initCapabilities(secret)
                 .then(() => {
-                    if (store.state.capabilities.créerÉvènementMetrique) {
-                        return store.state.capabilities.créerÉvènementMetrique({ type: 'seConnecter', détails: undefined })
-                    }
+                    envoyerÉvènement({ type: 'seConnecter' })
                 })
         ])
     }

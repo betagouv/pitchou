@@ -15,7 +15,9 @@
     import {créerFiltreTexte} from '../../filtresTexte.js'
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
     import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
-	import { originDémarcheNumérique } from '../../../commun/constantes.js'
+    import { originDémarcheNumérique } from '../../../commun/constantes.js'
+    import debounce from 'just-debounce-it';
+    import { envoyerÉvènement } from '../../actions/aarri.js';
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
@@ -127,19 +129,25 @@
     /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
+    const envoyerÉvènementRechercherUnDossier = debounce(
+        () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),
+        60 * 1000,
+        true
+    )
+
     function filtrerDossiers(){
-		let nouveauxDossiersSélectionnés = dossiers;
+        let nouveauxDossiersSélectionnés = dossiers;
 
-		for(const filtre of tousLesFiltres.values()){
-			nouveauxDossiersSélectionnés = nouveauxDossiersSélectionnés.filter(filtre)
-		}
+        for(const filtre of tousLesFiltres.values()){
+            nouveauxDossiersSélectionnés = nouveauxDossiersSélectionnés.filter(filtre)
+        }
 
-		dossiersSelectionnés = nouveauxDossiersSélectionnés;
+        dossiersSelectionnés = nouveauxDossiersSélectionnés;
 
         if(triSélectionné){
             triSélectionné.trier()
         }
-	}
+    }
 
 
     /** @type {Set<DossierPhase>}*/
@@ -174,6 +182,7 @@
             //phasesSélectionnées = phasesSélectionnées; // re-render
 
             filtrerDossiers()
+            envoyerÉvènementRechercherUnDossier()
         }
     }
 
@@ -208,6 +217,7 @@
         prochainesActionsAttenduesParSélectionnés = new SvelteSet(_prochainesActionsAttenduesParSélectionnés)
 
         filtrerDossiers()
+        envoyerÉvènementRechercherUnDossier()
     }
 
     let prochainesActionsAttenduesParNonSélectionnés = $derived(prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés))
@@ -230,6 +240,7 @@
         ajouterFiltreTexte(_texteÀChercher)
 
         filtrerDossiers()
+        envoyerÉvènementRechercherUnDossier()
     }
 
     /**
@@ -282,11 +293,12 @@
      *
      * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
      */
-	function filtrerParInstructeurs(_instructeursSélectionnées){
+    function filtrerParInstructeurs(_instructeursSélectionnées){
         instructeursSélectionnés = new SvelteSet(_instructeursSélectionnées)
 
-		filtrerDossiers()
-	}
+        filtrerDossiers()
+        envoyerÉvènementRechercherUnDossier()
+    }
 
     let instructeursNonSélectionnés = $derived(instructeursOptions.difference(instructeursSélectionnés))
 
@@ -317,7 +329,8 @@
     function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
         activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées)
 
-		filtrerDossiers()
+        filtrerDossiers()
+        envoyerÉvènementRechercherUnDossier()
     }
 
     let activitésPrincipalesNonSélectionnées = $derived(activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées))
@@ -387,7 +400,7 @@
         }
 
         filtrerDossiers()
-	});
+    });
 
 
 
