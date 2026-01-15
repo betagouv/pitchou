@@ -372,6 +372,7 @@ const colonnesDossierComplet = [
     'date_fin_consultation_public',
 
     "mesures_erc_prévues",
+    "mesures_er_suffisantes",
 
     "nombre_nids_compensés_dossier_oiseau_simple",
     "nombre_nids_détruits_dossier_oiseau_simple",
