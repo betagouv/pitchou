@@ -12,17 +12,6 @@ export async function up(knex) {
             .comment(`Appréciation du pétitionnaire. Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues`)
             .alter({ alterNullable: false, alterType: false });
     });
-
-    await knex('dossier')
-        .update({
-            mesures_er_suffisantes: knex.raw(`
-                CASE
-                    WHEN ddep_nécessaire IS TRUE THEN NULL
-                    WHEN ddep_nécessaire IS NULL THEN NULL
-                    ELSE mesures_erc_prévues
-                END
-            `),
-        });
 }
 
 /**
