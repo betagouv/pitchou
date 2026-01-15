@@ -3,7 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
 import css from 'rollup-plugin-css-only';
-import sveltePreprocess from 'svelte-preprocess'
+import {sveltePreprocess} from 'svelte-preprocess'
 
 const production = !process.env.ROLLUP_WATCH;
 
