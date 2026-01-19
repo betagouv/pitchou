@@ -255,6 +255,12 @@ function créerDonnéesDécisionAdministrative(ligne) {
     }
 }
 
+/**
+ * @typedef SousCommentaireDansCommentaireLibre
+ * @property {string} titre
+ * @property {string | undefined} commentaire
+ */
+
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
@@ -262,15 +268,24 @@ function créerDonnéesDécisionAdministrative(ligne) {
  * @returns { DonnéesSupplémentairesPourCréationDossier & { alertes: Alerte[] } }
  */
 function créerDonnéesSupplémentairesDepuisLigne(ligne) {
-    const nomDuDemandeur = `Nom du demandeur : ${ligne['Nom du demandeur']}`
     const résultatsDonnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
 
     const avisExpert = créerDonnéesAvisExpert(ligne)
-    const commentairePhaseInstruction = `Commentaire phase instruction : ${ligne['Commentaires phase instruction']}`
-    const commentairePostAP = `Commentaires post AP : ${ligne['Commentaires post AP']}`
-    const commentaire_libre = [nomDuDemandeur, commentairePhaseInstruction, commentairePostAP]
-        .filter(value => value?.trim())
+    console.log(ligne['Remarques'])
+
+    /** @type {SousCommentaireDansCommentaireLibre} */
+    const commentairePhaseInstruction = {titre: 'Commentaire phase instruction', commentaire: ligne['Commentaires phase instruction']}
+    /** @type {SousCommentaireDansCommentaireLibre} */
+    const commentairePostAP = {titre: 'Commentaires post AP', commentaire: ligne['Commentaires post AP']}
+    /** @type {SousCommentaireDansCommentaireLibre} */
+    const commentaireRemarques = {titre: 'Remarques', commentaire: ligne['Remarques']}
+    /** @type {SousCommentaireDansCommentaireLibre} */
+    const commentaireNomDuDemandeur = {titre: 'Nom du demandeur', commentaire: ligne['Nom du demandeur']}
+    
+    const commentaire_libre = [commentaireNomDuDemandeur, commentairePhaseInstruction, commentairePostAP, commentaireRemarques]
+        .filter(value => value?.commentaire?.trim())
+        .map(({titre, commentaire}) => `${titre} : ${commentaire}`)
         .join('\n');
 
 
