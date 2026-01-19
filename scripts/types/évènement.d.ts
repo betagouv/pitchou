@@ -12,6 +12,8 @@ export type ÉvènementMétrique = {
 // Événéments de modification
 // Modifier le commentaire d'instruction
 | { type: 'modifierCommentaireInstruction'}
+// Changer la phase d'un dossier
+| { type: 'changerPhase'}
 
 
 // Événements de consultation

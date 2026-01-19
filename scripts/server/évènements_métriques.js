@@ -33,6 +33,9 @@ function évènementMétriqueGuard(évènement) {
     case 'modifierCommentaireInstruction': {
       return !('details' in évènement)
     }
+    case 'changerPhase': {
+      return !('details' in évènement)
+    }
     default: {
       // Pour que TypeScript détecte si on a oublié un 'case'
       /** @type {never} */
