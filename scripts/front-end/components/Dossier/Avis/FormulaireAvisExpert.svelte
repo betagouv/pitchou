@@ -181,18 +181,19 @@ $inspect('serviceOuPersonneExperte', serviceOuPersonneExperte, 'expertAutreTexte
 
                 {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as value}
                     {@const id = `avis-${value.replace(/\s+/g, '-').toLowerCase()}`}
-
-                    <div class="fr-radio-group">
-                        <input
-                            type="radio"
-                            id={id}
-                            name="champ-avis"
-                            value={value}
-                            bind:group={avisExpert.avis}
-                        />
-                        <label class="fr-label" for={id}>
-                            {value}
-                        </label>
+                    <div class="fr-fieldset__element">
+                        <div class="fr-radio-group fr-ml-2w">
+                            <input
+                                type="radio"
+                                id={id}
+                                name="champ-avis"
+                                value={value}
+                                bind:group={avisExpert.avis}
+                            />
+                            <label class="fr-label" for={id}>
+                                {value}
+                            </label>
+                        </div>
                     </div>
                 {/each}
 
