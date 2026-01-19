@@ -6,7 +6,7 @@
 /** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
 
-import { isDate } from "date-fns";
+import { isDate, setYear } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
@@ -367,6 +367,24 @@ function créerDonnéesProchaineActionAttenduePar(ligne) {
 }
 
 /**
+ *
+ * @param {LigneDossierCorse} ligne
+ * @returns {{data: Date, alertes?: Alerte[]}}
+ */
+function créerDonnéeDateDépôt(ligne) {
+    const valeurDateDeDébutDaccompagnement = ligne["Date de début d'accompagnement"]
+
+    if (valeurDateDeDébutDaccompagnement.toString().length===4) {
+        return { data: setYear(new Date(), valeurDateDeDébutDaccompagnement) }
+    } else {
+        return {
+            data: new Date(),
+            alertes: [{type: 'avertissement', message: `L'année renseignée dans la colonne Date de début d'accompagnement est incorrecte et égale à "${valeurDateDeDébutDaccompagnement}". On ne peut donc pas renseigner la date de première sollicitation qui sera par défaut la date d'aujourd'hui.`}]
+        }
+    }
+}
+
+/**
  * 
  * @param {LigneDossierCorse} ligne 
  * @returns { {data?: string, alertes?: Alerte[]} | undefined }
@@ -425,12 +443,19 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     /** @type {string | undefined} */
     const demandeurPersonneMorale = résultatDemandeurPersonneMorale?.data
 
-    const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), ...(résultatsDécisionAdministrative?.alertes ?? []), ...(résultatDemandeurPersonneMorale?.alertes ?? [])] 
+    const résultatDateDépôt = créerDonnéeDateDépôt(ligne)
+
+    const dateDépôt = résultatDateDépôt?.data
+
+    const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), 
+    ...(résultatsDécisionAdministrative?.alertes ?? []), 
+    ...(résultatDemandeurPersonneMorale?.alertes ?? []),
+    ... (résultatDateDépôt?.alertes ?? [])] 
 
     return {
         dossier: {
             'historique_identifiant_demande_onagre': ligne['N°ONAGRE'],
-            'date_dépôt': new Date(), // TODO : choisir la bonne colonne qui renseigne de la date de première sollicitation (correspondant à la date dépôt de Pitchou),
+            'date_dépôt': dateDépôt,
             'commentaire_libre': commentaire_libre,
             date_debut_consultation_public: dateDébutConsultation,
             date_fin_consultation_public: dateFinConsultation,
@@ -461,7 +486,7 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
     const valeurDateDébutAccompagnement = ligne[`Date de début d'accompagnement`]
 
     if (valeurNormaliséeStatut === 'nouveau dossier à venir' || valeurNormaliséeStatut === 'diagnostic préalable' || valeurNormaliséeStatut === 'demande de compléments dossier') {
-        donnéesEvénementPhaseDossier.push({phase: 'Accompagnement amont', horodatage: new Date(valeurDateDébutAccompagnement, 0, 1) })
+        donnéesEvénementPhaseDossier.push({phase: 'Accompagnement amont', horodatage: setYear(new Date(), valeurDateDébutAccompagnement) })
     }
 
     if (valeurNormaliséeStatut === `rapport d'instruction`) {
