@@ -594,8 +594,6 @@ fastify.post('/avis-expert', {
   
   const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
 
-  console.log('xxxxxxxxxxxxxxxdate_avis', date_avis, body['date_avis'].value)
-
   const avisExpert = { dossier, id, expert, avis, date_avis }
 
   // Récupérer les fichiers d'avis et de saisine
