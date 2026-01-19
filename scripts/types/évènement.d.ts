@@ -16,6 +16,8 @@ export type ÉvènementMétrique = {
 | { type: 'changerPhase'}
 // Changer prochaine prochaine action attendue de
 | { type: 'changerProchaineActionAttendueDe'}
+// Ajouter une décision administrative
+| { type: 'ajouterDécisionAdministrative'}
 
 
 // Événements de consultation
