@@ -44,6 +44,78 @@ import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } fr
  * }} LigneDossierCorse // D'après le tableau envoyé le 25/07/2025
  */
 
+const demandeurToSiret = new Map([
+  ["ADIMAT", "33358398700032"],
+  ["AÉROPORT DE CALVI", "30638506300038"],
+  ["AKUO ENERGIE CORSE", "50518633800057"],
+  ["ALTA PISCIA", "80130439500024"],
+  ["AVENIR AGRICOLE", "30483961600014"],
+  ["BETAG", "42228223600047"],
+  ["BRANZIZI IMMOBILIER", "43941568800043"],
+  ["CAPA", "24201005600073"],
+  ["CCSC", "20004076400041"],
+  ["CD2A", "20007695800012"],
+  ["CDC PATRIMOINE", "20007695800012"],
+  ["CDC ROUTES", "20007695800012"],
+  ["CG2A", "20007695800012"],
+  ["CLOS DES AMANDIERS", "91095159900018"],
+  ["COMMUNAUTÉ DE COMMUNES DU SUD CORSE", "20004076400041"],
+  ["CONSERVATOIRE DU LITTORAL", "18000501900435"],
+  ["CONSTRUCTION DU CAP", "49722037600022"],
+  ["CORSE TRAVAUX", "33046450400043"],
+  ["CORSEA PROMOTION", "82329102600016"],
+  ["CORSICA ENERGIA", "88097833300016"],
+  ["CORSICA SOLE", "88802711700017"],
+  ["COSICA SOLE", null], // FAUTE DE FRAPPE
+  ["DGAC", "13000577000081"],
+  ["EDF", "55208131722061"],
+  ["EDF PEI", "48996768700083"],
+  ["EDF SEI", "55208131722061"],
+  ["ERILIA", "5881167000064"],
+  ["ISONI – DELTA BOIS", "48181865600011"],
+  ["LANFRANCHI ENVIRONNEMENT", "50060870800037"],
+  ["LE LOGIS CORSE", "31028856800051"],
+  ["M.MORETTI", null],
+  ["MAIRIE D'AMBIEGNA", "21200014500012"],
+  ["MAIRIE DE BIGUGLIA", "21200037600013"],
+  ["MAIRIE DE BORGO", "21200042600016"],
+  ["MAIRIE DE CARGÈSE", "21200065700016"],
+  ["MAIRIE DE PROPRIANO", "21200249700015"],
+  ["MAIRIE GHISONACCIA", "21200123400013"],
+  ["MINISTÈRE DES ARMÉES", "11009001600046"],
+  ["OEHC", "33043264200016"],
+  ["PARTICULIER", null],
+  ["PROBAT", "42987846500021"],
+  ["ROCCA FORTIMMO", "82334498100019"],
+  ["ROCH LEANDRI", "45063550300037"],
+  ["SACOI 3", "94471240500025"],
+  ["SARL LANFRANCHI", "80815975000013"],
+  ["SAS CAP SUD", "89229827400028"],
+  ["SAS LDP IMMOBILIER", "79806317800015"],
+  ["SAS ORIENTE ENVIRONNEMENT", "80970465300017"],
+  ["SAS U FURNELLU", "51065127600014"],
+  ["SAS VICTORIA CORP", "79960399800011"],
+  ["SASU CANALE", "90182617200016"],
+  ["SCCV DE L’ÉTANG D’ARASU", "81963241500017"],
+  ["SCCV FORTIMMO (ROCCA)", "82334498100019"],
+  ["SCCV LES RÉSIDENCES DE LA CRUCIATA", "82408014700013"],
+  ["SCI COLOMBA - JEAN PERALDI", "50375429300010"],
+  ["SCI RIVA BELLA", "80092305400012"],
+  ["SCI RIVA BIANCA", "89338924700014"],
+  ["SCVV RÉSIDENCE DU STILETTO (ROCCA)", "81320821200015"],
+  ["SGBC", "33966853500059"],
+  ["SNC MULINU D’ORZU", "82149158600011"],
+  ["SSCB", "60675001600028"],
+  ["SSCV DOMAINE DES OLIVIERS", "88036615800025"],
+  ["STANECO", "39991981000024"],
+  ["STOC (GROUPE PETRONI)", "39849006000025"],
+  ["SUN’R", "50142867600305"],
+  ["SYNDICAT RÉSIDENCE PANCRAZI", "84944461700013"],
+  ["SYVADEC", "20000982700037"],
+  ["TS PROMOTION", "82966042200017"],
+  ["UNIVERSITÉ DE CORSE", "19202664900264"]
+]);
+
 
 /**
  * @param {LigneDossierCorse} ligne
@@ -295,6 +367,24 @@ function créerDonnéesProchaineActionAttenduePar(ligne) {
 }
 
 /**
+ * 
+ * @param {LigneDossierCorse} ligne 
+ * @returns { {data?: string, alertes?: Alerte[]} | undefined }
+ */
+function créerDonnéeDemandeurPersonneMorale(ligne) {
+    const valeurNomDuDemandeur = ligne['Nom du demandeur'].trim().toUpperCase()
+    if (valeurNomDuDemandeur !== '') {
+        const siret = demandeurToSiret.get(valeurNomDuDemandeur)
+        if (!siret) {
+            return {alertes: [{type: 'avertissement', message: `La colonne "Nom du demandeur" a pour valeur "${valeurNomDuDemandeur} mais aucun siret correspondant n'a été trouvé."`}]}
+        } else {
+            return {data: siret}
+        }
+    }
+
+}
+
+/**
  * @typedef SousCommentaireDansCommentaireLibre
  * @property {string} titre
  * @property {string | undefined} commentaire
@@ -317,10 +407,8 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const commentairePostAP = {titre: 'Commentaires post AP', commentaire: ligne['Commentaires post AP']}
     /** @type {SousCommentaireDansCommentaireLibre} */
     const commentaireRemarques = {titre: 'Remarques', commentaire: ligne['Remarques']}
-    /** @type {SousCommentaireDansCommentaireLibre} */
-    const commentaireNomDuDemandeur = {titre: 'Nom du demandeur', commentaire: ligne['Nom du demandeur']}
     
-    const commentaire_libre = [commentaireNomDuDemandeur, commentairePhaseInstruction, commentairePostAP, commentaireRemarques]
+    const commentaire_libre = [commentairePhaseInstruction, commentairePostAP, commentaireRemarques]
         .filter(value => value?.commentaire?.trim())
         .map(({titre, commentaire}) => `${titre} : ${commentaire}`)
         .join('\n');
@@ -333,7 +421,11 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
     const prochaineActionAttenduePar = créerDonnéesProchaineActionAttenduePar(ligne)
 
-    const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), ...(résultatsDécisionAdministrative?.alertes ?? [])] 
+    const résultatDemandeurPersonneMorale = créerDonnéeDemandeurPersonneMorale(ligne)
+    /** @type {string | undefined} */
+    const demandeurPersonneMorale = résultatDemandeurPersonneMorale?.data
+
+    const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), ...(résultatsDécisionAdministrative?.alertes ?? []), ...(résultatDemandeurPersonneMorale?.alertes ?? [])] 
 
     return {
         dossier: {
@@ -343,6 +435,8 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             date_debut_consultation_public: dateDébutConsultation,
             date_fin_consultation_public: dateFinConsultation,
             prochaine_action_attendue_par: prochaineActionAttenduePar,
+            // @ts-ignore
+            demandeur_personne_morale: demandeurPersonneMorale,
         },
         évènement_phase_dossier: résultatsDonnéesEvénementPhaseDossier?.data,
         alertes,
