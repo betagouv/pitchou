@@ -41,7 +41,7 @@ function évènementMétriqueGuard(évènement) {
       /** @type {never} */
       const neverType = type
 
-      // faire semblant d'utiliser pour pour satisfaire TypeScript
+      // faire semblant d'utiliser pour satisfaire TypeScript
       void neverType
 
       console.error(`le type d'événement '${type}' est inconnu`)
