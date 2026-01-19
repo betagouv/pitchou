@@ -31,6 +31,14 @@
     /** @type {boolean} */
     let chargementAjouterOuModifierAvisExpert = $state(false);
 
+    /** @type {string | null} */
+    let serviceOuPersonneExperte = $state(['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert ?? null) ? avisExpert.expert ?? null : 'Autre expert')
+
+    /** @type {string | null} */
+    let autreExpertTexte = $state(avisExpert.expert !== undefined && ['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert) ? null : avisExpert.expert ?? null)
+
+$inspect('serviceOuPersonneExperte', serviceOuPersonneExperte, 'expertAutreTexte', autreExpertTexte, 'avisExpert', avisExpert.expert)
+
     /**
      * 
      * @param {SubmitEvent} e
@@ -50,6 +58,18 @@
 
         if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
             fichierAvis = fileListFichierAvis[0]
+        }
+
+        if (serviceOuPersonneExperte) {
+            if (serviceOuPersonneExperte === 'Autre expert' && autreExpertTexte && autreExpertTexte.trim() !== '') {
+                if (avisExpert.expert !== autreExpertTexte) {
+                    avisExpert.expert = autreExpertTexte
+                }
+            } else {
+                if (avisExpert.expert !== serviceOuPersonneExperte) {
+                    avisExpert.expert = serviceOuPersonneExperte
+                }
+            }
         }
 
         const avisExpertÀAjouterOuModifier = avisExpertInitial?.id ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert } : { dossier: dossierId, ...avisExpert }
@@ -78,12 +98,34 @@
     <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
         <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
         <div class="fr-fieldset__element">
-            <div class="fr-input-group" id="champ-expert-group">
-                <label class="fr-label" for="champ-expert">Expert</label>
-                <input bind:value={avisExpert.expert} class="fr-input" aria-describedby="champ-expert-messages" id="champ-expert" name="champ-expert" type="text" placeholder="Nom de l'expert">
-                <div class="fr-messages-group" id="champ-expert-messages" aria-live="polite">
+            <fieldset class="fr-fieldset radio-service-ou-personne-experte">
+                <legend class="fr-fieldset__legend">Service ou personne experte</legend>
+                {#each ['CSRPN', 'CNPN', 'Ministre', 'Autre expert'] as service}
+                    {@const idRadio = `service-expert-${service.replace(/\s+/g, '-').toLowerCase()}-${dossierId}`}
+                    <div class="fr-fieldset__element">
+                        <div class="fr-radio-group fr-ml-2w">
+                            <input id={idRadio} type="radio" value={service} name="serviceOuPersonneExperte" bind:group={serviceOuPersonneExperte} onchange={() => { if (service !== 'Autre expert') autreExpertTexte = null }}>
+                            <label class="fr-label" for={idRadio}>
+                                {service}
+                            </label>
+                        </div>
+                    </div>
+                {/each}    
+            {#if serviceOuPersonneExperte === 'Autre expert'}
+                <div class="fr-fieldset__element">
+                        <div class="fr-input-group fr-mt-3w">
+                            <label class="fr-label" for="autre-expert-texte">Précisez l'expert</label>
+                            <input 
+                                class="fr-input" 
+                                type="text" 
+                                id="autre-expert-texte" 
+                                bind:value={autreExpertTexte}
+                                placeholder="Nom de l'expert"
+                            />
+                        </div>
                 </div>
-            </div>
+            {/if}
+            </fieldset>
         </div>
         <div class="fr-fieldset__element">
             <div class="fr-upload-fichier-avis-group">
@@ -179,3 +221,9 @@
         </ul>
     </fieldset>
 </form>
+
+<style lang='scss'>
+    .radio-service-ou-personne-experte {
+        margin-bottom: 0;
+    }
+</style>

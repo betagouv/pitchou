@@ -222,7 +222,7 @@
                                 <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
                                     <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
                                     <div class="conteneur-boutons-radios">
-                                        {#each ['CSRPN', 'CNPN', 'Autre expert'] as service}
+                                        {#each ['CSRPN', 'CNPN', 'Ministre', 'Autre expert'] as service}
                                             {@const idRadio = `service-expert-${service.replace(/\s+/g, '-').toLowerCase()}-${id}`}
                                             <div class="fr-fieldset__element">
                                                 <div class="fr-radio-group">
