@@ -1,12 +1,12 @@
 /** @import { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444" */
 /** @import { DonnéesSupplémentairesPourCréationDossier, Alerte, DossierAvecAlertes } from "./importDossierUtils" */
-
-
+/** @import { DossierComplet } from "../../types/API_Pitchou" */
 /** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
 
+import { isDate } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
 import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } from "./importDossierUtils";
 
@@ -239,9 +239,20 @@ function créerDonnéesAvisExpert(ligne) {
     const expert = ligne['Compétence']
     const avis = ligne['Avis rendu']
     const date_avis = new Date(ligne['Date avis'].toString())
+    const valeurDateDépôtSurOnagre = ligne['Date de dépôt sur ONAGRE']
+    /** @type {AvisExpertInitializer['date_saisine']} */
+    let date_saisine
+
+    if (isDate(valeurDateDépôtSurOnagre)) {
+        date_saisine = new Date(valeurDateDépôtSurOnagre)
+    } 
 
     if (expert!=='' || avis!== '') {
-        return [{avis, date_avis, expert}]
+        return [{avis, date_avis, expert, date_saisine}]
+    }
+
+    if (date_saisine) {
+        return [{date_saisine}]
     }
 }
 
@@ -265,11 +276,29 @@ function créerDonnéesDécisionAdministrative(ligne) {
 }
 
 /**
+ * 
+ * @param {LigneDossierCorse} ligne 
+ * @returns {DossierComplet['prochaine_action_attendue_par'] | undefined}
+ */
+function créerDonnéesProchaineActionAttenduePar(ligne) {
+    const valeurNiveauDAvancement = ligne["Niveau d'avancement"].trim()
+
+    if (valeurNiveauDAvancement === 'A faire') {
+        return 'Instructeur'
+    }
+
+    if (valeurNiveauDAvancement === 'En attente') {
+        return 'Autre'
+    }
+
+    return undefined
+}
+
+/**
  * @typedef SousCommentaireDansCommentaireLibre
  * @property {string} titre
  * @property {string | undefined} commentaire
  */
-
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
@@ -281,7 +310,6 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
 
     const avisExpert = créerDonnéesAvisExpert(ligne)
-    console.log(ligne['Remarques'])
 
     /** @type {SousCommentaireDansCommentaireLibre} */
     const commentairePhaseInstruction = {titre: 'Commentaire phase instruction', commentaire: ligne['Commentaires phase instruction']}
@@ -303,6 +331,8 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const dateDébutConsultation = isValidDateString(ligne['Début consultation']) ? new Date(ligne['Début consultation']) : undefined
     const dateFinConsultation = isValidDateString(ligne['Fin de publication']) ? new Date(ligne['Fin de publication']) : undefined
 
+    const prochaineActionAttenduePar = créerDonnéesProchaineActionAttenduePar(ligne)
+
     const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), ...(résultatsDécisionAdministrative?.alertes ?? [])] 
 
     return {
@@ -312,6 +342,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
             'commentaire_libre': commentaire_libre,
             date_debut_consultation_public: dateDébutConsultation,
             date_fin_consultation_public: dateFinConsultation,
+            prochaine_action_attendue_par: prochaineActionAttenduePar,
         },
         évènement_phase_dossier: résultatsDonnéesEvénementPhaseDossier?.data,
         alertes,
