@@ -42,6 +42,9 @@ export function modifierDossier(dossier, modifs) {
     if(modifs.commentaire_libre){
         envoyerÉvènementModifierCommentaire()
     }
+    if(modifs.prochaine_action_attendue_par){
+        envoyerÉvènement({type: 'changerProchaineActionAttendueDe'})
+    }
 
     store.mutations.setDossierComplet(dossierModifié)
 
