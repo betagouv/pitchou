@@ -124,10 +124,19 @@ function convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales
 function générerDonnéesAutorisationEnvironnementale(ligne) {
     const type_de_projet = ligne['Type de projet'].toLowerCase();
 
+    const valeurServicePilote = ligne['Service Pilote'].trim().toUpperCase()
+
     if (type_de_projet.includes('icpe')) {
         return {
             "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
             "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE"]
+        };
+    }     
+    
+    if (valeurServicePilote === 'SBEP') {
+        return {
+            "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?": 'Oui',
+            "À quelle procédure le projet est-il soumis ?": ["Autorisation ICPE", "Autorisation loi sur l'eau"]
         };
     }
 
