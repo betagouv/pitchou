@@ -106,11 +106,12 @@ export type FrontEndAvisExpert = Omit<AvisExpert, 'avis_fichier' | 'saisine_fich
 export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'> &
 	DossierLocalisation &
 	DossierPersonnesImpliquéesComplet &
-	DossierActivitéPrincipale & { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined } & {
-		évènementsPhase: ÉvènementPhaseDossier[]
-	} & { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } & {
-		avisExpert: FrontEndAvisExpert[]
-	}
+	DossierActivitéPrincipale & 
+    { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined } & 
+    { évènementsPhase: ÉvènementPhaseDossier[]} & 
+    { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } & 
+    { avisExpert: FrontEndAvisExpert[]} & 
+    { piècesJointesPétitionnaires: (Pick<Fichier, 'media_type' | 'nom'> & {url: string, taille: number})[] } 
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
