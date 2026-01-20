@@ -8,10 +8,10 @@ import { ajouterÉvènementDepuisCap } from './database/évènements_métriques.
 
 /**
  * @param {any} détails
- * @returns { boolean }
+ * @returns { détails is {dossierId: Dossier['id']} }
  */
 function estDétailsDossier(détails) {
-    if (typeof détails === 'object') {
+    if (Object(détails) === détails) {
       return Number.isInteger(détails.dossierId)
     }
     else{
