@@ -149,6 +149,8 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
  * @returns {Promise<unknown>}
  */
 export function supprimerDécisionAdministrative(décisionAdministrativeId){
+    envoyerÉvènement({type: 'supprimerDécisionAdministrative'})
+
     return text(`/decision-administrative/${décisionAdministrativeId}`, {
         method: 'DELETE'
     })
