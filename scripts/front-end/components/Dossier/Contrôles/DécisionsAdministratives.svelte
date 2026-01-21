@@ -10,6 +10,7 @@
     import {supprimerPrescription as supprimerPrescriptionBaseDeDonnées, ajouterPrescription as ajouterPrescriptionBaseDeDonnées, modifierPrescription} from '../../../actions/prescriptions.js'
     import {créerPrescriptionContrôlesÀPartirDeFichier} from '../../../actions/décisionAdministrative.js'
     import {refreshDossierComplet} from '../../../actions/dossier.js'
+    import {envoyerÉvènement} from '../../../actions/aarri.js'
 
     import store from '../../../store.js'
 
@@ -171,6 +172,8 @@
         }
 
         modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnModification)
+        envoyerÉvènement({type: 'modifierDécisionAdministrative'})
+
         décisionAdministrative = Object.assign(décisionAdministrative, décisionAdministrativeEnModification)
     
         décisionAdministrativeEnModification = undefined
