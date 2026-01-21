@@ -30,6 +30,7 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
 import { subWeeks } from 'date-fns'
+import { indicateursAARRI } from './database/aarri.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
@@ -189,7 +190,8 @@ fastify.get('/api/stats-publiques', async function () {
 
 fastify.get('/api/aarri', async function () {
   /** @type {IndicateursAARRI[]} */
-  const indicateurs = [
+  const indicateurs = await indicateursAARRI()
+  /*const indicateurs = [
    {
     date: new Date(),
     nombreBaseUtilisateuricePotentielle: 300,
@@ -230,7 +232,7 @@ fastify.get('/api/aarri', async function () {
     nombreUtilisateuriceRetenu: 15,
     nombreUtilisateuriceImpact: 0,
    }
-  ]
+  ]*/
   return indicateurs
 })
 
