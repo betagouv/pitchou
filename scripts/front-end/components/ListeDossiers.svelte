@@ -3,13 +3,14 @@
     /** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
     /** @import { PitchouState } from '../store.js' */
     /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
+    /** @import { ÉvènementRechercheDossiersDétails } from '../../types/évènement'; */
     import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier"
     import CarteDossier from "./CarteDossier.svelte"
     import Pagination from './DSFR/Pagination.svelte'
     import { créerFiltreTexte } from "../filtresTexte.js"
     import { SvelteMap } from "svelte/reactivity"
     import { tick } from "svelte"
-    import { envoyerÉvènementRechercherUnDossier } from '../actions/aarri.js'
+    import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from '../actions/aarri.js'
 
     /**
     * @typedef {Object} Props
@@ -22,13 +23,13 @@
     */
     /** @type {Props} */
     let {
-            titre,
-            email = '',
-            dossiers,
-            relationSuivis,
-            afficherFiltreSansInstructeurice = false,
-            afficherFiltreActionInstructeur = false
-        } = $props();
+        titre,
+        email = '',
+        dossiers,
+        relationSuivis,
+        afficherFiltreSansInstructeurice = false,
+        afficherFiltreActionInstructeur = false
+    } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
@@ -36,14 +37,37 @@
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
-    let resultat = [...dossiers];
+        let resultat = [...dossiers];
 
-    for(const filtre of tousLesFiltres.values()){
-        resultat = resultat.filter(filtre)
+        for(const filtre of tousLesFiltres.values()){
+            resultat = resultat.filter(filtre)
+        }
+
+        return resultat;
+    })
+
+    function envoyerÉvènementRechercherUnDossier() {
+        /**
+         * @type {ÉvènementRechercheDossiersDétails['filtres']}
+         */
+        const filtres = {
+            sansInstructeurice: tousLesFiltres.has('sansInstructeurice')
+        }
+
+        if (texteÀChercher) {
+            filtres.texte = texteÀChercher
+        }
+
+        if (tousLesFiltres.has('phase') && phaseSélectionnée) {
+            filtres.phases = [ phaseSélectionnée ]
+        }
+
+        if (tousLesFiltres.has('actionInstructeur')) {
+            filtres.prochaineActionAttenduePar = [ 'Instructeur' ]
+        }
+
+        _envoyerÉvènementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltrés.length })
     }
-
-    return resultat;
-})
 
     let numéroDeLaPageSélectionnée = $state(1)
 
@@ -136,12 +160,10 @@
         e.preventDefault()
         if (!texteÀChercher || texteÀChercher.trim() === '') {
             tousLesFiltres.delete('texte')
-        }
-        if (texteÀChercher && texteÀChercher.trim() !== '') {
+        } else {
             tousLesFiltres.set('texte', créerFiltreTexte(texteÀChercher, dossiers))
-            envoyerÉvènementRechercherUnDossier()
         }
-
+        envoyerÉvènementRechercherUnDossier()
     }
 
     /**
@@ -170,20 +192,20 @@
     function toggleFiltreSansInstructeurice() {
         if (!tousLesFiltres.has('sansInstructeurice')) {
             tousLesFiltres.set('sansInstructeurice', (dossier) => !dossierEstSuivi(dossier.id))
-            envoyerÉvènementRechercherUnDossier()
         } else {
             tousLesFiltres.delete('sansInstructeurice')
         }
+        envoyerÉvènementRechercherUnDossier()
         réinitialiserPage()
     }
 
     function toggleFiltreActionInstructeur() {
         if (!tousLesFiltres.has('actionInstructeur')) {
             tousLesFiltres.set('actionInstructeur', (dossier) => dossier.prochaine_action_attendue_par === 'Instructeur')
-            envoyerÉvènementRechercherUnDossier()
         } else {
             tousLesFiltres.delete('actionInstructeur')
         }
+        envoyerÉvènementRechercherUnDossier()
         réinitialiserPage()
     }
 
@@ -198,8 +220,8 @@
         } else {
             // Sélectionner la phase
             tousLesFiltres.set('phase', (dossier) => dossier.phase === phase)
-            envoyerÉvènementRechercherUnDossier()
         }
+        envoyerÉvènementRechercherUnDossier()
         réinitialiserPage()
     }
 

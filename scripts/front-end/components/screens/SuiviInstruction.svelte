@@ -16,7 +16,7 @@
     import {trierDossiersParOrdreAlphabétiqueColonne, trierDossiersParPhaseProchaineAction} from '../../triDossiers.js'
     import {instructeurLaisseDossier, instructeurSuitDossier} from '../../actions/suiviDossier.js';
     import { originDémarcheNumérique } from '../../../commun/constantes.js'
-    import { envoyerÉvènement, envoyerÉvènementRechercherUnDossier } from '../../actions/aarri.js';
+    import { envoyerÉvènement, envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from '../../actions/aarri.js';
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
@@ -25,6 +25,7 @@
     /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
     /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
     /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
+    /** @import { ÉvènementRechercheDossiersDétails } from '../../../types/évènement'; */
 
     /**
      * @typedef {Object} Props
@@ -140,6 +141,34 @@
         if(triSélectionné){
             triSélectionné.trier()
         }
+    }
+
+    function envoyerÉvènementRechercherUnDossier() {
+        /**
+         * @type {ÉvènementRechercheDossiersDétails['filtres']}
+         */
+        const filtres = {
+            suiviPar: {
+                nombreSéléctionnées: (
+                    instructeursSélectionnés.has(AUCUN_INSTRUCTEUR) ?
+                    instructeursSélectionnés.size - 1 :
+                    instructeursSélectionnés.size
+                ),
+                // ne pas compter “(aucun instructeur)”
+                nombreTotal: instructeursOptions.size - 1,
+                inclusSoiMême: instructeursSélectionnés.has(email),
+            },
+            sansInstructeurice: instructeursSélectionnés.has(AUCUN_INSTRUCTEUR),
+            phases: [ ...phasesSélectionnées ],
+            prochaineActionAttenduePar: [...prochainesActionsAttenduesParSélectionnés],
+            activitésPrincipales:  [...activitésPrincipalesSélectionnées],
+        }
+
+        if (texteÀChercher) {
+            filtres.texte = texteÀChercher
+        }
+
+        _envoyerÉvènementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnés.length })
     }
 
 

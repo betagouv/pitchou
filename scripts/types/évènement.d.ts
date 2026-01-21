@@ -1,3 +1,22 @@
+import { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou"
+import Dossier from "./database/public/Dossier"
+
+export type ÉvènementRechercheDossiersDétails =  {
+    filtres: {
+        suiviPar?: {
+            nombreSéléctionnées: number,
+            nombreTotal: number,
+            inclusSoiMême: boolean,
+        },
+        sansInstructeurice?: boolean,
+        texte?: string,
+        phases?: DossierPhase[],
+        prochaineActionAttenduePar?: Array<DossierProchaineActionAttenduePar | "(vide)">,
+        activitésPrincipales?: NonNullable<Dossier['activité_principale']>[]
+    },
+    nombreRésultats: number
+}
+
 export type ÉvènementMétrique = {
     // Cliquer sur un lien de connexion
     type: 'seConnecter'
@@ -16,7 +35,7 @@ export type ÉvènementMétrique = {
 
 // Événements de consultation
 // Utiliser la fonctionnalité de recherche et de filtre dans la liste des dossiers
-| { type: 'rechercherDesDossiers' }
+| { type: 'rechercherDesDossiers', détails: ÉvènementRechercheDossiersDétails }
 
 // Afficher la liste des dossiers que l’utilisataire suit
 | { type: 'afficherLesDossiersSuivis' }
