@@ -141,18 +141,18 @@ function évènementMétriqueGuard(évènement) {
         case 'téléchargerListeÉspècesImpactées':
             return estDétailsDossier(évènement.détails)
         case 'changerPhase': {
-          return !('details' in évènement)
+            return !('details' in évènement)
         }
         case 'changerProchaineActionAttendueDe': {
             return !('details' in évènement)
         }
-        case 'ajouterDécisionAdministrative': {
-            return !('details' in évènement)
-        }
-        case 'modifierDécisionAdministrative': {
-            return !('details' in évènement)
-        }
+        case 'ajouterDécisionAdministrative':
+        case 'modifierDécisionAdministrative':
         case 'supprimerDécisionAdministrative': {
+            return !('details' in évènement)
+        }
+        case 'ajouterPrescription':
+        case 'modifierPrescription': {
             return !('details' in évènement)
         }
         default: {
