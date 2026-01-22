@@ -39,13 +39,13 @@ function évènementMétriqueGuard(évènement) {
     case 'changerProchaineActionAttendueDe': {
       return !('details' in évènement)
     }
-    case 'ajouterDécisionAdministrative': {
-      return !('details' in évènement)
-    }
-    case 'modifierDécisionAdministrative': {
-      return !('details' in évènement)
-    }
+    case 'ajouterDécisionAdministrative':
+    case 'modifierDécisionAdministrative':
     case 'supprimerDécisionAdministrative': {
+      return !('details' in évènement)
+    }
+    case 'ajouterPrescription':
+    case 'modifierPrescription': {
       return !('details' in évènement)
     }
     default: {
