@@ -4,10 +4,18 @@ import {directDatabaseConnection} from '../database.js'
 
 
 /**
+ * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
+ * Une personne acquise pendant est une personne qui s'est connectée au moins une fois.
  *
- * @returns { Promise<Map<string, number>> }
- */
-async function calculéIndicateurAcquis() {
+ * @remarks
+ *
+ * Pour l'instant, on considère que se connecter correspond à l'action "a cliqué sur un lien de connexion".
+ * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
+ * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
+*/
+async function calculerIndicateurAcquis() {
     const acquis = await directDatabaseConnection.raw(`
         with premiere_connexion as (
             select
@@ -57,7 +65,7 @@ async function calculéIndicateurAcquis() {
 export async function indicateursAARRI() {
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
-    const acquis = await calculéIndicateurAcquis();
+    const acquis = await calculerIndicateurAcquis();
     console.log(acquis)
 
     const dates = acquis.keys();
