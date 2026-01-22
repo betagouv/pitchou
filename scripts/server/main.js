@@ -29,7 +29,6 @@ import _schema88444 from '../../data/démarche-numérique/schema-DS/derogation-e
 import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js'
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
-import { subWeeks } from 'date-fns'
 import { indicateursAARRI } from './database/aarri.js'
 
 
@@ -189,51 +188,7 @@ fastify.get('/api/stats-publiques', async function () {
 })
 
 fastify.get('/api/aarri', async function () {
-  /** @type {IndicateursAARRI[]} */
-  const indicateurs = await indicateursAARRI()
-  /*const indicateurs = [
-   {
-    date: new Date(),
-    nombreBaseUtilisateuricePotentielle: 300,
-    nombreUtilisateuriceAcquis: 100,
-    nombreUtilisateuriceActif: 50,
-    nombreUtilisateuriceRetenu: 25,
-    nombreUtilisateuriceImpact: 5,
-   },
-   {
-    date: subWeeks(new Date(), 1),
-    nombreBaseUtilisateuricePotentielle: 300,
-    nombreUtilisateuriceAcquis: 99,
-    nombreUtilisateuriceActif: 49,
-    nombreUtilisateuriceRetenu: 24,
-    nombreUtilisateuriceImpact: 4,
-   },
-   {
-    date: subWeeks(new Date(), 2),
-    nombreBaseUtilisateuricePotentielle: 300,
-    nombreUtilisateuriceAcquis: 97,
-    nombreUtilisateuriceActif: 47,
-    nombreUtilisateuriceRetenu: 24,
-    nombreUtilisateuriceImpact: 4,
-   },
-    {
-    date: subWeeks(new Date(), 4),
-    nombreBaseUtilisateuricePotentielle: 300,
-    nombreUtilisateuriceAcquis: 92,
-    nombreUtilisateuriceActif: 44,
-    nombreUtilisateuriceRetenu: 16,
-    nombreUtilisateuriceImpact: 3,
-   },
-  {
-    date: subWeeks(new Date(), 5),
-    nombreBaseUtilisateuricePotentielle: 300,
-    nombreUtilisateuriceAcquis: 88,
-    nombreUtilisateuriceActif: 38,
-    nombreUtilisateuriceRetenu: 15,
-    nombreUtilisateuriceImpact: 0,
-   }
-  ]*/
-  return indicateurs
+  return indicateursAARRI()
 })
 
 
