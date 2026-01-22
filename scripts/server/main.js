@@ -40,7 +40,7 @@ import { indicateursAARRI } from './database/aarri.js'
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription, IndicateursAARRI} from '../types/API_Pitchou.ts' */
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription } from '../types/API_Pitchou.ts' */
 
 
 
