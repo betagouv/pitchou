@@ -147,24 +147,37 @@ async function genererMessageGeoMCE(idDossier) {
     }
 }
 
+/**
+ * 
+ * @returns {Promise<Dossier['id'][]>}
+ */
+async function listerDossiersPourDéclarationGeoMCE(){
+    const dossiers = await directDatabaseConnection('dossier')
+        .select('dossier.id')
+        .from('dossier')
+        .join('décision_administrative', {'décision_administrative.dossier': 'dossier.id'})
+        .where({'décision_administrative.type': 'Arrêté dérogation'})
+        .whereNotNull('décision_administrative.date_signature')
+        .whereNotNull('dossier.espèces_impactées');
+    
+    return dossiers.map(({ id }) => id)
+}
+
 async function main() {
     const args = parseArgs(process.argv);
 
     if (args['lister-dossiers']) {
-        const dossiers = await directDatabaseConnection('dossier')
-            .select('dossier.id')
-            .from('dossier')
-            .join('décision_administrative', {'décision_administrative.dossier': 'dossier.id'})
-            .where({'décision_administrative.type': 'Arrêté dérogation'})
-            .whereNotNull('décision_administrative.date_signature')
-            .whereNotNull('dossier.espèces_impactées');
-
+        const dossiers = await listerDossiersPourDéclarationGeoMCE()
         console.log(`${dossiers.length} dossiers trouvés:\n`)
-        console.log(dossiers.map(({ id }) => id).join(', '))
+        console.log(dossiers.join(', '))
+        
     } else if (args.dossier) {
         // @ts-expect-error
         console.log(JSON.stringify(await genererMessageGeoMCE(parseInt(args.dossier)), null, 4))
-    } else {
+    } else if(args['tous-les-dossiers']){
+        
+
+    } else{
         console.log(`Usage:
 --lister-dossiers\tLister les ID des dossiers candidats
 --dossier ID_DOSSIER\tAffichier le message Geo MCE pour le dossier`)

@@ -228,14 +228,19 @@ Pour donner l'origine de manière libre :
 
 ### Générer les messages pour GeoMCE
 
-Pour lister les ids de dossiers pour lesquels on peut générer des messages pour GeoMCE
+Pour lister les ids de dossiers pour lesquels on peut générer des messages pour GeoMCE :
 
-`docker exec tooling node outils/generation-message-geomce.js --lister-dossier`
+`docker exec tooling node outils/generation-message-geomce.js --lister-dossiers`
 
 
-Pour générer un message pour GeoMCE pour un id
+Pour générer un message pour GeoMCE pour un dossier spécifique :
 
 `docker exec tooling node outils/generation-message-geomce.js --dossier <dossierId>`
+
+
+Pour générer un message pour GeoMCE pour tous les dossiers d'un coup : 
+
+`docker exec tooling node outils/generation-message-geomce.js --tous-les-dossiers`
 
 
 
