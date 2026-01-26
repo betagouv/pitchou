@@ -32,23 +32,25 @@
 
 <div class="carte-avis-expert">
     <div class="titre">
-        <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
+        <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? "Avis en attente"}</h3>
         {#if !avisExpertEnModification}
             <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" type="button" onclick={() => avisExpertEnModification = true}>Modifier</button>
         {/if}
     </div>
     {#if !avisExpertEnModification}
         <ul>
-            <li>
-                <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
-                {#if avisExpert.avis_fichier_url}
-                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.avis_fichier_url}>
-                        Télécharger le fichier de l'avis
-                    </a>
-                {:else}
-                    Aucun fichier de l'avis n'est lié à ce dossier
-                {/if}
-            </li>
+            {#if avisExpert.avis_fichier_url || avisExpert.date_avis}
+                <li>
+                    <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
+                    {#if avisExpert.avis_fichier_url}
+                        <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.avis_fichier_url}>
+                            Télécharger le fichier de l'avis
+                        </a>
+                    {:else}
+                        Aucun fichier de l'avis n'est lié à ce dossier
+                    {/if}
+                </li>
+            {/if}
             <li>
                 <span><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)} </span>
                 {#if avisExpert.saisine_fichier_url}
