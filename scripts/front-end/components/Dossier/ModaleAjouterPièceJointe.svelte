@@ -3,6 +3,7 @@
     import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.js"
     import { refreshDossierComplet } from "../../actions/dossier.js"
     import { formatDateAbsolue } from "../../affichageDossier.js"
+	import DateInput from "../common/DateInput.svelte"
 
     /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
 
@@ -32,7 +33,11 @@
     let autreExpertTexte = $state(null)
 
     /** @type {string | null} */
-    let avisExpert = $state(null)
+    // avis de l'expert (favorable, non favorable...)
+    let avis = $state(null)
+
+    /** @type {FrontEndAvisExpert['date_saisine'] | undefined}*/
+    let dateSaisine = $state()
 
     /** @type {FrontEndAvisExpert['id'] | 'nouvel-avis-expert' | null} */
     let avisExpertSélectionné = $state(null)
@@ -65,7 +70,7 @@
             (typePièceJointe === 'Saisine expert' && serviceOuPersonneExperte !== null && 
                 // @ts-ignore ts ne comprend pas que autreExpertTexte peut être de type string
                 (serviceOuPersonneExperte !== 'Autre expert' || (autreExpertTexte && autreExpertTexte.trim() !== ''))) ||
-            (typePièceJointe === 'Avis expert' && avisExpertSélectionné !== null && avisExpert !== null && 
+            (typePièceJointe === 'Avis expert' && avisExpertSélectionné !== null && avis !== null && 
                 (avisExpertSélectionné === 'nouvel-avis-expert' 
                     // @ts-ignore ts ne comprend pas que autreExpertTexte peut être de type string
                     ? serviceOuPersonneExperte !== null && (serviceOuPersonneExperte !== 'Autre expert' || (autreExpertTexte !== null && autreExpertTexte.trim() !== ''))
@@ -104,11 +109,12 @@
                 if (avisExpertSélectionné === 'nouvel-avis-expert') {
                     // Créer un nouvel avis expert
                     const expert = serviceOuPersonneExperte === 'Autre expert' ? autreExpertTexte : serviceOuPersonneExperte
+                    /** @type {Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>}*/
                     const avisExpertÀCréer = {
                         dossier: dossier.id,
                         expert: expert,
-                        avis: avisExpert,
-                        date_avis: undefined,
+                        avis,
+                        date_saisine: dateSaisine,
                     }
                     await ajouterOuModifierAvisExpert(avisExpertÀCréer, undefined, fichierAvis)
                 } else if (avisExpertSélectionné) {
@@ -119,8 +125,7 @@
                             id: saisineExistant.id,
                             dossier: dossier.id,
                             expert: saisineExistant.expert,
-                            avis: avisExpert,
-                            date_avis: undefined,
+                            avis,
                         }
                         await ajouterOuModifierAvisExpert(avisExpertÀModifier, undefined, fichierAvis)
                     }
@@ -145,7 +150,8 @@
         }
         serviceOuPersonneExperte = null
         autreExpertTexte = null
-        avisExpert = null
+        avis = null
+        dateSaisine = null;
         avisExpertSélectionné = null
         messageErreur = null
     }
@@ -227,6 +233,10 @@
                             {/if}
                             {#if fileListPièceJointe && fileListPièceJointe.length > 0}
                                 {#if typePièceJointe === 'Saisine expert'}
+                                    <div class="fr-mt-3w">
+                                        <label class="fr-input-group fr-label" for="modale-date-saisine-{id}">Date de la saisine</label>
+                                        <DateInput id={`modale-date-saisine-${id}`} bind:date={dateSaisine} />
+                                    </div>
                                     <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
                                         <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
                                         <div class="conteneur-boutons-radios">
@@ -297,7 +307,7 @@
                                                         name="avis-expert-selection-{id}"
                                                         value="nouvel-avis-expert"
                                                         bind:group={avisExpertSélectionné}
-                                                        onchange={() => { avisExpert = null; serviceOuPersonneExperte = null; }}
+                                                        onchange={() => { avis = null; serviceOuPersonneExperte = null; }}
                                                     />
                                                     <label class="fr-label" for={idRadioNouvel}>
                                                         Nouvel avis expert
@@ -349,19 +359,19 @@
                                         <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
                                             <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
                                             <div class="">
-                                                {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as avis}
-                                                    {@const idRadio = `avis-expert-${avis.replace(/\s+/g, '-').toLowerCase()}-${id}`}
+                                                {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
+                                                    {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
                                                     <div class="fr-fieldset__element">
                                                         <div class="fr-radio-group">
                                                             <input
                                                                 type="radio"
                                                                 id={idRadio}
                                                                 name="avis-expert-{id}"
-                                                                value={avis}
-                                                                bind:group={avisExpert}
+                                                                value={avisOption}
+                                                                bind:group={avis}
                                                             />
                                                             <label class="fr-label" for={idRadio}>
-                                                                {avis}
+                                                                {avisOption}
                                                             </label>
                                                         </div>
                                                     </div>

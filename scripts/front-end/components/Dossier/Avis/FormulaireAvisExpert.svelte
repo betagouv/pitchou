@@ -135,7 +135,7 @@
         <div class="fr-fieldset__element">
             <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
                 <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-                <DateInput bind:date={avisExpert.date_avis}/>
+                <DateInput id={'input-champ-date-avis'} bind:date={avisExpert.date_avis}/>
             </div>
         </div>
         <div class="fr-fieldset__element">

@@ -571,6 +571,9 @@ fastify.post('/avis-expert', {
                       },
                       date_avis: {
                         type: 'string',
+                      },
+                      date_saisine: {
+                        type: 'string',
                       }
                     }
                 },
@@ -587,14 +590,16 @@ fastify.post('/avis-expert', {
   // Récupérer les données du corps de la requête
   /** @type {any} */
   const body = req.body
+
   const dossier = JSON.parse(body.dossier.value);
   const id = body.id ? body.id.value : undefined;
   const expert = body.expert ? body.expert.value : undefined
   const avis = body.avis ? body.avis.value : undefined
   
+  const date_saisine = body['date_saisine'] ? new Date(body['date_saisine'].value) : undefined
   const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
 
-  const avisExpert = { dossier, id, expert, avis, date_avis }
+  const avisExpert = { dossier, id, expert, avis, date_avis, date_saisine }
 
   // Récupérer les fichiers d'avis et de saisine
   /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
@@ -616,7 +621,7 @@ fastify.post('/avis-expert', {
     const blobFichierAvis = body.blobFichierAvis
     fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
   } 
-
+  console.log('avisExpert dans fastift', avisExpert)
   // Ajouter ou modifier l'avis d'expert en base de données
   if (fichierAvis || fichierSaisine) {
     return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)

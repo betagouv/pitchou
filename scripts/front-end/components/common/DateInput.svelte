@@ -9,10 +9,11 @@
      * @typedef {Object} Props
      * @property {string} [YYYYMMDD]
      * @property {Date | null | undefined} [date]
+     * @property {string} [id]
      */
 
     /** @type {Props} */
-    let { YYYYMMDD = "yyyy-MM-dd", date = $bindable(undefined) } = $props();
+    let { YYYYMMDD = "yyyy-MM-dd", date = $bindable(undefined), id } = $props();
 
     /** @type {string | null | undefined} */
     let internal = $state();
@@ -34,7 +35,7 @@
     });
 </script>
 
-<input type="date" class="fr-input" bind:value={internal} />
+<input id={id} type="date" class="fr-input" bind:value={internal} />
 
 <style lang="scss">
 input{
