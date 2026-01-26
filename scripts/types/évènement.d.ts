@@ -1,5 +1,5 @@
 export type ÉvènementMétrique = {
-    // Cliquer sur un lien de connexion
+    // On considère qu'une connexion correspond au chargement de Pitchou et la récupération réussie des URLs de caps
     type: 'seConnecter'
 } | {
     // Appuyer sur un bouton pour suivre un dossier
@@ -27,5 +27,3 @@ export type ÉvènementMétrique = {
 // Événements de consultation
 // Rechercher des dossiers
 | { type: 'rechercherDesDossiers' }
-
-
