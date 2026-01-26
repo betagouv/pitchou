@@ -83,7 +83,13 @@
 
 <form id="formulaire-ajouter-avis-expert" onsubmit="{sauvegarderAvisExpert}">
     <fieldset class="fr-fieldset" id="formulaire-ajouter-avis-expert-fieldset" aria-labelledby="formulaire-ajouter-avis-expert-fieldset-legend formulaire-ajouter-avis-expert-fieldset-messages">
-        <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">Ajouter un avis d'expert</legend>
+        <legend class="fr-fieldset__legend" id="formulaire-ajouter-avis-expert-fieldset-legend">
+            {#if avisExpertInitial?.id}
+                Modifier l'avis
+                {:else}
+                Ajouter un nouvel avis d'expert 
+            {/if}
+        </legend>
         <div class="fr-fieldset__element">
             <fieldset class="fr-fieldset radio-service-ou-personne-experte">
                 <legend class="fr-fieldset__legend">Service ou personne experte</legend>
