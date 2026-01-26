@@ -39,13 +39,13 @@ import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, s
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
-/** @import {StringValues} from '../types/tools.ts' */
+/** @import {StringValues,PickNonNullable} from '../types/tools.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription } from '../types/API_Pitchou.ts' */
-
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
+/** @import Fichier from '../types/database/public/Fichier.ts' */
 
 
 /** @type {SchemaDémarcheSimplifiée} */
@@ -602,9 +602,9 @@ fastify.post('/avis-expert', {
   const avisExpert = { dossier, id, expert, avis, date_avis, date_saisine }
 
   // Récupérer les fichiers d'avis et de saisine
-  /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+  /** @type { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'> | undefined} */
   let fichierSaisine
-  /** @type {{contenu: Buffer, media_type: string, nom: string} | undefined} */
+  /** @type { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'>| undefined} */
   let fichierAvis
 
   const [blobFichierSaisineContenu, blobFichierAvisContenu] = await Promise.all(['blobFichierSaisine' in body ? await body.blobFichierSaisine.toBuffer() : Promise.resolve([]),
