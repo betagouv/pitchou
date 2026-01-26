@@ -300,6 +300,7 @@
     .row{
         display: flex;
         flex-direction: row;
+        gap: 1rem;
 
         &>:nth-child(1){
             flex: 3;
