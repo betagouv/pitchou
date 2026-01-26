@@ -39,13 +39,15 @@
     </div>
     {#if !avisExpertEnModification}
         <ul>
-            {#if avisExpert.avis_fichier_url || avisExpert.date_avis}
+            {#if avisExpert.avis_fichier_url || avisExpert.date_avis || avisExpert.avis === 'Avis favorable tacite'}
                 <li>
                     <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
                     {#if avisExpert.avis_fichier_url}
                         <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.avis_fichier_url}>
                             Télécharger le fichier de l'avis
                         </a>
+                    {:else if avisExpert.avis === 'Avis favorable tacite'}
+                        Avis favorable tacite
                     {:else}
                         Aucun fichier de l'avis n'est lié à ce dossier
                     {/if}
