@@ -174,12 +174,9 @@
 <section class="row">
 
     <section>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-            <h2 style="margin: 0;">Historique</h2>
-            <div style="display: flex; gap: 0.5rem;">
-                <!-- <button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-calendar-line" onclick={() => console.log('Ajouter une date')}>
-                    Ajouter une date
-                </button> -->
+        <div class="historique-entête">
+            <h2 class="historique-titre">Historique</h2>
+            <div class="historique-actions">
                 <button 
                     type="button" 
                     class="fr-btn fr-btn--icon-left fr-icon-attachment-line" 
@@ -337,6 +334,22 @@
     .col {
         display: flex;
         flex-direction: column;
+    }
+
+    .historique-entête {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .historique-titre {
+        margin: 0;
+    }
+
+    .historique-actions {
+        display: flex;
+        gap: 0.5rem;
     }
 
 </style>
