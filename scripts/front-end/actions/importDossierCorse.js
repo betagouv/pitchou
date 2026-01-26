@@ -26,8 +26,7 @@ import { formaterDépartementDepuisValeur, extraireCommunes, getCommuneData } fr
  *   "Niveau d'avancement": string;
  *   "Date de début d'accompagnement": number;
  *   "Date de réception 1er dossier": string | number | Date;
- *   "Date de réception du dossier complet": string | Date;
- *   "Nombre de jours restant pour instruction dossier": string;
+ *   "Date de réception du dossier autoportant": string | Date;
  *   "N°ONAGRE": string;
  *   "Date de dépôt sur ONAGRE": string | Date;
  *   "Instructeur DREAL": string;
@@ -489,19 +488,20 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
         donnéesEvénementPhaseDossier.push({phase: 'Accompagnement amont', horodatage: setYear(new Date(), valeurDateDébutAccompagnement) })
     }
 
-    if (valeurNormaliséeStatut === `rapport d'instruction`) {
-        const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
-        const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+    // TODO : supprimer ce commentaire si on décide de ne pas mettre de date de passage à la phase Instruction
+    // if (valeurNormaliséeStatut === `rapport d'instruction`) {
+    //     const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
+    //     const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
 
-        if (isValidDateString(datePhaseInstruction)) {
-            donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
-        } else {
-            const messageAlerte = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : "${datePhaseInstruction}". On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
-            console.warn(messageAlerte)
-            alertes.push({message: messageAlerte, type: 'erreur'})
+    //     if (isValidDateString(datePhaseInstruction)) {
+    //         donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
+    //     } else {
+    //         const messageAlerte = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : "${datePhaseInstruction}". On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
+    //         console.warn(messageAlerte)
+    //         alertes.push({message: messageAlerte, type: 'erreur'})
 
-        }
-    }
+    //     }
+    // }
 
     const valeurDateDeRéceptionPremierDossier = ligne['Date de réception 1er dossier']
     const dateReceptionPremierDossier = valeurDateDeRéceptionPremierDossier.toString()
@@ -509,11 +509,12 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
         donnéesEvénementPhaseDossier.push({phase: 'Étude recevabilité DDEP', horodatage: new Date(dateReceptionPremierDossier)})
     }
 
-    const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
-    const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
-    if (isValidDateString(datePhaseInstruction)) {
-        donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
-    }
+    // TODO : supprimer ce commentaire si on décide de ne pas mettre de date de passage à la phase Instruction
+    // const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
+    // const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+    // if (isValidDateString(datePhaseInstruction)) {
+    //     donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
+    // }
     
     return donnéesEvénementPhaseDossier.length >= 1 ? {
         data: donnéesEvénementPhaseDossier,
