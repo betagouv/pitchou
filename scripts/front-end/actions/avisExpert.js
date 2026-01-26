@@ -25,7 +25,7 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
 
     // Dans un objet FormData, la valeur de la clef ne peut être qu'un string ou un Blob,
     // et dossier est de type number & {__brand: "public.dossier";}
-    // @ts-ignore
+    // @ts-expect-error
     form.append("dossier", avisExpert.dossier);
 
     // Dans le cas d'une modification, 

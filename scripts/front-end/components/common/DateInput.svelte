@@ -23,7 +23,6 @@
         if (date) {
             Object.defineProperty(date, 'toJSON', {value: toJSONPerserveDate})
         }
-        console.log('date', date)
         return date
     }
 
