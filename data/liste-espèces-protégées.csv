@@ -263,6 +263,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 3408;oiseau;Pterocles alchata,Tetrao alchata;Ganga cata;PN
 3415;oiseau;Syrrhaptes paradoxus,Tetrao paradoxa;Syrrhapte paradoxal;PN
 3420;oiseau;Columba livia;Pigeon biset;POM
+3429;oiseau;Streptopelia decaocto,Columba decaocto,Columba risoria L. var. decaocto;Tourterelle turque;Protection Pitchou
 3435;oiseau;Streptopelia senegalensis,Columba senegalensis,Spilopelia senegalensis,Stigmatopelia senegalensis;Tourterelle maillée;PN
 3442;oiseau;Streptopelia orientalis,Columba orientalis;Tourterelle orientale;PN
 3453;oiseau;Ara macao,Psittacus macao;Ara rouge,Ara macao;PN,PD
@@ -3323,6 +3324,16 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS
 163461;faune non-oiseau;Elona quimperiana,Helix quimperiana;Escargot de Quimper;PN
 163463;faune non-oiseau;Plecotus macrobullaris,Plecotus alpinus,Plecotus microdontus;Oreillard montagnard;PN
 163477;faune non-oiseau;Solatopupa guidoni,Chondrina (Solatopupa) simonettae pachygaster,Pupa similis var. guidoni;Maillot corse;PN
+185961;oiseau;Aves;Oiseaux;Protection Pitchou
+186194;faune non-oiseau;Myliobatidae;Raies;Protection Pitchou
+186209;faune non-oiseau;Bovidae;Bisons,Boeufs;Protection Pitchou
+186233;faune non-oiseau;Chiroptera,Microchiroptera;;Protection Pitchou
+186259;faune non-oiseau;Muridae;Souris,Campagnols,Mulots,Rats;Protection Pitchou
+189374;oiseau;Ara;;Protection Pitchou
+192256;faune non-oiseau;Eptesicus;;Protection Pitchou
+194935;faune non-oiseau;Mus;;Protection Pitchou
+195005;faune non-oiseau;Myotis;;Protection Pitchou
+195598;oiseau;Otus;;Protection Pitchou
 199181;faune non-oiseau;Pinna rudis,Pinna elongata,Pinna ferruginea,Pinna mucronata,Pinna paulucciae,Pinna pernula;;PN
 199194;faune non-oiseau;Ovis gmelinii musimon,Aegoceros ammon,Aegoceros musimon,Ovis ammon musimon,Ovis ammon,Ovis musimon,Ovis orientalis musimon;Mouflon de Corse,Mouflon;PN
 199303;oiseau;Aythya valisineria,Anas valisineria;Fuligule à dos blanc;PN
