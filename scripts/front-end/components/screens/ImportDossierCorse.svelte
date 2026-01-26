@@ -23,7 +23,7 @@
     } from "../../actions/importDossierCorse.js";
     import BoutonModale from "../DSFR/BoutonModale.svelte";
 
-    const NOM_FEUILLE_TABLEAU_SUIVI = "TDB";
+    const NOM_FEUILLE_TABLEAU_SUIVI = "Instruction";
     const DREAL = "Corse";
 
     /**
