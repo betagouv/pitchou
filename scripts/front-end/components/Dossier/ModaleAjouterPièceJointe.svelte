@@ -39,6 +39,9 @@
     /** @type {FrontEndAvisExpert['date_saisine'] | undefined}*/
     let dateSaisine = $state()
 
+    /** @type {FrontEndAvisExpert['date_avis'] | undefined}*/
+    let dateAvis = $state()
+
     /** @type {FrontEndAvisExpert['id'] | 'nouvel-avis-expert' | null} */
     let avisExpertSélectionné = $state(null)
 
@@ -120,6 +123,7 @@
                         expert: expert,
                         avis,
                         date_saisine: dateSaisine,
+                        date_avis: dateAvis,
                     }
                     await ajouterOuModifierAvisExpert(avisExpertÀCréer, undefined, fichierAvis)
                 } else if (avisExpertSélectionné) {
@@ -130,6 +134,7 @@
                             id: saisineExistant.id,
                             dossier: dossier.id,
                             expert: saisineExistant.expert,
+                            date_avis: dateAvis,
                             avis,
                         }
                         await ajouterOuModifierAvisExpert(avisExpertÀModifier, undefined, fichierAvis)
@@ -159,6 +164,7 @@
         dateSaisine = null;
         avisExpertSélectionné = null
         messageErreur = null
+        dateAvis = null
     }
 
     function fermerModale() {
@@ -280,6 +286,10 @@
                                 {/if}
                                 
                                 {#if typePièceJointe === 'Avis expert'}
+                                    <div class="fr-mt-3w">
+                                        <label class="fr-input-group fr-label" for="modale-date-avis-{id}">Date de l'avis</label>
+                                        <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
+                                    </div>
                                     {@const idRadioNouvel = `avis-expert-selection-nouvel-${id}`}
                                     <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-selection-group">
                                         <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-selection-group"> Sélectionner une saisine </legend>
@@ -359,31 +369,28 @@
                                             </div>
                                         {/if}
                                     {/if}
-
-                                    {#if avisExpertSélectionné}
-                                        <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
-                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
-                                            <div class="">
-                                                {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
-                                                    {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
-                                                    <div class="fr-fieldset__element">
-                                                        <div class="fr-radio-group">
-                                                            <input
-                                                                type="radio"
-                                                                id={idRadio}
-                                                                name="avis-expert-{id}"
-                                                                value={avisOption}
-                                                                bind:group={avis}
-                                                            />
-                                                            <label class="fr-label" for={idRadio}>
-                                                                {avisOption}
-                                                            </label>
-                                                        </div>
+                                    <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
+                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
+                                        <div class="">
+                                            {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
+                                                {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
+                                                <div class="fr-fieldset__element">
+                                                    <div class="fr-radio-group">
+                                                        <input
+                                                            type="radio"
+                                                            id={idRadio}
+                                                            name="avis-expert-{id}"
+                                                            value={avisOption}
+                                                            bind:group={avis}
+                                                        />
+                                                        <label class="fr-label" for={idRadio}>
+                                                            {avisOption}
+                                                        </label>
                                                     </div>
-                                                {/each}
-                                            </div>
+                                                </div>
+                                            {/each}
                                         </div>
-                                    {/if}
+                                    </div>
                                 {/if}
 
                                 {#if messageErreur}
