@@ -1,5 +1,4 @@
 <script>
-    import { tick } from "svelte"
     import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.js"
     import { refreshDossierComplet } from "../../actions/dossier.js"
     import { formatDateAbsolue } from "../../affichageDossier.js"
@@ -56,14 +55,14 @@
     /** @type {HTMLInputElement | undefined} */
     let fileInput =$state();
 
-    /** @type {boolean} */
-    let chargementEnCours = $state(false)
-
     let saisinesSansAvis = $derived(dossier.avisExpert.filter(ae => 
                 (ae.date_saisine !== null || ae.saisine_fichier_url !== null) && 
                 (ae.avis === null && ae.date_avis === null)
             )
     )
+
+    /** @type {Promise<void>} */
+    let ajouterUneNouvellePièceJointeP = $state(Promise.resolve())
 
     // Pré-cocher automatiquement la saisine si il n'y en a qu'une seule
     $effect(() => {
@@ -95,9 +94,7 @@
         }
 
         try {
-            chargementEnCours = true
             messageErreur = null
-
             if (typePièceJointe === 'Saisine expert') {
                 // Créer un nouvel avis expert avec la saisine
                 const fichierSaisine = fileListPièceJointe[0]
@@ -107,11 +104,8 @@
                     expert: expert,
                     date_saisine: new Date()
                 }
-                await ajouterOuModifierAvisExpert(avisExpertÀCréer, fichierSaisine, undefined)
-                await refreshDossierComplet(dossier.id)
-                await tick()
-                // Fermer la modale après succès
-                fermerModale()
+
+                ajouterUneNouvellePièceJointeP = ajouterOuModifierAvisExpert(avisExpertÀCréer, fichierSaisine, undefined).then(() => refreshDossierComplet(dossier.id).then(() => fermerModale())).catch((e) => messageErreur = e.message || "Une erreur est survenue")
             } else if (typePièceJointe === 'Avis expert') {
                 // Soit modifier une saisine existante en ajoutant l'avis, soit créer un nouveau
                 const fichierAvis = fileListPièceJointe[0]
@@ -127,7 +121,7 @@
                         date_saisine: dateSaisine,
                         date_avis: dateAvis,
                     }
-                    await ajouterOuModifierAvisExpert(avisExpertÀCréer, undefined, fichierAvis)
+                    ajouterUneNouvellePièceJointeP = ajouterOuModifierAvisExpert(avisExpertÀCréer, undefined, fichierAvis).then(() => refreshDossierComplet(dossier.id).then(() => fermerModale())).catch((e) => messageErreur = e.message || "Une erreur est survenue")
                 } else if (avisExpertSélectionné) {
                     // Ajouter l'avis à une saisine existante
                     const saisineExistant = dossier.avisExpert.find(ae => ae.id === avisExpertSélectionné)
@@ -139,19 +133,13 @@
                             date_avis: dateAvis,
                             avis,
                         }
-                        await ajouterOuModifierAvisExpert(avisExpertÀModifier, undefined, fichierAvis)
+                        ajouterUneNouvellePièceJointeP = ajouterOuModifierAvisExpert(avisExpertÀModifier, undefined, fichierAvis).then(() => refreshDossierComplet(dossier.id).then(() => fermerModale())).catch((e) => messageErreur = e.message || "Une erreur est survenue")
                     }
                 }
-                await refreshDossierComplet(dossier.id)
-                await tick()
-                // Fermer la modale après succès
-                fermerModale()
             }
         } catch (e) {
             // @ts-ignore
             messageErreur = e.message || "Une erreur est survenue"
-        } finally {
-            chargementEnCours = false
         }
     }
 
@@ -405,11 +393,11 @@
                                 {#if formulaireValide}
                                     <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline">
                                         <li>
-                                            {#if chargementEnCours}
+                                            {#await ajouterUneNouvellePièceJointeP}
                                                 <button type="submit" class="fr-btn" disabled>Sauvegarde en cours...</button>
-                                            {:else}
+                                            {:then}
                                                 <button type="submit" class="fr-btn">Valider</button>
-                                            {/if}
+                                            {/await}
                                         </li>
                                     </ul>
                                 {/if}

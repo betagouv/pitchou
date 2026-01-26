@@ -41,7 +41,7 @@
      * 
      * @param {SubmitEvent} e
      */
-    async function sauvegarderAvisExpert(e) {
+    function sauvegarderAvisExpert(e) {
         e.preventDefault()
 
         /** @type {File | undefined} */
@@ -71,13 +71,10 @@
         }
 
         const avisExpertÀAjouterOuModifier = avisExpertInitial?.id ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert } : { dossier: dossierId, ...avisExpert }
-        
 
         if (avisExpertÀAjouterOuModifier) {
             chargementAjouterOuModifierAvisExpertP = ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis).then(() => ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis).then(() => refreshDossierComplet(dossierId).then(() => fermerLeFormulaire())).catch((e) => messageErreur = e.message))
         }
-
-        
     }
 </script>
 
