@@ -3,30 +3,33 @@ import * as fs from 'node:fs/promises'
 
 import * as csv from 'csv-parse/sync'
 import parseArgs from 'minimist'
+import memoize from 'just-memoize'
 
 import { directDatabaseConnection, closeDatabaseConnection } from '../scripts/server/database.js';
 import { construireActivitésMéthodesMoyensDePoursuite, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../scripts/commun/outils-espèces.js';
 
 /** @import {default as Dossier} from '../scripts/types/database/public/Dossier.ts' */
 /** @import { GeoMceMessage, DossierPourGeoMCE } from '../scripts/types/geomce.ts' */
+//@ts-ignore
 /** @import { PitchouState } from '../scripts/front-end/store.js' */
-/** @import { EspèceProtégée } from '../scripts/types/especes.ts' */
+//@ts-ignore
+/** @import { EspèceProtégée, DescriptionMenacesEspèces } from '../scripts/types/especes.ts' */
 
 const DATA_DIR = path.join(import.meta.dirname, '../data')
 
 /**
  * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>> }
  */
-async function chargerActivitésMéthodesMoyensDePoursuite() {
+const chargerActivitésMéthodesMoyensDePoursuite = memoize(async function chargerActivitésMéthodesMoyensDePoursuite() {
     const activitésBuffer = await fs.readFile(path.join(DATA_DIR, 'activites-methodes-moyens-de-poursuite.ods'))
     return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer)
-}
+})
 
 /**
  *
  * @returns {Promise<Map<EspèceProtégée['CD_REF'], EspèceProtégée>>}
  */
-async function chargerListeEspèceParCD_REF() {
+const chargerListeEspèceParCD_REF = memoize(async function chargerListeEspèceParCD_REF() {
     const espèceBuffer = await fs.readFile(path.join(DATA_DIR, 'liste-espèces-protégées.csv'))
     const listeEspèces = csv.parse(espèceBuffer, { columns: true, delimiter: ';', skip_empty_lines: true })
 
@@ -37,7 +40,7 @@ async function chargerListeEspèceParCD_REF() {
             espèceProtégéeStringToEspèceProtégée(espèce)
         ]
     }))
-}
+})
 
 
 /**
@@ -71,14 +74,37 @@ async function récupérerDossierParId(idDossier) {
 
     const espèceParCD_REF = await chargerListeEspèceParCD_REF()
     const { activités, méthodes, moyensDePoursuite } = await chargerActivitésMéthodesMoyensDePoursuite()
+    /** @type {DescriptionMenacesEspèces} */
+    let descriptionEspèces = {
+        oiseau: [],
+        "faune non-oiseau": [],
+        flore: []
+    }
+    
+    if(dossier.fichier_media_type === 'application/vnd.oasis.opendocument.spreadsheet'){
+        try{
+            descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
+                dossier.fichier_contenu,
+                espèceParCD_REF,
+                activités,
+                méthodes,
+                moyensDePoursuite
+            )
+        }
+        catch(e){
+            if(e.cause === 'format incorrect'){
+                // ignorer
+            }
+            else{
+                console.error('Erreur lors de la génération du message GeoMCE. Dossier', idDossier)
+                console.error('Dossier', dossier)
+                console.error(e)
+                process.exit()
+            }
+        }
+    }
 
-    const descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
-        dossier.fichier_contenu,
-        espèceParCD_REF,
-        activités,
-        méthodes,
-        moyensDePoursuite
-    )
+    
 
     return {
         instructeurs: instructeurs.map(({ email }) => {
@@ -106,6 +132,8 @@ async function récupérerDossierParId(idDossier) {
     }
 }
 
+let nbFinis = 0
+
 /**
  * @param {Dossier['id']} idDossier
  * @returns {Promise<GeoMceMessage>}
@@ -117,6 +145,7 @@ async function genererMessageGeoMCE(idDossier) {
         throw new Error(`Le dossier avec l'id ${idDossier} n'a pas pu être trouvé.`)
     }
 
+    console.log('nbFinis', ++nbFinis)
     return {
         projet: {
             ref: `PITCHOU-${dossier.id}`,
@@ -164,23 +193,32 @@ async function listerDossiersPourDéclarationGeoMCE(){
 }
 
 async function main() {
+    console.time('yo')
     const args = parseArgs(process.argv);
 
     if (args['lister-dossiers']) {
         const dossiers = await listerDossiersPourDéclarationGeoMCE()
         console.log(`${dossiers.length} dossiers trouvés:\n`)
         console.log(dossiers.join(', '))
-        
+
     } else if (args.dossier) {
         // @ts-expect-error
         console.log(JSON.stringify(await genererMessageGeoMCE(parseInt(args.dossier)), null, 4))
     } else if(args['tous-les-dossiers']){
+        const dossiers = await listerDossiersPourDéclarationGeoMCE()
+        console.log(`${dossiers.length} dossiers trouvés:\n`)
+        const messagesGeoMCE = await Promise.all(dossiers.map(genererMessageGeoMCE))
+        console.timeEnd('yo')
+
+        console.log('messagesGeoMCE', messagesGeoMCE.length)
+        console.log('taille', JSON.stringify(messagesGeoMCE).length)
         
 
     } else{
         console.log(`Usage:
 --lister-dossiers\tLister les ID des dossiers candidats
---dossier ID_DOSSIER\tAffichier le message Geo MCE pour le dossier`)
+--dossier ID_DOSSIER\tAffichier le message GeoMCE pour le dossier
+--tous-les-dossiers\tCréer le résultat pour GeoMCE pour l'ensemble des dossiers`)
     }
 
     await closeDatabaseConnection()

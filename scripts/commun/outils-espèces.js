@@ -350,7 +350,18 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
-        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseauOds => {
+        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds
+            .filter(({CD_REF}) => {
+                // ignorer les lignes qui contiennent "Aves" générique
+                return CD_REF !== '185961'
+                // ignorer les lignes qui contiennent "Ara" générique
+                && CD_REF !== '189374'
+                // ignorer les lignes qui contiennent "Tourterelle turque Streptopelia decaocto"
+                && CD_REF !== '3429'
+                // ignorer les lignes qui contiennent "Otus" générique
+                && CD_REF !== '195598'                
+            })
+            .map(ligneOiseauOds => {
             const {
                 CD_REF,
                 "nombre individus": nombreIndividus,
@@ -402,7 +413,24 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
     if(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
-        descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds.map(ligneFauneNonOiseauOds => {
+        descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds
+        .filter(({CD_REF}) => {
+            // ignorer les lignes qui contiennent "Chiroptera" générique
+            return CD_REF !== '186233' 
+            // ignorer les lignes qui contiennent "Mus" générique
+            && CD_REF !== '194935'
+            // ignorer les lignes qui contiennent "Eptesicus" générique
+            && CD_REF !== '192256'
+            // ignorer les lignes qui contiennent "Muridae" générique
+            && CD_REF !== '186259'
+            // ignorer les lignes qui contiennent "Myotis" générique
+            && CD_REF !== '195005'
+            // ignorer les lignes qui contiennent "Myliobatidae"
+            && CD_REF !== '186194'
+            // ignorer les lignes qui contiennent "Bovidae"
+            && CD_REF !== '186209'
+        })
+        .map(ligneFauneNonOiseauOds => {
             const {
                 CD_REF,
                 "nombre individus": nombreIndividus,
