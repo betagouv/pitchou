@@ -90,6 +90,8 @@
                 Ajouter un nouvel avis d'expert 
             {/if}
         </legend>
+        <!-- Section Expert -->
+        <h4 class="section-titre fr-h6">Expert</h4>
         <div class="fr-fieldset__element">
             <fieldset class="fr-fieldset radio-service-ou-personne-experte">
                 <legend class="fr-fieldset__legend">Service ou personne experte</legend>
@@ -120,30 +122,9 @@
             {/if}
             </fieldset>
         </div>
-        <div class="fr-fieldset__element">
-            <div class="fr-upload-fichier-avis-group">
-                <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
-                    <span class="fr-hint-text">Indication : 
-                        Taille maximale&nbsp;: 20 Mo. 
-                        Formats supportés&nbsp;: pdf</span>
-                </label>
-                {#if avisExpertInitial?.avis_fichier_url}
-                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpertInitial.avis_fichier_url}>
-                        Télécharger le fichier de l'avis
-                    </a>
-                {:else}
-                    <input accept=".pdf" bind:files="{fileListFichierAvis}" class="fr-upload" aria-describedby="upload-fichier-avis-messages" type="file" id="upload-fichier-avis" name="upload">
-                    <div class="fr-messages-group" id="upload-fichier-avis-messages" aria-live="polite">
-                    </div>
-                {/if}
-            </div>
-        </div>
-        <div class="fr-fieldset__element">
-            <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
-                <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-                <DateInput id={'input-champ-date-avis'} bind:date={avisExpert.date_avis}/>
-            </div>
-        </div>
+
+        <!-- Section Saisine -->
+        <h4 class="section-titre fr-h6">Saisine</h4>
         <div class="fr-fieldset__element">
             <div class="fr-upload-fichier-saisine-group">
                 <label class="fr-label" for="upload-fichier-saisine">Fichier de la saisine
@@ -166,6 +147,33 @@
             <div class="fr-input-group fr-mt-3w" id="champ-date-saisine-group">
                 <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
                 <DateInput bind:date={avisExpert.date_saisine}/>
+            </div>
+        </div>
+
+        <!-- Section Avis -->
+        <h4 class="section-titre fr-h6">Avis</h4>
+        <div class="fr-fieldset__element">
+            <div class="fr-upload-fichier-avis-group">
+                <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
+                    <span class="fr-hint-text">Indication : 
+                        Taille maximale&nbsp;: 20 Mo. 
+                        Formats supportés&nbsp;: pdf</span>
+                </label>
+                {#if avisExpertInitial?.avis_fichier_url}
+                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpertInitial.avis_fichier_url}>
+                        Télécharger le fichier de l'avis
+                    </a>
+                {:else}
+                    <input accept=".pdf" bind:files="{fileListFichierAvis}" class="fr-upload" aria-describedby="upload-fichier-avis-messages" type="file" id="upload-fichier-avis" name="upload">
+                    <div class="fr-messages-group" id="upload-fichier-avis-messages" aria-live="polite">
+                    </div>
+                {/if}
+            </div>
+        </div>
+        <div class="fr-fieldset__element">
+            <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
+                <label class="fr-label" for="input-champ-date-avis">Date avis</label>
+                <DateInput id={'input-champ-date-avis'} bind:date={avisExpert.date_avis}/>
             </div>
         </div>
         <div class="fr-fieldset__element">
@@ -219,5 +227,17 @@
 <style lang='scss'>
     .radio-service-ou-personne-experte {
         margin-bottom: 0;
+    }
+
+    .section-titre {
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-default-grey);
+        width: 100%;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-titre:first-of-type {
+        margin-top: 0;
     }
 </style>

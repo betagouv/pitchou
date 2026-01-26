@@ -32,7 +32,7 @@
 
 <div class="carte-avis-expert">
     <div class="titre">
-        <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? "Avis en attente"}</h3>
+        <h3 class="fr-h5">{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? "Avis en attente"}</h3>
         {#if !avisExpertEnModification}
             <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" type="button" onclick={() => avisExpertEnModification = true}>Modifier</button>
         {/if}
@@ -103,8 +103,6 @@
         
         h3 {
             margin: 0;
-            font-size: 1.125rem;
-            font-weight: 700;
         }
     }
 </style>
