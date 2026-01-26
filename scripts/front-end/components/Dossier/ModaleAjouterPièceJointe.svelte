@@ -385,12 +385,14 @@
                                     </div>
                                 {/if}
 
-                                {#if messageErreur}
-                                    <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-3w">
-                                        <p>{messageErreur}</p>
-                                    </div>
-                                {/if}
                                 {#if formulaireValide}
+                                    <div class="fr-messages-group" aria-live="polite">
+                                        {#if messageErreur}
+                                            <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+                                                <p>{messageErreur}</p>
+                                            </div>
+                                        {/if}
+                                    </div>
                                     <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline">
                                         <li>
                                             {#await ajouterUneNouvellePièceJointeP}
@@ -400,6 +402,12 @@
                                             {/await}
                                         </li>
                                     </ul>
+                                {:else if messageErreur}
+                                    <div class="fr-messages-group" aria-live="polite">
+                                        <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+                                            <p>{messageErreur}</p>
+                                        </div>
+                                    </div>
                                 {/if}
                             {/if}
                         </form>
