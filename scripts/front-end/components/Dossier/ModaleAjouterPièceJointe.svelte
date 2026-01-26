@@ -372,7 +372,7 @@
                                     <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
                                         <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
                                         <div class="">
-                                            {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
+                                            {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
                                                 {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
                                                 <div class="fr-fieldset__element">
                                                     <div class="fr-radio-group">
