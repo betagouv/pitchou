@@ -20,6 +20,8 @@
      *  @typedef {'Arrêté préfectoral' | 'Avis expert' | 'Saisine expert' | 'Autre'} TypePièceJointe
     */
 
+    const idTitreH2 = `${id}-title`
+
     /** @type {FileList | undefined} */
     let fileListPièceJointe = $state()
 
@@ -179,7 +181,9 @@
     }
 </script>
 
-<dialog bind:this={modale} id={id} class="fr-modal" aria-labelledby="{id}-title">
+
+<dialog bind:this={modale} id={id} class="fr-modal" aria-labelledby={idTitreH2}>
+    
     <div class="fr-container fr-container--fluid fr-container-md">
         <div class="fr-grid-row fr-grid-row--center">
             <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
@@ -188,7 +192,7 @@
                         <button aria-controls={id} title="Fermer" type="button" class="fr-btn--close fr-btn" onclick={fermerModale}>Fermer</button>
                     </div>
                     <div class="fr-modal__content">
-                        <h2 id="{id}-title" class="fr-modal__title">
+                        <h2 id={idTitreH2} class="fr-modal__title">
                             Ajouter une pièce jointe
                         </h2>
                         <form onsubmit={(e) => { e.preventDefault(); ajouterPièceJointe(); }}>
