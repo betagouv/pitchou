@@ -2,6 +2,7 @@
     import DownloadButton from "../DownloadButton.svelte";
     import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
     import { formatDateRelative } from "../../affichageDossier.js";
+    import { byteFormat } from "../../../commun/typeFormat.js";
     import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
 	import Loader from "../Loader.svelte"
 	import { originDémarcheNumérique } from "../../../commun/constantes.js"
@@ -46,13 +47,7 @@
     // @ts-ignore
     let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
 
-    // https://stackoverflow.com/a/73974452
-    const byteFormat = new Intl.NumberFormat(document.documentElement.lang || "fr", { 
-        notation: "compact",
-        style: 'unit', 
-        unit: 'byte',
-        unitDisplay: 'narrow'
-    })
+
 
     /**
      * @param {string | null} filename
