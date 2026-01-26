@@ -4,7 +4,6 @@
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
-/** @import {default as AvisExpert} from '../../types/database/public/AvisExpert.ts' */
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
@@ -21,10 +20,11 @@ import {getDécisionAdministratives, getDécisionsAdministratives} from './déci
 import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
 import { normalisationEmail } from '../../commun/manipulationStrings.js';
+import { getFichierUrl } from '../object-storage/fichier.js';
 
 
 //@ts-ignore
-/** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
+/** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription, FrontEndAvisExpert} from '../../types/API_Pitchou.d.ts' */
 //@ts-ignore
 /** @import {PickNonNullable} from '../../types/tools.d.ts' */
 
@@ -170,7 +170,7 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
 
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
-            
+
             // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
             const {évènement_phase_dossier, avis_expert, décision_administrative} = dossiersPourInsert[index]
 
@@ -460,15 +460,22 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
     const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction)
 
-    /** @type {Promise<AvisExpert[]>} */
+    /** @type {Promise<FrontEndAvisExpert[]>} */
     const tousLesAvisExpertDossierP = getAvisExpertDossier(dossierId, transaction)
 
-    /** @type {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type'> & {taille: number})[]>} */
     const descriptionsPiècesJointesPétitionnaireP = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction)
+        .then(fichiers => Promise.all(fichiers.map(
+            f => getFichierUrl(f).then((url) => {
+                return {
+                    url,
+                    nom: f.nom,
+                    taille: f.taille,
+                    media_type: f.media_type
+                }
+            })
+        )))
 
-    
-
-    /** @type {Promise<DécisionAdministrative[]>} */
+    /** @type {Promise<Omit<FrontEndDécisionAdministrative, 'prescriptions'>[]>} */
     const décisionsAdministrativesP = getDécisionAdministratives(dossierId, transaction)
     const decisionIds = (await décisionsAdministrativesP).map(d => d.id)
 
@@ -493,22 +500,9 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             dossier.évènementsPhase = évènementsPhaseDossier
 
-            dossier.avisExpert = tousLesAvisExpertDossier.map(
-                    ({
-                        avis_fichier, saisine_fichier, ...avisExpert
-                    }) => ({ 
-                            ...avisExpert,
-                            avis_fichier_url: avis_fichier ? `/avis-expert/fichier/${avis_fichier}` : undefined,
-                            saisine_fichier_url: saisine_fichier ? `/avis-expert/fichier/${saisine_fichier}` : undefined,
-                    })
-                )
+            dossier.avisExpert = tousLesAvisExpertDossier
 
-            dossier.piècesJointesPétitionnaires = descriptionsPiècesJointesPétitionnaire.map(
-                ({id, nom, media_type, taille}) => ({
-                    url: `/piece-jointe-petitionnaire/fichier/${id}`,
-                    nom, media_type, taille
-                })
-            )
+            dossier.piècesJointesPétitionnaires = descriptionsPiècesJointesPétitionnaire
 
             if(dossier.espèces_impactées_contenu && dossier.espèces_impactées_media_type && dossier.espèces_impactées_nom){
                 dossier.espècesImpactées = {
@@ -550,13 +544,10 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
             if(décisionsAdministratives.length >= 1){
                 dossier.décisionsAdministratives = décisionsAdministratives.map(
-                    ({
-                        id, numéro, type, date_signature, date_fin_obligations,
-                        fichier, dossier
-                    }) => ({
-                        id, numéro, type, date_signature, date_fin_obligations,
+                    ({id, ...décision}) => ({
+                        id,
                         prescriptions: prescriptionsParDécisionId.get(id),
-                        fichier_url: fichier ? `/decision-administrative/fichier/${fichier}`: undefined, dossier
+                        ...décision,
                     })
                 )
             }
@@ -815,22 +806,61 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
 /**
  * @param {Dossier['id']} idDossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<AvisExpert[]>}
+ * @returns {Promise<FrontEndAvisExpert[]> }>>}
  */
 async function getAvisExpertDossier(idDossier, databaseConnection = directDatabaseConnection){
     return databaseConnection('avis_expert')
-        .select('*')
+        .select([
+            // Colonnes avis_expert
+            'avis_expert.*',
+            // Détails fichier avis
+            'fichier_saisine.nom as fichier_saisine_nom',
+            'fichier_saisine.media_type as fichier_saisine_media_type',
+            // Détails fichier saisin
+            'fichier_avis.nom as fichier_avis_nom',
+            'fichier_avis.media_type as fichier_avis_media_type',
+        ])
+        .leftJoin('fichier as fichier_avis', {'avis_expert.avis_fichier': 'fichier_avis.id'})
+        .leftJoin('fichier as fichier_saisine', {'avis_expert.saisine_fichier': 'fichier_saisine.id'})
         .where({'dossier': idDossier})
+        .then(tousLesAvis => Promise.all(tousLesAvis.map(
+            (avis) => {
+                return Promise.all([
+                    avis.avis_fichier ? getFichierUrl({
+                        id: avis.avis_fichier,
+                        nom: avis.fichier_avis_nom,
+                        media_type: avis.fichier_avis_media_type,
+                    }) : undefined,
+                    avis.saisine_fichier ? getFichierUrl({
+                        id: avis.saisine_fichier,
+                        nom: avis.fichier_saisine_nom,
+                        media_type: avis.fichier_saisine_media_type,
+                    }) : undefined
+                ]).then(([avis_fichier_url, saisine_fichier_url]) => {
+                    return {
+                        id: avis.id,
+                        dossier: avis.dossier,
+                        avis: avis.avis,
+                        date_avis: avis.date_avis,
+                        expert: avis.export,
+                        date_saisine: avis.date_saisine,
+                        avis_fichier_url,
+                        saisine_fichier_url
+                    }
+                })
+            })
+        ))
 }
 
 /**
  * @param {Dossier['id']} idDossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type'> & {taille: number})[]>}
+ * @returns {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type' | 'DS_checksum'> & {taille: number})[]>}
  */
 async function getDescriptionsPiècesJointesPétitionnaire(idDossier, databaseConnection = directDatabaseConnection){
+    // TODO: taille doit soit être calculée à l’insertion soit être récupéré autrement
     return databaseConnection('dossier')
-        .select(['fichier.id as id', 'fichier.nom as nom', 'fichier.media_type as media_type', databaseConnection.raw('length(contenu) as taille')])
+        .select(['fichier.id as id', 'fichier.DS_checksum as DS_checksum', 'fichier.nom as nom', 'fichier.media_type as media_type', databaseConnection.raw('length(contenu) as taille')])
         .leftJoin('arête_dossier__fichier_pièces_jointes_pétitionnaire', {'arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier': 'dossier.id'})
         .leftJoin('fichier', {'fichier.id': 'arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier'})
         .where({'dossier': idDossier})
