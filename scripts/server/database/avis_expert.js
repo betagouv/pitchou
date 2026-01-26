@@ -1,5 +1,7 @@
 /** @import { default as AvisExpert, AvisExpertInitializer, AvisExpertMutator } from '../../types/database/public/AvisExpert.ts' */
 /** @import { Knex } from 'knex' */
+/** @import { PickNonNullable } from '../../types/tools' */
+/** @import Fichier from '../../types/database/public/Fichier.ts' */
 
 import { directDatabaseConnection } from '../database.js'
 import { ajouterFichier } from './fichier.js'
@@ -14,8 +16,8 @@ function estUnAvisExpertÀModifier(avisExpert) {
 
 /**
  * @param { AvisExpertInitializer | {id: string} & AvisExpertMutator } avisExpert
- * @param { {nom: string, media_type: string, contenu: Buffer} } [fichierSaisine]
- * @param { {nom: string, media_type: string, contenu: Buffer} } [fichierAvis]
+ * @param { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'> } [fichierSaisine]
+ * @param { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'> } [fichierAvis]
  * @param { Knex.Transaction | Knex } [databaseConnection]
  */
 export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis, databaseConnection = directDatabaseConnection) {
