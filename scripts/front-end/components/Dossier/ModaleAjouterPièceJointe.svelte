@@ -54,14 +54,19 @@
     /** @type {boolean} */
     let chargementEnCours = $state(false)
 
-    let saisinesSansAvis = $derived(
-        dossier.avisExpert
-            ? dossier.avisExpert.filter(ae => 
+    let saisinesSansAvis = $derived(dossier.avisExpert.filter(ae => 
                 (ae.date_saisine !== null || ae.saisine_fichier_url !== null) && 
                 (ae.avis === null && ae.date_avis === null)
             )
-            : []
     )
+
+    // Pré-cocher automatiquement la saisine si il n'y en a qu'une seule
+    $effect(() => {
+        if (typePièceJointe === 'Avis expert' && saisinesSansAvis.length === 1 && avisExpertSélectionné === null) {
+            avisExpertSélectionné = saisinesSansAvis[0].id
+            serviceOuPersonneExperte = saisinesSansAvis[0].expert
+        }
+    })
 
     let formulaireValide = $derived(
         fileListPièceJointe && fileListPièceJointe.length > 0 && 
@@ -293,7 +298,7 @@
                                                                 onchange={() => serviceOuPersonneExperte = saisine.expert}
                                                             />
                                                             <label class="fr-label" for={idRadio}>
-                                                                Saisine {saisine.expert || 'Expert'} - {saisine.date_saisine ? formatDateAbsolue(saisine.date_saisine) : 'Date non renseignée'}
+                                                                Saisine {saisine.expert || 'Expert'}{saisine.date_saisine ? ` - ${formatDateAbsolue(saisine.date_saisine)}` : ''}
                                                             </label>
                                                         </div>
                                                     </div>
