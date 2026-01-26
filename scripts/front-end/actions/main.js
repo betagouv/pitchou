@@ -66,9 +66,6 @@ export async function secretFromURL(){
         return Promise.all([
             remember(PITCHOU_SECRET_STORAGE_KEY, secret),
             initCapabilities(secret)
-                .then(() => {
-                    envoyerÉvènement({ type: 'seConnecter' })
-                })
         ])
     }
 }
@@ -118,6 +115,8 @@ function initCapabilities(secret){
                     // @ts-ignore
                     store.mutations.setIdentité(capsURLs.identité)
                 }
+
+                envoyerÉvènement({ type: 'seConnecter' })
             }
             else{
                 throw new TypeError(`capsURLs non-reconnu (${typeof capsURLs} - ${capsURLs})`)
