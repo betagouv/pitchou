@@ -1,5 +1,4 @@
 <script>
-	import { tick } from "svelte"
     /** @import { DossierComplet, FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
 
     import { ajouterOuModifierAvisExpert } from "../../../actions/avisExpert.js"
@@ -28,8 +27,8 @@
     /** @type {string | null} */
     let messageErreur = $state(null)
 
-    /** @type {boolean} */
-    let chargementAjouterOuModifierAvisExpert = $state(false);
+    /** @type {Promise<void>} */
+    let chargementAjouterOuModifierAvisExpertP = $state(Promise.resolve());
 
     /** @type {string | null} */
     let serviceOuPersonneExperte = $state(['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert ?? null) ? avisExpert.expert ?? null : 'Autre expert')
@@ -37,7 +36,6 @@
     /** @type {string | null} */
     let autreExpertTexte = $state(avisExpert.expert !== undefined && ['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert) ? null : avisExpert.expert ?? null)
 
-$inspect('serviceOuPersonneExperte', serviceOuPersonneExperte, 'expertAutreTexte', autreExpertTexte, 'avisExpert', avisExpert.expert)
 
     /**
      * 
@@ -74,20 +72,9 @@ $inspect('serviceOuPersonneExperte', serviceOuPersonneExperte, 'expertAutreTexte
 
         const avisExpertÀAjouterOuModifier = avisExpertInitial?.id ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert } : { dossier: dossierId, ...avisExpert }
         
-        if (avisExpertÀAjouterOuModifier) {
-            try {
-                chargementAjouterOuModifierAvisExpert = true
-                await ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis)
-                await refreshDossierComplet(dossierId)
-                await tick() // Permet de mettre à jour correctement les champs dans le cas d'une modification
-                fermerLeFormulaire()
-            } catch (e) {
-                //@ts-ignore
-                messageErreur = e.message 
-            } finally {
-                chargementAjouterOuModifierAvisExpert = false
-            }
 
+        if (avisExpertÀAjouterOuModifier) {
+            chargementAjouterOuModifierAvisExpertP = ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis).then(() => ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis).then(() => refreshDossierComplet(dossierId).then(() => fermerLeFormulaire())).catch((e) => messageErreur = e.message))
         }
 
         
@@ -212,12 +199,12 @@ $inspect('serviceOuPersonneExperte', serviceOuPersonneExperte, 'expertAutreTexte
                 <button type="button" class="fr-btn fr-btn--secondary" onclick={fermerLeFormulaire}>Annuler</button>
             </li>
             <li>
-                {#if chargementAjouterOuModifierAvisExpert}
+                {#await chargementAjouterOuModifierAvisExpertP}
                     <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">Sauvegarde en cours</p>
                     <button id="sauvegarde-en-cours" type="submit" class="fr-btn">Sauvegarde en cours...</button>
-                {:else}
+                {:then}
                     <button type="submit" class="fr-btn">Sauvegarder</button>
-                {/if}
+                {/await}
             </li>
         </ul>
     </fieldset>
