@@ -38,3 +38,18 @@ export async function verifierSecretGeoMCE(secret, databaseConnection = directDa
         throw new Error(`Capability ${secret} non reconnue`)
     }
 }
+
+
+/**
+ * Fonction sensible. À appeler avec prudence
+ * 
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<void>}
+ */
+export async function récupérerSecretGeoMCE(databaseConnection = directDatabaseConnection){
+    const {secret} = await databaseConnection('capability-geomce')
+        .select('*')
+        .first()
+
+    return secret
+}
