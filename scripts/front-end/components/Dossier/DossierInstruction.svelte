@@ -8,6 +8,7 @@
     import { modifierDossier } from '../../actions/dossier.js';
     import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
+    import ModaleAjouterPièceJointe from './ModaleAjouterPièceJointe.svelte'
 
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
@@ -25,6 +26,8 @@
 
     /** @type {Props} */
     let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } = $props();
+
+    const idModaleAjouterPieceJointe = 'modale-ajouter-piece-jointe'
 
     const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
@@ -166,16 +169,24 @@
             mesures_er_suffisantes = null
         }
     }
-
-
-
-
 </script>
 
 <section class="row">
 
     <section>
-        <h2>Historique</h2>
+        <div class="historique-entête">
+            <h2 class="historique-titre">Historique</h2>
+            <div class="historique-actions">
+                <button 
+                    type="button" 
+                    class="fr-btn fr-btn--icon-left fr-icon-attachment-line" 
+                    aria-controls={idModaleAjouterPieceJointe}
+                    data-fr-opened="false"
+                >
+                    Ajouter une pièce jointe
+                </button>
+            </div>
+        </div>
         <ol>
         {#each dossier.évènementsPhase as {phase, horodatage}}
             <li>
@@ -283,10 +294,13 @@
 
 </section>
 
+<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointe} {dossier} />
+
 <style lang="scss">
     .row{
         display: flex;
         flex-direction: row;
+        gap: 1rem;
 
         &>:nth-child(1){
             flex: 3;
@@ -321,6 +335,22 @@
     .col {
         display: flex;
         flex-direction: column;
+    }
+
+    .historique-entête {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .historique-titre {
+        margin: 0;
+    }
+
+    .historique-actions {
+        display: flex;
+        gap: 0.5rem;
     }
 
 </style>

@@ -1,11 +1,14 @@
 //@ts-check
 
+/** @import {RouteShorthandOptions} from 'fastify' */
+
 import path from 'node:path'
 
 import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
+
 
 import { closeDatabaseConnection,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -30,18 +33,19 @@ import { chiffrerDonnéesSupplémentairesDossiers } from './démarche-numérique
 import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonneDepuisCap} from './database/relation_suivi.js'
 import { créerÉvènementMétrique } from './évènements_métriques.js'
 import { indicateursAARRI } from './database/aarri.js'
+import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.js' */
-/** @import {StringValues} from '../types/tools.ts' */
+/** @import {StringValues,PickNonNullable} from '../types/tools.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Prescription} from '../types/database/public/Prescription.ts' */
 /** @import {default as DécisionAdministrative} from '../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
-/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription } from '../types/API_Pitchou.ts' */
-
+/** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
+/** @import Fichier from '../types/database/public/Fichier.ts' */
 
 
 /** @type {SchemaDémarcheSimplifiée} */
@@ -100,8 +104,8 @@ fastify.register(fastifyMultipart, {
     fieldNameSize: 100, // Max field name size in bytes
     fieldSize: 100,     // Max field value size in bytes
     fields: 10,         // Max number of non-file fields
-    fileSize: 1000000,  // For multipart forms, the max file size in bytes
-    files: 5,           // Max number of file fields
+    fileSize: 20_000_000,  // For multipart forms, the max file size in bytes
+    files: 2,           // Max number of file fields
     headerPairs: 2000,  // Max number of header key=>value pairs
     parts: 1000         // For multipart forms, the max number of parts (fields + files)
   }
@@ -538,6 +542,120 @@ fastify.delete('/contrôle/:contrôleId', async function(request, reply) {
   return supprimerContrôle(request.params.contrôleId)
 })
 
+
+
+
+fastify.post('/avis-expert', {
+  schema: {
+    consumes: ['multipart/form-data'],
+    body: {
+      type: 'object',
+      required: ['dossier'],
+      properties: 
+        {
+          body : {
+            type: 'object',
+                  properties: 
+                    {
+                      dossier: {
+                        type: 'string',
+                      },
+                      id: {
+                        type: 'string',
+                      },
+                      expert: {
+                        type: 'string'
+                      },
+                      avis: {
+                        type: 'string',
+                      },
+                      date_avis: {
+                        type: 'string',
+                      },
+                      date_saisine: {
+                        type: 'string',
+                      }
+                    }
+                },
+          blobFichierSaisine: {
+            type: 'object',
+          },
+          blobFichierAvis: {
+            type: 'object',
+          },
+        }
+    }
+  }
+}, async function (req) {
+  // Récupérer les données du corps de la requête
+  /** @type {any} */
+  const body = req.body
+
+  const dossier = JSON.parse(body.dossier.value);
+  const id = body.id ? body.id.value : undefined;
+  const expert = body.expert ? body.expert.value : undefined
+  const avis = body.avis ? body.avis.value : undefined
+  
+  const date_saisine = body['date_saisine'] ? new Date(body['date_saisine'].value) : undefined
+  const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
+
+  const avisExpert = { dossier, id, expert, avis, date_avis, date_saisine }
+
+  // Récupérer les fichiers d'avis et de saisine
+  /** @type { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'> | undefined} */
+  let fichierSaisine
+  /** @type { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'>| undefined} */
+  let fichierAvis
+
+  const [blobFichierSaisineContenu, blobFichierAvisContenu] = await Promise.all(['blobFichierSaisine' in body ? await body.blobFichierSaisine.toBuffer() : Promise.resolve([]),
+  'blobFichierAvis' in body ? await body.blobFichierAvis.toBuffer() : Promise.resolve([])
+])
+
+  if ('blobFichierSaisine' in body) {
+    /** @type {any} */
+    const blobFichierSaisine = body.blobFichierSaisine
+    fichierSaisine = {nom: blobFichierSaisine.filename, media_type: blobFichierSaisine.mimetype, contenu: blobFichierSaisineContenu}
+  }
+  if ('blobFichierAvis' in body) {
+    /** @type {any} */
+    const blobFichierAvis = body.blobFichierAvis
+    fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
+  } 
+
+  if (fichierAvis || fichierSaisine) {
+    return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
+  } else {
+    return ajouterOuModifierAvisExpert(avisExpert)
+  }
+})
+
+
+
+/**
+ * @type {RouteShorthandOptions}
+ * @const
+ */
+const optsAvisExpertDelete = {
+  schema: {
+    params: {
+      type: 'object',
+      properties: {
+        avisExpertId: {
+          type: 'string',
+          minLength: 2
+        },
+      },
+      required: ['avisExpertId'],
+    },
+  },
+};
+
+fastify.delete('/avis-expert/:avisExpertId', optsAvisExpertDelete ,function(request) {
+  //@ts-ignore
+  const {avisExpertId} = request.params
+
+  return supprimerAvisExpert(avisExpertId)
+})
 
 fastify.get('/dossier/:dossierId/messages', async function(request, reply) {
   // @ts-ignore
