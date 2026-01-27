@@ -8,6 +8,7 @@
     import { modifierDossier } from '../../actions/dossier.js';
     import { instructeurLaisseDossier, instructeurSuitDossier } from '../../actions/suiviDossier.js';
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
+    import ModaleAjouterPièceJointe from './ModaleAjouterPièceJointe.svelte'
 
     /** @import Personne from '../../../types/database/public/Personne.js' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
@@ -26,15 +27,40 @@
     /** @type {Props} */
     let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } = $props();
 
+    const idModaleAjouterPieceJointe = 'modale-ajouter-piece-jointe'
+
     const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
 
     let phaseActuelle = $derived(dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase || 'Accompagnement amont');
 
     let phase = $derived(phaseActuelle)
     let ddep_nécessaire = $state(dossier.ddep_nécessaire)
+    let mesures_er_suffisantes = $state(dossier.mesures_er_suffisantes)
     let commentaire_libre = $state(dossier.commentaire_libre)
     let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
 
+    /**
+     * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select
+     * @returns {'oui' | 'non_sans_objet' | 'non_mesures_er_suffisantes' | 'a_determiner'}
+     */
+    function getDDEPValeurComposite() {
+        if (ddep_nécessaire === true) {
+            return 'oui'
+        } else if (ddep_nécessaire === false) {
+            if (mesures_er_suffisantes === false) {
+                return 'non_sans_objet'
+            } else if (mesures_er_suffisantes === true) {
+                return 'non_mesures_er_suffisantes'
+            } else {
+                // Par défaut, si mesures_er_suffisantes est null et ddep_nécessaire est false, on considère que c'est "sans objet"
+                return 'non_sans_objet'
+            }
+        } else {
+            // ddep_nécessaire est null ou undefined
+            return 'a_determiner'
+        }
+    }
+    let ddepValeurComposite = $state(getDDEPValeurComposite())
 
     let messageErreur = $state("")
     let afficherMessageSucces = $state(false)
@@ -81,6 +107,17 @@
             modifs.ddep_nécessaire = ddep_nécessaire
         }
 
+        if(dossier.mesures_er_suffisantes !== mesures_er_suffisantes){
+            modifs.mesures_er_suffisantes = mesures_er_suffisantes
+        }
+
+        // Règle métier: mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
+        if (ddep_nécessaire === null) {
+            if (dossier.mesures_er_suffisantes !== null) {
+                modifs.mesures_er_suffisantes = null
+            }
+        }
+
         if (Object.keys(modifs).length>=1){
             if (modifs.commentaire_libre) {
                 modifierChampAvecDebounce(modifs)
@@ -111,14 +148,45 @@
         return instructeurLaisseDossier(email, id)
     }
 
-
-
+    /**
+     * Met à jour les deux champs ddep_nécessaire et mesures_er_suffisantes à partir de la valeur composite
+     * @param {Event & {currentTarget: EventTarget & HTMLSelectElement; }} e
+     * @returns {void}
+     */
+    function setDDEPValeurComposite(e) {
+        const valeur = e.currentTarget.value
+        if (valeur === 'oui') {
+            ddep_nécessaire = true
+            mesures_er_suffisantes = false
+        } else if (valeur === 'non_sans_objet') {
+            ddep_nécessaire = false
+            mesures_er_suffisantes = false
+        } else if (valeur === 'non_mesures_er_suffisantes') {
+            ddep_nécessaire = false
+            mesures_er_suffisantes = true
+        } else if (valeur === 'a_determiner') {
+            ddep_nécessaire = null
+            mesures_er_suffisantes = null
+        }
+    }
 </script>
 
 <section class="row">
 
     <section>
-        <h2>Historique</h2>
+        <div class="historique-entête">
+            <h2 class="historique-titre">Historique</h2>
+            <div class="historique-actions">
+                <button 
+                    type="button" 
+                    class="fr-btn fr-btn--icon-left fr-icon-attachment-line" 
+                    aria-controls={idModaleAjouterPieceJointe}
+                    data-fr-opened="false"
+                >
+                    Ajouter une pièce jointe
+                </button>
+            </div>
+        </div>
         <ol>
         {#each dossier.évènementsPhase as {phase, horodatage}}
             <li>
@@ -189,18 +257,11 @@
             <label class="fr-label" for="ddep-nécessaire">
                 <strong>Une DDEP est-elle nécessaire ?</strong>
             </label>
-            <select onfocus={retirerAlert} bind:value={ddep_nécessaire} class="fr-select" id="ddep-nécessaire">
-                {#each [true, false, null] as ddep_nécessaire_option}
-                    <option value={ddep_nécessaire_option}>
-                        {#if ddep_nécessaire_option === true}
-                            Oui
-                        {:else if ddep_nécessaire_option === false}
-                            Non
-                        {:else}
-                            A déterminer
-                        {/if}
-                    </option>
-                {/each}
+            <select onfocus={retirerAlert} bind:value={ddepValeurComposite} onchange={setDDEPValeurComposite} class="fr-select" id="ddep-nécessaire">
+                <option value="oui">Oui</option>
+                <option value="non_mesures_er_suffisantes">Non, mesures Éviter, Réduire (ER) suffisantes</option>
+                <option value="non_sans_objet">Non, sans objet</option>
+                <option value="a_determiner">À déterminer</option>
             </select>
         </div>
 
@@ -233,10 +294,13 @@
 
 </section>
 
+<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointe} {dossier} />
+
 <style lang="scss">
     .row{
         display: flex;
         flex-direction: row;
+        gap: 1rem;
 
         &>:nth-child(1){
             flex: 3;
@@ -271,6 +335,22 @@
     .col {
         display: flex;
         flex-direction: column;
+    }
+
+    .historique-entête {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .historique-titre {
+        margin: 0;
+    }
+
+    .historique-actions {
+        display: flex;
+        gap: 0.5rem;
     }
 
 </style>

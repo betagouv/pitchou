@@ -1,8 +1,12 @@
 <script>
 	import { originDémarcheNumérique } from '../../../commun/constantes.js'
-	import { formatDateAbsolue } from '../../affichageDossier.js'
+	import { supprimerAvisExpert as supprimerAvisExpertServeur  } from '../../actions/avisExpert.js'
+	import { refreshDossierComplet } from '../../actions/dossier.js'
+    import AvisExpert from './Avis/AvisExpert.svelte'
+	import { differenceInDays } from 'date-fns'
+    import ModaleAjouterPièceJointe from './ModaleAjouterPièceJointe.svelte'
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.js' */
+    /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
 
     /**
      * @typedef {Object} Props
@@ -12,86 +16,71 @@
     /** @type {Props} */
     let { dossier } = $props();
 
-    const {number_demarches_simplifiées: numdos, numéro_démarche} = dossier
+    const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier
+    const idModaleAjouterPieceJointeAvis = 'modale-ajouter-piece-jointe-avis'
 
+    let avisExpertTriés = $derived([...dossier.avisExpert].sort((a,b) => {
+        const dateA = new Date(a.date_avis ?? a.date_saisine ?? 0)
+        const dateB = new Date(b.date_avis ?? b.date_saisine ?? 0)
+        return differenceInDays(dateB, dateA)
+    }))
+
+    /**
+     * @param {FrontEndAvisExpert} avisExpert
+     */
+    async function supprimerAvisExpert(avisExpert) {
+        await supprimerAvisExpertServeur(avisExpert)
+        await refreshDossierComplet(dossier.id)
+    }
 </script>
 
-<div class="row">
-    <section>
-        <h2>Avis experts</h2>
-        {#if dossier.avisExpert.length >= 1}
-            {#each dossier.avisExpert as avisExpert}
-                <div class="carte-avis-expert">
-                <h3>{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? 'Avis non renseigné'}</h3>
-                    <ul>
-                        <li>
-                            <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
-                            {#if avisExpert.avis_fichier_url}
-                                <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.avis_fichier_url}>
-                                    Télécharger le fichier de l'avis
-                                </a>
-                            {:else}
-                                Aucun fichier de l'avis n'est lié à ce dossier
-                            {/if}
-                        </li>
-                        <li>
-                            <span><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)} </span>
-                            {#if avisExpert.saisine_fichier_url}
-                                <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.saisine_fichier_url}>
-                                    Télécharger le fichier saisine
-                                </a>
-                            {:else}
-                                Aucun fichier de saisine n'est lié à ce dossier
-                            {/if}
-                        </li>
-                    </ul>
-                </div>
+<div class="fr-grid-row">
+    <section class="fr-col section-liste-avis-expert">
+        <h2>Avis d'experts</h2>
+        {#if avisExpertTriés.length >= 1}
+            <div class="liste-avis-expert">
+            {#each avisExpertTriés as avisExpert}
+                <AvisExpert dossierId={dossier.id} {avisExpert} {supprimerAvisExpert} />
             {/each}
+            </div>
         {:else}
-            Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.
+            <p>
+                <span class="fr-mb-3w">Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</span>
+            </p>
         {/if}
+        <button 
+            type="button" 
+            class="fr-btn fr-mt-3w {avisExpertTriés.length === 0 ? '' : 'fr-btn--secondary'} fr-btn--icon-left fr-icon-attachment-line" 
+            aria-controls={idModaleAjouterPieceJointeAvis}
+            data-fr-opened="false"
+        >
+            Ajouter un avis ou une saisine
+        </button>
     </section>
 
-    <section>
+    <section class="fr-col-5 section-boutons-démarche-numérique">
         <a class="fr-btn" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis_new`}>
             Demander un avis
         </a>
-        <a class="fr-btn fr-btn--secondary" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
+        <a class="fr-btn fr-btn--secondary fr-mt-1w" target="_blank" href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/avis`}>
             Voir la page Avis sur Démarche Numérique
         </a>
     </section>
-
 </div>
 
+<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointeAvis} {dossier} />
+
 <style lang="scss">
-    .row{
-        display: flex;
-        flex-direction: row;
-
-        &>:nth-child(1){
-            flex: 3;
-        }
-
-        &>:nth-child(2){
-            flex: 2;
-
-            text-align: right;
-        }
-    }
-
-    .carte-avis-expert{
-        display:flex;
+    .section-liste-avis-expert {
+        display: flex; 
         flex-direction: column;
-        ul {
-            list-style: none;
-            padding-inline-start: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        li {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
+    }
+    .section-boutons-démarche-numérique {
+        text-align: right;
+    }
+    .liste-avis-expert {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 </style>

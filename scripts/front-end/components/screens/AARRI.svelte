@@ -25,9 +25,6 @@
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-container fr-my-6w">
         <h1>Suivi des indicateurs AARRI</h1>
-        <div class="fr-alert fr-alert--warning">
-            <h2 class="fr-alert__title">Attention, les valeurs affichées sur cette page sont fictives. </h2>
-        </div>
         {#await indicateursAujourdhuiP}
             <Loader></Loader>
         {:then indicateursAujourdhui}
@@ -161,17 +158,6 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-    }
-    .conteneur-barre {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start
-    };
-
-    .étiquette-barre {
-        width: 5rem;
     }
     .barre {
         height: 40px;  

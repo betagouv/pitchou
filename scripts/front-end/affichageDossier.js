@@ -9,7 +9,7 @@ import { fr } from 'date-fns/locale'
 
 /**
  * @param {Partial<DossierComplet>} localisation
- * @returns {string} 
+ * @returns {string}
  */
 export function formatLocalisation({communes, départements, régions}){
     // Nettoyage du cas où un dossier a dit qu'il était sur plusieurs communes, mais n'a pas saisi les communes
@@ -30,9 +30,9 @@ export function formatLocalisation({communes, départements, régions}){
     // Communes
     if(
         !communes ||
-        (!communes && !départements) || 
+        (!communes && !départements) ||
         (
-            (communes && Array.isArray(communes) && communes.length === 0) && 
+            (communes && Array.isArray(communes) && communes.length === 0) &&
             (!départements || départements.length === 0)
         )
     ){
@@ -48,7 +48,7 @@ export function formatLocalisation({communes, départements, régions}){
 
 /**
  * @param {DossierComplet | DossierRésumé} dossier
- * @returns {string} 
+ * @returns {string}
  */
 function formatDéposant(dossier){
     const INCONNU = '(inconnu)'
@@ -72,9 +72,9 @@ function formatDéposant(dossier){
 }
 
 /**
- * 
- * @param {DossierComplet | DossierRésumé} dossier 
- * @returns {string} 
+ *
+ * @param {DossierComplet | DossierRésumé} dossier
+ * @returns {string}
  */
 export function formatPorteurDeProjet(dossier){
     if(dossier.demandeur_personne_morale_siret){
@@ -97,7 +97,7 @@ export function formatPorteurDeProjet(dossier){
  *
  * Si la date est `null` ou `undefined`, la fonction retourne la chaîne "(date inconnue)".
  *
- * @param {Date | undefined | null} date
+ * @param {Date | string | undefined | null} date
  * @param {string} [formatDemandé]
  * @returns {string}
  */
@@ -108,7 +108,7 @@ export function formatDateAbsolue(date, formatDemandé = 'd MMMM yyyy') {
 
     return format(date, formatDemandé, { locale: fr })
 }
-  
+
   /**
    *
    * @param {Date | undefined | null} date
@@ -125,7 +125,7 @@ export function formatDateRelative(date) {
     if (Math.abs(differenceInDays(date, new Date())) <= 7) {
       return formatRelative(date, new Date(), {locale: fr })
     }
-  
+
     return formatDateAbsolue(date)
 }
 
@@ -141,11 +141,11 @@ export const phases = new Set([
 
 /** @type {Set<DossierProchaineActionAttenduePar>} */
 export const prochaineActionAttenduePar = new Set([
-    "Instructeur", 
+    "Instructeur",
     "CNPN/CSRPN",
     "Pétitionnaire",
     "Consultation du public",
     "Autre administration",
     "Autre",
-    "Personne" 
+    "Personne"
 ])

@@ -18,7 +18,7 @@ export type ÉvènementRechercheDossiersDétails =  {
 }
 
 export type ÉvènementMétrique = {
-    // Cliquer sur un lien de connexion
+    // On considère qu'une connexion correspond au chargement de Pitchou et la récupération réussie des URLs de caps
     type: 'seConnecter'
 } | {
     // Appuyer sur un bouton pour suivre un dossier
@@ -31,6 +31,16 @@ export type ÉvènementMétrique = {
 // Événéments de modification
 // Modifier le commentaire d'instruction
 | { type: 'modifierCommentaireInstruction'}
+// Changer la phase d'un dossier
+| { type: 'changerPhase'}
+// Changer prochaine prochaine action attendue de
+| { type: 'changerProchaineActionAttendueDe'}
+// Ajouter une décision administrative
+| { type: 'ajouterDécisionAdministrative'}
+// Modifier une décision administrative
+| { type: 'modifierDécisionAdministrative'}
+// Supprimer une décision administrative
+| { type: 'supprimerDécisionAdministrative'}
 
 
 // Événements de consultation
@@ -45,3 +55,6 @@ export type ÉvènementMétrique = {
 
 // Télécharger la liste des éspèces impactées d’un dossier
 | { type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: number } }
+
+// Rechercher des dossiers
+| { type: 'rechercherDesDossiers' }

@@ -4,6 +4,7 @@ import {getODSTableRawContent, tableRawContentToObjects, tableWithoutEmptyRows} 
 import {isValidDate} from '../../commun/typeFormat.js'
 import {ajouterPrescriptionsEtContrôles} from './prescriptions.js'
 import {refreshDossierComplet} from './dossier.js'
+import {envoyerÉvènement} from './aarri.js'
 import store from '../store.js'
 
 /** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle, DécisionAdministrativePourTransfer} from '../../types/API_Pitchou.ts' */
@@ -148,6 +149,8 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(fichierPresc
  * @returns {Promise<unknown>}
  */
 export function supprimerDécisionAdministrative(décisionAdministrativeId){
+    envoyerÉvènement({type: 'supprimerDécisionAdministrative'})
+
     return text(`/decision-administrative/${décisionAdministrativeId}`, {
         method: 'DELETE'
     })
@@ -167,6 +170,8 @@ export async function sauvegardeNouvelleDécisionAdministrative(décisionAdminis
     if(!décisionAdministrativeEnCréation.dossier){
         throw new TypeError(`décisionAdministrativeEnCréation.dossier manquant dans sauvegardeNouvelleDécisionAdministrative`)
     }
+
+    envoyerÉvènement({type: 'ajouterDécisionAdministrative'})
 
     await modifierDécisionAdministrativeDansDossier(décisionAdministrativeEnCréation) 
 

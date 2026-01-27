@@ -154,6 +154,21 @@ function évènementMétriqueGuard(évènement) {
             return estDétailsDossier(évènement.détails)
         case 'téléchargerListeÉspècesImpactées':
             return estDétailsDossier(évènement.détails)
+        case 'changerPhase': {
+          return !('details' in évènement)
+        }
+        case 'changerProchaineActionAttendueDe': {
+            return !('details' in évènement)
+        }
+        case 'ajouterDécisionAdministrative': {
+            return !('details' in évènement)
+        }
+        case 'modifierDécisionAdministrative': {
+            return !('details' in évènement)
+        }
+        case 'supprimerDécisionAdministrative': {
+            return !('details' in évènement)
+        }
         default: {
             // Pour que TypeScript détecte si on a oublié un 'case'
             /** @type {never} */
