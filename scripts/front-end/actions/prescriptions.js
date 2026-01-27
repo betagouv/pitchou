@@ -30,6 +30,7 @@ export function ajouterPrescription(prescription){
  */
 export function ajouterPrescriptionsEtContrôles(prescription){
     envoyerÉvènement({type: 'ajouterPrescription'})
+    envoyerÉvènement({type: 'ajouterContrôle'})
 
     return text('/prescriptions-et-contrôles', {
         method: 'POST',
