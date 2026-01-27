@@ -4,7 +4,11 @@
 /** @import { FastifyReply, FastifyRequest } from 'fastify' */
 
 
+// @ts-expect-error 'ÉvènementRechercheDossiersDétails' est considéré inutilisé sinon
+const /** @type {ÉvènementRechercheDossiersDétails} **/ inutile = null;
+
 import { ajouterÉvènementDepuisCap } from './database/évènements_métriques.js';
+
 
 /**
 * @param {any} détails
