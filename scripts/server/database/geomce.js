@@ -186,9 +186,9 @@ async function récupérerDossiersParIds(idDossiers) {
 
 /**
  * @param {DossierPourGeoMCE} dossierPourGeoMCE
- * @returns {Promise<GeoMceMessage>}
+ * @returns {GeoMceMessage}
  */
-async function genererMessagesGeoMCE(dossierPourGeoMCE) {
+function genererMessagesGeoMCE(dossierPourGeoMCE) {
 
     return {
         projet: {
@@ -245,7 +245,7 @@ export async function générerDéclarationGeoMCE(){
     const dossiersPourGeoMCE = (await récupérerDossiersParIds(dossiers) || [])
         .filter(d => d !== undefined)
 
-    const messagesGeoMCE = await Promise.all(dossiersPourGeoMCE.map(genererMessagesGeoMCE))
+    const messagesGeoMCE = dossiersPourGeoMCE.map(genererMessagesGeoMCE)
 
     console.log('messagesGeoMCE', messagesGeoMCE.length)
     console.log('taille en JSON', byteFormat.format(JSON.stringify(messagesGeoMCE).length))
