@@ -1,4 +1,5 @@
 import {directDatabaseConnection} from '../database.js'
+import { getFichierUrl } from '../object-storage/fichier.js';
 
 import {ajouterFichier, supprimerFichier} from './fichier.js'
 
@@ -15,8 +16,8 @@ const inutile = true;
 
 
 /**
- * 
- * @param {DécisionAdministrativePourTransfer} décision 
+ *
+ * @param {DécisionAdministrativePourTransfer} décision
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Fichier['id']>}
  */
@@ -53,8 +54,8 @@ export async function ajouterDécisionAdministrativeAvecFichier(décision, datab
 
 
 /**
- * 
- * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions 
+ *
+ * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
  */
@@ -70,21 +71,33 @@ export function ajouterDécisionsAdministratives(décisions, databaseConnection 
 
 
 /**
- * 
- * @param {Dossier['id']} dossierId 
+ *
+ * @param {Dossier['id']} dossierId
  * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<DécisionAdministrative[]>}
+ * @returns {Promise<Omit<FrontEndDécisionAdministrative, 'prescriptions'>[]>}
  */
 export function getDécisionAdministratives(dossierId, databaseConnection = directDatabaseConnection){
     return databaseConnection('décision_administrative')
-        .select('*')
+        .select(['décision_administrative.*', 'fichier.nom as fichier_nom', 'fichier.media_type as fichier_media_type'])
         .where({dossier: dossierId})
+        .leftJoin('fichier', {'décision_administrative.fichier': 'fichier.id'})
+        .then(décisions => Promise.all(décisions.map(
+            ({fichier_nom, fichier_media_type, ...décision}) => {
+                return getFichierUrl({
+                    id: décision.fichier,
+                    nom: fichier_nom,
+                    media_type: fichier_media_type,
+                }).then((fichier_url) => ({
+                    fichier_url,
+                    ...décision
+                }))
+        })))
 }
 
 /**
  * Récupère les décisions administratives pour chaque dossier
- * 
- * @param {CapDossier['cap']} cap_dossier 
+ *
+ * @param {CapDossier['cap']} cap_dossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<FrontEndDécisionAdministrative[]>}
  */
@@ -93,15 +106,15 @@ export function getDécisionsAdministratives(cap_dossier, databaseConnection = d
         .select('décision_administrative.*')
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'décision_administrative.dossier'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs', 
+            'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
 }
 
 /**
- * 
- * @param {DécisionAdministrativePourTransfer} décisionAdministrative 
+ *
+ * @param {DécisionAdministrativePourTransfer} décisionAdministrative
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
@@ -164,8 +177,8 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
 }
 
 /**
- * 
- * @param {DécisionAdministrative['id']} id 
+ *
+ * @param {DécisionAdministrative['id']} id
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
