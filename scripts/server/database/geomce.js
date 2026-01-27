@@ -12,9 +12,9 @@ import { construireActivitésMéthodesMoyensDePoursuite, espèceProtégéeString
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 /** @import { GeoMceMessage, DossierPourGeoMCE } from '../../types/geomce.ts' */
 //@ts-ignore
-/** @import { PitchouState } from '../scripts/front-end/store.js' */
+/** @import { PitchouState } from '../../front-end/store.js' */
 //@ts-ignore
-/** @import { EspèceProtégée, DescriptionMenacesEspèces } from '../scripts/types/especes.ts' */
+/** @import { EspèceProtégée, DescriptionMenacesEspèces, EspèceProtégéeStrings } from '../../types/especes.ts' */
 
 const DATA_DIR = join(import.meta.dirname, '../../../data')
 
@@ -33,6 +33,7 @@ const chargerActivitésMéthodesMoyensDePoursuite = memoize(async function charg
  */
 const chargerListeEspèceParCD_REF = memoize(async function chargerListeEspèceParCD_REF() {
     const espèceBuffer = await readFile(join(DATA_DIR, 'liste-espèces-protégées.csv'))
+    /** @type {EspèceProtégéeStrings[]} */
     const listeEspèces = dsvFormat(';').parse(espèceBuffer.toString())
 
     return new Map(listeEspèces.map((espèce) => {
