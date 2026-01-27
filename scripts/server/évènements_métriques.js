@@ -152,7 +152,8 @@ function évènementMétriqueGuard(évènement) {
             return !('details' in évènement)
         }
         case 'ajouterPrescription':
-        case 'modifierPrescription': {
+        case 'modifierPrescription':
+        case 'supprimerPrescription': {
             return !('details' in évènement)
         }
         default: {

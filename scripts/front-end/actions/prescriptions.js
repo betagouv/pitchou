@@ -29,7 +29,7 @@ export function ajouterPrescription(prescription){
  * @param {Omit<FrontEndPrescription, 'id'>[]} prescription 
  */
 export function ajouterPrescriptionsEtContrôles(prescription){
-    envoyerÉvènement({type: 'ajouterPrescription'})  
+    envoyerÉvènement({type: 'ajouterPrescription'})
 
     return text('/prescriptions-et-contrôles', {
         method: 'POST',
@@ -59,6 +59,8 @@ export function modifierPrescription(prescription){
  * @returns {Promise<any>}
  */
 export function supprimerPrescription(id){
+    envoyerÉvènement({type: 'supprimerPrescription'})  
+
     return text(`/prescription/${id}`, {method: 'DELETE'})
 }
 
