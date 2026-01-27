@@ -1,11 +1,16 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
+/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
+
 
 import {directDatabaseConnection} from '../database.js'
+
 
 
 /**
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
  * Une personne acquise pendant est une personne qui s'est connectée au moins une fois.
+ * 
+ * @param {number} nbSemainesObservées
  *
  * @remarks
  *
@@ -15,7 +20,7 @@ import {directDatabaseConnection} from '../database.js'
  *
  * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
 */
-async function calculerIndicateurAcquis() {
+async function calculerIndicateurAcquis(nbSemainesObservées) {
     const acquis = await directDatabaseConnection.raw(`
         with premiere_connexion as (
             select
@@ -36,7 +41,7 @@ async function calculerIndicateurAcquis() {
             select
                 date_trunc('week', semaine)::date as semaine
             from
-                generate_series(now() - '5 weeks'::interval, now(), '7 days'::interval) as semaine
+                generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
             union
             select semaine from nombre_premiere_connexion_par_semaine
         )
@@ -49,8 +54,11 @@ async function calculerIndicateurAcquis() {
             semaines
         on semaines.semaine = nombre_premiere_connexion_par_semaine.semaine
         order by date desc
-        limit 5; 
-    `);
+        limit :nb_semaines_observees; 
+    `,
+{
+    nb_semaines_observees: nbSemainesObservées,
+});
 
     return new Map(
         ...[acquis.rows.map(
@@ -60,10 +68,18 @@ async function calculerIndicateurAcquis() {
 }
 
 /**
+ * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
+ * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
  * 
- * @returns  { Promise<Map<string, number>> }
- */
-async function calculerIndicateurActif() {
+ * @param {number} nbSemainesObservées
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
+*/
+async function calculerIndicateurActif(nbSemainesObservées) {
+
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
+    
     const actifs = await directDatabaseConnection.raw(`
         -- personnes et le nombre évènement d'action de modif par semaine
 with actions_modif_par_personne as (select
@@ -71,7 +87,7 @@ with actions_modif_par_personne as (select
 	COUNT(évènement) as nombre_actions_modif,
 	date_trunc('week', e.date)::date as semaine
 from évènement_métrique as e
-WHERE évènement IN ('modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative')
+WHERE évènement IN (:evenement_modifs)
 group by personne, semaine),
 
 -- filtrer par première fois activé
@@ -108,8 +124,10 @@ on semaines.semaine = nombre_active_par_semaine.semaine
 order by date desc
 limit :nb_semaines_observees; 
         `, {
-            nb_semaines_observees: 5,
-            nb_seuil_actions_modif: 5
+            nb_semaines_observees: nbSemainesObservées,
+            nb_seuil_actions_modif: 5,
+            evenement_modifs: directDatabaseConnection.raw(
+                évènementsModifications.map(() => '?').join(', '), évènementsModifications)
 
         })
 
@@ -124,10 +142,13 @@ limit :nb_semaines_observees;
  * @returns {Promise<IndicateursAARRI[]>}
  */
 export async function indicateursAARRI() {
+
+    const nbSemainesObservées = 5
+
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
-    const acquis = await calculerIndicateurAcquis();
-    const actifs = await calculerIndicateurActif();
+    const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
+    const actifs = await calculerIndicateurActif(nbSemainesObservées);
 
     const dates = acquis.keys();
 
