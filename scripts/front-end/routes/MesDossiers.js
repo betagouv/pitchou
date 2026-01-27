@@ -8,22 +8,23 @@ import MesDossiers from '../components/screens/MesDossiers.svelte';
 import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 import { chargerDossiers } from '../actions/dossier.js';
 import store from '../store.js';
+import { envoyerÉvènement } from '../actions/aarri.js';
 
 
 export default async () => {
     replaceComponent(SqueletteContenuVide, () => {})
 
     /**
-     * 
-     * @param {PitchouState} state 
+     *
+     * @param {PitchouState} state
      * @returns {ComponentProps<typeof MesDossiers>}
      */
     function mapStateToProps(state) {
         const { email, erreurs, résultatsSynchronisationDS88444 } = mapStateToSqueletteProps(state);
-        
+
         /** @type {DossierRésumé[]} */
         const tousLesDossiers = [...state.dossiersRésumés.values()]
-        
+
         // Filtrer pour ne garder que les dossiers suivis par l'instructeur actuel
         /** @type {DossierRésumé[]} */
         const dossiers = email && state.relationSuivis
@@ -32,7 +33,7 @@ export default async () => {
                 return dossiersSuivis && dossiersSuivis.has(dossier.id)
             })
             : []
-        
+
         return {
             email,
             dossiers,
@@ -44,12 +45,13 @@ export default async () => {
 
     try {
         await chargerDossiers()
+        envoyerÉvènement({ type: 'afficherLesDossiersSuivis' })
         replaceComponent(MesDossiers, mapStateToProps)
     } catch (error) {
         console.error('Erreur lors du chargement de la page Mes dossiers :', error)
-        
+
         const errorMessage = error instanceof Error ? error.message : String(error)
-        
+
         if(errorMessage.includes('403')){
             store.mutations.ajouterErreur({
                 message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`
@@ -65,4 +67,3 @@ export default async () => {
         replaceComponent(MesDossiers, mapStateToProps)
     }
 }
-
