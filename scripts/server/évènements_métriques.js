@@ -49,6 +49,11 @@ function évènementMétriqueGuard(évènement) {
     case 'supprimerPrescription': {
       return !('details' in évènement)
     }
+    case 'ajouterContrôle':
+    case 'modifierContrôle':
+    case 'supprimerContrôle': {
+      return !('details' in évènement)
+    }
     default: {
       // Pour que TypeScript détecte si on a oublié un 'case'
       /** @type {never} */
