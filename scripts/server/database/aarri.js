@@ -49,73 +49,12 @@ async function calculerIndicateurAcquis() {
             semaines
         on semaines.semaine = nombre_premiere_connexion_par_semaine.semaine
         order by date desc
-        limit 5; 
+        limit 5;
     `);
 
     return new Map(
         ...[acquis.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.acquis_total)]
-        )]
-    )
-}
-
-/**
- * 
- * @returns  { Promise<Map<string, number>> }
- */
-async function calculerIndicateurActif() {
-    const actifs = await directDatabaseConnection.raw(`
-        -- personnes et le nombre évènement d'action de modif par semaine
-with actions_modif_par_personne as (select
-	personne,
-	COUNT(évènement) as nombre_actions_modif,
-	date_trunc('week', e.date)::date as semaine
-from évènement_métrique as e
-WHERE évènement IN ('modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative')
-group by personne, semaine),
-
--- filtrer par première fois activé
-premiere_fois_active as (select personne, min(semaine) as semaine
-from actions_modif_par_personne
-WHERE nombre_actions_modif >= :nb_seuil_actions_modif
-group by personne),
-
--- nombre actif par semaine
-nombre_active_par_semaine as (select
-	count(personne) as actif_semaine,
-	semaine
-from premiere_fois_active
-group by semaine),
-
--- récupérer la liste de toutes les semaines avec sûr les cinq dernières semaines
-semaines as (
-	select
-		date_trunc('week', semaine)::date as semaine
-	from
-		generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
-	union
-	select semaine from premiere_fois_active
-)
-
-select
-	semaines.semaine as date,
-	sum(actif_semaine) over (order by semaines.semaine  asc) as actifs_total
-from
-	nombre_active_par_semaine
-right join
-	semaines
-on semaines.semaine = nombre_active_par_semaine.semaine
-order by date desc
-limit :nb_semaines_observees; 
-        `, {
-            nb_semaines_observees: 5,
-            nb_seuil_actions_modif: 5
-
-        })
-
-    return new Map(
-        ...[actifs.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.actifs_total)]
+            (/** @type {any} */ row) => [row.date, Number(row.acquis_total)]
         )]
     )
 }
@@ -127,7 +66,7 @@ export async function indicateursAARRI() {
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis();
-    const actifs = await calculerIndicateurActif();
+    console.log(acquis)
 
     const dates = acquis.keys();
 
@@ -135,7 +74,7 @@ export async function indicateursAARRI() {
         indicateurs.push({
             date: date,
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
-            nombreUtilisateuriceActif: actifs.get(date) ?? 0,
+            nombreUtilisateuriceActif: 0,
             nombreUtilisateuriceImpact: 0,
             nombreUtilisateuriceRetenu: 0,
             nombreBaseUtilisateuricePotentielle: 300,
