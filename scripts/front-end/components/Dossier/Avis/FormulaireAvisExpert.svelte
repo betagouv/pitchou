@@ -215,6 +215,8 @@
                     <button id="sauvegarde-en-cours" type="submit" class="fr-btn">Sauvegarde en cours...</button>
                 {:then}
                     <button type="submit" class="fr-btn">Sauvegarder</button>
+                {:catch}
+                    <button type="submit" class="fr-btn">Sauvegarder</button>
                 {/await}
             </li>
         </ul>

@@ -39,6 +39,16 @@
     </div>
     {#if !avisExpertEnModification}
         <ul>
+            <li>
+                <span><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)} </span>
+                {#if avisExpert.saisine_fichier_url}
+                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.saisine_fichier_url}>
+                        Télécharger le fichier saisine
+                    </a>
+                {:else}
+                    Aucun fichier de saisine n'est lié à ce dossier
+                {/if}
+            </li>
             {#if avisExpert.avis_fichier_url || avisExpert.date_avis || avisExpert.avis === 'Avis favorable tacite'}
                 <li>
                     <span><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)} </span>
@@ -53,16 +63,6 @@
                     {/if}
                 </li>
             {/if}
-            <li>
-                <span><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)} </span>
-                {#if avisExpert.saisine_fichier_url}
-                    <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.saisine_fichier_url}>
-                        Télécharger le fichier saisine
-                    </a>
-                {:else}
-                    Aucun fichier de saisine n'est lié à ce dossier
-                {/if}
-            </li>
         </ul>
     {:else}
         <FormulaireAvisExpert dossierId={dossierId} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />

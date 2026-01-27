@@ -621,8 +621,7 @@ fastify.post('/avis-expert', {
     const blobFichierAvis = body.blobFichierAvis
     fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
   } 
-  console.log('avisExpert dans fastift', avisExpert)
-  // Ajouter ou modifier l'avis d'expert en base de données
+
   if (fichierAvis || fichierSaisine) {
     return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
   } else {

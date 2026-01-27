@@ -236,10 +236,6 @@
                             {/if}
                             {#if fileListPièceJointe && fileListPièceJointe.length > 0}
                                 {#if typePièceJointe === 'Saisine expert'}
-                                    <div class="fr-mt-3w">
-                                        <label class="fr-input-group fr-label" for="modale-date-saisine-{id}">Date de la saisine</label>
-                                        <DateInput id={`modale-date-saisine-${id}`} bind:date={dateSaisine} />
-                                    </div>
                                     <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
                                         <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
                                         <div class="conteneur-boutons-radios">
@@ -263,6 +259,10 @@
                                             {/each}
                                         </div>
                                     </div>
+                                    <div class="fr-mt-3w">
+                                        <label class="fr-input-group fr-label" for="modale-date-saisine-{id}">Date de la saisine</label>
+                                        <DateInput id={`modale-date-saisine-${id}`} bind:date={dateSaisine} />
+                                    </div>
                                     {#if serviceOuPersonneExperte === 'Autre expert'}
                                         <div class="fr-input-group fr-mt-3w">
                                             <label class="fr-label" for="autre-expert-texte-{id}">Précisez l'expert</label>
@@ -278,13 +278,9 @@
                                 {/if}
                                 
                                 {#if typePièceJointe === 'Avis expert'}
-                                    <div class="fr-mt-3w">
-                                        <label class="fr-input-group fr-label" for="modale-date-avis-{id}">Date de l'avis</label>
-                                        <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
-                                    </div>
                                     {@const idRadioNouvel = `avis-expert-selection-nouvel-${id}`}
                                     <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-selection-group">
-                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-selection-group"> Sélectionner une saisine </legend>
+                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-selection-group"> Sélectionner la saisine correspondante </legend>
                                         <div class="conteneur-boutons-radios-vertical">
                                             {#if saisinesSansAvis.length > 0}
                                                 {#each saisinesSansAvis as saisine}
@@ -383,6 +379,10 @@
                                             {/each}
                                         </div>
                                     </div>
+                                    <div class="fr-mt-3w">
+                                        <label class="fr-input-group fr-label" for="modale-date-avis-{id}">Date de l'avis</label>
+                                        <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
+                                    </div>
                                 {/if}
 
                                 {#if formulaireValide}
@@ -393,7 +393,7 @@
                                             </div>
                                         {/if}
                                     </div>
-                                    <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline">
+                                    <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-2w">
                                         <li>
                                             {#await ajouterUneNouvellePièceJointeP}
                                                 <button type="submit" class="fr-btn" disabled>Sauvegarde en cours...</button>
