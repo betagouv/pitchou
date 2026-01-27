@@ -1,11 +1,16 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
+/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
+
 
 import {directDatabaseConnection} from '../database.js'
+
 
 
 /**
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
  * Une personne acquise pendant est une personne qui s'est connectée au moins une fois.
+ * 
+ * @param {number} nbSemainesObservées
  *
  * @remarks
  *
@@ -15,7 +20,7 @@ import {directDatabaseConnection} from '../database.js'
  *
  * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
 */
-async function calculerIndicateurAcquis() {
+async function calculerIndicateurAcquis(nbSemainesObservées) {
     const acquis = await directDatabaseConnection.raw(`
         with premiere_connexion as (
             select
@@ -36,7 +41,7 @@ async function calculerIndicateurAcquis() {
             select
                 date_trunc('week', semaine)::date as semaine
             from
-                generate_series(now() - '5 weeks'::interval, now(), '7 days'::interval) as semaine
+                generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
             union
             select semaine from nombre_premiere_connexion_par_semaine
         )
@@ -49,12 +54,86 @@ async function calculerIndicateurAcquis() {
             semaines
         on semaines.semaine = nombre_premiere_connexion_par_semaine.semaine
         order by date desc
-        limit 5;
-    `);
+        limit :nb_semaines_observees; 
+    `,
+{
+    nb_semaines_observees: nbSemainesObservées,
+});
 
     return new Map(
         ...[acquis.rows.map(
-            (/** @type {any} */ row) => [row.date, Number(row.acquis_total)]
+            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.acquis_total)]
+        )]
+    )
+}
+
+/**
+ * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
+ * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
+*/
+async function calculerIndicateurActif(nbSemainesObservées) {
+
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
+    
+    const actifs = await directDatabaseConnection.raw(`
+        -- personnes et le nombre évènement d'action de modif par semaine
+with actions_modif_par_personne as (select
+	personne,
+	COUNT(évènement) as nombre_actions_modif,
+	date_trunc('week', e.date)::date as semaine
+from évènement_métrique as e
+WHERE évènement IN (:evenement_modifs)
+group by personne, semaine),
+
+-- filtrer par première fois activé
+premiere_fois_active as (select personne, min(semaine) as semaine
+from actions_modif_par_personne
+WHERE nombre_actions_modif >= :nb_seuil_actions_modif
+group by personne),
+
+-- nombre actif par semaine
+nombre_active_par_semaine as (select
+	count(personne) as actif_semaine,
+	semaine
+from premiere_fois_active
+group by semaine),
+
+-- récupérer la liste de toutes les semaines avec sûr les cinq dernières semaines
+semaines as (
+	select
+		date_trunc('week', semaine)::date as semaine
+	from
+		generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
+	union
+	select semaine from premiere_fois_active
+)
+
+select
+	semaines.semaine as date,
+	sum(actif_semaine) over (order by semaines.semaine  asc) as actifs_total
+from
+	nombre_active_par_semaine
+right join
+	semaines
+on semaines.semaine = nombre_active_par_semaine.semaine
+order by date desc
+limit :nb_semaines_observees; 
+        `, {
+            nb_semaines_observees: nbSemainesObservées,
+            nb_seuil_actions_modif: 5,
+            evenement_modifs: directDatabaseConnection.raw(
+                évènementsModifications.map(() => '?').join(', '), évènementsModifications)
+
+        })
+
+    return new Map(
+        ...[actifs.rows.map(
+            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.actifs_total)]
         )]
     )
 }
@@ -63,10 +142,13 @@ async function calculerIndicateurAcquis() {
  * @returns {Promise<IndicateursAARRI[]>}
  */
 export async function indicateursAARRI() {
+
+    const nbSemainesObservées = 5
+
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
-    const acquis = await calculerIndicateurAcquis();
-    console.log(acquis)
+    const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
+    const actifs = await calculerIndicateurActif(nbSemainesObservées);
 
     const dates = acquis.keys();
 
@@ -74,7 +156,7 @@ export async function indicateursAARRI() {
         indicateurs.push({
             date: date,
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
-            nombreUtilisateuriceActif: 0,
+            nombreUtilisateuriceActif: actifs.get(date) ?? 0,
             nombreUtilisateuriceImpact: 0,
             nombreUtilisateuriceRetenu: 0,
             nombreBaseUtilisateuricePotentielle: 300,
