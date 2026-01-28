@@ -226,17 +226,19 @@ Pour donner l'origine de manière libre :
 
 
 
-### Générer les messages pour GeoMCE
+### GeoMCE
 
-Pour lister les ids de dossiers pour lesquels on peut générer des messages pour GeoMCE
+Pitchou maintient une API pour que GeoMCE puisse récupérer les données que Pitchou doit déclarer
+(GeoMCE ne peut pas ouvrir d'API pour des raisons techniques de leur côté)
 
-`docker exec tooling node outils/generation-message-geomce.js --lister-dossier`
+Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme 
+`/declaration-geomce?secret=XXX`
 
+Un outil permet de récupérer la capability url pour la transmettre aux personnes de GeoMCE :
+`scalingo --app especes-protegees run "node outils/geomce.js --capability-url"`
 
-Pour générer un message pour GeoMCE pour un id
-
-`docker exec tooling node outils/generation-message-geomce.js --dossier <dossierId>`
-
+En cas de compromission ou régulièrement, la capability-url peut être reset:
+`scalingo --app especes-protegees run "node outils/geomce.js --reset-capability-url"`
 
 
 

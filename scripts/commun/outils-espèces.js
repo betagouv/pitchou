@@ -350,7 +350,8 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
-        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds.map(ligneOiseauOds => {
+        descriptionMenacesEspèces['oiseau'] = lignesOiseauOds
+            .map(ligneOiseauOds => {
             const {
                 CD_REF,
                 "nombre individus": nombreIndividus,
@@ -402,7 +403,8 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
 
     if(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1){
         // recups les infos depuis les colonnes
-        descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds.map(ligneFauneNonOiseauOds => {
+        descriptionMenacesEspèces['faune non-oiseau'] = lignesFauneNonOiseauOds
+        .map(ligneFauneNonOiseauOds => {
             const {
                 CD_REF,
                 "nombre individus": nombreIndividus,
