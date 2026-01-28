@@ -6,6 +6,7 @@
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
     import {ajouterContrôle as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
+    import {envoyerÉvènement} from '../../../actions/aarri.js';
 
     /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
@@ -76,6 +77,8 @@
             contrôleEnCours.id = contrôleId
 
             contrôleEnCours = undefined;
+
+            envoyerÉvènement({type: 'ajouterContrôle'}) 
         }
     }
 
@@ -102,17 +105,17 @@
         // @ts-ignore
         const index = prescription.contrôles?.indexOf(contrôleEnModification) || -1;
         if (index !== -1) { 
-            prescription.contrôles?.splice(index, 1); 
+            prescription.contrôles?.splice(index, 1);
         }
         contrôleEnModification = undefined
 
         // @ts-ignore
         prescription.contrôles?.push(contrôleValidé)
-            
-        console.log('validerModificationsContrôle contrôleValidé', contrôleValidé)
-            
+
         await modifierContrôle(contrôleValidé)
         
+        envoyerÉvènement({type: 'modifierContrôle'})
+
     }
 
     async function supprimerContrôleEnModification(){
@@ -131,6 +134,8 @@
         await supprimerContrôle(id)
 
         refreshDossierComplet()
+
+        envoyerÉvènement({type: 'supprimerContrôle'})
     }
 
 </script>
