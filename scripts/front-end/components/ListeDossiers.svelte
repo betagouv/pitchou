@@ -10,6 +10,7 @@
     import { SvelteMap } from "svelte/reactivity"
     import { tick } from "svelte"
     import { envoyerÉvènementRechercherUnDossier } from '../actions/aarri.js'
+    import {phases as toutesLesPhases} from '../affichageDossier.js'
 
     /**
     * @typedef {Object} Props
@@ -82,16 +83,6 @@
 
     /** @type {DossierPhase | undefined} */
     let phaseSélectionnée = $state()
-
-    /** @type {DossierPhase[]} */
-    const toutesLesPhases = [
-        "Accompagnement amont",
-        "Étude recevabilité DDEP",
-        "Instruction",
-        "Contrôle",
-        "Classé sans suite",
-        "Obligations terminées"
-    ]
 
     const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
 
