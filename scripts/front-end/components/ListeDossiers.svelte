@@ -242,7 +242,7 @@
             <div class="filtres">
                 <div class="fr-select-group">
                     <label class="fr-label" for="select-phase"> Filtrer par phase </label>
-                    <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+                    <select bind:value={phaseSélectionnée} onchange={sélectionnerPhase} aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase">
                         <option value="" selected>Toutes les phases</option>
                         {#each toutesLesPhases as phase}
                             <option value={phase}>{phase}</option>
