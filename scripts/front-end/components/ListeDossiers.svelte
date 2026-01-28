@@ -22,13 +22,13 @@
     */
     /** @type {Props} */
     let {
-            titre,
-            email = '',
-            dossiers,
-            relationSuivis,
-            afficherFiltreSansInstructeurice = false,
-            afficherFiltreActionInstructeur = false
-        } = $props();
+        titre,
+        email = '',
+        dossiers,
+        relationSuivis,
+        afficherFiltreSansInstructeurice = false,
+        afficherFiltreActionInstructeur = false
+    } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
@@ -36,14 +36,14 @@
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
-    let resultat = [...dossiers];
+        let resultat = [...dossiers];
 
-    for(const filtre of tousLesFiltres.values()){
-        resultat = resultat.filter(filtre)
-    }
+        for(const filtre of tousLesFiltres.values()){
+            resultat = resultat.filter(filtre)
+        }
 
-    return resultat;
-})
+        return resultat;
+    })
 
     let numéroDeLaPageSélectionnée = $state(1)
 
