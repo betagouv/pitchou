@@ -280,7 +280,7 @@
 {#if dossiersAffichés.length >= 1}
     <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
         <ul>
-            {#each dossiersAffichés as dossier}
+            {#each dossiersAffichés as dossier (dossier.id)}
                 <li>
                     <CarteDossier {dossier} {instructeurActuelSuitDossier} {instructeurActuelLaisseDossier} dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} />
                 </li>
