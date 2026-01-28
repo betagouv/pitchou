@@ -1,5 +1,6 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
 /** @import { ÉvènementMétrique } from '../../types/évènement.js' */
+/** @import {PersonneId} from '../../types/database/public/Personne.js' */
 
 
 import {directDatabaseConnection} from '../database.js'
@@ -143,10 +144,59 @@ limit :nb_semaines_observees;
 }
 
 /**
+ * Correspond au jour d'une semaine
+ * @typedef {Date} Semaine
+ */
+
+/**
+*/
+async function calculerIndicateurRetenu() {
+
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsConsultations= ['rechercherDesDossiers']
+
+    const évènements = [...évènementsModifications, ...évènementsConsultations]
+    
+    const result = await directDatabaseConnection.raw(`
+        -- personnes et le nombre évènement d'action de modif/consult par semaine
+select
+	personne,
+	COUNT(évènement) as nombre_actions,
+	date_trunc('week', e.date)::date as semaine
+from évènement_métrique as e
+WHERE évènement IN (:evenements)
+group by personne, semaine;
+        `, {
+            evenements: directDatabaseConnection.raw(
+                évènements.map(() => '?').join(', '), évènements)
+
+        })
+    /**@type {{personne: PersonneId, nombre_actions: number, semaine: Semaine}[]} */
+    const résultatsFormattés = result.rows.map((/** @type {any} */ row) => ({personne: Number(row.personne), nombre_actions: Number(row.nombre_actions), semaine: row.semaine}))
+
+    /**@type {Map<PersonneId,Map<Semaine, number>>} */
+    const résultatsParPersonne = new Map()
+
+    for (const {personne, nombre_actions, semaine} of résultatsFormattés) {
+        /** @type {Map<Semaine, number>} */
+        const nombreActionsParSemaine = résultatsParPersonne.get(personne) || new Map()
+        nombreActionsParSemaine.set(semaine, nombre_actions)
+
+        résultatsParPersonne.set(personne, nombreActionsParSemaine)
+    }
+
+    //TODO: Pour chaque personne, identifier la première semaine où elle a été retenue.
+    //Puis, faire un regroupement par semaine pour déterminer le nobmre de personnes retenues à cette semaine là.
+    //Puis, faire le cumul par semaine 
+}
+
+/**
  * @returns {Promise<IndicateursAARRI[]>}
  */
 export async function indicateursAARRI() {
-
+calculerIndicateurRetenu()
     const nbSemainesObservées = 5
 
     /** @type {IndicateursAARRI[]} */
