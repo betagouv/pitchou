@@ -5,6 +5,7 @@
 /** @import { PartialBy }  from '../../types/tools' */
 /** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
 /** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
+/** @import { PersonneAvecEmailObligatoire } from "../../types/démarche-numérique/DossierPourSynchronisation" */
 
 import { isDate, setYear } from "date-fns";
 import { isValidDateString } from "../../commun/typeFormat";
@@ -378,7 +379,7 @@ function créerDonnéeDateDépôt(ligne) {
     } else {
         return {
             data: new Date(),
-            alertes: [{type: 'avertissement', message: `L'année renseignée dans la colonne Date de début d'accompagnement est incorrecte et égale à "${valeurDateDeDébutDaccompagnement}". On ne peut donc pas renseigner la date de première sollicitation qui sera par défaut la date d'aujourd'hui.`}]
+            alertes: [{type: 'avertissement', message: `L'année renseignée dans la colonne "Date de début d'accompagnement" est incorrecte et égale à "${valeurDateDeDébutDaccompagnement}". On ne peut donc pas renseigner la date de première sollicitation qui sera par défaut la date d'aujourd'hui.`}]
         }
     }
 }
@@ -398,6 +399,46 @@ function créerDonnéeDemandeurPersonneMorale(ligne) {
             return {data: siret}
         }
     }
+
+}
+
+
+const emailParInitials = new Map([
+["CT", "caroline.turlesque@developpement-durable.gouv.fr"],
+["CM", "coralie.moutte@developpement-durable.gouv.fr"],
+["FT", "fabrice.torre@developpement-durable.gouv.fr"],
+["MD", "marine.dedeken@mer.gouv.fr"],
+["PZ", "perle.zlotykamien@developpement-durable.gouv.fr"],
+["SJ", "sonia.jenn@developpement-durable.gouv.fr"],
+["TL", "tina.loustalot@mer.gouv.fr"],
+["VV", "virginie.vincenti@developpement-durable.gouv.fr"],
+]);
+
+/**
+ * 
+ * @param {LigneDossierCorse} ligne
+ * @return {[PersonneAvecEmailObligatoire] | undefined}
+ */
+function créerDonnéePersonnesQuiSuivent(ligne) {
+    const valeurInstructeurDREAL = ligne['Instructeur DREAL']
+    const valeurDépartement = ligne['Département']
+
+    // BG, MR, MB sont des personnes qui ne travaillent plus à la DREAL.
+    if (['BG', 'MR','MB'].includes(valeurInstructeurDREAL)) {
+        if (valeurDépartement === '2A') {
+            return [{email: 'caroline.turlesque@developpement-durable.gouv.fr'}]
+        }
+        if (valeurDépartement === '2B') {
+            return [{email: 'perle.zlotykamien@developpement-durable.gouv.fr'}]
+        }
+    }
+
+    const emailTrouvé = emailParInitials.get(valeurInstructeurDREAL)
+
+    if (emailTrouvé) {
+        return [{email: emailTrouvé}]
+    }
+
 
 }
 
@@ -424,8 +465,12 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const commentairePostAP = {titre: 'Commentaires post AP', commentaire: ligne['Commentaires post AP']}
     /** @type {SousCommentaireDansCommentaireLibre} */
     const commentaireRemarques = {titre: 'Remarques', commentaire: ligne['Remarques']}
-    
-    const commentaire_libre = [commentairePhaseInstruction, commentairePostAP, commentaireRemarques]
+    /** @type {SousCommentaireDansCommentaireLibre} */
+    const commentaireRaccourci = {titre: 'Raccourci', commentaire: ligne['Raccourci']}
+    /** @type {SousCommentaireDansCommentaireLibre} */
+    const commentaireContribution = {titre: 'Contribution', commentaire: ligne['Contribution']}
+
+    const commentaire_libre = [commentairePhaseInstruction, commentairePostAP, commentaireRemarques, commentaireRaccourci, commentaireContribution]
         .filter(value => value?.commentaire?.trim())
         .map(({titre, commentaire}) => `${titre} : ${commentaire}`)
         .join('\n');
@@ -445,6 +490,8 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const résultatDateDépôt = créerDonnéeDateDépôt(ligne)
 
     const dateDépôt = résultatDateDépôt?.data
+
+    const personnesQuiSuivent = créerDonnéePersonnesQuiSuivent(ligne)
 
     const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), 
     ...(résultatsDécisionAdministrative?.alertes ?? []), 
@@ -466,6 +513,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
         alertes,
         avis_expert: avisExpert,
         décision_administrative: résultatsDécisionAdministrative?.data,
+        personnes_qui_suivent:  personnesQuiSuivent
     }
 }
 
@@ -484,37 +532,25 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
     const valeurNormaliséeStatut = ligne['Statut'].trim().toLowerCase()
     const valeurDateDébutAccompagnement = ligne[`Date de début d'accompagnement`]
 
+    /** Ajout d'une phase Accompagnement amont */
     if (valeurNormaliséeStatut === 'nouveau dossier à venir' || valeurNormaliséeStatut === 'diagnostic préalable' || valeurNormaliséeStatut === 'demande de compléments dossier') {
         donnéesEvénementPhaseDossier.push({phase: 'Accompagnement amont', horodatage: setYear(new Date(), valeurDateDébutAccompagnement) })
     }
 
-    // TODO : supprimer ce commentaire si on décide de ne pas mettre de date de passage à la phase Instruction
-    // if (valeurNormaliséeStatut === `rapport d'instruction`) {
-    //     const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
-    //     const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
+    /** Ajout d'une phase Instruction */
+    if (valeurNormaliséeStatut === `rapport d'instruction` || valeurNormaliséeStatut==='dépôt onagre') {
+        const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier autoportant']
+        const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
 
-    //     if (isValidDateString(datePhaseInstruction)) {
-    //         donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
-    //     } else {
-    //         const messageAlerte = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : "${datePhaseInstruction}". On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
-    //         console.warn(messageAlerte)
-    //         alertes.push({message: messageAlerte, type: 'erreur'})
+        if (isValidDateString(datePhaseInstruction)) {
+            donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
+        } else {
+            const messageAlerte = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : "${datePhaseInstruction}". On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`
+            console.warn(messageAlerte)
+            alertes.push({message: messageAlerte, type: 'erreur'})
 
-    //     }
-    // }
-
-    const valeurDateDeRéceptionPremierDossier = ligne['Date de réception 1er dossier']
-    const dateReceptionPremierDossier = valeurDateDeRéceptionPremierDossier.toString()
-    if (isValidDateString(dateReceptionPremierDossier)) {
-        donnéesEvénementPhaseDossier.push({phase: 'Étude recevabilité DDEP', horodatage: new Date(dateReceptionPremierDossier)})
+        }
     }
-
-    // TODO : supprimer ce commentaire si on décide de ne pas mettre de date de passage à la phase Instruction
-    // const valeurDateDeRéceptionDuDossierComplet = ligne['Date de réception du dossier complet']
-    // const datePhaseInstruction = valeurDateDeRéceptionDuDossierComplet.toString()
-    // if (isValidDateString(datePhaseInstruction)) {
-    //     donnéesEvénementPhaseDossier.push({phase: 'Instruction', horodatage: new Date(datePhaseInstruction)})
-    // }
     
     return donnéesEvénementPhaseDossier.length >= 1 ? {
         data: donnéesEvénementPhaseDossier,
