@@ -4,14 +4,15 @@
  */
 export async function up(knex) {
 
-    await knex.schema.alterTable('dossier', async function (table) {
-        await knex.raw(`
-            UPDATE dossier
-            SET commentaire_libre = ''
-            WHERE commentaire_libre IS NULL;
-        `)
+    await knex.raw(`
+        UPDATE dossier
+        SET commentaire_libre = ''
+        WHERE commentaire_libre IS NULL;
+    `)
 
-        await table.text('commentaire_libre')
+    await knex.schema.alterTable('dossier', async function (table) {
+
+        table.text('commentaire_libre')
             .notNullable()
             .defaultTo('')
             .alter()
