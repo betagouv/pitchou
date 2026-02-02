@@ -161,6 +161,9 @@ function évènementMétriqueGuard(évènement) {
         case 'supprimerContrôle': {
             return !('details' in évènement)
         }
+        case 'retourÀLaConformité': {
+            return typeof évènement.détails.prescription === 'string'
+        }
         default: {
             // Pour que TypeScript détecte si on a oublié un 'case'
             /** @type {never} */
