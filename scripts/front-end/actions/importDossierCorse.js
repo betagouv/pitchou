@@ -417,29 +417,38 @@ const emailParInitials = new Map([
 /**
  * 
  * @param {LigneDossierCorse} ligne
- * @return {[PersonneAvecEmailObligatoire] | undefined}
+ * @return {PersonneAvecEmailObligatoire[] | undefined}
  */
 function créerDonnéePersonnesQuiSuivent(ligne) {
     const valeurInstructeurDREAL = ligne['Instructeur DREAL']
     const valeurDépartement = ligne['Département']
 
-    // BG, MR, MB sont des personnes qui ne travaillent plus à la DREAL.
-    if (['BG', 'MR','MB'].includes(valeurInstructeurDREAL)) {
-        if (valeurDépartement === '2A') {
-            return [{email: 'caroline.turlesque@developpement-durable.gouv.fr'}]
+    const instructricesTrouvées = valeurInstructeurDREAL.replaceAll(' ', '').split('+')
+
+    /** @type {PersonneAvecEmailObligatoire[]} */
+    let personnesQuiSuivent = []
+
+    for (const instructriceTrouvée of instructricesTrouvées) {
+        // BG, MR, MB sont des personnes qui ne travaillent plus à la DREAL.
+        if (['BG', 'MR','MB'].includes(instructriceTrouvée)) {
+            if (valeurDépartement === '2A') {
+                personnesQuiSuivent.push({email: 'caroline.turlesque@developpement-durable.gouv.fr'})
+            }
+            if (valeurDépartement === '2B') {
+                personnesQuiSuivent.push({email: 'perle.zlotykamien@developpement-durable.gouv.fr'})
+            }
         }
-        if (valeurDépartement === '2B') {
-            return [{email: 'perle.zlotykamien@developpement-durable.gouv.fr'}]
+
+        const emailTrouvé = emailParInitials.get(instructriceTrouvée)
+
+        if (emailTrouvé) {
+            personnesQuiSuivent.push({email: emailTrouvé})
         }
     }
 
-    const emailTrouvé = emailParInitials.get(valeurInstructeurDREAL)
-
-    if (emailTrouvé) {
-        return [{email: emailTrouvé}]
+    if (personnesQuiSuivent.length >= 1) {
+        return [...new Set(personnesQuiSuivent)]
     }
-
-
 }
 
 /**
@@ -492,7 +501,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const dateDépôt = résultatDateDépôt?.data
 
     const personnesQuiSuivent = créerDonnéePersonnesQuiSuivent(ligne)
-
+    
     const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), 
     ...(résultatsDécisionAdministrative?.alertes ?? []), 
     ...(résultatDemandeurPersonneMorale?.alertes ?? []),
