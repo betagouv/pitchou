@@ -1,5 +1,6 @@
 import { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou"
 import Dossier from "./database/public/Dossier"
+import {default as Prescription} from './database/public/Prescription'
 
 export type ÉvènementRechercheDossiersDétails =  {
     filtres: {
@@ -16,6 +17,7 @@ export type ÉvènementRechercheDossiersDétails =  {
     },
     nombreRésultats: number
 }
+
 
 export type ÉvènementMétrique = {
     // On considère qu'une connexion correspond au chargement de Pitchou et la récupération réussie des URLs de caps
@@ -64,3 +66,8 @@ export type ÉvènementMétrique = {
 | { type: 'consulterUnDossier', détails: { dossierId: number } }
 // Télécharger la liste des éspèces impactées d’un dossier
 | { type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: number } }
+// Rechercher des dossiers
+| { type: 'rechercherDesDossiers' }
+
+// Pour l'impact
+| { type: 'retourÀLaConformité', détails: {prescription: Prescription['id']} }
