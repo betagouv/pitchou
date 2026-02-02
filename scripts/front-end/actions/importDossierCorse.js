@@ -465,7 +465,6 @@ function créerDonnéePersonnesQuiSuivent(ligne) {
 function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const résultatsDonnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
-
     const avisExpert = créerDonnéesAvisExpert(ligne)
 
     /** @type {SousCommentaireDansCommentaireLibre} */
@@ -475,11 +474,9 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     /** @type {SousCommentaireDansCommentaireLibre} */
     const commentaireRemarques = {titre: 'Remarques', commentaire: ligne['Remarques']}
     /** @type {SousCommentaireDansCommentaireLibre} */
-    const commentaireRaccourci = {titre: 'Raccourci', commentaire: ligne['Raccourci']}
-    /** @type {SousCommentaireDansCommentaireLibre} */
     const commentaireContribution = {titre: 'Contribution', commentaire: ligne['Contribution']}
 
-    const commentaire_libre = [commentairePhaseInstruction, commentairePostAP, commentaireRemarques, commentaireRaccourci, commentaireContribution]
+    const commentaire_libre = [commentairePhaseInstruction, commentairePostAP, commentaireRemarques, commentaireContribution]
         .filter(value => value?.commentaire?.trim())
         .map(({titre, commentaire}) => `${titre} : ${commentaire}`)
         .join('\n');
@@ -501,7 +498,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
     const dateDépôt = résultatDateDépôt?.data
 
     const personnesQuiSuivent = créerDonnéePersonnesQuiSuivent(ligne)
-    
+
     const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), 
     ...(résultatsDécisionAdministrative?.alertes ?? []), 
     ...(résultatDemandeurPersonneMorale?.alertes ?? []),
