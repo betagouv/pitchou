@@ -168,6 +168,27 @@ limit :nb_semaines_observees;
     )
 }
 
+
+/**
+ * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
+ * L'impact de Pitchou est mesuré par les retours à conformité
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre de personne ayant un "impact" à cette date
+*/
+async function calculerIndicateurImpact(nbSemainesObservées) {
+    /*
+        Avoir de l'impact
+        
+
+
+    */
+    
+
+    return new Map()
+}
+
 /**
  * Calcule le nombre de personnes retenues sur Pitchou pour chaque semaine depuis toujours (bien qu'on rappelle que la durée de stockage de ces données est d'un an).
  * Une personne retenue est une personne qui renouvelle 5 actions consultation ou modification sur une semaine sur au moins 5 des 8 dernières semaines.
@@ -310,8 +331,8 @@ export async function indicateursAARRI() {
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
-    
     const retenus = await calculerIndicateurRetenu()
+    const impacts = await calculerIndicateurImpact(nbSemainesObservées);
 
     const dates = acquis.keys();
 
@@ -321,7 +342,7 @@ export async function indicateursAARRI() {
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
             nombreUtilisateuriceActif: actifs.get(date) ?? 0,
             nombreUtilisateuriceRetenu: retenus.get(date) ?? 0,
-            nombreUtilisateuriceImpact: 0,
+            nombreUtilisateuriceImpact: impacts.get(date) ?? 0,
             nombreBaseUtilisateuricePotentielle: 300,
         })
     }
