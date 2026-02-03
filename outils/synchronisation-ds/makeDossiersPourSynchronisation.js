@@ -195,7 +195,7 @@ async function makeChampsDossierPourInitialisation(dossierDS, démarcheNumber, p
 
         if (données_supplémentaires) {
             // Ces données seront utilisées plus tard pour remplir des champs en base de données
-            console.log(`Il y a des données supplémentaires dans le dossier DS`, dossierDS.number, données_supplémentaires)
+            console.log(`Il y a des données supplémentaires dans le dossier DN`, dossierDS.number, données_supplémentaires)
         }
     } catch (erreur) {
         console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
