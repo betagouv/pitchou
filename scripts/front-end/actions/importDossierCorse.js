@@ -373,7 +373,7 @@ function créerDonnéeDateDépôt(ligne) {
     const valeurDateDeDébutDaccompagnement = ligne["Date de début d'accompagnement"]
 
     if (valeurDateDeDébutDaccompagnement.toString().length===4) {
-        return { data: setYear(new Date(), valeurDateDeDébutDaccompagnement) }
+        return { data: new Date(valeurDateDeDébutDaccompagnement,0,1) }
     } else {
         return {
             data: new Date(),
