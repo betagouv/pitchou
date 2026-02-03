@@ -175,16 +175,18 @@ limit :nb_semaines_observees;
  * 
  * @param {number} nbSemainesObservées
  *
- * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre de personne ayant un "impact" à cette date
+ * Une correspondance entre la date de la semaine concernée et le nombre de personne 
+ * ayant un "impact" à cette date
+ * @returns { Promise<Map<string, number>> } 
 */
 async function calculerIndicateurImpact(nbSemainesObservées) {
     /*
-        Avoir de l'impact
-        
+        Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
+        donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
 
 
     */
-    
+    throw `TODO refacto les requêtes des métriques pour partager le plus gros de la requête SQL`
 
     return new Map()
 }
