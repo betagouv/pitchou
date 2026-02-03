@@ -585,6 +585,9 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     ]
     
     return {
+        'Avez-vous réalisé un état des lieux écologique complet ?': true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.
+        "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": true,
+
         'Nom du projet': créerNomPourDossier(ligne),
         'Activité principale': activitéPrincipale,
         'Dans quel département se localise majoritairement votre projet ?': donnéesLocalisations['Dans quel département se localise majoritairement votre projet ?'],
