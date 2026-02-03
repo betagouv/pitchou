@@ -98,9 +98,9 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444){
  * @param {SchemaDémarcheSimplifiée} schema88444
  * @returns {Promise<{dossier_url: string}>}
  */
-export function demanderLienPréremplissage(dossierPartiel, schema88444){
-    const préRemplissageURL = `https://www.demarches-simplifiees.fr/api/public/v1/demarches/88444/dossiers`
-
+export async function demanderLienPréremplissage(dossierPartiel, schema88444){
+    const préRemplissageURL = `https://demarche.numerique.gouv.fr/api/public/v1/demarches/88444/dossiers`
+    
     return ky.post(
         préRemplissageURL, 
         {
