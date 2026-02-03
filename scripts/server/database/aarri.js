@@ -27,7 +27,9 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
                 personne,
                 min(date) as date
             from évènement_métrique
+            join personne on personne.id = évènement_métrique.personne
             where évènement = 'seConnecter'
+            and personne.email NOT ILIKE '%@beta.gouv.fr'
             group by personne
         ),
         nombre_premiere_connexion_par_semaine as (
@@ -87,7 +89,9 @@ with actions_modif_par_personne as (select
 	COUNT(évènement) as nombre_actions_modif,
 	date_trunc('week', e.date)::date as semaine
 from évènement_métrique as e
+join personne on personne.id = e.personne
 WHERE évènement IN (:evenement_modifs)
+and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
 -- filtrer par première fois activé
