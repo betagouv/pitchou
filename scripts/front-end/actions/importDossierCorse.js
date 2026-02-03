@@ -66,7 +66,7 @@ const demandeurToSiret = new Map([
   ["CORSEA PROMOTION", "82329102600016"],
   ["CORSICA ENERGIA", "88097833300016"],
   ["CORSICA SOLE", "88802711700017"],
-  ["COSICA SOLE", null], // FAUTE DE FRAPPE
+  ["COSICA SOLE", "88802711700017"], // FAUTE DE FRAPPE
   ["DGAC", "13000577000081"],
   ["EDF", "55208131722061"],
   ["EDF PEI", "48996768700083"],
@@ -75,7 +75,6 @@ const demandeurToSiret = new Map([
   ["ISONI – DELTA BOIS", "48181865600011"],
   ["LANFRANCHI ENVIRONNEMENT", "50060870800037"],
   ["LE LOGIS CORSE", "31028856800051"],
-  ["M.MORETTI", null],
   ["MAIRIE D'AMBIEGNA", "21200014500012"],
   ["MAIRIE DE BIGUGLIA", "21200037600013"],
   ["MAIRIE DE BORGO", "21200042600016"],
@@ -84,7 +83,6 @@ const demandeurToSiret = new Map([
   ["MAIRIE GHISONACCIA", "21200123400013"],
   ["MINISTÈRE DES ARMÉES", "11009001600046"],
   ["OEHC", "33043264200016"],
-  ["PARTICULIER", null],
   ["PROBAT", "42987846500021"],
   ["ROCCA FORTIMMO", "82334498100019"],
   ["ROCH LEANDRI", "45063550300037"],
@@ -389,17 +387,16 @@ function créerDonnéeDateDépôt(ligne) {
  * @param {LigneDossierCorse} ligne 
  * @returns { {data?: string, alertes?: Alerte[]} | undefined }
  */
-function créerDonnéeDemandeurPersonneMorale(ligne) {
+function getSiretSiDemandeurPersonneMorale(ligne) {
     const valeurNomDuDemandeur = ligne['Nom du demandeur'].trim().toUpperCase()
-    if (valeurNomDuDemandeur !== '') {
-        const siret = demandeurToSiret.get(valeurNomDuDemandeur)
-        if (!siret) {
-            return {alertes: [{type: 'avertissement', message: `La colonne "Nom du demandeur" a pour valeur "${valeurNomDuDemandeur} mais aucun siret correspondant n'a été trouvé."`}]}
-        } else {
-            return {data: siret}
-        }
+    const siret = demandeurToSiret.get(valeurNomDuDemandeur)
+    if (!siret && valeurNomDuDemandeur!=='') {
+        return {alertes: [{type: 'avertissement', message: `La colonne "Nom du demandeur" a pour valeur "${valeurNomDuDemandeur} mais aucun siret correspondant n'a été trouvé."`}]}
     }
 
+    if (siret) {
+        return {data: siret}
+    }
 }
 
 
@@ -460,9 +457,10 @@ function créerDonnéePersonnesQuiSuivent(ligne) {
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierCorse} ligne
+ * @param {string} [demandeurPersonneMorale]
  * @returns { DonnéesSupplémentairesPourCréationDossier & { alertes: Alerte[] } }
  */
-function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+function créerDonnéesSupplémentairesDepuisLigne(ligne, demandeurPersonneMorale) {
     const résultatsDonnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
     const avisExpert = créerDonnéesAvisExpert(ligne)
@@ -489,10 +487,6 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
     const prochaineActionAttenduePar = créerDonnéesProchaineActionAttenduePar(ligne)
 
-    const résultatDemandeurPersonneMorale = créerDonnéeDemandeurPersonneMorale(ligne)
-    /** @type {string | undefined} */
-    const demandeurPersonneMorale = résultatDemandeurPersonneMorale?.data
-
     const résultatDateDépôt = créerDonnéeDateDépôt(ligne)
 
     const dateDépôt = résultatDateDépôt?.data
@@ -501,7 +495,6 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne) {
 
     const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), 
     ...(résultatsDécisionAdministrative?.alertes ?? []), 
-    ...(résultatDemandeurPersonneMorale?.alertes ?? []),
     ... (résultatDateDépôt?.alertes ?? [])] 
 
     return {
@@ -575,18 +568,33 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
     const { data: donnéesLocalisations, alertes: alertesLocalisation } =  await générerDonnéesLocalisations(ligne)
     const { data: activitéPrincipale, alertes: alertesActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
     const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne)
+    
+    const résultatDemandeurPersonneMorale = getSiretSiDemandeurPersonneMorale(ligne)
 
-    const {alertes: alertesDonnéesSupplémentaires, ...donnéesSupplémentairesDepuisLigne} = créerDonnéesSupplémentairesDepuisLigne(ligne)
+    /** @type {Pick<DossierDemarcheNumerique88444, "Le demandeur est…" | "Nom du représentant" | 'Numéro de SIRET'> | undefined} */
+    const donnéesDemandeurPersonneMorale = résultatDemandeurPersonneMorale?.data ? {
+            "Le demandeur est…": 'une personne morale',
+            "Nom du représentant": ligne['Nom du demandeur'],
+            "Numéro de SIRET": résultatDemandeurPersonneMorale?.data ?? ''
+        } : undefined
+    
+    const alertesDemandeurPersonneMorale = résultatDemandeurPersonneMorale?.alertes
+    const { alertes: alertesDonnéesSupplémentaires, ...donnéesSupplémentairesDepuisLigne} = créerDonnéesSupplémentairesDepuisLigne(ligne, résultatDemandeurPersonneMorale?.data)
     
     const alertes = [
         ...alertesLocalisation,
         ...alertesActivité,
+        ...(alertesDemandeurPersonneMorale ?? []),
         ...alertesDonnéesSupplémentaires
     ]
     
     return {
-        'Avez-vous réalisé un état des lieux écologique complet ?': true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.
-        "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": true,
+        'Avez-vous réalisé un état des lieux écologique complet ?': true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DN et les réponses ne sont pas sauvegardées.
+        "Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?": true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DN et les réponses ne sont pas sauvegardées.
+        
+        'Le demandeur est…': donnéesDemandeurPersonneMorale ? donnéesDemandeurPersonneMorale['Le demandeur est…'] : undefined,
+        'Nom du représentant': donnéesDemandeurPersonneMorale ? donnéesDemandeurPersonneMorale['Nom du représentant'] : undefined,
+        'Numéro de SIRET': donnéesDemandeurPersonneMorale ? donnéesDemandeurPersonneMorale['Numéro de SIRET'] : undefined,
 
         'Nom du projet': créerNomPourDossier(ligne),
         'Activité principale': activitéPrincipale,
