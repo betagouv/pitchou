@@ -142,6 +142,27 @@ limit :nb_semaines_observees;
     )
 }
 
+
+/**
+ * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
+ * L'impact de Pitchou est mesuré par les retours à conformité
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre de personne ayant un "impact" à cette date
+*/
+async function calculerIndicateurImpact(nbSemainesObservées) {
+    /*
+        Avoir de l'impact
+        
+
+
+    */
+    
+
+    return new Map()
+}
+
 /**
  * @returns {Promise<IndicateursAARRI[]>}
  */
@@ -153,6 +174,7 @@ export async function indicateursAARRI() {
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
+    const impacts = await calculerIndicateurImpact(nbSemainesObservées);
 
     const dates = acquis.keys();
 
@@ -161,7 +183,7 @@ export async function indicateursAARRI() {
             date: date,
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
             nombreUtilisateuriceActif: actifs.get(date) ?? 0,
-            nombreUtilisateuriceImpact: 0,
+            nombreUtilisateuriceImpact: impacts.get(date) ?? 0,
             nombreUtilisateuriceRetenu: 0,
             nombreBaseUtilisateuricePotentielle: 300,
         })
