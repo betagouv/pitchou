@@ -1,11 +1,12 @@
 <script>
-    /** @import { DossierAvecAlertes } from "../../actions/importDossierUtils.js" */
+    /** @import { DossierAvecAlertes, } from "../../actions/importDossierUtils.js" */
     /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
     /** @import { ComponentProps } from 'svelte' */
     /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
     /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js"; */
     /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
 
+    import { extrairePremierMail} from "../../actions/importDossierUtils";
     import DéplierReplier from '../common/DéplierReplier.svelte'
     import { SvelteMap } from "svelte/reactivity";
     import { text } from "d3-fetch";
@@ -23,7 +24,8 @@
     } from "../../actions/importDossierCorse.js";
     import BoutonModale from "../DSFR/BoutonModale.svelte";
 
-    const NOM_FEUILLE_TABLEAU_SUIVI = "TDB";
+    const NOM_FEUILLE_TABLEAU_SUIVI = "Instruction";
+    const NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES = "Instructeur DREAL";
     const DREAL = "Corse";
 
     /**
@@ -70,6 +72,8 @@
     let dossiersDéjàEnBDD = $state([]);
     /** @type {Map<LigneDossierCorse, DossierAvecAlertes>}*/
     let ligneVersDossierAvecAlertes = new SvelteMap()
+    /** @type {Map<string, string>}*/
+    let emailsParInitials = $state(new SvelteMap())
 
     /** @type {Map<any,string>} */
     let ligneToLienPréremplissage = $state(new SvelteMap());
@@ -122,22 +126,42 @@
                 const fichierImport = await file.arrayBuffer();
                 const rawData = await getODSTableRawContent(fichierImport);
 
-                const rawDataTableauSuivi = rawData.get(
-                    NOM_FEUILLE_TABLEAU_SUIVI,
-                );
+                const rawDataTableauSuivi = rawData.get(NOM_FEUILLE_TABLEAU_SUIVI);
 
                 if (!rawDataTableauSuivi) {
                     throw new TypeError(
                         `Erreur dans la récupération de la feuille ${NOM_FEUILLE_TABLEAU_SUIVI}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
                     );
                 }
+
+                const rawDataEmailsParInitials = rawData.get(NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES)
+
+                if (!rawDataEmailsParInitials) {
+                    throw new TypeError(
+                        `Erreur dans la récupération de la feuille ${NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
+                    );
+                }
+    
+                emailsParInitials = new SvelteMap(
+                    rawDataEmailsParInitials.map((/** @type {{ value: any; }[]} */ row) => {
+                            if (row.length>=1 && row?.[0]?.value && extrairePremierMail(row[1]?.value ?? '')) {
+                                return ([row?.[0]?.value, extrairePremierMail(row[1]?.value ?? '')])
+                            } else {
+                                return []
+                            }
+                        })
+                    );
+
                 const lignes = [
                     ...sheetRawContentToObjects(
                         rawDataTableauSuivi.filter(isRowNotEmpty),
                     ).values(),
                 ];
 
+
+
                 lignesTableauImport = lignes;
+        
                 lignesFiltréesTableauImport = lignes.filter(
                     (ligne) => !ligneDossierEnBDD(ligne, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre),
                 );
@@ -155,7 +179,7 @@
                 // Visualiser en une fois toutes les alertes de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
                 loadingChargementDuFichier = Promise.all(
                     lignesTableauImport.map(async (ligne) => {
-                        const dossier = await créerDossierDepuisLigne(ligne, activitésPrincipales88444)
+                        const dossier = await créerDossierDepuisLigne(ligne, emailsParInitials, activitésPrincipales88444)
                         ligneVersDossierAvecAlertes.set(ligne, dossier)
                     })
                 )
