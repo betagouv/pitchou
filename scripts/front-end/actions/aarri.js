@@ -83,3 +83,9 @@ export const envoyerÉvènementRechercherUnDossier = debounce(
     10 * 1000,
     true
 )
+
+export const envoyerÉvènementModifierPrescription = debounce(
+    () => envoyerÉvènement({ type: 'modifierPrescription' }),
+    15 * 60 * 1000,
+    true
+)

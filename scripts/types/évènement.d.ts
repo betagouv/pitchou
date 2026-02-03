@@ -41,6 +41,18 @@ export type ÉvènementMétrique = {
 | { type: 'modifierDécisionAdministrative'}
 // Supprimer une décision administrative
 | { type: 'supprimerDécisionAdministrative'}
+// Ajouter une prescription
+| { type: 'ajouterPrescription'}
+// Modifier une prescription
+| { type: 'modifierPrescription'}
+// Supprimer une prescription
+| { type: 'supprimerPrescription'}
+// Ajouter un contrôle
+| { type: 'ajouterContrôle'}
+// Modifier un contrôle
+| { type: 'modifierContrôle'}
+// Supprimer un contrôle
+| { type: 'supprimerContrôle'}
 
 
 // Événements de consultation
