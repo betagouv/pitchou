@@ -1,5 +1,5 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.ts' */
-/**  @import { ÉvènementMétrique } from '../../types/évènement' */
+/**  @import { ÉvènementMétrique, ÉvènementRechercheDossiersDétails } from '../../types/évènement' */
 
 import { json } from 'd3-fetch'
 import { isValidDate } from '../../commun/typeFormat.js';
@@ -73,13 +73,13 @@ export function envoyerÉvènement(évènement) {
 }
 
 export const envoyerÉvènementModifierCommentaire = debounce(
-    () => envoyerÉvènement({type: 'modifierCommentaireInstruction'}), 
-    15 * 60 * 1000, 
+    () => envoyerÉvènement({type: 'modifierCommentaireInstruction'}),
+    15 * 60 * 1000,
     true
 )
 
 export const envoyerÉvènementRechercherUnDossier = debounce(
-    () => envoyerÉvènement({ type: 'rechercherDesDossiers' }),
-    15 * 60 * 1000,
+    (/** @type {ÉvènementRechercheDossiersDétails} */ détails) => envoyerÉvènement({ type: 'rechercherDesDossiers', détails }),
+    10 * 1000,
     true
 )
