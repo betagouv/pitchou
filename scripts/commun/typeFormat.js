@@ -80,3 +80,14 @@ export function normalizeNomCommune(nomCommune) {
         .replace(/[\u0300-\u036f]/g, '') // remove accents
         .toLowerCase()
 }
+
+// https://stackoverflow.com/a/73974452
+export const byteFormat = new Intl.NumberFormat(
+    typeof document !== 'undefined' ? document.documentElement.lang || 'fr' : "fr",
+    { 
+        notation: "compact",
+        style: 'unit', 
+        unit: 'byte',
+        unitDisplay: 'narrow'
+    }
+)
