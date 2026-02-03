@@ -142,6 +142,29 @@ limit :nb_semaines_observees;
     )
 }
 
+
+/**
+ * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
+ * L'impact de Pitchou est mesuré par les retours à conformité
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * Une correspondance entre la date de la semaine concernée et le nombre de personne 
+ * ayant un "impact" à cette date
+ * @returns { Promise<Map<string, number>> } 
+*/
+async function calculerIndicateurImpact(nbSemainesObservées) {
+    /*
+        Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
+        donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
+
+
+    */
+    throw `TODO refacto les requêtes des métriques pour partager le plus gros de la requête SQL`
+
+    return new Map()
+}
+
 /**
  * @returns {Promise<IndicateursAARRI[]>}
  */
@@ -153,6 +176,7 @@ export async function indicateursAARRI() {
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
+    const impacts = await calculerIndicateurImpact(nbSemainesObservées);
 
     const dates = acquis.keys();
 
@@ -161,7 +185,7 @@ export async function indicateursAARRI() {
             date: date,
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
             nombreUtilisateuriceActif: actifs.get(date) ?? 0,
-            nombreUtilisateuriceImpact: 0,
+            nombreUtilisateuriceImpact: impacts.get(date) ?? 0,
             nombreUtilisateuriceRetenu: 0,
             nombreBaseUtilisateuricePotentielle: 300,
         })
