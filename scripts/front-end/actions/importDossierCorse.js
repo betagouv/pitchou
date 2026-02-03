@@ -399,24 +399,13 @@ function getSiretSiDemandeurPersonneMorale(ligne) {
     }
 }
 
-
-const emailParInitials = new Map([
-["CT", "caroline.turlesque@developpement-durable.gouv.fr"],
-["CM", "coralie.moutte@developpement-durable.gouv.fr"],
-["FT", "fabrice.torre@developpement-durable.gouv.fr"],
-["MD", "marine.dedeken@mer.gouv.fr"],
-["PZ", "perle.zlotykamien@developpement-durable.gouv.fr"],
-["SJ", "sonia.jenn@developpement-durable.gouv.fr"],
-["TL", "tina.loustalot@mer.gouv.fr"],
-["VV", "virginie.vincenti@developpement-durable.gouv.fr"],
-]);
-
 /**
  * 
  * @param {LigneDossierCorse} ligne
+ * @param {Map<string, string>} emailsParInitials
  * @return {PersonneAvecEmailObligatoire[] | undefined}
  */
-function créerDonnéePersonnesQuiSuivent(ligne) {
+function créerDonnéePersonnesQuiSuivent(ligne, emailsParInitials) {
     const valeurInstructeurDREAL = ligne['Instructeur DREAL']
     const valeurDépartement = ligne['Département']
 
@@ -426,25 +415,23 @@ function créerDonnéePersonnesQuiSuivent(ligne) {
     let personnesQuiSuivent = []
 
     for (const instructriceTrouvée of instructricesTrouvées) {
-        // BG, MR, MB sont des personnes qui ne travaillent plus à la DREAL.
         if (['BG', 'MR','MB'].includes(instructriceTrouvée)) {
             if (valeurDépartement === '2A') {
-                personnesQuiSuivent.push({email: 'caroline.turlesque@developpement-durable.gouv.fr'})
-            }
-            if (valeurDépartement === '2B') {
-                personnesQuiSuivent.push({email: 'perle.zlotykamien@developpement-durable.gouv.fr'})
+                personnesQuiSuivent.push({email: emailsParInitials.get('CT') ?? ''})
+            } else if (valeurDépartement === '2B') {
+                personnesQuiSuivent.push({email: emailsParInitials.get('PZ') ?? ''})
             }
         }
 
-        const emailTrouvé = emailParInitials.get(instructriceTrouvée)
+        const emailTrouvé = emailsParInitials.get(instructriceTrouvée)
 
-        if (emailTrouvé) {
+        if (emailTrouvé && !personnesQuiSuivent.find((personneQuiSuit) => personneQuiSuit.email === emailTrouvé)) {
             personnesQuiSuivent.push({email: emailTrouvé})
         }
     }
 
     if (personnesQuiSuivent.length >= 1) {
-        return [...new Set(personnesQuiSuivent)]
+        return personnesQuiSuivent
     }
 }
 
@@ -457,10 +444,11 @@ function créerDonnéePersonnesQuiSuivent(ligne) {
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
  * @param {LigneDossierCorse} ligne
+ * @param {Map<string, string>} emailsParInitials
  * @param {string} [demandeurPersonneMorale]
  * @returns { DonnéesSupplémentairesPourCréationDossier & { alertes: Alerte[] } }
  */
-function créerDonnéesSupplémentairesDepuisLigne(ligne, demandeurPersonneMorale) {
+function créerDonnéesSupplémentairesDepuisLigne(ligne, emailsParInitials, demandeurPersonneMorale) {
     const résultatsDonnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne)
 
     const avisExpert = créerDonnéesAvisExpert(ligne)
@@ -491,7 +479,7 @@ function créerDonnéesSupplémentairesDepuisLigne(ligne, demandeurPersonneMoral
 
     const dateDépôt = résultatDateDépôt?.data
 
-    const personnesQuiSuivent = créerDonnéePersonnesQuiSuivent(ligne)
+    const personnesQuiSuivent = créerDonnéePersonnesQuiSuivent(ligne, emailsParInitials)
 
     const alertes = [...(résultatsDonnéesEvénementPhaseDossier?.alertes ?? []), 
     ...(résultatsDécisionAdministrative?.alertes ?? []), 
@@ -561,10 +549,11 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
 /**
  * Crée un objet dossier à partir d'une ligne d'import).
  * @param {LigneDossierCorse} ligne
+ * @param {Map<string, string>} emailsParInitials
  * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
  * @returns {Promise<DossierAvecAlertes>}}}
  */
-export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
+export async function créerDossierDepuisLigne(ligne, emailsParInitials, activitésPrincipales88444) {
     const { data: donnéesLocalisations, alertes: alertesLocalisation } =  await générerDonnéesLocalisations(ligne)
     const { data: activitéPrincipale, alertes: alertesActivité } = convertirTypeDeProjetEnActivitéPrincipale(ligne, activitésPrincipales88444)
 
@@ -580,7 +569,7 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
         } : undefined
     
     const alertesDemandeurPersonneMorale = résultatDemandeurPersonneMorale?.alertes
-    const { alertes: alertesDonnéesSupplémentaires, ...donnéesSupplémentairesDepuisLigne} = créerDonnéesSupplémentairesDepuisLigne(ligne, résultatDemandeurPersonneMorale?.data)
+    const { alertes: alertesDonnéesSupplémentaires, ...donnéesSupplémentairesDepuisLigne} = créerDonnéesSupplémentairesDepuisLigne(ligne, emailsParInitials, résultatDemandeurPersonneMorale?.data)
     
     const alertes = [
         ...alertesLocalisation,
