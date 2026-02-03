@@ -80,6 +80,6 @@ export const envoyerÉvènementModifierCommentaire = debounce(
 
 export const envoyerÉvènementRechercherUnDossier = debounce(
     (/** @type {ÉvènementRechercheDossiersDétails} */ détails) => envoyerÉvènement({ type: 'rechercherDesDossiers', détails }),
-    15 * 10 * 1000,
+    10 * 1000,
     true
 )
