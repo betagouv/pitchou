@@ -8,6 +8,7 @@
 const /** @type {ÉvènementRechercheDossiersDétails} **/ inutile = null;
 
 import { ajouterÉvènementDepuisCap } from './database/évènements_métriques.js';
+import { phases, prochaineActionAttenduePar } from '../front-end/affichageDossier.js';;
 
 
 /**
@@ -82,17 +83,9 @@ function estRechercheDossierDétails(détails) {
     }
 
     if (filtres.phases && Array.isArray(filtres.phases)) {
-        const phases = [
-            "Accompagnement amont",
-            "Étude recevabilité DDEP",
-            "Instruction",
-            "Contrôle",
-            "Classé sans suite",
-            "Obligations terminées",
-        ]
         const estPhases = filtres.phases.every(
             ( /** @type {any} */ peutÊtrePhase) => {
-                return phases.find(phase => phase == peutÊtrePhase)
+                return phases.has(peutÊtrePhase)
             }
         )
         if (!estPhases) {
@@ -104,19 +97,12 @@ function estRechercheDossierDétails(détails) {
         filtres.prochaineActionAttenduePar &&
         Array.isArray(filtres.prochaineActionAttenduePar))
     {
-        const typesDePersonne = [
-            "Instructeur",
-            "CNPN/CSRPN",
-            "Pétitionnaire",
-            "Consultation du public",
-            "Autre administration",
-            "Autre",
-            "Personne",
-            "(vide)",
-        ]
         const estProchaineActionAttenduePar = filtres.prochaineActionAttenduePar.every(
-            ( /** @type {any} */ peutÊtreTypeDePersonne) => {
-                return typesDePersonne.find(typeDePersonne => typeDePersonne == peutÊtreTypeDePersonne)
+            ( /** @type {any} */ peutProchaineActionPar) => {
+                return (
+                    peutProchaineActionPar === '(vide)' ||
+                    prochaineActionAttenduePar.has(peutProchaineActionPar)
+                )
             }
         )
         if (!estProchaineActionAttenduePar) {
