@@ -157,11 +157,12 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const etat_des_lieux_ecologique_complet_realise = etat_des_lieux_ecologique_complet_realise_champ?.checked
 
     const presence_especes_dans_aire_influence_champ = champById.get(
-        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+        pitchouKeyToChampDS.get("Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?"))
     const presence_especes_dans_aire_influence = presence_especes_dans_aire_influence_champ?.checked
 
     const risque_malgre_mesures_erc_champ = champById.get(
-        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+        pitchouKeyToChampDS.get("Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il ?"))
+    
     const risque_malgre_mesures_erc = risque_malgre_mesures_erc_champ?.checked
 
     /** Données dossier scientifique */
