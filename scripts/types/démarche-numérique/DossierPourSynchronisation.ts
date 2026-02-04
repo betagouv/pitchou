@@ -32,7 +32,6 @@ type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | Do
 export type DossierPourSynchronisation<DossierType> = {
     dossier: DossierType
     évènement_phase_dossier: PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]
-    avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[]
     décision_administrative: PartialBy<DécisionAdministrativeInitializer, 'dossier'>[]
 }
 
@@ -50,7 +49,9 @@ export type DossierEntreprisesPersonneInitializersPourUpdate =
 export type PersonneAvecEmailObligatoire = Partial<Omit<Personne, "email">> & {email: NonNullable<Personne['email']>} ;
 
 //Le type DossierPourInsertGénérique existe pour construire le type des données supplémentaires des dossiers importés
-export type DossierPourInsertGénérique<Dossier> = DossierPourSynchronisation<Dossier> & { personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined }
+export type DossierPourInsertGénérique<Dossier> = DossierPourSynchronisation<Dossier> & {
+	personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined
+} & { avis_expert: PartialBy<AvisExpertInitializer, 'dossier'>[] }
 export type DossierPourInsert = DossierPourInsertGénérique<DossierInitializer>
 
 export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>
