@@ -149,8 +149,9 @@ limit :nb_semaines_observees;
  */
 
 /**
+ * @param {number} nombreSeuilActions
 */
-async function calculerIndicateurRetenu() {
+async function calculerIndicateurRetenu(nombreSeuilActions) {
 
     /** @type {ÉvènementMétrique['type'][]} */
     const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
@@ -176,7 +177,7 @@ group by personne, semaine;
     /**@type {{personne: PersonneId, nombre_actions: number, semaine: Semaine}[]} */
     const résultatsFormattés = result.rows.map((/** @type {any} */ row) => ({personne: Number(row.personne), nombre_actions: Number(row.nombre_actions), semaine: row.semaine}))
 
-    /**@type {Map<PersonneId,Map<Semaine, number>>} */
+    /**@type {Map<PersonneId, Map<Semaine, number>>} */
     const résultatsParPersonne = new Map()
 
     for (const {personne, nombre_actions, semaine} of résultatsFormattés) {
@@ -187,22 +188,40 @@ group by personne, semaine;
         résultatsParPersonne.set(personne, nombreActionsParSemaine)
     }
 
-    //TODO: Pour chaque personne, identifier la première semaine où elle a été retenue.
+    // Pour chaque personne, identifier la première semaine où elle a été retenue.
+    /** @type {Map<PersonneId, Semaine>} */
+    const premièreSemaineRetenuParPersonne = new Map()
+
+    résultatsParPersonne.forEach((nombreActionsParSemaine, personne) => {
+        /** @type {[Semaine, number][]} */
+        const nombreActionsParSemaineRetenu = [...nombreActionsParSemaine]
+            .filter((nombreActionsSemaine) => nombreActionsSemaine[1] >= nombreSeuilActions)
+            .sort((nombreActionsSemaine1,nombreActionsSemaine2) => nombreActionsSemaine1[1] - nombreActionsSemaine2[1])
+        
+        if (nombreActionsParSemaineRetenu.length>=1) {
+            premièreSemaineRetenuParPersonne.set(personne, nombreActionsParSemaineRetenu[0][0])       
+        }
+
+    })
+
+    console.log('premièreSemaineRetenuParPersonne', premièreSemaineRetenuParPersonne)
     //Puis, faire un regroupement par semaine pour déterminer le nobmre de personnes retenues à cette semaine là.
     //Puis, faire le cumul par semaine 
 }
+
 
 /**
  * @returns {Promise<IndicateursAARRI[]>}
  */
 export async function indicateursAARRI() {
-calculerIndicateurRetenu()
+    const nombreSeuilActionsRetenu = 5
     const nbSemainesObservées = 5
 
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
+    calculerIndicateurRetenu(nombreSeuilActionsRetenu)
 
     const dates = acquis.keys();
 
