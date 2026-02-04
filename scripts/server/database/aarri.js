@@ -1,12 +1,40 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
 /** @import { ÉvènementMétrique } from '../../types/évènement.js' */
-/** @import {PersonneId} from '../../types/database/public/Personne.js' */
+/** @import { PersonneId } from '../../types/database/public/Personne.js' */
+
+import { eachWeekOfInterval } from 'date-fns';
+import { directDatabaseConnection } from '../database.js';
+
+/** @type {ÉvènementMétrique['type'][]} */
+const ÉVÈNEMENTS_CONSULTATIONS= [
+    'rechercherDesDossiers',
+    'afficherLesDossiersSuivis',
+    'consulterUnDossier',
+]
+
+/** @type {ÉvènementMétrique['type'][]} */
+const ÉVÈNEMENTS_MODIFICATIONS = [
+    'modifierCommentaireInstruction', 
+    'changerPhase', 
+    'changerProchaineActionAttendueDe', 
+    'ajouterDécisionAdministrative', 
+    'modifierDécisionAdministrative', 
+    'supprimerDécisionAdministrative',
+    'ajouterPrescription',
+    'modifierPrescription',
+    'supprimerPrescription',
+    'ajouterContrôle',
+    'modifierContrôle',
+    'supprimerContrôle'
+]
 
 
-import { addWeeks, eachWeekOfInterval, subWeeks } from 'date-fns';
-import {directDatabaseConnection} from '../database.js'
+/**
+ * Correspond au jour d'une semaine
+ * @typedef {Date} Semaine
+ */
 
-
+/** @typedef {string} dateStringifiée */
 
 /**
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
@@ -20,7 +48,7 @@ import {directDatabaseConnection} from '../database.js'
  * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
  * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
  *
- * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
+ * @returns { Promise<Map<dateStringifiée, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
 */
 async function calculerIndicateurAcquis(nbSemainesObservées) {
     const acquis = await directDatabaseConnection.raw(`
@@ -77,13 +105,10 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
  * 
  * @param {number} nbSemainesObservées
  *
- * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
+ * @returns { Promise<Map<dateStringifiée, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
 */
 async function calculerIndicateurActif(nbSemainesObservées) {
 
-    /** @type {ÉvènementMétrique['type'][]} */
-    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
-    
     const actifs = await directDatabaseConnection.raw(`
         -- personnes et le nombre évènement d'action de modif par semaine
 with actions_modif_par_personne as (select
@@ -133,7 +158,7 @@ limit :nb_semaines_observees;
             nb_semaines_observees: nbSemainesObservées,
             nb_seuil_actions_modif: 5,
             evenement_modifs: directDatabaseConnection.raw(
-                évènementsModifications.map(() => '?').join(', '), évènementsModifications)
+                ÉVÈNEMENTS_MODIFICATIONS.map(() => '?').join(', '), ÉVÈNEMENTS_MODIFICATIONS)
 
         })
 
@@ -145,25 +170,15 @@ limit :nb_semaines_observees;
 }
 
 /**
- * Correspond au jour d'une semaine
- * @typedef {Date} Semaine
- */
-
-/** @typedef {string} dateStringifiée */
-
-/**
- * @param {number} nbSemainesObservées
  * @param {number} nombreSeuilActions
+ * Calcule le nombre de personnes retenues sur Pitchou pour chaque semaine depuis toujours (bien qu'on rappelle que la durée de stockage de ces données est d'un an).
+ * Une personne retenue est une personne qui a effectué au moins 5 actions de modification ou de consultation sur une semaine.
+ * 
  * @returns { Promise<Map<dateStringifiée, number>> } Une correspondance entre la date de la semaine concernée et le nombre de retenu.e.s à cette date
 */
-async function calculerIndicateurRetenu(nbSemainesObservées, nombreSeuilActions) {
+async function calculerIndicateurRetenu(nombreSeuilActions) {
 
-    /** @type {ÉvènementMétrique['type'][]} */
-    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
-    /** @type {ÉvènementMétrique['type'][]} */
-    const évènementsConsultations= ['rechercherDesDossiers']
-
-    const évènements = [...évènementsModifications, ...évènementsConsultations]
+    const évènements = [...ÉVÈNEMENTS_CONSULTATIONS, ...ÉVÈNEMENTS_MODIFICATIONS]
     
     const result = await directDatabaseConnection.raw(`
         -- personnes et le nombre évènement d'action de modif/consult par semaine
@@ -260,7 +275,7 @@ export async function indicateursAARRI() {
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
-    const retenus = await calculerIndicateurRetenu(nbSemainesObservées, nombreSeuilActionsRetenu)
+    const retenus = await calculerIndicateurRetenu(nombreSeuilActionsRetenu)
 
     const dates = acquis.keys();
 
