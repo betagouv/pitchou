@@ -206,7 +206,7 @@ Parfois, notamment après des changements dans le modèle de données, il est n�
 Pour le faire, on peut utiliser un [*one-off container*}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
-scalingo --app especes-protegees run node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01
+scalingo --app especes-protegees run --size 2XL 'node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
 ```
 
 
