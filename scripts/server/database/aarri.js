@@ -204,9 +204,24 @@ group by personne, semaine;
 
     })
 
-    console.log('premièreSemaineRetenuParPersonne', premièreSemaineRetenuParPersonne)
-    //Puis, faire un regroupement par semaine pour déterminer le nobmre de personnes retenues à cette semaine là.
-    //Puis, faire le cumul par semaine 
+
+
+
+    //On fait un regroupement par semaine pour déterminer le nombre de personnes retenues à cette semaine là.
+    /** @typedef {string} dateStringifiée */
+    /** @type {Map<dateStringifiée, [PersonneId, Semaine][]>} */
+    const personnesPremièreFoisRetenueRegroupéesParSemaine = Map.groupBy([...premièreSemaineRetenuParPersonne], ([_, semaine]) => semaine.toISOString())
+
+    //Puis, on fait le cumul par semaine 
+    /** @type {Map<Semaine, number>} */
+    const nombreRetenusParSemaine = new Map()
+    personnesPremièreFoisRetenueRegroupéesParSemaine.forEach((value) => {
+        const cetteSemaine = value[0][1]
+        const nombrePersonnesRetenuesCetteSemaine = value.length
+        nombreRetenusParSemaine.set(cetteSemaine, nombrePersonnesRetenuesCetteSemaine)
+    } )
+
+    console.log('nombreRetenusParSemaine', nombreRetenusParSemaine)
 }
 
 
