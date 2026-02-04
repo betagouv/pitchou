@@ -3,6 +3,7 @@
 /** @import {PersonneId} from '../../types/database/public/Personne.js' */
 
 
+import { addWeeks, eachWeekOfInterval, subWeeks } from 'date-fns';
 import {directDatabaseConnection} from '../database.js'
 
 
@@ -148,10 +149,14 @@ limit :nb_semaines_observees;
  * @typedef {Date} Semaine
  */
 
+/** @typedef {string} dateStringifiée */
+
 /**
+ * @param {number} nbSemainesObservées
  * @param {number} nombreSeuilActions
+ * @returns { Promise<Map<dateStringifiée, number>> } Une correspondance entre la date de la semaine concernée et le nombre de retenu.e.s à cette date
 */
-async function calculerIndicateurRetenu(nombreSeuilActions) {
+async function calculerIndicateurRetenu(nbSemainesObservées, nombreSeuilActions) {
 
     /** @type {ÉvènementMétrique['type'][]} */
     const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
@@ -203,25 +208,44 @@ group by personne, semaine;
         }
 
     })
-
-
-
-
-    //On fait un regroupement par semaine pour déterminer le nombre de personnes retenues à cette semaine là.
-    /** @typedef {string} dateStringifiée */
+    
+    //On fait un regroupement par semaine pour déterminer le nombre de personnes retenues à cette semaine là
     /** @type {Map<dateStringifiée, [PersonneId, Semaine][]>} */
     const personnesPremièreFoisRetenueRegroupéesParSemaine = Map.groupBy([...premièreSemaineRetenuParPersonne], ([_, semaine]) => semaine.toISOString())
 
-    //Puis, on fait le cumul par semaine 
-    /** @type {Map<Semaine, number>} */
+    /** @type {Map<dateStringifiée, number>} */
     const nombreRetenusParSemaine = new Map()
-    personnesPremièreFoisRetenueRegroupéesParSemaine.forEach((value) => {
-        const cetteSemaine = value[0][1]
+    
+    personnesPremièreFoisRetenueRegroupéesParSemaine.forEach((value, cetteSemaine) => {
         const nombrePersonnesRetenuesCetteSemaine = value.length
         nombreRetenusParSemaine.set(cetteSemaine, nombrePersonnesRetenuesCetteSemaine)
     } )
 
-    console.log('nombreRetenusParSemaine', nombreRetenusParSemaine)
+    //Puis, on fait le cumul de nombre de retenu.e.s par semaine
+    /** @type {Map<dateStringifiée, number>} */
+    const nombreRetenusCumulésParSemaine = new Map()
+
+    const aujourdhui = new Date()
+    const premièreSemaineAvecRetenu = Array.from(personnesPremièreFoisRetenueRegroupéesParSemaine.keys())[0]
+
+    /** @type {dateStringifiée[]} */
+    const toutesLesSemaines = eachWeekOfInterval(
+        {
+            start: premièreSemaineAvecRetenu,
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+    let nombreRetenusCumulés = 0
+    for (const semaineObservée of toutesLesSemaines) {
+        nombreRetenusCumulés = nombreRetenusCumulés + (nombreRetenusParSemaine.get(semaineObservée) ?? 0)
+        nombreRetenusCumulésParSemaine.set(semaineObservée, nombreRetenusCumulés)
+    }
+
+    return nombreRetenusCumulésParSemaine
 }
 
 
@@ -236,7 +260,7 @@ export async function indicateursAARRI() {
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
-    calculerIndicateurRetenu(nombreSeuilActionsRetenu)
+    const retenus = await calculerIndicateurRetenu(nbSemainesObservées, nombreSeuilActionsRetenu)
 
     const dates = acquis.keys();
 
@@ -245,8 +269,8 @@ export async function indicateursAARRI() {
             date: date,
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
             nombreUtilisateuriceActif: actifs.get(date) ?? 0,
+            nombreUtilisateuriceRetenu: retenus.get(date) ?? 0,
             nombreUtilisateuriceImpact: 0,
-            nombreUtilisateuriceRetenu: 0,
             nombreBaseUtilisateuricePotentielle: 300,
         })
     }
