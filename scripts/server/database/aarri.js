@@ -183,7 +183,7 @@ async function calculerIndicateurRetenu() {
     const évènements = [...ÉVÈNEMENTS_CONSULTATIONS, ...ÉVÈNEMENTS_MODIFICATIONS]
     const nombreSemainesGlissantesÀObserver = 7
     const nombreSeuilActionsParSemaine = 5
-    const nombreSeuilSemainesValidées = 5
+    const nombreSeuilSemainesValidées = 1
 
     /** @type {Semaine[]} */
     const semaines = eachWeekOfInterval(
@@ -215,7 +215,7 @@ group by personne, semaine;
 
     /**@type {{personne: PersonneId, nombre_actions: number, semaine: Semaine}[]} */
     // @ts-ignore
-    const retourRequêteFormattée = retourRequête.rows.map((row) => ({personne: Number(row.personne), nombre_actions: Number(row.nombre_actions), semaine: row.semaine}))
+    const retourRequêteFormattée = retourRequête.rows.map((row) => ({personne: Number(row.personne), nombre_actions: Number(row.nombre_actions), semaine: row.semaine})) // TODO : à la place de row.semaine, trouver la semaine dans le tableau semaines 
 
     /**@type {Map<PersonneId, Map<Semaine, number>>} */
     const résultatsParPersonne = new Map()
@@ -227,16 +227,21 @@ group by personne, semaine;
         résultatsParPersonne.set(personne, nombreActionsParSemaine)
     }
 
+    console.log('résultatsParPersonne', résultatsParPersonne)
+
     // Pour chaque personne, identifier la première semaine où elle a été retenue.
     /** @type {Map<PersonneId, Semaine>} */
     const premièreSemaineRetenuParPersonne = new Map()
 
     résultatsParPersonne.forEach((nombreActionsParSemaine, personne) => {
         const semaineRetenue = getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsParSemaine, nombreSemainesGlissantesÀObserver, semaines, nombreSeuilSemainesValidées)
+        console.log('semaineRetenue', semaineRetenue, 'par la personne ', personne)
         if (semaineRetenue) {
             premièreSemaineRetenuParPersonne.set(personne, semaineRetenue)       
         }
     })
+
+    console.log('premièreSemaineRetenuParPersonne', premièreSemaineRetenuParPersonne)
     
     //Calculer le nombre de personnes retenues par semaine
     /** @type {Map<dateStringifiée, number>} */
@@ -268,7 +273,7 @@ group by personne, semaine;
  * 
  * Condition de rétention : 
  * il existe une période de 7 semaines dans laquelle il y a 5 semaines validées.
- * Une semaine validée est une semaine où la personne a effectuté au moins 5 actions de modification ou de consultation.
+ * Une semaine validée est une semaine où la personne a effectué au moins 5 actions de modification ou de consultation.
  * 
  * @param {Map<Semaine, number>} nombreActionsParSemaine
  * @param {number} nombreSeuilActionsParSemaine
@@ -284,16 +289,16 @@ function getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsP
     for (let i=0; i<= semaines.length; i++) {
         const périodeObservée = semaines.splice(i,i+nombreSemainesGlissantesÀObserver)
 
-        const nombreSemainesValidéesSurSemainesÀObserver = périodeObservée.filter(
+        const semainesValidéesSurSemainesÀObserver = périodeObservée.filter(
             (semaine) => {
                 const nombreActions = nombreActionsParSemaine.get(semaine) ?? 0
                 // Condition pour qu'une semaine soit validée
                 return nombreActions >= nombreSeuilActionsParSemaine
             })
-
+console.log('semainesValidéesSurSemainesÀObserver', semainesValidéesSurSemainesÀObserver)
         // Condition pour que la personne soit dite retenue sur cette période de 7 semaines.
-        if (nombreSemainesValidéesSurSemainesÀObserver.length >= nombreSeuilSemainesValidées) {
-            return nombreSemainesValidéesSurSemainesÀObserver.at(-1) || null
+        if (semainesValidéesSurSemainesÀObserver.length >= nombreSeuilSemainesValidées) {
+            return semainesValidéesSurSemainesÀObserver.at(-1) || null
         }
     }
 
