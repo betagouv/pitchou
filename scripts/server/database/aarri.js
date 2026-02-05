@@ -170,17 +170,35 @@ limit :nb_semaines_observees;
 }
 
 /**
- * @param {number} nombreSeuilActions
  * Calcule le nombre de personnes retenues sur Pitchou pour chaque semaine depuis toujours (bien qu'on rappelle que la durée de stockage de ces données est d'un an).
- * Une personne retenue est une personne qui a effectué au moins 5 actions de modification ou de consultation sur une semaine.
+ * Une personne retenue est une personne qui renouvelle 5 actions consultation ou modification sur 7 jours glissants sur au moins 5 des 7 dernières semaines.
+ * 
+ * @remark
+ * On décide de regarder le nombre de semaines validées sur une période de 7 semaines pour tenir compte des congés des instructrices (utilisateurices).
  * 
  * @returns { Promise<Map<dateStringifiée, number>> } Une correspondance entre la date de la semaine concernée et le nombre de retenu.e.s à cette date
 */
-async function calculerIndicateurRetenu(nombreSeuilActions) {
-
+async function calculerIndicateurRetenu() {
+    // Paramètres de la condition de rétention
     const évènements = [...ÉVÈNEMENTS_CONSULTATIONS, ...ÉVÈNEMENTS_MODIFICATIONS]
+    const nombreSemainesGlissantesÀObserver = 7
+    const nombreSeuilActionsParSemaine = 5
+    const nombreSeuilSemainesValidées = 5
+
+    /** @type {Semaine[]} */
+    const semaines = eachWeekOfInterval(
+        {
+            start: new Date('2024-01-01T00:00:00.000Z'),
+            end: new Date(),
+        },
+        {
+            weekStartsOn: 1,
+        }
+    )
+    const semainesStringifiées = semaines.map((semaine) => semaine.toISOString())
     
-    const result = await directDatabaseConnection.raw(`
+    /** @type {{ rows: { personne: string, nombre_actions: string, semaine: Date }[] }} */
+    const retourRequête = await directDatabaseConnection.raw(`
         -- personnes et le nombre évènement d'action de modif/consult par semaine
 select
 	personne,
@@ -194,17 +212,18 @@ group by personne, semaine;
                 évènements.map(() => '?').join(', '), évènements)
 
         })
+
     /**@type {{personne: PersonneId, nombre_actions: number, semaine: Semaine}[]} */
-    const résultatsFormattés = result.rows.map((/** @type {any} */ row) => ({personne: Number(row.personne), nombre_actions: Number(row.nombre_actions), semaine: row.semaine}))
+    // @ts-ignore
+    const retourRequêteFormattée = retourRequête.rows.map((row) => ({personne: Number(row.personne), nombre_actions: Number(row.nombre_actions), semaine: row.semaine}))
 
     /**@type {Map<PersonneId, Map<Semaine, number>>} */
     const résultatsParPersonne = new Map()
 
-    for (const {personne, nombre_actions, semaine} of résultatsFormattés) {
+    for (const {personne, nombre_actions, semaine} of retourRequêteFormattée) {
         /** @type {Map<Semaine, number>} */
         const nombreActionsParSemaine = résultatsParPersonne.get(personne) || new Map()
         nombreActionsParSemaine.set(semaine, nombre_actions)
-
         résultatsParPersonne.set(personne, nombreActionsParSemaine)
     }
 
@@ -213,24 +232,19 @@ group by personne, semaine;
     const premièreSemaineRetenuParPersonne = new Map()
 
     résultatsParPersonne.forEach((nombreActionsParSemaine, personne) => {
-        /** @type {[Semaine, number][]} */
-        const nombreActionsParSemaineRetenu = [...nombreActionsParSemaine]
-            .filter((nombreActionsSemaine) => nombreActionsSemaine[1] >= nombreSeuilActions)
-            .sort((nombreActionsSemaine1,nombreActionsSemaine2) => nombreActionsSemaine1[1] - nombreActionsSemaine2[1])
-        
-        if (nombreActionsParSemaineRetenu.length>=1) {
-            premièreSemaineRetenuParPersonne.set(personne, nombreActionsParSemaineRetenu[0][0])       
+        const semaineRetenue = getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsParSemaine, nombreSemainesGlissantesÀObserver, semaines, nombreSeuilSemainesValidées)
+        if (semaineRetenue) {
+            premièreSemaineRetenuParPersonne.set(personne, semaineRetenue)       
         }
-
     })
     
-    //On fait un regroupement par semaine pour déterminer le nombre de personnes retenues à cette semaine là
+    //Calculer le nombre de personnes retenues par semaine
+    /** @type {Map<dateStringifiée, number>} */
+    const nombreRetenusParSemaine = new Map()
+
     /** @type {Map<dateStringifiée, [PersonneId, Semaine][]>} */
     const personnesPremièreFoisRetenueRegroupéesParSemaine = Map.groupBy([...premièreSemaineRetenuParPersonne], ([_, semaine]) => semaine.toISOString())
 
-    /** @type {Map<dateStringifiée, number>} */
-    const nombreRetenusParSemaine = new Map()
-    
     personnesPremièreFoisRetenueRegroupéesParSemaine.forEach((value, cetteSemaine) => {
         const nombrePersonnesRetenuesCetteSemaine = value.length
         nombreRetenusParSemaine.set(cetteSemaine, nombrePersonnesRetenuesCetteSemaine)
@@ -240,22 +254,8 @@ group by personne, semaine;
     /** @type {Map<dateStringifiée, number>} */
     const nombreRetenusCumulésParSemaine = new Map()
 
-    const aujourdhui = new Date()
-    const premièreSemaineAvecRetenu = Array.from(personnesPremièreFoisRetenueRegroupéesParSemaine.keys())[0]
-
-    /** @type {dateStringifiée[]} */
-    const toutesLesSemaines = eachWeekOfInterval(
-        {
-            start: premièreSemaineAvecRetenu,
-            end: aujourdhui,
-        },
-        {
-            weekStartsOn: 1,
-        }
-    ).map((semaine) => semaine.toISOString())
-
     let nombreRetenusCumulés = 0
-    for (const semaineObservée of toutesLesSemaines) {
+    for (const semaineObservée of semainesStringifiées) {
         nombreRetenusCumulés = nombreRetenusCumulés + (nombreRetenusParSemaine.get(semaineObservée) ?? 0)
         nombreRetenusCumulésParSemaine.set(semaineObservée, nombreRetenusCumulés)
     }
@@ -263,19 +263,57 @@ group by personne, semaine;
     return nombreRetenusCumulésParSemaine
 }
 
+/**
+ * Calcule la première semaine à laquelle la personne est considérée comme retenue.
+ * 
+ * Condition de rétention : 
+ * il existe une période de 7 semaines dans laquelle il y a 5 semaines validées.
+ * Une semaine validée est une semaine où la personne a effectuté au moins 5 actions de modification ou de consultation.
+ * 
+ * @param {Map<Semaine, number>} nombreActionsParSemaine
+ * @param {number} nombreSeuilActionsParSemaine
+ * @param {number} nombreSemainesGlissantesÀObserver
+ * @param {Semaine[]} semaines
+ * @param {number} nombreSeuilSemainesValidées
+ * 
+ * @returns {Semaine | null}
+ */
+function getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsParSemaine, nombreSemainesGlissantesÀObserver, semaines, nombreSeuilSemainesValidées) {
+    let semainePersonneRetenue = null
+
+    for (let i=0; i<= semaines.length; i++) {
+        const périodeObservée = semaines.splice(i,i+nombreSemainesGlissantesÀObserver)
+
+        const nombreSemainesValidéesSurSemainesÀObserver = périodeObservée.filter(
+            (semaine) => {
+                const nombreActions = nombreActionsParSemaine.get(semaine) ?? 0
+                // Condition pour qu'une semaine soit validée
+                return nombreActions >= nombreSeuilActionsParSemaine
+            })
+
+        // Condition pour que la personne soit dite retenue sur cette période de 7 semaines.
+        if (nombreSemainesValidéesSurSemainesÀObserver.length >= nombreSeuilSemainesValidées) {
+            return nombreSemainesValidéesSurSemainesÀObserver.at(-1) || null
+        }
+    }
+
+    return semainePersonneRetenue
+
+}
+
 
 /**
  * @returns {Promise<IndicateursAARRI[]>}
  */
 export async function indicateursAARRI() {
-    const nombreSeuilActionsRetenu = 5
     const nbSemainesObservées = 5
 
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
-    const retenus = await calculerIndicateurRetenu(nombreSeuilActionsRetenu)
+    
+    const retenus = await calculerIndicateurRetenu()
 
     const dates = acquis.keys();
 
