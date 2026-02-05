@@ -17,9 +17,9 @@ import récupérerTousLesDossiersSupprimés from '../scripts/server/démarche-nu
 import {isValidDate} from '../scripts/commun/typeFormat.js'
 
 import {téléchargerNouveauxFichiersMotivation} from './synchronisation-ds/téléchargerNouveauxFichiersParType.js'
-import { récupérerFichiersAvisEtSaisines88444, récupérerFichiersEspècesImpactées88444, récupérerPiècesJointesPétitionnaire88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
+import { récupérerFichiersEspècesImpactées88444, récupérerPiècesJointesPétitionnaire88444 } from './synchronisation-ds/synchronisation-dossier-88444.js'
 
-import { getDonnéesPersonnesEntreprises88444, makeAvisExpertFromTraitementsDS88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
+import { getDonnéesPersonnesEntreprises88444, makeDossiersPourSynchronisation } from './synchronisation-ds/makeDossiersPourSynchronisation.js'
 import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -144,27 +144,8 @@ const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivatio
 
 const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP
 
-/** Télécharger les nouveaux fichiers des avis d'experts (CNPN/CSRPN/Ministre) */
-const {
-    fichiersAvisCSRPN_CNPN_Téléchargés,
-    fichiersSaisinesCSRPN_CNPN_Téléchargés,
-    fichiersAvisConformeMinistreTéléchargés
-} = await (async () => {
-    if (DEMARCHE_NUMBER === 88444) {
-        return await récupérerFichiersAvisEtSaisines88444(
-            dossiersDS,
-            pitchouKeyToAnnotationDS,
-            laTransactionDeSynchronisationDS
-        )
-    } else {
-        throw new Error(`La fonction pour récupérer les fichiers et avis des experts n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
-    }
-})()
-
-
 const {
     getDonnéesPersonnesEntreprises,
-    makeAvisExpertFromTraitementsDS,
     makeColonnesCommunesDossierPourSynchro
 } = (() => {
     if (DEMARCHE_NUMBER === 88444) {
@@ -192,14 +173,10 @@ const {dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro} = await ma
     dossiersDS,
     DEMARCHE_NUMBER,
     dossierNumberToDossierId,
-    fichiersSaisinesCSRPN_CNPN_Téléchargés,
-    fichiersAvisCSRPN_CNPN_Téléchargés,
-    fichiersAvisConformeMinistreTéléchargés,
     fichiersMotivationTéléchargés,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
     getDonnéesPersonnesEntreprises,
-    makeAvisExpertFromTraitementsDS,
     makeColonnesCommunesDossierPourSynchro
 )
 

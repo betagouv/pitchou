@@ -256,10 +256,7 @@ export interface AnnotationsPriveesDemarcheNumerique88444 {
    */
   "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": Date;
   "Autres documents relatifs au dossier": ChampDSPieceJustificative;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "N° Demande ONAGRE": string;
+
   "Saisine de l'instructeur": ChampDSPieceJustificative;
   /**
    * Pour les dossiers historiques en cours de saisie dans DS
@@ -269,14 +266,7 @@ export interface AnnotationsPriveesDemarcheNumerique88444 {
    * Pour les dossiers historiques en cours de saisie dans DS
    */
   "Date saisine CNPN": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Avis CSRPN/CNPN": ChampDSPieceJustificative;
-  "Date avis CSRPN": Date;
-  "Date avis CNPN": Date;
-  "Date avis conforme Ministre": Date;
-  "Avis conforme Ministre": ChampDSPieceJustificative;
+
   "Date de début de la consultation du public ou enquête publique": Date;
   "Date de fin de la consultation du public ou enquête publique": Date;
 }
