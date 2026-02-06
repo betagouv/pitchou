@@ -170,17 +170,17 @@ limit :nb_semaines_observees;
 
 /**
  * Calcule le nombre de personnes retenues sur Pitchou pour chaque semaine depuis toujours (bien qu'on rappelle que la durée de stockage de ces données est d'un an).
- * Une personne retenue est une personne qui renouvelle 5 actions consultation ou modification sur 7 jours glissants sur au moins 5 des 7 dernières semaines.
+ * Une personne retenue est une personne qui renouvelle 5 actions consultation ou modification sur une semaine sur au moins 5 des 8 dernières semaines.
  * 
  * @remark
- * On décide de regarder le nombre de semaines validées sur une période de 7 semaines pour tenir compte des congés des instructrices (utilisateurices).
+ * On décide de regarder le nombre de semaines validées sur une période de 8 semaines pour tenir compte des congés des instructrices (utilisateurices).
  * 
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre de retenu.e.s à cette date
 */
 async function calculerIndicateurRetenu() {
     // Paramètres de la condition de rétention
     const évènements = [...ÉVÈNEMENTS_CONSULTATIONS, ...ÉVÈNEMENTS_MODIFICATIONS]
-    const nombreSemainesGlissantesÀObserver = 7
+    const nombreSemainesGlissantesÀObserver = 8
     const nombreSeuilActionsParSemaine = 5
     const nombreSeuilSemainesValidées = 5
 
@@ -267,7 +267,7 @@ group by personne, semaine;
  * Calcule la première semaine à laquelle la personne est considérée comme retenue.
  * 
  * Condition de rétention : 
- * il existe une période de 7 semaines dans laquelle il y a 5 semaines validées.
+ * il existe une période de 8 semaines dans laquelle il y a 5 semaines validées.
  * Une semaine validée est une semaine où la personne a effectué au moins 5 actions de modification ou de consultation.
  * 
  * @param {Map<Semaine, number>} nombreActionsParSemaine
@@ -289,7 +289,7 @@ function getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsP
                 // Condition pour qu'une semaine soit validée
                 return nombreActions >= nombreSeuilActionsParSemaine
             })
-        // Condition pour que la personne soit dite retenue sur cette période de 7 semaines.
+        // Condition pour que la personne soit dite retenue sur cette période de 8 semaines.
         if (semainesValidéesSurSemainesÀObserver.length >= nombreSeuilSemainesValidées) {
             return semainesValidéesSurSemainesÀObserver.at(-1) || null
         }
