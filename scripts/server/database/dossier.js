@@ -436,7 +436,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
     const accessibleDossierId = await dossiersAccessibleViaCap(dossierId, cap, transaction)
 
-    if(!accessibleDossierId.has(dossierId)){
+    if(!accessibleDossierId.has(Number(dossierId))){
         if(!databaseConnection.isTransaction){
             // transaction créée à la main, la libérer avant de throw
             await transaction.commit()
@@ -445,17 +445,29 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     }
 
     /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string, demandeur_personne_morale_adresse?: string}>} */
-    const dossierP = transaction('dossier')
-        .select(colonnesDossierComplet)
-        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
-        .join('arête_cap_dossier__groupe_instructeurs', {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'})
-        .leftJoin('personne as déposant', {'déposant.id': 'dossier.déposant'})
-        .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
-        .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
-        .leftJoin('fichier as fichier_espèces_impactées', {'fichier_espèces_impactées.id': 'dossier.espèces_impactées'})
-        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap})
-        .andWhere({"dossier.id": dossierId})
-        .first()
+    const dossierP = directDatabaseConnection.raw(`
+        SELECT
+    ${colonnesDossierComplet.join(', ')}
+FROM dossier
+JOIN arête_groupe_instructeurs__dossier
+    ON arête_groupe_instructeurs__dossier.dossier = dossier.id
+JOIN arête_cap_dossier__groupe_instructeurs
+    ON arête_cap_dossier__groupe_instructeurs.groupe_instructeurs =
+       arête_groupe_instructeurs__dossier.groupe_instructeurs
+LEFT JOIN personne AS déposant
+    ON déposant.id = dossier.déposant
+LEFT JOIN personne AS demandeur_personne_physique
+    ON demandeur_personne_physique.id = dossier.demandeur_personne_physique
+LEFT JOIN entreprise AS demandeur_personne_morale
+    ON demandeur_personne_morale.siret = dossier.demandeur_personne_morale
+LEFT JOIN fichier AS fichier_espèces_impactées
+    ON fichier_espèces_impactées.id = dossier.espèces_impactées
+WHERE arête_cap_dossier__groupe_instructeurs.cap_dossier = '${cap}'
+  AND dossier.id = ${dossierId}
+LIMIT 1;
+`).then(result => {
+    return result.rows[0]
+})
 
     /** @type {Promise<ÉvènementPhaseDossier[]>} */
     const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction)
@@ -466,7 +478,6 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
     /** @type {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type'> & {taille: number})[]>} */
     const descriptionsPiècesJointesPétitionnaireP = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction)
 
-    
 
     /** @type {Promise<DécisionAdministrative[]>} */
     const décisionsAdministrativesP = getDécisionAdministratives(dossierId, transaction)
@@ -488,6 +499,7 @@ export async function getDossierComplet(dossierId, cap, databaseConnection = dir
 
     return Promise.all([dossierP, évènementsPhaseDossierP, tousLesAvisExpertDossierP, descriptionsPiècesJointesPétitionnaireP, décisionsAdministrativesP, prescriptionsP, contrôlesP])
         .then(([dossier, évènementsPhaseDossier, tousLesAvisExpertDossier, descriptionsPiècesJointesPétitionnaire, décisionsAdministratives, prescriptions, contrôles]) => {
+
             dossier.demandeur_adresse = dossier.demandeur_personne_morale_adresse || ''
             delete dossier.demandeur_personne_morale_adresse;
 

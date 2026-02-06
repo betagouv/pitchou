@@ -300,7 +300,7 @@ fastify.get('/dossier/:dossierId', function(request, reply) {
 
     /** @type {DossierComplet['id']} */
     //@ts-ignore
-    const dossierId = Number(request.params.dossierId)
+    const dossierId = request.params.dossierId
 
     /** @type {ReturnType<PitchouInstructeurCapabilities['recupérerDossierComplet']> | Promise<undefined>} */
     // @ts-ignore
