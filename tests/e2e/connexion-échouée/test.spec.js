@@ -11,6 +11,7 @@ test.beforeAll(async () => {
     await exec(`docker exec test_db createdb --username=dev especes_pro_3731`)
 
     // la remplir avec les bons fichiers (fichiers communs : schema, knex et le fichier de données.)
+    await exec(``)
     // restart le serveur
     console.log('Before tests');
 });
