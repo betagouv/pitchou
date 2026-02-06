@@ -1,6 +1,22 @@
 import { test, expect } from '@playwright/test';
+import child_process from 'node:child_process';
+import { promisify } from 'node:util';
 
-test.describe('Connexion', () => {
+const exec = promisify(child_process.exec);
+
+test.beforeAll(async () => {
+    // Supprimer la base de données existante
+    await exec(`docker exec test_db dropdb -f --username=dev especes_pro_3731`)
+    // Recréer la base de données
+    await exec(`docker exec test_db createdb --username=dev especes_pro_3731`)
+
+    // la remplir avec les bons fichiers (fichiers communs : schema, knex et le fichier de données.)
+    await exec(``)
+    // restart le serveur
+    console.log('Before tests');
+});
+
+test.describe('Connexion échouée', () => {
     test(`La page de connexion s'affiche`, async ({ page }) => {
         await page.goto('/');
 
