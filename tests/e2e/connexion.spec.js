@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Connexion', () => {
+test.describe('Connexion échouée', () => {
     test(`La page de connexion s'affiche`, async ({ page }) => {
         await page.goto('/');
 
