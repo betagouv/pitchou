@@ -33,7 +33,7 @@
         {:then indicateursAujourdhui}
             <section class="fr-mt-4w">
                 <h2>État des lieux</h2>
-                <p>Voici la valeur des nombres d'utilisateurices par Phase dans Pitchou.</p>
+                <p>Voici la valeur des nombres d'utilisateurices Pitchou par pour chaque phase AARRI aujourd'hui.</p>
                 <div class="conteneur-barres">
                     <div class="fr-grid-row fr-grid-row--middle">
                         <span class="fr-col-1">Impact</span>
