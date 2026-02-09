@@ -34,6 +34,8 @@ import {instructeurLaisseDossier, instructeurSuitDossier, trouverRelationPersonn
 import { créerÉvènementMétrique } from './évènements_métriques.js'
 import { indicateursAARRI } from './database/aarri.js'
 import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
+import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
+import {générerDéclarationGeoMCE} from './database/geomce.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
@@ -785,6 +787,29 @@ fastify.post('/dossiers/relation-suivis', async function(request, reply) {
 })
 
 fastify.post('/api/métriques/évènements', créerÉvènementMétrique)
+
+
+miseEnPlaceSecretGeoMCE()
+
+fastify.get('/declaration-geomce', async function(request, reply) {
+  // @ts-ignore
+  const { secret } = request.query
+
+  if(!secret){
+    reply.code(400).send(`Paramètre 'secret' manquant dans l'URL`)
+    return
+  }
+
+  try{
+    await verifierSecretGeoMCE(secret)
+  }
+  catch(e){
+    reply.code(403).send(`Le paramètre 'secret' est invalide. Contacter l'équipe Pitchou pour comprendre de quoi il retourne`)
+    return
+  }
+
+  return générerDéclarationGeoMCE()
+})
 
 
 // Lancer le serveur HTTP

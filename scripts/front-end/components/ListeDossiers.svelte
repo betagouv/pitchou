@@ -10,6 +10,7 @@
     import { SvelteMap } from "svelte/reactivity"
     import { tick } from "svelte"
     import { envoyerÉvènementRechercherUnDossier } from '../actions/aarri.js'
+    import {phases as toutesLesPhases} from '../affichageDossier.js'
 
     /**
     * @typedef {Object} Props
@@ -22,13 +23,13 @@
     */
     /** @type {Props} */
     let {
-            titre,
-            email = '',
-            dossiers,
-            relationSuivis,
-            afficherFiltreSansInstructeurice = false,
-            afficherFiltreActionInstructeur = false
-        } = $props();
+        titre,
+        email = '',
+        dossiers,
+        relationSuivis,
+        afficherFiltreSansInstructeurice = false,
+        afficherFiltreActionInstructeur = false
+    } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
@@ -36,14 +37,14 @@
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
-    let resultat = [...dossiers];
+        let resultat = [...dossiers];
 
-    for(const filtre of tousLesFiltres.values()){
-        resultat = resultat.filter(filtre)
-    }
+        for(const filtre of tousLesFiltres.values()){
+            resultat = resultat.filter(filtre)
+        }
 
-    return resultat;
-})
+        return resultat;
+    })
 
     let numéroDeLaPageSélectionnée = $state(1)
 
@@ -82,16 +83,6 @@
 
     /** @type {DossierPhase | undefined} */
     let phaseSélectionnée = $state()
-
-    /** @type {DossierPhase[]} */
-    const toutesLesPhases = [
-        "Accompagnement amont",
-        "Étude recevabilité DDEP",
-        "Instruction",
-        "Contrôle",
-        "Classé sans suite",
-        "Obligations terminées"
-    ]
 
     const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
 
@@ -242,7 +233,7 @@
             <div class="filtres">
                 <div class="fr-select-group">
                     <label class="fr-label" for="select-phase"> Filtrer par phase </label>
-                    <select aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase" bind:value="{phaseSélectionnée}" onchange="{sélectionnerPhase}">
+                    <select bind:value={phaseSélectionnée} onchange={sélectionnerPhase} aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase">
                         <option value="" selected>Toutes les phases</option>
                         {#each toutesLesPhases as phase}
                             <option value={phase}>{phase}</option>
@@ -280,7 +271,7 @@
 {#if dossiersAffichés.length >= 1}
     <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
         <ul>
-            {#each dossiersAffichés as dossier}
+            {#each dossiersAffichés as dossier (dossier.id)}
                 <li>
                     <CarteDossier {dossier} {instructeurActuelSuitDossier} {instructeurActuelLaisseDossier} dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} />
                 </li>

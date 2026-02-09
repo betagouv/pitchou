@@ -25,6 +25,9 @@
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-container fr-my-6w">
         <h1>Suivi des indicateurs AARRI</h1>
+        <div class="fr-alert fr-alert--warning">
+        <h2 class="fr-alert__title">Attention, le calcul des indicateurs des phases "Rétention", "Impact" et "Activation" n'est pas encore terminé.</h2>
+        </div>
         {#await indicateursAujourdhuiP}
             <Loader></Loader>
         {:then indicateursAujourdhui}
