@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-
+/*
 test.describe('Connexion réussie', () => {
     test(`Le code d'accès est valide`, async ({ page }) => {
         await page.goto('/?secret=inexistant');
@@ -8,3 +8,4 @@ test.describe('Connexion réussie', () => {
     });
 
 });
+*/

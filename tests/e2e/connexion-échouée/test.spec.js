@@ -5,21 +5,26 @@ import { promisify } from 'node:util';
 const exec = promisify(child_process.exec);
 
 test.beforeAll(async () => {
-        console.log('Before tests');
-    // Supprimer la base de données existante
-    await exec(`docker exec test_db dropdb -f --username=dev especes_pro_3731`)
-    // Recréer la base de données
-    await exec(`docker exec test_db createdb --username=dev especes_pro_3731`)
+    console.log('Before tests', process.cwd());
 
-    // la remplir avec les bons fichiers (fichiers communs : schema, knex et le fichier de données.)
-    await exec(`docker exec test_db psql --username=dev especes_pro_3731 < 01-schema.sql`)
-    await exec(`docker exec test_db psql --username=dev especes_pro_3731 < 02-knex.sql`)
-    // restart le serveur
+    // Supprimer la base de données existante
+    await exec(`docker exec pitchou-test_db-1 dropdb -f --username=dev especes_pro_3731`)
+
+    // Recréer la base de données
+    await exec(`docker exec pitchou-test_db-1 createdb --username=dev especes_pro_3731`)
+
+    // Exécuter les migrations communes à tous les tests
+    await exec(`docker exec pitchou-test_db-1 psql --username=dev especes_pro_3731 -f /docker-entrypoint-initdb.d/01-schema.sql`)
+    await exec(`docker exec pitchou-test_db-1 psql --username=dev especes_pro_3731 -f /docker-entrypoint-initdb.d/02-knex.sql`)
+
+    // Exécuter les migrations spécifiques à ce test
+    await exec(`docker exec pitchou-test_db-1 psql --username=dev especes_pro_3731 -f /tests/connexion-échouée/données.sql`)
 
 });
 
 test.afterAll(async () => {
     console.log('After tests')
+
 })
 
 test.describe('Connexion échouée', () => {
