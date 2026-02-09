@@ -33,7 +33,10 @@ export default defineConfig({
     command: 'docker compose -f compose-tests.yml up --force-recreate',
     url: 'http://127.0.0.1:32648',
     reuseExistingServer: true,
-    timeout: 10 * (60_000)
+    timeout: 10 * (60_000),
+    // Ne pas afficher les logs des conteneurs Docker
+    stdout: "ignore",
+    stderr: "ignore"
   },
 
 });
