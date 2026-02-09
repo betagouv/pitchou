@@ -402,16 +402,6 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
         .leftJoin('personne as demandeur_personne_physique', {'demandeur_personne_physique.id': 'dossier.demandeur_personne_physique'})
         .leftJoin('entreprise as demandeur_personne_morale', {'demandeur_personne_morale.siret': 'dossier.demandeur_personne_morale'})
         .leftJoin('fichier as fichier_espèces_impactées', {'fichier_espèces_impactées.id': 'dossier.espèces_impactées'})
-        .then(dossiers => {
-            for(const dossier of dossiers){
-                const id_fichier_espèces_impactées = dossier.espèces_impactées_id
-                if(id_fichier_espèces_impactées){
-                    dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`
-                }
-
-            }
-            return dossiers
-        })
 }
 
 
@@ -858,9 +848,8 @@ async function getAvisExpertDossier(idDossier, databaseConnection = directDataba
  * @returns {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type' | 'DS_checksum'> & {taille: number})[]>}
  */
 async function getDescriptionsPiècesJointesPétitionnaire(idDossier, databaseConnection = directDatabaseConnection){
-    // TODO: taille doit soit être calculée à l’insertion soit être récupéré autrement
     return databaseConnection('dossier')
-        .select(['fichier.id as id', 'fichier.DS_checksum as DS_checksum', 'fichier.nom as nom', 'fichier.media_type as media_type', databaseConnection.raw('length(contenu) as taille')])
+        .select(['fichier.id as id', 'fichier.DS_checksum as DS_checksum', 'fichier.nom as nom', 'fichier.media_type as media_type', 'taille'])
         .leftJoin('arête_dossier__fichier_pièces_jointes_pétitionnaire', {'arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier': 'dossier.id'})
         .leftJoin('fichier', {'fichier.id': 'arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier'})
         .where({'dossier': idDossier})

@@ -1,3 +1,4 @@
+/** @import {S3Client} from '@aws-sdk/client-s3' */
 /** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
 
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
@@ -9,48 +10,77 @@ import { créerClient, BUCKET_NAME } from './config.js'
 /**
  *
  * @param {Partial<Fichier>} fichier
+ * @param {S3Client | undefined} client
  * @return {Promise<number | undefined>}
  */
-export function ajouterFichier(fichier) {
-    const s3 = créerClient()
+export async function ajouterFichier(fichier, client = undefined) {
+    let nouveauClient = false
+    if (!client) {
+        nouveauClient = true
+    }
+    const s3 = client ? client : créerClient()
 
     if (fichier.contenu === undefined || fichier.contenu === null) {
         throw new Error('Fichier vide')
     }
 
-    return s3.send(new PutObjectCommand({
+    const taille = await s3.send(new PutObjectCommand({
         'Body': fichier.contenu,
         'Bucket': BUCKET_NAME,
-        'Key': fichier.id,
+        'Key': `fichiers/${fichier.id}`,
     })).then(output => output.Size);
+
+    if (nouveauClient) {
+        s3.destroy()
+    }
+
+    return taille
 }
 
 /**
- *
  * @param {Partial<Fichier>} fichier
+ * @param {S3Client | undefined} client
  */
-export function supprimerFichier(fichier) {
-    const s3 = créerClient()
+export async function supprimerFichier(fichier, client = undefined) {
+    let nouveauClient = false
+    if (!client) {
+        nouveauClient = true
+    }
+    const s3 = client ? client : créerClient()
 
-    return s3.send(new DeleteObjectCommand({
+    await s3.send(new DeleteObjectCommand({
         'Bucket': BUCKET_NAME,
-        'Key': fichier.id,
+        'Key': `fichiers/${fichier.id}`,
     }));
+
+    if (nouveauClient) {
+        s3.destroy()
+    }
 }
 
 /**
- *
  * @param {Partial<Fichier>} fichier
  * @param {number} expiration
+ * @param {S3Client | undefined} client
  * @returns {Promise<string>}
  */
-export function getFichierUrl(fichier, expiration = 3600) {
-    const s3 = créerClient()
+export async function getFichierUrl(fichier, expiration = 3600, client = undefined) {
+    let nouveauClient = false
+    if (!client) {
+        nouveauClient = true
+    }
+    const s3 = client ? client : créerClient()
 
-    return getSignedUrl(s3, new GetObjectCommand({
+    const url = await getSignedUrl(s3, new GetObjectCommand({
         'Bucket': BUCKET_NAME,
-        'Key': fichier.id,
+        'Key': `fichiers/${fichier.id}`,
         'ResponseContentType': fichier.media_type || undefined,
         'ResponseContentDisposition': fichier.nom ? `attachment; filename="${fichier.nom}"` : undefined,
     }), {expiresIn: expiration })
+
+    if (nouveauClient) {
+        s3.destroy()
+    }
+
+    return url
 }

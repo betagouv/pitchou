@@ -83,14 +83,18 @@ export function getDécisionAdministratives(dossierId, databaseConnection = dire
         .leftJoin('fichier', {'décision_administrative.fichier': 'fichier.id'})
         .then(décisions => Promise.all(décisions.map(
             ({fichier_nom, fichier_media_type, ...décision}) => {
-                return getFichierUrl({
-                    id: décision.fichier,
-                    nom: fichier_nom,
-                    media_type: fichier_media_type,
-                }).then((fichier_url) => ({
-                    fichier_url,
-                    ...décision
-                }))
+                if (décision.fichier) {
+                    return getFichierUrl({
+                        id: décision.fichier,
+                        nom: fichier_nom,
+                        media_type: fichier_media_type,
+                    }).then((fichier_url) => ({
+                        fichier_url,
+                        ...décision
+                    }))
+                } else {
+                    return { fichier_url: undefined, ...décision}
+                }
         })))
 }
 

@@ -12,6 +12,9 @@ if(!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !DEFAULT_REGION || !ENDPOINT_URL || !
 }
 
 
+/**
+ * @returns {S3Client}
+ */
 export function créerClient() {
     return new S3Client({
         region: DEFAULT_REGION,

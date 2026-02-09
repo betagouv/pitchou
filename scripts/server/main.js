@@ -363,38 +363,6 @@ fastify.post('/dossier/:dossierId', async function(request, reply) {
 })
 
 
-//@ts-expect-error Fastify type is hard to get
-async function téléchargementFichierRouteHandler(request, reply) {
-
-  //@ts-ignore
-  if(!request.params.fichierId){
-    reply.code(400).send(`Paramètre 'fichierId' manquant dans l'URL`)
-    return
-  }
-
-  //@ts-ignore
-  const fichierId = request.params.fichierId
-
-  const fichier = await getFichier(fichierId)
-
-  if(!fichier){
-    reply.code(404).send('Fichier non trouvé')
-    return
-  }
-  else{
-    reply
-      .header('content-disposition', `attachment; filename="${fichier.nom}"`)
-      .header('content-type', fichier.media_type)
-      .send(fichier.contenu)
-  }
-}
-
-fastify.get('/piece-jointe-petitionnaire/fichier/:fichierId', téléchargementFichierRouteHandler)
-fastify.get('/especes-impactees/:fichierId', téléchargementFichierRouteHandler)
-fastify.get('/decision-administrative/fichier/:fichierId', téléchargementFichierRouteHandler)
-fastify.get('/avis-expert/fichier/:fichierId', téléchargementFichierRouteHandler)
-
-
 fastify.post(
   '/decision-administrative',
   {bodyLimit: MAX_UPLOAD_FILE_SIZE},
@@ -553,11 +521,11 @@ fastify.post('/avis-expert', {
     body: {
       type: 'object',
       required: ['dossier'],
-      properties: 
+      properties:
         {
           body : {
             type: 'object',
-                  properties: 
+                  properties:
                     {
                       dossier: {
                         type: 'string',
@@ -597,7 +565,7 @@ fastify.post('/avis-expert', {
   const id = body.id ? body.id.value : undefined;
   const expert = body.expert ? body.expert.value : undefined
   const avis = body.avis ? body.avis.value : undefined
-  
+
   const date_saisine = body['date_saisine'] ? new Date(body['date_saisine'].value) : undefined
   const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
 
@@ -622,7 +590,7 @@ fastify.post('/avis-expert', {
     /** @type {any} */
     const blobFichierAvis = body.blobFichierAvis
     fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
-  } 
+  }
 
   if (fichierAvis || fichierSaisine) {
     return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)

@@ -114,7 +114,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, s
     const retMapDataPs = [...fichiersÀTélécharger].map(([number, fichiers]) => {
         return Promise.all(fichiers.map(async fichier => {
             const {url} = fichier
-            /** @type {Omit<Fichier, 'id'>} */
+            /** @type {Omit<Fichier, 'id' | 'taille'>} */
             let fichierBDD;
 
             try {
@@ -126,7 +126,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, s
                     DS_createdAt,
                     media_type,
                     nom,
-                    contenu: Buffer.from(contenu) // knex n'accepte que les Buffer node, pas les ArrayBuffer
+                    contenu: Buffer.from(contenu) // knex n'accepte que les Buffer node, pas les ArrayBuffer,
                 }
 
             } catch (err) {
