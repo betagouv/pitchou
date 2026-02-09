@@ -13,7 +13,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   timeout: 20_000,
-
+  globalTeardown: './tests/e2e/global.teardown.js',
   use: {
     baseURL: 'http://127.0.0.1:32648/',
     trace: 'retain-on-failure',
