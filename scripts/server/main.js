@@ -21,7 +21,6 @@ import { créerPersonneOuMettreÀJourCodeAccès, getPersonneByDossierCap, getPer
 import { modifierDécisionAdministrative, supprimerDécisionAdministrative, ajouterDécisionAdministrativeAvecFichier } from './database/décision_administrative.js'
 import { ajouterPrescription, modifierPrescription, supprimerPrescription, ajouterPrescriptionsEtContrôles } from './database/prescription.js'
 import { ajouterContrôles, modifierContrôle, supprimerContrôle } from './database/controle.js'
-import {getFichier} from './database/fichier.js'
 import { getStatsPubliques } from './database/stats.js'
 
 import { authorizedEmailDomains } from '../commun/constantes.js'

@@ -3,7 +3,7 @@
 config=$(dirname $0)/garage.toml
 echo $config
 
-cat <<EOF > /tmp/garage.toml
+cat <<EOF > $config
 metadata_dir = "/var/lib/garage/meta"
 data_dir = "/var/lib/garage/data"
 db_engine = "sqlite"
