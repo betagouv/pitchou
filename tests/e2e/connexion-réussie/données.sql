@@ -1,11 +1,29 @@
-SET code_accès = 'abyssin';
-SET numéro_démarche = 88444;
+DO $$
+DECLARE
+    code_acces text := 'abyssin';
+    numero_demarche int := 88444;
+    dossier_id int;
+    groupe_id uuid;
+    cap_dossier uuid;
+BEGIN
+    INSERT INTO personne (email, "code_accès")
+    VALUES ('alexandre@example.net', code_acces);
 
-SET personneId = insert into personne (email, code_accès) values ('alexandre@example.net', code_accès) RETURNING id;
-SET dossierId = insert into dossier (nom, numéro_démarche) values ('Parc photovoltaïque à Anglet', numéro_démarche) RETURNING id;
-SET groupeInstructeursId = insert into groupe_instructeurs (nom, numéro_démarche) values ('DREAL Pays Basque', numéro_démarche) RETURNING id;
-set capDossier = insert into cap_dossier (personne_cap) values (code_accès) RETURNING cap;
+    INSERT INTO dossier (nom, "numéro_démarche", "date_dépôt")
+    VALUES ('Parc photovoltaïque à Anglet', numero_demarche, now())
+    RETURNING id INTO dossier_id;
 
+    INSERT INTO groupe_instructeurs (nom, "numéro_démarche")
+    VALUES ('DREAL Pays Basque', numero_demarche)
+    RETURNING id INTO groupe_id;
 
-insert into arête_groupe_instructeurs__dossier (dossier, groupe_instructeurs) values (dossierId, groupeInstructeursId)
-insert into arête_cap_dossier__groupe_instructeurs (cap_dossier, groupe_instructeurs) values (capDossier, groupeInstructeursId)
+    INSERT INTO cap_dossier (personne_cap)
+    VALUES (code_acces)
+    RETURNING cap INTO cap_dossier;
+
+    INSERT INTO "arête_groupe_instructeurs__dossier"
+    VALUES (dossier_id, groupe_id);
+
+    INSERT INTO "arête_cap_dossier__groupe_instructeurs"
+    VALUES (cap_dossier, groupe_id);
+END $$;

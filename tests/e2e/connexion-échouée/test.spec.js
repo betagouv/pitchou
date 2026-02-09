@@ -5,8 +5,6 @@ import { promisify } from 'node:util';
 const exec = promisify(child_process.exec);
 
 test.beforeAll(async () => {
-    console.log('Before tests', process.cwd());
-
     // Supprimer la base de données existante
     await exec(`docker exec pitchou-test_db-1 dropdb -f --username=dev especes_pro_3731`)
 
@@ -19,13 +17,7 @@ test.beforeAll(async () => {
 
     // Exécuter les migrations spécifiques à ce test
     await exec(`docker exec pitchou-test_db-1 psql --username=dev especes_pro_3731 -f /tests/connexion-échouée/données.sql`)
-
 });
-
-test.afterAll(async () => {
-    console.log('After tests')
-
-})
 
 test.describe('Connexion échouée', () => {
     test(`La page de connexion s'affiche`, async ({ page }) => {
