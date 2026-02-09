@@ -105,13 +105,14 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
  * @param {ÉvènementMétrique['type'][]} évènements 
  * @param {number} seuilNombreÉvènements 
  *
- * Une correspondance entre la date de la semaine concernée et le nombre de persones ayant 
- * atteint le seuil pour la première fois à cette date
+ * Une correspondance entre la date de la semaine concernée et le nombre de persones cumulé ayant 
+ * atteint le seuil à cette date
  * @returns { Promise<Map<string, number>> } 
  */
 async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nombreSemainesObservées, évènements, seuilNombreÉvènements){
+
     const requêteSQL = `
--- personnes et le nombre évènement d'action de modif par semaine
+-- personnes et le nombre évènement suivis par semaine
 with actions_par_personne as (select
 	personne,
 	COUNT(évènement) as nombre_actions,
@@ -122,37 +123,37 @@ WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
--- filtrer par première fois activé
-premiere_fois_active as (select personne, min(semaine) as semaine
+-- filtrer par première fois où le seuil est atteint
+premiere_fois_seuil_atteint as (select personne, min(semaine) as semaine
 from actions_par_personne
 WHERE nombre_actions >= :nb_seuil_actions
 group by personne),
 
 -- nombre actif par semaine
-nombre_active_par_semaine as (select
-	count(personne) as actif_semaine,
+nombre_personnes_par_semaine as (select
+	count(personne) as nombre_personne_pour_cette_semaine,
 	semaine
-from premiere_fois_active
+from premiere_fois_seuil_atteint
 group by semaine),
 
--- récupérer la liste de toutes les semaines avec sûr les cinq dernières semaines
+-- récupérer la liste de toutes les semaines avec sûr les nb_semaines_observees dernières semaines
 semaines as (
 	select
 		date_trunc('week', semaine)::date as semaine
 	from
 		generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
 	union
-	select semaine from premiere_fois_active
+	select semaine from premiere_fois_seuil_atteint
 )
 
 select
 	semaines.semaine as date,
-	sum(actif_semaine) over (order by semaines.semaine  asc) as quantité_personnes
+	sum(nombre_personne_pour_cette_semaine) over (order by semaines.semaine  asc) as quantite_personnes
 from
-	nombre_active_par_semaine
+	nombre_personnes_par_semaine
 right join
 	semaines
-on semaines.semaine = nombre_active_par_semaine.semaine
+on semaines.semaine = nombre_personnes_par_semaine.semaine
 order by date desc
 limit :nb_semaines_observees; 
         `;
@@ -165,7 +166,7 @@ limit :nb_semaines_observees;
 
     return new Map(
         ...[personnesParSemaines.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.quantité_personnes)]
+            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.quantite_personnes)]
         )]
     )
 }
@@ -185,7 +186,14 @@ limit :nb_semaines_observees;
 async function calculerIndicateurActif(nbSemainesObservées) {
 
     /** @type {ÉvènementMétrique['type'][]} */
-    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
+    const évènementsModifications = [
+        'modifierCommentaireInstruction', 
+        'changerPhase', 
+        'changerProchaineActionAttendueDe', 
+        'ajouterDécisionAdministrative', 
+        'modifierDécisionAdministrative', 
+        'supprimerDécisionAdministrative'
+    ]
     
     return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènementsModifications, 5)
 }
@@ -205,12 +213,12 @@ async function calculerIndicateurImpact(nbSemainesObservées) {
     /*
         Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
         donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
-
-
     */
-    throw `TODO refacto les requêtes des métriques pour partager le plus gros de la requête SQL`
 
-    return new Map()
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsModifications = [ 'retourÀLaConformité' ]
+    
+    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènementsModifications, 1)
 }
 
 /**
