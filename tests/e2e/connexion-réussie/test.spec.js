@@ -11,6 +11,11 @@ test.describe('Connexion réussie', () => {
         await page.goto('/?secret=abyssin');
 
         await expect(page.getByRole('heading', { level: 1})).toContainText('Tableau de suivi instruction DDEP');
+
+        await expect(page.getByRole('heading', { name: '/1 dossiers sélectionnés', level: 2 })).toContainText('1/1 dossiers sélectionnés')
+        await expect(page.locator('div.fr-table > table')).toBeVisible()
+        await expect(page.locator('div.fr-table > table > thead')).toBeVisible()
+        await expect(page.locator('div.fr-table > table > tbody > tr:first-child')).toBeVisible()
     });
 
 });
