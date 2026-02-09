@@ -16,6 +16,10 @@ test.beforeAll(async () => {
     console.log('Before tests');
 });
 
+test.afterAll(async () => {
+    console.log('After tests')
+})
+
 test.describe('Connexion échouée', () => {
     test(`La page de connexion s'affiche`, async ({ page }) => {
         await page.goto('/');
