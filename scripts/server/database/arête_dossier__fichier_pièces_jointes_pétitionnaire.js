@@ -31,18 +31,10 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
     }
 
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierPiècesJointesDiagnosticÉcologiqueId = pitchouKeyToChampDS.get('Diagnostic écologique')
-    if(!fichierPiècesJointesDiagnosticÉcologiqueId){
-        throw new Error('fichierPiècesJointesDiagnosticÉcologiqueId is undefined')
-    }
-
     /** @type {Map<DossierDS88444['number'], DSFile[]>} */
     const descriptionFichiersDansDS_1 = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesChampId)
     /** @type {Map<DossierDS88444['number'], DSFile[]>} */
     const descriptionFichiersDansDS_2 = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesComplémentairesChampId)
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const descriptionFichiersDansDS_DiagnosticÉcologique = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesDiagnosticÉcologiqueId)
 
     /** @type {Set<DossierId>} */
     // @ts-ignore
@@ -50,8 +42,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
 
     const checksumsDS = new Set([
         ...[...descriptionFichiersDansDS_1.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
-        ...[...descriptionFichiersDansDS_2.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
-        ...[...descriptionFichiersDansDS_DiagnosticÉcologique.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()
+        ...[...descriptionFichiersDansDS_2.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()
     ])
 
     //console.log('dossierIds', dossierIds)
