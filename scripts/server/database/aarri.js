@@ -98,32 +98,34 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
     )
 }
 
-/**
- * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
- * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
- * 
- * @param {number} nbSemainesObservées
- *
- * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
-*/
-async function calculerIndicateurActif(nbSemainesObservées) {
 
-    const actifs = await directDatabaseConnection.raw(`
-        -- personnes et le nombre évènement d'action de modif par semaine
-with actions_modif_par_personne as (select
+/**
+ * 
+ * @param {number} nombreSemainesObservées 
+ * @param {ÉvènementMétrique['type'][]} évènements 
+ * @param {number} seuilNombreÉvènements 
+ *
+ * Une correspondance entre la date de la semaine concernée et le nombre de persones ayant 
+ * atteint le seuil pour la première fois à cette date
+ * @returns { Promise<Map<string, number>> } 
+ */
+async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nombreSemainesObservées, évènements, seuilNombreÉvènements){
+    const requêteSQL = `
+-- personnes et le nombre évènement d'action de modif par semaine
+with actions_par_personne as (select
 	personne,
-	COUNT(évènement) as nombre_actions_modif,
+	COUNT(évènement) as nombre_actions,
 	date_trunc('week', e.date)::date as semaine
 from évènement_métrique as e
 join personne on personne.id = e.personne
-WHERE évènement IN (:evenement_modifs)
+WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
 -- filtrer par première fois activé
 premiere_fois_active as (select personne, min(semaine) as semaine
-from actions_modif_par_personne
-WHERE nombre_actions_modif >= :nb_seuil_actions_modif
+from actions_par_personne
+WHERE nombre_actions >= :nb_seuil_actions
 group by personne),
 
 -- nombre actif par semaine
@@ -145,7 +147,7 @@ semaines as (
 
 select
 	semaines.semaine as date,
-	sum(actif_semaine) over (order by semaines.semaine  asc) as actifs_total
+	sum(actif_semaine) over (order by semaines.semaine  asc) as quantité_personnes
 from
 	nombre_active_par_semaine
 right join
@@ -153,19 +155,39 @@ right join
 on semaines.semaine = nombre_active_par_semaine.semaine
 order by date desc
 limit :nb_semaines_observees; 
-        `, {
-            nb_semaines_observees: nbSemainesObservées,
-            nb_seuil_actions_modif: 5,
-            evenement_modifs: directDatabaseConnection.raw(
-                ÉVÈNEMENTS_MODIFICATIONS.map(() => '?').join(', '), ÉVÈNEMENTS_MODIFICATIONS)
+        `;
 
-        })
+    const personnesParSemaines = await directDatabaseConnection.raw(requêteSQL, {
+        nb_semaines_observees: nombreSemainesObservées,
+        nb_seuil_actions: seuilNombreÉvènements,
+        evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
+    })
 
     return new Map(
-        ...[actifs.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.actifs_total)]
+        ...[personnesParSemaines.rows.map(
+            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.quantité_personnes)]
         )]
     )
+}
+
+
+
+
+
+/**
+ * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
+ * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
+*/
+async function calculerIndicateurActif(nbSemainesObservées) {
+
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsModifications = ['modifierCommentaireInstruction', 'changerPhase', 'changerProchaineActionAttendueDe', 'ajouterDécisionAdministrative', 'modifierDécisionAdministrative', 'supprimerDécisionAdministrative']
+    
+    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènementsModifications, 5)
 }
 
 
