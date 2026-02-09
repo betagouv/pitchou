@@ -19,36 +19,31 @@ import {directDatabaseConnection} from '../database.js'
  */
 export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(fichiersPiècesJointesPétitionnaireParNuméroDossier, dossiersDS, dossierIdByDS_number, pitchouKeyToChampDS, databaseConnection = directDatabaseConnection){
 
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierPiècesJointesChampId = pitchouKeyToChampDS.get('Dépot du dossier complet de demande de dérogation')
-    if(!fichierPiècesJointesChampId){
-        throw new Error('fichierPiècesJointesChampId is undefined')
+    /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
+    /** @type {ChampFormulaire[]} */
+    const champs = ['Dépot du dossier complet de demande de dérogation', 
+        'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
+        'Diagnostic écologique'
+    ]
+
+    /** @type {Map<DossierDS88444['number'], DSFile[]>[]} */
+    let descriptionFichiers = []
+
+    for (const champ of champs) {
+        /** @type {ChampDescriptor['id'] | undefined} */
+        const champId = pitchouKeyToChampDS.get(champ)
+        if(!champId){
+            throw new Error(`champId for ${champ} is undefined`)
+        }
+        descriptionFichiers.push(trouverCandidatsFichiersÀTélécharger(dossiersDS, champId))
     }
 
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierPiècesJointesComplémentairesChampId = pitchouKeyToChampDS.get('Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande')
-    if(!fichierPiècesJointesComplémentairesChampId){
-        throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
-    }
-
-    
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierPiècesJointesDiagnosticÉcologiqueId = pitchouKeyToChampDS.get('Diagnostic écologique')
-    if(!fichierPiècesJointesDiagnosticÉcologiqueId){
-        throw new Error('fichierPiècesJointesDiagnosticÉcologiqueId is undefined')
-    }
-
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const descriptionFichiersDansDS_1 = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesChampId)
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const descriptionFichiersDansDS_2 = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesComplémentairesChampId)
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const descriptionFichiersDansDS_DiagnosticÉcologique = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesDiagnosticÉcologiqueId)
 
     /** @type {Set<DossierId>} */
     // @ts-ignore
     const dossierIds = new Set(dossiersDS.map(({number}) => dossierIdByDS_number.get(number) ))
 
+    //TODO: utiliser descriptionFichiers ici
     const checksumsDS = new Set([
         ...[...descriptionFichiersDansDS_1.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
         ...[...descriptionFichiersDansDS_2.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
