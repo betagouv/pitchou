@@ -845,11 +845,11 @@ async function getAvisExpertDossier(idDossier, databaseConnection = directDataba
 /**
  * @param {Dossier['id']} idDossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type' | 'DS_checksum'> & {taille: number})[]>}
+ * @returns {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type' | 'taille'>)[]>}
  */
 async function getDescriptionsPiècesJointesPétitionnaire(idDossier, databaseConnection = directDatabaseConnection){
     return databaseConnection('dossier')
-        .select(['fichier.id as id', 'fichier.DS_checksum as DS_checksum', 'fichier.nom as nom', 'fichier.media_type as media_type', 'taille'])
+        .select(['fichier.id as id', 'fichier.nom as nom', 'fichier.media_type as media_type', 'taille'])
         .leftJoin('arête_dossier__fichier_pièces_jointes_pétitionnaire', {'arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier': 'dossier.id'})
         .leftJoin('fichier', {'fichier.id': 'arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier'})
         .where({'dossier': idDossier})

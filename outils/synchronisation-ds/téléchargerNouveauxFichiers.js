@@ -13,7 +13,7 @@ import téléchargerFichierDS from './téléchargerFichierDS.js';
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
 
-/** @typedef {Omit<Fichier, 'id' | 'contenu'> & {url: string}} FichierÀTélécharger */
+/** @typedef {Omit<Fichier, 'id' | 'contenu' | 'taille'> & {url: string}} FichierÀTélécharger */
 
 
 const openDocumentTypes = new Map([
