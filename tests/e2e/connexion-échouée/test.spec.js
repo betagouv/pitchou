@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
+import beforeAll from '../before-all';
 
-test.describe('Connexion', () => {
+
+test.beforeAll(async () => {
+    await beforeAll('connexion-échouée/données.sql')
+});
+
+test.describe('Connexion échouée', () => {
     test(`La page de connexion s'affiche`, async ({ page }) => {
         await page.goto('/');
 

@@ -29,3 +29,4 @@ services:
       - "5433:5432"
     volumes:
       - ./tests/fixtures:/docker-entrypoint-initdb.d
+      - ./tests/e2e:/tests
