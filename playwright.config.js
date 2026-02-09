@@ -30,7 +30,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'docker compose -f compose-tests.yml up',
+    command: 'docker compose -f compose-tests.yml up --force-recreate',
     url: 'http://127.0.0.1:32648',
     reuseExistingServer: true,
     timeout: 10 * (60_000)

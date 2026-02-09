@@ -5,15 +5,17 @@ import { promisify } from 'node:util';
 const exec = promisify(child_process.exec);
 
 test.beforeAll(async () => {
+        console.log('Before tests');
     // Supprimer la base de données existante
     await exec(`docker exec test_db dropdb -f --username=dev especes_pro_3731`)
     // Recréer la base de données
     await exec(`docker exec test_db createdb --username=dev especes_pro_3731`)
 
     // la remplir avec les bons fichiers (fichiers communs : schema, knex et le fichier de données.)
-    await exec(``)
+    await exec(`docker exec test_db psql --username=dev especes_pro_3731 < 01-schema.sql`)
+    await exec(`docker exec test_db psql --username=dev especes_pro_3731 < 02-knex.sql`)
     // restart le serveur
-    console.log('Before tests');
+
 });
 
 test.afterAll(async () => {
