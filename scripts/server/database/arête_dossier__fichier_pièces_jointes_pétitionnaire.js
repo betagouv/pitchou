@@ -21,21 +21,22 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
 
     /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
     /** @type {ChampFormulaire[]} */
-    const champs = ['Dépot du dossier complet de demande de dérogation', 
+    const champsAvecPiècesJointes = ['Dépot du dossier complet de demande de dérogation', 
         'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
-        'Diagnostic écologique'
+        'Diagnostic écologique',
+        'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.'
     ]
 
     /** @type {Map<DossierDS88444['number'], DSFile[]>[]} */
-    let descriptionFichiers = []
+    let fichiersParDossier = []
 
-    for (const champ of champs) {
+    for (const champ of champsAvecPiècesJointes) {
         /** @type {ChampDescriptor['id'] | undefined} */
         const champId = pitchouKeyToChampDS.get(champ)
         if(!champId){
             throw new Error(`champId for ${champ} is undefined`)
         }
-        descriptionFichiers.push(trouverCandidatsFichiersÀTélécharger(dossiersDS, champId))
+        fichiersParDossier.push(trouverCandidatsFichiersÀTélécharger(dossiersDS, champId))
     }
 
 
@@ -43,15 +44,9 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     // @ts-ignore
     const dossierIds = new Set(dossiersDS.map(({number}) => dossierIdByDS_number.get(number) ))
 
-    //TODO: utiliser descriptionFichiers ici
-    const checksumsDS = new Set([
-        ...[...descriptionFichiersDansDS_1.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
-        ...[...descriptionFichiersDansDS_2.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
-        ...[...descriptionFichiersDansDS_DiagnosticÉcologique.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()
-    ])
-
-    //console.log('dossierIds', dossierIds)
-    //console.log('checksumsDS', checksumsDS)
+    const checksumsDS = new Set(fichiersParDossier.map((descriptionFichier) => [
+        ...[...descriptionFichier.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
+    ]))
 
     // Trouver les fichiers qui sont en base de données, mais ne sont plus dans DS
     const fichierIdsEnBDDMaisPlusDansDS = await databaseConnection('dossier')
