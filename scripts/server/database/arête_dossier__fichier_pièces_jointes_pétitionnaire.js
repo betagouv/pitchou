@@ -26,17 +26,17 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         'Diagnostic écologique',
         'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.'
     ]
-
     /** @type {Map<DossierDS88444['number'], DSFile[]>[]} */
-    let fichiersParDossier = []
+    let descriptionsFichiers = []
 
-    for (const champ of champsAvecPiècesJointes) {
+
+    for (const champ of champsAvecPiècesJointes){
         /** @type {ChampDescriptor['id'] | undefined} */
-        const champId = pitchouKeyToChampDS.get(champ)
-        if(!champId){
+        const fichierPiècesJointesChampId = pitchouKeyToChampDS.get(champ)
+        if(!fichierPiècesJointesChampId){
             throw new Error(`champId for ${champ} is undefined`)
         }
-        fichiersParDossier.push(trouverCandidatsFichiersÀTélécharger(dossiersDS, champId))
+        descriptionsFichiers.push(trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesChampId))
     }
 
 
@@ -44,9 +44,13 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     // @ts-ignore
     const dossierIds = new Set(dossiersDS.map(({number}) => dossierIdByDS_number.get(number) ))
 
-    const checksumsDS = new Set(fichiersParDossier.map((descriptionFichier) => [
-        ...[...descriptionFichier.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
-    ]))
+    /** @type {Set<string>} */
+    const checksumsDS = new Set(
+        ...descriptionsFichiers.map((descriptionFichier) => [...descriptionFichier.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()),
+    )
+
+    //console.log('dossierIds', dossierIds)
+    //console.log('checksumsDS', checksumsDS)
 
     // Trouver les fichiers qui sont en base de données, mais ne sont plus dans DS
     const fichierIdsEnBDDMaisPlusDansDS = await databaseConnection('dossier')
