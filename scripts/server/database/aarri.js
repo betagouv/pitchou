@@ -216,9 +216,9 @@ async function calculerIndicateurImpact(nbSemainesObservées) {
     */
 
     /** @type {ÉvènementMétrique['type'][]} */
-    const évènementsModifications = [ 'retourÀLaConformité' ]
+    const évènements = [ 'retourÀLaConformité' ]
     
-    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènementsModifications, 1)
+    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènements, 1)
 }
 
 /**
