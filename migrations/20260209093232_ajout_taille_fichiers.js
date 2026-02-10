@@ -8,6 +8,16 @@ export async function up(knex) {
     })
 
     await knex.raw(`UPDATE fichier SET taille = length(contenu)`)
+
+    await knex.raw(`
+        DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_trigger ON public.avis_expert;
+        DROP FUNCTION IF EXISTS supprimer_fichiers_avis_expert();
+    `)
+
+    await knex.raw(`
+        DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_orphelins_trigger ON public.avis_expert;
+        DROP FUNCTION IF EXISTS supprimer_fichiers_avis_expert_orphelins();
+    `)
 }
 
 /**
