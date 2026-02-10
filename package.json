@@ -16,12 +16,12 @@
     "prestart:prod-server": "knex migrate:latest",
     "start:prod-server": "node scripts/server/main.js",
     "build-types": "npm-run-all --parallel build-types:db build-types:ds",
-    "build-types:db": "docker run -it --rm tooling npx kanel -d postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731 -o ./scripts/types/database",
+    "build-types:db": "docker compose run -it --rm web npx kanel -d postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731 -o ./scripts/types/database",
     "build-types:ds": "npm-run-all --parallel build-types:ds:*",
     "build-types:ds:88444": "node outils/genere-types-schema-DS.js --idSchemaDS derogation-especes-protegees",
     "build-types:ds:128114": "node outils/genere-types-schema-DS.js --idSchemaDS 7f52a348-fd16-4fcd-8a6f-2e78ddafaee4",
-    "migrate:up": "docker run -it --rm tooling npx knex migrate:up --env docker_dev",
-    "migrate:down": "docker run -it --rm tooling npx knex migrate:down --env docker_dev",
+    "migrate:up": "docker compose run -it --rm web npx knex migrate:up --env docker_dev",
+    "migrate:down": "docker compose run -it --rm web npx knex migrate:down --env docker_dev",
     "test": "playwright test tests/e2e"
   },
   "devDependencies": {

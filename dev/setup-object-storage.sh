@@ -23,14 +23,27 @@ secret=$(echo "${key_info}" | grep -Po 'Secret key: +\K(\S+)')
 docker compose exec object_storage /garage bucket allow --read --write --owner pitchou-dev --key pitchou-app-key &> /dev/null
 echo " fait!"
 
+docker_gateway=$(docker network inspect pitchou_default | jq ".[0].IPAM.Config.[0].Gateway" -r)
+
 config=$(dirname $0)/s3_config.sh
 
 cat<<EOF > $config
 export AWS_ACCESS_KEY_ID="$key_id"
 export AWS_SECRET_ACCESS_KEY="$secret"
 export AWS_DEFAULT_REGION='garage'
-export AWS_ENDPOINT_URL='http://localhost:3900'
+export AWS_ENDPOINT_URL='http://$(docker_gateway):3900'
 EOF
+
+env_file=$(dirname $0)/s3_env
+
+cat<<EOF > $env_file
+OBJECT_STORAGE_ACCESS_KEY_ID="$key_id"
+OBJECT_STORAGE_SECRET_ACCESS_KEY="$secret"
+OBJECT_STORAGE_DEFAULT_REGION='garage'
+OBJECT_STORAGE_ENDPOINT_URL=$(docker_gateway):3900
+OBJECT_STORAGE_BUCKET_NAME=pitchou-dev
+EOF
+
 
 echo Utilisation:
 echo "    source dev/s3_config.sh"
