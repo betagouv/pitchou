@@ -10,12 +10,12 @@
 
     /** @type {Map<DossierPhase, string>} */
     const classParPhase = new Map([
-        ['Accompagnement amont', 'fr-badge--green-tilleul-verveine'],
-        ['Étude recevabilité DDEP', 'fr-badge--orange-terre-battue'],
-        ['Instruction', 'fr-badge--blue-ecume'],
-        ['Contrôle', 'fr-badge--pink-tuile'],
+        ['Accompagnement amont', 'fr-badge--yellow-tournesol'],
+        ['Étude recevabilité DDEP', 'fr-badge--yellow-moutarde'],
+        ['Instruction', 'fr-badge--blue-cumulus'],
+        ['Contrôle', 'fr-badge--orange-terre-battue'],
         ['Classé sans suite', ''],
-        ['Obligations terminées', 'fr-badge--purple-glycine']
+        ['Obligations terminées', 'fr-badge--beige-gris-galet']
     ])
 </script>
 
