@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 config=$(dirname $0)/garage.toml
 echo $config
@@ -12,7 +12,7 @@ replication_factor = 1
 
 rpc_bind_addr = "[::]:3901"
 rpc_public_addr = "127.0.0.1:3901"
-rpc_secret = "$(openssl rand -hex 32)"
+rpc_secret = "$(head -c32 /dev/random | xxd -p -c32)"
 
 [s3_api]
 s3_region = "garage"
@@ -29,6 +29,6 @@ api_bind_addr = "[::]:3904"
 
 [admin]
 api_bind_addr = "[::]:3903"
-admin_token = "$(openssl rand -hex 32)"
-metrics_token = "$(openssl rand -hex 32)"
+admin_token = "$(head -c32 /dev/random | xxd -p -c32)"
+metrics_token = "$(head -c32 /dev/random | xxd -p -c32)"
 EOF

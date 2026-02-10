@@ -50,12 +50,16 @@ services:
     stop_grace_period: 2s
 
   object_storage:
-    image: dxflrs/garage:v2.2.0
+    image: local/garage
+    build:
+      context: dev
+      dockerfile: garage.Dockerfile
+
     container_name: garage
     volumes:
-      - garage-meta:/var/lib/garage/meta
-      - garage-data:/var/lib/garage/data
-      - ./dev/garage.toml:/etc/garage.toml
+      - garage:/var/lib/garage
+      - ./dev:/workspace
+      - ./.env:/env
     ports:
       - 3900:3900
       - 3901:3901
@@ -64,5 +68,4 @@ services:
 
 volumes:
   pgdata:
-  garage-meta:
-  garage-data:
+  garage:

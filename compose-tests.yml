@@ -29,3 +29,20 @@ services:
       - "5433:5432"
     volumes:
       - ./tests/fixtures:/docker-entrypoint-initdb.d
+
+  object_storage:
+    image: local/garage
+    restart: always
+    build:
+      context: dev
+      dockerfile: garage.Dockerfile
+
+    container_name: garage
+    volumes:
+      - ./dev:/workspace
+      - ./tests/env:/env
+    ports:
+      - 3900:3900
+      - 3901:3901
+      - 3902:3902
+      - 3903:3903

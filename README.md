@@ -149,17 +149,6 @@ On peut faire un restore en un clic d'un backup dans l'onglet `BACKUPS` du dashb
 
 Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.scalingo.com/databases/postgresql/restoring)
 
-### Stockage objet
-
-Configurer le stockage objet la première fois
-```sh
-./dev/setup-object-storage.sh
-```
-
-Récupérer l’adresse IP du bridge Docker pour configurer Pitchou en Dev:
-```sh
-docker network inspect pitchou_default | jq ".[0].IPAM.Config.[0].Gateway" -r
-```
 
 ## Outils
 
