@@ -105,8 +105,8 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
  * @param {ÉvènementMétrique['type'][]} évènements 
  * @param {number} seuilNombreÉvènements 
  *
- * Une correspondance entre la date de la semaine concernée et le nombre de persones cumulé ayant 
- * atteint le seuil à cette date
+ * Une correspondance entre la date de la semaine concernée et le nombre de personnes cumulées ayant 
+ * atteint le seuil à cette date.
  * @returns { Promise<Map<string, number>> } 
  */
 async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nombreSemainesObservées, évènements, seuilNombreÉvènements){
