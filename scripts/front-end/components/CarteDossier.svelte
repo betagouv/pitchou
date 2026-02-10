@@ -90,12 +90,12 @@
                 <span class="fr-sr-only">Date de dépôt</span>
                 <time datetime="{ formatDateAbsolue(dossier.date_dépôt, 'yyyy-MM-dd') }">{formatDateAbsolue(dossier.date_dépôt, 'dd/MM/yyyy')}</time>
             </div>
-            <div class="porteur-et-localisation">
+            <div class="porteur-de-projet">
                 <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
                 <span class="fr-sr-only">Porteur de projet</span>
                 {formatPorteurDeProjet(dossier) || '(non renseigné)'}
             </div>
-            <div class="porteur-et-localisation">
+            <div class="localisation">
                 <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
                 <span class="fr-sr-only">Localisation</span>
                 {formatLocalisation(dossier) || '(non renseignée)'}
@@ -104,7 +104,7 @@
     </div>
 </div>
 
-<style>
+<style lang="scss">
     .carte {
         background: var(--background-default-grey);
         border-radius: 0.25rem;
@@ -115,7 +115,7 @@
         flex-direction: row;
         justify-content: space-between;
         gap: 1rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: .75rem;
 
         h3 {
             margin: 0;
@@ -165,18 +165,32 @@
         .deuxième-ligne {
             display: flex;
             flex-direction: row;
-            gap: 1rem;
+            gap: 4rem;
             flex-wrap: wrap;
+            @media (max-width: 768px) {
+                gap: .5rem;
+            }
             .date-dépôt {
                 white-space: nowrap;
             }
-
-            .porteur-et-localisation {
+            .localisation {
+                display: flex;
+                justify-content: end;
+                gap: 0.25rem;
+                align-items: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                @media (max-width: 768px) {
+                    flex-basis: 100%;
+                    display: unset;
+                }
+            };
+            .porteur-de-projet {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 flex: 1;
-
                 @media (max-width: 768px) {
                     flex-basis: 100%;
                 }
