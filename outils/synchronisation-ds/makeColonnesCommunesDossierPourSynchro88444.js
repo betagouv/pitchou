@@ -157,11 +157,12 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const etat_des_lieux_ecologique_complet_realise = etat_des_lieux_ecologique_complet_realise_champ?.checked
 
     const presence_especes_dans_aire_influence_champ = champById.get(
-        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+        pitchouKeyToChampDS.get("Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence de votre projet ?"))
     const presence_especes_dans_aire_influence = presence_especes_dans_aire_influence_champ?.checked
 
     const risque_malgre_mesures_erc_champ = champById.get(
-        pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"))
+        pitchouKeyToChampDS.get("Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il ?"))
+    
     const risque_malgre_mesures_erc = risque_malgre_mesures_erc_champ?.checked
 
     /** Données dossier scientifique */
@@ -255,7 +256,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
 
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
-    const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
 
     const date_debut_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
     const date_fin_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de fin de la consultation du public ou enquête publique"))?.date
@@ -328,7 +328,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         enjeu_politique,
 
         historique_date_envoi_dernière_contribution,
-        historique_identifiant_demande_onagre,
 
         date_debut_consultation_public,
         date_fin_consultation_public,

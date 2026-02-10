@@ -6,6 +6,7 @@
     import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
 	import Loader from "../Loader.svelte"
 	import { originDémarcheNumérique } from "../../../commun/constantes.js"
+    import { envoyerÉvènement } from "../../actions/aarri.js";
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -22,6 +23,8 @@
     const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
 
     function makeFileContentBlob() {
+        envoyerÉvènement({ type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: dossier.id } })
+
         return new Blob(
             // @ts-ignore
             [dossier.espècesImpactées && dossier.espècesImpactées.contenu],
@@ -57,17 +60,17 @@
             return '(fichier sans nom)'
         }
 
-        if (filename.length <= maxLength) { 
+        if (filename.length <= maxLength) {
             return filename
         }
 
         const lastDotIndex = filename.lastIndexOf('.');
-        
+
         const extension = filename.substring(lastDotIndex);
         const nameWithoutExt = filename.substring(0, lastDotIndex);
-        
+
         const availableLength = maxLength - extension.length - ellipsis.length;
-        
+
         return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
     }
 

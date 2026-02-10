@@ -25,15 +25,13 @@
 <Squelette nav={true} title={'Suivi des indicateurs AARRI'} {email} {erreurs} {résultatsSynchronisationDS88444}>
     <div class="fr-container fr-my-6w">
         <h1>Suivi des indicateurs AARRI</h1>
-        <div class="fr-alert fr-alert--warning">
-        <h2 class="fr-alert__title">Attention, le calcul des indicateurs des phases "Rétention", "Impact" et "Activation" n'est pas encore terminé.</h2>
-        </div>
+        
         {#await indicateursAujourdhuiP}
             <Loader></Loader>
         {:then indicateursAujourdhui}
             <section class="fr-mt-4w">
                 <h2>État des lieux</h2>
-                <p>Voici la valeur des nombres d'utilisateurices par Phase dans Pitchou.</p>
+                <p>Voici la valeur des nombres d'utilisateurices Pitchou par pour chaque phase AARRI aujourd'hui.</p>
                 <div class="conteneur-barres">
                     <div class="fr-grid-row fr-grid-row--middle">
                         <span class="fr-col-1">Impact</span>

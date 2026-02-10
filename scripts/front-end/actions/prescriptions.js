@@ -1,5 +1,7 @@
 import {text, json} from 'd3-fetch'
 
+import {envoyerÉvènement, envoyerÉvènementModifierPrescription} from './aarri.js'
+
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {FrontEndPrescription} from '../../types/API_Pitchou.ts' */
 
@@ -12,8 +14,9 @@ const inutile = true;
  * @returns {Promise<Prescription['id']>}
  */
 export function ajouterPrescription(prescription){
-        //@ts-ignore
-
+    envoyerÉvènement({type: 'ajouterPrescription'})    
+    
+    //@ts-ignore
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,6 +29,9 @@ export function ajouterPrescription(prescription){
  * @param {Omit<FrontEndPrescription, 'id'>[]} prescription 
  */
 export function ajouterPrescriptionsEtContrôles(prescription){
+    envoyerÉvènement({type: 'ajouterPrescription'})
+    envoyerÉvènement({type: 'ajouterContrôle'})
+
     return text('/prescriptions-et-contrôles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,6 +45,8 @@ export function ajouterPrescriptionsEtContrôles(prescription){
  * @returns {Promise<undefined>}
  */
 export function modifierPrescription(prescription){
+    envoyerÉvènementModifierPrescription()
+    
     return json('/prescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,6 +60,8 @@ export function modifierPrescription(prescription){
  * @returns {Promise<any>}
  */
 export function supprimerPrescription(id){
+    envoyerÉvènement({type: 'supprimerPrescription'})  
+
     return text(`/prescription/${id}`, {method: 'DELETE'})
 }
 

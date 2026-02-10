@@ -4,6 +4,7 @@
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 /** @import {default as Message} from '../../types/database/public/Message.ts' */
 /** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
+/** @import {AvisExpertInitializer} from '../../types/database/public/AvisExpert.ts' */
 /** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
@@ -26,7 +27,7 @@ import { getFichierUrl } from '../object-storage/fichier.js';
 //@ts-ignore
 /** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription, FrontEndAvisExpert} from '../../types/API_Pitchou.d.ts' */
 //@ts-ignore
-/** @import {PickNonNullable} from '../../types/tools.d.ts' */
+/** @import {PartialBy, PickNonNullable} from '../../types/tools.d.ts' */
 
 
 /**
@@ -122,6 +123,9 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
     /** @type {ArTePersonneSuitDossier[]} */
     const arêtePersonneSuitDossierDossier = []
 
+    /** @type {PartialBy<AvisExpertInitializer, "dossier">[]} */
+    let avisExpertDossier = []
+
     if (dossiersPourUpdate.length>=1) {
         updatePromises = dossiersPourUpdate.map(({dossier: dossierAModifier}) => {
             return databaseConnection('dossier')
@@ -168,6 +172,12 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
             })
         }
 
+        avisExpertDossier = dossiersPourInsert
+            .map(tables => tables.avis_expert)
+            .filter(x => x !== undefined)
+            .flat()
+
+
         // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
         insertedDossierIds.forEach((dossierInséréId, index) => {
 
@@ -186,7 +196,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         })
     }
 
-
     const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert]
 
     const évènementsPhaseDossier = tousLesDossiers
@@ -194,10 +203,6 @@ export async function dumpDossiers(dossiersPourInsert, dossiersPourUpdate, datab
         .filter(x => x !== undefined)
         .flat()
 
-    const avisExpertDossier = tousLesDossiers
-        .map(tables => tables.avis_expert)
-        .filter(x => x !== undefined)
-        .flat()
 
     const décisionAdministrativeDossier = tousLesDossiers
         .map(tables => tables.décision_administrative)

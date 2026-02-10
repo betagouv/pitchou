@@ -6,6 +6,7 @@
 
     import {formatDateRelative, formatDateAbsolue} from '../../../affichageDossier.js'
     import {ajouterContrôle as envoyerContrôle, modifierContrôle, supprimerContrôle} from '../../../actions/contrôle.js'
+    import {envoyerÉvènement} from '../../../actions/aarri.js';
 
     /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
     /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
@@ -69,6 +70,16 @@
             contrôles.add(contrôleEnCours)
 
             const contrôleId = await envoyerContrôle(contrôleEnCours)
+
+            if(contrôleEnCours.résultat === 'Conforme' // qui est conforme
+                // alors qu'au moins un contrôle précédent n'était pas conforme
+                && prescription.contrôles && prescription.contrôles.length >= 2
+                && prescription.contrôles.some(c => c.résultat !== 'Conforme')
+            ){
+                // @ts-ignore
+                envoyerÉvènement({type: 'retourÀLaConformité', détails: {prescription: prescription.id}})
+            }
+
             if(!contrôleId){
                 throw new Error(`contrôleId absent de la valeur de retour de 'envoyerContrôle'`)
             }
@@ -76,6 +87,8 @@
             contrôleEnCours.id = contrôleId
 
             contrôleEnCours = undefined;
+
+            envoyerÉvènement({type: 'ajouterContrôle'}) 
         }
     }
 
@@ -102,17 +115,17 @@
         // @ts-ignore
         const index = prescription.contrôles?.indexOf(contrôleEnModification) || -1;
         if (index !== -1) { 
-            prescription.contrôles?.splice(index, 1); 
+            prescription.contrôles?.splice(index, 1);
         }
         contrôleEnModification = undefined
 
         // @ts-ignore
         prescription.contrôles?.push(contrôleValidé)
-            
-        console.log('validerModificationsContrôle contrôleValidé', contrôleValidé)
-            
+
         await modifierContrôle(contrôleValidé)
         
+        envoyerÉvènement({type: 'modifierContrôle'})
+
     }
 
     async function supprimerContrôleEnModification(){
@@ -131,6 +144,8 @@
         await supprimerContrôle(id)
 
         refreshDossierComplet()
+
+        envoyerÉvènement({type: 'supprimerContrôle'})
     }
 
 </script>
