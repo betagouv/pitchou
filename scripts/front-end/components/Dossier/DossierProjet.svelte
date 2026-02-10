@@ -295,7 +295,7 @@
                         -->
                         {raccourcirNomFichier(nom)}
                         <span class="fr-link__detail">
-                            {media_type} - {byteFormat.format(taille)}
+                            {media_type} - {byteFormat.format(taille || 0)}
                         </span>
                     </a>
                 </li>
