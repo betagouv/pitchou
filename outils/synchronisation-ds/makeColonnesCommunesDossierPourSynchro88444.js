@@ -256,7 +256,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     const enjeu_politique = annotationById.get(pitchouKeyToAnnotationDS.get("Enjeu politique")).checked
 
     const historique_date_envoi_dernière_contribution = annotationById.get(pitchouKeyToAnnotationDS.get("Date d'envoi de la dernière contribution en lien avec l'instruction DDEP")).date
-    const historique_identifiant_demande_onagre = annotationById.get(pitchouKeyToAnnotationDS.get("N° Demande ONAGRE")).stringValue
 
     const date_debut_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique")).date
     const date_fin_consultation_public = annotationById.get(pitchouKeyToAnnotationDS.get("Date de fin de la consultation du public ou enquête publique"))?.date
@@ -329,7 +328,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
         enjeu_politique,
 
         historique_date_envoi_dernière_contribution,
-        historique_identifiant_demande_onagre,
 
         date_debut_consultation_public,
         date_fin_consultation_public,
