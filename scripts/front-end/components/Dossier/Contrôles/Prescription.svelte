@@ -70,6 +70,16 @@
             contrôles.add(contrôleEnCours)
 
             const contrôleId = await envoyerContrôle(contrôleEnCours)
+
+            if(contrôleEnCours.résultat === 'Conforme' // qui est conforme
+                // alors qu'au moins un contrôle précédent n'était pas conforme
+                && prescription.contrôles && prescription.contrôles.length >= 2
+                && prescription.contrôles.some(c => c.résultat !== 'Conforme')
+            ){
+                // @ts-ignore
+                envoyerÉvènement({type: 'retourÀLaConformité', détails: {prescription: prescription.id}})
+            }
+
             if(!contrôleId){
                 throw new Error(`contrôleId absent de la valeur de retour de 'envoyerContrôle'`)
             }

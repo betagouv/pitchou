@@ -98,74 +98,127 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
     )
 }
 
-/**
- * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
- * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
- * 
- * @param {number} nbSemainesObservées
- *
- * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
-*/
-async function calculerIndicateurActif(nbSemainesObservées) {
 
-    const actifs = await directDatabaseConnection.raw(`
-        -- personnes et le nombre évènement d'action de modif par semaine
-with actions_modif_par_personne as (select
+/**
+ * 
+ * @param {number} nombreSemainesObservées 
+ * @param {ÉvènementMétrique['type'][]} évènements 
+ * @param {number} seuilNombreÉvènements 
+ *
+ * Une correspondance entre la date de la semaine concernée et le nombre de personnes cumulées ayant 
+ * atteint le seuil à cette date.
+ * @returns { Promise<Map<string, number>> } 
+ */
+async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nombreSemainesObservées, évènements, seuilNombreÉvènements){
+
+    const requêteSQL = `
+-- personnes et le nombre évènement suivis par semaine
+with actions_par_personne as (select
 	personne,
-	COUNT(évènement) as nombre_actions_modif,
+	COUNT(évènement) as nombre_actions,
 	date_trunc('week', e.date)::date as semaine
 from évènement_métrique as e
 join personne on personne.id = e.personne
-WHERE évènement IN (:evenement_modifs)
+WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
--- filtrer par première fois activé
-premiere_fois_active as (select personne, min(semaine) as semaine
-from actions_modif_par_personne
-WHERE nombre_actions_modif >= :nb_seuil_actions_modif
+-- filtrer par première fois où le seuil est atteint
+premiere_fois_seuil_atteint as (select personne, min(semaine) as semaine
+from actions_par_personne
+WHERE nombre_actions >= :nb_seuil_actions
 group by personne),
 
 -- nombre actif par semaine
-nombre_active_par_semaine as (select
-	count(personne) as actif_semaine,
+nombre_personnes_par_semaine as (select
+	count(personne) as nombre_personne_pour_cette_semaine,
 	semaine
-from premiere_fois_active
+from premiere_fois_seuil_atteint
 group by semaine),
 
--- récupérer la liste de toutes les semaines avec sûr les cinq dernières semaines
+-- récupérer la liste de toutes les semaines avec sûr les nb_semaines_observees dernières semaines
 semaines as (
 	select
 		date_trunc('week', semaine)::date as semaine
 	from
 		generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
 	union
-	select semaine from premiere_fois_active
+	select semaine from premiere_fois_seuil_atteint
 )
 
 select
 	semaines.semaine as date,
-	sum(actif_semaine) over (order by semaines.semaine  asc) as actifs_total
+	sum(nombre_personne_pour_cette_semaine) over (order by semaines.semaine  asc) as quantite_personnes
 from
-	nombre_active_par_semaine
+	nombre_personnes_par_semaine
 right join
 	semaines
-on semaines.semaine = nombre_active_par_semaine.semaine
+on semaines.semaine = nombre_personnes_par_semaine.semaine
 order by date desc
 limit :nb_semaines_observees; 
-        `, {
-            nb_semaines_observees: nbSemainesObservées,
-            nb_seuil_actions_modif: 5,
-            evenement_modifs: directDatabaseConnection.raw(
-                ÉVÈNEMENTS_MODIFICATIONS.map(() => '?').join(', '), ÉVÈNEMENTS_MODIFICATIONS)
+        `;
 
-        })
+    const personnesParSemaines = await directDatabaseConnection.raw(requêteSQL, {
+        nb_semaines_observees: nombreSemainesObservées,
+        nb_seuil_actions: seuilNombreÉvènements,
+        evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
+    })
 
     return new Map(
-        ...[actifs.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.actifs_total)]
+        ...[personnesParSemaines.rows.map(
+            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.quantite_personnes)]
         )]
     )
+}
+
+
+
+
+
+/**
+ * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
+ * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
+*/
+async function calculerIndicateurActif(nbSemainesObservées) {
+
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènementsModifications = [
+        'modifierCommentaireInstruction', 
+        'changerPhase', 
+        'changerProchaineActionAttendueDe', 
+        'ajouterDécisionAdministrative', 
+        'modifierDécisionAdministrative', 
+        'supprimerDécisionAdministrative'
+    ]
+    
+    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènementsModifications, 5)
+}
+
+
+/**
+ * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
+ * L'impact de Pitchou est mesuré par les retours à conformité
+ * 
+ * @param {number} nbSemainesObservées
+ *
+ * Une correspondance entre la date de la semaine concernée et le nombre de personne 
+ * ayant un "impact" à cette date
+ * @returns { Promise<Map<string, number>> } 
+*/
+async function calculerIndicateurImpact(nbSemainesObservées) {
+    /*
+        Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
+        donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
+    */
+
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènements = [ 'retourÀLaConformité' ]
+    
+    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènements, 1)
 }
 
 /**
@@ -310,8 +363,8 @@ export async function indicateursAARRI() {
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
-    
     const retenus = await calculerIndicateurRetenu()
+    const impacts = await calculerIndicateurImpact(nbSemainesObservées);
 
     const dates = acquis.keys();
 
@@ -321,7 +374,7 @@ export async function indicateursAARRI() {
             nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
             nombreUtilisateuriceActif: actifs.get(date) ?? 0,
             nombreUtilisateuriceRetenu: retenus.get(date) ?? 0,
-            nombreUtilisateuriceImpact: 0,
+            nombreUtilisateuriceImpact: impacts.get(date) ?? 0,
             nombreBaseUtilisateuricePotentielle: 300,
         })
     }
