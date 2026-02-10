@@ -1,7 +1,7 @@
 import {directDatabaseConnection} from '../database.js'
 import { getFichierUrl } from '../object-storage/fichier.js';
 
-import {ajouterFichier, supprimerFichier} from './fichier.js'
+import {ajouterFichier, supprimerFichier} from '../fichier.js'
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
@@ -41,7 +41,7 @@ export async function ajouterDécisionAdministrativeAvecFichier(décision, datab
             contenu
         }
 
-        await ajouterFichier(fichierBDD, databaseConnection).then(fichier => {
+        await ajouterFichier(fichierBDD, true, databaseConnection).then(fichier => {
             décisionAdministrativeBDD.fichier = fichier.id
         })
     }
@@ -67,7 +67,6 @@ export function ajouterDécisionsAdministratives(décisions, databaseConnection 
     return databaseConnection('décision_administrative')
         .insert(décisions)
 }
-
 
 
 /**
@@ -97,6 +96,7 @@ export function getDécisionAdministratives(dossierId, databaseConnection = dire
                 }
         })))
 }
+
 
 /**
  * Récupère les décisions administratives pour chaque dossier
@@ -155,7 +155,7 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
             contenu
         }
 
-        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, databaseConnection).then(fichier => {
+        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, true, databaseConnection).then(fichier => {
             décisionAdministrativeBDD.fichier = fichier.id
         })
 
@@ -174,7 +174,7 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
     return Promise.all([fichierIdPrécédentP, décisionAdministrativeÀJourP])
         .then(([fichierIdPrécédent]) => {
             if(fichierIdPrécédent){
-                return supprimerFichier(fichierIdPrécédent, databaseConnection)
+                return supprimerFichier(fichierIdPrécédent, true, databaseConnection)
             }
         })
 
@@ -186,8 +186,14 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
-    return databaseConnection('décision_administrative')
+export async function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
+    const fichierId = await databaseConnection('décision_administrative')
         .delete()
         .where({id})
+        .returning(['fichier'])
+        .then(décisions => décisions[0].fichier)
+
+    if (fichierId) {
+        return supprimerFichier(fichierId, true, databaseConnection)
+    }
 }
