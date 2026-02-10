@@ -261,17 +261,6 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
 
 
 /**
- * @callback MakeAvisExpertFromTraitementsDS
- * @param {DossierDS88444} dossierDS
- * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisCSRPN_CNPN_Téléchargés
- * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersSaisinesCSRPN_CNPN_Téléchargés
- * @param {Map<DossierDS88444['number'], Fichier['id'][]> | undefined} fichiersAvisConformeMinistreTéléchargés
- * @param {Map<string, ChampDescriptor['id']>}  pitchouKeyToAnnotationDS
- * @param {AvisExpert['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
- * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[]}
- */
-
-/**
  * Synchronisation des décisions administratives
  * Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
  * une nouvelle décision administrative qui n'est pas encore en BDD

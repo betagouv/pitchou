@@ -39,7 +39,7 @@ import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../
 /** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
 /** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../scripts/types/démarche-numérique/Démarche88444.ts' */
 
-/** @import {GetDonnéesPersonnesEntreprises, MakeAvisExpertFromTraitementsDS} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
+/** @import {GetDonnéesPersonnesEntreprises} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 /** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 
 // récups les données de DS
