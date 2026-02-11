@@ -8,29 +8,38 @@
     /**
      * @typedef Props
      * @property {DossierRésumé} dossier
-     * @property {boolean} [dossierSuiviParInstructeurActuel]
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelSuitDossier
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
+     * @property {boolean} [nouveautéVueParInstructeur]
+     * @property {boolean} [dossierSuiviParInstructeurActuel]
+     * @property {boolean} [afficherTagNouveauté] 
     */
     /** @type {Props}*/
     let { 
             dossier, 
             dossierSuiviParInstructeurActuel, 
             instructeurActuelSuitDossier, 
-            instructeurActuelLaisseDossier 
+            instructeurActuelLaisseDossier,
+            afficherTagNouveauté,
+            nouveautéVueParInstructeur,
         } = $props()
 
-
+    $inspect('nouveautéVueParInstructeur', nouveautéVueParInstructeur)
 </script>
 
 <div class="carte fr-p-2w">
     <div class="en-tête">
-        <h3>
-            <a href={`/dossier/${dossier.id}`} class="fr-link">
-                <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
-                <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
-            </a>
-        </h3>
+        <div>
+            {#if afficherTagNouveauté != true}
+                <p class="fr-badge fr-badge--new">Nouveauté</p>
+            {/if}
+            <h3>
+                <a href={`/dossier/${dossier.id}`} class="fr-link">
+                    <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
+                    <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
+                </a>
+            </h3>
+        </div>
         <div class="boutons-action">
             {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
                 {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
