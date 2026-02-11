@@ -33,12 +33,12 @@
         afficherFiltreSansInstructeurice = false,
         afficherFiltreActionInstructeur = false,
         afficherFiltreNouveauté = false,
-        nouveautéVuePourInstructeurActuelParDossier = new Map(),
+        nouveautéVuePourInstructeurActuelParDossier = new SvelteMap(),
     } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur' | 'nouveauté', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -204,6 +204,16 @@
         réinitialiserPage()
     }
 
+    function toggleFiltreNouveauté() {
+        if (!tousLesFiltres.has('nouveauté')) {
+            tousLesFiltres.set('nouveauté', (dossier) => nouveautéVuePourInstructeurActuelParDossier.get(dossier.id) === false)
+        } else {
+            tousLesFiltres.delete('nouveauté')
+        }
+        envoyerÉvènementRechercherUnDossier()
+        réinitialiserPage()
+    }
+
     /**
      * @type {ChangeEventHandler<HTMLSelectElement>}
      */
@@ -284,6 +294,16 @@
                             aria-pressed={tousLesFiltres.has('actionInstructeur')}
                         >
                             Action : Instructeur·ice
+                        </button>
+                    {/if}
+                    {#if afficherFiltreNouveauté}
+                        <button
+                            type="button"
+                            class="fr-tag fr-tag--yellow-moutarde"
+                            onclick={toggleFiltreNouveauté}
+                            
+                        >
+                            Nouveauté
                         </button>
                     {/if}
             </div>
