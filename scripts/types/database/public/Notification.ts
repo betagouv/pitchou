@@ -15,7 +15,7 @@ export default interface Notification {
   updated_at: Date | null;
 
   /** Indique si la personne a consulté ou non la notification */
-  vue: boolean | null;
+  vue: boolean;
 
   personne: PersonneId;
 
@@ -37,7 +37,7 @@ export interface NotificationInitializer {
    * Indique si la personne a consulté ou non la notification
    * Default value: false
    */
-  vue?: boolean | null;
+  vue?: boolean;
 
   personne: PersonneId;
 
@@ -52,7 +52,7 @@ export interface NotificationMutator {
   updated_at?: Date | null;
 
   /** Indique si la personne a consulté ou non la notification */
-  vue?: boolean | null;
+  vue?: boolean;
 
   personne?: PersonneId;
 

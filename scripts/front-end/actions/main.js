@@ -35,7 +35,22 @@ export function chargerRelationSuivi(){
 }
 
 export function chargerNouveautéVueParInstructeurParDossier() {
-    //TODO :créer la capability chargerNotification
+    if(store.state.capabilities?.listerNotifications){
+        store.state.capabilities?.listerNotifications()
+            .then(notificationsBDD => {
+                if (!notificationsBDD || !Array.isArray(notificationsBDD)) {
+                    throw new TypeError("On attendait un tableau de notifications ici !")
+                }
+
+                const nouveautéVueParInstructeurParDossier = new SvelteMap()
+
+                for(const {dossier, vue} of notificationsBDD){
+                    nouveautéVueParInstructeurParDossier.set(dossier, vue)
+                }
+
+                store.mutations.setNouveautéVuePourInstructeurActuelParDossier(nouveautéVueParInstructeurParDossier)
+            })
+    }
 }
 
 export function chargerSchemaDS88444() {

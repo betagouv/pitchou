@@ -13,7 +13,7 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {PitchouState['erreurs']} [erreurs]
     * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
-    * @property {Map<DossierId, boolean>} nouveautéVuePourInstructeurActuelParDossier
+    * @property {Map<DossierId, boolean>} [nouveautéVuePourInstructeurActuelParDossier]
     */
     /** @type {Props} */
     let { 

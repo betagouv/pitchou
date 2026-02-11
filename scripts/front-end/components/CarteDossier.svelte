@@ -23,14 +23,12 @@
             afficherTagNouveauté,
             nouveautéVueParInstructeur,
         } = $props()
-
-    $inspect('nouveautéVueParInstructeur', nouveautéVueParInstructeur)
 </script>
 
 <div class="carte fr-p-2w">
     <div class="en-tête">
         <div>
-            {#if afficherTagNouveauté != true}
+            {#if afficherTagNouveauté === true && nouveautéVueParInstructeur === false}
                 <p class="fr-badge fr-badge--new">Nouveauté</p>
             {/if}
             <h3>

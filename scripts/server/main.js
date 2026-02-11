@@ -36,6 +36,7 @@ import { indicateursAARRI } from './database/aarri.js'
 import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
 import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
 import {générerDéclarationGeoMCE} from './database/geomce.js'
+import { getNotificationsPourPersonneDepuisCap } from './database/notification.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
@@ -250,6 +251,9 @@ fastify.get('/caps', async function (request, reply) {
   }
   if(capBundle.identité){
     ret.identité = capBundle.identité
+  }
+  if(capBundle.listerNotifications){
+    ret.listerNotifications = `/dossiers/notifications?cap=${capBundle.listerNotifications}`
   }
 
 
@@ -725,6 +729,28 @@ fastify.get('/dossiers/relation-suivis', async function(request, reply) {
   }
 
   return relationSuivis
+})
+
+/**
+ * @type {RouteShorthandOptions}
+ * @const
+ */
+const optsNotificationsGet = {
+  schema: {
+    querystring: {
+      type: 'object',
+      required: ['cap'],
+      properties: {
+        cap: { type: 'string' },
+      },
+    },
+  },
+};
+fastify.get('/dossiers/notifications', optsNotificationsGet, async function(request) {
+  // @ts-ignore
+  const { cap } = request.query
+  const notifications = await getNotificationsPourPersonneDepuisCap(cap)
+  return notifications
 })
 
 
