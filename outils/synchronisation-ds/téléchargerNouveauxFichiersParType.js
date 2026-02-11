@@ -16,12 +16,12 @@ import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
 export async function téléchargerNouveauxFichiersFromChampId(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
     /** @type {Map<DossierDS88444['number'], DSFile[]>} */
     const candidatsFichiers = trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId)
-
+    console.log('candidattsFichiers', candidatsFichiers)
     if(candidatsFichiers.size >= 1){
         return téléchargerNouveauxFichiers(
             candidatsFichiers, 
             laTransactionDeSynchronisationDS
-        )
+        ).then((res) => {console.log('res téléchargerNouveauxFichiers ,', res); return res} )
     }
 }
 

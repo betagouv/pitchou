@@ -8,37 +8,34 @@
 import trouverCandidatsFichiersÀTélécharger from '../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js'
 import {directDatabaseConnection} from '../database.js'
 
+/** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
+
 /**
  * 
  * @param {Map<Dossier['id'], Fichier['id'][]>} fichiersPiècesJointesPétitionnaireParNuméroDossier
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number 
  * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {ChampFormulaire[]} champsAvecPiècesJointes
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(fichiersPiècesJointesPétitionnaireParNuméroDossier, dossiersDS, dossierIdByDS_number, pitchouKeyToChampDS, databaseConnection = directDatabaseConnection){
+export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(fichiersPiècesJointesPétitionnaireParNuméroDossier, dossiersDS, dossierIdByDS_number, pitchouKeyToChampDS, champsAvecPiècesJointes, databaseConnection = directDatabaseConnection){
 
-    /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
-    /** @type {ChampFormulaire[]} */
-    const champsAvecPiècesJointes = ['Dépot du dossier complet de demande de dérogation', 
-        'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
-        'Diagnostic écologique',
-        'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.'
-    ]
+
     /** @type {Map<DossierDS88444['number'], DSFile[]>[]} */
     let descriptionsFichiers = []
 
-
     for (const champ of champsAvecPiècesJointes){
         /** @type {ChampDescriptor['id'] | undefined} */
-        const fichierPiècesJointesChampId = pitchouKeyToChampDS.get(champ)
-        if(!fichierPiècesJointesChampId){
+        const champId = pitchouKeyToChampDS.get(champ)
+        if(!champId){
             throw new Error(`champId for ${champ} is undefined`)
         }
-        descriptionsFichiers.push(trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesChampId))
-    }
+        const candidat = trouverCandidatsFichiersÀTélécharger(dossiersDS, champId)
 
+        descriptionsFichiers.push(candidat)
+    }
 
     /** @type {Set<DossierId>} */
     // @ts-ignore
@@ -49,8 +46,8 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         ...descriptionsFichiers.map((descriptionFichier) => [...descriptionFichier.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()),
     )
 
-    //console.log('dossierIds', dossierIds)
-    //console.log('checksumsDS', checksumsDS)
+    console.log('dossierIds', dossierIds)
+    console.log('checksumsDS', checksumsDS)
 
     // Trouver les fichiers qui sont en base de données, mais ne sont plus dans DS
     const fichierIdsEnBDDMaisPlusDansDS = await databaseConnection('dossier')
@@ -60,7 +57,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .whereIn('dossier.id', [...dossierIds])
         .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
-    //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
+    console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
 
     
     /** @type {Promise<any>} */
@@ -79,7 +76,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .map(([dossierId, fichierIds]) => fichierIds.map(fichierId => ({fichier: fichierId, dossier: dossierId})))
         .flat()
 
-    //console.log('arêtesFichierDossierPiècesJointePétitionnaires', arêtesFichierDossierPiècesJointePétitionnaires)
+    console.log('arêtesFichierDossierPiècesJointePétitionnaires', arêtesFichierDossierPiècesJointePétitionnaires)
 
     /** @type {Promise<any>} */
     let nouveauxFichiersSynchronisés = Promise.resolve()

@@ -349,12 +349,21 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
 })()
 
 
+/** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
+/** @type {ChampFormulaire[]} */
+const champsAvecPiècesJointes88444 = ['Dépot du dossier complet de demande de dérogation', 
+    'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
+    'Diagnostic écologique',
+    'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.'
+]
+
 /** Télécharger les pièces jointes au dossier par le pétitionnaire*/
 const fichiersPiècesJointesPétitionnaireTéléchargésP = (async () => {
     if (DEMARCHE_NUMBER === 88444) {
         return récupérerPiècesJointesPétitionnaire88444(
             dossiersDS,
             pitchouKeyToChampDS,
+            champsAvecPiècesJointes88444,
             laTransactionDeSynchronisationDS
         )
     } else {
@@ -451,7 +460,9 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 
 /** Synchronisation des fichiers pièces jointes pétitionnaire téléchargés */
 const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointesPétitionnaireTéléchargésP.then(fichiersPiècesJointesPétitionnaireTéléchargés => {
-    console.log('fichiersPiècesJointesTéléchargés', fichiersPiècesJointesPétitionnaireTéléchargés)
+    if (DEMARCHE_NUMBER !== 88444) {
+        throw new Error(`La fonction pour synchroniser les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`)
+    }
 
     const fichiersPiècesJointesPétitionnaireTéléchargésParDossierId = new Map(
         [...fichiersPiècesJointesPétitionnaireTéléchargés].map(([number, fichiers]) => {
@@ -464,12 +475,13 @@ const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointes
             return  [id, fichiers]
         })
     )
-
+    console.log('fichiersPiècesJointesPétitionnaireTéléchargésParDossierId', fichiersPiècesJointesPétitionnaireTéléchargésParDossierId)
     return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
         fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
         dossiersDS,
         dossierIdByDS_number,
         pitchouKeyToChampDS,
+        champsAvecPiècesJointes88444,
         laTransactionDeSynchronisationDS
     )
 })
@@ -487,7 +499,7 @@ Promise.all([
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
-
+    console.log('fichiersPiècesJointesPétitionnaireSynchronisés', fichiersPiècesJointesPétitionnaireSynchronisés)
     /** @type {RésultatSynchronisationDS88444} */
     const résultatSynchro = {
         succès: true,
