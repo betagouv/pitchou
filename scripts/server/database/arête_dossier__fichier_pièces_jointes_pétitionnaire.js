@@ -41,9 +41,12 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     // @ts-ignore
     const dossierIds = new Set(dossiersDS.map(({number}) => dossierIdByDS_number.get(number) ))
 
-    /** @type {Set<string>} */
+    const allDsFiles = descriptionsFichiers
+        .flatMap(descriptionFichier => [...descriptionFichier.values()])
+        .flat()
+
     const checksumsDS = new Set(
-        ...descriptionsFichiers.map((descriptionFichier) => [...descriptionFichier.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()),
+        allDsFiles.map(dsfile => dsfile.checksum)
     )
 
     //console.log('dossierIds', dossierIds)
@@ -57,8 +60,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .whereIn('dossier.id', [...dossierIds])
         .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
-    //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
-
+    console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
     
     /** @type {Promise<any>} */
     let fichiersOrphelinsNettoyés = Promise.resolve()
