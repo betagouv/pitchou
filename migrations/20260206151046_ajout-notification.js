@@ -8,6 +8,8 @@ export async function up(knex) {
 
         table.dateTime('updated_at').comment("Date à laquelle la notification a été mise à jour pour la dernière fois").defaultTo(knex.fn.now())
 
+        table.boolean('vue').comment("Indique si la personne a consulté ou non la notification").defaultTo(false)
+
         table.integer('personne').notNullable().index();
         table.foreign('personne')
             .references('id').inTable('personne').onDelete('CASCADE');

@@ -50,7 +50,7 @@ export default interface Dossier {
   enjeu_politique: boolean | null;
 
   /** Commentaires de l'instructeur.rice sur le dossier */
-  commentaire_libre: string | null;
+  commentaire_libre: string;
 
   /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution: Date | null;
@@ -201,8 +201,11 @@ export interface DossierInitializer {
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
 
-  /** Commentaires de l'instructeur.rice sur le dossier */
-  commentaire_libre?: string | null;
+  /**
+   * Commentaires de l'instructeur.rice sur le dossier
+   * Default value: ''::text
+   */
+  commentaire_libre?: string;
 
   /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
@@ -353,7 +356,7 @@ export interface DossierMutator {
   enjeu_politique?: boolean | null;
 
   /** Commentaires de l'instructeur.rice sur le dossier */
-  commentaire_libre?: string | null;
+  commentaire_libre?: string;
 
   /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;

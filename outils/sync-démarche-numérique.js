@@ -476,14 +476,10 @@ const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointes
 })
 
 
-let mettreÀjourNotificationP
 /*
-    Synchronisation des notifications
+    Mise à jour des notifications
 */
-if(dossiersDS.length >= 1){
-    mettreÀjourNotificationP = mettreÀjourNotification(dossiersDS, laTransactionDeSynchronisationDS);
-}
-
+const mettreÀjourNotificationP = mettreÀjourNotification(dossiersDS, dossierIdByDS_number, laTransactionDeSynchronisationDS);
 
 
 /** Fin de l'outil de synchronisation - fermeture */
