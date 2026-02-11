@@ -34,6 +34,10 @@ export function chargerRelationSuivi(){
     }
 }
 
+export function chargerNouveautéVueParInstructeurParDossier() {
+    //TODO :créer la capability chargerNotification
+}
+
 export function chargerSchemaDS88444() {
     return json(getURL("link#schema-DS8844")).then((schema) => {
         //@ts-ignore
@@ -78,6 +82,7 @@ export async function logout(){
     store.mutations.setDossiersComplets(new SvelteMap())
     store.mutations.resetMessages()
     store.mutations.setRelationSuivis(new SvelteMap())
+    store.mutations.setNouveautéVuePourInstructeurActuelParDossier(new SvelteMap())
 
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }

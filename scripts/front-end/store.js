@@ -25,6 +25,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
+/** @import {default as Notification} from '../types/database/public/Notification.ts' */
 
 
 /**
@@ -34,6 +35,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
+ * @property {Map<Dossier['id'], Notification['vue']>} [nouveautéVuePourInstructeurActuelParDossier]
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
@@ -91,6 +93,13 @@ const mutations = {
    */
   setRelationSuivis(state, relationSuivis) {
     state.relationSuivis = relationSuivis
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['nouveautéVuePourInstructeurActuelParDossier']} nouveautéVuePourInstructeurActuelParDossier
+   */
+  setNouveautéVuePourInstructeurActuelParDossier(state, nouveautéVuePourInstructeurActuelParDossier) {
+    state.nouveautéVuePourInstructeurActuelParDossier = nouveautéVuePourInstructeurActuelParDossier
   },
   /**
    * @param {PitchouState} state

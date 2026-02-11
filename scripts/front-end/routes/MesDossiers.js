@@ -39,7 +39,8 @@ export default async () => {
             dossiers,
             relationSuivis: state.relationSuivis,
             erreurs,
-            résultatsSynchronisationDS88444
+            résultatsSynchronisationDS88444,
+            nouveautéVuePourInstructeurActuelParDossier: state.nouveautéVuePourInstructeurActuelParDossier
         };
     }
 

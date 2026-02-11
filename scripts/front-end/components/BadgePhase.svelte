@@ -19,4 +19,4 @@
     ])
 </script>
 
-<p class="fr-badge {classParPhase.get(phase)}">{phase}</p>
+<p class="fr-badge fr-badge--sm {classParPhase.get(phase)}">{phase}</p>
