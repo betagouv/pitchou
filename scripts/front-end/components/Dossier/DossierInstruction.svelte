@@ -116,7 +116,7 @@
             modifs.mesures_er_suffisantes = mesures_er_suffisantes
         }
 
-        // Règle métier: mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
+        // Règle métier : mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
         if (ddep_nécessaire === null) {
             if (dossier.mesures_er_suffisantes !== null) {
                 modifs.mesures_er_suffisantes = null
@@ -124,7 +124,8 @@
         }
 
         if (Object.keys(modifs).length>=1){
-            if (modifs.commentaire_libre) {
+            // On applique un debounce pour les champs saisis au clavier (commentaire libre, N° Demande ONAGRE)
+            if (modifs.commentaire_libre || modifs.historique_identifiant_demande_onagre) {
                 modifierChampAvecDebounce(modifs)
             } else {
                 modifierChamp(modifs)
