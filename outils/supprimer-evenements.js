@@ -1,6 +1,6 @@
 import parseArgs from 'minimist'
-import { getPersonnesByEmail } from '../scripts/server/database/personne.js';
 import { closeDatabaseConnection } from '../scripts/server/database.js';
+import {supprimerÉvènementsParEmail} from '../scripts/server/database/évènements_métriques.js';
 
 const args = parseArgs(process.argv)
 
@@ -29,37 +29,10 @@ if(!email && !nombreSemaineÀConserver){
 }
 
 
-
-//if(email)
-
-
-
-/*
-
-const emailsEnArgument = args.emails.split(',')
-
-const personnesAvecCesEmails = await getPersonnesByEmail(emailsEnArgument)
-
-for(const email of emailsEnArgument){
-    const personne = personnesAvecCesEmails.find(p => p.email === email)
-    if(!personne){
-        console.log(`${email}\tPersonne non trouvée en base de données`)
-    }
-    else{
-        if(personne.code_accès){
-            const lienDeConnexion = `${origin}/?secret=${personne.code_accès}`
-
-            console.log(`${email}\tLien de connexion: ${lienDeConnexion}`)
-        }
-        else{
-            console.log(`${email}\tn'a pas de lien de connexion`)
-        }
-
-    }
-
-
+if(email){
+    const nombreSupprimés = await supprimerÉvènementsParEmail(email)
+    console.log(nombreSupprimés, `évènements supprimés concernant l'utilisateur.rice`, email)
 }
 
-*/
 
 await closeDatabaseConnection()
