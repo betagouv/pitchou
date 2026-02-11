@@ -37,7 +37,7 @@ export async function ajouterÉvènementDepuisCap(cap, évènement) {
  * @returns {Promise<number>}
  */
 export async function supprimerÉvènementsParEmail(email, databaseConnection = directDatabaseConnection){
-    return directDatabaseConnection('évènement_métrique')
+    return databaseConnection('évènement_métrique')
         .join('personne', {'personne.id': 'évènement_métrique.personne'})
         .where({email: email})
         .delete()
