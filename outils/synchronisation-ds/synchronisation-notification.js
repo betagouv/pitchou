@@ -1,9 +1,11 @@
-
 /** @import { DossierDS88444 } from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import { Knex } from 'knex' */
 /** @import { NotificationInitializer } from '../../scripts/types/database/public/Notification.ts' */
 /** @import { PersonneId } from '../../scripts/types/database/public/Personne.ts' */
 /** @import { DossierId } from '../../scripts/types/database/public/Dossier.ts' */
+
+//@ts-ignore
+const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
 
 /**
  * 
