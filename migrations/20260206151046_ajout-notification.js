@@ -6,9 +6,9 @@ export async function up(knex) {
   await knex.schema.createTable('notification', function (table) {
         table.uuid('id').primary().defaultTo(knex.fn.uuid());
 
-        table.dateTime('updated_at').comment("Date à laquelle la notification a été mise à jour pour la dernière fois").defaultTo(knex.fn.now())
+        table.dateTime('updated_at').defaultTo(knex.fn.now()).comment("Date à laquelle la notification a été mise à jour pour la dernière fois")
 
-        table.boolean('vue').comment("Indique si la personne a consulté ou non la notification").defaultTo(false)
+        table.boolean('vue').notNullable().defaultTo(false).comment("Indique si la personne a consulté ou non la notification")
 
         table.integer('personne').notNullable().index();
         table.foreign('personne')
