@@ -24,6 +24,7 @@ import { makeColonnesCommunesDossierPourSynchro88444 } from './synchronisation-d
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.js'
+import { mettreÀjourNotification } from './synchronisation-ds/synchronisation-notification.js'
 
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
@@ -475,6 +476,15 @@ const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointes
 })
 
 
+let mettreÀjourNotificationP
+/*
+    Synchronisation des notifications
+*/
+if(dossiersDS.length >= 1){
+    mettreÀjourNotificationP = mettreÀjourNotification(dossiersDS, laTransactionDeSynchronisationDS);
+}
+
+
 
 /** Fin de l'outil de synchronisation - fermeture */
 
@@ -483,7 +493,8 @@ Promise.all([
     messagesSynchronisés,
     synchronisationDossierDansGroupeInstructeur,
     fichiersEspècesImpactéesSynchronisés,
-    fichiersPiècesJointesPétitionnaireSynchronisés
+    fichiersPiècesJointesPétitionnaireSynchronisés,
+    mettreÀjourNotificationP
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
