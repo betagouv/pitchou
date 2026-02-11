@@ -38,6 +38,7 @@
     let mesures_er_suffisantes = $state(dossier.mesures_er_suffisantes)
     let commentaire_libre = $state(dossier.commentaire_libre)
     let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par)
+    let historique_identifiant_demande_onagre = $state(dossier.historique_identifiant_demande_onagre)
 
     /**
      * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select
@@ -103,6 +104,10 @@
             modifs.prochaine_action_attendue_par = prochaine_action_attendue_par
         }
 
+        if (dossier.historique_identifiant_demande_onagre !== historique_identifiant_demande_onagre?.trim()) {
+            modifs.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim()
+        }
+
         if(dossier.ddep_nécessaire !== ddep_nécessaire){
             modifs.ddep_nécessaire = ddep_nécessaire
         }
@@ -111,7 +116,7 @@
             modifs.mesures_er_suffisantes = mesures_er_suffisantes
         }
 
-        // Règle métier: mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
+        // Règle métier : mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
         if (ddep_nécessaire === null) {
             if (dossier.mesures_er_suffisantes !== null) {
                 modifs.mesures_er_suffisantes = null
@@ -119,7 +124,8 @@
         }
 
         if (Object.keys(modifs).length>=1){
-            if (modifs.commentaire_libre) {
+            // On applique un debounce pour les champs saisis au clavier (commentaire libre, N° Demande ONAGRE)
+            if (modifs.commentaire_libre || modifs.historique_identifiant_demande_onagre) {
                 modifierChampAvecDebounce(modifs)
             } else {
                 modifierChamp(modifs)
@@ -285,6 +291,19 @@
                     <option value={acteur}>{acteur}</option>
                 {/each}
             </select>
+        </div>
+
+        <div class="fr-input-group">
+            <label class="fr-label" for="historique_identifiant_demande_onagre">
+                <strong>N° Demande ONAGRE</strong>
+            </label>
+            <input
+                onfocus={retirerAlert}
+                class="fr-input"
+                id="historique_identifiant_demande_onagre"
+                type="text"
+                bind:value={historique_identifiant_demande_onagre}
+            />
         </div>
 
 
