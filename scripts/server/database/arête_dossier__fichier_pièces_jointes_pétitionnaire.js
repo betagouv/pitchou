@@ -46,8 +46,8 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         ...descriptionsFichiers.map((descriptionFichier) => [...descriptionFichier.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()),
     )
 
-    console.log('dossierIds', dossierIds)
-    console.log('checksumsDS', checksumsDS)
+    //console.log('dossierIds', dossierIds)
+    //console.log('checksumsDS', checksumsDS)
 
     // Trouver les fichiers qui sont en base de données, mais ne sont plus dans DS
     const fichierIdsEnBDDMaisPlusDansDS = await databaseConnection('dossier')
@@ -57,7 +57,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .whereIn('dossier.id', [...dossierIds])
         .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
-    console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
+    //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
 
     
     /** @type {Promise<any>} */
@@ -75,8 +75,6 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     const arêtesFichierDossierPiècesJointePétitionnaires = [...fichiersPiècesJointesPétitionnaireParNuméroDossier]
         .map(([dossierId, fichierIds]) => fichierIds.map(fichierId => ({fichier: fichierId, dossier: dossierId})))
         .flat()
-
-    console.log('arêtesFichierDossierPiècesJointePétitionnaires', arêtesFichierDossierPiècesJointePétitionnaires)
 
     /** @type {Promise<any>} */
     let nouveauxFichiersSynchronisés = Promise.resolve()

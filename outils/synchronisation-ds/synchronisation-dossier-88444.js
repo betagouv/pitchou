@@ -43,21 +43,8 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
 export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, champsAvecPiècesJointes, databaseConnection){
-
-    // /** @type {ChampDescriptor['id'] | undefined} */
-    // const fichierPiècesJointesChampId = pitchouKeyToChampDS.get('Dépot du dossier complet de demande de dérogation')
-    // if(!fichierPiècesJointesChampId){
-    //     throw new Error('fichierPiècesJointesChampId is undefined')
-    // }
-
-    // /** @type {ChampDescriptor['id'] | undefined} */
-    // const fichierPiècesJointesComplémentairesChampId = pitchouKeyToChampDS.get('Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande')
-    // if(!fichierPiècesJointesComplémentairesChampId){
-    //     throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
-    // }
     /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
     const fichiersP = new Map()
-
 
     for (const champ of champsAvecPiècesJointes) {
         const champId = pitchouKeyToChampDS.get(champ)
@@ -72,8 +59,6 @@ export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, p
 
         const fichiersFromDossier = await fichiersFromDossierP
 
-        console.log('fichiersFromChampId', fichiersFromDossierP, fichiersFromDossier, 'pour le champ', champ)
-
         if(fichiersFromDossier){
             for(const [number, fichierIds] of fichiersFromDossier){
                 const fichiersIdsDéjàLà = fichiersP.get(number) || []
@@ -82,34 +67,5 @@ export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, p
         }
     }
 
-    // const fichiersPiècesJointesP = téléchargerNouveauxFichiersFromChampId(
-    //     dossiersDS,
-    //     fichierPiècesJointesChampId,
-    //     databaseConnection
-    // )
-
-    // const fichiersPiècesJointesComplémentairesP = téléchargerNouveauxFichiersFromChampId(
-    //     dossiersDS,
-    //     fichierPiècesJointesComplémentairesChampId,
-    //     databaseConnection
-    // )
-
-    // /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
-    // const res = new Map()
-
-    // const fichiersPiècesJointes = await fichiersPiècesJointesP
-    // if(fichiersPiècesJointes){
-    //     for(const [number, fichierIds] of fichiersPiècesJointes){
-    //         res.set(number, fichierIds)
-    //     }
-    // }
-
-    // const fichiersPiècesJointesComplémentaires = await fichiersPiècesJointesComplémentairesP
-    // if(fichiersPiècesJointesComplémentaires){
-    //     for(const [number, fichierIds] of fichiersPiècesJointesComplémentaires){
-    //         const fichiersIdsDéjàLà = res.get(number) || []
-    //         res.set(number, [...fichierIds, ...fichiersIdsDéjàLà])
-    //     }
-    // }
     return fichiersP
 }

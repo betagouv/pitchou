@@ -475,7 +475,6 @@ const fichiersPiècesJointesPétitionnaireSynchronisés = fichiersPiècesJointes
             return  [id, fichiers]
         })
     )
-    console.log('fichiersPiècesJointesPétitionnaireTéléchargésParDossierId', fichiersPiècesJointesPétitionnaireTéléchargésParDossierId)
     return synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
         fichiersPiècesJointesPétitionnaireTéléchargésParDossierId,
         dossiersDS,
@@ -499,7 +498,6 @@ Promise.all([
 ])
 .then(() => {
     console.log('Sync terminé avec succès, commit de la transaction')
-    console.log('fichiersPiècesJointesPétitionnaireSynchronisés', fichiersPiècesJointesPétitionnaireSynchronisés)
     /** @type {RésultatSynchronisationDS88444} */
     const résultatSynchro = {
         succès: true,

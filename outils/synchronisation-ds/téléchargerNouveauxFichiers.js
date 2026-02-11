@@ -65,7 +65,6 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
     /** @type {Map<DossierDS88444['number'], FichierÀTélécharger[]>} */
     const candidatsFichiersBDD = new Map(
         [...candidatsFichiers].map(([number, fichiers]) => {
-            console.log('dans téléchargerNouveauxFichiers number', number, 'fichiers', fichiers)
             return [
                 number,
                 fichiers.map(({filename, contentType, checksum, createdAt, url}) => ({
@@ -87,8 +86,8 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
     const fichierHashDéjàEnBDD = new Set( fichiersDéjaEnBDD.map(makeFichierHash) )
 
-    console.log('fichiersDéjaEnBDD', fichiersDéjaEnBDD)
-    console.log('candidatsFichiersBDD', candidatsFichiersBDD)
+    //console.log('fichiersDéjaEnBDD', fichiersDéjaEnBDD)
+    //console.log('candidatsFichiersBDD', candidatsFichiersBDD)
 
 
     // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données
@@ -96,14 +95,13 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
     // @ts-ignore
     const fichiersÀTélécharger = new Map([...candidatsFichiersBDD]
         .map(([number, fichiers]) => {
-            console.log('voyons ce qui est filtré pour number', number, 'fichiers', fichiers, fichiers.filter(f => !fichierHashDéjàEnBDD.has(makeFichierHash(f))))
             return [ number, fichiers.filter(f => !fichierHashDéjàEnBDD.has(makeFichierHash(f))) ]
         })
         // @ts-ignore
         .filter(([_, fichiers]) => fichiers.length >= 1)
     )
 
-    console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
+    //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
 
     /** @typedef { [DossierDS88444['number'], Fichier['id'][]] } ReturnMapEntryData */
 
