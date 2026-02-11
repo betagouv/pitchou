@@ -42,3 +42,14 @@ export async function supprimerÉvènementsParEmail(email, databaseConnection = 
         .where({email: email})
         .delete()
 }
+/**
+ * 
+ * @param {Date} date
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<number>}
+ */
+export async function supprimerÉvènementsAvantTelleDate(date, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_métrique')
+        .where('date', '<', date)
+        .delete()
+}
