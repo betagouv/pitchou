@@ -27,7 +27,7 @@
 
 <div class="carte fr-p-2w">
     <div class="en-tête">
-        <div>
+        <div class="tag-nouveauté-et-nom-du-projet">
             {#if afficherTagNouveauté === true && nouveautéVueParInstructeur === false}
                 <p class="fr-badge fr-badge--new">Nouveauté</p>
             {/if}
@@ -123,6 +123,10 @@
         justify-content: space-between;
         gap: 1rem;
         margin-bottom: .75rem;
+
+        .tag-nouveauté-et-nom-du-projet {
+            min-width: 0;
+        }
 
         h3 {
             margin: 0;
