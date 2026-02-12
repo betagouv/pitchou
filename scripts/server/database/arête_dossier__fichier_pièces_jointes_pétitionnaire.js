@@ -60,7 +60,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .whereIn('dossier.id', [...dossierIds])
         .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
-    console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
+    //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
     
     /** @type {Promise<any>} */
     let fichiersOrphelinsNettoyés = Promise.resolve()
