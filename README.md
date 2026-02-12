@@ -150,7 +150,6 @@ On peut faire un restore en un clic d'un backup dans l'onglet `BACKUPS` du dashb
 Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.scalingo.com/databases/postgresql/restoring)
 
 
-
 ## Outils
 
 ### Migration base de données
@@ -231,7 +230,7 @@ Pour donner l'origine de manière libre :
 Pitchou maintient une API pour que GeoMCE puisse récupérer les données que Pitchou doit déclarer
 (GeoMCE ne peut pas ouvrir d'API pour des raisons techniques de leur côté)
 
-Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme 
+Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme
 `/declaration-geomce?secret=XXX`
 
 Un outil permet de récupérer la capability url pour la transmettre aux personnes de GeoMCE :
@@ -249,4 +248,3 @@ En cas de compromission ou régulièrement, la capability-url peut être reset:
 Trouver les instructrices qui sont dans Pitchou et l'ont utilisé récemment
 
 `docker exec tooling node outils/instructrices-actives.js`
-

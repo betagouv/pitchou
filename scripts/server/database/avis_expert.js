@@ -4,7 +4,7 @@
 /** @import Fichier from '../../types/database/public/Fichier.ts' */
 
 import { directDatabaseConnection } from '../database.js'
-import { ajouterFichier } from './fichier.js'
+import { ajouterFichier, supprimerFichier } from '../fichier.js'
 
 /**
  * @param { AvisExpertInitializer | {id: string} & AvisExpertMutator } avisExpert
@@ -22,8 +22,8 @@ function estUnAvisExpertÀModifier(avisExpert) {
  */
 export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis, databaseConnection = directDatabaseConnection) {
     try {
-        const fichierSaisineAjoutéP = fichierSaisine ? ajouterFichier(fichierSaisine, databaseConnection) : Promise.resolve()
-        const fichierAvisAjoutéP = fichierAvis ? ajouterFichier(fichierAvis, databaseConnection) : Promise.resolve()
+        const fichierSaisineAjoutéP = fichierSaisine ? ajouterFichier(fichierSaisine, true, databaseConnection) : Promise.resolve()
+        const fichierAvisAjoutéP = fichierAvis ? ajouterFichier(fichierAvis, true, databaseConnection) : Promise.resolve()
 
         const [fichierSaisineAjouté, fichierAvisAjouté] = await Promise.all([fichierSaisineAjoutéP, fichierAvisAjoutéP])
 
@@ -33,13 +33,13 @@ export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichie
             const avisExpertÀMaj = avisExpert
 
             return modifierAvisExpert(
-            {
-                ...avisExpertÀMaj,
-                id: avisExpertÀMaj.id,
-                saisine_fichier: fichierSaisineAjouté?.id ?? undefined,
-                avis_fichier: fichierAvisAjouté?.id ?? undefined,
-            },
-            databaseConnection
+                {
+                    ...avisExpertÀMaj,
+                    id: avisExpertÀMaj.id,
+                    saisine_fichier: fichierSaisineAjouté?.id ?? undefined,
+                    avis_fichier: fichierAvisAjouté?.id ?? undefined,
+                },
+                databaseConnection
             )
 
         } else {
@@ -47,7 +47,14 @@ export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichie
             //@ts-ignore
             const avisExpertÀInsérer = avisExpert
 
-            return ajouterAvisExpert( {...avisExpertÀInsérer, saisine_fichier: fichierSaisineAjouté?.id ?? undefined, avis_fichier : fichierAvisAjouté?.id ?? undefined}, databaseConnection)
+            return ajouterAvisExpert(
+                {
+                    ...avisExpertÀInsérer,
+                    saisine_fichier: fichierSaisineAjouté?.id ?? undefined,
+                    avis_fichier : fichierAvisAjouté?.id ?? undefined
+                },
+                databaseConnection
+            )
         }
     } catch (e) {
         throw new Error(`Une erreur est survenue lors de l'ajout ou de la modification de l'avis d'expert avec les fichiers de saisine et d'avis : ${e}.`)
@@ -92,17 +99,20 @@ export function modifierAvisExpert(avisExpert, databaseConnection = directDataba
  * @param { AvisExpert['id'] | AvisExpert['id'][] } avisExpertId
  * @param { Knex.Transaction | Knex } [databaseConnection]
  */
-export function supprimerAvisExpert(avisExpertId, databaseConnection = directDatabaseConnection) {
+export async function supprimerAvisExpert(avisExpertId, databaseConnection = directDatabaseConnection) {
     const idsÀSupprimer = Array.isArray(avisExpertId) ? avisExpertId : [avisExpertId]
-    return databaseConnection('avis_expert').whereIn('id', idsÀSupprimer).delete()
-}
 
-/**
- * 
- * @param { AvisExpert['id'] } avisExpertId
- * @param { Knex.Transaction | Knex } [databaseConnection]
- * @returns { Promise<Pick<AvisExpert, "saisine_fichier" | "avis_fichier">[]> }
- */
-export function getFichiersAvisSaisineAvisExpert(avisExpertId, databaseConnection = directDatabaseConnection) {
-    return databaseConnection('avis_expert').where({'id': avisExpertId}).select('saisine_fichier', 'avis_fichier')
+    const fichierIDs = await databaseConnection('avis_expert')
+        .whereIn('id', idsÀSupprimer)
+        .delete()
+        .returning(['saisine_fichier', 'avis_fichier'])
+        .then(avis => {
+            return avis
+                .flatMap(avis => [avis.saisine_fichier, avis.avis_fichier])
+                .filter(fichier => fichier !== null)
+        })
+
+    return Promise.all(
+        fichierIDs.map(fichierId => supprimerFichier(fichierId, true, databaseConnection))
+    )
 }

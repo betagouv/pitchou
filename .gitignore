@@ -22,3 +22,6 @@ docs/Gemfile.lock
 docs/vendor/
 
 test-results/
+
+dev/s3_config.sh
+dev/garage.toml
