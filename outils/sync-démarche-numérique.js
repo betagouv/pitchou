@@ -353,10 +353,17 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
 
 /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
 /** @type {ChampFormulaire88444[]} */
-const champsAvecPiècesJointes88444 = ['Dépot du dossier complet de demande de dérogation', 
+const champsAvecPiècesJointes88444 = [
+    'Dépot du dossier complet de demande de dérogation', 
     'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
     'Diagnostic écologique',
-    'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.'
+    'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.',
+    // 'Joindre les pièces justifiant de la finalité de la demande',
+    // 'Joindre le bilan des opérations antérieures',
+    // 'Ajoutez un fichier décrivant ces mesures complémentaires :',
+    // 'Plan des installations',
+    // `Joindre une carte du périmètre d'intervention si besoin`,
+    // 'Pièces jointes décrivant précisément le protocole qui sera mis en place',
 ]
 
 /** Télécharger les pièces jointes au dossier par le pétitionnaire*/
