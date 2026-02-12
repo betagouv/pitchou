@@ -194,3 +194,6 @@ export interface IndicateursAARRI {
     nombreUtilisateuriceImpact: number;
     date: string,
 }
+
+
+export type ChampFormulaire88444 = keyof DossierDemarcheNumerique88444

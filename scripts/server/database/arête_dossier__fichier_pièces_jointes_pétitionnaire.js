@@ -8,42 +8,46 @@
 import trouverCandidatsFichiersÀTélécharger from '../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js'
 import {directDatabaseConnection} from '../database.js'
 
+/** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
+
 /**
  * 
  * @param {Map<Dossier['id'], Fichier['id'][]>} fichiersPiècesJointesPétitionnaireParNuméroDossier
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number 
  * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {ChampFormulaire[]} champsAvecPiècesJointes
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(fichiersPiècesJointesPétitionnaireParNuméroDossier, dossiersDS, dossierIdByDS_number, pitchouKeyToChampDS, databaseConnection = directDatabaseConnection){
+export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(fichiersPiècesJointesPétitionnaireParNuméroDossier, dossiersDS, dossierIdByDS_number, pitchouKeyToChampDS, champsAvecPiècesJointes, databaseConnection = directDatabaseConnection){
 
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierPiècesJointesChampId = pitchouKeyToChampDS.get('Dépot du dossier complet de demande de dérogation')
-    if(!fichierPiècesJointesChampId){
-        throw new Error('fichierPiècesJointesChampId is undefined')
+
+    /** @type {Map<DossierDS88444['number'], DSFile[]>[]} */
+    let descriptionsFichiers = []
+
+    for (const champ of champsAvecPiècesJointes){
+        /** @type {ChampDescriptor['id'] | undefined} */
+        const champId = pitchouKeyToChampDS.get(champ)
+        if(!champId){
+            throw new Error(`champId for ${champ} is undefined`)
+        }
+        const candidat = trouverCandidatsFichiersÀTélécharger(dossiersDS, champId)
+
+        descriptionsFichiers.push(candidat)
     }
-
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierPiècesJointesComplémentairesChampId = pitchouKeyToChampDS.get('Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande')
-    if(!fichierPiècesJointesComplémentairesChampId){
-        throw new Error('fichierPiècesJointesComplémentairesChampId is undefined')
-    }
-
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const descriptionFichiersDansDS_1 = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesChampId)
-    /** @type {Map<DossierDS88444['number'], DSFile[]>} */
-    const descriptionFichiersDansDS_2 = trouverCandidatsFichiersÀTélécharger(dossiersDS, fichierPiècesJointesComplémentairesChampId)
 
     /** @type {Set<DossierId>} */
     // @ts-ignore
     const dossierIds = new Set(dossiersDS.map(({number}) => dossierIdByDS_number.get(number) ))
 
-    const checksumsDS = new Set([
-        ...[...descriptionFichiersDansDS_1.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat(),
-        ...[...descriptionFichiersDansDS_2.values()].map(dsfiles => dsfiles.map(dsfile => dsfile.checksum)).flat()
-    ])
+    const allDsFiles = descriptionsFichiers
+        .flatMap(descriptionFichier => [...descriptionFichier.values()])
+        .flat()
+
+    const checksumsDS = new Set(
+        allDsFiles.map(dsfile => dsfile.checksum)
+    )
 
     //console.log('dossierIds', dossierIds)
     //console.log('checksumsDS', checksumsDS)
@@ -57,7 +61,6 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
     //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
-
     
     /** @type {Promise<any>} */
     let fichiersOrphelinsNettoyés = Promise.resolve()
@@ -74,8 +77,6 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     const arêtesFichierDossierPiècesJointePétitionnaires = [...fichiersPiècesJointesPétitionnaireParNuméroDossier]
         .map(([dossierId, fichierIds]) => fichierIds.map(fichierId => ({fichier: fichierId, dossier: dossierId})))
         .flat()
-
-    //console.log('arêtesFichierDossierPiècesJointePétitionnaires', arêtesFichierDossierPiècesJointePétitionnaires)
 
     /** @type {Promise<any>} */
     let nouveauxFichiersSynchronisés = Promise.resolve()
