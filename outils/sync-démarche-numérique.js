@@ -41,6 +41,8 @@ import {synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444} from '../
 
 /** @import {GetDonnéesPersonnesEntreprises} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
 /** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
+/** @import { ChampFormulaire88444 } from '../scripts/types/API_Pitchou.ts' */
+
 
 // récups les données de DS
 
@@ -350,7 +352,7 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
 
 
 /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
-/** @type {ChampFormulaire[]} */
+/** @type {ChampFormulaire88444[]} */
 const champsAvecPiècesJointes88444 = ['Dépot du dossier complet de demande de dérogation', 
     'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
     'Diagnostic écologique',
