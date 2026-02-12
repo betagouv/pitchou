@@ -4,11 +4,9 @@
 /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
 /** @import {Knex} from 'knex' */
-/** @import { DossierDemarcheNumerique88444 } from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
+/** @import { ChampFormulaire88444 } from '../../scripts/types/API_Pitchou.ts' */
 
 import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
-
-
 
 /**
  * Télécharge les nouveaux fichiers "Espèces impactées" pour la démarche 88444
@@ -31,14 +29,12 @@ export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKe
     )
 }
 
-/** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
-
 /**
  * Télécharge les pièces jointes au dossier fournies par le pétitionnaire pour la démarche 88444
  * 
  * @param {DossierDS88444[]} dossiersDS
- * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @param {ChampFormulaire[]} champsAvecPiècesJointes
+ * @param {Map<ChampFormulaire88444, ChampDescriptor['id']>} pitchouKeyToChampDS
+ * @param {ChampFormulaire88444[]} champsAvecPiècesJointes
  * @param {Knex.Transaction | Knex} databaseConnection
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
