@@ -21,6 +21,8 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {boolean} [afficherFiltreSansInstructeurice]
     * @property {boolean} [afficherFiltreActionInstructeur]
+    * @property {boolean} [afficherFiltreNouveauté]
+    * @property {PitchouState['notificationParDossier']} [notificationParDossier] 
     */
     /** @type {Props} */
     let {
@@ -29,12 +31,14 @@
         dossiers,
         relationSuivis,
         afficherFiltreSansInstructeurice = false,
-        afficherFiltreActionInstructeur = false
+        afficherFiltreActionInstructeur = false,
+        afficherFiltreNouveauté = false,
+        notificationParDossier = new SvelteMap(),
     } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur' | 'nouveauté', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -129,11 +133,26 @@
 
     /** @type {typeof dossiers} */
     let dossiersAffichés = $derived.by(() => {
-        // On affiche les dossiers triés par date de dépôt la plus récente
-        const dossiersTriés = [...dossiersFiltrés].sort((a,b) => {
-            const dateA = a.date_dépôt ?? new Date(0);
-            const dateB = b.date_dépôt ?? new Date(0);
-            return dateA < dateB ? 1 : -1;
+        // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
+        // puis par date de dépôt
+        const dossiersTriés = [...dossiersFiltrés].sort((a, b) => {
+
+            const notificationA = notificationParDossier.get(a.id)
+            const notificationB = notificationParDossier.get(b.id)
+            
+            const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.updated_at : undefined;
+            const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.updated_at : undefined;
+
+            if (dateNotificationNonVueA && dateNotificationNonVueB) {
+                return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
+            } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
+                return -1
+            } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
+                return 1
+            } else {
+                // Aucun des dossiers n'a de notification non vue
+                return a.date_dépôt > b.date_dépôt ? -1 : 1
+            }
         })
 
         if(!selectionneursPage)
@@ -195,6 +214,16 @@
             tousLesFiltres.set('actionInstructeur', (dossier) => dossier.prochaine_action_attendue_par === 'Instructeur')
         } else {
             tousLesFiltres.delete('actionInstructeur')
+        }
+        envoyerÉvènementRechercherUnDossier()
+        réinitialiserPage()
+    }
+
+    function toggleFiltreNouveauté() {
+        if (!tousLesFiltres.has('nouveauté')) {
+            tousLesFiltres.set('nouveauté', (dossier) => notificationParDossier.get(dossier.id)?.vue === false)
+        } else {
+            tousLesFiltres.delete('nouveauté')
         }
         envoyerÉvènementRechercherUnDossier()
         réinitialiserPage()
@@ -282,6 +311,17 @@
                             Action : Instructeur·ice
                         </button>
                     {/if}
+                    {#if afficherFiltreNouveauté}
+                        <button
+                            type="button"
+                            class="fr-tag"
+                            onclick={toggleFiltreNouveauté}
+                            aria-pressed={tousLesFiltres.has('nouveauté')}
+                            
+                        >
+                            Nouveauté
+                        </button>
+                    {/if}
             </div>
             <p class="compteur">
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
@@ -295,7 +335,14 @@
         <ul>
             {#each dossiersAffichés as dossier (dossier.id)}
                 <li>
-                    <CarteDossier {dossier} {instructeurActuelSuitDossier} {instructeurActuelLaisseDossier} dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} />
+                    <CarteDossier 
+                        {dossier} 
+                        {instructeurActuelSuitDossier} 
+                        {instructeurActuelLaisseDossier} 
+                        dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} 
+                        afficherTagNouveauté={!!afficherFiltreNouveauté} 
+                        nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue}
+                    />
                 </li>
             {/each}
         </ul>
@@ -389,7 +436,8 @@
 
                 @media (max-width: 768px) {
                     flex-direction: column;
-                    gap: 0;
+                    gap: .5rem;
+                    align-items: start;
                 }
             }
         }
