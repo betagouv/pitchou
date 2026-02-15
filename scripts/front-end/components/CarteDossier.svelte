@@ -123,9 +123,24 @@
         justify-content: space-between;
         gap: 1rem;
         margin-bottom: .75rem;
+        min-width: 0;
+        align-items:center;
 
         .tag-nouveauté-et-nom-du-projet {
             min-width: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: .5rem;
+            @media (max-width: 768px) {
+                flex-direction: column;
+                align-items: unset;
+            }
+        }
+
+        .boutons-action {
+            display: flex;
+            flex-wrap: nowrap;
         }
 
         h3 {
