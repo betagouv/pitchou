@@ -299,8 +299,9 @@
                     {#if afficherFiltreNouveauté}
                         <button
                             type="button"
-                            class="fr-tag fr-tag--yellow-moutarde"
+                            class="fr-tag"
                             onclick={toggleFiltreNouveauté}
+                            aria-pressed={tousLesFiltres.has('nouveauté')}
                             
                         >
                             Nouveauté
