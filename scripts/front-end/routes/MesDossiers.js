@@ -42,7 +42,7 @@ export default async () => {
             relationSuivis: state.relationSuivis,
             erreurs,
             résultatsSynchronisationDS88444,
-            nouveautéVuePourInstructeurActuelParDossier: state.nouveautéVuePourInstructeurActuelParDossier
+            notificationParDossier: state.notificationParDossier
         };
     }
 

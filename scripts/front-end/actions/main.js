@@ -44,8 +44,8 @@ export function chargerNouveautéVueParInstructeurParDossier() {
 
                 const nouveautéVueParInstructeurParDossier = new SvelteMap()
 
-                for(const {dossier, vue} of notificationsBDD){
-                    nouveautéVueParInstructeurParDossier.set(dossier, vue)
+                for(const notification of notificationsBDD){
+                    nouveautéVueParInstructeurParDossier.set(notification.dossier, notification)
                 }
 
                 store.mutations.setNouveautéVuePourInstructeurActuelParDossier(nouveautéVueParInstructeurParDossier)
