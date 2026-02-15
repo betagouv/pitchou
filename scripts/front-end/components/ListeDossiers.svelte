@@ -131,13 +131,31 @@
         }
     })
 
+    /** @param {Date | string | null | undefined} d */
+    const toTime = (d) => (d instanceof Date ? d : new Date(d ?? 0)).getTime();
+
     /** @type {typeof dossiers} */
     let dossiersAffichés = $derived.by(() => {
-        // On affiche les dossiers triés par date de dépôt la plus récente
-        const dossiersTriés = [...dossiersFiltrés].sort((a,b) => {
-            const dateA = a.date_dépôt ?? new Date(0);
-            const dateB = b.date_dépôt ?? new Date(0);
-            return dateA < dateB ? 1 : -1;
+        // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
+        // puis par date de dépôt
+        const dossiersTriés = [...dossiersFiltrés].sort((a, b) => {
+
+            const notificationA = notificationParDossier.get(a.id)
+            const notificationB = notificationParDossier.get(b.id)
+            
+            const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.updated_at : undefined;
+            const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.updated_at : undefined;
+
+            if (dateNotificationNonVueA && dateNotificationNonVueB) {
+                return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
+            } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
+                return -1
+            } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
+                return 1
+            } else {
+                // Aucun des dossiers n'a de notification non vue
+                return a.date_dépôt > b.date_dépôt ? -1 : 1
+            }
         })
 
         if(!selectionneursPage)
