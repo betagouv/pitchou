@@ -421,7 +421,8 @@
 
                 @media (max-width: 768px) {
                     flex-direction: column;
-                    gap: 0;
+                    gap: .5rem;
+                    align-items: start;
                 }
             }
         }
