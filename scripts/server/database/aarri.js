@@ -10,10 +10,12 @@ const ÉVÈNEMENTS_CONSULTATIONS= [
     'rechercherDesDossiers',
     'afficherLesDossiersSuivis',
     'consulterUnDossier',
+    'téléchargerListeÉspècesImpactées'
 ]
 
 /** @type {ÉvènementMétrique['type'][]} */
 const ÉVÈNEMENTS_MODIFICATIONS = [
+    'suivreUnDossier',
     'modifierCommentaireInstruction', 
     'changerPhase', 
     'changerProchaineActionAttendueDe', 
