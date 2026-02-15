@@ -2,7 +2,7 @@
     /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
     /** @import { PitchouState } from '../../store.js' */
 	/** @import { ComponentProps } from "svelte" */
-    /** @import { DossierId } from "../../../types/database/public/Dossier.ts" */
+
     import Squelette from "../Squelette.svelte"
     import ListeDossiers from "../ListeDossiers.svelte"
 
@@ -13,7 +13,7 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {PitchouState['erreurs']} [erreurs]
     * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
-    * @property {Map<DossierId, boolean>} [nouveautéVuePourInstructeurActuelParDossier]
+    * @property {PitchouState['notificationParDossier']} [notificationParDossier]
     */
     /** @type {Props} */
     let { 
@@ -22,7 +22,7 @@
             relationSuivis,
             erreurs = new Set(),
             résultatsSynchronisationDS88444,
-            nouveautéVuePourInstructeurActuelParDossier
+            notificationParDossier
         } = $props();
 </script>
 
@@ -34,6 +34,6 @@
         {relationSuivis} 
         afficherFiltreActionInstructeur
         afficherFiltreNouveauté
-        {nouveautéVuePourInstructeurActuelParDossier} />
+        {notificationParDossier} />
 </Squelette>
 

@@ -2,7 +2,7 @@
     /** @import { DossierRésumé, DossierPhase } from '../../types/API_Pitchou.ts' */
     /** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
     /** @import { PitchouState } from '../store.js' */
-    /** @import { default as Dossier, DossierId } from '../../types/database/public/Dossier.ts' */
+    /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
     /** @import { ÉvènementRechercheDossiersDétails } from '../../types/évènement'; */
     import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier"
     import CarteDossier from "./CarteDossier.svelte"
@@ -22,7 +22,7 @@
     * @property {boolean} [afficherFiltreSansInstructeurice]
     * @property {boolean} [afficherFiltreActionInstructeur]
     * @property {boolean} [afficherFiltreNouveauté]
-    * @property {Map<DossierId, boolean>} [nouveautéVuePourInstructeurActuelParDossier] 
+    * @property {PitchouState['notificationParDossier']} [notificationParDossier] 
     */
     /** @type {Props} */
     let {
@@ -33,7 +33,7 @@
         afficherFiltreSansInstructeurice = false,
         afficherFiltreActionInstructeur = false,
         afficherFiltreNouveauté = false,
-        nouveautéVuePourInstructeurActuelParDossier = new SvelteMap(),
+        notificationParDossier = new SvelteMap(),
     } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -206,7 +206,7 @@
 
     function toggleFiltreNouveauté() {
         if (!tousLesFiltres.has('nouveauté')) {
-            tousLesFiltres.set('nouveauté', (dossier) => nouveautéVuePourInstructeurActuelParDossier.get(dossier.id) === false)
+            tousLesFiltres.set('nouveauté', (dossier) => notificationParDossier.get(dossier.id)?.vue === false)
         } else {
             tousLesFiltres.delete('nouveauté')
         }
@@ -326,7 +326,7 @@
                         {instructeurActuelLaisseDossier} 
                         dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} 
                         afficherTagNouveauté={!!afficherFiltreNouveauté} 
-                        nouveautéVueParInstructeur={nouveautéVuePourInstructeurActuelParDossier.get(dossier.id)}
+                        nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue}
                     />
                 </li>
             {/each}

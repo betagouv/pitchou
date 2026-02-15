@@ -35,7 +35,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
- * @property {Map<Dossier['id'], Notification['vue']>} [nouveautéVuePourInstructeurActuelParDossier]
+ * @property {Map<Dossier['id'], Pick<Notification, "vue" | "updated_at">>} [notificationParDossier]
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
@@ -96,10 +96,10 @@ const mutations = {
   },
   /**
    * @param {PitchouState} state
-   * @param {PitchouState['nouveautéVuePourInstructeurActuelParDossier']} nouveautéVuePourInstructeurActuelParDossier
+   * @param {PitchouState['notificationParDossier']} notificationParDossier
    */
-  setNouveautéVuePourInstructeurActuelParDossier(state, nouveautéVuePourInstructeurActuelParDossier) {
-    state.nouveautéVuePourInstructeurActuelParDossier = nouveautéVuePourInstructeurActuelParDossier
+  setNouveautéVuePourInstructeurActuelParDossier(state, notificationParDossier) {
+    state.notificationParDossier = notificationParDossier
   },
   /**
    * @param {PitchouState} state
