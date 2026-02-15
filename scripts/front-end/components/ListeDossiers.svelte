@@ -131,9 +131,6 @@
         }
     })
 
-    /** @param {Date | string | null | undefined} d */
-    const toTime = (d) => (d instanceof Date ? d : new Date(d ?? 0)).getTime();
-
     /** @type {typeof dossiers} */
     let dossiersAffichés = $derived.by(() => {
         // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
