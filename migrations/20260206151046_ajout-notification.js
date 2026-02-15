@@ -20,6 +20,15 @@ export async function up(knex) {
 
         table.unique(['dossier', 'personne'])
     });
+
+    await knex.raw(`
+        INSERT INTO notification (personne, dossier, updated_at, vue)
+SELECT
+    personne, 
+    dossier, 
+    NOW() AS updated_at, 
+    TRUE AS vue
+FROM arête_personne_suit_dossier;`)
 };
 
 /**
