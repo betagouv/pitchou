@@ -1,10 +1,5 @@
 <script>
-
-  //@ts-check
-  
   /** @import {StatsConformité} from '../../../types/API_Pitchou' */
-  
-
   
   /**
    * @typedef {Object} Props
@@ -26,7 +21,6 @@
   const pctNonConforme = totalPrescriptions ? Math.round((nbNonConforme/totalPrescriptions)*100) : 0;
   const pctTropTard = totalPrescriptions ? Math.round((nbTropTard/totalPrescriptions)*100) : 0;
 
-
 </script>
 
 <section class="fr-mt-4w">
@@ -36,8 +30,8 @@
       <div class="fr-card__content">
 
         <div class="chiffres-conformite">
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--success-425-625);">{nbConformiteInitiale}</span>
+          <div class="chiffre-item conformité-initiale">
+            <span class="stat-number">{nbConformiteInitiale}</span>
             <span class="stat-label">Conformité initiale</span>
           </div>
           <div class="chiffre-item">
@@ -59,7 +53,7 @@
         </div>
 
         <div class="fr-progress-bar fr-mt-2w bar-conformite" style="height: 1.5rem; background: var(--text-disabled-grey; border-radius: 8px; overflow: hidden; display: flex;">
-          <div style="width: {pctConformiteInitiale}%; background: var(--success-425-625); height: 100%; transition: width 0.5s;"></div>
+          <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;  height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctRetourConformite}%; background: var(--green-emeraude-950-100-active); height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
           <div style={`width: ${pctTropTard}%; background: #000; height: 100%; transition: width 0.5s;`}></div>
@@ -78,6 +72,11 @@
 </section>
 
 <style lang="scss">
+  $couleur-conformité-initiale: var(--success-425-625);
+
+
+
+
   .stat-conformite-card {
     border: 1.5px solid var(--border-default-grey);
     border-radius: 12px;
@@ -93,38 +92,57 @@
     justify-content: space-around;
     width: 100%;
     margin-bottom: 2rem;
+
+    .chiffre-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 0.5rem;
+      background: none;
+      border-radius: 8px;
+      margin: 0 0.5rem;
+      box-shadow: none;
+      min-width: 120px;
+
+      .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-default-info);
+        margin-bottom: 0.25rem;
+        letter-spacing: 0.01em;
+      }
+
+      &.conformité-initiale .stat-number{
+        color: $couleur-conformité-initiale;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        color: var(--text-mention-grey);
+        margin-top: 0.15rem;
+        font-weight: 500;
+      }
+    }
+
   }
-  .chiffre-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 0.5rem;
-    background: none;
-    border-radius: 8px;
-    margin: 0 0.5rem;
-    box-shadow: none;
-    min-width: 120px;
-  }
-  .stat-number {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--text-default-info);
-    margin-bottom: 0.25rem;
-    letter-spacing: 0.01em;
-  }
-  .stat-label {
-    font-size: 1rem;
-    color: var(--text-mention-grey);
-    margin-top: 0.15rem;
-    font-weight: 500;
-  }
+  
+  
+
+  
   .bar-conformite {
     margin: 1.5rem 0 2rem 0;
     box-shadow: none;
     background: var(--background-alt-grey);
     border-radius: 8px;
+
+    .conformité-initiale{
+      background: $couleur-conformité-initiale;
+    }
+
   }
+  
+  
   .legend-conformite {
     font-size: small;
   }
