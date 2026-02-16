@@ -174,9 +174,14 @@ COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 55	20251104080759_ajouter-3-questions-introductives-de-demarches-simplifiees-d-un-dossier.js	52	2025-11-07 10:28:46.683+00
 56	20251111141823_ajouter-date-fin-consultation-public-et-renommer-date-consultation-public-en-date-debut-consultation-public.js	53	2025-11-12 10:47:37.378+00
 57	20251104153744_ajout-pièces-jointes-pétitionnaire.js	54	2025-11-17 08:56:41.028+00
-58	20260106140913_ajout_evenements_metriques.js	55	2026-01-07 11:08:35.735+00
-60	20260107110936_ajout-index-evenement.js	56	2026-01-07 11:17:04.048+00
-62	20260108073247_changer-type-ddep-necessaire-par-booleen.js	57	2026-01-12 12:06:33.763+00
+58	20260106140913_ajout_evenements_metriques.js	55	2026-01-06 17:35:50.024+00
+59	20260107110936_ajout-index-evenement.js	56	2026-01-07 11:58:40.151+00
+60	20260108073247_changer-type-ddep-necessaire-par-booleen.js	57	2026-01-09 10:29:56.694+00
+61	20260114103000_ajout-mesures-er-suffisantes.js	58	2026-01-19 12:01:24.44+00
+62	20251204175154_triggers-suppression-fichiers-avis-expert.js	59	2026-01-27 11:43:36.788+00
+63	20260126143259_ajout-capability-geomce.js	60	2026-01-28 14:57:24.725+00
+75	20260129095854_commentaire-libre-default-chaine-vide.js	61	2026-02-16 09:46:12.483+00
+76	20260206151046_ajout-notification.js	62	2026-02-16 09:46:26.516+00
 \.
 
 
@@ -185,7 +190,7 @@ COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 --
 
 COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
-47	0
+12	0
 \.
 
 
@@ -193,14 +198,14 @@ COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
 -- Name: knex_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dev
 --
 
-SELECT pg_catalog.setval('public.knex_migrations_id_seq', 62, true);
+SELECT pg_catalog.setval('public.knex_migrations_id_seq', 76, true);
 
 
 --
 -- Name: knex_migrations_lock_index_seq; Type: SEQUENCE SET; Schema: public; Owner: dev
 --
 
-SELECT pg_catalog.setval('public.knex_migrations_lock_index_seq', 47, true);
+SELECT pg_catalog.setval('public.knex_migrations_lock_index_seq', 12, true);
 
 
 --

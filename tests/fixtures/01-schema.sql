@@ -20,6 +20,8 @@ ALTER TABLE IF EXISTS ONLY public."évènement_phase_dossier" DROP CONSTRAINT IF
 ALTER TABLE IF EXISTS ONLY public."évènement_phase_dossier" DROP CONSTRAINT IF EXISTS "évènement_phase_dossier_cause_personne_foreign";
 ALTER TABLE IF EXISTS ONLY public."évènement_métrique" DROP CONSTRAINT IF EXISTS "évènement_métrique_personne_foreign";
 ALTER TABLE IF EXISTS ONLY public.prescription DROP CONSTRAINT IF EXISTS "prescription_décision_administrative_foreign";
+ALTER TABLE IF EXISTS ONLY public.notification DROP CONSTRAINT IF EXISTS notification_personne_foreign;
+ALTER TABLE IF EXISTS ONLY public.notification DROP CONSTRAINT IF EXISTS notification_dossier_foreign;
 ALTER TABLE IF EXISTS ONLY public.message DROP CONSTRAINT IF EXISTS message_dossier_foreign;
 ALTER TABLE IF EXISTS ONLY public."décision_administrative" DROP CONSTRAINT IF EXISTS "décision_administrative_fichier_foreign";
 ALTER TABLE IF EXISTS ONLY public."décision_administrative" DROP CONSTRAINT IF EXISTS "décision_administrative_dossier_foreign";
@@ -43,11 +45,15 @@ ALTER TABLE IF EXISTS ONLY public."arête_dossier__fichier_pièces_jointes_péti
 ALTER TABLE IF EXISTS ONLY public."arête_dossier__fichier_pièces_jointes_pétitionnaire" DROP CONSTRAINT IF EXISTS "arête_dossier__fichier_pièces_jointes_pétitionnaire_dossier_";
 ALTER TABLE IF EXISTS ONLY public."arête_cap_dossier__groupe_instructeurs" DROP CONSTRAINT IF EXISTS "arête_cap_dossier__groupe_instructeurs_groupe_instructeurs_for";
 ALTER TABLE IF EXISTS ONLY public."arête_cap_dossier__groupe_instructeurs" DROP CONSTRAINT IF EXISTS "arête_cap_dossier__groupe_instructeurs_cap_dossier_foreign";
+DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_trigger ON public.avis_expert;
+DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_orphelins_trigger ON public.avis_expert;
 DROP INDEX IF EXISTS public."évènement_phase_dossier_dossier_index";
 DROP INDEX IF EXISTS public."évènement_métrique_évènement_index";
 DROP INDEX IF EXISTS public."évènement_métrique_personne_index";
 DROP INDEX IF EXISTS public."évènement_métrique_date_index";
 DROP INDEX IF EXISTS public."prescription_décision_administrative_index";
+DROP INDEX IF EXISTS public.notification_personne_index;
+DROP INDEX IF EXISTS public.notification_dossier_index;
 DROP INDEX IF EXISTS public.message_dossier_index;
 DROP INDEX IF EXISTS public."espèces_impactées_ds_createdat_index";
 DROP INDEX IF EXISTS public."espèces_impactées_ds_checksum_index";
@@ -71,6 +77,8 @@ ALTER TABLE IF EXISTS ONLY public.prescription DROP CONSTRAINT IF EXISTS prescri
 ALTER TABLE IF EXISTS ONLY public.personne DROP CONSTRAINT IF EXISTS personne_pkey;
 ALTER TABLE IF EXISTS ONLY public.personne DROP CONSTRAINT IF EXISTS personne_email_unique;
 ALTER TABLE IF EXISTS ONLY public.personne DROP CONSTRAINT IF EXISTS "personne_code_accès_unique";
+ALTER TABLE IF EXISTS ONLY public.notification DROP CONSTRAINT IF EXISTS notification_pkey;
+ALTER TABLE IF EXISTS ONLY public.notification DROP CONSTRAINT IF EXISTS notification_dossier_personne_unique;
 ALTER TABLE IF EXISTS ONLY public.message DROP CONSTRAINT IF EXISTS message_pkey;
 ALTER TABLE IF EXISTS ONLY public.message DROP CONSTRAINT IF EXISTS "message_id_démarches_simplifiées_unique";
 ALTER TABLE IF EXISTS ONLY public.groupe_instructeurs DROP CONSTRAINT IF EXISTS groupe_instructeurs_pkey;
@@ -83,6 +91,7 @@ ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS dossier_pkey
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS "dossier_number_demarches_simplifiées_unique";
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS "dossier_id_demarches_simplifiées_unique";
 ALTER TABLE IF EXISTS ONLY public."contrôle" DROP CONSTRAINT IF EXISTS "contrôle_pkey";
+ALTER TABLE IF EXISTS ONLY public."capability-geomce" DROP CONSTRAINT IF EXISTS "capability-geomce_pkey";
 ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_pkey";
 ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_personne_cap_unique";
 ALTER TABLE IF EXISTS ONLY public."cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "cap_écriture_annotation_pkey";
@@ -101,6 +110,7 @@ DROP TABLE IF EXISTS public."résultat_synchronisation_DS_88444";
 DROP TABLE IF EXISTS public.prescription;
 DROP SEQUENCE IF EXISTS public.personne_id_seq;
 DROP TABLE IF EXISTS public.personne;
+DROP TABLE IF EXISTS public.notification;
 DROP TABLE IF EXISTS public.message;
 DROP TABLE IF EXISTS public.groupe_instructeurs;
 DROP TABLE IF EXISTS public.fichier;
@@ -109,6 +119,7 @@ DROP TABLE IF EXISTS public."décision_administrative";
 DROP SEQUENCE IF EXISTS public.dossier_id_seq;
 DROP TABLE IF EXISTS public.dossier;
 DROP TABLE IF EXISTS public."contrôle";
+DROP TABLE IF EXISTS public."capability-geomce";
 DROP TABLE IF EXISTS public."cap_évènement_métrique";
 DROP TABLE IF EXISTS public."cap_écriture_annotation";
 DROP TABLE IF EXISTS public.cap_dossier;
@@ -118,6 +129,8 @@ DROP TABLE IF EXISTS public."arête_personne__cap_écriture_annotation";
 DROP TABLE IF EXISTS public."arête_groupe_instructeurs__dossier";
 DROP TABLE IF EXISTS public."arête_dossier__fichier_pièces_jointes_pétitionnaire";
 DROP TABLE IF EXISTS public."arête_cap_dossier__groupe_instructeurs";
+DROP FUNCTION IF EXISTS public.supprimer_fichiers_avis_expert_orphelins();
+DROP FUNCTION IF EXISTS public.supprimer_fichiers_avis_expert();
 DROP TYPE IF EXISTS public."TypeDossier";
 --
 -- Name: TypeDossier; Type: TYPE; Schema: public; Owner: dev
@@ -130,6 +143,43 @@ CREATE TYPE public."TypeDossier" AS ENUM (
 
 
 ALTER TYPE public."TypeDossier" OWNER TO dev;
+
+--
+-- Name: supprimer_fichiers_avis_expert(); Type: FUNCTION; Schema: public; Owner: dev
+--
+
+CREATE FUNCTION public.supprimer_fichiers_avis_expert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	DELETE FROM fichier WHERE fichier.id = OLD.avis_fichier OR fichier.id = OLD.saisine_fichier;
+	return OLD;
+END;
+$$;
+
+
+ALTER FUNCTION public.supprimer_fichiers_avis_expert() OWNER TO dev;
+
+--
+-- Name: supprimer_fichiers_avis_expert_orphelins(); Type: FUNCTION; Schema: public; Owner: dev
+--
+
+CREATE FUNCTION public.supprimer_fichiers_avis_expert_orphelins() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	IF OLD.saisine_fichier IS NOT NULL AND OLD.saisine_fichier <> NEW.saisine_fichier THEN
+		DELETE FROM fichier WHERE fichier.id = OLD.saisine_fichier;
+	END IF;
+	IF OLD.avis_fichier IS NOT NULL AND OLD.avis_fichier <> NEW.avis_fichier THEN
+		DELETE FROM fichier WHERE fichier.id = OLD.avis_fichier;
+	END IF;
+	return OLD;
+END;
+$$;
+
+
+ALTER FUNCTION public.supprimer_fichiers_avis_expert_orphelins() OWNER TO dev;
 
 SET default_tablespace = '';
 
@@ -299,6 +349,24 @@ CREATE TABLE public."cap_évènement_métrique" (
 ALTER TABLE public."cap_évènement_métrique" OWNER TO dev;
 
 --
+-- Name: capability-geomce; Type: TABLE; Schema: public; Owner: dev
+--
+
+CREATE TABLE public."capability-geomce" (
+    secret uuid DEFAULT gen_random_uuid() NOT NULL
+);
+
+
+ALTER TABLE public."capability-geomce" OWNER TO dev;
+
+--
+-- Name: COLUMN "capability-geomce".secret; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public."capability-geomce".secret IS 'Cette table n''a qu''une seule ligne, une seule valeur';
+
+
+--
 -- Name: contrôle; Type: TABLE; Schema: public; Owner: dev
 --
 
@@ -383,7 +451,7 @@ CREATE TABLE public.dossier (
     "number_demarches_simplifiées" bigint,
     "ddep_nécessaire" boolean,
     enjeu_politique boolean,
-    commentaire_libre text,
+    commentaire_libre text DEFAULT ''::text NOT NULL,
     "historique_date_envoi_dernière_contribution" date,
     historique_identifiant_demande_onagre character varying(255),
     date_debut_consultation_public date,
@@ -418,7 +486,8 @@ CREATE TABLE public.dossier (
     etat_des_lieux_ecologique_complet_realise boolean,
     presence_especes_dans_aire_influence boolean,
     risque_malgre_mesures_erc boolean,
-    date_fin_consultation_public timestamp with time zone
+    date_fin_consultation_public timestamp with time zone,
+    mesures_er_suffisantes boolean
 );
 
 
@@ -687,7 +756,7 @@ COMMENT ON COLUMN public.dossier."justification_motif_dérogation" IS 'Justifica
 -- Name: COLUMN dossier."mesures_erc_prévues"; Type: COMMENT; Schema: public; Owner: dev
 --
 
-COMMENT ON COLUMN public.dossier."mesures_erc_prévues" IS 'Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues';
+COMMENT ON COLUMN public.dossier."mesures_erc_prévues" IS 'Appréciation du pétitionnaire. Indique si des mesures ERC (Éviter, Réduire, Compenser) sont prévues';
 
 
 --
@@ -751,6 +820,13 @@ COMMENT ON COLUMN public.dossier.risque_malgre_mesures_erc IS 'Réponse à la qu
 --
 
 COMMENT ON COLUMN public.dossier.date_fin_consultation_public IS 'Valeur pour le champ : "Date de fin de la consultation du public ou enquête publique"';
+
+
+--
+-- Name: COLUMN dossier.mesures_er_suffisantes; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public.dossier.mesures_er_suffisantes IS 'Appréciation de l''instructrice. Indique si les mesures d''évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire.';
 
 
 --
@@ -891,6 +967,35 @@ CREATE TABLE public.message (
 
 
 ALTER TABLE public.message OWNER TO dev;
+
+--
+-- Name: notification; Type: TABLE; Schema: public; Owner: dev
+--
+
+CREATE TABLE public.notification (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    vue boolean DEFAULT false NOT NULL,
+    personne integer NOT NULL,
+    dossier integer NOT NULL
+);
+
+
+ALTER TABLE public.notification OWNER TO dev;
+
+--
+-- Name: COLUMN notification.updated_at; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public.notification.updated_at IS 'Date à laquelle la notification a été mise à jour pour la dernière fois';
+
+
+--
+-- Name: COLUMN notification.vue; Type: COMMENT; Schema: public; Owner: dev
+--
+
+COMMENT ON COLUMN public.notification.vue IS 'Indique si la personne a consulté ou non la notification';
+
 
 --
 -- Name: personne; Type: TABLE; Schema: public; Owner: dev
@@ -1208,6 +1313,14 @@ ALTER TABLE ONLY public."cap_évènement_métrique"
 
 
 --
+-- Name: capability-geomce capability-geomce_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public."capability-geomce"
+    ADD CONSTRAINT "capability-geomce_pkey" PRIMARY KEY (secret);
+
+
+--
 -- Name: contrôle contrôle_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
 --
 
@@ -1301,6 +1414,22 @@ ALTER TABLE ONLY public.message
 
 ALTER TABLE ONLY public.message
     ADD CONSTRAINT message_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: notification notification_dossier_personne_unique; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_dossier_personne_unique UNIQUE (dossier, personne);
+
+
+--
+-- Name: notification notification_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_pkey PRIMARY KEY (id);
 
 
 --
@@ -1472,6 +1601,20 @@ CREATE INDEX message_dossier_index ON public.message USING btree (dossier);
 
 
 --
+-- Name: notification_dossier_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX notification_dossier_index ON public.notification USING btree (dossier);
+
+
+--
+-- Name: notification_personne_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX notification_personne_index ON public.notification USING btree (personne);
+
+
+--
 -- Name: prescription_décision_administrative_index; Type: INDEX; Schema: public; Owner: dev
 --
 
@@ -1504,6 +1647,20 @@ CREATE INDEX "évènement_métrique_évènement_index" ON public."évènement_m�
 --
 
 CREATE INDEX "évènement_phase_dossier_dossier_index" ON public."évènement_phase_dossier" USING btree (dossier);
+
+
+--
+-- Name: avis_expert supprimer_fichiers_avis_expert_orphelins_trigger; Type: TRIGGER; Schema: public; Owner: dev
+--
+
+CREATE TRIGGER supprimer_fichiers_avis_expert_orphelins_trigger AFTER UPDATE ON public.avis_expert FOR EACH ROW EXECUTE FUNCTION public.supprimer_fichiers_avis_expert_orphelins();
+
+
+--
+-- Name: avis_expert supprimer_fichiers_avis_expert_trigger; Type: TRIGGER; Schema: public; Owner: dev
+--
+
+CREATE TRIGGER supprimer_fichiers_avis_expert_trigger AFTER DELETE ON public.avis_expert FOR EACH ROW EXECUTE FUNCTION public.supprimer_fichiers_avis_expert();
 
 
 --
@@ -1688,6 +1845,22 @@ ALTER TABLE ONLY public."décision_administrative"
 
 ALTER TABLE ONLY public.message
     ADD CONSTRAINT message_dossier_foreign FOREIGN KEY (dossier) REFERENCES public.dossier(id) ON DELETE CASCADE;
+
+
+--
+-- Name: notification notification_dossier_foreign; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_dossier_foreign FOREIGN KEY (dossier) REFERENCES public.dossier(id) ON DELETE CASCADE;
+
+
+--
+-- Name: notification notification_personne_foreign; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_personne_foreign FOREIGN KEY (personne) REFERENCES public.personne(id) ON DELETE CASCADE;
 
 
 --

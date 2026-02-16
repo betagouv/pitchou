@@ -23,6 +23,8 @@ test.describe('Page Mes dossiers', () => {
     // - D'abord par leur date de notification si la notification n'a pas été consultée, de la plus récente à la plus ancienne
     // - Puis par date date_dépôt, de la plus récente à la plus ancienne
 
+    // TODO: les dossiers avec une notification non lue ont un tag Nouveauté
+
     // TODO: Quand j'appuie sur Nouveauté, je ne vois que les dossiers qui possèdent une notification non vue.
 
     // TODO: Quand je consulte un dossier et que je reviens sur la page Mes dossiers, le tag nouveauté disparaît. 
