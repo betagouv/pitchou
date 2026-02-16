@@ -11,3 +11,4 @@ Vous y trouverez :
 - [Quand et comment le pétitionnaire doit-il déposer son dossier sur Pitchou ?](./depot-dossier-petitionnaires)
 - [Quelles sont les **données** à remplir dans Démarche Numérique et **indispensables pour l'instruction** ?](./donnees-indispensables)
 - [Utiliser et créer des **document-types** pour la génération de documents](./document-types)
+- [Les différences entre Démarches Numériques et Pitchou](./differences-dn-pitchou)
