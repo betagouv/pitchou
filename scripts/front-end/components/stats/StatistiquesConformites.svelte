@@ -60,11 +60,21 @@
         </div>
 
         <div class="legend-conformite">
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--success-425-625);"></span><span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--green-emeraude-950-100-active);"></span><span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--red-marianne-main-472);"></span><span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: #000;"></span><span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span></div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot conformité-initiale"></span><span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot retour-à-la-conformité"></span><span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot" style="background: var(--red-marianne-main-472);"></span><span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot" style="background: #000;"></span><span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -159,16 +169,26 @@
   
   .legend-conformite {
     font-size: small;
+
+    .legend-conformite-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+      border: 2px solid var(--border-default-grey);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+
+
+      &.conformité-initiale{
+        background: $couleur-conformité-initiale;
+      }
+      &.retour-à-la-conformité{
+        background: $couleur-retour-à-la-conformité;
+      }
+    }
   }
-  .legend-conformite .legend-conformite-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 0.5rem;
-    border: 2px solid var(--border-default-grey);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  }
+  
 
   @media (max-width: 900px) {
     .stat-conformite-card {
