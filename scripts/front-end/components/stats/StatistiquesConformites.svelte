@@ -34,8 +34,8 @@
             <span class="stat-number">{nbConformiteInitiale}</span>
             <span class="stat-label">Conformité initiale</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--green-emeraude-950-100-active);">{nbRetourConformite}</span>
+          <div class="chiffre-item retour-à-la-conformité">
+            <span class="stat-number">{nbRetourConformite}</span>
             <span class="stat-label">Retour à la conformité</span>
           </div>
           <div class="chiffre-item">
@@ -54,7 +54,7 @@
 
         <div class="fr-progress-bar fr-mt-2w bar-conformite">
           <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;  height: 100%; transition: width 0.5s;"></div>
-          <div style="width: {pctRetourConformite}%; background: var(--green-emeraude-950-100-active); height: 100%; transition: width 0.5s;"></div>
+          <div class="retour-à-la-conformité" style="width: {pctRetourConformite}%;  height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
           <div style={`width: ${pctTropTard}%; background: #000; height: 100%; transition: width 0.5s;`}></div>
         </div>
@@ -73,8 +73,7 @@
 
 <style lang="scss">
   $couleur-conformité-initiale: var(--success-425-625);
-
-
+  $couleur-retour-à-la-conformité: var(--green-emeraude-950-100-active);
 
 
   .stat-conformite-card {
@@ -86,6 +85,7 @@
     margin: 0 -16px 2.5rem -16px;
     padding: 2.5rem 2rem 2rem 2rem;
   }
+
   .chiffres-conformite {
     text-align: center;
     display: flex;
@@ -116,6 +116,9 @@
       &.conformité-initiale .stat-number{
         color: $couleur-conformité-initiale;
       }
+      &.retour-à-la-conformité .stat-number{
+        color: $couleur-retour-à-la-conformité
+      }
 
       .stat-label {
         font-size: 1rem;
@@ -142,6 +145,9 @@
     .conformité-initiale{
       background: $couleur-conformité-initiale;
     }
+    .retour-à-la-conformité{
+      background: $couleur-retour-à-la-conformité;
+    }
 
   }
   
@@ -158,6 +164,7 @@
     border: 2px solid var(--border-default-grey);
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
+
   @media (max-width: 900px) {
     .stat-conformite-card {
       padding: 1.5rem 0.5rem 1rem 0.5rem;
