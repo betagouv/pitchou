@@ -19,4 +19,10 @@ test.describe('Page Mes dossiers', () => {
         await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
     });
 
+    // TODO: Je vois tous les dossiers que je suis
+
+    // TODO: Quand j'appuie sur Nouveauté, je ne vois que les dossiers avec des nouveautés
+
+    // TODO: Quand je consulte un dossier et que je reviens sur la page Mes dossiers, le tag nouveauté disparaît. 
+
 });
