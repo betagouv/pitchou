@@ -42,12 +42,12 @@
             <span class="stat-number">{nbNonConforme}</span>
             <span class="stat-label">Non conforme</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: #000;">{nbTropTard}</span>
+          <div class="chiffre-item trop-tard">
+            <span class="stat-number">{nbTropTard}</span>
             <span class="stat-label">Trop tard</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--text-disabled-grey);">{nbAutre}</span>
+          <div class="chiffre-item autre">
+            <span class="stat-number">{nbAutre}</span>
             <span class="stat-label">Autre</span>
           </div>
         </div>
@@ -56,7 +56,7 @@
           <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;"></div>
           <div class="retour-à-la-conformité" style="width: {pctRetourConformite}%;"></div>
           <div class="non-conforme" style="width: {pctNonConforme}%;"></div>
-          <div style={`width: ${pctTropTard}%; background: #000;`}></div>
+          <div class="trop-tard" style={`width: ${pctTropTard}%;`}></div>
         </div>
 
         <div class="legend-conformite">
@@ -73,11 +73,11 @@
             <span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
           </div>
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot" style="background: #000;"></span>
+            <span class="legend-conformite-dot trop-tard"></span>
             <span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
           </div>
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span>
+            <span class="legend-conformite-dot autre"></span>
             <span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
           </div>
         </div>
@@ -90,6 +90,8 @@
   $couleur-conformité-initiale: var(--success-425-625);
   $couleur-retour-à-la-conformité: var(--green-emeraude-950-100-active);
   $couleur-non-conforme: var(--red-marianne-main-472);
+  $couleur-trop-tard: var(--grey-50-1000);
+  $couleur-autre: var(--text-disabled-grey);
 
 
   .stat-conformite-card {
@@ -138,6 +140,12 @@
       &.non-conforme .stat-number{
         color: $couleur-non-conforme;
       }
+      &.trop-tard .stat-number{
+        color: $couleur-trop-tard;
+      }
+      &.autre .stat-number{
+        color: $couleur-autre;
+      }
 
       .stat-label {
         font-size: 1rem;
@@ -156,7 +164,7 @@
     display: flex;
     margin: 1.5rem 0 2rem 0;
     box-shadow: none;
-    background: var(--background-alt-grey);
+    background: $couleur-autre;
     border-radius: 8px;
 
     height: 1.5rem;
@@ -174,6 +182,9 @@
     }
     .non-conforme{
       background: $couleur-non-conforme;
+    }
+    .trop-tard{
+      background: $couleur-trop-tard;
     }
 
   }
@@ -200,6 +211,12 @@
       }
       &.non-conforme{
         background: $couleur-non-conforme;
+      }
+      &.trop-tard{
+        background: $couleur-trop-tard;
+      }
+      &.autre{
+        background: $couleur-autre;
       }
     }
   }
