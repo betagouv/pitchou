@@ -53,10 +53,10 @@
         </div>
 
         <div class="fr-progress-bar fr-mt-2w bar-conformite">
-          <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;"></div>
-          <div class="retour-à-la-conformité" style="width: {pctRetourConformite}%;"></div>
-          <div class="non-conforme" style="width: {pctNonConforme}%;"></div>
-          <div class="trop-tard" style={`width: ${pctTropTard}%;`}></div>
+          <div class="conformité-initiale" style:width="{pctConformiteInitiale}%"></div>
+          <div class="retour-à-la-conformité" style:width="{pctRetourConformite}%"></div>
+          <div class="non-conforme" style:width="{pctNonConforme}%"></div>
+          <div class="trop-tard" style:width="{pctTropTard}%"></div>
         </div>
 
         <div class="legend-conformite">
