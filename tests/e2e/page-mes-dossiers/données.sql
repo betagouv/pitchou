@@ -16,13 +16,13 @@ BEGIN
     -- Dossiers
     WITH dossiers_inseres AS (
         INSERT INTO dossier (nom, "numéro_démarche", "date_dépôt")
-        SELECT nom, numero_demarche, now()
+        SELECT nom, numero_demarche, "date_dépôt"
         FROM (VALUES
-            ('Parc photovoltaïque à Anglet'),
-            ('Recherche scientifique sur les chats'),
-            ('Projet hydraulique'),
-            ('Projet de carrières à Abyssin')
-        ) AS v(nom)
+            ('Parc photovoltaïque à Anglet', date '2026-02-14'),
+            ('Recherche scientifique sur les chats', date '2026-01-14'),
+            ('Projet hydraulique', date '2026-02-18'),
+            ('Projet de carrières à Abyssin', date '2025-02-18')
+        ) AS v(nom, "date_dépôt")
         RETURNING id
     )
 
@@ -48,4 +48,8 @@ BEGIN
     -- Personne suit dossier
     INSERT INTO "arête_personne_suit_dossier" (personne, dossier)
     SELECT personne_id, unnest(dossier_ids);
+
+    -- Notification
+    INSERT INTO "notification" (personne, dossier, vue, updated_at)
+    SELECT personne_id, dossier_ids[1], false, now();
 END $$;
