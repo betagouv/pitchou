@@ -53,10 +53,10 @@
         </div>
 
         <div class="fr-progress-bar fr-mt-2w bar-conformite">
-          <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;  height: 100%; transition: width 0.5s;"></div>
-          <div class="retour-à-la-conformité" style="width: {pctRetourConformite}%;  height: 100%; transition: width 0.5s;"></div>
-          <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
-          <div style={`width: ${pctTropTard}%; background: #000; height: 100%; transition: width 0.5s;`}></div>
+          <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;"></div>
+          <div class="retour-à-la-conformité" style="width: {pctRetourConformite}%;"></div>
+          <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472);"></div>
+          <div style={`width: ${pctTropTard}%; background: #000;`}></div>
         </div>
 
         <div class="legend-conformite">
@@ -141,6 +141,11 @@
     border-radius: 8px;
 
     height: 1.5rem;
+
+    & > div{
+      height: 100%; 
+      transition: width 0.5s;
+    }
 
     .conformité-initiale{
       background: $couleur-conformité-initiale;
