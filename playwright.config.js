@@ -35,8 +35,8 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 10 * (60_000),
     // Ne pas afficher les logs des conteneurs Docker
-    stdout: "ignore",
-    stderr: "ignore"
+    // stdout: "ignore",
+    // stderr: "ignore"
   },
 
 });

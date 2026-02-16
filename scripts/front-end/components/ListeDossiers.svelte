@@ -323,7 +323,7 @@
                         </button>
                     {/if}
             </div>
-            <p class="compteur">
+            <p class="compteur" aria-label='compteur de dossier'>
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
             </p>
         </div>
