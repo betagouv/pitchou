@@ -51,5 +51,8 @@ BEGIN
 
     -- Notification
     INSERT INTO "notification" (personne, dossier, vue, updated_at)
-    SELECT personne_id, dossier_ids[1], false, now();
+    SELECT personne_id, dossier_ids[1], 'false', now();
+    -- l'insert ci-dessous est nécessaire pour que l'instructeurice ait la bonne cap pour accéder aux notifications
+    INSERT INTO "cap_évènement_métrique" (personne_cap)
+    VALUES (code_acces);
 END $$;
