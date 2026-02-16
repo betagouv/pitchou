@@ -38,8 +38,8 @@
             <span class="stat-number">{nbRetourConformite}</span>
             <span class="stat-label">Retour à la conformité</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--red-marianne-main-472);">{nbNonConforme}</span>
+          <div class="chiffre-item non-conforme">
+            <span class="stat-number">{nbNonConforme}</span>
             <span class="stat-label">Non conforme</span>
           </div>
           <div class="chiffre-item">
@@ -55,25 +55,30 @@
         <div class="fr-progress-bar fr-mt-2w bar-conformite">
           <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;"></div>
           <div class="retour-à-la-conformité" style="width: {pctRetourConformite}%;"></div>
-          <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472);"></div>
+          <div class="non-conforme" style="width: {pctNonConforme}%;"></div>
           <div style={`width: ${pctTropTard}%; background: #000;`}></div>
         </div>
 
         <div class="legend-conformite">
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot conformité-initiale"></span><span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span>
+            <span class="legend-conformite-dot conformité-initiale"></span>
+            <span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span>
           </div>
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot retour-à-la-conformité"></span><span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span>
+            <span class="legend-conformite-dot retour-à-la-conformité"></span>
+            <span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span>
           </div>
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot" style="background: var(--red-marianne-main-472);"></span><span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
+            <span class="legend-conformite-dot non-conforme"></span>
+            <span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
           </div>
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot" style="background: #000;"></span><span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
+            <span class="legend-conformite-dot" style="background: #000;"></span>
+            <span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
           </div>
           <div class="legend-conformite-item">
-            <span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
+            <span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span>
+            <span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
           </div>
         </div>
       </div>
@@ -84,6 +89,7 @@
 <style lang="scss">
   $couleur-conformité-initiale: var(--success-425-625);
   $couleur-retour-à-la-conformité: var(--green-emeraude-950-100-active);
+  $couleur-non-conforme: var(--red-marianne-main-472);
 
 
   .stat-conformite-card {
@@ -127,7 +133,10 @@
         color: $couleur-conformité-initiale;
       }
       &.retour-à-la-conformité .stat-number{
-        color: $couleur-retour-à-la-conformité
+        color: $couleur-retour-à-la-conformité;
+      }
+      &.non-conforme .stat-number{
+        color: $couleur-non-conforme;
       }
 
       .stat-label {
@@ -163,6 +172,9 @@
     .retour-à-la-conformité{
       background: $couleur-retour-à-la-conformité;
     }
+    .non-conforme{
+      background: $couleur-non-conforme;
+    }
 
   }
   
@@ -185,6 +197,9 @@
       }
       &.retour-à-la-conformité{
         background: $couleur-retour-à-la-conformité;
+      }
+      &.non-conforme{
+        background: $couleur-non-conforme;
       }
     }
   }
