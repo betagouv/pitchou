@@ -52,7 +52,7 @@
           </div>
         </div>
 
-        <div class="fr-progress-bar fr-mt-2w bar-conformite" style="height: 1.5rem; background: var(--text-disabled-grey; border-radius: 8px; overflow: hidden; display: flex;">
+        <div class="fr-progress-bar fr-mt-2w bar-conformite">
           <div class="conformité-initiale" style="width: {pctConformiteInitiale}%;  height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctRetourConformite}%; background: var(--green-emeraude-950-100-active); height: 100%; transition: width 0.5s;"></div>
           <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
@@ -131,10 +131,13 @@
 
   
   .bar-conformite {
+    display: flex;
     margin: 1.5rem 0 2rem 0;
     box-shadow: none;
     background: var(--background-alt-grey);
     border-radius: 8px;
+
+    height: 1.5rem;
 
     .conformité-initiale{
       background: $couleur-conformité-initiale;
