@@ -20,4 +20,7 @@ export default async function (cheminRelatifDonnéesSQL) {
 
     // Exécuter les migrations spécifiques à ce test
     await exec(`docker exec pitchou-test_db-1 psql --username=dev especes_pro_3731 -f /tests/${cheminRelatifDonnéesSQL}`)
+    // Afficher le contenu de la table notification
+    // const { stdout } = await exec(`docker exec pitchou-test_db-1 psql --username=dev --tuples-only --no-align --dbname=especes_pro_3731 -c "SELECT * FROM notification;"`);
+    // console.log('Contenu de notification :\n', stdout);
 }
