@@ -53,7 +53,36 @@ test.describe('Page Mes dossiers', () => {
 
     })
 
+    test(`Quand je consulte un dossier et que je reviens sur la page Mes dossiers, le tag Nouveauté disparaît. `, async ( { page } ) => {
+        // Je clique sur le lien du premier dossier
+        const titrePremierDossier = page.getByRole('link', { name: 'Recherche scientifique sur' })
+        await expect(titrePremierDossier).toBeVisible()
+        await titrePremierDossier.click()
 
-    // TODO: Quand je consulte un dossier et que je reviens sur la page Mes dossiers, le tag nouveauté disparaît. 
+        // Cela m'amène sur la page du dossier
+        await expect(page.getByRole('heading', { level: 1})).toContainText('Dossier n°2 : Recherche scientifique sur les chats');
+        
+        // Je reviens sur la page mes dossiers
+        await page.goto('/mes-dossiers');
+        await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
+        // Je ne dois plus voir de tag Nouveauté sur le premier dossier
+
+
+const premierDossier = page
+  .getByTestId('carte-dossier')
+  .filter({
+    has: titrePremierDossier
+  });
+
+await expect(premierDossier).toHaveCount(1);
+const badge = premierDossier.locator('p.fr-badge', {
+  hasText: /Nouveauté/i
+});
+
+await expect(badge).toHaveCount(0);
+
+    })
+
+
 
 });
