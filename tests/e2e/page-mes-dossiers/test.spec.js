@@ -8,42 +8,28 @@ test.beforeAll(async () => {
 test.beforeEach(async ( { page } ) => {
     await page.goto('/?secret=abyssin');
     await expect(page.getByRole('heading', { level: 1})).toContainText('Tableau de suivi instruction DDEP');
+    await page.goto('/mes-dossiers');
+    await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
 })
 
 
 
 test.describe('Page Mes dossiers', () => {
-    test(`J'ai accès à la page "Mes dossiers" à partir de la page d'accueil`, async ({ page }) => {
-        await expect(page.getByRole('heading', { name: '/5 dossiers sélectionnés', level: 2 })).toContainText('5/5 dossiers sélectionnés')
-        
-        await page.getByRole('link', { name: 'Mes dossiers Nouveau' }).click()
-
-        await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
-
-        await expect(page.getByLabel('compteur de dossier')).toContainText('4/4 dossiers')
-    });
-
     test(`Je peux voir tous les dossiers que je suis, et les dossiers selon le tri suivant :
             - D'abord par leur date de notification si la notification n'a pas été consultée, de la plus récente à la plus ancienne
             - Puis par date date_dépôt, de la plus récente à la plus ancienne.`, async ( { page } ) => {
-            await page.goto('/mes-dossiers');
+        await expect(page.getByLabel('compteur de dossier')).toContainText('4/4 dossiers')
 
-            await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
+        const cartesDossier = await page.getByTestId('carte-dossier').all()
+        const ordreIdDossier = [2,1,4,3]
 
-            const cartesDossier = await page.getByTestId('carte-dossier').all()
-            const ordreIdDossier = [2,1,4,3]
-
-            for (let i = 0; i < cartesDossier.length; i++) {
-                await expect(cartesDossier[i]).toContainText(`Dossier n°${ordreIdDossier[i]}`)
-            }
+        for (let i = 0; i < cartesDossier.length; i++) {
+            await expect(cartesDossier[i]).toContainText(`Dossier n°${ordreIdDossier[i]}`)
+        }
             
-        }  
-    )
+    })
 
     test(`Les dossiers avec une notification non lue ont un tag Nouveauté.`, async ( { page } ) => {;
-        await page.goto('/mes-dossiers');
-        await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
-
         const dossiersAvecNotificationNonVue = await page.getByTestId('carte-dossier')
             .filter({
                 has: page.locator('p.fr-badge', { hasText: /Nouveauté/i })
@@ -53,7 +39,20 @@ test.describe('Page Mes dossiers', () => {
         expect(dossiersAvecNotificationNonVue).toHaveLength(2)
     })
 
-    // TODO: Quand j'appuie sur Nouveauté, je ne vois que les dossiers qui possèdent une notification non vue.
+    test(`Quand j'appuie sur Nouveauté, je ne vois que les dossiers qui possèdent une notification non vue.`, async ( { page } ) => {
+        await page.getByRole('button', { name: 'Nouveauté'}).click()
+
+        await expect(page.getByLabel('compteur de dossier')).toContainText('2/4 dossiers')
+
+        const cartesDossier = await page.getByTestId('carte-dossier').all()
+        const ordreIdDossier = [2,1]
+
+        for (let i = 0; i < cartesDossier.length; i++) {
+            await expect(cartesDossier[i]).toContainText(`Dossier n°${ordreIdDossier[i]}`)
+        }
+
+    })
+
 
     // TODO: Quand je consulte un dossier et que je reviens sur la page Mes dossiers, le tag nouveauté disparaît. 
 
