@@ -9,12 +9,12 @@ import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 import { chargerDossiers } from '../actions/dossier.js';
 import store from '../store.js';
 import { envoyerÉvènement } from '../actions/aarri.js';
-import { chargerNouveautéVueParInstructeurParDossier } from '../actions/main.js';
+import { chargerNotificationParDossierPourInstructeurActuel } from '../actions/main.js';
 
 
 export default async () => {
     replaceComponent(SqueletteContenuVide, () => {})
-    chargerNouveautéVueParInstructeurParDossier()
+    chargerNotificationParDossierPourInstructeurActuel()
 
     /**
      *

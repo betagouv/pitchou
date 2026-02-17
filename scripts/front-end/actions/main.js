@@ -34,7 +34,7 @@ export function chargerRelationSuivi(){
     }
 }
 
-export function chargerNouveautéVueParInstructeurParDossier() {
+export function chargerNotificationParDossierPourInstructeurActuel() {
     if(store.state.capabilities?.listerNotifications){
         store.state.capabilities?.listerNotifications()
             .then(notificationsBDD => {
@@ -42,13 +42,13 @@ export function chargerNouveautéVueParInstructeurParDossier() {
                     throw new TypeError("On attendait un tableau de notifications ici !")
                 }
 
-                const nouveautéVueParInstructeurParDossier = new SvelteMap()
+                const notificationParDossierPourInstructeurActuel = new SvelteMap()
 
                 for(const notification of notificationsBDD){
-                    nouveautéVueParInstructeurParDossier.set(notification.dossier, notification)
+                    notificationParDossierPourInstructeurActuel.set(notification.dossier, notification)
                 }
 
-                store.mutations.setNouveautéVuePourInstructeurActuelParDossier(nouveautéVueParInstructeurParDossier)
+                store.mutations.setNotificationParDossierPourInstructeurActuel(notificationParDossierPourInstructeurActuel)
             })
     }
 }
@@ -97,7 +97,7 @@ export async function logout(){
     store.mutations.setDossiersComplets(new SvelteMap())
     store.mutations.resetMessages()
     store.mutations.setRelationSuivis(new SvelteMap())
-    store.mutations.setNouveautéVuePourInstructeurActuelParDossier(new SvelteMap())
+    store.mutations.setNotificationParDossierPourInstructeurActuel(new SvelteMap())
 
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }

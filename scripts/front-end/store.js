@@ -98,7 +98,7 @@ const mutations = {
    * @param {PitchouState} state
    * @param {PitchouState['notificationParDossier']} notificationParDossier
    */
-  setNouveautéVuePourInstructeurActuelParDossier(state, notificationParDossier) {
+  setNotificationParDossierPourInstructeurActuel(state, notificationParDossier) {
     state.notificationParDossier = notificationParDossier
   },
   /**
