@@ -12,7 +12,6 @@
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
      * @property {boolean} [nouveautéVueParInstructeur]
      * @property {boolean} [dossierSuiviParInstructeurActuel]
-     * @property {boolean} [afficherTagNouveauté] 
     */
     /** @type {Props}*/
     let { 
@@ -20,7 +19,6 @@
             dossierSuiviParInstructeurActuel, 
             instructeurActuelSuitDossier, 
             instructeurActuelLaisseDossier,
-            afficherTagNouveauté,
             nouveautéVueParInstructeur,
         } = $props()
 </script>
@@ -28,7 +26,7 @@
 <div class="carte fr-p-2w" data-testid='carte-dossier'>
     <div class="en-tête">
         <div class="tag-nouveauté-et-nom-du-projet">
-            {#if afficherTagNouveauté === true && nouveautéVueParInstructeur === false}
+            {#if nouveautéVueParInstructeur === false}
                 <p class="fr-badge fr-badge--new">Nouveauté</p>
             {/if}
             <h3>

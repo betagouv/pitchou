@@ -33,7 +33,7 @@
         {dossiers} 
         {relationSuivis} 
         afficherFiltreActionInstructeur
-        afficherFiltreNouveauté
+        activerTriDossierParNotification
         {notificationParDossier} />
 </Squelette>
 
