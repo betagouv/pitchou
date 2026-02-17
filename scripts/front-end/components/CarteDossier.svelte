@@ -25,7 +25,7 @@
         } = $props()
 </script>
 
-<div class="carte fr-p-2w">
+<div class="carte fr-p-2w" data-testid='carte-dossier'>
     <div class="en-tête">
         <div class="tag-nouveauté-et-nom-du-projet">
             {#if afficherTagNouveauté === true && nouveautéVueParInstructeur === false}

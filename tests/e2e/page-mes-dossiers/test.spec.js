@@ -5,16 +5,15 @@ test.beforeAll(async () => {
     await beforeAll('page-mes-dossiers/données.sql')
 });
 
-test.beforeEach(() => console.log('coucou'))
+test.beforeEach(async ( { page } ) => {
+    await page.goto('/?secret=abyssin');
+    await expect(page.getByRole('heading', { level: 1})).toContainText('Tableau de suivi instruction DDEP');
+})
 
 
 
 test.describe('Page Mes dossiers', () => {
     test(`J'ai accès à la page "Mes dossiers" à partir de la page d'accueil`, async ({ page }) => {
-        await page.goto('/?secret=abyssin');
-
-        await expect(page.getByRole('heading', { level: 1})).toContainText('Tableau de suivi instruction DDEP');
-
         await expect(page.getByRole('heading', { name: '/5 dossiers sélectionnés', level: 2 })).toContainText('5/5 dossiers sélectionnés')
         
         await page.getByRole('link', { name: 'Mes dossiers Nouveau' }).click()
@@ -26,21 +25,33 @@ test.describe('Page Mes dossiers', () => {
 
     test(`Je peux voir tous les dossiers que je suis, et les dossiers selon le tri suivant :
             - D'abord par leur date de notification si la notification n'a pas été consultée, de la plus récente à la plus ancienne
-            - Puis par date date_dépôt, de la plus récente à la plus ancienne `, async ( { page } ) => {
-        //TODO: comment éviter de répéter ces lignes ? avec le before each ?
-        await page.goto('/?secret=abyssin');
-        await expect(page.getByRole('heading', { level: 1})).toContainText('Tableau de suivi instruction DDEP');
-        await page.goto('/mes-dossiers');
+            - Puis par date date_dépôt, de la plus récente à la plus ancienne.`, async ( { page } ) => {
+            await page.goto('/mes-dossiers');
 
-        await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
-    }  
+            await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
+
+            const cartesDossier = await page.getByTestId('carte-dossier').all()
+            const ordreIdDossier = [2,1,4,3]
+
+            for (let i = 0; i < cartesDossier.length; i++) {
+                await expect(cartesDossier[1]).toContainText(`Dossier n°${ordreIdDossier[1]}`)
+            }
+            
+        }  
     )
 
-    // TODO: Je peux voir tous les dossiers que je suis et les dossiers selon le tri suivant :
-    // - D'abord par leur date de notification si la notification n'a pas été consultée, de la plus récente à la plus ancienne
-    // - Puis par date date_dépôt, de la plus récente à la plus ancienne
+    test(`Les dossiers avec une notification non lue ont un tag Nouveauté.`, async ( { page } ) => {;
+        await page.goto('/mes-dossiers');
+        await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
 
-    // TODO: les dossiers avec une notification non lue ont un tag Nouveauté
+        const dossiersAvecNotificationNonVue = await page.getByTestId('carte-dossier')
+            .filter({
+                has: page.locator('p.fr-badge', { hasText: /Nouveauté/i })
+            })
+            .all();
+
+        expect(dossiersAvecNotificationNonVue).toHaveLength(2)
+    })
 
     // TODO: Quand j'appuie sur Nouveauté, je ne vois que les dossiers qui possèdent une notification non vue.
 
