@@ -65,24 +65,19 @@ test.describe('Page Mes dossiers', () => {
         // Je reviens sur la page mes dossiers
         await page.goto('/mes-dossiers');
         await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
+
         // Je ne dois plus voir de tag Nouveauté sur le premier dossier
+        const premierDossier = page
+        .getByTestId('carte-dossier')
+        .filter({
+            has: titrePremierDossier
+        });
 
+        await expect(premierDossier).toHaveCount(1);
+        const badge = premierDossier.locator('p.fr-badge', {
+        hasText: /Nouveauté/i
+        });
 
-const premierDossier = page
-  .getByTestId('carte-dossier')
-  .filter({
-    has: titrePremierDossier
-  });
-
-await expect(premierDossier).toHaveCount(1);
-const badge = premierDossier.locator('p.fr-badge', {
-  hasText: /Nouveauté/i
-});
-
-await expect(badge).toHaveCount(0);
-
+        await expect(badge).toHaveCount(0);
     })
-
-
-
 });
