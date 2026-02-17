@@ -21,8 +21,8 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {boolean} [afficherFiltreSansInstructeurice]
     * @property {boolean} [afficherFiltreActionInstructeur]
-    * @property {boolean} [afficherFiltreNouveauté]
-    * @property {PitchouState['notificationParDossier']} [notificationParDossier] 
+    * @property {PitchouState['notificationParDossier']} [notificationParDossier]
+    * @property {boolean} [activerTriDossierParNotification]
     */
     /** @type {Props} */
     let {
@@ -32,8 +32,8 @@
         relationSuivis,
         afficherFiltreSansInstructeurice = false,
         afficherFiltreActionInstructeur = false,
-        afficherFiltreNouveauté = false,
         notificationParDossier = new SvelteMap(),
+        activerTriDossierParNotification = false,
     } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -143,16 +143,18 @@
             const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.updated_at : undefined;
             const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.updated_at : undefined;
 
-            if (dateNotificationNonVueA && dateNotificationNonVueB) {
-                return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
-            } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
-                return -1
-            } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
-                return 1
-            } else {
-                // Aucun des dossiers n'a de notification non vue
-                return a.date_dépôt > b.date_dépôt ? -1 : 1
+            if (activerTriDossierParNotification === true) {
+                if (dateNotificationNonVueA && dateNotificationNonVueB) {
+                    return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
+                } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
+                    return -1
+                } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
+                    return 1
+                }
             }
+
+            return a.date_dépôt > b.date_dépôt ? -1 : 1
+            
         })
 
         if(!selectionneursPage)
@@ -311,17 +313,15 @@
                             Action : Instructeur·ice
                         </button>
                     {/if}
-                    {#if afficherFiltreNouveauté}
-                        <button
-                            type="button"
-                            class="fr-tag"
-                            onclick={toggleFiltreNouveauté}
-                            aria-pressed={tousLesFiltres.has('nouveauté')}
-                            
-                        >
-                            Nouveauté
-                        </button>
-                    {/if}
+                    <button
+                        type="button"
+                        class="fr-tag"
+                        onclick={toggleFiltreNouveauté}
+                        aria-pressed={tousLesFiltres.has('nouveauté')}
+                        
+                    >
+                        Nouveauté
+                    </button>
             </div>
             <p class="compteur" aria-label='compteur de dossier'>
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
@@ -340,7 +340,6 @@
                         {instructeurActuelSuitDossier} 
                         {instructeurActuelLaisseDossier} 
                         dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} 
-                        afficherTagNouveauté={!!afficherFiltreNouveauté} 
                         nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue}
                     />
                 </li>

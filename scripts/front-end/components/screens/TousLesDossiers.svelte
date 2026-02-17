@@ -4,6 +4,7 @@
 	/** @import { ComponentProps } from "svelte" */
     import Squelette from "../Squelette.svelte"
     import ListeDossiers from "../ListeDossiers.svelte"
+	import { SvelteMap } from "svelte/reactivity"
 
     /**
     * @typedef {Object} Props
@@ -12,6 +13,7 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {PitchouState['erreurs']} [erreurs]
     * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
+    * @property {PitchouState['notificationParDossier']} [notificationParDossier]
     */
     /** @type {Props} */
     let { 
@@ -19,10 +21,17 @@
             dossiers,
             relationSuivis,
             erreurs = new Set(),
-            résultatsSynchronisationDS88444
+            résultatsSynchronisationDS88444,
+            notificationParDossier = new SvelteMap(),
         } = $props();
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Tous les dossiers">
-    <ListeDossiers titre="Tous les dossiers" {email} {dossiers} {relationSuivis} afficherFiltreSansInstructeurice />
+    <ListeDossiers 
+        titre="Tous les dossiers" 
+        {email} {dossiers} {
+        relationSuivis} 
+        {notificationParDossier} 
+        afficherFiltreSansInstructeurice
+    />
 </Squelette>

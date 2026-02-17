@@ -34,7 +34,7 @@ test.describe('Page Mes dossiers', () => {
             const ordreIdDossier = [2,1,4,3]
 
             for (let i = 0; i < cartesDossier.length; i++) {
-                await expect(cartesDossier[1]).toContainText(`Dossier n°${ordreIdDossier[1]}`)
+                await expect(cartesDossier[i]).toContainText(`Dossier n°${ordreIdDossier[i]}`)
             }
             
         }  
