@@ -179,7 +179,7 @@ limit :nb_semaines_observees;
 
 /**
  * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
- * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
  * 
  * @param {number} nbSemainesObservées
  *
