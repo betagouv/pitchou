@@ -1,10 +1,9 @@
 //@ts-check
-import {writeFile} from 'node:fs/promises'
 import parseArgs from 'minimist'
 import {getÉvènementsCountForPersonne, getÉvènementsForPersonne } from '../scripts/server/database/aarri/utils.js';
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../scripts/front-end/affichageDossier.js';
-import { extraireNomDunMail } from '../scripts/front-end/actions/importDossierUtils.js';
+import { closeDatabaseConnection } from '../scripts/server/database.js';
 
 /**
  * stdout doit être réservé à l'écriture du fichier.
@@ -81,7 +80,6 @@ const headerÉvènementsCount = [[
   type: 'string'
 }]]
 
-const { prénom, nom } = extraireNomDunMail(email)
 const aujourdhui = new Date()
 
 const content = new Map([
@@ -115,17 +113,12 @@ const content = new Map([
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
 
-const nomDuFichier = `donnees-aarri${(prénom!='' || nom!=='') ? `-${prénom}-${nom}` : ''}-${formatDateAbsolue(aujourdhui,'dd-MM-yyyy')}.ods`
-
-async function créerFichierODS() {
-  try {
+try {
     console.error('📝 Création du fichier ODS avec les résultats...')
-    await writeFile(`./résultats-aarri/${nomDuFichier}`, Buffer.from(ods));
-    console.error(`✅ Le fichier ${nomDuFichier} a bien été créé dans ./résultats-arri !`)
+    process.stdout.write(Buffer.from(ods))
+    console.error(`✅ Le fichier a bien été écrit sur stdout !`)
   } catch (err) {
     console.error(err);
-  }
 }
-await créerFichierODS();
 
-process.exit(0)
+closeDatabaseConnection()
