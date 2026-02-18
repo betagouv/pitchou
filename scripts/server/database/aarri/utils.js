@@ -5,7 +5,7 @@
 
 
 import { format, startOfWeek } from 'date-fns'
-import { directDatabaseConnection } from '../../database'
+import { directDatabaseConnection } from '../../database.js'
 import { ÉVÈNEMENTS_MODIFICATIONS } from './constantes.js';
 
 /**
