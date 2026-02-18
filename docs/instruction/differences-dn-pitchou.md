@@ -44,7 +44,7 @@ linkStyle default stroke:#444,stroke-width:2px;
 
 Quand un pétitionnaire met à jour son dossier, les éléments mis à jour sont automatiquement transmis à Pitchou
 
-⚠️ **Attention** : la mise à jour entre DN et Pitchou **n'est pas instantannée**. Elle se fait **environ toutes les 15 minutes**. Il est donc possible, occasionnellement, que les informations sur Pitchou ne soient pas exactement à jour. Il suffit d'attendre un peu
+⚠️ **Attention** : la mise à jour entre DN et Pitchou **n'est pas instantanée**. Elle se fait **environ toutes les 15 minutes**. Il est donc possible que les informations sur Pitchou ne soient pas immédiatement mises à jour. Il suffit d'attendre un peu.
 
 
 
