@@ -57,8 +57,9 @@ DN et Pitchou proposent tous les deux de suivre un dossier
 **Ces fonctionnalités sont complètement séparées et ne sont pas synchronisées.**
 
 Ainsi,
-Si vous suivez un dossier sur DN, ce dossier n'est pas suivi sur Pitchou
-Si vous suivez un dossier sur Pitchou, ce dossier n'est pas suivi sur DN
+Si vous suivez un dossier sur DN, ce dossier n'est pas suivi sur Pitchou.
+
+Si vous suivez un dossier sur Pitchou, ce dossier n'est pas suivi sur DN.
 
 
 ### Phases
