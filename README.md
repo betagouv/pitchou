@@ -244,9 +244,23 @@ En cas de compromission ou régulièrement, la capability-url peut être reset:
 
 ### Outils AARRI
 
-#### Activation
+#### Nettoyage des données d'évènements
 
-Trouver les instructrices qui sont dans Pitchou et l'ont utilisé récemment
+Les données de tracking nécessaires à AARRI sont stockées exclusivement dans la table `évènement_métrique`
 
-`docker exec tooling node outils/instructrices-actives.js`
+Pour des raisons de minimisation des données, de protection des personnes et de conformité au RGPD, nous supprimons les données datant de plus d’un an.
 
+Nous avons un outil qui permet de faire ça.
+En production : 
+`scalingo --app especes-protegees run "node outils/supprimer-evenements.js"`
+
+En dev : 
+`docker exec tooling node outils/supprimer-evenements.js`
+
+Pour nettoyer tous les évènements concernant une personne spécifique : 
+
+`docker exec tooling node outils/supprimer-evenements.js --email david@example.net`
+
+Pour nettoyer tous les évènements plus vieux que x semaines
+
+`docker exec tooling node outils/supprimer-evenements.js --conserver-dernières-semaines 20`
