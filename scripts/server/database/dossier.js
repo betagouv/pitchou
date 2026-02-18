@@ -17,11 +17,13 @@
 import knex from 'knex';
 
 import {directDatabaseConnection} from '../database.js'
-import {getDécisionAdministratives, getDécisionsAdministratives} from './décision_administrative.js';
+import {getDécisionAdministratives, getDécisionsAdministratives, supprimerDécisionsAdministrativesDossier} from './décision_administrative.js';
 import {getPrescriptions} from './prescription.js';
 import {getContrôles} from './controle.js';
 import { normalisationEmail } from '../../commun/manipulationStrings.js';
 import { getFichierUrl } from '../object-storage/fichier.js';
+import { supprimerAvisExpertDossier } from './avis_expert.js';
+import { supprimerPiècesJointesDossier } from './arête_dossier__fichier_pièces_jointes_pétitionnaire.js';
 
 
 //@ts-ignore
@@ -865,8 +867,20 @@ async function getDescriptionsPiècesJointesPétitionnaire(idDossier, databaseCo
  * @param {number[]} numbers
  * @returns
  */
-export function deleteDossierByDSNumber(numbers){
-    return directDatabaseConnection('dossier')
+export async function deleteDossierByDSNumber(numbers, databaseConnection = directDatabaseConnection){
+    // TODO: supprimer pièces jointes
+    const dossierIDs = await databaseConnection('dossier')
+        .select(['id'])
+        .whereIn('number_demarches_simplifiées', numbers)
+        .then(dossiers => dossiers.map(dossier => dossier.id))
+
+    await Promise.all([
+        supprimerAvisExpertDossier(dossierIDs, databaseConnection),
+        supprimerDécisionsAdministrativesDossier(dossierIDs, databaseConnection),
+        supprimerPiècesJointesDossier(dossierIDs, databaseConnection),
+    ])
+
+    return databaseConnection('dossier')
         .whereIn('number_demarches_simplifiées', numbers)
         .delete()
 }

@@ -87,3 +87,15 @@ export function supprimerFichier(id, databaseConnection = directDatabaseConnecti
         .where({id})
         .then(files => files[0])
 }
+
+/**
+ * @param {Fichier['id'][]} ids
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Partial<Fichier>[]>}
+ */
+export function supprimerFichiers(ids, databaseConnection = directDatabaseConnection){
+    return databaseConnection('fichier')
+        .delete()
+        .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
+        .whereIn('id', ids)
+}

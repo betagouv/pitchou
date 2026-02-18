@@ -1,10 +1,11 @@
 /** @import { default as AvisExpert, AvisExpertInitializer, AvisExpertMutator } from '../../types/database/public/AvisExpert.ts' */
+/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 /** @import { Knex } from 'knex' */
 /** @import { PickNonNullable } from '../../types/tools' */
 /** @import Fichier from '../../types/database/public/Fichier.ts' */
 
 import { directDatabaseConnection } from '../database.js'
-import { ajouterFichier, supprimerFichier } from '../fichier.js'
+import { ajouterFichier, supprimerFichiers } from '../fichier.js'
 
 /**
  * @param { AvisExpertInitializer | {id: string} & AvisExpertMutator } avisExpert
@@ -112,7 +113,25 @@ export async function supprimerAvisExpert(avisExpertId, databaseConnection = dir
                 .filter(fichier => fichier !== null)
         })
 
-    return Promise.all(
-        fichierIDs.map(fichierId => supprimerFichier(fichierId, true, databaseConnection))
-    )
+    return supprimerFichiers(fichierIDs, true, databaseConnection)
+}
+
+/**
+ * @param { Dossier['id'] | Dossier['id'][] } dossier
+ * @param { Knex.Transaction | Knex } [databaseConnection]
+ */
+export async function supprimerAvisExpertDossier(dossier, databaseConnection = directDatabaseConnection) {
+    const dossierÀSupprimer = Array.isArray(dossier) ? dossier : [dossier]
+
+    const fichierIDs = await databaseConnection('avis_expert')
+        .delete()
+        .whereIn('dossier', dossierÀSupprimer)
+        .returning(['saisine_fichier', 'avis_fichier'])
+        .then(avis => {
+            return avis
+                .flatMap(avis => [avis.saisine_fichier, avis.avis_fichier])
+                .filter(fichier => fichier !== null)
+        })
+
+    return supprimerFichiers(fichierIDs, true, databaseConnection)
 }

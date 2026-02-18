@@ -7,14 +7,15 @@
 
 import trouverCandidatsFichiersÀTélécharger from '../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js'
 import {directDatabaseConnection} from '../database.js'
+import { supprimerFichiers } from '../fichier.js'
 
 /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
 
 /**
- * 
+ *
  * @param {Map<Dossier['id'], Fichier['id'][]>} fichiersPiècesJointesPétitionnaireParNuméroDossier
  * @param {DossierDS88444[]} dossiersDS
- * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number 
+ * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number
  * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {ChampFormulaire[]} champsAvecPiècesJointes
  * @param {Knex.Transaction | Knex} [databaseConnection]
@@ -61,16 +62,14 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         .andWhere('DS_checksum', 'not in', [...checksumsDS])
 
     //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
-    
+
     /** @type {Promise<any>} */
     let fichiersOrphelinsNettoyés = Promise.resolve()
 
     if(fichierIdsEnBDDMaisPlusDansDS.length >= 1){
-        // supprimer les fichier 
+        // supprimer les fichier
         // les arêtes correspondantes sont supprimées via le ON DELETE CASCADE
-        fichiersOrphelinsNettoyés = databaseConnection('fichier')
-            .delete()
-            .whereIn('id', fichierIdsEnBDDMaisPlusDansDS.map(f => f.id))
+        fichiersOrphelinsNettoyés = supprimerFichiers(fichierIdsEnBDDMaisPlusDansDS.map(f => f.id), true, databaseConnection)
     }
 
 
@@ -90,5 +89,24 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
         fichiersOrphelinsNettoyés,
         nouveauxFichiersSynchronisés
     ])
+}
 
+/**
+ * @param { Dossier['id'] | Dossier['id'][] } dossier
+ * @param { Knex.Transaction | Knex } [databaseConnection]
+ */
+export async function supprimerPiècesJointesDossier(dossier, databaseConnection = directDatabaseConnection) {
+    const dossierÀSupprimer = Array.isArray(dossier) ? dossier : [dossier]
+
+    const fichierIDs = await databaseConnection('arête_dossier__fichier_pièces_jointes_pétitionnaire')
+        .delete()
+        .whereIn('dossier', dossierÀSupprimer)
+        .returning(['fichier'])
+        .then(piècesJointes => {
+            return piècesJointes
+                .map(pièceJointe => pièceJointe.fichier)
+                .filter(fichier => fichier !== null)
+        })
+
+        return supprimerFichiers(fichierIDs, true, databaseConnection)
 }

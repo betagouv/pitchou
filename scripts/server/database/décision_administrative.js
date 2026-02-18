@@ -1,7 +1,7 @@
 import {directDatabaseConnection} from '../database.js'
 import { getFichierUrl } from '../object-storage/fichier.js';
 
-import {ajouterFichier, supprimerFichier} from '../fichier.js'
+import {ajouterFichier, supprimerFichier, supprimerFichiers} from '../fichier.js'
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
@@ -187,13 +187,35 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
  * @returns {Promise<any>}
  */
 export async function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
-    const fichierId = await databaseConnection('décision_administrative')
+    const fichierID = await databaseConnection('décision_administrative')
         .delete()
         .where({id})
         .returning(['fichier'])
         .then(décisions => décisions[0].fichier)
 
-    if (fichierId) {
-        return supprimerFichier(fichierId, true, databaseConnection)
+    if (fichierID) {
+        return supprimerFichier(fichierID, true, databaseConnection)
     }
+}
+
+/**
+ *
+ * @param {Dossier['id'] | Dossier['id'][]} dossier
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function supprimerDécisionsAdministrativesDossier(dossier, databaseConnection = directDatabaseConnection){
+    const dossierÀSupprimer = Array.isArray(dossier) ? dossier : [dossier]
+
+    const fichierIDs = await databaseConnection('décision_administrative')
+        .delete()
+        .whereIn('dossier', dossierÀSupprimer)
+        .returning(['fichier'])
+        .then(décisions => {
+            return décisions
+                .map(décision => décision.fichier)
+                .filter(fichier => fichier !== null)
+        })
+
+    return supprimerFichiers(fichierIDs, true, databaseConnection)
 }
