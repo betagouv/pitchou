@@ -1,4 +1,4 @@
-# Différences Démarches Numériques et Pitchou
+# Articulation Démarche Numérique et Pitchou
 
 **Dernière mise à jour : mi-février 2026**
 
@@ -48,7 +48,7 @@ Quand un pétitionnaire met à jour son dossier, les éléments mis à jour sont
 
 
 
-## Relation entre DN et Pitchou
+## Différences entre DN et Pitchou
 
 ### Suivre un dossier
 
