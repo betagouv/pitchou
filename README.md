@@ -252,21 +252,21 @@ Pour des raisons de minimisation des données, de protection des personnes et de
 
 Nous avons un outil qui permet de faire ça.
 En production : 
-`scalingo --app especes-protegees run "node outils/supprimer-evenements.js"`
+`scalingo --app especes-protegees run "node outils/aarri/supprimer-evenements.js"`
 
 En dev : 
-`docker exec tooling node outils/supprimer-evenements.js`
+`docker exec tooling node outils/aarri/supprimer-evenements.js`
 
 Pour nettoyer tous les évènements concernant une personne spécifique : 
 
-`docker exec tooling node outils/supprimer-evenements.js --email david@example.net`
+`docker exec tooling node outils/aarri/supprimer-evenements.js --email david@example.net`
 
 Pour nettoyer tous les évènements plus vieux que x semaines
 
-`docker exec tooling node outils/supprimer-evenements.js --conserver-dernières-semaines 20`
+`docker exec tooling node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
 
 #### Création d'un fichier ODS avec les données d'une personne spécifique
 
 Extraire les données AARRI d'une personne spécifique dans un fichier ODS
 
-`docker exec tooling node --env-file=.env outils/aarri.js --email 'mail@example.net' > données-aarri.ods`
+`docker exec tooling node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net' > données-aarri.ods`
