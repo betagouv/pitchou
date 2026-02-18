@@ -5,7 +5,7 @@ A titre liminaire, il convient de préciser que :
 -  En Autorisation environnementale, Pitchou affiche l'état de l'instruction de l'autorisation environementale dans sa globalité.
 
 ## **En régime propre**
-Le dossier se trouve dans une des phases suivantes :
+Le dossier se trouve dans l'une des phases suivantes :
 
 - "**Accompagnement amont (hors GUN)**"
     - Dès le premier contact au sujet de son projet, le pétitionnaire est invité à renseigner démarche-numériques (DN). Ce dépôt permet de prendre contact et de garer la mémoire du projet dans les tableaux de suivi Pitchou. Aucune information n'est obligatoire à ce stade et ce dépôt ne signifie pas qu'une demande de déogation est nécessaire.
@@ -31,7 +31,7 @@ Le dossier se trouve dans une des phases suivantes :
 En Autorisation environnementale, les dossiers sont saisis sous GUNEnv.
 A ce stade de l'outil, le lien entre GunEnv et Pitchou ne se fait pas, ce qui signifie que l'instructeur doit lui-même saisir son dossier sous DN.
 
-Un dossier se trouve dans une des phases suivantes :
+Un dossier se trouve dans l'une des phases suivantes :
 
 - "**Accompagnement amont (hors GUN)**"
     - Un dossier en AE peut-être en Accompagnement amont, tant qu'il n'est pas déposé dans GunEnv.
