@@ -1,6 +1,7 @@
 # Phases instructions
 
 Un dossier se trouve dans une des phases suivantes :
+## **En régime propre**
 - "**Accompagnement amont**"
     - Le pétitionnaire n'est pas sûr de la nécessité d'une DDEP et l'instructeur l'accompagne vers la réponse.
     - Afin d'obtenir une réponse officielle du service instructeur, le pétitionnaire doit déposer son projet sur démarche-numériques (DN) :
