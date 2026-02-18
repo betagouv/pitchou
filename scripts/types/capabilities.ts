@@ -2,7 +2,7 @@ import { DossierComplet, DossierRésumé, DécisionAdministrativePourTransfer } 
 import Dossier from "./database/public/Dossier.ts"
 import Personne from "./database/public/Personne.ts"
 import Message from "./database/public/Message.ts"
-import Notification from './database/public/Notification.ts'
+import Notification, { NotificationMutator } from './database/public/Notification.ts'
 import { ÉvènementMétrique } from './évènement.ts'
 
 export interface PitchouInstructeurCapabilities {
@@ -23,6 +23,7 @@ export interface PitchouInstructeurCapabilities {
 	) => Promise<void>
 	créerÉvènementMetrique: (évènement: ÉvènementMétrique) => Promise<void>
 	listerNotifications: () => Promise<Notification[]>
+	updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>
 }
 
 export interface IdentitéInstructeurPitchou{

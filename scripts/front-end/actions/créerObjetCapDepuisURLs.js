@@ -278,7 +278,8 @@ export default function(capURLs){
         modifierDécisionAdministrativeDansDossier: wrapModifierDécisionAdministrative(capURLs.modifierDécisionAdministrativeDansDossier),
         créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
         identité: capURLs.identité,
-        listerNotifications: wrapGETUrl(capURLs.listerNotifications)
+        listerNotifications: wrapGETUrl(capURLs.listerNotifications),
+        updateNotificationForDossier: wrapPOSTUrl(capURLs.updateNotificationForDossier)
     }
 
 }

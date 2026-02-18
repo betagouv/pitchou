@@ -102,9 +102,10 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     const modifierDécisionAdministrativeDansDossierP = listerDossiersP
 
     const listerNotificationsP = créerÉvènementMetriqueP
+    const updateNotificationP = créerÉvènementMetriqueP
 
-    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, créerÉvènementMetriqueP, identitéP, listerNotificationsP])
-        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, créerÉvènementMetrique, identité, listerNotifications]) => {
+    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, créerÉvènementMetriqueP, identitéP, listerNotificationsP, updateNotificationP])
+        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, créerÉvènementMetrique, identité, listerNotifications, updateNotificationForDossier]) => {
             /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
             const ret = {
                 remplirAnnotations: undefined,
@@ -118,7 +119,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
                 identité,
                 créerÉvènementMetrique,
                 modifierDécisionAdministrativeDansDossier,
-                listerNotifications
+                listerNotifications,
+                updateNotificationForDossier
             }
 
             if(remplirAnnotations && remplirAnnotations.cap)
