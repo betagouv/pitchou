@@ -1,10 +1,5 @@
 <script>
-
-  //@ts-check
-  
   /** @import {StatsConformité} from '../../../types/API_Pitchou' */
-  
-
   
   /**
    * @typedef {Object} Props
@@ -26,7 +21,6 @@
   const pctNonConforme = totalPrescriptions ? Math.round((nbNonConforme/totalPrescriptions)*100) : 0;
   const pctTropTard = totalPrescriptions ? Math.round((nbTropTard/totalPrescriptions)*100) : 0;
 
-
 </script>
 
 <section class="fr-mt-4w">
@@ -36,41 +30,56 @@
       <div class="fr-card__content">
 
         <div class="chiffres-conformite">
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--success-425-625);">{nbConformiteInitiale}</span>
+          <div class="chiffre-item conformité-initiale">
+            <span class="stat-number">{nbConformiteInitiale}</span>
             <span class="stat-label">Conformité initiale</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--green-emeraude-950-100-active);">{nbRetourConformite}</span>
+          <div class="chiffre-item retour-à-la-conformité">
+            <span class="stat-number">{nbRetourConformite}</span>
             <span class="stat-label">Retour à la conformité</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--red-marianne-main-472);">{nbNonConforme}</span>
+          <div class="chiffre-item non-conforme">
+            <span class="stat-number">{nbNonConforme}</span>
             <span class="stat-label">Non conforme</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: #000;">{nbTropTard}</span>
+          <div class="chiffre-item trop-tard">
+            <span class="stat-number">{nbTropTard}</span>
             <span class="stat-label">Trop tard</span>
           </div>
-          <div class="chiffre-item">
-            <span class="stat-number" style="color: var(--text-disabled-grey);">{nbAutre}</span>
+          <div class="chiffre-item autre">
+            <span class="stat-number">{nbAutre}</span>
             <span class="stat-label">Autre</span>
           </div>
         </div>
 
-        <div class="fr-progress-bar fr-mt-2w bar-conformite" style="height: 1.5rem; background: var(--text-disabled-grey; border-radius: 8px; overflow: hidden; display: flex;">
-          <div style="width: {pctConformiteInitiale}%; background: var(--success-425-625); height: 100%; transition: width 0.5s;"></div>
-          <div style="width: {pctRetourConformite}%; background: var(--green-emeraude-950-100-active); height: 100%; transition: width 0.5s;"></div>
-          <div style="width: {pctNonConforme}%; background: var(--red-marianne-main-472); height: 100%; transition: width 0.5s;"></div>
-          <div style={`width: ${pctTropTard}%; background: #000; height: 100%; transition: width 0.5s;`}></div>
+        <div class="fr-progress-bar fr-mt-2w bar-conformite">
+          <div class="conformité-initiale" style:width="{pctConformiteInitiale}%"></div>
+          <div class="retour-à-la-conformité" style:width="{pctRetourConformite}%"></div>
+          <div class="non-conforme" style:width="{pctNonConforme}%"></div>
+          <div class="trop-tard" style:width="{pctTropTard}%"></div>
         </div>
 
         <div class="legend-conformite">
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--success-425-625);"></span><span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--green-emeraude-950-100-active);"></span><span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--red-marianne-main-472);"></span><span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: #000;"></span><span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span></div>
-          <div class="legend-conformite-item"><span class="legend-conformite-dot" style="background: var(--text-disabled-grey);"></span><span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span></div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot conformité-initiale"></span>
+            <span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot retour-à-la-conformité"></span>
+            <span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot non-conforme"></span>
+            <span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot trop-tard"></span>
+            <span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
+          </div>
+          <div class="legend-conformite-item">
+            <span class="legend-conformite-dot autre"></span>
+            <span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -78,6 +87,13 @@
 </section>
 
 <style lang="scss">
+  $couleur-conformité-initiale: var(--success-425-625);
+  $couleur-retour-à-la-conformité: var(--green-emeraude-950-100-active);
+  $couleur-non-conforme: var(--red-marianne-main-472);
+  $couleur-trop-tard: var(--grey-50-1000);
+  $couleur-autre: var(--text-disabled-grey);
+
+
   .stat-conformite-card {
     border: 1.5px solid var(--border-default-grey);
     border-radius: 12px;
@@ -87,56 +103,125 @@
     margin: 0 -16px 2.5rem -16px;
     padding: 2.5rem 2rem 2rem 2rem;
   }
+
   .chiffres-conformite {
     text-align: center;
     display: flex;
     justify-content: space-around;
     width: 100%;
     margin-bottom: 2rem;
+
+    .chiffre-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 0.5rem;
+      background: none;
+      border-radius: 8px;
+      margin: 0 0.5rem;
+      box-shadow: none;
+      min-width: 120px;
+
+      .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-default-info);
+        margin-bottom: 0.25rem;
+        letter-spacing: 0.01em;
+      }
+
+      &.conformité-initiale .stat-number{
+        color: $couleur-conformité-initiale;
+      }
+      &.retour-à-la-conformité .stat-number{
+        color: $couleur-retour-à-la-conformité;
+      }
+      &.non-conforme .stat-number{
+        color: $couleur-non-conforme;
+      }
+      &.trop-tard .stat-number{
+        color: $couleur-trop-tard;
+      }
+      &.autre .stat-number{
+        color: $couleur-autre;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        color: var(--text-mention-grey);
+        margin-top: 0.15rem;
+        font-weight: 500;
+      }
+    }
+
   }
-  .chiffre-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 0.5rem;
-    background: none;
-    border-radius: 8px;
-    margin: 0 0.5rem;
-    box-shadow: none;
-    min-width: 120px;
-  }
-  .stat-number {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--text-default-info);
-    margin-bottom: 0.25rem;
-    letter-spacing: 0.01em;
-  }
-  .stat-label {
-    font-size: 1rem;
-    color: var(--text-mention-grey);
-    margin-top: 0.15rem;
-    font-weight: 500;
-  }
+  
+  
+
+  
   .bar-conformite {
+    display: flex;
     margin: 1.5rem 0 2rem 0;
     box-shadow: none;
-    background: var(--background-alt-grey);
+    background: $couleur-autre;
     border-radius: 8px;
+
+    height: 1.5rem;
+
+    & > div{
+      height: 100%; 
+      transition: width 0.5s;
+    }
+
+    .conformité-initiale{
+      background: $couleur-conformité-initiale;
+    }
+    .retour-à-la-conformité{
+      background: $couleur-retour-à-la-conformité;
+    }
+    .non-conforme{
+      background: $couleur-non-conforme;
+    }
+    .trop-tard{
+      background: $couleur-trop-tard;
+    }
+
   }
+  
+  
   .legend-conformite {
     font-size: small;
+
+    .legend-conformite-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+      border: 2px solid var(--border-default-grey);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+
+
+      &.conformité-initiale{
+        background: $couleur-conformité-initiale;
+      }
+      &.retour-à-la-conformité{
+        background: $couleur-retour-à-la-conformité;
+      }
+      &.non-conforme{
+        background: $couleur-non-conforme;
+      }
+      &.trop-tard{
+        background: $couleur-trop-tard;
+      }
+      &.autre{
+        background: $couleur-autre;
+      }
+    }
   }
-  .legend-conformite .legend-conformite-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 0.5rem;
-    border: 2px solid var(--border-default-grey);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  }
+  
+
   @media (max-width: 900px) {
     .stat-conformite-card {
       padding: 1.5rem 0.5rem 1rem 0.5rem;

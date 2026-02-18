@@ -253,7 +253,7 @@
         <legend class="fr-sr-only">Filtrer…</legend>
         <div class="filtres-et-compteur-dossiers">
             <div class="filtres">
-                <div class="fr-select-group">
+                <div class="fr-select-group filtre-par-phase">
                     <label class="fr-label" for="select-phase"> Filtrer par phase </label>
                     <select bind:value={phaseSélectionnée} onchange={sélectionnerPhase} aria-label="Phase choisie" class="fr-select select-phase" id="select-phase" name="select-phase">
                         <option value="" selected>Toutes les phases</option>
@@ -265,7 +265,7 @@
                     {#if afficherFiltreSansInstructeurice}
                         <button
                             type="button"
-                            class="fr-tag"
+                            class="fr-tag filtre-sans-instructeurice"
                             onclick={toggleFiltreSansInstructeurice}
                             aria-pressed={tousLesFiltres.has('sansInstructeurice')}
                         >
@@ -283,7 +283,7 @@
                         </button>
                     {/if}
             </div>
-            <p>
+            <p class="compteur">
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
             </p>
         </div>
@@ -336,7 +336,7 @@
     .en-tête {
         display: flex;
         flex-direction: column;
-        margin-top: 2rem;
+        margin-top: 1rem;
 
         .titre-et-barre-de-recherche {
             display: flex;
@@ -354,11 +354,26 @@
             }
         }
 
+        .compteur {
+            margin-bottom: .25rem;
+        }
+
+        .filtre-par-phase{
+            margin-bottom: 0;
+            @media (max-width: 768px) {
+                margin-bottom: 1rem;
+            }
+        }
+
+        .filtre-sans-instructeurice {
+            margin-bottom: .25rem;
+        }
+
         .filtres-et-compteur-dossiers {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            align-items: center;
+            align-items: end;
 
             @media (max-width: 768px) {
                 flex-direction: column;
@@ -370,7 +385,7 @@
                 display: flex;
                 flex-direction: row;
                 gap: 1rem;
-                align-items: center;
+                align-items: end;
 
                 @media (max-width: 768px) {
                     flex-direction: column;
@@ -390,6 +405,7 @@
     .titre-page {
         font-size: 1rem;
         font-weight: normal;
+        margin-bottom: 0;
     }
 
     .titre-page:focus {
