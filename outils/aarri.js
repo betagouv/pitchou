@@ -27,7 +27,7 @@ const évènements = await getÉvènementsForPersonne(email)
 const évènementsCount = await getÉvènementsCountForPersonne(email)
 
 console.log(`✅ Résultats :`)
-console.log('Cette personne a enregistré', évènements.length, ' ','évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
+console.log('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
 
 // Création du fichier ODS pour stocker les résultats
 const évènementsFormattésPourODS = évènements.map( ({ date, évènement, détails } ) => ([
@@ -120,7 +120,7 @@ const nomDuFichier = `donnees-aarri${(prénom!='' || nom!=='') ? `-${prénom}-${
 async function créerFichierODS() {
   try {
     console.log('📝 Création du fichier ODS avec les résultats...')
-    await writeFile(`./${nomDuFichier}`, Buffer.from(ods));
+    await writeFile(`./résultats-aarri/${nomDuFichier}`, Buffer.from(ods));
     console.log(`✅ Le fichier ${nomDuFichier} a bien été créé !`)
   } catch (err) {
     console.log(err);
