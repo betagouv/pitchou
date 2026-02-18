@@ -51,7 +51,7 @@ BEGIN
     SELECT personne_id, unnest(dossier_ids[1:4]);
 
     -- Notification : Seuls les 2 premiers dossiers ont une notification non vue.
-    INSERT INTO "notification" (personne, dossier, vue, updated_at)
+    INSERT INTO "notification" (personne, dossier, vue, date)
     VALUES (personne_id, dossier_ids[1], 'false', date '2026-02-15'),
     (personne_id, dossier_ids[2], 'false', date '2026-02-17');
 

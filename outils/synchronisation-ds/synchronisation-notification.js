@@ -41,17 +41,17 @@ export async function mettreÀjourNotification(dossiersDN, dossierIdByDN_number,
 
         if (personnesSuivantCeDossier && personnesSuivantCeDossier.length>=1) {
             personnesSuivantCeDossier.forEach((personneSuivantCeDossier) => notifications.push(
-                {dossier: dossierId, personne: personneSuivantCeDossier.personne, updated_at: dossierDN.dateDerniereModification, vue: false}
+                {dossier: dossierId, personne: personneSuivantCeDossier.personne, date: dossierDN.dateDerniereModification, vue: false}
             ))
         }
     }
     
     // Mettre à jour la table notification.
-    // Si la date updated_at a changé, alors on écrase la notification existante.
+    // Si la date date a changé, alors on écrase la notification existante.
     // Sinon, on ignore (on ne veut pas mettre à jour le champ "vue" si la modification a déjà été vue).
     return laTransactionDeSynchronisationDS('notification')
         .insert(notifications)
         .onConflict(['dossier', 'personne'])
         .merge()
-        .whereRaw('notification.updated_at IS DISTINCT FROM EXCLUDED.updated_at');
+        .whereRaw('notification.date IS DISTINCT FROM EXCLUDED.date');
 }

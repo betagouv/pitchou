@@ -782,7 +782,7 @@ const optsNotificationsPost = {
         vue: {
           type: 'boolean'
         },
-        updated_at: {
+        date: {
           type: 'string'
         },
       },

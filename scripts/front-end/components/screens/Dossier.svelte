@@ -74,7 +74,7 @@
      * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
      * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
      * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
-     * @property {Pick<Notification, "vue" | "updated_at">} [notification]
+     * @property {Pick<Notification, "vue" | "date">} [notification]
      */
 
     /** @type {Props} */

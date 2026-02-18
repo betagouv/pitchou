@@ -6,7 +6,7 @@ export async function up(knex) {
   await knex.schema.createTable('notification', function (table) {
         table.uuid('id').primary().defaultTo(knex.fn.uuid());
 
-        table.dateTime('updated_at').defaultTo(knex.fn.now()).comment("Date à laquelle la notification a été mise à jour pour la dernière fois")
+        table.dateTime('date').defaultTo(knex.fn.now()).comment("Date à laquelle la notification a été mise à jour pour la dernière fois")
 
         table.boolean('vue').notNullable().defaultTo(false).comment("Indique si la personne a consulté ou non la notification")
 
@@ -22,11 +22,11 @@ export async function up(knex) {
     });
 
     await knex.raw(`
-        INSERT INTO notification (personne, dossier, updated_at, vue)
+        INSERT INTO notification (personne, dossier, date, vue)
 SELECT
     personne, 
     dossier, 
-    NOW() AS updated_at, 
+    NOW() AS date, 
     TRUE AS vue
 FROM arête_personne_suit_dossier;`)
 };
