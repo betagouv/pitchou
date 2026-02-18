@@ -264,7 +264,8 @@ Pour nettoyer tous les évènements concernant une personne spécifique :
 Pour nettoyer tous les évènements plus vieux que x semaines
 
 `docker exec tooling node outils/supprimer-evenements.js --conserver-dernières-semaines 20`
-#### Extraction de données pour une personne
+
+#### Création d'un fichier ODS avec les données d'une personne spécifique
 
 Extraire les données AARRI d'une personne spécifique dans un fichier ODS
 
