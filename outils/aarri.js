@@ -6,11 +6,6 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../scripts/front-end/affichageDossier.js';
 import { extraireNomDunMail } from '../scripts/front-end/actions/importDossierUtils.js';
 
-const DATABASE_URL = process.env.DATABASE_URL
-if(!DATABASE_URL){
-  throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
-}
-
 const args = parseArgs(process.argv)
 
 if (!args.email) {
@@ -121,7 +116,7 @@ async function créerFichierODS() {
   try {
     console.log('📝 Création du fichier ODS avec les résultats...')
     await writeFile(`./résultats-aarri/${nomDuFichier}`, Buffer.from(ods));
-    console.log(`✅ Le fichier ${nomDuFichier} a bien été créé !`)
+    console.log(`✅ Le fichier ${nomDuFichier} a bien été créé dans ./résultats-arri !`)
   } catch (err) {
     console.log(err);
   }
