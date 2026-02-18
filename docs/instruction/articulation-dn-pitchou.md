@@ -7,7 +7,7 @@ Pitchou (le projet) repose principalement sur deux morceaux techniques : Démarc
 
 ## État des lieux et futur
 
-L'équipe Pitchou a fait ce choix au début de la [phase de construction](https://doc.incubateur.net/communaute/gerer-son-produit/la-vie-du-produit/construction) pour des raisons techniques/économique : refaire un formulaire prendrait du temps et nous préférons passer ce temps à faire des choses qui ajoutent plus de valeur aux instructrices ()
+L'équipe Pitchou a fait ce choix au début de la [phase de construction](https://doc.incubateur.net/communaute/gerer-son-produit/la-vie-du-produit/construction) pour des raisons techniques/économique : refaire un formulaire prendrait du temps et nous préférons passer ce temps à faire des choses qui ajoutent plus de valeur aux instructrices
 
 **À court terme**, nous allons garder cette architecture "bi-céphale". Nous avons conscience de la pénibilité que cette situation transitoire amène aux instructrices
 
