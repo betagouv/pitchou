@@ -1,7 +1,7 @@
 //@ts-check
 import {writeFile} from 'node:fs/promises'
 import parseArgs from 'minimist'
-import { getPremièreSemaineActivéFromÉvènements, getÉvènementsCountForPersonne, getÉvènementsForPersonne } from '../scripts/server/database/aarri/utils.js';
+import {getÉvènementsCountForPersonne, getÉvènementsForPersonne } from '../scripts/server/database/aarri/utils.js';
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../scripts/front-end/affichageDossier.js';
 import { extraireNomDunMail } from '../scripts/front-end/actions/importDossierUtils.js';
@@ -25,14 +25,9 @@ console.log(`Début des Calculs des données AARRI.`)
 
 const évènements = await getÉvènementsForPersonne(email)
 const évènementsCount = await getÉvènementsCountForPersonne(email)
-const premièreSemaineActive = getPremièreSemaineActivéFromÉvènements(évènements)
 
 console.log(`✅ Résultats :`)
 console.log('Cette personne a enregistré', évènements.length, ' ','évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
-
-console.log(`📊 Données sur les phases AARRI :`)
-console.log('Première semaine active : ', formatDateAbsolue(premièreSemaineActive))
-
 
 // Création du fichier ODS pour stocker les résultats
 const évènementsFormattésPourODS = évènements.map( ({ date, évènement, détails } ) => ([
