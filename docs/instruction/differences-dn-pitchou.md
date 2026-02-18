@@ -116,7 +116,7 @@ Les échanges qui ont leur sur DN sont récupérés dans Pitchou et rendus acces
 
 Il n'est pas possible de pouvoir répondre à un message depuis Pitchou. Il faut aller sur la messagerie DN pou répondre.
 
-L'équipe Pitchou n'a pas encore de position claire sur si nous souhaitons garder/encourager une fonctionnalité de messagerie dans Pitchou. Le travail d'instruction est souvent très lié à l'usage d'emails pour la communication.
+L'équipe Pitchou n'a pas encore de position claire concernant le maintien ou le développement d'une fonctionnalité de messagerie au sein de Pitchou. Le travail d'instruction est souvent très lié à l'usage d'emails pour la communication.
 Nous avons déjà conscience d'une limitation de la messagerie de DN qui est qu'elle ne permet pas de mettre quelqu'un en copie d'un message facilement
 
 Une option envisagée est de créer une adresse email par dossier, par exemple `dossier-123456@pitchou.beta.gouv.fr`. Cette adresse pourrait être mise en copie de chaque échange avec le pétitionnaire et les messages envoyés à cette adresse seraient affichés dans l'onglet "Échange" du dossier. Si une personne a oublié de mettre l'adresse en copie, n'importe qui peut transférer un email à cette adresse a posteriori. 
