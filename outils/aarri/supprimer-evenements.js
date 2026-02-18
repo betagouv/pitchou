@@ -1,8 +1,8 @@
 import parseArgs from 'minimist'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { closeDatabaseConnection } from '../scripts/server/database.js';
-import {supprimerÉvènementsAvantTelleDate, supprimerÉvènementsParEmail} from '../scripts/server/database/évènements_métriques.js';
+import { closeDatabaseConnection } from '../../scripts/server/database.js';
+import {supprimerÉvènementsAvantTelleDate, supprimerÉvènementsParEmail} from '../../scripts/server/database/évènements_métriques.js';
 import {subWeeks} from 'date-fns';
 
 const args = parseArgs(process.argv)
