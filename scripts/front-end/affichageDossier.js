@@ -96,6 +96,7 @@ export function formatPorteurDeProjet(dossier){
  * Formate une date JavaScript selon un format spécifié, en utilisant la locale française.
  *
  * Si la date est `null` ou `undefined`, la fonction retourne la chaîne "(date inconnue)".
+ * Par défaut, le format demandé est : 'd MMMM yyyy'
  *
  * @param {Date | string | undefined | null} date
  * @param {string} [formatDemandé]

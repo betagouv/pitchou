@@ -1,6 +1,9 @@
+/** @import {Knex} from 'knex' */
+/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
+/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
+
 import {directDatabaseConnection} from '../database.js'
 
-/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
 
 /**
  * @param {string} cap
@@ -24,4 +27,29 @@ export async function ajouterÉvènementDepuisCap(cap, évènement) {
             détails: 'détails' in évènement ? évènement.détails : null,
             personne: personne.id
         })
+}
+
+
+/**
+ * 
+ * @param {NonNullable<Personne['email']>} email
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<number>}
+ */
+export async function supprimerÉvènementsParEmail(email, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_métrique')
+        .join('personne', {'personne.id': 'évènement_métrique.personne'})
+        .where({email: email})
+        .delete()
+}
+/**
+ * 
+ * @param {Date} date
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<number>}
+ */
+export async function supprimerÉvènementsAvantTelleDate(date, databaseConnection = directDatabaseConnection){
+    return databaseConnection('évènement_métrique')
+        .where('date', '<', date)
+        .delete()
 }

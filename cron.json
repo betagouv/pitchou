@@ -3,6 +3,10 @@
       {
         "command": "*/10 * * * * node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees",
         "size": "L"
+      },
+      {
+        "command": "0 23 * * 0 node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 50",
+        "size": "S"
       }
     ]
 }

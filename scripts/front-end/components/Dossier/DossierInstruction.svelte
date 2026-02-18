@@ -180,19 +180,7 @@
 <section class="row">
 
     <section>
-        <div class="historique-entête">
-            <h2 class="historique-titre">Historique</h2>
-            <div class="historique-actions">
-                <button 
-                    type="button" 
-                    class="fr-btn fr-btn--icon-left fr-icon-attachment-line" 
-                    aria-controls={idModaleAjouterPieceJointe}
-                    data-fr-opened="false"
-                >
-                    Ajouter une pièce jointe
-                </button>
-            </div>
-        </div>
+        <h2>Historique</h2>
         <ol>
         {#each dossier.évènementsPhase as {phase, horodatage}}
             <li>
@@ -354,22 +342,6 @@
     .col {
         display: flex;
         flex-direction: column;
-    }
-
-    .historique-entête {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-
-    .historique-titre {
-        margin: 0;
-    }
-
-    .historique-actions {
-        display: flex;
-        gap: 0.5rem;
     }
 
 </style>

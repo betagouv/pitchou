@@ -1,0 +1,124 @@
+//@ts-check
+import parseArgs from 'minimist'
+import { getÉvènementsForPersonne } from '../../scripts/server/database/aarri/utils.js';
+import {createOdsFile} from '@odfjs/odfjs'
+import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
+import { closeDatabaseConnection } from '../../scripts/server/database.js';
+
+/**
+ * stdout doit être réservé à l'écriture du fichier.
+ * les console.error permettent d'écrire des messages sans aller dans le sdtout
+ */
+
+const args = parseArgs(process.argv)
+
+if (!args.email) {
+    console.error(`Il manque le paramètre --email`);
+    process.exit(1)
+}
+
+const email = args.email
+
+console.error(`Mail de la personne concernée : ${email}`)
+console.error(`Début des Calculs des données AARRI.`)
+
+const évènements = await getÉvènementsForPersonne(email)
+const évènementsCount = Map.groupBy(évènements, ({ évènement }) => évènement )
+
+console.error(`✅ Résultats :`)
+console.error('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
+
+// Création du fichier ODS pour stocker les résultats
+const évènementsFormattésPourODS = évènements.map( ({ date, évènement, détails } ) => ([
+    {
+      value: formatDateAbsolue(date, 'dd/MM/yyyy'),
+      type: 'string'
+    }, 
+    {
+      value: évènement,
+      type: 'string'
+    },
+    {
+      value: détails ? JSON.stringify(détails) : ' ',
+      type: 'string'
+    }
+]));
+
+const headerÉvènements = [[
+  {
+    value: "Date de l'évènement",
+    type: 'string'
+  },
+  {
+    value: 'Évènement',
+    type: 'string'
+  },
+  {
+    value: "Détails concernant l'évènement",
+    type: 'string'
+  }
+]]
+const évènementCountsFormattésPourODS = [...évènementsCount].map( ([ nomÉvènement, évènements ]) => ([
+    {
+      value: nomÉvènement,
+      type: 'string'
+    },
+    {
+      value: évènements.length,
+      type: 'number'
+    },
+]));
+
+
+const headerÉvènementsCount = [[
+{
+  value: 'Évènement',
+  type: 'string'
+},
+{
+  value: "Nombre de fois que l'évènement a été enregistré",
+  type: 'string'
+}]]
+
+const aujourdhui = new Date()
+
+const content = new Map([
+    [
+      'Informations',
+        [
+          [
+            {
+              value: `Les données ont été calculées le ${formatDateAbsolue(aujourdhui)}`,
+              type: 'string'
+            }
+          ],
+          [
+            {
+              value: `Mail de la personne concernée : ${email}`,
+              type: 'string'
+            }
+          ],
+        ]
+    ],
+    [
+        'Évènements',
+        [...headerÉvènements, ...évènementsFormattésPourODS]
+    ],
+    [
+        "Évènements avec count",
+        [...headerÉvènementsCount, ...évènementCountsFormattésPourODS]
+    ]
+])
+
+/** @type {ArrayBuffer} */
+const ods = await createOdsFile(content)
+
+try {
+    console.error('📝 Création du fichier ODS avec les résultats...')
+    process.stdout.write(Buffer.from(ods))
+    console.error(`✅ Le fichier a bien été écrit sur stdout !`)
+  } catch (err) {
+    console.error(err);
+}
+
+closeDatabaseConnection()
