@@ -12,7 +12,7 @@ export default interface Notification {
   id: NotificationId;
 
   /** Date à laquelle la notification a été mise à jour pour la dernière fois */
-  updated_at: Date | null;
+  date: Date | null;
 
   /** Indique si la personne a consulté ou non la notification */
   vue: boolean;
@@ -31,7 +31,7 @@ export interface NotificationInitializer {
    * Date à laquelle la notification a été mise à jour pour la dernière fois
    * Default value: CURRENT_TIMESTAMP
    */
-  updated_at?: Date | null;
+  date?: Date | null;
 
   /**
    * Indique si la personne a consulté ou non la notification
@@ -49,7 +49,7 @@ export interface NotificationMutator {
   id?: NotificationId;
 
   /** Date à laquelle la notification a été mise à jour pour la dernière fois */
-  updated_at?: Date | null;
+  date?: Date | null;
 
   /** Indique si la personne a consulté ou non la notification */
   vue?: boolean;
