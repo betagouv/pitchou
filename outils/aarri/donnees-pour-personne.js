@@ -1,6 +1,6 @@
 //@ts-check
 import parseArgs from 'minimist'
-import {getÉvènementsCountForPersonne, getÉvènementsForPersonne } from '../../scripts/server/database/aarri/utils.js';
+import { getÉvènementsForPersonne } from '../../scripts/server/database/aarri/utils.js';
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
@@ -23,7 +23,7 @@ console.error(`Mail de la personne concernée : ${email}`)
 console.error(`Début des Calculs des données AARRI.`)
 
 const évènements = await getÉvènementsForPersonne(email)
-const évènementsCount = await getÉvènementsCountForPersonne(email)
+const évènementsCount = Map.groupBy(évènements, ({ évènement }) => évènement )
 
 console.error(`✅ Résultats :`)
 console.error('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
@@ -58,13 +58,13 @@ const headerÉvènements = [[
     type: 'string'
   }
 ]]
-const évènementCountsFormattésPourODS = évènementsCount.map( ({ évènement, count } ) => ([
+const évènementCountsFormattésPourODS = [...évènementsCount].map( ([ nomÉvènement, évènements ]) => ([
     {
-      value: évènement,
+      value: nomÉvènement,
       type: 'string'
     },
     {
-      value: count,
+      value: évènements.length,
       type: 'number'
     },
 ]));

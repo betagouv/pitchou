@@ -26,27 +26,3 @@ export async function getÉvènementsForPersonne(email) {
 
     return évènements
 }
-
-/**
- * @param {Personne['email']} email
- * @returns {Promise<{évènement: string, count: number}[]>} 
- */
-export async function getÉvènementsCountForPersonne(email) {
-    const requêteSQL = await directDatabaseConnection('personne')
-        .select('id')
-        .where('email', '=', email)
-
-    if (!(requêteSQL && Array.isArray(requêteSQL) && requêteSQL.length >=1 && requêteSQL[0].id)) {
-        throw new Error(`Aucun id n'a été trouvé pour l'email ${email}.`)
-    }
-
-    const personneId = requêteSQL[0].id
-    
-    const évènementsCount = await directDatabaseConnection('évènement_métrique')
-        .select('évènement')
-        .count('évènement')
-        .where('personne', '=', personneId)
-        .groupBy('évènement')
-
-    return évènementsCount.map((row) => ({ évènement: String(row.évènement), count: Number(row.count)}) )
-}
