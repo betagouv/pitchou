@@ -96,7 +96,7 @@ mais si vous passez un dossier en instruction sur Pitchou, **il restera en const
 
 #### Annotations privées
 
-DN possède une fonctionnalité "d'annotations privées" qui sont accessibles uniquement aux instructeur.rices d'un dossier
+DN possède une fonctionnalité "d'annotations privées" qui est accessible uniquement aux instructeur.rices d'un dossier.
 
 Par le passé, nous avons utilisé cette fonctionnalité pour permettre aux instructrices de saisir des données liées au travail d'instruction (commentaire libre, numéro Onagre, saisines/avis CNPN/CSRPN). Nous déplaçons progressivement ces fonctionnalités dans Pitchou
 
@@ -114,7 +114,7 @@ D'ici fin 2026, ces avis seront récupérés dans Pitchou
 
 Les échanges qui ont leur sur DN sont récupérés dans Pitchou et rendus accessibles via l'onglet "Échanges" de chaque dossier
 
-Il n'est pas possible de pouvoir répondre à un message depuis Pitchou. Il faut aller sur la messagerie DN pou répondre
+Il n'est pas possible de pouvoir répondre à un message depuis Pitchou. Il faut aller sur la messagerie DN pou répondre.
 
 L'équipe Pitchou n'a pas encore de position claire sur si nous souhaitons garder/encourager une fonctionnalité de messagerie dans Pitchou. Le travail d'instruction est souvent très lié à l'usage d'emails pour la communication.
 Nous avons déjà conscience d'une limitation de la messagerie de DN qui est qu'elle ne permet pas de mettre quelqu'un en copie d'un message facilement
