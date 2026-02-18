@@ -2,7 +2,7 @@
 
 A titre liminaire, il convient de préciser que : 
 -  En régime propre, Pitchou n'affiche que l'état de l'instruction concernant la procédure de dérogation à la réglementation espèces protégées, pas l'instruction des PC, PA, déclarations etc...
--  En Autorisation environnementale, Pitchou afiche l'état de l'instruction de l'autorisation environementale dans sa globalité.
+-  En Autorisation environnementale, Pitchou affiche l'état de l'instruction de l'autorisation environementale dans sa globalité.
 
 ## **En régime propre**
 Le dossier se trouve dans une des phases suivantes :
