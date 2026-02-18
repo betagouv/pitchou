@@ -12,6 +12,8 @@
     import {espècesImpactéesDepuisFichierOdsArrayBuffer} from '../../actions/dossier.js';
     import { envoyerÉvènement } from '../../actions/aarri.js';
     import debounce from 'just-debounce-it';
+    import { onMount } from 'svelte'
+	import { updateNotificationForDossier } from '../../actions/notification.js'
 
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
@@ -90,6 +92,10 @@
         15 * 60 * 1000,
         true
     )
+
+    onMount(() => { 
+        updateNotificationForDossier({ dossier: dossier.id, vue: true })
+     })
 
     $effect(() => {
         if (ongletActif === 'projet') {
