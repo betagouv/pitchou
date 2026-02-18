@@ -180,7 +180,7 @@
 <section class="row">
 
     <section>
-        <h2 class="historique-titre">Historique</h2>
+        <h2>Historique</h2>
         <ol>
         {#each dossier.évènementsPhase as {phase, horodatage}}
             <li>
