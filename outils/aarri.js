@@ -45,23 +45,25 @@ const évènementsFormattésPourODS = évènements.map( ({ date, évènement, d�
       type: 'string'
     },
     {
-      value: détails ? JSON.stringify(détails) : '',
+      value: détails ? JSON.stringify(détails) : ' ',
       type: 'string'
     }
 ]));
 
-const headerÉvènements = [[{
-  value: 'date',
-  type: 'string'
-}],
-[{
-  value: 'évènement',
-  type: 'string'
-}],
-[{
-  value: 'détails',
-  type: 'string'
-}]]
+const headerÉvènements = [[
+  {
+    value: "Date de l'évènement",
+    type: 'string'
+  },
+  {
+    value: 'Évènement',
+    type: 'string'
+  },
+  {
+    value: "Détails concernant l'évènement",
+    type: 'string'
+  }
+]]
 const évènementCountsFormattésPourODS = évènementsCount.map( ({ évènement, count } ) => ([
     {
       value: évènement,
@@ -73,22 +75,50 @@ const évènementCountsFormattésPourODS = évènementsCount.map( ({ évènement
     },
 ]));
 
+
+const headerÉvènementsCount = [[
+{
+  value: 'Évènement',
+  type: 'string'
+},
+{
+  value: "Nombre de fois que l'évènement a été enregistré",
+  type: 'string'
+}]]
+
+const { prénom, nom } = extraireNomDunMail(email)
+const aujourdhui = new Date()
+
 const content = new Map([
     [
-        'évènements',
+      'Informations',
+        [
+          [
+            {
+              value: `Les données ont été calculées le ${formatDateAbsolue(aujourdhui)}`,
+              type: 'string'
+            }
+          ],
+          [
+            {
+              value: `Mail de la personne concernée : ${email}`,
+              type: 'string'
+            }
+          ],
+        ]
+    ],
+    [
+        'Évènements',
         [...headerÉvènements, ...évènementsFormattésPourODS]
     ],
     [
-        "évènements_count",
-        évènementCountsFormattésPourODS
+        "Évènements avec count",
+        [...headerÉvènementsCount, ...évènementCountsFormattésPourODS]
     ]
 ])
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
-
-const { prénom, nom } = extraireNomDunMail(email)
-const aujourdhui = new Date()
 
 const nomDuFichier = `donnees-aarri${(prénom!='' || nom!=='') ? `-${prénom}-${nom}` : ''}-${formatDateAbsolue(aujourdhui,'dd-MM-yyyy')}.ods`
 
