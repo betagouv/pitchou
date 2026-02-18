@@ -6,6 +6,11 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../scripts/front-end/affichageDossier.js';
 import { extraireNomDunMail } from '../scripts/front-end/actions/importDossierUtils.js';
 
+/**
+ * stdout doit être réservé à l'écriture du fichier.
+ * les console.error permettent d'écrire des messages sans aller dans le sdtout
+ */
+
 const args = parseArgs(process.argv)
 
 if (!args.email) {
@@ -15,14 +20,14 @@ if (!args.email) {
 
 const email = args.email
 
-console.log(`Mail de la personne concernée : ${email}`)
-console.log(`Début des Calculs des données AARRI.`)
+console.error(`Mail de la personne concernée : ${email}`)
+console.error(`Début des Calculs des données AARRI.`)
 
 const évènements = await getÉvènementsForPersonne(email)
 const évènementsCount = await getÉvènementsCountForPersonne(email)
 
-console.log(`✅ Résultats :`)
-console.log('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
+console.error(`✅ Résultats :`)
+console.error('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
 
 // Création du fichier ODS pour stocker les résultats
 const évènementsFormattésPourODS = évènements.map( ({ date, évènement, détails } ) => ([
@@ -114,11 +119,11 @@ const nomDuFichier = `donnees-aarri${(prénom!='' || nom!=='') ? `-${prénom}-${
 
 async function créerFichierODS() {
   try {
-    console.log('📝 Création du fichier ODS avec les résultats...')
+    console.error('📝 Création du fichier ODS avec les résultats...')
     await writeFile(`./résultats-aarri/${nomDuFichier}`, Buffer.from(ods));
-    console.log(`✅ Le fichier ${nomDuFichier} a bien été créé dans ./résultats-arri !`)
+    console.error(`✅ Le fichier ${nomDuFichier} a bien été créé dans ./résultats-arri !`)
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 await créerFichierODS();
