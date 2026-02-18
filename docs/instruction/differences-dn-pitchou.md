@@ -54,7 +54,7 @@ Quand un pétitionnaire met à jour son dossier, les éléments mis à jour sont
 
 DN et Pitchou proposent tous les deux de suivre un dossier
 
-**ces fonctionnalités sont complètement séparées et ne sont pas synchronisées**
+**Ces fonctionnalités sont complètement séparées et ne sont pas synchronisées.**
 
 Ainsi,
 Si vous suivez un dossier sur DN, ce dossier n'est pas suivi sur Pitchou
