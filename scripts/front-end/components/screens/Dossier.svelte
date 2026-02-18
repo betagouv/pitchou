@@ -100,7 +100,7 @@
     onMount(() => {
         if (notification?.vue === false) {
             // Quand le dossier a une notification non vue par l'instructrice actuelle,
-            // alors elle disparaît au moment de la consultation du dossier.
+            // elle disparaît au moment de la consultation du dossier.
             updateNotificationForDossier({ dossier: dossier.id, vue: true })
         }
      })
