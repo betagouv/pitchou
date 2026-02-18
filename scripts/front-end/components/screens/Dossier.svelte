@@ -15,11 +15,13 @@
     import { onMount } from 'svelte'
 	import { updateNotificationForDossier } from '../../actions/notification.js'
 
+
     /** @import {ComponentProps} from 'svelte' */
     /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
     /** @import {Onglet} from '../../routes/Dossier.js' */
     /** @import Personne from '../../../types/database/public/Personne.js' */
+    /** @import Notification from '../../../types/database/public/Notification.js' */
 
     /**
      * @param {Onglet} nouvelOnglet
@@ -72,6 +74,7 @@
      * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
      * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
      * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
+     * @property {Pick<Notification, "vue" | "updated_at">} [notification]
      */
 
     /** @type {Props} */
@@ -82,7 +85,8 @@
         email,
         résultatsSynchronisationDS88444,
         personnesQuiSuiventDossier,
-        dossierActuelSuiviParInstructeurActuel
+        dossierActuelSuiviParInstructeurActuel,
+        notification,
     } = $props();
 
     $inspect('Dossier complet', dossier)
@@ -93,8 +97,12 @@
         true
     )
 
-    onMount(() => { 
-        updateNotificationForDossier({ dossier: dossier.id, vue: true })
+    onMount(() => {
+        if (notification?.vue === false) {
+            // Quand le dossier a une notification non vue par l'instructrice actuelle,
+            // alors elle disparaît au moment de la consultation du dossier.
+            updateNotificationForDossier({ dossier: dossier.id, vue: true })
+        }
      })
 
     $effect(() => {
