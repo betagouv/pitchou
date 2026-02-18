@@ -4,32 +4,7 @@
 
 import { eachWeekOfInterval } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
-
-/** @type {ÉvènementMétrique['type'][]} */
-const ÉVÈNEMENTS_CONSULTATIONS= [
-    'rechercherDesDossiers',
-    'afficherLesDossiersSuivis',
-    'consulterUnDossier',
-    'téléchargerListeÉspècesImpactées'
-]
-
-/** @type {ÉvènementMétrique['type'][]} */
-const ÉVÈNEMENTS_MODIFICATIONS = [
-    'suivreUnDossier',
-    'modifierCommentaireInstruction', 
-    'changerPhase', 
-    'changerProchaineActionAttendueDe', 
-    'ajouterDécisionAdministrative', 
-    'modifierDécisionAdministrative', 
-    'supprimerDécisionAdministrative',
-    'ajouterPrescription',
-    'modifierPrescription',
-    'supprimerPrescription',
-    'ajouterContrôle',
-    'modifierContrôle',
-    'supprimerContrôle'
-]
-
+import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -39,7 +14,7 @@ const ÉVÈNEMENTS_MODIFICATIONS = [
 
 /**
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
- * Une personne acquise pendant est une personne qui s'est connectée au moins une fois.
+ * Une personne acquise est une personne qui s'est connectée au moins une fois.
  * 
  * @param {number} nbSemainesObservées
  *
@@ -179,25 +154,14 @@ limit :nb_semaines_observees;
 
 /**
  * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
- * Une personne active pendant est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
  * 
  * @param {number} nbSemainesObservées
  *
  * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
 */
 async function calculerIndicateurActif(nbSemainesObservées) {
-
-    /** @type {ÉvènementMétrique['type'][]} */
-    const évènementsModifications = [
-        'modifierCommentaireInstruction', 
-        'changerPhase', 
-        'changerProchaineActionAttendueDe', 
-        'ajouterDécisionAdministrative', 
-        'modifierDécisionAdministrative', 
-        'supprimerDécisionAdministrative'
-    ]
-    
-    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènementsModifications, 5)
+    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, ÉVÈNEMENTS_MODIFICATIONS, 5)
 }
 
 
