@@ -9,7 +9,25 @@ Un dossier se trouve dans une des phases suivantes :
         - Si aucune DDEP n'est nécessaire, l'instructeur passe le dossier en phase "Classé sans suite" dans Pitchou,
         - Si une DDEP est nécessaire, le pétitionnaire complète sa demande, et celle-ci passe en phase "Etude de recevabilité DDEP".
 - "**Étude recevabilité DDEP**"
-    - Pendant cette phase, le service instructeur évalue le caractère "**complet et régulier**" du dossier et peut demander des compléments. Cette phase vaut surtout pour les dossiers en **Autorisation Environnementale**, dans le cadre de la Loi "Industrie verte".
+    - Pendant cette phase, le service instructeur évalue le caractère "**complet et régulier**" du dossier et peut demander des compléments. 
+    - Lorsque l'instructeur estime que le dossier est complet, il le fait passer dans Pitchou en phase "Instruction".
+- "**Instruction**"
+    - Le passage en phase d'instruction se fait sous Pitchou, via une action de l'instructeur. Elle concerne toutes les étapes de l'instruction : saisine CSRPN/CNPN, consultation du public, etc. jusqu'à ce qu'une décision administraive soit prise :
+         - si la dérogation est **accordée**, l'instructeur fait passer le dossier en phase "Contrôle" dans Pitchou et joint l'arrêté dans l'onglet "Contrôle".
+         - si la dérogation est **refusée**, l'instructeur fait passer le dossier en phase "Contrôle" dans Pitchou et joint l'arrêté de refus dans l'onglet "Contrôle".
+         - s'il apparaît lors de l'instruction que les mesures E, R et A sont suffisantes et qu'une DDEP n'est pas nécessaire, l'instructeur le formalise via un document (mail, courrier, Arrêté prescrivant les mesures E, R, A et suivi conformémment à la loi DDADUE), ilfait passer le dossier enphase "Contrôle" dans Pitchou et joint la décision admnistrative. 
+- "**Contrôle**"
+    - Une fois la dérogation accordée, les mesures prescrites peuvent faire l'objet de contrôles pendant toute la durée de vie de l'arrêté. À la fin de la vie de l'arrêté, la dossier passe en phase "Obligations terminées",
+- "**Obligations terminées**"
+    - Dans cette situation, le pétitionnaire n'a plus d'obligations.
+- "**Classé sans suite**"
+    - Cette phase a lieu après la phase amont, notammentsi le pétitionnaire abandonne son projet et donc sa DDEP, etc.
+
+## **En Autorisation environnementale (AE)**
+Un dossier se trouve dans une des phases suivantes :
+
+- "**Étude recevabilité DDEP**"
+    - Pendant cette phase, le service instructeur évalue le caractère "**complet et régulier**" du dossier et peut demander des compléments. 
     - Lorsque l'instructeur estime que le dossier est complet, il le fait passer dans DN en phase...
 - "**Instruction**"
     - Le passage en phase d'instruction se fait sous DN, via une action de l'instructeur. **Le dossier ne peut alors plus être modifié** et toutes les étapes de l'instruciton peuvent avoir lieu : 
@@ -23,10 +41,6 @@ Un dossier se trouve dans une des phases suivantes :
     - Dans cette situation, le pétitionnaire n'a plus d'obligations. Cette phase concerne également les cas où un AP de refus a été publié suite à l'instruction.
 - "**Classé sans suite**"
     - Cette phase a lieu après la phase amont, si l'instructeur a conclu qu'une DDEP n'est pas nécessaire, ou si le pétitionnaire abandonne son projet et donc sa DDEP, etc.
-
-## **En Autorisation environnementale (AE)**
-Un dossier se trouve dans une des phases suivantes :
-
 
 NB: Dans le schéma ci-dessous, "Démarche Numérique" est mentionné sous son ancien nom "Démarches Simplifiées"
 ![Tableau récapitulatif](phases_pitchou.png)
