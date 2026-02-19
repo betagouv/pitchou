@@ -4,7 +4,7 @@
  */
 export async function up(knex) {
     await knex.schema.alterTable('fichier', (table) => {
-        table.integer('taille')
+        table.bigint('taille')
     })
 
     await knex.raw(`UPDATE fichier SET taille = length(contenu)`)
