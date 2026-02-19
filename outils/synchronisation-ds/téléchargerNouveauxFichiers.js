@@ -11,6 +11,7 @@ import téléchargerFichierDS from './téléchargerFichierDS.js';
 
 /** @import {DossierDS88444, DSFile} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
+/** @import {StorageBackend} from '../../scripts/types/fichier.ts' */
 /** @import {Knex} from 'knex' */
 
 /** @typedef {Omit<Fichier, 'id' | 'contenu' | 'taille'> & {url: string}} FichierÀTélécharger */
@@ -60,10 +61,10 @@ function DScontentTypeToActualMediaType({contentType, filename}){
  *
  * @param {Map<DossierDS88444['number'], DSFile[]>} candidatsFichiers
  * @param {Knex.Transaction | Knex} [transaction]
- * @param {boolean} [storeInObjectStorage]
+ * @param {StorageBackend} [fileStorageBackend]
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
-export default async function téléchargerNouveauxFichiers(candidatsFichiers, storeInObjectStorage, transaction){
+export default async function téléchargerNouveauxFichiers(candidatsFichiers, fileStorageBackend, transaction){
     /** @type {Map<DossierDS88444['number'], FichierÀTélécharger[]>} */
     const candidatsFichiersBDD = new Map(
         [...candidatsFichiers].map(([number, fichiers]) => {
@@ -152,7 +153,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, s
                 `(${byteSize(fichierBDD.contenu?.byteLength)})`
             )
 
-            return ajouterFichier(fichierBDD, storeInObjectStorage, transaction)
+            return ajouterFichier(fichierBDD, {databaseConnection: transaction, storageBackend: fileStorageBackend})
                 .then(f => f.id)
         }))
         .then(fichiersTéléchargés => {

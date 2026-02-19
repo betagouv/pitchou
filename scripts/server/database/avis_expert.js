@@ -23,8 +23,8 @@ function estUnAvisExpertÀModifier(avisExpert) {
  */
 export async function ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis, databaseConnection = directDatabaseConnection) {
     try {
-        const fichierSaisineAjoutéP = fichierSaisine ? ajouterFichier(fichierSaisine, true, databaseConnection) : Promise.resolve()
-        const fichierAvisAjoutéP = fichierAvis ? ajouterFichier(fichierAvis, true, databaseConnection) : Promise.resolve()
+        const fichierSaisineAjoutéP = fichierSaisine ? ajouterFichier(fichierSaisine, { databaseConnection }) : Promise.resolve()
+        const fichierAvisAjoutéP = fichierAvis ? ajouterFichier(fichierAvis, { databaseConnection }) : Promise.resolve()
 
         const [fichierSaisineAjouté, fichierAvisAjouté] = await Promise.all([fichierSaisineAjoutéP, fichierAvisAjoutéP])
 
@@ -113,7 +113,7 @@ export async function supprimerAvisExpert(avisExpertId, databaseConnection = dir
                 .filter(fichier => fichier !== null)
         })
 
-    return supprimerFichiers(fichierIDs, true, databaseConnection)
+    return supprimerFichiers(fichierIDs, { databaseConnection })
 }
 
 /**
@@ -133,5 +133,5 @@ export async function supprimerAvisExpertDossier(dossier, databaseConnection = d
                 .filter(fichier => fichier !== null)
         })
 
-    return supprimerFichiers(fichierIDs, true, databaseConnection)
+    return supprimerFichiers(fichierIDs, { databaseConnection })
 }

@@ -41,7 +41,7 @@ export async function ajouterDécisionAdministrativeAvecFichier(décision, datab
             contenu
         }
 
-        await ajouterFichier(fichierBDD, true, databaseConnection).then(fichier => {
+        await ajouterFichier(fichierBDD, { databaseConnection }).then(fichier => {
             décisionAdministrativeBDD.fichier = fichier.id
         })
     }
@@ -155,7 +155,7 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
             contenu
         }
 
-        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, true, databaseConnection).then(fichier => {
+        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, { databaseConnection }).then(fichier => {
             décisionAdministrativeBDD.fichier = fichier.id
         })
 
@@ -174,7 +174,7 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
     return Promise.all([fichierIdPrécédentP, décisionAdministrativeÀJourP])
         .then(([fichierIdPrécédent]) => {
             if(fichierIdPrécédent){
-                return supprimerFichier(fichierIdPrécédent, true, databaseConnection)
+                return supprimerFichier(fichierIdPrécédent, { databaseConnection })
             }
         })
 
@@ -194,7 +194,7 @@ export async function supprimerDécisionAdministrative(id, databaseConnection = 
         .then(décisions => décisions[0].fichier)
 
     if (fichierID) {
-        return supprimerFichier(fichierID, true, databaseConnection)
+        return supprimerFichier(fichierID, { databaseConnection })
     }
 }
 
@@ -217,5 +217,5 @@ export async function supprimerDécisionsAdministrativesDossier(dossier, databas
                 .filter(fichier => fichier !== null)
         })
 
-    return supprimerFichiers(fichierIDs, true, databaseConnection)
+    return supprimerFichiers(fichierIDs, { databaseConnection })
 }

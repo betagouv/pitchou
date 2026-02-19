@@ -69,7 +69,10 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     if(fichierIdsEnBDDMaisPlusDansDS.length >= 1){
         // supprimer les fichier
         // les arêtes correspondantes sont supprimées via le ON DELETE CASCADE
-        fichiersOrphelinsNettoyés = supprimerFichiers(fichierIdsEnBDDMaisPlusDansDS.map(f => f.id), true, databaseConnection)
+        fichiersOrphelinsNettoyés = supprimerFichiers(
+            fichierIdsEnBDDMaisPlusDansDS.map(f => f.id),
+            { databaseConnection }
+        )
     }
 
 
@@ -108,5 +111,5 @@ export async function supprimerPiècesJointesDossier(dossier, databaseConnection
                 .filter(fichier => fichier !== null)
         })
 
-        return supprimerFichiers(fichierIDs, true, databaseConnection)
+        return supprimerFichiers(fichierIDs, { databaseConnection })
 }

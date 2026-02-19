@@ -20,7 +20,7 @@ export async function téléchargerNouveauxFichiersFromChampId(dossiers, champDe
     if(candidatsFichiers.size >= 1){
         return téléchargerNouveauxFichiers(
             candidatsFichiers,
-            true,
+            'objectStorage',
             laTransactionDeSynchronisationDS
         )
     }
@@ -51,7 +51,7 @@ export async function téléchargerNouveauxFichiersEspècesImpactées(dossiers, 
 
         return téléchargerNouveauxFichiers(
             candidatsFichiersEspècesImpactéesUnParChamp,
-            false,
+            'sqlDatabase',
             laTransactionDeSynchronisationDS
         )
         .then(nouveauxFichiers => {
@@ -87,7 +87,7 @@ export async function téléchargerNouveauxFichiersMotivation(dossiers, laTransa
 
         return téléchargerNouveauxFichiers(
             candidatsFichiersMotivationPourTéléchargement,
-            true,
+            'objectStorage',
             laTransactionDeSynchronisationDS
         )
         .then(nouveauxFichiers => {

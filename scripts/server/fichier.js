@@ -1,5 +1,5 @@
 /** @import {default as Fichier} from '../types/database/public/Fichier.ts' */
-/** @import { Knex } from 'knex' **/
+/** @import {StorageOptions} from '../types/fichier.ts' */
 
 import * as db from './database/fichier.js'
 import * as objectStorage from './object-storage/fichier.js'
@@ -9,14 +9,19 @@ import { directDatabaseConnection } from './database.js'
 /**
  *
  * @param {Partial<Fichier>} fichier
- * @param {boolean} [storeInObjectStorage]
- * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @param {StorageOptions} [options]
  * @returns {Promise<Partial<Fichier>>}
  */
-export async function ajouterFichier(fichier, storeInObjectStorage = true, databaseConnection = directDatabaseConnection){
+export async function ajouterFichier(
+    fichier,
+    {
+        storageBackend = 'objectStorage',
+        databaseConnection = directDatabaseConnection
+    } = {}
+){
     fichier.taille = fichier.contenu?.byteLength
 
-    if (storeInObjectStorage) {
+    if (storageBackend === 'objectStorage') {
         const contenu = fichier.contenu
         const nouveauFichier = await db.ajouterFichier(
             {...fichier, contenu: null },
@@ -31,12 +36,17 @@ export async function ajouterFichier(fichier, storeInObjectStorage = true, datab
 
 /**
  * @param {Fichier['id']} id
- * @param {boolean} [storeInObjectStorage]
- * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @param {StorageOptions} [options]
  * @returns {Promise<Partial<Fichier>>}
  */
-export async function supprimerFichier(id, storeInObjectStorage = true, databaseConnection = directDatabaseConnection){
-    if (storeInObjectStorage) {
+export async function supprimerFichier(
+    id,
+    {
+        storageBackend = 'objectStorage',
+        databaseConnection = directDatabaseConnection
+    } = {}
+){
+    if (storageBackend === 'objectStorage') {
         const fichier = await db.supprimerFichier(id, databaseConnection)
         await objectStorage.supprimerFichier(fichier)
         return fichier
@@ -47,12 +57,17 @@ export async function supprimerFichier(id, storeInObjectStorage = true, database
 
 /**
  * @param {Fichier['id'][]} ids
- * @param {boolean} [storeInObjectStorage]
- * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @param {StorageOptions} [options]
  * @returns {Promise<Partial<Fichier>[]>}
  */
-export async function supprimerFichiers(ids, storeInObjectStorage = true, databaseConnection = directDatabaseConnection){
-    if (storeInObjectStorage) {
+export async function supprimerFichiers(
+    ids,
+    {
+        storageBackend = 'objectStorage',
+        databaseConnection = directDatabaseConnection
+    } = {}
+){
+    if (storageBackend === 'objectStorage') {
         const fichiers = await db.supprimerFichiers(ids, databaseConnection)
         await objectStorage.supprimerFichiers(fichiers)
         return fichiers
