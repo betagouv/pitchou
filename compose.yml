@@ -4,6 +4,7 @@ services:
     container_name: node_server
     depends_on:
       - db
+      - object_storage
     restart: on-failure:3
     ports:
       - "2648:2648"
@@ -16,20 +17,7 @@ services:
       DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
     user: "${DOCKER_UID}:${DOCKER_GID}"
     stop_grace_period: 2s
-
-  tooling:
-    image: node:22
-    container_name: tooling
-    depends_on:
-      - db
-    volumes:
-      - ./:/app
-    working_dir: /app
-    command: sleep 365d
-    environment:
-      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
-    user: "${DOCKER_UID}:${DOCKER_GID}"
-    stop_grace_period: 1s
+    profiles: [dev]
 
   db:
     image: postgres:15.7
@@ -43,7 +31,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       - ./backups:/var/lib/pitchou/backups
 
   pgadmin:
@@ -60,3 +48,24 @@ services:
       PGADMIN_CONFIG_SERVER_HEARTBEAT_TIMEOUT: 3600 # secondes = une heure
     restart: unless-stopped
     stop_grace_period: 2s
+
+  object_storage:
+    image: local/garage
+    build:
+      context: dev
+      dockerfile: garage.Dockerfile
+
+    container_name: garage
+    volumes:
+      - garage:/var/lib/garage
+      - ./dev:/workspace
+      - ./.env:/env
+    ports:
+      - 3900:3900
+      - 3901:3901
+      - 3902:3902
+      - 3903:3903
+
+volumes:
+  pgdata:
+  garage:

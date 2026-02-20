@@ -1,6 +1,7 @@
 import {directDatabaseConnection} from '../database.js'
+import { getFichierUrl } from '../object-storage/fichier.js';
 
-import {ajouterFichier, supprimerFichier} from './fichier.js'
+import {ajouterFichier, supprimerFichier, supprimerFichiers} from '../fichier.js'
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as Dossier} from '../../../scripts/types/database/public/Dossier.ts' */
@@ -15,8 +16,8 @@ const inutile = true;
 
 
 /**
- * 
- * @param {DécisionAdministrativePourTransfer} décision 
+ *
+ * @param {DécisionAdministrativePourTransfer} décision
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Fichier['id']>}
  */
@@ -40,7 +41,7 @@ export async function ajouterDécisionAdministrativeAvecFichier(décision, datab
             contenu
         }
 
-        await ajouterFichier(fichierBDD, databaseConnection).then(fichier => {
+        await ajouterFichier(fichierBDD, { databaseConnection }).then(fichier => {
             décisionAdministrativeBDD.fichier = fichier.id
         })
     }
@@ -53,8 +54,8 @@ export async function ajouterDécisionAdministrativeAvecFichier(décision, datab
 
 
 /**
- * 
- * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions 
+ *
+ * @param {Omit<DécisionAdministrative, 'id'> | Omit<DécisionAdministrative, 'id'>[]} décisions
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Map<Dossier['id'], Fichier['id'][]>>}
  */
@@ -68,23 +69,39 @@ export function ajouterDécisionsAdministratives(décisions, databaseConnection 
 }
 
 
-
 /**
- * 
- * @param {Dossier['id']} dossierId 
+ *
+ * @param {Dossier['id']} dossierId
  * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<DécisionAdministrative[]>}
+ * @returns {Promise<Omit<FrontEndDécisionAdministrative, 'prescriptions'>[]>}
  */
 export function getDécisionAdministratives(dossierId, databaseConnection = directDatabaseConnection){
     return databaseConnection('décision_administrative')
-        .select('*')
+        .select(['décision_administrative.*', 'fichier.nom as fichier_nom', 'fichier.media_type as fichier_media_type'])
         .where({dossier: dossierId})
+        .leftJoin('fichier', {'décision_administrative.fichier': 'fichier.id'})
+        .then(décisions => Promise.all(décisions.map(
+            ({fichier_nom, fichier_media_type, ...décision}) => {
+                if (décision.fichier) {
+                    return getFichierUrl({
+                        id: décision.fichier,
+                        nom: fichier_nom,
+                        media_type: fichier_media_type,
+                    }).then((fichier_url) => ({
+                        fichier_url,
+                        ...décision
+                    }))
+                } else {
+                    return { fichier_url: undefined, ...décision}
+                }
+        })))
 }
+
 
 /**
  * Récupère les décisions administratives pour chaque dossier
- * 
- * @param {CapDossier['cap']} cap_dossier 
+ *
+ * @param {CapDossier['cap']} cap_dossier
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<FrontEndDécisionAdministrative[]>}
  */
@@ -93,15 +110,15 @@ export function getDécisionsAdministratives(cap_dossier, databaseConnection = d
         .select('décision_administrative.*')
         .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'décision_administrative.dossier'})
         .join(
-            'arête_cap_dossier__groupe_instructeurs', 
+            'arête_cap_dossier__groupe_instructeurs',
             {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
         )
         .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier})
 }
 
 /**
- * 
- * @param {DécisionAdministrativePourTransfer} décisionAdministrative 
+ *
+ * @param {DécisionAdministrativePourTransfer} décisionAdministrative
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
@@ -138,7 +155,7 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
             contenu
         }
 
-        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, databaseConnection).then(fichier => {
+        décisionAdministrativePrêteP = ajouterFichier(fichierBDD, { databaseConnection }).then(fichier => {
             décisionAdministrativeBDD.fichier = fichier.id
         })
 
@@ -157,20 +174,48 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
     return Promise.all([fichierIdPrécédentP, décisionAdministrativeÀJourP])
         .then(([fichierIdPrécédent]) => {
             if(fichierIdPrécédent){
-                return supprimerFichier(fichierIdPrécédent, databaseConnection)
+                return supprimerFichier(fichierIdPrécédent, { databaseConnection })
             }
         })
 
 }
 
 /**
- * 
- * @param {DécisionAdministrative['id']} id 
+ *
+ * @param {DécisionAdministrative['id']} id
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
-    return databaseConnection('décision_administrative')
+export async function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
+    const fichierID = await databaseConnection('décision_administrative')
         .delete()
         .where({id})
+        .returning(['fichier'])
+        .then(décisions => décisions[0].fichier)
+
+    if (fichierID) {
+        return supprimerFichier(fichierID, { databaseConnection })
+    }
+}
+
+/**
+ *
+ * @param {Dossier['id'] | Dossier['id'][]} dossier
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<any>}
+ */
+export async function supprimerDécisionsAdministrativesDossier(dossier, databaseConnection = directDatabaseConnection){
+    const dossierÀSupprimer = Array.isArray(dossier) ? dossier : [dossier]
+
+    const fichierIDs = await databaseConnection('décision_administrative')
+        .delete()
+        .whereIn('dossier', dossierÀSupprimer)
+        .returning(['fichier'])
+        .then(décisions => {
+            return décisions
+                .map(décision => décision.fichier)
+                .filter(fichier => fichier !== null)
+        })
+
+    return supprimerFichiers(fichierIDs, { databaseConnection })
 }

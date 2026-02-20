@@ -2,7 +2,8 @@ import {extname} from 'node:path';
 import byteSize from 'byte-size'
 import {HTTPError} from 'ky'
 
-import { ajouterFichier, trouverFichiersExistants } from '../../scripts/server/database/fichier.js';
+import { trouverFichiersExistants } from '../../scripts/server/database/fichier.js';
+import { ajouterFichier } from '../../scripts/server/fichier.js';
 import { makeFichierHash } from '../../scripts/server/database/fichier.js';
 
 import téléchargerFichierDS from './téléchargerFichierDS.js';
@@ -10,9 +11,10 @@ import téléchargerFichierDS from './téléchargerFichierDS.js';
 
 /** @import {DossierDS88444, DSFile} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
 /** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
+/** @import {StorageBackend} from '../../scripts/types/fichier.ts' */
 /** @import {Knex} from 'knex' */
 
-/** @typedef {Omit<Fichier, 'id' | 'contenu'> & {url: string}} FichierÀTélécharger */
+/** @typedef {Omit<Fichier, 'id' | 'contenu' | 'taille'> & {url: string}} FichierÀTélécharger */
 
 
 const openDocumentTypes = new Map([
@@ -35,13 +37,13 @@ const openDocumentTypes = new Map([
 
 /**
  * Contournement de https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/11175
- * 
- * @param {Pick<DSFile, 'contentType' | 'filename'>} contentType 
+ *
+ * @param {Pick<DSFile, 'contentType' | 'filename'>} contentType
  * @return {string}
  */
 function DScontentTypeToActualMediaType({contentType, filename}){
     const extension = extname(filename)
-    
+
     if(contentType === 'application/zip'){
         const type = openDocumentTypes.get(extension)
         if(type)
@@ -56,12 +58,13 @@ function DScontentTypeToActualMediaType({contentType, filename}){
 /**
  * Cette fonction lance les téléchargements, sauvegade les fichiers en base de données
  * et retourne l'association entre le dossier et les Fichier['id'] correspondants
- * 
- * @param {Map<DossierDS88444['number'], DSFile[]>} candidatsFichiers 
+ *
+ * @param {Map<DossierDS88444['number'], DSFile[]>} candidatsFichiers
  * @param {Knex.Transaction | Knex} [transaction]
+ * @param {StorageBackend} [fileStorageBackend]
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
-export default async function téléchargerNouveauxFichiers(candidatsFichiers, transaction){
+export default async function téléchargerNouveauxFichiers(candidatsFichiers, fileStorageBackend, transaction){
     /** @type {Map<DossierDS88444['number'], FichierÀTélécharger[]>} */
     const candidatsFichiersBDD = new Map(
         [...candidatsFichiers].map(([number, fichiers]) => {
@@ -80,7 +83,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
     // Chercher dans la base de données les fichiers que nous avons déjà et qui ressemblent aux candidats
     const fichiersDéjaEnBDD = await trouverFichiersExistants(
-        [...candidatsFichiersBDD.values()].flat(), 
+        [...candidatsFichiersBDD.values()].flat(),
         transaction
     )
 
@@ -107,12 +110,12 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
     // Télécharger les fichiers et les mettre directement en base de données
     /** @type {Promise<ReturnMapEntryData | undefined>[]} */
-    
+
     // @ts-ignore
     const retMapDataPs = [...fichiersÀTélécharger].map(([number, fichiers]) => {
         return Promise.all(fichiers.map(async fichier => {
             const {url} = fichier
-            /** @type {Omit<Fichier, 'id'>} */
+            /** @type {Omit<Fichier, 'id' | 'taille'>} */
             let fichierBDD;
 
             try {
@@ -124,8 +127,8 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
                     DS_createdAt,
                     media_type,
                     nom,
-                    contenu: Buffer.from(contenu) // knex n'accepte que les Buffer node, pas les ArrayBuffer
-                } 
+                    contenu: Buffer.from(contenu) // knex n'accepte que les Buffer node, pas les ArrayBuffer,
+                }
 
             } catch (err) {
                 if(err instanceof HTTPError){
@@ -133,8 +136,8 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
                 }
                 else{
                     console.error(
-                        `Erreur lors du téléchargement d'un fichier`, url, 
-                        `dossier DS`, number, 
+                        `Erreur lors du téléchargement d'un fichier`, url,
+                        `dossier DS`, number,
                         // @ts-ignore
                         err.message, err.cause ? `cause: ${err.cause?.message}` : ''
                     );
@@ -145,12 +148,12 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
             console.log(
                 `Dossier DS`, number,
-                `- Téléchargement et stockage fichier '${fichierBDD.nom}'`, 
+                `- Téléchargement et stockage fichier '${fichierBDD.nom}'`,
                 // @ts-ignore
                 `(${byteSize(fichierBDD.contenu?.byteLength)})`
             )
 
-            return ajouterFichier(fichierBDD, transaction)
+            return ajouterFichier(fichierBDD, {databaseConnection: transaction, storageBackend: fileStorageBackend})
                 .then(f => f.id)
         }))
         .then(fichiersTéléchargés => {

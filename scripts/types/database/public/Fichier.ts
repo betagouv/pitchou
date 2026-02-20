@@ -17,6 +17,8 @@ export default interface Fichier {
   DS_checksum: string | null;
 
   DS_createdAt: Date | null;
+
+  taille: number | null;
 }
 
 /** Represents the initializer for the table public.fichier */
@@ -33,6 +35,8 @@ export interface FichierInitializer {
   DS_checksum?: string | null;
 
   DS_createdAt?: Date | null;
+
+  taille?: number | null;
 }
 
 /** Represents the mutator for the table public.fichier */
@@ -48,4 +52,6 @@ export interface FichierMutator {
   DS_checksum?: string | null;
 
   DS_createdAt?: Date | null;
+
+  taille?: number | null;
 }

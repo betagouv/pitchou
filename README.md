@@ -150,7 +150,6 @@ On peut faire un restore en un clic d'un backup dans l'onglet `BACKUPS` du dashb
 Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.scalingo.com/databases/postgresql/restoring)
 
 
-
 ## Outils
 
 ### Migration base de données
@@ -182,12 +181,12 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 depuis le container du serveur
 
-`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees` (dernières heures par défaut)
+`docker compose run --rm -it web node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees` (dernières heures par défaut)
 
-`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
+`docker compose run --rm -it web node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
 
 
-`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
+`docker compose run --rm -it web node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 
 #### En prod
@@ -214,15 +213,15 @@ scalingo --app especes-protegees run --size 2XL 'node outils/sync-démarche-num�
 
 Utile pour tester rapidement en local après un restore de backup en tant qu'une personne en particulier
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
+`docker compose run --rm -it web node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
 
 Pour les lien de connexion en production :
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
+`docker compose run --rm -it web node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
 
 Pour donner l'origine de manière libre :
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
+`docker compose run --rm -it web node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
 
 
 
@@ -231,7 +230,7 @@ Pour donner l'origine de manière libre :
 Pitchou maintient une API pour que GeoMCE puisse récupérer les données que Pitchou doit déclarer
 (GeoMCE ne peut pas ouvrir d'API pour des raisons techniques de leur côté)
 
-Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme 
+Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme
 `/declaration-geomce?secret=XXX`
 
 Un outil permet de récupérer la capability url pour la transmettre aux personnes de GeoMCE :
@@ -251,22 +250,22 @@ Les données de tracking nécessaires à AARRI sont stockées exclusivement dans
 Pour des raisons de minimisation des données, de protection des personnes et de conformité au RGPD, nous supprimons les données datant de plus d’un an.
 
 Nous avons un outil qui permet de faire ça.
-En production : 
+En production :
 `scalingo --app especes-protegees run "node outils/aarri/supprimer-evenements.js"`
 
-En dev : 
-`docker exec tooling node outils/aarri/supprimer-evenements.js`
+En dev :
+`docker compose run --rm -it web node outils/aarri/supprimer-evenements.js`
 
-Pour nettoyer tous les évènements concernant une personne spécifique : 
+Pour nettoyer tous les évènements concernant une personne spécifique :
 
-`docker exec tooling node outils/aarri/supprimer-evenements.js --email david@example.net`
+`docker compose run --rm -it web node outils/aarri/supprimer-evenements.js --email david@example.net`
 
 Pour nettoyer tous les évènements plus vieux que x semaines
 
-`docker exec tooling node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
+`docker compose run --rm -it web node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
 
 #### Création d'un fichier ODS avec les données d'une personne spécifique
 
 Extraire les données AARRI d'une personne spécifique dans un fichier ODS
 
-`docker exec tooling node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net' > données-aarri.ods`
+`docker compose run --rm -it web node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net' > données-aarri.ods`

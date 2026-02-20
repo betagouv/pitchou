@@ -9,12 +9,12 @@ import {directDatabaseConnection} from '../database.js'
 
 /**
  * Fonction qui créé une clef unique pour la valeur de son argument
- * Cette fonction n'utilise pas le fichier.created_at, car cette valeur est modifiée 
+ * Cette fonction n'utilise pas le fichier.created_at, car cette valeur est modifiée
  * de manière non-souhaitée par DN
  * Spécifiquement, quand on a un champ PièceJointe avec plusieurs fichiers, si un fichier est rajouté,
  * les created_at de tous les fichiers sont modifiés à la date de l'ajout du dernier fichier
- * 
- * @param {Partial<Fichier>} fichier 
+ *
+ * @param {Partial<Fichier>} fichier
  * @returns {string}
  */
 export function makeFichierHash(fichier){
@@ -26,11 +26,11 @@ export function makeFichierHash(fichier){
 }
 
 /**
- * Cette fonction n'utilise pas le fichier.created_at, car cette valeur est modifiée 
+ * Cette fonction n'utilise pas le fichier.created_at, car cette valeur est modifiée
  * de manière non-souhaitée par DN
  * Spécifiquement, quand on a un champ PièceJointe avec plusieurs fichiers, si un fichier est rajouté,
- * les created_at de tous les fichiers sont modifiés à la date de l'ajout du dernier fichier 
- * 
+ * les created_at de tous les fichiers sont modifiés à la date de l'ajout du dernier fichier
+ *
  * @param {Partial<Fichier>[]} descriptionsFichier
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Partial<Fichier>[]>}
@@ -43,7 +43,7 @@ export function trouverFichiersExistants(descriptionsFichier, databaseConnection
             ['DS_checksum', 'nom', 'media_type'],
             // @ts-ignore
             descriptionsFichier
-                .map(({DS_checksum, nom, media_type}) => 
+                .map(({DS_checksum, nom, media_type}) =>
                     [DS_checksum, nom, media_type]
                 )
         )
@@ -51,12 +51,12 @@ export function trouverFichiersExistants(descriptionsFichier, databaseConnection
 }
 
 /**
- * 
- * @param {Partial<Fichier>} f 
+ *
+ * @param {Partial<Fichier>} f
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Partial<Fichier>>}
  */
-export function ajouterFichier(f, databaseConnection = directDatabaseConnection){
+export async function ajouterFichier(f, databaseConnection = directDatabaseConnection){
     return databaseConnection('fichier')
         .insert(f)
         .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
@@ -65,7 +65,7 @@ export function ajouterFichier(f, databaseConnection = directDatabaseConnection)
 
 
 /**
- * @param {Fichier['id']} fichierId 
+ * @param {Fichier['id']} fichierId
  * @param {Knex.Transaction | Knex} [databaseConnection]
  */
 export function getFichier(fichierId, databaseConnection = directDatabaseConnection){
@@ -76,11 +76,26 @@ export function getFichier(fichierId, databaseConnection = directDatabaseConnect
 }
 
 /**
- * @param {Fichier['id']} id 
+ * @param {Fichier['id']} id
  * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Partial<Fichier>>}
  */
 export function supprimerFichier(id, databaseConnection = directDatabaseConnection){
     return databaseConnection('fichier')
         .delete()
+        .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
         .where({id})
+        .then(files => files[0])
+}
+
+/**
+ * @param {Fichier['id'][]} ids
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Partial<Fichier>[]>}
+ */
+export function supprimerFichiers(ids, databaseConnection = directDatabaseConnection){
+    return databaseConnection('fichier')
+        .delete()
+        .returning(['id', 'DS_checksum', 'DS_createdAt', 'nom', 'media_type'])
+        .whereIn('id', ids)
 }

@@ -7,11 +7,11 @@ import trouverCandidatsFichiersÀTélécharger from './trouverCandidatsFichiers�
 import téléchargerNouveauxFichiers from './téléchargerNouveauxFichiers.js'
 
 /**
- * 
- * @param {DossierDS88444[]} dossiers 
+ *
+ * @param {DossierDS88444[]} dossiers
  * @param {ChampDescriptor['id']} champDescriptorId
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>} 
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]> | undefined>}
  */
 export async function téléchargerNouveauxFichiersFromChampId(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
     /** @type {Map<DossierDS88444['number'], DSFile[]>} */
@@ -19,7 +19,8 @@ export async function téléchargerNouveauxFichiersFromChampId(dossiers, champDe
 
     if(candidatsFichiers.size >= 1){
         return téléchargerNouveauxFichiers(
-            candidatsFichiers, 
+            candidatsFichiers,
+            'objectStorage',
             laTransactionDeSynchronisationDS
         )
     }
@@ -27,11 +28,11 @@ export async function téléchargerNouveauxFichiersFromChampId(dossiers, champDe
 
 
 /**
- * 
- * @param {DossierDS88444[]} dossiers 
+ *
+ * @param {DossierDS88444[]} dossiers
  * @param {ChampDescriptor['id']} champDescriptorId
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} 
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
  */
 export async function téléchargerNouveauxFichiersEspècesImpactées(dossiers, champDescriptorId, laTransactionDeSynchronisationDS){
 
@@ -49,7 +50,8 @@ export async function téléchargerNouveauxFichiersEspècesImpactées(dossiers, 
         )
 
         return téléchargerNouveauxFichiers(
-            candidatsFichiersEspècesImpactéesUnParChamp, 
+            candidatsFichiersEspècesImpactéesUnParChamp,
+            'sqlDatabase',
             laTransactionDeSynchronisationDS
         )
         .then(nouveauxFichiers => {
@@ -62,10 +64,10 @@ export async function téléchargerNouveauxFichiersEspècesImpactées(dossiers, 
 
 
 /**
- * 
- * @param {DossierDS88444[]} dossiers 
+ *
+ * @param {DossierDS88444[]} dossiers
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} 
+ * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
  */
 export async function téléchargerNouveauxFichiersMotivation(dossiers, laTransactionDeSynchronisationDS){
 
@@ -84,7 +86,8 @@ export async function téléchargerNouveauxFichiersMotivation(dossiers, laTransa
         )
 
         return téléchargerNouveauxFichiers(
-            candidatsFichiersMotivationPourTéléchargement, 
+            candidatsFichiersMotivationPourTéléchargement,
+            'objectStorage',
             laTransactionDeSynchronisationDS
         )
         .then(nouveauxFichiers => {
