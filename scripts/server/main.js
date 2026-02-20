@@ -36,6 +36,7 @@ import { indicateursAARRI } from './database/aarri.js'
 import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
 import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
 import {générerDéclarationGeoMCE} from './database/geomce.js'
+import { getNotificationsPourPersonneDepuisCap, updateNotificationDossierFromCap } from './database/notification.js'
 
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
@@ -48,6 +49,7 @@ import {générerDéclarationGeoMCE} from './database/geomce.js'
 /** @import {default as Contrôle} from '../types/database/public/Contrôle.ts' */
 /** @import {DossierComplet, DécisionAdministrativePourTransfer, FrontEndPrescription} from '../types/API_Pitchou.ts' */
 /** @import Fichier from '../types/database/public/Fichier.ts' */
+/** @import { NotificationInitializer } from '../types/database/public/Notification.ts' */
 
 
 /** @type {SchemaDémarcheSimplifiée} */
@@ -250,6 +252,12 @@ fastify.get('/caps', async function (request, reply) {
   }
   if(capBundle.identité){
     ret.identité = capBundle.identité
+  }
+  if(capBundle.listerNotifications){
+    ret.listerNotifications = `/dossiers/notifications?cap=${capBundle.listerNotifications}`
+  }
+  if(capBundle.updateNotificationForDossier){
+    ret.updateNotificationForDossier = `/dossiers/notifications?cap=${capBundle.updateNotificationForDossier}`
   }
 
 
@@ -726,6 +734,74 @@ fastify.get('/dossiers/relation-suivis', async function(request, reply) {
 
   return relationSuivis
 })
+
+/**
+ * @type {RouteShorthandOptions}
+ * @const
+ */
+const optsNotificationsGet = {
+  schema: {
+    querystring: {
+      type: 'object',
+      required: ['cap'],
+      properties: {
+        cap: { type: 'string' },
+      },
+    },
+  },
+};
+fastify.get('/dossiers/notifications', optsNotificationsGet, async function(request) {
+  // @ts-ignore
+  const { cap } = request.query
+  const notifications = await getNotificationsPourPersonneDepuisCap(cap)
+  return notifications
+})
+
+/**
+ * @type {RouteShorthandOptions}
+ * @const
+ */
+const optsNotificationsPost = {
+  schema: {
+    querystring: {
+      type: 'object',
+      required: ['cap'],
+      properties: {
+        cap: {
+          type: 'string'
+        },
+      },
+    },
+    body: {
+      type: 'object',
+      required: ['dossier'],
+      properties: {
+        dossier: {
+          type: 'number'
+        },
+        vue: {
+          type: 'boolean'
+        },
+        date: {
+          type: 'string'
+        },
+      },
+    }
+  },
+};
+fastify.post('/dossiers/notifications', optsNotificationsPost, async function(request) {
+  // @ts-ignore
+  const { cap } = request.query
+
+  /** @type { NotificationInitializer } */
+  // @ts-ignore
+  const notification = request.body
+
+  const res = await updateNotificationDossierFromCap(cap, notification)
+  console.log(res)
+  return;
+})
+
 
 
 fastify.post('/dossiers/relation-suivis', async function(request, reply) {

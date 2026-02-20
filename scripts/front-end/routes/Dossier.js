@@ -11,7 +11,7 @@ import { replaceComponent } from '../routeComponentLifeCycle.svelte.js'
 import { mapStateToSqueletteProps } from '../mapStateToSqueletteProps.js';
 import Dossier from '../components/screens/Dossier.svelte';
 import {getDossierComplet, chargerMessagesDossier} from '../actions/dossier.js'
-import {chargerRelationSuivi} from '../actions/main.js'
+import {chargerNotificationParDossierPourInstructeurActuel, chargerRelationSuivi} from '../actions/main.js'
 
 
 /**
@@ -34,6 +34,8 @@ function isOngletValide(onglet) {
  * @param {string} [ctx.hash]
  */
 export default async ({params: {dossierId}}) => {
+    chargerNotificationParDossierPourInstructeurActuel()
+
     /** @type {DossierId} */
     // @ts-ignore
     const id = Number(dossierId)
@@ -81,6 +83,8 @@ export default async ({params: {dossierId}}) => {
             ? onglet
             : "instruction";  
 
+        const notification = state.notificationParDossier?.get(dossier.id)
+
         // @ts-ignore
         return {
             ...mapStateToSqueletteProps(state),
@@ -89,6 +93,7 @@ export default async ({params: {dossierId}}) => {
             ongletActifInitial,
             personnesQuiSuiventDossier,
             dossierActuelSuiviParInstructeurActuel,
+            notification,
         }
     }
 

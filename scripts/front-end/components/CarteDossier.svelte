@@ -8,29 +8,34 @@
     /**
      * @typedef Props
      * @property {DossierRésumé} dossier
-     * @property {boolean} [dossierSuiviParInstructeurActuel]
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelSuitDossier
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
+     * @property {boolean} [nouveautéVueParInstructeur]
+     * @property {boolean} [dossierSuiviParInstructeurActuel]
     */
     /** @type {Props}*/
     let { 
             dossier, 
             dossierSuiviParInstructeurActuel, 
             instructeurActuelSuitDossier, 
-            instructeurActuelLaisseDossier 
+            instructeurActuelLaisseDossier,
+            nouveautéVueParInstructeur,
         } = $props()
-
-
 </script>
 
-<div class="carte fr-p-2w">
+<div class="carte fr-p-2w" data-testid='carte-dossier'>
     <div class="en-tête">
-        <h3>
-            <a href={`/dossier/${dossier.id}`} class="fr-link">
-                <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
-                <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
-            </a>
-        </h3>
+        <div class="tag-nouveauté-et-nom-du-projet">
+            {#if nouveautéVueParInstructeur === false}
+                <p class="fr-badge fr-badge--new">Nouveauté</p>
+            {/if}
+            <h3>
+                <a href={`/dossier/${dossier.id}`} class="fr-link">
+                    <span class="truncate">{dossier.nom || '(nom non renseigné)'}</span>
+                    <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
+                </a>
+            </h3>
+        </div>
         <div class="boutons-action">
             {#if dossier.commentaire_libre && dossier.commentaire_libre!==''}
                 {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
@@ -116,6 +121,25 @@
         justify-content: space-between;
         gap: 1rem;
         margin-bottom: .75rem;
+        min-width: 0;
+        align-items:center;
+
+        .tag-nouveauté-et-nom-du-projet {
+            min-width: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: .5rem;
+            @media (max-width: 768px) {
+                flex-direction: column;
+                align-items: unset;
+            }
+        }
+
+        .boutons-action {
+            display: flex;
+            flex-wrap: nowrap;
+        }
 
         h3 {
             margin: 0;
