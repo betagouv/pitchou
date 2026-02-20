@@ -153,10 +153,10 @@
                 <a class="fr-nav__link" href="/">Tableau de suivi</a>
             </li>
             <li class="fr-nav__item">
-                <a class="fr-nav__link" href="/mes-dossiers">Mes dossiers <span class="fr-badge fr-badge--new fr-badge--sm">Nouveau</span></a>
+                <a class="fr-nav__link" href="/mes-dossiers">Mes dossiers <span class="fr-badge fr-badge--new fr-badge--sm">Expérimental</span></a>
             </li>
             <li class="fr-nav__item">
-                <a class="fr-nav__link" href="/tous-les-dossiers">Tous les dossiers <span class="fr-badge fr-badge--new fr-badge--sm">Nouveau</span></a>
+                <a class="fr-nav__link" href="/tous-les-dossiers">Tous les dossiers <span class="fr-badge fr-badge--new fr-badge--sm">Expérimental</span></a>
             </li>
             <li class="fr-nav__item">
                 <a class="fr-nav__link" href="/saisie-especes">Saisie espèces protégées</a>
