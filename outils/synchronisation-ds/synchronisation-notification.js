@@ -41,7 +41,12 @@ export async function mettreÀjourNotification(dossiersDN, dossierIdByDN_number,
 
         if (personnesSuivantCeDossier && personnesSuivantCeDossier.length>=1) {
             personnesSuivantCeDossier.forEach((personneSuivantCeDossier) => notifications.push(
-                {dossier: dossierId, personne: personneSuivantCeDossier.personne, date: dossierDN.dateDerniereModification, vue: false}
+                { 
+                    dossier: dossierId, 
+                    personne: personneSuivantCeDossier.personne, 
+                    date: dossierDN.dateDerniereModification, 
+                    vue: false
+                }
             ))
         }
     }
