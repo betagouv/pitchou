@@ -9,20 +9,7 @@
  * 
  * ### Options
  * - `--fichier, -f` : Chemin vers le fichier tableau de suivi (.ods) - **requis**
- * - `--email, -e` : Email utilisé pour récupérer le lien de connexion 
- *   (défaut : `clemence.fernandez@beta.gouv.fr`)
- * 
- * ### Comportement
- * - URL fixe : `http://127.0.0.1:2648`
- * - Secret récupéré automatiquement via  
- *   `docker exec tooling node outils/afficher-liens-de-connexion.js --emails <email>`
- * - Lancement du navigateur Firefox fourni par Playwright (équivalent Nightly)
- * 
- * ### Exemple
- * ```bash
- * node outils/import-dossiers.js \
- *   --fichier /Users/clemencefernandez/Desktop/pitchou_pas_code/import_corse/24-2B_TDB_DOSSIERS_DEP.ods \
- *   --email clemence.fernandez@beta.gouv.fr
+ * - `--email, -e` : Email utilisé pour récupérer le lien de connexion
  * ```
  */
 
@@ -35,7 +22,12 @@ const BASE_URL = 'http://127.0.0.1:2648';
 
 const args = parseArgs(process.argv);
 const cheminDuDocTableauDeSuivi = args.fichier || args.f;
-const email = args.email || args.e || 'clemence.fernandez@beta.gouv.fr';
+const email = args.email || args.e;
+
+if (!email) {
+    console.error(`Aucun email n'a été renseigné. Un email est nécessaire pour se connecter à l'application Pitchou et avoir accès à la page d'import des dossiers historiques.`)
+    process.exit(1)
+}
 
 if (!cheminDuDocTableauDeSuivi) {
     console.error(`
@@ -75,7 +67,7 @@ console.log(`- URL: ${urlComplète}`);
 console.log(`- Secret généré: ${secret}`);
 
 const browser = await firefox.launch({
-    headless: false,
+    headless: true,
 });
 
 try {
@@ -99,12 +91,32 @@ try {
     await page.locator('input[type="file"]').setInputFiles(cheminDuDocTableauDeSuivi);
     
     await page.waitForSelector('h2', { timeout: 10000 });
-    await page.waitForSelector('table', { timeout: 10000 });
+    await page.waitForSelector('table', { timeout: 10000 }); 
 
     // Récupération des dossiers sans alertes
     const dossiersSansAlertes = page.getByTestId('dossier-sans-alerte(s)');
     const count = await dossiersSansAlertes.count();
-    console.log(`Nombre de dossiers sans alertes trouvés: ${count}`);
+    console.log(`Nombre de dossiers sans alertes trouvés : ${count}`);
+    const lignesDossier = await page.locator('tbody > tr').all()
+    console.log(`Nombre de dossiers à importer sur la première page : ${lignesDossier.length}.`)
+
+    // Déposer le premier dossier
+    const premièreLigneDossier = lignesDossier[0]
+    const locatorDeToutesLesCellules = premièreLigneDossier.locator('td')
+    const locatorsCellules = await locatorDeToutesLesCellules.all()
+
+    const nomDuProjet = await locatorsCellules[0].innerText() // la première colonne d'indice 0 correspond au Nom du projet
+
+    console.log(`Commencement du processus de dépôt du dossier ${nomDuProjet}...`)
+    const boutonPréRemplissage = locatorDeToutesLesCellules.getByRole('button', { name: 'Préparer préremplissage' })
+    await boutonPréRemplissage.click()
+    const boutonCréerDossier = locatorDeToutesLesCellules.getByRole('link', { name: 'Créer dossier'})
+    await boutonCréerDossier.click()
+
+    
+    // Ici, on est dans Démarche Numérique
+    // TODO: continuer le dépôt jusqu'au bout.
+
 
     console.log(`Fin du script d'automatisation`);
     
