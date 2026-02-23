@@ -108,13 +108,46 @@ const content = new Map([
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
+const nomDeFichier = générerRandomString(15) + '.ods'
 
 try {
     console.log('📝 Création du fichier ODS avec les résultats...')
-    writeFile('test.ods', Buffer.from(ods))
+    writeFile(nomDeFichier, Buffer.from(ods))
     console.log(`✅ Le fichier a bien été écrit !`)
   } catch (err) {
     console.log(err);
 }
 
 closeDatabaseConnection()
+
+
+/**
+ * @param {number} longueurString
+ * @returns {string}
+ */
+function générerRandomString(longueurString) {
+  const caractères = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  const indiceDernierCaractère = caractères.length - 1
+
+  let randomString = ''
+
+  for (let i = 0; i < longueurString; i++) {
+    // On calcule au hasard un nombre entier compris entre 0 et indiceDernierCaractère
+    const randomNombre = Math.floor(Math.random() * indiceDernierCaractère)
+
+    const nouveauCaractère = caractères.charAt(randomNombre)
+
+    if (nouveauCaractère === '') {
+      throw new Error('lL caractère aléatoirement trouvé est une chaîne de caractère vide.')
+    }
+
+    randomString += nouveauCaractère
+  }
+
+  if (randomString.length !== longueurString) {
+    throw new Error(`Le nom de fichier construit ("${randomString}") n'a pas ${longueurString} caractères.`)
+  }
+
+  return randomString
+}
+
