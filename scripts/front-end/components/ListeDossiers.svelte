@@ -323,7 +323,7 @@
                         Nouveauté
                     </button>
             </div>
-            <p class="compteur" aria-label='compteur de dossier'>
+            <p class="compteur">
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
             </p>
         </div>
