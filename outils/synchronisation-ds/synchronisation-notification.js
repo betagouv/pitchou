@@ -47,7 +47,7 @@ export async function mettreÀjourNotification(dossiersDN, dossierIdByDN_number,
     }
     
     // Mettre à jour la table notification.
-    // Si la date date a changé, alors on écrase la notification existante.
+    // Si la date a changé, alors on écrase la notification existante.
     // Sinon, on ignore (on ne veut pas mettre à jour le champ "vue" si la modification a déjà été vue).
     return laTransactionDeSynchronisationDS('notification')
         .insert(notifications)
