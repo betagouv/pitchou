@@ -28,7 +28,7 @@ SELECT
     dossier, 
     NOW() AS date, 
     TRUE AS vue
-FROM arête_personne_suit_dossier;`)
+FROM arête_personne_suit_dossier;`);
 
     await knex.schema.createTable('cap_notification', function (table) {
         table.uuid('cap').primary().defaultTo(knex.fn.uuid());
@@ -36,6 +36,10 @@ FROM arête_personne_suit_dossier;`)
         table.foreign('personne_cap')
             .references('code_accès').inTable('personne').onDelete('CASCADE').onUpdate('CASCADE');
     });
+
+    await knex.raw(`
+        insert into "cap_notification" (personne_cap) select code_accès from personne where code_accès is not null;
+    `);
 
 };
 

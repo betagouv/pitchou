@@ -13,11 +13,11 @@ import { directDatabaseConnection } from '../database.js';
  */
 async function getPersonneFromCap(cap) {
     /** @type {Personne} */
-    const personne = await directDatabaseConnection('cap_évènement_métrique')
+    const personne = await directDatabaseConnection('cap_notification')
         .select('*')
         .from('personne')
-        .join('cap_évènement_métrique', {'cap_évènement_métrique.personne_cap': 'personne.code_accès'})
-        .where({'cap_évènement_métrique.cap': cap})
+        .join('cap_notification', {'cap_notification.personne_cap': 'personne.code_accès'})
+        .where({'cap_notification.cap': cap})
         .first()
 
     if (!personne) {

@@ -91,6 +91,12 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
         .first()
         .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
 
+    const notificationP = databaseConnection('cap_notification')
+        .select('cap')
+        .where({personne_cap: code_accès})
+        .first()
+        .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
+
     // Pour le moment, les droits associés à tout un tas de capabilities la même partie secrète
     // de la capability que pour lister les dossiers
     const recupérerDossierCompletP = listerDossiersP
@@ -101,8 +107,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
     const modifierDossierP = listerDossiersP
     const modifierDécisionAdministrativeDansDossierP = listerDossiersP
 
-    const listerNotificationsP = créerÉvènementMetriqueP
-    const updateNotificationP = créerÉvènementMetriqueP
+    const listerNotificationsP = notificationP
+    const updateNotificationP = notificationP
 
     return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, créerÉvènementMetriqueP, identitéP, listerNotificationsP, updateNotificationP])
         .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, créerÉvènementMetrique, identité, listerNotifications, updateNotificationForDossier]) => {
