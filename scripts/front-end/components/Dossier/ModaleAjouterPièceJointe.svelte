@@ -102,7 +102,7 @@
                 const avisExpertÀCréer = {
                     dossier: dossier.id,
                     expert: expert,
-                    date_saisine: new Date()
+                    date_saisine: dateSaisine
                 }
 
                 ajouterUneNouvellePièceJointeP = ajouterOuModifierAvisExpert(avisExpertÀCréer, fichierSaisine, undefined).then(() => refreshDossierComplet(dossier.id).then(() => fermerModale())).catch((e) => messageErreur = e.message || "Une erreur est survenue")
@@ -167,6 +167,8 @@
             window.dsfr(modale).modal.conceal();
         }
     }
+
+    $inspect('dateSaisine', dateSaisine)
 </script>
 
 
