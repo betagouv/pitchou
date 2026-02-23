@@ -6,6 +6,13 @@ import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 import { writeFile } from 'node:fs/promises'
 
+const env = process.env.NODE_ENV
+
+if (!env) {
+  console.error(`Les variables d'environnement ne sont pas définies.`);
+  process.exit(1)
+}
+
 const args = parseArgs(process.argv)
 
 if (!args.email) {
@@ -108,17 +115,33 @@ const content = new Map([
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
-const nomDeFichier = générerRandomString(15) + '.ods'
+const cheminDuFichierODS = générerCheminVersFichierODS(15)
 
 try {
     console.log('📝 Création du fichier ODS avec les résultats...')
-    writeFile(nomDeFichier, Buffer.from(ods))
-    console.log(`✅ Le fichier a bien été écrit !`)
+    writeFile(cheminDuFichierODS, Buffer.from(ods))
+    console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}.`)
   } catch (err) {
     console.log(err);
 }
 
 closeDatabaseConnection()
+
+
+/**
+ * @param {number} longueurNomDuFichier
+ * @returns {string}
+ */
+function générerCheminVersFichierODS(longueurNomDuFichier) {
+  const nomDeFichierODS = générerRandomString(longueurNomDuFichier) + '.ods'
+  let chemin = ''
+  if (env === 'development') {
+    chemin = `./outils/aarri/tmp/${nomDeFichierODS}`
+  } else {
+    chemin = `./tmp/pitchou/${nomDeFichierODS}`
+  }
+  return chemin
+}
 
 
 /**

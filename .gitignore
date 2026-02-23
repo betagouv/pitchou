@@ -22,4 +22,4 @@ docs/Gemfile.lock
 docs/vendor/
 
 test-results/
-résultats-aarri/
+outils/aarri/tmp
