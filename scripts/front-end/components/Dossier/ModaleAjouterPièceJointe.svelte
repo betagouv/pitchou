@@ -168,7 +168,6 @@
         }
     }
 
-    $inspect('dateSaisine', dateSaisine)
 </script>
 
 
