@@ -358,28 +358,30 @@
                                             </div>
                                         {/if}
                                     {/if}
-                                    <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
-                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
-                                        <div class="">
-                                            {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
-                                                {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
-                                                <div class="fr-fieldset__element">
-                                                    <div class="fr-radio-group">
-                                                        <input
-                                                            type="radio"
-                                                            id={idRadio}
-                                                            name="avis-expert-{id}"
-                                                            value={avisOption}
-                                                            bind:group={avis}
-                                                        />
-                                                        <label class="fr-label" for={idRadio}>
-                                                            {avisOption}
-                                                        </label>
+                                    {#if (serviceOuPersonneExperte !== 'Autre expert' && serviceOuPersonneExperte !== null)}
+                                        <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
+                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
+                                            <div class="">
+                                                {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
+                                                    {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
+                                                    <div class="fr-fieldset__element">
+                                                        <div class="fr-radio-group">
+                                                            <input
+                                                                type="radio"
+                                                                id={idRadio}
+                                                                name="avis-expert-{id}"
+                                                                value={avisOption}
+                                                                bind:group={avis}
+                                                            />
+                                                            <label class="fr-label" for={idRadio}>
+                                                                {avisOption}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            {/each}
+                                                {/each}
+                                            </div>
                                         </div>
-                                    </div>
+                                    {/if}
                                     <div class="fr-mt-3w">
                                         <label class="fr-input-group fr-label" for="modale-date-avis-{id}">Date de l'avis</label>
                                         <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
