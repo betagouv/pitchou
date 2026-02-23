@@ -112,7 +112,7 @@
     /** @type {DossierPhase | undefined} */
     let phaseSélectionnée = $state()
 
-    const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
+    const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set())
 
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
