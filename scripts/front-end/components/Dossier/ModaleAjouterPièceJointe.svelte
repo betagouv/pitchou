@@ -360,7 +360,7 @@
                                             </div>
                                         {/if}
                                     {/if}
-                                    {#if (serviceOuPersonneExperte !== 'Autre expert' && serviceOuPersonneExperte !== null)}
+                                    {#if (serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN')}
                                         <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
                                             <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
                                             <div class="">
