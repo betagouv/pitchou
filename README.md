@@ -269,4 +269,4 @@ Pour nettoyer tous les évènements plus vieux que x semaines
 
 Extraire les données AARRI d'une personne spécifique dans un fichier ODS
 
-`docker exec tooling node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net' > données-aarri.ods`
+`docker exec tooling node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net'`
