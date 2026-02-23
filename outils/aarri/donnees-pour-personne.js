@@ -118,38 +118,3 @@ try {
 }
 
 closeDatabaseConnection()
-
-
-/**
- * @param {number} longueurNomFichier
- * @returns {string}
- */
-function générerRandomNomDeFichier(longueurNomFichier) {
-  const caractères = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  const indiceDernierCaractère = caractères.length - 1
-
-  let nomDeFichier = ''
-
-  for (let i = 0; i < longueurNomFichier; i++) {
-    // On calcule au hasard un nombre entier compris entre 0 et indiceDernierCaractère
-    const randomNombre = Math.floor(Math.random() * indiceDernierCaractère)
-
-    const nouveauCaractère = caractères.charAt(randomNombre)
-
-    if (nouveauCaractère === '') {
-      throw new Error('lL caractère aléatoirement trouvé est une chaîne de caractère vide.')
-    }
-
-    nomDeFichier += nouveauCaractère
-  }
-
-  if (nomDeFichier.length !== longueurNomFichier) {
-    throw new Error(`Le nom de fichier construit ("${nomDeFichier}") n'a pas ${longueurNomFichier} caractères.`)
-  }
-
-  return nomDeFichier
-}
-
-console.log('test 15', générerRandomNomDeFichier(15))
-console.log('test 2', générerRandomNomDeFichier(2))
-console.log('test 5', générerRandomNomDeFichier(5))
