@@ -10,7 +10,7 @@ const inutile = 'que pour éviter un //@ts-ignore sur les imports ci-dessus'
 /**
  * 
  * @param {DossierDS88444[]} dossiersDN
- * @param {Map<number, DossierId>} dossierIdByDN_number
+ * @param {Map<DossierDS88444['number'], DossierId>} dossierIdByDN_number
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<any | void>}
  */
