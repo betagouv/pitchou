@@ -23,11 +23,26 @@ export async function ajouterFichier(
 
     if (storageBackend === 'objectStorage') {
         const contenu = fichier.contenu
+
+        // Crée un nouveau SAVEPOINT si une transaction existe déjà
+        // Dans ce cas rollback() revient au savepoint et commit() RELEASE le SAVEPOINT
+        const transaction = await databaseConnection.transaction()
+
         const nouveauFichier = await db.ajouterFichier(
             {...fichier, contenu: null },
-            databaseConnection
+            transaction
         )
-        await objectStorage.ajouterFichier({ ...nouveauFichier, contenu })
+
+        try  {
+            await objectStorage.ajouterFichier({ ...nouveauFichier, contenu })
+        } catch (e) {
+            console.warn(`Erreur lors de la création du fichier ${fichier.nom} dans le stockage objet: ${e}`)
+            transaction.rollback()
+            throw e
+        }
+
+        transaction.commit()
+
         return nouveauFichier
     } else {
         return db.ajouterFichier(fichier, databaseConnection)
@@ -48,7 +63,11 @@ export async function supprimerFichier(
 ){
     if (storageBackend === 'objectStorage') {
         const fichier = await db.supprimerFichier(id, databaseConnection)
-        await objectStorage.supprimerFichier(fichier)
+        try {
+            await objectStorage.supprimerFichier(fichier)
+        } catch (e) {
+            console.warn(`Erreur lors de la suppression du fichier ${id} dans le stockage objet: ${e}`)
+        }
         return fichier
     } else {
         return db.supprimerFichier(id, databaseConnection)
@@ -69,7 +88,11 @@ export async function supprimerFichiers(
 ){
     if (storageBackend === 'objectStorage') {
         const fichiers = await db.supprimerFichiers(ids, databaseConnection)
-        await objectStorage.supprimerFichiers(fichiers)
+        try {
+            await objectStorage.supprimerFichiers(fichiers)
+        } catch (e) {
+            console.warn(`Erreur lors de la suppression des fichiers ${ids.join(', ')} dans le stockage objet: ${e}`)
+        }
         return fichiers
     } else {
         return db.supprimerFichiers(ids, databaseConnection)
