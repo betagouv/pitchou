@@ -11,7 +11,7 @@
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelSuitDossier
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
      * @property {boolean} [nouveautéVueParInstructeur]
-     * @property {boolean} [dossierSuiviParInstructeurActuel]
+     * @property {boolean} dossierSuiviParInstructeurActuel
     */
     /** @type {Props}*/
     let { 
@@ -62,12 +62,10 @@
                     {/snippet}
                 </BoutonModale>
             {/if}
-            {#if typeof dossierSuiviParInstructeurActuel === 'boolean'}
-                {#if dossierSuiviParInstructeurActuel}
-                    <button type="button" class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm" onclick={() => instructeurActuelLaisseDossier(dossier.id)}>Ne plus suivre</button>
-                {:else}
-                    <button type="button" class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm" onclick={() => instructeurActuelSuitDossier(dossier.id)}>Suivre</button>
-                {/if}
+            {#if dossierSuiviParInstructeurActuel}
+                <button type="button" class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm" onclick={() => instructeurActuelLaisseDossier(dossier.id)}>Ne plus suivre</button>
+            {:else}
+                <button type="button" class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm" onclick={() => instructeurActuelSuitDossier(dossier.id)}>Suivre</button>
             {/if}
          </div>
     </div>

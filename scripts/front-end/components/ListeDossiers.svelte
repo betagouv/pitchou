@@ -339,7 +339,7 @@
                         {dossier} 
                         {instructeurActuelSuitDossier} 
                         {instructeurActuelLaisseDossier} 
-                        dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} 
+                        dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel.has(dossier.id)} 
                         nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue}
                     />
                 </li>
