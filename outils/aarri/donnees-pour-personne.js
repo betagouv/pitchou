@@ -128,7 +128,7 @@ try {
     console.log(`Télécharger le fichier en cliquant ici : ${lienTéléchargementFichier}`)
 
   } catch (err) {
-    console.log(err);
+    console.error(err);
 }
 
 closeDatabaseConnection()
