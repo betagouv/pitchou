@@ -56,7 +56,8 @@
          * @type {ÉvènementRechercheDossiersDétails['filtres']}
          */
         const filtres = {
-            sansInstructeurice: tousLesFiltres.has('sansInstructeurice')
+            sansInstructeurice: tousLesFiltres.has('sansInstructeurice'),
+            nouveauté: tousLesFiltres.has('nouveauté')
         }
 
         if (texteÀChercher) {
