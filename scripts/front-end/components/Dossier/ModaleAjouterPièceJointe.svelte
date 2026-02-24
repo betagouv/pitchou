@@ -79,7 +79,7 @@
         typePièceJointe === 'Avis expert' 
         && avisExpertSélectionné !== null
         && (avisExpertSélectionné === 'nouvel-avis-expert' ? serviceOuPersonneExperte !== null : true)
-        // Les experts Ministre, CNPN et CSRPN sont nécessiarement liés à un Avis (conforme, non conforme...)
+        // Les experts Ministre, CNPN et CSRPN sont nécessairement liés à un Avis (conforme, non conforme...)
         && ((serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN') ? avis !== null : true))
     
     let formulaireValide = $derived(
