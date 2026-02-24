@@ -14,7 +14,7 @@ if (!env) {
 // Le type de Fastify est compliqué à écrire
 // @ts-ignore
 /**
- * Plugin permettant de servier les dossiers statiques contenant des fichiers que l'on souhaite télécharger.
+ * Plugin permettant de servire les dossiers statiques contenant des fichiers que l'on souhaite télécharger.
  * 
  * @param {*} fastify 
  */
