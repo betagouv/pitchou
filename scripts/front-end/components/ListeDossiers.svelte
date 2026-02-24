@@ -141,8 +141,8 @@
             const notificationA = notificationParDossier.get(a.id)
             const notificationB = notificationParDossier.get(b.id)
             
-            const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.date : undefined;
-            const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.date : undefined;
+            const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
+            const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.date_dernière_mise_à_jour: undefined;
 
             if (activerTriDossierParNotification === true) {
                 if (dateNotificationNonVueA && dateNotificationNonVueB) {

@@ -44,7 +44,7 @@ export async function mettreÀjourNotification(dossiersDN, dossierIdByDN_number,
                 { 
                     dossier: dossierId, 
                     personne: personneSuivantCeDossier.personne, 
-                    date: dossierDN.dateDerniereModification, 
+                    date_dernière_mise_à_jour: dossierDN.dateDerniereModification, 
                     vue: false
                 }
             ))
