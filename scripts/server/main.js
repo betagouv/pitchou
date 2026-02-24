@@ -8,7 +8,7 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
-
+import staticPlugin from './plugins/static.js'
 
 import { closeDatabaseConnection,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -36,7 +36,6 @@ import { indicateursAARRI } from './database/aarri.js'
 import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, supprimerAvisExpert } from './database/avis_expert.js'
 import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
 import {générerDéclarationGeoMCE} from './database/geomce.js'
-
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
@@ -99,6 +98,8 @@ fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html']
 })
+
+await fastify.register(staticPlugin)
 
 fastify.register(fastifyMultipart, {
   attachFieldsToBody: true,

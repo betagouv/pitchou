@@ -5,13 +5,16 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 import { writeFile } from 'node:fs/promises'
+import { PREFIX_FICHIER_TEMPORAIRE } from '../../scripts/server/plugins/static.js';
 
 const env = process.env.NODE_ENV
 
 if (!env) {
-  console.error(`Les variables d'environnement ne sont pas définies.`);
+  console.error(`La variable d'environnement 'NODE_ENV' n'est pas définie.`);
   process.exit(1)
 }
+
+const origin = env === 'development' ? 'http://localhost:2648' : 'https://pitchou/beta.gouv.fr' // Peut-être mettre l'origine dans une variable d'environnement ? 
 
 const args = parseArgs(process.argv)
 
@@ -115,12 +118,16 @@ const content = new Map([
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
-const cheminDuFichierODS = générerCheminVersFichierODS(15)
+const nomDeFichierODS = générerRandomString(15) + '.ods'
+const cheminDuFichierODS = générerCheminVersFichierODS(nomDeFichierODS)
 
 try {
     console.log('📝 Création du fichier ODS avec les résultats...')
-    writeFile(cheminDuFichierODS, Buffer.from(ods))
+    await writeFile(cheminDuFichierODS, Buffer.from(ods))
     console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}.`)
+    const lienTéléchargementFichier = `${origin}/${PREFIX_FICHIER_TEMPORAIRE}/${nomDeFichierODS}`
+    console.log(`Télécharger le fichier en cliquant ici : ${lienTéléchargementFichier}`)
+
   } catch (err) {
     console.log(err);
 }
@@ -129,16 +136,15 @@ closeDatabaseConnection()
 
 
 /**
- * @param {number} longueurNomDuFichier
+ * @param {string} nomDeFichierODS
  * @returns {string}
  */
-function générerCheminVersFichierODS(longueurNomDuFichier) {
-  const nomDeFichierODS = générerRandomString(longueurNomDuFichier) + '.ods'
+function générerCheminVersFichierODS(nomDeFichierODS) {
   let chemin = ''
   if (env === 'development') {
-    chemin = `./outils/aarri/tmp/${nomDeFichierODS}`
+    chemin = `outils/aarri/tmp/${nomDeFichierODS}`
   } else {
-    chemin = `./tmp/pitchou/${nomDeFichierODS}`
+    chemin = `tmp/pitchou/${nomDeFichierODS}`
   }
   return chemin
 }
