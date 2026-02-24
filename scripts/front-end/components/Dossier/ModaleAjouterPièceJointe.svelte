@@ -74,18 +74,20 @@
         }
     })
 
+    let formulaireValidePourSaisineExpert = $derived(typePièceJointe === 'Saisine expert' && serviceOuPersonneExperte !== null)
+    let formulaireValidePourAvisExpert = $derived(
+        typePièceJointe === 'Avis expert' 
+        && avisExpertSélectionné !== null
+        && (avisExpertSélectionné === 'nouvel-avis-expert' ? serviceOuPersonneExperte !== null : true)
+        // Les experts Ministre, CNPN et CSRPN sont nécessiarement liés à un Avis (conforme, non conforme...)
+        && ((serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN') ? avis !== null : true))
+    
     let formulaireValide = $derived(
         fileListPièceJointe && fileListPièceJointe.length > 0 && 
         typePièceJointe !== null && typePièceJointe !== undefined &&
         (
-            (typePièceJointe === 'Saisine expert' && serviceOuPersonneExperte !== null && 
-                // @ts-ignore ts ne comprend pas que autreExpertTexte peut être de type string
-                (serviceOuPersonneExperte !== 'Autre expert' || (autreExpertTexte && autreExpertTexte.trim() !== ''))) ||
-            (typePièceJointe === 'Avis expert' && avisExpertSélectionné !== null && avis !== null && 
-                (avisExpertSélectionné === 'nouvel-avis-expert' 
-                    // @ts-ignore ts ne comprend pas que autreExpertTexte peut être de type string
-                    ? serviceOuPersonneExperte !== null && (serviceOuPersonneExperte !== 'Autre expert' || (autreExpertTexte !== null && autreExpertTexte.trim() !== ''))
-                    : true))
+            formulaireValidePourSaisineExpert ||
+            formulaireValidePourAvisExpert
         )
     )
 
@@ -240,7 +242,7 @@
                             {#if fileListPièceJointe && fileListPièceJointe.length > 0}
                                 {#if typePièceJointe === 'Saisine expert'}
                                     <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
-                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
+                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte (Champ obligatoire)</legend>
                                         <div class="conteneur-boutons-radios">
                                             {#each OPTIONS_SERVICE_EXPERT as service}
                                                 {@const idRadio = `service-expert-${service.replace(/\s+/g, '-').toLowerCase()}-${id}`}
@@ -325,7 +327,7 @@
 
                                     {#if avisExpertSélectionné === 'nouvel-avis-expert'}
                                         <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
-                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
+                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte (Champ obligatoire)</legend>
                                             <div class="conteneur-boutons-radios">
                                                 {#each OPTIONS_SERVICE_EXPERT as service}
                                                     {@const idRadio = `service-expert-${service.replace(/\s+/g, '-').toLowerCase()}-${id}`}
@@ -362,7 +364,7 @@
                                     {/if}
                                     {#if (serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN')}
                                         <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
-                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
+                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert (Champ obligatoire)</legend>
                                             <div class="">
                                                 {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
                                                     {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
