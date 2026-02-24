@@ -7,16 +7,15 @@ import { closeDatabaseConnection } from '../../scripts/server/database.js';
 import { writeFile } from 'node:fs/promises'
 import { PREFIX_FICHIER_TEMPORAIRE } from '../../scripts/server/plugins/static.js';
 
-const env = process.env.NODE_ENV
-
-if (!env) {
-  console.error(`La variable d'environnement 'NODE_ENV' n'est pas définie.`);
-  process.exit(1)
-}
-
-const origin = env === 'development' ? 'http://localhost:2648' : 'https://pitchou/beta.gouv.fr' // Peut-être mettre l'origine dans une variable d'environnement ? 
-
 const args = parseArgs(process.argv)
+
+let origin = 'https://pitchou.beta.gouv.fr'
+
+if(args.dev)
+    origin = 'http://localhost:2648'
+
+if(args.origin)
+    origin = args.origin
 
 if (!args.email) {
     console.error(`Il manque le paramètre --email`);
@@ -118,7 +117,7 @@ const content = new Map([
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
-const nomDeFichierODS = générerRandomString(15) + '.ods'
+const nomDeFichierODS = Math.random().toString(36).slice(2) + '.ods'
 const cheminDuFichierODS = générerCheminVersFichierODS(nomDeFichierODS)
 
 try {
@@ -141,42 +140,10 @@ closeDatabaseConnection()
  */
 function générerCheminVersFichierODS(nomDeFichierODS) {
   let chemin = ''
-  if (env === 'development') {
+  if (args.dev) {
     chemin = `outils/aarri/tmp/${nomDeFichierODS}`
   } else {
     chemin = `tmp/pitchou/${nomDeFichierODS}`
   }
   return chemin
 }
-
-
-/**
- * @param {number} longueurString
- * @returns {string}
- */
-function générerRandomString(longueurString) {
-  const caractères = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  const indiceDernierCaractère = caractères.length - 1
-
-  let randomString = ''
-
-  for (let i = 0; i < longueurString; i++) {
-    // On calcule au hasard un nombre entier compris entre 0 et indiceDernierCaractère
-    const randomNombre = Math.floor(Math.random() * indiceDernierCaractère)
-
-    const nouveauCaractère = caractères.charAt(randomNombre)
-
-    if (nouveauCaractère === '') {
-      throw new Error('lL caractère aléatoirement trouvé est une chaîne de caractère vide.')
-    }
-
-    randomString += nouveauCaractère
-  }
-
-  if (randomString.length !== longueurString) {
-    throw new Error(`Le nom de fichier construit ("${randomString}") n'a pas ${longueurString} caractères.`)
-  }
-
-  return randomString
-}
-
