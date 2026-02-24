@@ -56,6 +56,6 @@ BEGIN
     (personne_id, dossier_ids[2], 'false', date '2026-02-17');
 
     -- l'insert ci-dessous est nécessaire pour que l'instructeurice ait la bonne cap pour accéder aux notifications
-    INSERT INTO "cap_évènement_métrique" (personne_cap)
+    INSERT INTO "cap_notification" (personne_cap)
     VALUES (code_acces);
 END $$;

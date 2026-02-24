@@ -18,7 +18,7 @@ test.describe('Page Mes dossiers', () => {
     test(`Je peux voir tous les dossiers que je suis, et les dossiers selon le tri suivant :
             - D'abord par leur date de notification si la notification n'a pas été consultée, de la plus récente à la plus ancienne
             - Puis par date date_dépôt, de la plus récente à la plus ancienne.`, async ( { page } ) => {
-        await expect(page.getByLabel('compteur de dossier')).toContainText('4/4 dossiers')
+        await expect(page.getByTestId('compteur-dossier')).toContainText('4/4 dossiers')
 
         const cartesDossier = await page.getByTestId('carte-dossier').all()
         const ordreIdDossier = [2,1,4,3]
@@ -42,7 +42,7 @@ test.describe('Page Mes dossiers', () => {
     test(`Quand j'appuie sur Nouveauté, je ne vois que les dossiers qui possèdent une notification non vue.`, async ( { page } ) => {
         await page.getByRole('button', { name: 'Nouveauté'}).click()
 
-        await expect(page.getByLabel('compteur de dossier')).toContainText('2/4 dossiers')
+        await expect(page.getByTestId('compteur-dossier')).toContainText('2/4 dossiers')
 
         const cartesDossier = await page.getByTestId('carte-dossier').all()
         const ordreIdDossier = [2,1]
@@ -61,7 +61,7 @@ test.describe('Page Mes dossiers', () => {
 
         // Cela m'amène sur la page du dossier
         await expect(page.getByRole('heading', { level: 1})).toContainText('Dossier n°2 : Recherche scientifique sur les chats');
-        
+            
         // Je reviens sur la page mes dossiers
         await page.goto('/mes-dossiers');
         await expect(page.getByRole('heading', { level: 1})).toContainText('Mes dossiers');
@@ -70,7 +70,7 @@ test.describe('Page Mes dossiers', () => {
         const premierDossier = page
         .getByTestId('carte-dossier')
         .filter({
-            has: titrePremierDossier
+        has: titrePremierDossier
         });
 
         await expect(premierDossier).toHaveCount(1);
@@ -79,5 +79,5 @@ test.describe('Page Mes dossiers', () => {
         });
 
         await expect(badge).toHaveCount(0);
-    })
+        })
 });

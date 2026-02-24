@@ -323,7 +323,7 @@
                         Nouveauté
                     </button>
             </div>
-            <p class="compteur">
+            <p class="compteur" data-testid={'compteur-dossier'}>
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
             </p>
         </div>

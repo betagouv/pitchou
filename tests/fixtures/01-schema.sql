@@ -31,6 +31,7 @@ ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS dossier_dema
 ALTER TABLE IF EXISTS ONLY public.dossier DROP CONSTRAINT IF EXISTS dossier_demandeur_personne_morale_foreign;
 ALTER TABLE IF EXISTS ONLY public."contrôle" DROP CONSTRAINT IF EXISTS "contrôle_prescription_foreign";
 ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_personne_cap_foreign";
+ALTER TABLE IF EXISTS ONLY public.cap_notification DROP CONSTRAINT IF EXISTS cap_notification_personne_cap_foreign;
 ALTER TABLE IF EXISTS ONLY public.cap_dossier DROP CONSTRAINT IF EXISTS cap_dossier_personne_cap_foreign;
 ALTER TABLE IF EXISTS ONLY public.avis_expert DROP CONSTRAINT IF EXISTS avis_expert_saisine_fichier_foreign;
 ALTER TABLE IF EXISTS ONLY public.avis_expert DROP CONSTRAINT IF EXISTS avis_expert_dossier_foreign;
@@ -64,6 +65,7 @@ DROP INDEX IF EXISTS public.dossier_demandeur_personne_physique_index;
 DROP INDEX IF EXISTS public.dossier_demandeur_personne_morale_index;
 DROP INDEX IF EXISTS public."contrôle_prescription_index";
 DROP INDEX IF EXISTS public."cap_évènement_métrique_personne_cap_index";
+DROP INDEX IF EXISTS public.cap_notification_personne_cap_index;
 DROP INDEX IF EXISTS public.avis_expert_dossier_index;
 DROP INDEX IF EXISTS public."arête_personne_suit_dossier_personne_index";
 DROP INDEX IF EXISTS public."arête_personne_suit_dossier_dossier_index";
@@ -96,6 +98,8 @@ ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF
 ALTER TABLE IF EXISTS ONLY public."cap_évènement_métrique" DROP CONSTRAINT IF EXISTS "cap_évènement_métrique_personne_cap_unique";
 ALTER TABLE IF EXISTS ONLY public."cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "cap_écriture_annotation_pkey";
 ALTER TABLE IF EXISTS ONLY public."cap_écriture_annotation" DROP CONSTRAINT IF EXISTS "cap_écriture_annotation_instructeur_id_unique";
+ALTER TABLE IF EXISTS ONLY public.cap_notification DROP CONSTRAINT IF EXISTS cap_notification_pkey;
+ALTER TABLE IF EXISTS ONLY public.cap_notification DROP CONSTRAINT IF EXISTS cap_notification_personne_cap_unique;
 ALTER TABLE IF EXISTS ONLY public.cap_dossier DROP CONSTRAINT IF EXISTS cap_dossier_pkey;
 ALTER TABLE IF EXISTS ONLY public.cap_dossier DROP CONSTRAINT IF EXISTS cap_dossier_personne_cap_unique;
 ALTER TABLE IF EXISTS ONLY public.avis_expert DROP CONSTRAINT IF EXISTS avis_expert_pkey;
@@ -122,6 +126,7 @@ DROP TABLE IF EXISTS public."contrôle";
 DROP TABLE IF EXISTS public."capability-geomce";
 DROP TABLE IF EXISTS public."cap_évènement_métrique";
 DROP TABLE IF EXISTS public."cap_écriture_annotation";
+DROP TABLE IF EXISTS public.cap_notification;
 DROP TABLE IF EXISTS public.cap_dossier;
 DROP TABLE IF EXISTS public.avis_expert;
 DROP TABLE IF EXISTS public."arête_personne_suit_dossier";
@@ -318,6 +323,18 @@ CREATE TABLE public.cap_dossier (
 ALTER TABLE public.cap_dossier OWNER TO dev;
 
 --
+-- Name: cap_notification; Type: TABLE; Schema: public; Owner: dev
+--
+
+CREATE TABLE public.cap_notification (
+    cap uuid DEFAULT gen_random_uuid() NOT NULL,
+    personne_cap character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.cap_notification OWNER TO dev;
+
+--
 -- Name: cap_écriture_annotation; Type: TABLE; Schema: public; Owner: dev
 --
 
@@ -453,7 +470,7 @@ CREATE TABLE public.dossier (
     enjeu_politique boolean,
     commentaire_libre text DEFAULT ''::text NOT NULL,
     "historique_date_envoi_dernière_contribution" date,
-    historique_identifiant_demande_onagre character varying(255),
+    historique_identifiant_demande_onagre character varying(255) DEFAULT ''::character varying NOT NULL,
     date_debut_consultation_public date,
     "enjeu_écologique" boolean,
     "rattaché_au_régime_ae" boolean,
@@ -1281,6 +1298,22 @@ ALTER TABLE ONLY public.cap_dossier
 
 
 --
+-- Name: cap_notification cap_notification_personne_cap_unique; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.cap_notification
+    ADD CONSTRAINT cap_notification_personne_cap_unique UNIQUE (personne_cap);
+
+
+--
+-- Name: cap_notification cap_notification_pkey; Type: CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.cap_notification
+    ADD CONSTRAINT cap_notification_pkey PRIMARY KEY (cap);
+
+
+--
 -- Name: cap_écriture_annotation cap_écriture_annotation_instructeur_id_unique; Type: CONSTRAINT; Schema: public; Owner: dev
 --
 
@@ -1531,6 +1564,13 @@ CREATE INDEX avis_expert_dossier_index ON public.avis_expert USING btree (dossie
 
 
 --
+-- Name: cap_notification_personne_cap_index; Type: INDEX; Schema: public; Owner: dev
+--
+
+CREATE INDEX cap_notification_personne_cap_index ON public.cap_notification USING btree (personne_cap);
+
+
+--
 -- Name: cap_évènement_métrique_personne_cap_index; Type: INDEX; Schema: public; Owner: dev
 --
 
@@ -1773,6 +1813,14 @@ ALTER TABLE ONLY public.avis_expert
 
 ALTER TABLE ONLY public.cap_dossier
     ADD CONSTRAINT cap_dossier_personne_cap_foreign FOREIGN KEY (personne_cap) REFERENCES public.personne("code_accès") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: cap_notification cap_notification_personne_cap_foreign; Type: FK CONSTRAINT; Schema: public; Owner: dev
+--
+
+ALTER TABLE ONLY public.cap_notification
+    ADD CONSTRAINT cap_notification_personne_cap_foreign FOREIGN KEY (personne_cap) REFERENCES public.personne("code_accès") ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
