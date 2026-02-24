@@ -10,8 +10,8 @@ Le dossier se trouve dans l'une des phases suivantes :
 - "**Accompagnement amont**"
     - Dès le premier contact au sujet de son projet, le pétitionnaire est invité à renseigner démarche-numériques (DN). Ce dépôt permet de prendre contact et de garder la mémoire du projet dans les tableaux de suivi Pitchou. Aucune information n'est obligatoire à ce stade et ce dépôt ne signifie pas qu'une demande de dérogation est nécessaire.
     - Ce dépôt permet d'obtenir une position officielle du service instructeur :
-         - Si une DDEP est nécessaire, le pétitionnaire complète sa demande, et celle-ci passe en phase "Etude de recevabilité DDEP",
-         - Si le projet propose des mesures E, R, A et que dans ces conditions, il semble que la DDEP n'est pas nécessaife, le pétitionnaire complète sa demande, et celle-ci passe en phase "Etude de recevabilité              DDEP",
+         - Si le pétitionnaire souhaite déposer une DDEP, il complète sa demande, et celle-ci passe en phase "Etude de recevabilité DDEP",
+         - Si le projet propose des mesures E, R, A et que dans ces conditions, il semble que la DDEP n'est pas nécessaire, le pétitionnaire complète sa demande, et celle-ci passe en phase "Etude de recevabilité              DDEP",
          - Si aucune espèce n'est impactée, que le pétitionnaire annule son projet..., l'instructeur passe le dossier en phase "Classé sans suite" dans Pitchou,
 - "**Étude recevabilité**"
     - Pendant cette phase, le service instructeur évalue le caractère "**complet et régulier**" du dossier et peut demander des compléments. 
