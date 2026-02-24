@@ -173,31 +173,33 @@
                 <DateInput id={'input-champ-date-avis'} bind:date={avisExpert.date_avis}/>
             </div>
         </div>
-        <div class="fr-fieldset__element">
-            <div class="fr-input-group" id="champ-avis-group">
-                <p class="fr-label fr-mb-2w">Avis de l’expert</p>
+        {#if (avisExpert.expert === 'Ministre' || avisExpert.expert === 'CNPN' || avisExpert.expert === 'CSRPN')}
+            <div class="fr-fieldset__element">
+                <div class="fr-input-group" id="champ-avis-group">
+                    <p class="fr-label fr-mb-2w">Avis de l’expert</p>
 
-                {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as value}
-                    {@const id = `avis-${value.replace(/\s+/g, '-').toLowerCase()}`}
-                    <div class="fr-fieldset__element">
-                        <div class="fr-radio-group fr-ml-2w">
-                            <input
-                                type="radio"
-                                id={id}
-                                name="champ-avis"
-                                value={value}
-                                bind:group={avisExpert.avis}
-                            />
-                            <label class="fr-label" for={id}>
-                                {value}
-                            </label>
+                    {#each ['Avis favorable', 'Avis favorable tacite', 'Avis favorable sous condition', 'Avis défavorable'] as value}
+                        {@const id = `avis-${value.replace(/\s+/g, '-').toLowerCase()}`}
+                        <div class="fr-fieldset__element">
+                            <div class="fr-radio-group fr-ml-2w">
+                                <input
+                                    type="radio"
+                                    id={id}
+                                    name="champ-avis"
+                                    value={value}
+                                    bind:group={avisExpert.avis}
+                                />
+                                <label class="fr-label" for={id}>
+                                    {value}
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                {/each}
+                    {/each}
 
-                <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite"></div>
+                    <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite"></div>
+                </div>
             </div>
-        </div>
+        {/if}
         <div class="fr-messages-group" id="formulaire-ajouter-avis-expert-fieldset-messages" aria-live="polite">
             {#if messageErreur}
                 <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
