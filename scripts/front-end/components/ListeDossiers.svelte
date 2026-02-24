@@ -21,7 +21,7 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {boolean} [afficherFiltreSansInstructeurice]
     * @property {boolean} [afficherFiltreActionInstructeur]
-    * @property {PitchouState['notificationParDossier']} [notificationParDossier]
+    * @property {PitchouState['notificationParDossier']} notificationParDossier
     * @property {boolean} [activerTriDossierParNotification]
     */
     /** @type {Props} */
@@ -32,7 +32,7 @@
         relationSuivis,
         afficherFiltreSansInstructeurice = false,
         afficherFiltreActionInstructeur = false,
-        notificationParDossier = new SvelteMap(),
+        notificationParDossier,
         activerTriDossierParNotification = false,
     } = $props();
 
@@ -297,7 +297,7 @@
                     {#if afficherFiltreSansInstructeurice}
                         <button
                             type="button"
-                            class="fr-tag filtre-sans-instructeurice"
+                            class="fr-tag"
                             onclick={toggleFiltreSansInstructeurice}
                             aria-pressed={tousLesFiltres.has('sansInstructeurice')}
                         >
@@ -341,7 +341,7 @@
                         {instructeurActuelSuitDossier} 
                         {instructeurActuelLaisseDossier} 
                         dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel.has(dossier.id)} 
-                        nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue}
+                        nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue ?? true}
                     />
                 </li>
             {/each}
@@ -410,10 +410,6 @@
             @media (max-width: 768px) {
                 margin-bottom: 1rem;
             }
-        }
-
-        .filtre-sans-instructeurice {
-            margin-bottom: .25rem;
         }
 
         .filtres-et-compteur-dossiers {

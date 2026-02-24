@@ -13,7 +13,7 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {PitchouState['erreurs']} [erreurs]
     * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
-    * @property {PitchouState['notificationParDossier']} [notificationParDossier]
+    * @property {PitchouState['notificationParDossier']} notificationParDossier
     */
     /** @type {Props} */
     let { 

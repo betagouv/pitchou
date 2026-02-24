@@ -991,7 +991,7 @@ ALTER TABLE public.message OWNER TO dev;
 
 CREATE TABLE public.notification (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    date timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    "date_dernière_mise_à_jour" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     vue boolean DEFAULT false NOT NULL,
     personne integer NOT NULL,
     dossier integer NOT NULL
@@ -1001,10 +1001,10 @@ CREATE TABLE public.notification (
 ALTER TABLE public.notification OWNER TO dev;
 
 --
--- Name: COLUMN notification.date; Type: COMMENT; Schema: public; Owner: dev
+-- Name: COLUMN notification."date_dernière_mise_à_jour"; Type: COMMENT; Schema: public; Owner: dev
 --
 
-COMMENT ON COLUMN public.notification.date IS 'Date à laquelle la notification a été mise à jour pour la dernière fois';
+COMMENT ON COLUMN public.notification."date_dernière_mise_à_jour" IS 'Date à laquelle la notification a été mise à jour pour la dernière fois';
 
 
 --

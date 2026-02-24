@@ -10,7 +10,7 @@
      * @property {DossierRésumé} dossier
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelSuitDossier
      * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
-     * @property {boolean} [nouveautéVueParInstructeur]
+     * @property {boolean} nouveautéVueParInstructeur
      * @property {boolean} dossierSuiviParInstructeurActuel
     */
     /** @type {Props}*/

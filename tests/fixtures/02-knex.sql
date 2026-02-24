@@ -182,7 +182,7 @@ COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
 63	20260126143259_ajout-capability-geomce.js	60	2026-01-28 14:57:24.725+00
 64	20260129095854_commentaire-libre-default-chaine-vide.js	61	2026-02-03 16:14:13.213+00
 74	20260211120000_onagre-default-chaine-vide.js	62	2026-02-23 15:51:19.087+00
-76	20260223151046_ajout-notification.js	63	2026-02-23 15:52:48.032+00
+77	20260223151046_ajout-notification.js	63	2026-02-24 09:08:32.712+00
 \.
 
 
@@ -199,7 +199,7 @@ COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
 -- Name: knex_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dev
 --
 
-SELECT pg_catalog.setval('public.knex_migrations_id_seq', 76, true);
+SELECT pg_catalog.setval('public.knex_migrations_id_seq', 77, true);
 
 
 --

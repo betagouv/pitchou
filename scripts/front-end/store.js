@@ -3,6 +3,7 @@
 import Store from 'baredux'
 
 import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
+import { SvelteMap } from 'svelte/reactivity'
 
 /**
  * Un store baredux a pour vocation de refléter notamment le modèle mental de la
@@ -35,7 +36,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
- * @property {Map<Dossier['id'], Pick<Notification, "vue" | "date_dernière_mise_à_jour">>} [notificationParDossier]
+ * @property {Map<Dossier['id'], Pick<Notification, "vue" | "date_dernière_mise_à_jour">>} notificationParDossier
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
@@ -54,6 +55,7 @@ const state = {
   messagesParDossierId: new Map(),
   erreurs: new Set(),
   capabilities: {},
+  notificationParDossier: new SvelteMap()
 }
 
 const mutations = {
