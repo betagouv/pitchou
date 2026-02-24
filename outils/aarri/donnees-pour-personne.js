@@ -143,7 +143,7 @@ function générerCheminVersFichierODS(nomDeFichierODS) {
   if (args.dev) {
     chemin = `outils/aarri/tmp/${nomDeFichierODS}`
   } else {
-    chemin = `tmp/pitchou/${nomDeFichierODS}`
+    chemin = `/tmp/pitchou/${nomDeFichierODS}`
   }
   return chemin
 }
