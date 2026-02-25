@@ -161,6 +161,15 @@ function évènementMétriqueGuard(évènement) {
         case 'supprimerContrôle': {
             return !('details' in évènement)
         }
+        case 'ajouterAvisExpert': {
+            return !('details' in évènement)
+        }
+        case 'modifierAvisExpert': {
+            return !('details' in évènement)
+        }
+        case 'supprimerAvisExpert': {
+            return !('details' in évènement)
+        }
         case 'retourÀLaConformité': {
             return typeof évènement.détails.prescription === 'string'
         }

@@ -23,5 +23,8 @@ export const ÉVÈNEMENTS_MODIFICATIONS = [
     'supprimerPrescription',
     'ajouterContrôle',
     'modifierContrôle',
-    'supprimerContrôle'
+    'supprimerContrôle',
+    'ajouterAvisExpert',
+    'modifierAvisExpert',
+    'supprimerAvisExpert',
 ]
