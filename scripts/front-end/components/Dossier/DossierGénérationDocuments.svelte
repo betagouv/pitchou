@@ -2,6 +2,7 @@
     import {fillOdtTemplate, getOdtTextContent} from '@odfjs/odfjs'
     import {getBalisesGénérationDocument} from '../../../front-end/actions/générerDocument.js'
     import { chargerActivitésMéthodesMoyensDePoursuite } from '../../actions/activitésMéthodesMoyensDePoursuite.js';
+    import { envoyerÉvènement } from '../../actions/aarri.js';
 
     /** @import {DossierComplet} from '../../../types/API_Pitchou' */
     /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
@@ -81,6 +82,8 @@
             const [part1, part2] = template.name.split('.')
             const datetime = (new Date()).toISOString().slice(0, 'YYYY-MM-DD:HH-MM'.length)
             nomDocumentGénéré = `${part1}-${datetime}.${part2}`
+
+            envoyerÉvènement({ type: 'générerUnDocument' })
         }
         catch(err){
             // @ts-ignore

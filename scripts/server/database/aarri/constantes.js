@@ -27,4 +27,5 @@ export const ÉVÈNEMENTS_MODIFICATIONS = [
     'ajouterAvisExpert',
     'modifierAvisExpert',
     'supprimerAvisExpert',
+    'générerUnDocument'
 ]
