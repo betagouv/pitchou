@@ -555,7 +555,7 @@ fastify.post('/avis-expert', {
         }
     }
   }
-}, async function (req) {
+}, async function (req, reply) {
   // Récupérer les données du corps de la requête
   /** @type {any} */
   const body = req.body
@@ -591,10 +591,23 @@ fastify.post('/avis-expert', {
     fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
   }
 
+  const transaction = await créerTransaction()
+
+  let avisExpertP
+
   if (fichierAvis || fichierSaisine) {
-    return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
+    avisExpertP = ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis, transaction)
   } else {
-    return ajouterOuModifierAvisExpert(avisExpert)
+    avisExpertP = ajouterOuModifierAvisExpert(avisExpert, transaction)
+  }
+
+  try {
+    const avis = await avisExpertP
+    await transaction.commit()
+    return avis
+  } catch (err) {
+    await transaction.rollback()
+    reply.code(500).send(`Erreur lors de l’ajout/modification de d’avis d’expert. ${err}`)
   }
 })
 

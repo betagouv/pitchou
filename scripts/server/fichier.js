@@ -37,11 +37,11 @@ export async function ajouterFichier(
             await objectStorage.ajouterFichier({ ...nouveauFichier, contenu })
         } catch (e) {
             console.warn(`Erreur lors de la création du fichier ${fichier.nom} dans le stockage objet: ${e}`)
-            transaction.rollback()
+            await transaction.rollback()
             throw e
         }
 
-        transaction.commit()
+        await transaction.commit()
 
         return nouveauFichier
     } else {
