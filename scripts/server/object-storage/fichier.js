@@ -1,17 +1,34 @@
 /** @import {S3Client} from '@aws-sdk/client-s3' */
 /** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
+/** @import {Options as RetryOptions} from 'p-retry'*/
 
 import { DeleteObjectsCommand, DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import pRetry from 'p-retry'
 
 import { créerClient, BUCKET_NAME } from './config.js'
 
+
+/** @type {RetryOptions} */
+const retryOptions = {
+    retries: 2,
+    onFailedAttempt: ({error}) => {
+        console.warn(`Failed S3 operation, retring… ${error}`);
+    },
+}
+
+/**
+ * @param {Promise<any>} promise
+ * @returns {Promise<any>}
+ */
+function withRetry(promise) {
+    return pRetry(() => promise, retryOptions)
+}
 
 /**
  *
  * @param {Partial<Fichier>} fichier
  * @param {S3Client | undefined} client
- * @return {Promise<number | undefined>}
  */
 export async function ajouterFichier(fichier, client = undefined) {
     let nouveauClient = false
@@ -24,17 +41,17 @@ export async function ajouterFichier(fichier, client = undefined) {
         throw new Error('Fichier vide')
     }
 
-    const taille = await s3.send(new PutObjectCommand({
-        'Body': fichier.contenu,
+    const body = fichier.contenu;
+
+    await withRetry(s3.send(new PutObjectCommand({
+        'Body': body,
         'Bucket': BUCKET_NAME,
         'Key': `fichiers/${fichier.id}`,
-    })).then(output => output.Size);
+    })))
 
     if (nouveauClient) {
         s3.destroy()
     }
-
-    return taille
 }
 
 /**
@@ -48,10 +65,10 @@ export async function supprimerFichier(fichier, client = undefined) {
     }
     const s3 = client ? client : créerClient()
 
-    await s3.send(new DeleteObjectCommand({
+    await withRetry(s3.send(new DeleteObjectCommand({
         'Bucket': BUCKET_NAME,
         'Key': `fichiers/${fichier.id}`,
-    }));
+    })))
 
     if (nouveauClient) {
         s3.destroy()
@@ -74,14 +91,14 @@ export async function supprimerFichiers(fichiers, client = undefined) {
     let fichiersRestants = fichiers.slice(1000)
 
     do {
-        const command = s3.send(new DeleteObjectsCommand({
+        const command = withRetry(s3.send(new DeleteObjectsCommand({
             Bucket: BUCKET_NAME,
             Delete: {
                 Objects: chunk.map(fichier => { return {
                     Key: `fichiers/${fichier.id}`
                 }})
             }
-        }))
+        })))
 
         promises.push(command)
 
