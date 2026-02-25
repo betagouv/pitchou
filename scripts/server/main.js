@@ -382,8 +382,15 @@ async function téléchargementFichierRouteHandler(request, reply) {
     return
   }
   else{
+    const nomDuFichierAscii = fichier.nom.normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Supprime les diacritiques
+      .replace(/[^\x00-\x7F]/g, "") // Supprime les caractères non ascii
+
+    // On met les deux headers pour maximiser la compatibilité entre navigateurs
+    // Voir: <https://developer.mozilla.org/fr/docs/Web/HTTP/Reference/Headers/Content-Disposition>
     reply
-      .header('content-disposition', `attachment; filename="${fichier.nom}"`)
+      .header('content-disposition', `attachment; filename="${nomDuFichierAscii}"`)
+      .header('content-disposition', `attachment; filename*=UTF-8''${encodeURI(fichier.nom)}`)
       .header('content-type', fichier.media_type)
       .send(fichier.contenu)
   }
@@ -497,7 +504,6 @@ fastify.post('/prescriptions-et-contrôles', function(request, reply) {
 })
 
 
-
 fastify.delete('/prescription/:prescriptionId', async function(request, reply) {
   //@ts-ignore
   if(!request.params.prescriptionId){
@@ -553,11 +559,11 @@ fastify.post('/avis-expert', {
     body: {
       type: 'object',
       required: ['dossier'],
-      properties: 
+      properties:
         {
           body : {
             type: 'object',
-                  properties: 
+                  properties:
                     {
                       dossier: {
                         type: 'string',
@@ -597,7 +603,7 @@ fastify.post('/avis-expert', {
   const id = body.id ? body.id.value : undefined;
   const expert = body.expert ? body.expert.value : undefined
   const avis = body.avis ? body.avis.value : undefined
-  
+
   const date_saisine = body['date_saisine'] ? new Date(body['date_saisine'].value) : undefined
   const date_avis = body['date_avis'] ? new Date(body['date_avis'].value) : undefined
 
@@ -622,7 +628,7 @@ fastify.post('/avis-expert', {
     /** @type {any} */
     const blobFichierAvis = body.blobFichierAvis
     fichierAvis = {nom: blobFichierAvis.filename, media_type: blobFichierAvis.mimetype, contenu: blobFichierAvisContenu}
-  } 
+  }
 
   if (fichierAvis || fichierSaisine) {
     return ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis)
