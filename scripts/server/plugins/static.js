@@ -24,7 +24,7 @@ export default async function (fastify) {
   if (env === 'development') {
     tmpDir = path.join(process.cwd(), 'outils', 'aarri', 'tmp')
   } else {
-    tmpDir = path.join(process.cwd(), 'tmp', 'pitchou')
+    tmpDir = '/tmp/pitchou'
   }
 
   fastify.register(fastifyStatic, {
