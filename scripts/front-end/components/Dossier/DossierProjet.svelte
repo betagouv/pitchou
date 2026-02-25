@@ -60,17 +60,17 @@
             return '(fichier sans nom)'
         }
 
-        if (filename.length <= maxLength) { 
+        if (filename.length <= maxLength) {
             return filename
         }
 
         const lastDotIndex = filename.lastIndexOf('.');
-        
+
         const extension = filename.substring(lastDotIndex);
         const nameWithoutExt = filename.substring(0, lastDotIndex);
-        
+
         const availableLength = maxLength - extension.length - ellipsis.length;
-        
+
         return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
     }
 
@@ -295,7 +295,7 @@
                         -->
                         {raccourcirNomFichier(nom)}
                         <span class="fr-link__detail">
-                            {media_type} - {byteFormat.format(taille)}
+                            {media_type} - {byteFormat.format(taille || 0)}
                         </span>
                     </a>
                 </li>

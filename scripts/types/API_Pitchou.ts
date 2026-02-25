@@ -111,7 +111,7 @@ export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régi
     { évènementsPhase: ÉvènementPhaseDossier[]} &
     { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } &
     { avisExpert: FrontEndAvisExpert[]} &
-    { piècesJointesPétitionnaires: (Pick<Fichier, 'media_type' | 'nom'> & {url: string, taille: number})[] }
+    { piècesJointesPétitionnaires: (Pick<Fichier, 'media_type' | 'nom' | 'taille'> & {url: string})[] }
 
 
 export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";

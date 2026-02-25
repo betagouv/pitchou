@@ -21,7 +21,7 @@
     /** @type {FileList | undefined} */
     let fileListFichierSaisine = $state()
 
-    /** @type {FileList | undefined} */ 
+    /** @type {FileList | undefined} */
     let fileListFichierAvis = $state()
 
     /** @type {string | null} */
@@ -38,7 +38,7 @@
 
 
     /**
-     * 
+     *
      * @param {SubmitEvent} e
      */
     function sauvegarderAvisExpert(e) {
@@ -73,7 +73,12 @@
         const avisExpertÀAjouterOuModifier = avisExpertInitial?.id ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert } : { dossier: dossierId, ...avisExpert }
 
         if (avisExpertÀAjouterOuModifier) {
-            chargementAjouterOuModifierAvisExpertP = ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis).then(() => ajouterOuModifierAvisExpert(avisExpertÀAjouterOuModifier, fichierSaisine, fichierAvis).then(() => refreshDossierComplet(dossierId).then(() => fermerLeFormulaire())).catch((e) => messageErreur = e.message))
+            chargementAjouterOuModifierAvisExpertP = ajouterOuModifierAvisExpert(
+                avisExpertÀAjouterOuModifier,
+                fichierSaisine,
+                fichierAvis
+            ).then(() => refreshDossierComplet(dossierId).then(() => fermerLeFormulaire()))
+                .catch((e) => messageErreur = e.message)
         }
     }
 </script>
@@ -84,7 +89,7 @@
             {#if avisExpertInitial?.id}
                 Modifier l'avis
                 {:else}
-                Ajouter un nouvel avis d'expert 
+                Ajouter un nouvel avis d'expert
             {/if}
         </legend>
         <!-- Section Expert -->
@@ -102,15 +107,15 @@
                             </label>
                         </div>
                     </div>
-                {/each}    
+                {/each}
             {#if serviceOuPersonneExperte === 'Autre expert'}
                 <div class="fr-fieldset__element">
                         <div class="fr-input-group fr-mt-3w">
                             <label class="fr-label" for="autre-expert-texte">Précisez l'expert</label>
-                            <input 
-                                class="fr-input" 
-                                type="text" 
-                                id="autre-expert-texte" 
+                            <input
+                                class="fr-input"
+                                type="text"
+                                id="autre-expert-texte"
                                 bind:value={autreExpertTexte}
                                 placeholder="Nom de l'expert"
                             />
@@ -125,8 +130,8 @@
         <div class="fr-fieldset__element">
             <div class="fr-upload-fichier-saisine-group">
                 <label class="fr-label" for="upload-fichier-saisine">Fichier de la saisine
-                    <span class="fr-hint-text">Indication : 
-                        Taille maximale&nbsp;: 20 Mo. 
+                    <span class="fr-hint-text">Indication :
+                        Taille maximale&nbsp;: 20 Mo.
                         Formats supportés&nbsp;: pdf</span>
                 </label>
                 {#if avisExpertInitial?.saisine_fichier_url}
@@ -152,8 +157,8 @@
         <div class="fr-fieldset__element">
             <div class="fr-upload-fichier-avis-group">
                 <label class="fr-label" for="upload-fichier-avis">Fichier de l'avis de l'expert
-                    <span class="fr-hint-text">Indication : 
-                        Taille maximale&nbsp;: 20 Mo. 
+                    <span class="fr-hint-text">Indication :
+                        Taille maximale&nbsp;: 20 Mo.
                         Formats supportés&nbsp;: pdf</span>
                 </label>
                 {#if avisExpertInitial?.avis_fichier_url}

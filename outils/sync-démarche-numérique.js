@@ -354,7 +354,7 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
 /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
 /** @type {ChampFormulaire88444[]} */
 const champsAvecPiècesJointes88444 = [
-    'Dépot du dossier complet de demande de dérogation', 
+    'Dépot du dossier complet de demande de dérogation',
     'Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande',
     'Diagnostic écologique',
     'Déposez ici l\'argumentaire précis vous ayant permis de conclure à l\'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.',
@@ -390,7 +390,7 @@ if(dossiersAInitialiser.length >= 1 || dossiersAModifierPourSynchro.length >= 1)
     dossiersSynchronisés = dumpDossiers(dossiersAInitialiser, dossiersAModifier, laTransactionDeSynchronisationDS)
 }
 
-const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number)))
+const dossiersSupprimés = dossSuppP.then( dossiersSupp => deleteDossierByDSNumber(dossiersSupp.map(({number}) => number), laTransactionDeSynchronisationDS))
 
 await Promise.all([
     dossiersSynchronisés,
