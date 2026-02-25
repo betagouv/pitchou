@@ -187,14 +187,14 @@ export async function modifierDécisionAdministrative(décisionAdministrative, d
  * @returns {Promise<any>}
  */
 export async function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection){
-    const fichierID = await databaseConnection('décision_administrative')
+    const row = await databaseConnection('décision_administrative')
         .delete()
         .where({id})
         .returning(['fichier'])
-        .then(décisions => décisions[0].fichier)
+        .then(décisions => décisions[0])
 
-    if (fichierID) {
-        return supprimerFichier(fichierID, { databaseConnection })
+    if (row?.fichierID) {
+        return supprimerFichier(row.fichierID, { databaseConnection })
     }
 }
 

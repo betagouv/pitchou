@@ -12,7 +12,7 @@
     /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
     /** @import {DécisionAdministrativePourTransfer} from '../../../types/API_Pitchou.ts' */
 
-    
+
     /**
      * @typedef {Object} Props
      * @property {DossierComplet} dossier
@@ -28,21 +28,21 @@
     //$inspect('décisionsAdministratives', décisionsAdministratives)
 
     /**
-     * 
+     *
      * @param {FrontEndDécisionAdministrative} décisionAdministrative
      */
     function créerFonctionSupprimer(décisionAdministrative){
 
         return function(){
             const index = décisionsAdministratives.indexOf(décisionAdministrative);
-            
-            if (index !== undefined && index !== -1) { 
-                décisionsAdministratives = décisionsAdministratives.toSpliced(index, 1); 
+
+            if (index !== undefined && index !== -1) {
+                décisionsAdministratives = décisionsAdministratives.toSpliced(index, 1);
             }
 
-            refreshDossierComplet(dossier.id)
-
             return supprimerDécisionAdministrative(décisionAdministrative.id)
+                .then(() => refreshDossierComplet(dossier.id))
+
         }
     }
 
@@ -71,7 +71,7 @@
         décisionsAdministratives.push(décisionAdministrativeEnCréation)
         // optimist UI change
         décisionsAdministratives = décisionsAdministratives
-        sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation) 
+        sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation)
         décisionAdministrativeEnCréation = undefined;
     }
 
@@ -87,9 +87,9 @@
         <p>Il n'y a pas de décisions administrative à contrôler concernant ce dossier</p>
     {:else}
         {#each décisionsAdministratives as décisionAdministrative}
-            <DécisionsAdministratives 
-                {décisionAdministrative} 
-                dossierId={dossier.id} 
+            <DécisionsAdministratives
+                {décisionAdministrative}
+                dossierId={dossier.id}
                 supprimerDécisionAdministrative={créerFonctionSupprimer(décisionAdministrative)}
             ></DécisionsAdministratives>
         {/each}
@@ -111,5 +111,5 @@
 
 
 <style lang="scss">
-    
+
 </style>
