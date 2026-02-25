@@ -4,12 +4,23 @@
  * 
  * ### Utilisation
  * ```bash
- * node outils/import-dossiers.js --fichier /chemin/vers/fichier.ods
+ * node outils/import-dossiers.js --fichier /chemin/vers/fichier.ods \
+ *   --email adresse@mail.com \
+ *   --mail-demarche-numerique clemence.fernandez@beta.gouv.fr \
+ *   --mdp-demarche-numerique 'motDePasseDN' \
+ *   --lien-connexion-demarche-numerique 'https://demarche.numerique.gouv.fr/connexion-par-jeton/...' \
+ *   --prenom-deposant 'Clémence' \
+ *   --nom-deposant 'Fernandez'
  * ```
  * 
  * ### Options
  * - `--fichier, -f` : Chemin vers le fichier tableau de suivi (.ods) - **requis**
- * - `--email, -e` : Email utilisé pour récupérer le lien de connexion
+ * - `--email, -e` : Email utilisé pour récupérer le lien de connexion - **requis**
+ * - `--mail-demarche-numerique` : Email du compte Démarches Numériques - **requis**
+ * - `--mdp-demarche-numerique` : Mot de passe du compte Démarches Numériques - **requis**
+ * - `--lien-connexion-demarche-numerique` : Lien de connexion Démarches Numériques - **requis**
+ * - `--prenom-deposant` : Prénom du déposant du dossier - **requis**
+ * - `--nom-deposant` : Nom du déposant du dossier - **requis**
  * ```
  */
 
@@ -24,18 +35,52 @@ const args = parseArgs(process.argv);
 const cheminDuDocTableauDeSuivi = args.fichier || args.f;
 const email = args.email || args.e;
 
-if (!email) {
-    console.error(`Aucun email n'a été renseigné. Un email est nécessaire pour se connecter à l'application Pitchou et avoir accès à la page d'import des dossiers historiques.`)
-    process.exit(1)
-}
+// Paramètres obligatoires passés en arguments CLI (aucune valeur par défaut)
+const mailDémarcheNumérique = args['mail-demarche-numerique'];
+const mdpDémarcheNumérique = args['mdp-demarche-numerique'];
+const lienDeConnexionDémarcheNumérique = args['lien-connexion-demarche-numerique'];
+const prénomDuDéposant = args['prenom-deposant'];
+const nomDuDéposant = args['nom-deposant'];
+
+const paramètresManquants = [];
 
 if (!cheminDuDocTableauDeSuivi) {
+    paramètresManquants.push('--fichier / -f (chemin vers le fichier .ods)');
+}
+if (!email) {
+    paramètresManquants.push('--email / -e (email pour récupérer le lien de connexion Pitchou)');
+}
+if (!mailDémarcheNumérique) {
+    paramètresManquants.push('--mail-demarche-numerique (email du compte Démarches Numériques)');
+}
+if (!mdpDémarcheNumérique) {
+    paramètresManquants.push('--mdp-demarche-numerique (mot de passe du compte Démarches Numériques)');
+}
+if (!lienDeConnexionDémarcheNumérique) {
+    paramètresManquants.push('--lien-connexion-demarche-numerique (lien de connexion Démarches Numériques)');
+}
+if (!prénomDuDéposant) {
+    paramètresManquants.push('--prenom-deposant (prénom du déposant du dossier)');
+}
+if (!nomDuDéposant) {
+    paramètresManquants.push('--nom-deposant (nom du déposant du dossier)');
+}
+
+if (paramètresManquants.length > 0) {
     console.error(`
 Usage: node outils/import-dossiers.js [options]
 
 Options:
-  --fichier, -f    Chemin vers le fichier tableau de suivi (.ods)
-  --email, -e      Email pour récupérer le lien de connexion (défaut: ${email})
+  --fichier, -f                        Chemin vers le fichier tableau de suivi (.ods) - requis
+  --email, -e                          Email pour récupérer le lien de connexion - requis
+  --mail-demarche-numerique            Email du compte Démarches Numériques - requis
+  --mdp-demarche-numerique             Mot de passe du compte Démarches Numériques - requis
+  --lien-connexion-demarche-numerique  Lien de connexion Démarches Numériques - requis
+  --prenom-deposant                    Prénom du déposant du dossier - requis
+  --nom-deposant                       Nom du déposant du dossier - requis
+
+Les paramètres suivants sont manquants :
+  - ${paramètresManquants.join('\n  - ')}
 `);
     process.exit(1);
 }
@@ -67,16 +112,27 @@ console.log(`- URL: ${urlComplète}`);
 console.log(`- Secret généré: ${secret}`);
 
 const browser = await firefox.launch({
-    headless: true,
+    headless: false,
+
 });
 
 try {
     const context = await browser.newContext({
         locale: 'fr',
+        // storageState: {
+        //     cookies:{
+// TODO: peut-être l'utiliser à la place du Lien de connexion ?
+        //     }
+        // }
     });
 
     const page = await context.newPage();
 
+    console.log('Pouvoir se connecter à Démarche Numérique...')
+    await page.goto(lienDeConnexionDémarcheNumérique)
+    await page.getByRole('textbox', {name: 'Adresse électronique obligatoire Exemple : adresse@mail.com'}).fill(mailDémarcheNumérique);
+    await page.getByRole('textbox', {name: 'Mot de passe obligatoire'}).fill(mdpDémarcheNumérique);
+    await page.getByRole('button', { name : "Se connecter" }).click();
     console.log('Connexion à Pitchou...');
     await page.goto(urlComplète);
 
@@ -110,13 +166,26 @@ try {
     console.log(`Commencement du processus de dépôt du dossier ${nomDuProjet}...`)
     const boutonPréRemplissage = locatorDeToutesLesCellules.getByRole('button', { name: 'Préparer préremplissage' })
     await boutonPréRemplissage.click()
+
     const boutonCréerDossier = locatorDeToutesLesCellules.getByRole('link', { name: 'Créer dossier'})
+    const pageDémarcheNumériquePromise = context.waitForEvent('page');
     await boutonCréerDossier.click()
-
-    
+    const pageDémarcheNumérique = await pageDémarcheNumériquePromise;
+  
     // Ici, on est dans Démarche Numérique
-    // TODO: continuer le dépôt jusqu'au bout.
+    await pageDémarcheNumérique.getByRole('link', { name : "Poursuivre mon dossier prérempli" }).click();
 
+    // Complétez l’identité du déposant du dossier pour poursuivre.
+    await pageDémarcheNumérique.getByRole('textbox', {name: 'Prénom obligatoire'}).fill(prénomDuDéposant);
+    await pageDémarcheNumérique.getByRole('textbox', {name: 'Nom obligatoire', exact: true}).fill(nomDuDéposant);
+
+    await pageDémarcheNumérique.getByRole('button', { name : "Continuer" }).click();
+
+    // Remplir et déposer le dossier
+    //TODO: générer et rajouter le fichier espèce impactée s'il existe
+    await pageDémarcheNumérique.getByRole('button', { name : "Déposer le dossier" }).click();
+
+    //TODO : faire en sorte d'importer tous les dossiers de la première page.
 
     console.log(`Fin du script d'automatisation`);
     
