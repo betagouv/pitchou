@@ -5,6 +5,7 @@
 import { eachWeekOfInterval } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
+import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -27,52 +28,49 @@ import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
 */
 async function calculerIndicateurAcquis(nbSemainesObservées) {
-    const acquis = await directDatabaseConnection.raw(`
-        with premiere_connexion as (
-            select
-                personne,
-                min(date) as date
-            from évènement_métrique
-            join personne on personne.id = évènement_métrique.personne
-            where évènement = 'seConnecter'
-            and personne.email NOT ILIKE '%@beta.gouv.fr'
-            group by personne
-        ),
-        nombre_premiere_connexion_par_semaine as (
-            select
-                count(personne) as acquis_semaine,
-                date_trunc('week', date)::date as semaine
-            from premiere_connexion
-            group by semaine
-        ),
-        semaines as (
-            select
-                date_trunc('week', semaine)::date as semaine
-            from
-                generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
-            union
-            select semaine from nombre_premiere_connexion_par_semaine
-        )
-        select
-            semaines.semaine as date,
-            sum(acquis_semaine) over (order by semaines.semaine  asc) as acquis_total
-        from
-            nombre_premiere_connexion_par_semaine
-        right join
-            semaines
-        on semaines.semaine = nombre_premiere_connexion_par_semaine.semaine
-        order by date desc
-        limit :nb_semaines_observees; 
-    `,
-{
-    nb_semaines_observees: nbSemainesObservées,
-});
+    const aujourdhui = new Date()
 
-    return new Map(
-        ...[acquis.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.acquis_total)]
-        )]
-    )
+    
+
+    
+    const personnesEtDate = await getPersonnesAcquises()
+
+    const personnesParDate = new Map(personnesEtDate.map(({id, date}) => [id, date]))
+
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => date.toISOString())
+
+    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((semaineA, semaineB) => semaineA > semaineB ? 1 : -1)
+
+    console.log('personnesRegroupéesParSemaine', personnesRegroupéesParSemaine)
+
+   /** @type {Map<Semaine, number>} */
+    const nombrePersonnesCumuléesParSemaine = new Map()
+
+    /** @type {Semaine[]} */
+    const semaines = eachWeekOfInterval(
+        {
+            start: semainesAcquisitions[0],
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+    console.log('semaines', semaines)
+
+    let nombreCumulées = 0
+    for (const semaineObservée of semaines) {
+        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaineObservée) ?? []
+        console.log('semaineObservée', semaineObservée, 'personnesParSemaines', personnesParSemaines)
+        nombreCumulées = nombreCumulées + personnesParSemaines.length
+        nombrePersonnesCumuléesParSemaine.set(semaineObservée, nombreCumulées)
+    }
+
+    console.log('nombrePersonnesCumuléesParSemaine', nombrePersonnesCumuléesParSemaine)
+    
+
+    return nombrePersonnesCumuléesParSemaine
 }
 
 
