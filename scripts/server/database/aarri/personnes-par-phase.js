@@ -1,4 +1,4 @@
-
+/** @import Personne from '../../../types/database/public/Personne' */
 import { directDatabaseConnection } from '../../database.js'
 import { ÉVÈNEMENTS_MODIFICATIONS } from './constantes.js';
 
