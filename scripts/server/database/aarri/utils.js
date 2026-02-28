@@ -3,7 +3,6 @@
 /** @import Personne from '../../../types/database/public/Personne' */
 /** @import { ÉvènementMétrique } from '../../../types/évènement.js' */
 
-
 import { directDatabaseConnection } from '../../database.js'
 
 /**
@@ -30,11 +29,14 @@ export async function getÉvènementsForPersonne(email) {
 }
 
 /**
+ * Renvoie la liste des personnes qui ont enregistré un nombre d'actions au-delà d'un certain seuil
+ * ainsi que la date à laquelle elles ont enregistré ce nombre d'actions
+ * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
 */
-export async function getPersonnesAyantAtteintSeuilDÉvènmentsParSemaine(évènements, nombreSeuil) {
+export async function getPersonnesAyantAtteintSeuilÉvènementsParDate(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
         `-- personnes et le nombre évènement suivis par semaine
 with actions_par_personne as (select
@@ -57,8 +59,8 @@ select personne.id, personne.email, date
 from premiere_fois_seuil_atteint
 join personne on premiere_fois_seuil_atteint.personne = personne.id`
         , {
-        nb_seuil_actions: nombreSeuil,
-        evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
+            nb_seuil_actions: nombreSeuil,
+            evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
         });
 
         return requêteSQL.rows
