@@ -55,7 +55,7 @@ const lignes = personnes.map(( email ) => {
 
 const content = new Map([
     [
-        'Personnes',
+        'Personnes par phase',
         [...entête, ...lignes]
     ],
 ])
