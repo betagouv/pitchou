@@ -2,10 +2,10 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 import { writeFile } from 'node:fs/promises'
-import { getPersonnesAcquises, getPersonnesActives } from '../../scripts/server/database/aarri/personnes-par-phase.js';
+import { getPersonnesAcquisesParDate, getPersonnesActives } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
-const personnesAcquises = await getPersonnesAcquises()
+const personnesAcquises = await getPersonnesAcquisesParDate()
 const personnesActives = await getPersonnesActives()
 
 const entête = [[
@@ -19,19 +19,29 @@ const entête = [[
   },
 ]]
 
-const personnesAcquisesTrié = personnesAcquises.sort((a, b) => a.date < b.date ? 1 : -1)
+const personnes = [...personnesAcquises.keys()]
+
 const personnesActivesTrié = personnesActives.sort((a, b) => a.date < b.date ? 1 : -1)
 
-const lignesAcquis = personnesAcquisesTrié.map( ({ email, date } ) => ([
-    {
-      value: email,
-      type: 'string'
-    }, 
-    {
-      value: formatDateAbsolue(date, 'dd/MM/yyyy'),
-      type: 'string'
-    },
-]));
+const lignesAcquis = personnes.map(( personne ) => {
+  const dateAcquis = personnesAcquises.get(personne)
+  if (dateAcquis) {
+    return (
+        [
+            {
+              value: personne.email,
+              type: 'string'
+            }, 
+            {
+              value: formatDateAbsolue(dateAcquis, 'dd/MM/yyyy'),
+              type: 'string'
+            },
+        ]
+    )
+  } else {
+    return []
+  }
+});
 
 const lignesActivé = personnesActivesTrié.map( ({ email, date } ) => ([
     {
