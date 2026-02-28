@@ -5,7 +5,7 @@
 import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
-import { getPersonnesAcquisesParDate } from './aarri/personnes-par-phase.js';
+import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -30,8 +30,8 @@ import { getPersonnesAcquisesParDate } from './aarri/personnes-par-phase.js';
 */
 async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSemaineObservée) {
     const aujourdhui = new Date()
-
-    const personnesParDate = await getPersonnesAcquisesParDate()
+    const personnesEtDate = await getPersonnesAcquises()
+    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
     const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
