@@ -1,13 +1,10 @@
-/** @import Personne from '../../../types/database/public/Personne' */
 import { directDatabaseConnection } from '../../database.js'
 import { ÉVÈNEMENTS_MODIFICATIONS } from './constantes.js';
-
 
 /**
  * Correspond au jour d'une semaine
  * @typedef {string} Semaine
  */
-
 
 /**
  * Retourne les personnes acquises et la date à laquelle elles ont été considérées comme acquises.
