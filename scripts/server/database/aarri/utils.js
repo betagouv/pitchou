@@ -1,6 +1,8 @@
 
 /** @import Évènement from '../../../types/database/public/ÉvènementMétrique' */
 /** @import Personne from '../../../types/database/public/Personne' */
+/** @import { ÉvènementMétrique } from '../../../types/évènement.js' */
+
 
 import { directDatabaseConnection } from '../../database.js'
 
@@ -25,4 +27,40 @@ export async function getÉvènementsForPersonne(email) {
         .orderBy('date','desc')
 
     return évènements
+}
+
+/**
+ * @param {ÉvènementMétrique['type'][]} évènements
+ * @param {number} nombreSeuil
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
+*/
+export async function getPersonnesAyantAtteintSeuilDÉvènmentsParSemaine(évènements, nombreSeuil) {
+    const requêteSQL = await directDatabaseConnection.raw(
+        `-- personnes et le nombre évènement suivis par semaine
+with actions_par_personne as (select
+	personne,
+	COUNT(évènement) as nombre_actions,
+	date_trunc('week', e.date)::date as date
+from évènement_métrique as e
+join personne on personne.id = e.personne
+WHERE évènement IN (:evenements)
+and personne.email NOT ILIKE '%@beta.gouv.fr'
+group by personne, date),
+
+-- filtrer par première fois où le seuil est atteint
+premiere_fois_seuil_atteint as (select personne, min(date) as date
+from actions_par_personne
+WHERE nombre_actions >= :nb_seuil_actions
+group by personne)
+
+select personne.id, personne.email, date
+from premiere_fois_seuil_atteint
+join personne on premiere_fois_seuil_atteint.personne = personne.id`
+        , {
+        nb_seuil_actions: nombreSeuil,
+        evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
+        });
+
+        return requêteSQL.rows
+        
 }
