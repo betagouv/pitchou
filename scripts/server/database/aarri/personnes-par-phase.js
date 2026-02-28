@@ -2,7 +2,7 @@
 /** @import { ÉvènementMétrique } from '../../../types/évènement.js' */
 
 import { ÉVÈNEMENTS_MODIFICATIONS } from './constantes.js';
-import { getPersonnesAyantAtteintSeuilDÉvènmentsParSemaine } from './utils.js';
+import { getPersonnesAyantAtteintSeuilÉvènementsParDate } from './utils.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -25,7 +25,7 @@ export async function getPersonnesAcquises() {
     /** @type {[ÉvènementMétrique['type']]} */
     const évènement = ['seConnecter']
     const nombreSeuil = 1
-    return await getPersonnesAyantAtteintSeuilDÉvènmentsParSemaine(évènement, nombreSeuil)
+    return await getPersonnesAyantAtteintSeuilÉvènementsParDate(évènement, nombreSeuil)
 }
 
 
@@ -39,5 +39,5 @@ export async function getPersonnesActives() {
     const évènements = ÉVÈNEMENTS_MODIFICATIONS
     const nombreSeuil = 5
     
-    return await getPersonnesAyantAtteintSeuilDÉvènmentsParSemaine(évènements, nombreSeuil)
+    return await getPersonnesAyantAtteintSeuilÉvènementsParDate(évènements, nombreSeuil)
 }
