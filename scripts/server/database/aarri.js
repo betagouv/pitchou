@@ -5,7 +5,7 @@
 import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
-import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
+import { getPersonnesAcquisesParDate } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -26,14 +26,12 @@ import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
  * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
  * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
  *
- * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
+ * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre d'acquis.e au lundi de cette semaine
 */
 async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSemaineObservée) {
     const aujourdhui = new Date()
 
-    const personnesEtDate = await getPersonnesAcquises()
-
-    const personnesParDate = new Map(personnesEtDate.map(({id, date}) => [id, date]))
+    const personnesParDate = await getPersonnesAcquisesParDate()
 
     const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
