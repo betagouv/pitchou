@@ -17,7 +17,7 @@ import { ÉVÈNEMENTS_MODIFICATIONS } from './constantes.js';
  * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
  * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
  *
- * @returns { Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]> }> } Une liste des personnes acquises et la date à laquelle elles ont été acquises.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes acquises et la date à laquelle elles ont été acquises.
 */
 export async function getPersonnesAcquises() {
     /** @type {{rows: {id: Personne['id'], email: Personne['email'], date: Date}[]}} */
@@ -45,7 +45,7 @@ join personne on premiere_connexion.personne = personne.id`
  * Retourne les personnes actives et la date à laquelle elles ont été considérées comme actives.
  * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
  *
- * @returns { Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]> } Une liste des personnes actives et la date à laquelle elles ont été activées.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
 */
 export async function getPersonnesActives() {
     const évènements = ÉVÈNEMENTS_MODIFICATIONS
