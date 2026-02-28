@@ -2,38 +2,47 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 import { writeFile } from 'node:fs/promises'
-import { getPersonnesAcquisesParDate, getPersonnesActives } from '../../scripts/server/database/aarri/personnes-par-phase.js';
+import { getPersonnesAcquises, getPersonnesActives } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
-const personnesAcquises = await getPersonnesAcquisesParDate()
+const personnesAcquises = await getPersonnesAcquises()
 const personnesActives = await getPersonnesActives()
 
+const personnesAcquisesEmailParDate = new Map(personnesAcquises.map(({email, date}) => [email, date]))
+const personnesActivesEmailParDate = new Map(personnesActives.map(({email, date}) => [email, date]))
 const entête = [[
   {
     value: "Email de la personne",
     type: 'string'
   },
   {
-    value: "Date d'acquisition",
+    value: "Acquise",
+    type: 'string'
+  },
+  {
+    value: "Date d'activation",
     type: 'string'
   },
 ]]
 
-const personnes = [...personnesAcquises.keys()]
+const personnes = [... new Set([...personnesAcquisesEmailParDate.keys(), ...personnesActivesEmailParDate.keys()])]
 
-const personnesActivesTrié = personnesActives.sort((a, b) => a.date < b.date ? 1 : -1)
-
-const lignesAcquis = personnes.map(( personne ) => {
-  const dateAcquis = personnesAcquises.get(personne)
-  if (dateAcquis) {
+const lignes = personnes.map(( email ) => {
+  const dateAcquis = personnesAcquisesEmailParDate.get(email)
+  const dateActive = personnesActivesEmailParDate.get(email)
+  if (dateAcquis || dateActive) {
     return (
         [
             {
-              value: personne.email,
+              value: email,
               type: 'string'
             }, 
             {
-              value: formatDateAbsolue(dateAcquis, 'dd/MM/yyyy'),
+              value: dateAcquis ? true : false, // La date d'acquisition n'est pas forcément cohérente (parfois elle est antérieure à la date d'activation). C'est dû à notre ancienne façon de mesurer l'évènement "seConnecter". On décide donc de ne pas l'afficher.
+              type: 'string'
+            },
+            {
+              value: dateActive ? formatDateAbsolue(dateActive, 'dd/MM/yyyy') : false,
               type: 'string'
             },
         ]
@@ -43,26 +52,12 @@ const lignesAcquis = personnes.map(( personne ) => {
   }
 });
 
-const lignesActivé = personnesActivesTrié.map( ({ email, date } ) => ([
-    {
-      value: email,
-      type: 'string'
-    }, 
-    {
-      value: formatDateAbsolue(date, 'dd/MM/yyyy'),
-      type: 'string'
-    },
-]));
 
 const content = new Map([
     [
-        'Personnes acquises',
-        [...entête, ...lignesAcquis]
+        'Personnes',
+        [...entête, ...lignes]
     ],
-    [
-      'Personnes actives',
-      lignesActivé
-    ]
 ])
 
 
