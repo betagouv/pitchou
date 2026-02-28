@@ -2,7 +2,7 @@
 /** @import { ÉvènementMétrique } from '../../types/évènement.js' */
 /** @import { PersonneId } from '../../types/database/public/Personne.js' */
 
-import { eachWeekOfInterval } from 'date-fns';
+import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
 import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
@@ -17,7 +17,8 @@ import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
  * Une personne acquise est une personne qui s'est connectée au moins une fois.
  * 
- * @param {number} nbSemainesObservées
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
  *
  * @remarks
  *
@@ -27,25 +28,19 @@ import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
  *
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
 */
-async function calculerIndicateurAcquis(nbSemainesObservées) {
+async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSemaineObservée) {
     const aujourdhui = new Date()
 
-    
-
-    
     const personnesEtDate = await getPersonnesAcquises()
 
     const personnesParDate = new Map(personnesEtDate.map(({id, date}) => [id, date]))
 
-    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => date.toISOString())
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
-    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((semaineA, semaineB) => semaineA > semaineB ? 1 : -1)
-
-    console.log('personnesRegroupéesParSemaine', personnesRegroupéesParSemaine)
+    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
 
    /** @type {Map<Semaine, number>} */
-    const nombrePersonnesCumuléesParSemaine = new Map()
-
+    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
     /** @type {Semaine[]} */
     const semaines = eachWeekOfInterval(
         {
@@ -57,20 +52,17 @@ async function calculerIndicateurAcquis(nbSemainesObservées) {
         }
     ).map((semaine) => semaine.toISOString())
 
-    console.log('semaines', semaines)
 
     let nombreCumulées = 0
-    for (const semaineObservée of semaines) {
-        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaineObservée) ?? []
-        console.log('semaineObservée', semaineObservée, 'personnesParSemaines', personnesParSemaines)
+    for (const semaine of semaines) {
+        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
         nombreCumulées = nombreCumulées + personnesParSemaines.length
-        nombrePersonnesCumuléesParSemaine.set(semaineObservée, nombreCumulées)
+        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
+            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
+        }
     }
 
-    console.log('nombrePersonnesCumuléesParSemaine', nombrePersonnesCumuléesParSemaine)
-    
-
-    return nombrePersonnesCumuléesParSemaine
+    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
 }
 
 
@@ -324,15 +316,21 @@ function getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsP
  */
 export async function indicateursAARRI() {
     const nbSemainesObservées = 5
+    const aujourdhui = new Date()
+    const dernièreSemaineObservée = subWeeks(aujourdhui, nbSemainesObservées)
 
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
-    const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
+    const acquis = await calculerIndicateurAcquis(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
     const retenus = await calculerIndicateurRetenu()
     const impacts = await calculerIndicateurImpact(nbSemainesObservées);
 
-    const dates = acquis.keys();
+    // Tri des dates par ordre décroissant.
+    // Le front-end accède aux données via l’indice du tableau et non directement par la date,
+    // il est donc nécessaire de garantir un ordre cohérent ici.
+    //TODO: peut-être modifier le front-end du coup...
+    const dates = [...(acquis.keys())].sort((dateA, dateB) => compareDesc(dateA, dateB));
 
     for (const date of dates) {
         indicateurs.push({
