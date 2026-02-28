@@ -1,7 +1,7 @@
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
-import { writeFile } from 'node:fs/promises'
+// import { writeFile } from 'node:fs/promises'
 import { getPersonnesAcquises, getPersonnesActives } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
@@ -42,7 +42,7 @@ const lignes = personnes.map(( email ) => {
               type: 'string'
             },
             {
-              value: dateActive ? formatDateAbsolue(dateActive, 'dd/MM/yyyy') : false,
+              value: dateActive ? formatDateAbsolue(dateActive, 'dd/MM/yyyy') : undefined,
               type: 'string'
             },
         ]
@@ -71,8 +71,9 @@ const cheminDuFichierODS = `outils/aarri/tmp/${nomDeFichierODS}`
 
 try {
     console.log('📝 Création du fichier ODS avec les résultats...')
-    await writeFile(cheminDuFichierODS, Buffer.from(ods))
-    console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}.`)
+    // await writeFile(cheminDuFichierODS, Buffer.from(ods))
+    console.log(cheminDuFichierODS, ods)
+    console.log('lignes', lignes)
     //TODO : donner le lien du téléchargement du fichier
 
   } catch (err) {
