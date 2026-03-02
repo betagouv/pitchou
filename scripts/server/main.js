@@ -8,7 +8,6 @@ import Fastify from 'fastify'
 import fastatic from '@fastify/static'
 import fastifyCompress from '@fastify/compress'
 import fastifyMultipart from '@fastify/multipart'
-import staticPlugin from './plugins/static.js'
 
 import { closeDatabaseConnection,
   getInstructeurCapBundleByPersonneCodeAccès, getRelationSuivis,
@@ -96,10 +95,16 @@ await fastify.register(fastifyCompress)
 
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
-  extensions: ['html']
+  extensions: ['html'],
 })
 
-await fastify.register(staticPlugin)
+// Servir les dossiers statiques contenant des fichiers que l'on souhaite télécharger.
+fastify.register(fastatic, {
+  root: '/tmp/pitchou',
+  prefix: '/tmp',
+  // cf https://github.com/fastify/fastify-static?tab=readme-ov-file#multiple-prefixed-roots
+  decorateReply: false,
+})
 
 fastify.register(fastifyMultipart, {
   attachFieldsToBody: true,

@@ -4,15 +4,11 @@ import { getÉvènementsForPersonne } from '../../scripts/server/database/aarri/
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
-import { writeFile } from 'node:fs/promises'
-import { PREFIX_FICHIER_TEMPORAIRE } from '../../scripts/server/plugins/static.js';
+import { writeFile, mkdir } from 'node:fs/promises'
 
 const args = parseArgs(process.argv)
 
 let origin = 'https://pitchou.beta.gouv.fr'
-
-if(args.dev)
-    origin = 'http://localhost:2648'
 
 if(args.origin)
     origin = args.origin
@@ -118,13 +114,14 @@ const content = new Map([
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
 const nomDeFichierODS = Math.random().toString(36).slice(2) + '.ods'
-const cheminDuFichierODS = générerCheminVersFichierODS(nomDeFichierODS)
+const cheminDuFichierODS = `/tmp/pitchou/${nomDeFichierODS}`
 
 try {
     console.log('📝 Création du fichier ODS avec les résultats...')
+    await mkdir('/tmp/pitchou', { recursive: true })
     await writeFile(cheminDuFichierODS, Buffer.from(ods))
     console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}.`)
-    const lienTéléchargementFichier = `${origin}/${PREFIX_FICHIER_TEMPORAIRE}/${nomDeFichierODS}`
+    const lienTéléchargementFichier = `${origin}/tmp/${nomDeFichierODS}`
     console.log(`Télécharger le fichier en cliquant ici : ${lienTéléchargementFichier}`)
 
   } catch (err) {
@@ -132,18 +129,3 @@ try {
 }
 
 closeDatabaseConnection()
-
-
-/**
- * @param {string} nomDeFichierODS
- * @returns {string}
- */
-function générerCheminVersFichierODS(nomDeFichierODS) {
-  let chemin = ''
-  if (args.dev) {
-    chemin = `outils/aarri/tmp/${nomDeFichierODS}`
-  } else {
-    chemin = `/tmp/pitchou/${nomDeFichierODS}`
-  }
-  return chemin
-}
