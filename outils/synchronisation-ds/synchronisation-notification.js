@@ -50,6 +50,10 @@ export async function mettreÀjourNotification(dossiersDN, dossierIdByDN_number,
             ))
         }
     }
+
+    if (notifications.length === 0) {
+        return;
+    } 
     
     // Mettre à jour la table notification.
     // Si la date a changé, alors on écrase la notification existante.
@@ -58,5 +62,5 @@ export async function mettreÀjourNotification(dossiersDN, dossierIdByDN_number,
         .insert(notifications)
         .onConflict(['dossier', 'personne'])
         .merge()
-        .whereRaw('notification.date IS DISTINCT FROM EXCLUDED.date');
+        .whereRaw('notification.date_dernière_mise_à_jour IS DISTINCT FROM EXCLUDED.date_dernière_mise_à_jour');
 }
