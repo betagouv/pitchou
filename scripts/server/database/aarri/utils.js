@@ -29,14 +29,14 @@ export async function getÉvènementsForPersonne(email) {
 }
 
 /**
- * Renvoie la liste des personnes qui ont enregistré un nombre d'actions au-delà d'un certain seuil
+ * Renvoie la liste des fois où une personne a enregistré un nombre d'actions au-delà d'un certain seuil
  * ainsi que la date à laquelle elles ont enregistré ce nombre d'actions
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>}
 */
-export async function getPersonnesAyantAtteintSeuilÉvènementsParDate(évènements, nombreSeuil) {
+export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
         `-- personnes et le nombre évènement suivis par semaine
 with actions_par_personne as (select
@@ -49,20 +49,37 @@ WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, date),
 
--- filtrer par première fois où le seuil est atteint
-premiere_fois_seuil_atteint as (select personne, min(date) as date
+-- filtrer par semaine où le seuil est atteint
+seuil_atteint as (select personne, date
 from actions_par_personne
 WHERE nombre_actions >= :nb_seuil_actions
-group by personne)
+)
 
 select personne.id, personne.email, date
-from premiere_fois_seuil_atteint
-join personne on premiere_fois_seuil_atteint.personne = personne.id`
+from seuil_atteint
+join personne on seuil_atteint.personne = personne.id`
         , {
             nb_seuil_actions: nombreSeuil,
             evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
         });
 
-        return requêteSQL.rows
+    /** @type {{id: Personne['id'], email: Personne['email'], date: Date}[]} */
+    const personnesEtDates = requêteSQL.rows
+
+    /** @type {{id: Personne['id'], email: Personne['email'], date: Date}[]} */
+    const résultat = Array.from(
+    personnesEtDates.reduce((map, actuelle) => {
+        const existante = map.get(actuelle.id);
+
+        // Si pas encore d'id ou si la date est plus ancienne
+        if (!existante || actuelle.date < existante.date) {
+        map.set(actuelle.id, actuelle);
+        }
+
+        return map;
+    }, new Map()).values()
+    );
+
+    return résultat
         
 }
