@@ -2,14 +2,16 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 // import { writeFile } from 'node:fs/promises'
-import { getPersonnesAcquises, getPersonnesActives } from '../../scripts/server/database/aarri/personnes-par-phase.js';
+import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
 const personnesAcquises = await getPersonnesAcquises()
 const personnesActives = await getPersonnesActives()
+const personnesImpact = await getPersonnesImpact()
 
 const personnesAcquisesEmailParDate = new Map(personnesAcquises.map(({email, date}) => [email, date]))
 const personnesActivesEmailParDate = new Map(personnesActives.map(({email, date}) => [email, date]))
+const personnesImpactEmailParDate = new Map(personnesImpact.map(({email, date}) => [email, date]))
 const entête = [[
   {
     value: "Email de la personne",
@@ -23,6 +25,10 @@ const entête = [[
     value: "Date d'activation",
     type: 'string'
   },
+  {
+    value: "Date de l'entrée dans la phase Impact",
+    type: 'string'
+  },
 ]]
 
 const personnes = [... new Set([...personnesAcquisesEmailParDate.keys(), ...personnesActivesEmailParDate.keys()])]
@@ -30,6 +36,7 @@ const personnes = [... new Set([...personnesAcquisesEmailParDate.keys(), ...pers
 const lignes = personnes.map(( email ) => {
   const dateAcquis = personnesAcquisesEmailParDate.get(email)
   const dateActive = personnesActivesEmailParDate.get(email)
+  const dateImpact = personnesImpactEmailParDate.get(email)
   if (dateAcquis || dateActive) {
     return (
         [
@@ -43,6 +50,10 @@ const lignes = personnes.map(( email ) => {
             },
             {
               value: dateActive ? formatDateAbsolue(dateActive, 'dd/MM/yyyy') : undefined,
+              type: 'string'
+            },
+            {
+              value: dateImpact ? formatDateAbsolue(dateImpact, 'dd/MM/yyyy') : undefined,
               type: 'string'
             },
         ]
