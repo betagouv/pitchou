@@ -5,7 +5,7 @@
 import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
-import { getPersonnesAcquises } from './aarri/personnes-par-phase.js';
+import { getPersonnesAcquises, getPersonnesImpact } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -157,22 +157,46 @@ async function calculerIndicateurActif(nbSemainesObservées) {
  * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
  * L'impact de Pitchou est mesuré par les retours à conformité
  * 
- * @param {number} nbSemainesObservées
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
  *
  * Une correspondance entre la date de la semaine concernée et le nombre de personne 
  * ayant un "impact" à cette date
  * @returns { Promise<Map<string, number>> } 
 */
-async function calculerIndicateurImpact(nbSemainesObservées) {
-    /*
-        Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
-        donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
-    */
+async function calculerIndicateurImpact(premièreSemaineObservée, dernièreSemaineObservée) {
+    const aujourdhui = new Date()
+    const personnesEtDate = await getPersonnesImpact()
+    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
-    /** @type {ÉvènementMétrique['type'][]} */
-    const évènements = [ 'retourÀLaConformité' ]
-    
-    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènements, 1)
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+
+    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
+
+   /** @type {Map<Semaine, number>} */
+    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
+    /** @type {Semaine[]} */
+    const semaines = eachWeekOfInterval(
+        {
+            start: semainesAcquisitions[0],
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+
+    let nombreCumulées = 0
+    for (const semaine of semaines) {
+        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
+        nombreCumulées = nombreCumulées + personnesParSemaines.length
+        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
+            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
+        }
+    }
+
+    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
 }
 
 /**
@@ -322,7 +346,7 @@ export async function indicateursAARRI() {
     const acquis = await calculerIndicateurAcquis(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
     const actifs = await calculerIndicateurActif(nbSemainesObservées);
     const retenus = await calculerIndicateurRetenu()
-    const impacts = await calculerIndicateurImpact(nbSemainesObservées);
+    const impacts = await calculerIndicateurImpact(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
 
     // Tri des dates par ordre décroissant.
     // Le front-end accède aux données via l’indice du tableau et non directement par la date,
