@@ -4,13 +4,14 @@ import { getÉvènementsForPersonne } from '../../scripts/server/database/aarri/
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
-
-/**
- * stdout doit être réservé à l'écriture du fichier.
- * les console.error permettent d'écrire des messages sans aller dans le sdtout
- */
+import { writeFile, mkdir } from 'node:fs/promises'
 
 const args = parseArgs(process.argv)
+
+let origin = 'https://pitchou.beta.gouv.fr'
+
+if(args.origin)
+    origin = args.origin
 
 if (!args.email) {
     console.error(`Il manque le paramètre --email`);
@@ -19,14 +20,14 @@ if (!args.email) {
 
 const email = args.email
 
-console.error(`Mail de la personne concernée : ${email}`)
-console.error(`Début des Calculs des données AARRI.`)
+console.log(`Mail de la personne concernée : ${email}`)
+console.log(`Début des Calculs des données AARRI.`)
 
 const évènements = await getÉvènementsForPersonne(email)
 const évènementsCount = Map.groupBy(évènements, ({ évènement }) => évènement )
 
-console.error(`✅ Résultats :`)
-console.error('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
+console.log(`✅ Résultats :`)
+console.log('Cette personne a enregistré', évènements.length,'évènements depuis le',`${formatDateAbsolue(évènements.at(-1)?.date)}`)
 
 // Création du fichier ODS pour stocker les résultats
 const évènementsFormattésPourODS = évènements.map( ({ date, évènement, détails } ) => ([
@@ -112,11 +113,17 @@ const content = new Map([
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
+const nomDeFichierODS = email + '-' + Math.random().toString(36).slice(2) + '.ods'
+const cheminDuFichierODS = `/tmp/pitchou/${nomDeFichierODS}`
 
 try {
-    console.error('📝 Création du fichier ODS avec les résultats...')
-    process.stdout.write(Buffer.from(ods))
-    console.error(`✅ Le fichier a bien été écrit sur stdout !`)
+    console.log('📝 Création du fichier ODS avec les résultats...')
+    await mkdir('/tmp/pitchou', { recursive: true })
+    await writeFile(cheminDuFichierODS, Buffer.from(ods))
+    console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}.`)
+    const lienTéléchargementFichier = `${origin}/tmp/${nomDeFichierODS}`
+    console.log(`Télécharger le fichier en cliquant ici : ${lienTéléchargementFichier}`)
+
   } catch (err) {
     console.error(err);
 }
