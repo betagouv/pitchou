@@ -29,19 +29,19 @@ export async function getÉvènementsForPersonne(email) {
 }
 
 /**
- * Renvoie la liste des fois où une personne a enregistré un nombre d'actions au-delà d'un certain seuil
- * ainsi que la date à laquelle elles ont enregistré ce nombre d'actions
+ * Renvoie la liste des fois où une personne a enregistré un nombre d'évènements au-delà d'un certain seuil
+ * ainsi que la date à laquelle elles ont enregistré ce nombre d'évènements
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>}
 */
-export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
+async function getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
         `-- personnes et le nombre évènement suivis par semaine
-with actions_par_personne as (select
+with evenements_par_personne as (select
 	personne,
-	COUNT(évènement) as nombre_actions,
+	COUNT(évènement) as nombre_evenements,
 	date_trunc('week', e.date)::date as date
 from évènement_métrique as e
 join personne on personne.id = e.personne
@@ -51,27 +51,36 @@ group by personne, date),
 
 -- filtrer par semaine où le seuil est atteint
 seuil_atteint as (select personne, date
-from actions_par_personne
-WHERE nombre_actions >= :nb_seuil_actions
+from evenements_par_personne
+WHERE nombre_evenements >= :nb_seuil_evenements
 )
 
 select personne.id, personne.email, date
 from seuil_atteint
 join personne on seuil_atteint.personne = personne.id`
         , {
-            nb_seuil_actions: nombreSeuil,
+            nb_seuil_evenements: nombreSeuil,
             evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
         });
+    
+    return requêteSQL.rows
+}
 
-    /** @type {{id: Personne['id'], email: Personne['email'], date: Date}[]} */
-    const personnesEtDates = requêteSQL.rows
+/**
+ * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil pour la première fois
+ * ainsi que la date à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
+ * 
+ * @param {ÉvènementMétrique['type'][]} évènements
+ * @param {number} nombreSeuil
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>}
+*/
+export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
+    const personnesEtDates = await getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil)
 
     /** @type {{id: Personne['id'], email: Personne['email'], date: Date}[]} */
     const résultat = Array.from(
     personnesEtDates.reduce((map, actuelle) => {
         const existante = map.get(actuelle.id);
-
-        // Si pas encore d'id ou si la date est plus ancienne
         if (!existante || actuelle.date < existante.date) {
         map.set(actuelle.id, actuelle);
         }
