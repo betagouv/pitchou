@@ -23,9 +23,10 @@ import { getPersonnesAyantAtteintSeuilÉvènementsParDate } from './utils.js';
 */
 export async function getPersonnesAcquises() {
     /** @type {[ÉvènementMétrique['type']]} */
-    const évènement = ['seConnecter']
+    const évènements = ['seConnecter']
     const nombreSeuil = 1
-    return await getPersonnesAyantAtteintSeuilÉvènementsParDate(évènement, nombreSeuil)
+    
+    return getPersonnesAyantAtteintSeuilÉvènementsParDate(évènements, nombreSeuil)
 }
 
 
@@ -40,4 +41,18 @@ export async function getPersonnesActives() {
     const nombreSeuil = 5
     
     return await getPersonnesAyantAtteintSeuilÉvènementsParDate(évènements, nombreSeuil)
+}
+
+/**
+ * Retourne les personnes dans la phae Impact et la date à laquelle elles ont été considérées dans la phase Impact.
+ * L'impact de Pitchou est mesuré par les retours à conformité
+ * 
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes dans la phase Impact et la date à laquelle elles ont été considérées dans la phase Impact.
+*/
+export async function getPersonnesImpact() {
+    /** @type {ÉvènementMétrique['type'][]} */
+    const évènements = [ 'retourÀLaConformité' ]
+    const nombreSeuil = 1
+
+    return getPersonnesAyantAtteintSeuilÉvènementsParDate(évènements, nombreSeuil)
 }
