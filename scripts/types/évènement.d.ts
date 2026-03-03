@@ -24,6 +24,7 @@ export type ÉvènementMétrique =
 			// On considère qu'une connexion correspond au chargement de Pitchou et la récupération réussie des URLs de caps
 			type: 'seConnecter'
 	  }
+
 	// Événéments de modification
 	// Suivre un dossier
 	| { type: 'suivreUnDossier'; détails: { dossierId: number } }
