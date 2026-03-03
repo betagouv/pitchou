@@ -30,11 +30,11 @@
     /** @type {Promise<void>} */
     let chargementAjouterOuModifierAvisExpertP = $state(Promise.resolve());
 
-    /** @type {string | null} */
-    let serviceOuPersonneExperte = $state(['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert ?? null) ? avisExpert.expert ?? null : 'Autre expert')
+    /** @type {string} */
+    let serviceOuPersonneExperte = $state(avisExpert?.expert && ['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert) ? avisExpert.expert : 'Autre expert');
 
     /** @type {string | null} */
-    let autreExpertTexte = $state(avisExpert.expert !== undefined && ['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert) ? null : avisExpert.expert ?? null)
+    let autreExpertTexte = $state(avisExpert?.expert && ['CSRPN', 'CNPN', 'Ministre', null].includes(avisExpert.expert) ? null : avisExpert.expert ?? '')
 
 
     /**
