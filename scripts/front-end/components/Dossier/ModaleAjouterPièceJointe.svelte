@@ -249,6 +249,7 @@
                                                 <div class="fr-fieldset__element">
                                                     <div class="fr-radio-group">
                                                         <input
+                                                            required
                                                             type="radio"
                                                             id={idRadio}
                                                             name="service-expert-{id}"
@@ -334,6 +335,7 @@
                                                     <div class="fr-fieldset__element">
                                                         <div class="fr-radio-group">
                                                             <input
+                                                                required
                                                                 type="radio"
                                                                 id={idRadio}
                                                                 name="service-expert-{id}"
@@ -371,6 +373,7 @@
                                                     <div class="fr-fieldset__element">
                                                         <div class="fr-radio-group">
                                                             <input
+                                                                required
                                                                 type="radio"
                                                                 id={idRadio}
                                                                 name="avis-expert-{id}"
