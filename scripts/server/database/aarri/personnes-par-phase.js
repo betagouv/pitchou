@@ -4,6 +4,7 @@
 import { compareAsc, differenceInWeeks, startOfWeek } from 'date-fns';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './constantes.js';
 import { getPersonnesEtDatesQuandSeuilAtteint, getPremièreDateAtteinteDuSeuilParPersonne } from './utils.js';
+import AARRI from '../../../front-end/routes/AARRI.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -96,6 +97,7 @@ export async function getPersonnesRetenues() {
     const premièreSemaineRetenuParPersonne = []
 
     datesSeuilAtteintParPersonne.forEach((personneEtSemaine) => {
+        console.log('personne : ', personneEtSemaine[0].email)
         // On récupère les semaines "validées" et on les ordonne de la date la plus ancienne à la date la plus récente
         const semainesTriées = [...personneEtSemaine.values()].map((value) => value.semaine).sort((semaineA,semaineB) => compareAsc(semaineA, semaineB))
         // Pour chaque personne, on recherche la date la plus ancienne à laquelle elle est considérée comme retenue.
@@ -104,7 +106,9 @@ export async function getPersonnesRetenues() {
             const premièreSemaine = semainesTriées[i-nombreSeuilSemainesValidées]
             // On veut la dernière semaine pour laquelle parmi les 8 précédentes semaines il y a 5 semaines retenues.
             // On veut savoir pour quelle date, la cinquième date avant date au plus tard d'il y a huit semaines.
-            if (differenceInWeeks(dernièreSemaine, premièreSemaine)<= nombreSemainesGlissantesÀObserver) {
+            console.log('premièreSemaine', premièreSemaine)
+            console.log('dernièreSemaine', dernièreSemaine)
+            if (differenceInWeeks(dernièreSemaine, premièreSemaine) <= nombreSemainesGlissantesÀObserver) {
                 const personneEtSemaineRetenue = personneEtSemaine[i]
                 premièreSemaineRetenuParPersonne.push(personneEtSemaineRetenue)
             }
