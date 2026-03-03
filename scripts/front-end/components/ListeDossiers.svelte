@@ -22,7 +22,6 @@
     * @property {boolean} [afficherFiltreSansInstructeurice]
     * @property {boolean} [afficherFiltreActionInstructeur]
     * @property {PitchouState['notificationParDossier']} notificationParDossier
-    * @property {boolean} [activerTriDossierParNotification]
     */
     /** @type {Props} */
     let {
@@ -33,7 +32,6 @@
         afficherFiltreSansInstructeurice = false,
         afficherFiltreActionInstructeur = false,
         notificationParDossier,
-        activerTriDossierParNotification = false,
     } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
@@ -144,14 +142,12 @@
             const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
             const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.date_dernière_mise_à_jour: undefined;
 
-            if (activerTriDossierParNotification === true) {
-                if (dateNotificationNonVueA && dateNotificationNonVueB) {
-                    return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
-                } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
-                    return -1
-                } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
-                    return 1
-                }
+            if (dateNotificationNonVueA && dateNotificationNonVueB) {
+                return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
+            } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
+                return -1
+            } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
+                return 1
             }
 
             return a.date_dépôt > b.date_dépôt ? -1 : 1
