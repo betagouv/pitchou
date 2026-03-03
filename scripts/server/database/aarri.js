@@ -5,7 +5,7 @@
 import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
-import { getPersonnesAcquises, getPersonnesImpact } from './aarri/personnes-par-phase.js';
+import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -63,83 +63,6 @@ async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSema
     return nombrePersonnesCumuléesParSemaineSurPériodeObservée
 }
 
-
-/**
- * 
- * @param {number} nombreSemainesObservées 
- * @param {ÉvènementMétrique['type'][]} évènements 
- * @param {number} seuilNombreÉvènements 
- *
- * Une correspondance entre la date de la semaine concernée et le nombre de personnes cumulées ayant 
- * atteint le seuil à cette date.
- * @returns { Promise<Map<string, number>> } 
- */
-async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nombreSemainesObservées, évènements, seuilNombreÉvènements){
-
-    const requêteSQL = `
--- personnes et le nombre évènement suivis par semaine
-with actions_par_personne as (select
-	personne,
-	COUNT(évènement) as nombre_actions,
-	date_trunc('week', e.date)::date as semaine
-from évènement_métrique as e
-join personne on personne.id = e.personne
-WHERE évènement IN (:evenements)
-and personne.email NOT ILIKE '%@beta.gouv.fr'
-group by personne, semaine),
-
--- filtrer par première fois où le seuil est atteint
-premiere_fois_seuil_atteint as (select personne, min(semaine) as semaine
-from actions_par_personne
-WHERE nombre_actions >= :nb_seuil_actions
-group by personne),
-
--- nombre actif par semaine
-nombre_personnes_par_semaine as (select
-	count(personne) as nombre_personne_pour_cette_semaine,
-	semaine
-from premiere_fois_seuil_atteint
-group by semaine),
-
--- récupérer la liste de toutes les semaines avec sûr les nb_semaines_observees dernières semaines
-semaines as (
-	select
-		date_trunc('week', semaine)::date as semaine
-	from
-		generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
-	union
-	select semaine from premiere_fois_seuil_atteint
-)
-
-select
-	semaines.semaine as date,
-	sum(nombre_personne_pour_cette_semaine) over (order by semaines.semaine  asc) as quantite_personnes
-from
-	nombre_personnes_par_semaine
-right join
-	semaines
-on semaines.semaine = nombre_personnes_par_semaine.semaine
-order by date desc
-limit :nb_semaines_observees; 
-        `;
-
-    const personnesParSemaines = await directDatabaseConnection.raw(requêteSQL, {
-        nb_semaines_observees: nombreSemainesObservées,
-        nb_seuil_actions: seuilNombreÉvènements,
-        evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
-    })
-
-    return new Map(
-        ...[personnesParSemaines.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.quantite_personnes)]
-        )]
-    )
-}
-
-
-
-
-
 /**
  * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
  * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
@@ -148,8 +71,49 @@ limit :nb_semaines_observees;
  *
  * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
 */
-async function calculerIndicateurActif(nbSemainesObservées) {
-    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, ÉVÈNEMENTS_MODIFICATIONS, 5)
+
+/**
+ * Calcule le nombre de personnes actives sur Pitchou sur une période.
+ * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * 
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
+ *
+ * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre de personnes actives au lundi de cette semaine.
+*/
+async function calculerIndicateurActif(premièreSemaineObservée, dernièreSemaineObservée) {
+    const aujourdhui = new Date()
+    const personnesEtDate = await getPersonnesActives()
+    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
+
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+
+    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
+
+   /** @type {Map<Semaine, number>} */
+    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
+    /** @type {Semaine[]} */
+    const semaines = eachWeekOfInterval(
+        {
+            start: semainesAcquisitions[0],
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+
+    let nombreCumulées = 0
+    for (const semaine of semaines) {
+        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
+        nombreCumulées = nombreCumulées + personnesParSemaines.length
+        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
+            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
+        }
+    }
+
+    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
 }
 
 
@@ -342,7 +306,7 @@ export async function indicateursAARRI() {
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
-    const actifs = await calculerIndicateurActif(nbSemainesObservées);
+    const actifs = await calculerIndicateurActif(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
     const retenus = await calculerIndicateurRetenu()
     const impacts = await calculerIndicateurImpact(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
 
