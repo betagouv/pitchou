@@ -1,5 +1,4 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
-/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
 /** @import { PersonneId } from '../../types/database/public/Personne.js' */
 
 import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
