@@ -2,16 +2,18 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 // import { writeFile } from 'node:fs/promises'
-import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from '../../scripts/server/database/aarri/personnes-par-phase.js';
+import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact, getPersonnesRetenues } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
 const personnesAcquises = await getPersonnesAcquises()
 const personnesActives = await getPersonnesActives()
+const personnesRetenues = await getPersonnesRetenues()
 const personnesImpact = await getPersonnesImpact()
 
 const personnesAcquisesEmailParDate = new Map(personnesAcquises.map(({email, date}) => [email, date]))
 const personnesActivesEmailParDate = new Map(personnesActives.map(({email, date}) => [email, date]))
 const personnesImpactEmailParDate = new Map(personnesImpact.map(({email, date}) => [email, date]))
+const personnesRetenuesEmailParSemaine = new Map(personnesRetenues.map(({email, semaine}) => [email, semaine]))
 const entête = [[
   {
     value: "Email de la personne",
@@ -26,6 +28,10 @@ const entête = [[
     type: 'string'
   },
   {
+    value: "Date du premier jour de la semaine d'entrée dans la phase Rétention",
+    type: 'string'
+  },
+  {
     value: "Date de l'entrée dans la phase Impact",
     type: 'string'
   },
@@ -36,6 +42,7 @@ const personnes = [... new Set([...personnesAcquisesEmailParDate.keys(), ...pers
 const lignes = personnes.map(( email ) => {
   const dateAcquis = personnesAcquisesEmailParDate.get(email)
   const dateActive = personnesActivesEmailParDate.get(email)
+  const dateRetenue = personnesRetenuesEmailParSemaine.get(email)
   const dateImpact = personnesImpactEmailParDate.get(email)
   if (dateAcquis || dateActive) {
     return (
@@ -50,6 +57,10 @@ const lignes = personnes.map(( email ) => {
             },
             {
               value: dateActive ? formatDateAbsolue(dateActive, 'dd/MM/yyyy') : undefined,
+              type: 'string'
+            },
+            {
+              value: dateRetenue ? formatDateAbsolue(dateRetenue, 'dd/MM/yyyy') : undefined,
               type: 'string'
             },
             {

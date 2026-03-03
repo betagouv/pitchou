@@ -4,8 +4,7 @@
 import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
-import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact, getPersonnesRetenues } from './aarri/personnes-par-phase.js';
-
+import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from './aarri/personnes-par-phase.js';
 /**
  * Correspond au jour d'une semaine
  * @typedef {string} Semaine
@@ -262,7 +261,7 @@ export async function indicateursAARRI() {
     const nbSemainesObservées = 5
     const aujourdhui = new Date()
     const dernièreSemaineObservée = subWeeks(aujourdhui, nbSemainesObservées)
-await getPersonnesRetenues()
+
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
     const acquis = await calculerIndicateurAcquis(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
