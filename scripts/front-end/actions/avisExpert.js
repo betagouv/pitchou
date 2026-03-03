@@ -2,6 +2,7 @@
 /** @import { FrontEndAvisExpert } from '../../types/API_Pitchou.js' */
 
 import { text } from "d3-fetch";
+import { envoyerÉvènement } from "./aarri.js";
 
 
 /**
@@ -32,6 +33,10 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
     // on fournit l'id de l'avis d'expert
     if (avisExpert.id) {
         form.append("id", avisExpert.id);
+        envoyerÉvènement({ type: 'modifierAvisExpert' })
+    } else {
+        // Dans le cas d'un ajout
+        envoyerÉvènement({ type: 'ajouterAvisExpert' })
     }
 
     if (avisExpert.avis) {
@@ -70,5 +75,6 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
  * @param {Pick<AvisExpert, "id">} avisExpert
  */
 export function supprimerAvisExpert(avisExpert) {
+    envoyerÉvènement({ type: 'supprimerAvisExpert' })
     return text(`/avis-expert/${avisExpert.id}`, { method: 'DELETE'})
 }
