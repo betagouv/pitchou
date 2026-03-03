@@ -63,7 +63,7 @@ export async function getPersonnesImpact() {
 }
 
 /**
- * Retourne les personnes dans la phae Impact et la date à laquelle elles ont été considérées dans la phase Impact.
+ * Retourne les personnes retenues et la date à laquelle elles ont été considérées comme retenues.
  * Une personne retenue est une personne qui renouvelle 5 actions consultation ou modification sur une semaine sur au moins 5 des 8 dernières semaines.
  * 
  * @remark
