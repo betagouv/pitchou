@@ -40,6 +40,8 @@ export async function updateNotificationDossierFromCap(cap, notification, databa
 
     return await databaseConnection('notification')
         .update(notificationÀUpdate)
-        .where('dossier', '=', notification.dossier)
-        .andWhere('personne', '=', personne.id)
+        .where({
+        dossier: notification.dossier,
+        personne: personne.id
+        })
 }
