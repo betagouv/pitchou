@@ -132,76 +132,13 @@ async function calculerIndicateurImpact(premièreSemaineObservée, dernièreSema
  * @returns { Promise<Map<string, number>> } 
 */
 async function calculerIndicateurRetenu(premièreSemaineObservée, dernièreSemaineObservée) {
-    const aujourdhui = new Date()
     const personnesEtDate = await getPersonnesRetenues()
     const personnesParDate = new Map(personnesEtDate.map(({semaine: date, id}) => [date, id]))
 
     const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
-    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
-
-   /** @type {Map<Semaine, number>} */
-    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
-    /** @type {Semaine[]} */
-    const semaines = eachWeekOfInterval(
-        {
-            start: semainesAcquisitions[0],
-            end: aujourdhui,
-        },
-        {
-            weekStartsOn: 1,
-        }
-    ).map((semaine) => semaine.toISOString())
-
-
-    let nombreCumulées = 0
-    for (const semaine of semaines) {
-        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
-        nombreCumulées = nombreCumulées + personnesParSemaines.length
-        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
-            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
-        }
-    }
-
-    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
-
-/**
- * Calcule la première semaine à laquelle la personne est considérée comme retenue.
- * 
- * Condition de rétention : 
- * il existe une période de 8 semaines dans laquelle il y a 5 semaines validées.
- * Une semaine validée est une semaine où la personne a effectué au moins 5 actions de modification ou de consultation.
- * 
- * @param {Map<Semaine, number>} nombreActionsParSemaine
- * @param {number} nombreSeuilActionsParSemaine
- * @param {number} nombreSemainesGlissantesÀObserver
- * @param {Semaine[]} semaines
- * @param {number} nombreSeuilSemainesValidées
- * 
- * @returns {Semaine | null}
- */
-export function getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsParSemaine, nombreSemainesGlissantesÀObserver, semaines, nombreSeuilSemainesValidées) {
-    let semainePersonneRetenue = null
-
-    for (let i=0; i<= semaines.length; i++) {
-        const périodeObservée = semaines.slice(i, i+nombreSemainesGlissantesÀObserver)
-        const semainesValidéesSurSemainesÀObserver = périodeObservée.filter(
-            (semaine) => {
-                const nombreActions = nombreActionsParSemaine.get(semaine) ?? 0
-                // Condition pour qu'une semaine soit validée
-                return nombreActions >= nombreSeuilActionsParSemaine
-            })
-        // Condition pour que la personne soit dite retenue sur cette période de 8 semaines.
-        if (semainesValidéesSurSemainesÀObserver.length >= nombreSeuilSemainesValidées) {
-            return semainesValidéesSurSemainesÀObserver.at(-1) || null
-        }
-    }
-
-    return semainePersonneRetenue
-
-}
-
 
 /**
  * @returns {Promise<IndicateursAARRI[]>}
