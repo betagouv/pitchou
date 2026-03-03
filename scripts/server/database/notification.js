@@ -1,39 +1,21 @@
 /** @import { default as Notification, NotificationInitializer } from "../../types/database/public/Notification.ts" */
-/** @import { default as Personne } from "../../types/database/public/Personne.ts" */
-
+/** @import { default as CapDossier } from '../../types/database/public/CapDossier.ts' */
 
 import knex from 'knex';
 import { directDatabaseConnection } from '../database.js';
-
-
-/**
- * 
- * @param {string} cap 
- * @returns {Promise<Personne>}
- */
-async function getPersonneFromCap(cap) {
-    /** @type {Personne} */
-    const personne = await directDatabaseConnection('cap_notification')
-        .select('*')
-        .from('personne')
-        .join('cap_notification', {'cap_notification.personne_cap': 'personne.code_accès'})
-        .where({'cap_notification.cap': cap})
-        .first()
-
-    if (!personne) {
-        throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`)
-    }
-    return personne
-}
-
+import { getPersonneByDossierCap } from './personne.js';
 /**
  * Récupère les notifications d'une personne donnée
- * @param {string} cap
+ * @param {CapDossier['cap']} cap
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @return {Promise<Notification[]>}
  */
 export async function getNotificationsPourPersonneDepuisCap(cap, databaseConnection = directDatabaseConnection) {
-    const personne = await getPersonneFromCap(cap)
+    const personne = await getPersonneByDossierCap(cap)
+
+    if (!personne) {
+        throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`)
+    }
 
     return databaseConnection('notification')
         .select('*')
@@ -43,16 +25,18 @@ export async function getNotificationsPourPersonneDepuisCap(cap, databaseConnect
 
 /**
  * Met à jour la notification d'un dossier d'une personne à partir de sa capability.
- * @param { string } cap
+ * @param { CapDossier['cap'] } cap
  * @param { NotificationInitializer } notification
  * @param { knex.Knex.Transaction | knex.Knex } [databaseConnection]
  */
 export async function updateNotificationDossierFromCap(cap, notification, databaseConnection = directDatabaseConnection) {
-    const personne = await getPersonneFromCap(cap)
+    const personne = await getPersonneByDossierCap(cap)
+
+    if (!personne) {
+        throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`)
+    }
 
     const notificationÀUpdate =  { vue: notification.vue}
-
-    console.log('notification', notificationÀUpdate)
 
     return await databaseConnection('notification')
         .update(notificationÀUpdate)
