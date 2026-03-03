@@ -173,7 +173,7 @@
                 <DateInput id={'input-champ-date-avis'} bind:date={avisExpert.date_avis}/>
             </div>
         </div>
-        {#if (avisExpert.expert === 'Ministre' || avisExpert.expert === 'CNPN' || avisExpert.expert === 'CSRPN')}
+        {#if (serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN')}
             <div class="fr-fieldset__element">
                 <div class="fr-input-group" id="champ-avis-group">
                     <p class="fr-label fr-mb-2w">Avis de l’expert</p>
