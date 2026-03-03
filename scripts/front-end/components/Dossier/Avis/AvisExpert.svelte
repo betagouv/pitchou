@@ -32,7 +32,15 @@
 
 <div class="carte-avis-expert">
     <div class="titre">
-        <h3 class="fr-h5">{avisExpert.expert ?? 'Expert'} - {avisExpert.avis ?? "Avis en attente"}</h3>
+        <h3 class="fr-h5">
+            {avisExpert.expert ?? 'Expert'}
+             - 
+        {#if (avisExpert.expert === 'Ministre' || avisExpert.expert === 'CNPN' || avisExpert.expert === 'CSRPN')}
+            {avisExpert.avis ?? "Avis en attente"}
+        {:else}
+            {avisExpert.avis_fichier_url ? 'Avis rendu' : 'Avis en attente'}
+        {/if}
+        </h3>
         {#if !avisExpertEnModification}
             <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" type="button" onclick={() => avisExpertEnModification = true}>Modifier</button>
         {/if}
