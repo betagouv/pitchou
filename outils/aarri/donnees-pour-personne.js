@@ -6,6 +6,8 @@ import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 import { writeFile, mkdir } from 'node:fs/promises'
 
+import {fichiersAARRIDirPath} from './constants.js'
+
 const args = parseArgs(process.argv)
 
 let origin = 'https://pitchou.beta.gouv.fr'
@@ -114,14 +116,14 @@ const content = new Map([
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
 const nomDeFichierODS = email + '-' + Math.random().toString(36).slice(2) + '.ods'
-const cheminDuFichierODS = `/tmp/pitchou/${nomDeFichierODS}`
+const cheminDuFichierODS = `${fichiersAARRIDirPath}/${nomDeFichierODS}`
 
 try {
     console.log('📝 Création du fichier ODS avec les résultats...')
-    await mkdir('/tmp/pitchou', { recursive: true })
+    await mkdir(fichiersAARRIDirPath, {recursive: true})
     await writeFile(cheminDuFichierODS, Buffer.from(ods))
-    console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}.`)
-    const lienTéléchargementFichier = `${origin}/tmp/${nomDeFichierODS}`
+    console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}`)
+    const lienTéléchargementFichier = `${origin}/build/tmp-aarri/${nomDeFichierODS}`
     console.log(`Télécharger le fichier en cliquant ici : ${lienTéléchargementFichier}`)
 
   } catch (err) {

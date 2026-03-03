@@ -96,15 +96,12 @@ await fastify.register(fastifyCompress)
 fastify.register(fastatic, {
   root: path.resolve(import.meta.dirname, '..', '..'),
   extensions: ['html'],
+  // certains fichiers ont vocation à rester secrets
+  // ils sont protégés par une partie aléatoire dans leurs noms
+  // cette option permet de ne pas dévoiler leur nom
+  list: false
 })
 
-// Servir les dossiers statiques contenant des fichiers que l'on souhaite télécharger.
-fastify.register(fastatic, {
-  root: '/tmp/pitchou',
-  prefix: '/tmp',
-  // cf https://github.com/fastify/fastify-static?tab=readme-ov-file#multiple-prefixed-roots
-  decorateReply: false,
-})
 
 fastify.register(fastifyMultipart, {
   attachFieldsToBody: true,
