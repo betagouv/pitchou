@@ -11,6 +11,45 @@ import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from '.
  * @typedef {string} Semaine
  */
 
+/**
+ * Calcule le cumul hebdomadaire du nombre de personnes sur une période observée
+ *
+ * @param {Map<Semaine, [Date, PersonneId][]>} personnesRegroupéesParSemaine
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
+ *
+ * @returns {Map<Semaine, number>}
+ */
+function calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée) {
+    const aujourdhui = new Date()
+
+    const semainesSources = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
+
+    /** @type {Map<Semaine, number>} */
+    const cumulParSemaineSurPériodeObservée = new Map()
+
+    /** @type {Semaine[]} */
+    const semaines = eachWeekOfInterval(
+        {
+            start: semainesSources[0],
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+    let cumul = 0
+    for (const semaine of semaines) {
+        const élémentsParSemaine = personnesRegroupéesParSemaine.get(semaine) ?? []
+        cumul = cumul + élémentsParSemaine.length
+        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
+            cumulParSemaineSurPériodeObservée.set(semaine, cumul)
+        }
+    }
+
+    return cumulParSemaineSurPériodeObservée
+}
 
 /**
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
@@ -28,38 +67,12 @@ import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from '.
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre d'acquis.e au lundi de cette semaine
 */
 async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSemaineObservée) {
-    const aujourdhui = new Date()
     const personnesEtDate = await getPersonnesAcquises()
     const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
     const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
-    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
-
-   /** @type {Map<Semaine, number>} */
-    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
-    /** @type {Semaine[]} */
-    const semaines = eachWeekOfInterval(
-        {
-            start: semainesAcquisitions[0],
-            end: aujourdhui,
-        },
-        {
-            weekStartsOn: 1,
-        }
-    ).map((semaine) => semaine.toISOString())
-
-
-    let nombreCumulées = 0
-    for (const semaine of semaines) {
-        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
-        nombreCumulées = nombreCumulées + personnesParSemaines.length
-        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
-            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
-        }
-    }
-
-    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
 
 /**
@@ -81,38 +94,12 @@ async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSema
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre de personnes actives au lundi de cette semaine.
 */
 async function calculerIndicateurActif(premièreSemaineObservée, dernièreSemaineObservée) {
-    const aujourdhui = new Date()
     const personnesEtDate = await getPersonnesActives()
     const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
     const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
-    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
-
-   /** @type {Map<Semaine, number>} */
-    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
-    /** @type {Semaine[]} */
-    const semaines = eachWeekOfInterval(
-        {
-            start: semainesAcquisitions[0],
-            end: aujourdhui,
-        },
-        {
-            weekStartsOn: 1,
-        }
-    ).map((semaine) => semaine.toISOString())
-
-
-    let nombreCumulées = 0
-    for (const semaine of semaines) {
-        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
-        nombreCumulées = nombreCumulées + personnesParSemaines.length
-        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
-            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
-        }
-    }
-
-    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
 
 
@@ -128,38 +115,12 @@ async function calculerIndicateurActif(premièreSemaineObservée, dernièreSemai
  * @returns { Promise<Map<string, number>> } 
 */
 async function calculerIndicateurImpact(premièreSemaineObservée, dernièreSemaineObservée) {
-    const aujourdhui = new Date()
     const personnesEtDate = await getPersonnesImpact()
     const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
     const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
 
-    const semainesAcquisitions = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
-
-   /** @type {Map<Semaine, number>} */
-    const nombrePersonnesCumuléesParSemaineSurPériodeObservée = new Map()
-    /** @type {Semaine[]} */
-    const semaines = eachWeekOfInterval(
-        {
-            start: semainesAcquisitions[0],
-            end: aujourdhui,
-        },
-        {
-            weekStartsOn: 1,
-        }
-    ).map((semaine) => semaine.toISOString())
-
-
-    let nombreCumulées = 0
-    for (const semaine of semaines) {
-        const personnesParSemaines = personnesRegroupéesParSemaine.get(semaine) ?? []
-        nombreCumulées = nombreCumulées + personnesParSemaines.length
-        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
-            nombrePersonnesCumuléesParSemaineSurPériodeObservée.set(semaine, nombreCumulées)
-        }
-    }
-
-    return nombrePersonnesCumuléesParSemaineSurPériodeObservée
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
 
 /**
