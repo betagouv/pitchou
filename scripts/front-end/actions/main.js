@@ -34,6 +34,25 @@ export function chargerRelationSuivi(){
     }
 }
 
+export function chargerNotificationParDossierPourInstructeurActuel() {
+    if(store.state.capabilities?.listerNotifications){
+        store.state.capabilities?.listerNotifications()
+            .then(notificationsBDD => {
+                if (!notificationsBDD || !Array.isArray(notificationsBDD)) {
+                    throw new TypeError("On attendait un tableau de notifications ici !")
+                }
+
+                const notificationParDossierPourInstructeurActuel = new SvelteMap()
+
+                for(const notification of notificationsBDD){
+                    notificationParDossierPourInstructeurActuel.set(notification.dossier, notification)
+                }
+
+                store.mutations.setNotificationParDossierPourInstructeurActuel(notificationParDossierPourInstructeurActuel)
+            })
+    }
+}
+
 export function chargerSchemaDS88444() {
     return json(getURL("link#schema-DS8844")).then((schema) => {
         //@ts-ignore
@@ -78,6 +97,7 @@ export async function logout(){
     store.mutations.setDossiersComplets(new SvelteMap())
     store.mutations.resetMessages()
     store.mutations.setRelationSuivis(new SvelteMap())
+    store.mutations.setNotificationParDossierPourInstructeurActuel(new SvelteMap())
 
     return forget(PITCHOU_SECRET_STORAGE_KEY)
 }

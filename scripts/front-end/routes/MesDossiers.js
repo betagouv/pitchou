@@ -9,10 +9,12 @@ import SqueletteContenuVide from '../components/SqueletteContenuVide.svelte';
 import { chargerDossiers } from '../actions/dossier.js';
 import store from '../store.js';
 import { envoyerÉvènement } from '../actions/aarri.js';
+import { chargerNotificationParDossierPourInstructeurActuel } from '../actions/main.js';
 
 
 export default async () => {
     replaceComponent(SqueletteContenuVide, () => {})
+    chargerNotificationParDossierPourInstructeurActuel()
 
     /**
      *
@@ -39,7 +41,8 @@ export default async () => {
             dossiers,
             relationSuivis: state.relationSuivis,
             erreurs,
-            résultatsSynchronisationDS88444
+            résultatsSynchronisationDS88444,
+            notificationParDossier: state.notificationParDossier
         };
     }
 

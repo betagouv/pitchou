@@ -3,8 +3,8 @@ import Dossier from "./database/public/Dossier"
 import {default as Prescription} from './database/public/Prescription'
 
 export type ÉvènementRechercheDossiersDétails =  {
-    filtres: {
-        suiviPar?: {
+	filtres: {
+		suiviPar?: {
             nombreSéléctionnées: number,
             nombreTotal: number,
             inclusSoiMême: boolean,
@@ -13,9 +13,10 @@ export type ÉvènementRechercheDossiersDétails =  {
         texte?: string,
         phases?: DossierPhase[],
         prochaineActionAttenduePar?: Array<DossierProchaineActionAttenduePar | "(vide)">,
-        activitésPrincipales?: NonNullable<Dossier['activité_principale']>[]
-    },
-    nombreRésultats: number
+		activitésPrincipales?: NonNullable<Dossier['activité_principale']>[]
+		nouveauté?: boolean
+	},
+	nombreRésultats: number
 }
 
 

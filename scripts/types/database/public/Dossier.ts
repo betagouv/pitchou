@@ -50,13 +50,13 @@ export default interface Dossier {
   enjeu_politique: boolean | null;
 
   /** Commentaires de l'instructeur.rice sur le dossier */
-  commentaire_libre: string | null;
+  commentaire_libre: string;
 
   /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution: Date | null;
 
   /** Identifiant de la demande dans ONAGRE */
-  historique_identifiant_demande_onagre: string | null;
+  historique_identifiant_demande_onagre: string;
 
   /** Date de la consultation publique */
   date_debut_consultation_public: Date | null;
@@ -201,14 +201,20 @@ export interface DossierInitializer {
   /** Indique si le dossier présente un enjeu politique */
   enjeu_politique?: boolean | null;
 
-  /** Commentaires de l'instructeur.rice sur le dossier */
-  commentaire_libre?: string | null;
+  /**
+   * Commentaires de l'instructeur.rice sur le dossier
+   * Default value: ''::text
+   */
+  commentaire_libre?: string;
 
   /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
 
-  /** Identifiant de la demande dans ONAGRE */
-  historique_identifiant_demande_onagre?: string | null;
+  /**
+   * Identifiant de la demande dans ONAGRE
+   * Default value: ''::character varying
+   */
+  historique_identifiant_demande_onagre?: string;
 
   /** Date de la consultation publique */
   date_debut_consultation_public?: Date | null;
@@ -353,13 +359,13 @@ export interface DossierMutator {
   enjeu_politique?: boolean | null;
 
   /** Commentaires de l'instructeur.rice sur le dossier */
-  commentaire_libre?: string | null;
+  commentaire_libre?: string;
 
   /** Date d'envoi de la dernière contribution */
   historique_date_envoi_dernière_contribution?: Date | null;
 
   /** Identifiant de la demande dans ONAGRE */
-  historique_identifiant_demande_onagre?: string | null;
+  historique_identifiant_demande_onagre?: string;
 
   /** Date de la consultation publique */
   date_debut_consultation_public?: Date | null;

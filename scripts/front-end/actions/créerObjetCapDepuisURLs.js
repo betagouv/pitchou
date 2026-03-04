@@ -277,7 +277,9 @@ export default function(capURLs){
         remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
         modifierDécisionAdministrativeDansDossier: wrapModifierDécisionAdministrative(capURLs.modifierDécisionAdministrativeDansDossier),
         créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
-        identité: capURLs.identité
+        identité: capURLs.identité,
+        listerNotifications: wrapGETUrl(capURLs.listerNotifications),
+        updateNotificationForDossier: wrapPOSTUrl(capURLs.updateNotificationForDossier)
     }
 
 }

@@ -21,6 +21,7 @@
     * @property {PitchouState['relationSuivis']} [relationSuivis]
     * @property {boolean} [afficherFiltreSansInstructeurice]
     * @property {boolean} [afficherFiltreActionInstructeur]
+    * @property {PitchouState['notificationParDossier']} notificationParDossier
     */
     /** @type {Props} */
     let {
@@ -29,12 +30,13 @@
         dossiers,
         relationSuivis,
         afficherFiltreSansInstructeurice = false,
-        afficherFiltreActionInstructeur = false
+        afficherFiltreActionInstructeur = false,
+        notificationParDossier,
     } = $props();
 
     const NOMBRE_DOSSIERS_PAR_PAGE = 10
 
-    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur', (d: DossierRésumé) => boolean>} */
+    /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur' | 'nouveauté', (d: DossierRésumé) => boolean>} */
     const tousLesFiltres = new SvelteMap()
 
     const dossiersFiltrés = $derived.by(() => {
@@ -52,7 +54,8 @@
          * @type {ÉvènementRechercheDossiersDétails['filtres']}
          */
         const filtres = {
-            sansInstructeurice: tousLesFiltres.has('sansInstructeurice')
+            sansInstructeurice: tousLesFiltres.has('sansInstructeurice'),
+            nouveauté: tousLesFiltres.has('nouveauté')
         }
 
         if (texteÀChercher) {
@@ -108,7 +111,7 @@
     /** @type {DossierPhase | undefined} */
     let phaseSélectionnée = $state()
 
-    const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email))
+    const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set())
 
     /** @typedef {() => void} SelectionneurPage */
     /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
@@ -129,11 +132,26 @@
 
     /** @type {typeof dossiers} */
     let dossiersAffichés = $derived.by(() => {
-        // On affiche les dossiers triés par date de dépôt la plus récente
-        const dossiersTriés = [...dossiersFiltrés].sort((a,b) => {
-            const dateA = a.date_dépôt ?? new Date(0);
-            const dateB = b.date_dépôt ?? new Date(0);
-            return dateA < dateB ? 1 : -1;
+        // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
+        // puis par date de dépôt
+        const dossiersTriés = [...dossiersFiltrés].sort((a, b) => {
+
+            const notificationA = notificationParDossier.get(a.id)
+            const notificationB = notificationParDossier.get(b.id)
+            
+            const dateNotificationNonVueA = notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
+            const dateNotificationNonVueB = notificationB?.vue === false ? notificationB.date_dernière_mise_à_jour: undefined;
+
+            if (dateNotificationNonVueA && dateNotificationNonVueB) {
+                return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1
+            } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
+                return -1
+            } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
+                return 1
+            }
+
+            return a.date_dépôt > b.date_dépôt ? -1 : 1
+            
         })
 
         if(!selectionneursPage)
@@ -195,6 +213,16 @@
             tousLesFiltres.set('actionInstructeur', (dossier) => dossier.prochaine_action_attendue_par === 'Instructeur')
         } else {
             tousLesFiltres.delete('actionInstructeur')
+        }
+        envoyerÉvènementRechercherUnDossier()
+        réinitialiserPage()
+    }
+
+    function toggleFiltreNouveauté() {
+        if (!tousLesFiltres.has('nouveauté')) {
+            tousLesFiltres.set('nouveauté', (dossier) => notificationParDossier.get(dossier.id)?.vue === false)
+        } else {
+            tousLesFiltres.delete('nouveauté')
         }
         envoyerÉvènementRechercherUnDossier()
         réinitialiserPage()
@@ -265,7 +293,7 @@
                     {#if afficherFiltreSansInstructeurice}
                         <button
                             type="button"
-                            class="fr-tag filtre-sans-instructeurice"
+                            class="fr-tag"
                             onclick={toggleFiltreSansInstructeurice}
                             aria-pressed={tousLesFiltres.has('sansInstructeurice')}
                         >
@@ -282,8 +310,17 @@
                             Action : Instructeur·ice
                         </button>
                     {/if}
+                    <button
+                        type="button"
+                        class="fr-tag"
+                        onclick={toggleFiltreNouveauté}
+                        aria-pressed={tousLesFiltres.has('nouveauté')}
+                        
+                    >
+                        Nouveauté
+                    </button>
             </div>
-            <p class="compteur">
+            <p class="compteur" data-testid={'compteur-dossier'}>
                 <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg">/{dossiers.length} dossiers</span>
             </p>
         </div>
@@ -295,7 +332,13 @@
         <ul>
             {#each dossiersAffichés as dossier (dossier.id)}
                 <li>
-                    <CarteDossier {dossier} {instructeurActuelSuitDossier} {instructeurActuelLaisseDossier} dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel?.has(dossier.id)} />
+                    <CarteDossier 
+                        {dossier} 
+                        {instructeurActuelSuitDossier} 
+                        {instructeurActuelLaisseDossier} 
+                        dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel.has(dossier.id)} 
+                        nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue ?? true}
+                    />
                 </li>
             {/each}
         </ul>
@@ -365,10 +408,6 @@
             }
         }
 
-        .filtre-sans-instructeurice {
-            margin-bottom: .25rem;
-        }
-
         .filtres-et-compteur-dossiers {
             display: flex;
             flex-direction: row;
@@ -389,7 +428,8 @@
 
                 @media (max-width: 768px) {
                     flex-direction: column;
-                    gap: 0;
+                    gap: .5rem;
+                    align-items: start;
                 }
             }
         }

@@ -123,24 +123,27 @@ export type Profile = {
 }
 
 export interface DossierDS<Champs, Annotations> {
-    id: string
-    number: number
-    dateDepot: Date
-    state: string
-    // Profil d'un usager connecté (déposant un dossier, instruisant un dossier...)
-    usager: Profile
-    // Prénom et nom de la personne qui dépose le dossier sur DS au nom du demandeur DS
-    prenomMandataire: string
-    nomMandataire: string
-    // Personne qui formule la demande dans DS
-    demandeur: DemandeurDS
-    groupeInstructeur: GroupeInstructeurs
-    instructeurs: Instructeur[]
-    messages: Message[]
-    traitements: Traitement[]
-    motivationAttachment: DSFile
-    champs: Champs[]
-    annotations: Annotations[]
+	id: string
+	number: number
+	dateDepot: Date
+	state: string
+	// Profil d'un usager connecté (déposant un dossier, instruisant un dossier...)
+	usager: Profile
+	// Prénom et nom de la personne qui dépose le dossier sur DS au nom du demandeur DS
+	prenomMandataire: string
+	nomMandataire: string
+	// Personne qui formule la demande dans DS
+	demandeur: DemandeurDS
+	groupeInstructeur: GroupeInstructeurs
+	instructeurs: Instructeur[]
+	messages: Message[]
+	traitements: Traitement[]
+	motivationAttachment: DSFile
+	champs: Champs[]
+	annotations: Annotations[]
+
+	// Pour les notifications
+	dateDerniereModification: Date;
 }
 
 export type DossierDS88444 = DossierDS<Champs88444, Annotations88444>

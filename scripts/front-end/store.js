@@ -3,6 +3,7 @@
 import Store from 'baredux'
 
 import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
+import { SvelteMap } from 'svelte/reactivity'
 
 /**
  * Un store baredux a pour vocation de refléter notamment le modèle mental de la
@@ -25,6 +26,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
 /** @import {default as Message} from '../types/database/public/Message.ts' */
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
+/** @import {default as Notification} from '../types/database/public/Notification.ts' */
 
 
 /**
@@ -34,6 +36,7 @@ import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
  * @property {Map<DossierComplet['id'], DossierComplet>} dossiersComplets
  * @property {Map<DossierComplet['id'], Message[]>} messagesParDossierId
  * @property {Map<NonNullable<Personne['email']>, Set<Dossier['id']>>} [relationSuivis]
+ * @property {Map<Dossier['id'], Pick<Notification, "vue" | "date_dernière_mise_à_jour">>} notificationParDossier
  * @property {IdentitéInstructeurPitchou} [identité]
  * @property {SchemaDémarcheSimplifiée} [schemaDS88444]
  * @property {ParClassification<EspèceProtégée[]>} [espècesProtégéesParClassification]
@@ -52,6 +55,7 @@ const state = {
   messagesParDossierId: new Map(),
   erreurs: new Set(),
   capabilities: {},
+  notificationParDossier: new SvelteMap()
 }
 
 const mutations = {
@@ -91,6 +95,13 @@ const mutations = {
    */
   setRelationSuivis(state, relationSuivis) {
     state.relationSuivis = relationSuivis
+  },
+  /**
+   * @param {PitchouState} state
+   * @param {PitchouState['notificationParDossier']} notificationParDossier
+   */
+  setNotificationParDossierPourInstructeurActuel(state, notificationParDossier) {
+    state.notificationParDossier = notificationParDossier
   },
   /**
    * @param {PitchouState} state
