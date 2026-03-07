@@ -210,7 +210,6 @@ Promise.all([taxrefP, protectionsEspècesP, listeEspècesMinistériellesP])
     for(const [_, espèce] of espècesProtégées){
         const {nomsScientifiques} = espèce
         if (listeEspècesMinistérielles.find((espèceMinistérielle) => nomsScientifiques?.has(espèceMinistérielle['Nom scientifique']))) {
-            compteur.push(nomsScientifiques)
             espèce.espèceMinistérielle = 'O'
         }
     }
