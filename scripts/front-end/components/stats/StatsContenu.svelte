@@ -2,6 +2,7 @@
   //@ts-check
   /** @import {StatsPubliques} from '../../../types/API_Pitchou' */
   import StatistiquesConformites from '../stats/StatistiquesConformites.svelte';
+  import Carte from './Carte.svelte'
   
   /**
    * @typedef {Object} Props
@@ -25,6 +26,12 @@
         Ces données statistiques reposent sur un total de <strong>{stats.totalDossiers} dossiers </strong> enregistrés dans la base de données Pitchou.
       </p>
     </header>
+
+    <!-- Carte de France -->
+    <section class="fr-mt-4w">
+      <h2 class="fr-mt-2w">Carte de France</h2>
+      <Carte />
+    </section>
 
     <section class="fr-mb-4w">
       <h2 class="fr-mt-2w">Utilisation de Pitchou depuis septembre 2024</h2>
@@ -172,6 +179,7 @@
         </div>
       </div>
     </section>
+
   </article>
 </div>
 
