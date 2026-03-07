@@ -223,7 +223,9 @@ select
 	COUNT(évènement) as nombre_actions,
 	date_trunc('week', e.date)::date as semaine
 from évènement_métrique as e
+join personne on personne.id = e.personne
 WHERE évènement IN (:evenements)
+and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine;
         `, {
             evenements: directDatabaseConnection.raw(
