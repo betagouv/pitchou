@@ -59,6 +59,8 @@ export type ÉvènementMétrique =
 	| { type: 'modifierAvisExpert' }
 	// Supprimer un avis expert
 	| { type: 'supprimerAvisExpert' }
+	// Générer un document
+	| { type: 'générerUnDocument' }
 
 	// Événements de consultation
 	// Utiliser la fonctionnalité de recherche et de filtre dans la liste des dossiers
