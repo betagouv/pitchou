@@ -225,6 +225,25 @@ Pour donner l'origine de manière libre :
 `docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
 
 
+### Importer des dossiers historiques depuis un fichier ODS
+
+Permet d'automatiser le dépôt de dossiers historiques Pitchou à partir d'un fichier de suivi `.ods` et d'un compte Démarches Numériques.
+
+Depuis la racine du projet, en local :
+
+```sh
+node outils/import-dossiers.js --fichier /chemin/vers/fichier.ods \
+  --email 'adresse.utilisee.pour.pitchou@example.net' \
+  --mail-demarche-numerique 'nom.prenom@example.net' \
+  --mdp-demarche-numerique 'zaeazezaeze' \
+  --lien-connexion-demarche-numerique 'https://demarche.numerique.gouv.fr/connexion-par-jeton/150154?jeton=cV3Ztn2323232323232' \
+  --prenom-deposant 'Pantxika' \
+  --nom-deposant 'Herbault'
+```
+
+Tous les paramètres ci‑dessus sont **obligatoires**.\
+Si l’un d’eux manque, le script affiche la liste précise des paramètres manquants et s’arrête avec un code de sortie non nul.
+
 
 ### GeoMCE
 

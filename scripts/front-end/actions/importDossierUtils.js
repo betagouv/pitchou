@@ -108,6 +108,13 @@ export function extraireCommunes(valeur) {
  * @returns {Promise<{ data: GeoAPIDépartement[] | null, alertes: Alerte[] }>}
  */
 async function formaterDépartementDepuisValeur(valeur) {
+
+
+    // Pour pouvoir tester en DEV, on autorise le département 99
+    if (valeur.toString() === '99') {
+        return {data: [{code: '99', nom: 'Etranger'}], alertes:[]}
+    }
+
     /** @type {string[]} */
     let codes = []
     if (typeof valeur === 'number') {
