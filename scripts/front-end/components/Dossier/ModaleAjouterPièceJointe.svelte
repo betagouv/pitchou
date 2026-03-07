@@ -21,6 +21,8 @@
 
     const idTitreH2 = `${id}-title`
 
+    const OPTIONS_SERVICE_EXPERT = ['CSRPN', 'CNPN', 'Ministre', 'Autre expert'];
+
     /** @type {FileList | undefined} */
     let fileListPièceJointe = $state()
 
@@ -72,18 +74,20 @@
         }
     })
 
+    let formulaireValidePourSaisineExpert = $derived(typePièceJointe === 'Saisine expert' && serviceOuPersonneExperte !== null)
+    let formulaireValidePourAvisExpert = $derived(
+        typePièceJointe === 'Avis expert' 
+        && avisExpertSélectionné !== null
+        && (avisExpertSélectionné === 'nouvel-avis-expert' ? serviceOuPersonneExperte !== null : true)
+        // Les experts Ministre, CNPN et CSRPN sont nécessairement liés à un Avis (conforme, non conforme...)
+        && ((serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN') ? avis !== null : true))
+    
     let formulaireValide = $derived(
         fileListPièceJointe && fileListPièceJointe.length > 0 && 
         typePièceJointe !== null && typePièceJointe !== undefined &&
         (
-            (typePièceJointe === 'Saisine expert' && serviceOuPersonneExperte !== null && 
-                // @ts-ignore ts ne comprend pas que autreExpertTexte peut être de type string
-                (serviceOuPersonneExperte !== 'Autre expert' || (autreExpertTexte && autreExpertTexte.trim() !== ''))) ||
-            (typePièceJointe === 'Avis expert' && avisExpertSélectionné !== null && avis !== null && 
-                (avisExpertSélectionné === 'nouvel-avis-expert' 
-                    // @ts-ignore ts ne comprend pas que autreExpertTexte peut être de type string
-                    ? serviceOuPersonneExperte !== null && (serviceOuPersonneExperte !== 'Autre expert' || (autreExpertTexte !== null && autreExpertTexte.trim() !== ''))
-                    : true))
+            formulaireValidePourSaisineExpert ||
+            formulaireValidePourAvisExpert
         )
     )
 
@@ -185,14 +189,22 @@
                             Ajouter une pièce jointe
                         </h2>
                         <form onsubmit={(e) => { e.preventDefault(); ajouterPièceJointe(); }}>
+                            <p class="fr-text--sm fr-mb-2w">
+                                <span class="obligatoire-asterisque">*</span>
+                                Champs obligatoires
+                            </p>
                             <div class="fr-fieldset fr-mt-3w" id="champ-type-piece-jointe-group">
-                                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-type-piece-jointe-group"> Type de pièce jointe </legend>
+                                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-type-piece-jointe-group"> 
+                                    Type de pièce jointe
+                                    <span class="obligatoire-asterisque">*</span>
+                                </legend>
                                     <div class="conteneur-boutons-radios">
                                         {#each ['Saisine expert', 'Avis expert'] as type}
                                             {@const idRadio = `type-piece-jointe-${type.replace(/\s+/g, '-').toLowerCase()}-${id}`}
                                             <div class="fr-fieldset__element">
                                                 <div class="fr-radio-group">
                                                     <input
+                                                        required
                                                         type="radio"
                                                         id={idRadio}
                                                         name="type-piece-jointe-{id}"
@@ -216,11 +228,13 @@
                                         {:else}
                                             Choisir un ou plusieurs fichiers
                                         {/if}
+                                        <span class="obligatoire-asterisque">*</span>
                                         <span class="fr-hint-text">
                                             Indication : taille maximale&nbsp;: 500 Mo. Formats supportés&nbsp;: xls, ods, pdf, odt. Plusieurs fichiers possibles.
                                         </span>
                                     </label>
-                                    <input 
+                                    <input
+                                        required
                                         bind:this={fileInput}
                                         accept=".xls,.ods,.pdf,.odt" 
                                         bind:files={fileListPièceJointe} 
@@ -238,13 +252,17 @@
                             {#if fileListPièceJointe && fileListPièceJointe.length > 0}
                                 {#if typePièceJointe === 'Saisine expert'}
                                     <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
-                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
+                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group">
+                                            Service ou personne experte
+                                            <span class="obligatoire-asterisque">*</span>
+                                        </legend>
                                         <div class="conteneur-boutons-radios">
-                                            {#each ['CSRPN', 'CNPN', 'Ministre', 'Autre expert'] as service}
+                                            {#each OPTIONS_SERVICE_EXPERT as service}
                                                 {@const idRadio = `service-expert-${service.replace(/\s+/g, '-').toLowerCase()}-${id}`}
                                                 <div class="fr-fieldset__element">
                                                     <div class="fr-radio-group">
                                                         <input
+                                                            required
                                                             type="radio"
                                                             id={idRadio}
                                                             name="service-expert-{id}"
@@ -323,13 +341,17 @@
 
                                     {#if avisExpertSélectionné === 'nouvel-avis-expert'}
                                         <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
-                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group"> Service ou personne experte </legend>
+                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-service-expert-group">
+                                                Service ou personne experte
+                                                <span class="obligatoire-asterisque">*</span>
+                                            </legend>
                                             <div class="conteneur-boutons-radios">
-                                                {#each ['CSRPN', 'CNPN', 'Autre expert'] as service}
+                                                {#each OPTIONS_SERVICE_EXPERT as service}
                                                     {@const idRadio = `service-expert-${service.replace(/\s+/g, '-').toLowerCase()}-${id}`}
                                                     <div class="fr-fieldset__element">
                                                         <div class="fr-radio-group">
                                                             <input
+                                                                required
                                                                 type="radio"
                                                                 id={idRadio}
                                                                 name="service-expert-{id}"
@@ -358,28 +380,34 @@
                                             </div>
                                         {/if}
                                     {/if}
-                                    <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
-                                        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group"> Avis de l'expert </legend>
-                                        <div class="">
-                                            {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
-                                                {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
-                                                <div class="fr-fieldset__element">
-                                                    <div class="fr-radio-group">
-                                                        <input
-                                                            type="radio"
-                                                            id={idRadio}
-                                                            name="avis-expert-{id}"
-                                                            value={avisOption}
-                                                            bind:group={avis}
-                                                        />
-                                                        <label class="fr-label" for={idRadio}>
-                                                            {avisOption}
-                                                        </label>
+                                    {#if (serviceOuPersonneExperte === 'Ministre' || serviceOuPersonneExperte === 'CNPN' || serviceOuPersonneExperte === 'CSRPN')}
+                                        <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
+                                            <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="champ-avis-expert-group">
+                                                Avis de l'expert
+                                                <span class="obligatoire-asterisque">*</span>
+                                            </legend>
+                                            <div class="">
+                                                {#each ['Avis favorable', 'Avis favorable sous condition', 'Avis défavorable'] as avisOption}
+                                                    {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, '-').toLowerCase()}-${id}`}
+                                                    <div class="fr-fieldset__element">
+                                                        <div class="fr-radio-group">
+                                                            <input
+                                                                required
+                                                                type="radio"
+                                                                id={idRadio}
+                                                                name="avis-expert-{id}"
+                                                                value={avisOption}
+                                                                bind:group={avis}
+                                                            />
+                                                            <label class="fr-label" for={idRadio}>
+                                                                {avisOption}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            {/each}
+                                                {/each}
+                                            </div>
                                         </div>
-                                    </div>
+                                    {/if}
                                     <div class="fr-mt-3w">
                                         <label class="fr-input-group fr-label" for="modale-date-avis-{id}">Date de l'avis</label>
                                         <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
@@ -436,5 +464,11 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    .obligatoire-asterisque {
+        color: var(--text-title-blue-france, #000091);
+        margin-left: 0.25rem;
+        font-weight: bold;
     }
 </style>
