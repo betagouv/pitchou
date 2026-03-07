@@ -1,22 +1,62 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
-/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
 /** @import { PersonneId } from '../../types/database/public/Personne.js' */
 
-import { eachWeekOfInterval } from 'date-fns';
+import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
+import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
  * @typedef {string} Semaine
  */
 
+/**
+ * Calcule le cumul hebdomadaire du nombre de personnes sur une période observée
+ *
+ * @param {Map<Semaine, [Date, PersonneId][]>} personnesRegroupéesParSemaine
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
+ *
+ * @returns {Map<Semaine, number>}
+ */
+function calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée) {
+    const aujourdhui = new Date()
+
+    const semainesSources = [...personnesRegroupéesParSemaine.keys()].sort((dateA, dateB) => compareAsc(dateA, dateB));
+
+    /** @type {Map<Semaine, number>} */
+    const cumulParSemaineSurPériodeObservée = new Map()
+
+    /** @type {Semaine[]} */
+    const semaines = eachWeekOfInterval(
+        {
+            start: semainesSources[0],
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+    let cumul = 0
+    for (const semaine of semaines) {
+        const élémentsParSemaine = personnesRegroupéesParSemaine.get(semaine) ?? []
+        cumul = cumul + élémentsParSemaine.length
+        if (isAfter(semaine, dernièreSemaineObservée) && isBefore(semaine, premièreSemaineObservée)) {
+            cumulParSemaineSurPériodeObservée.set(semaine, cumul)
+        }
+    }
+
+    return cumulParSemaineSurPériodeObservée
+}
 
 /**
  * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
  * Une personne acquise est une personne qui s'est connectée au moins une fois.
  * 
- * @param {number} nbSemainesObservées
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
  *
  * @remarks
  *
@@ -24,133 +64,16 @@ import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/
  * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
  * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
  *
- * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'acquis.e à cette date
+ * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre d'acquis.e au lundi de cette semaine
 */
-async function calculerIndicateurAcquis(nbSemainesObservées) {
-    const acquis = await directDatabaseConnection.raw(`
-        with premiere_connexion as (
-            select
-                personne,
-                min(date) as date
-            from évènement_métrique
-            join personne on personne.id = évènement_métrique.personne
-            where évènement = 'seConnecter'
-            and personne.email NOT ILIKE '%@beta.gouv.fr'
-            group by personne
-        ),
-        nombre_premiere_connexion_par_semaine as (
-            select
-                count(personne) as acquis_semaine,
-                date_trunc('week', date)::date as semaine
-            from premiere_connexion
-            group by semaine
-        ),
-        semaines as (
-            select
-                date_trunc('week', semaine)::date as semaine
-            from
-                generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
-            union
-            select semaine from nombre_premiere_connexion_par_semaine
-        )
-        select
-            semaines.semaine as date,
-            sum(acquis_semaine) over (order by semaines.semaine  asc) as acquis_total
-        from
-            nombre_premiere_connexion_par_semaine
-        right join
-            semaines
-        on semaines.semaine = nombre_premiere_connexion_par_semaine.semaine
-        order by date desc
-        limit :nb_semaines_observees; 
-    `,
-{
-    nb_semaines_observees: nbSemainesObservées,
-});
+async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSemaineObservée) {
+    const personnesEtDate = await getPersonnesAcquises()
+    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
-    return new Map(
-        ...[acquis.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.acquis_total)]
-        )]
-    )
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
-
-
-/**
- * 
- * @param {number} nombreSemainesObservées 
- * @param {ÉvènementMétrique['type'][]} évènements 
- * @param {number} seuilNombreÉvènements 
- *
- * Une correspondance entre la date de la semaine concernée et le nombre de personnes cumulées ayant 
- * atteint le seuil à cette date.
- * @returns { Promise<Map<string, number>> } 
- */
-async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nombreSemainesObservées, évènements, seuilNombreÉvènements){
-
-    const requêteSQL = `
--- personnes et le nombre évènement suivis par semaine
-with actions_par_personne as (select
-	personne,
-	COUNT(évènement) as nombre_actions,
-	date_trunc('week', e.date)::date as semaine
-from évènement_métrique as e
-join personne on personne.id = e.personne
-WHERE évènement IN (:evenements)
-and personne.email NOT ILIKE '%@beta.gouv.fr'
-group by personne, semaine),
-
--- filtrer par première fois où le seuil est atteint
-premiere_fois_seuil_atteint as (select personne, min(semaine) as semaine
-from actions_par_personne
-WHERE nombre_actions >= :nb_seuil_actions
-group by personne),
-
--- nombre actif par semaine
-nombre_personnes_par_semaine as (select
-	count(personne) as nombre_personne_pour_cette_semaine,
-	semaine
-from premiere_fois_seuil_atteint
-group by semaine),
-
--- récupérer la liste de toutes les semaines avec sûr les nb_semaines_observees dernières semaines
-semaines as (
-	select
-		date_trunc('week', semaine)::date as semaine
-	from
-		generate_series(now() - (:nb_semaines_observees || ' weeks')::interval, now(), '7 days'::interval) as semaine
-	union
-	select semaine from premiere_fois_seuil_atteint
-)
-
-select
-	semaines.semaine as date,
-	sum(nombre_personne_pour_cette_semaine) over (order by semaines.semaine  asc) as quantite_personnes
-from
-	nombre_personnes_par_semaine
-right join
-	semaines
-on semaines.semaine = nombre_personnes_par_semaine.semaine
-order by date desc
-limit :nb_semaines_observees; 
-        `;
-
-    const personnesParSemaines = await directDatabaseConnection.raw(requêteSQL, {
-        nb_semaines_observees: nombreSemainesObservées,
-        nb_seuil_actions: seuilNombreÉvènements,
-        evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
-    })
-
-    return new Map(
-        ...[personnesParSemaines.rows.map(
-            (/** @type {any} */ row) => [row.date.toISOString(), Number(row.quantite_personnes)]
-        )]
-    )
-}
-
-
-
-
 
 /**
  * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
@@ -160,8 +83,23 @@ limit :nb_semaines_observees;
  *
  * @returns { Promise<Map<string, number>> } Une correspondance entre la date de la semaine concernée et le nombre d'actif.ve à cette date
 */
-async function calculerIndicateurActif(nbSemainesObservées) {
-    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, ÉVÈNEMENTS_MODIFICATIONS, 5)
+
+/**
+ * Calcule le nombre de personnes actives sur Pitchou sur une période.
+ * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * 
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
+ *
+ * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre de personnes actives au lundi de cette semaine.
+*/
+async function calculerIndicateurActif(premièreSemaineObservée, dernièreSemaineObservée) {
+    const personnesEtDate = await getPersonnesActives()
+    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
+
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
 
 
@@ -169,22 +107,20 @@ async function calculerIndicateurActif(nbSemainesObservées) {
  * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
  * L'impact de Pitchou est mesuré par les retours à conformité
  * 
- * @param {number} nbSemainesObservées
+ * @param {Semaine} premièreSemaineObservée
+ * @param {Semaine} dernièreSemaineObservée
  *
  * Une correspondance entre la date de la semaine concernée et le nombre de personne 
  * ayant un "impact" à cette date
  * @returns { Promise<Map<string, number>> } 
 */
-async function calculerIndicateurImpact(nbSemainesObservées) {
-    /*
-        Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
-        donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
-    */
+async function calculerIndicateurImpact(premièreSemaineObservée, dernièreSemaineObservée) {
+    const personnesEtDate = await getPersonnesImpact()
+    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
 
-    /** @type {ÉvènementMétrique['type'][]} */
-    const évènements = [ 'retourÀLaConformité' ]
-    
-    return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènements, 1)
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+
+    return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
 
 /**
@@ -326,15 +262,21 @@ function getPremièreSemaineRetenue(nombreActionsParSemaine, nombreSeuilActionsP
  */
 export async function indicateursAARRI() {
     const nbSemainesObservées = 5
+    const aujourdhui = new Date()
+    const dernièreSemaineObservée = subWeeks(aujourdhui, nbSemainesObservées)
 
     /** @type {IndicateursAARRI[]} */
     const indicateurs = [];
-    const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
-    const actifs = await calculerIndicateurActif(nbSemainesObservées);
+    const acquis = await calculerIndicateurAcquis(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
+    const actifs = await calculerIndicateurActif(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
     const retenus = await calculerIndicateurRetenu()
-    const impacts = await calculerIndicateurImpact(nbSemainesObservées);
+    const impacts = await calculerIndicateurImpact(aujourdhui.toISOString(), dernièreSemaineObservée.toISOString());
 
-    const dates = acquis.keys();
+    // Tri des dates par ordre décroissant.
+    // Le front-end accède aux données via l’indice du tableau et non directement par la date,
+    // il est donc nécessaire de garantir un ordre cohérent ici.
+    //TODO: peut-être modifier le front-end du coup...
+    const dates = [...(acquis.keys())].sort((dateA, dateB) => compareDesc(dateA, dateB));
 
     for (const date of dates) {
         indicateurs.push({
