@@ -22,6 +22,11 @@
 
     const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
 
+    // let nombreEspècesCNPNP = $derived(espècesImpactées?.then(
+    //     (espècesImpactées) => espècesImpactées["faune non-oiseau"]
+    //     .reduce((acc, {espèce}) => , 0)
+    // ))
+
     function makeFileContentBlob() {
         envoyerÉvènement({ type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: dossier.id } })
 

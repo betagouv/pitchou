@@ -36,13 +36,18 @@
                 </tr>
             </thead>
             <tbody>
-                {#each espèces as { nomVernaculaire, nomScientifique, détails }}
+                {#each espèces as { nomVernaculaire, nomScientifique, espèceCNPN, espèceMinistérielle, détails }}
                     <tr>
-                        <td
-                            >{nomVernaculaire} (<i
-                                >{nomScientifique}</i
-                            >)</td
-                        >
+                        <td>
+                            {#if espèceCNPN}
+                                <p class="fr-badge fr-badge--blue-ecume">CNPN</p>
+                            {/if}
+                            {#if espèceMinistérielle}
+                                <p class="fr-badge fr-badge--blue-ecume">Ministère</p>
+                            {/if}
+                            {nomVernaculaire} 
+                            (<i>{nomScientifique}</i>)
+                        </td>
                         {#each détails as détail}
                             <td>{détail}</td>
                         {/each}
