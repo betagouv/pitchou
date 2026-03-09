@@ -9,7 +9,7 @@ import {getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty} from '@o
 
 import {TAXREF_ROWClassification, nomsVernaculaires} from '../scripts/commun/outils-espèces.js'
 
-/** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée} from "../scripts/types/especes.js" */
+/** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée, ESPÈCES_MINISTÉRIELLES_CNPN_ROW} from "../scripts/types/especes.js" */
 
 process.title = `Génération liste espèces`
 
@@ -129,22 +129,34 @@ taxrefP.then(taxref => {
 /**
  * Espèces ministérielles
  */
-const filePathEspècesMinistérielles = 'data/sources_especes/espèces_ministérielles.ods'
-/** @type { Promise<Array<{'Nom vernaculaire': string, 'Nom scientifique': string}>> } */
-const listeEspècesMinistériellesP = readFile(filePathEspècesMinistérielles)
+const filePathEspècesMinistériellesCNPN = 'data/sources_especes/espèces_ministérielles_cnpn.ods'
+
+/** @type { Promise<[ESPÈCES_MINISTÉRIELLES_CNPN_ROW[], ESPÈCES_MINISTÉRIELLES_CNPN_ROW[]]> } */
+// @ts-ignore
+const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériellesCNPN)
         .then(getODSTableRawContent)
         // @ts-ignore
-        .then(sheetMap => sheetMap.get('Espèces Ministérielles'))
-        .then(sheet => sheetRawContentToObjects(sheet.filter(isRowNotEmpty)))
-        .catch((err) => console.error(`Une erreur est survenue lors de la lecture du fichier ${filePathEspècesMinistérielles} : ${err.message}`));
+        .then(sheetMap => ([sheetMap.get('Espèces Ministérielles'), sheetMap.get('Espèces CNPN')]))
+        .then(([sheetEspècesMinistérielles, sheetEspècesCNPN]) => (
+            /** @type {[any, any]} */
+            [
+                sheetRawContentToObjects(sheetEspècesMinistérielles.filter(isRowNotEmpty)), 
+                sheetRawContentToObjects(sheetEspècesCNPN.filter(isRowNotEmpty))
+            ]
+        ))
+        .catch((err) => {
+            console.error(`Une erreur est survenue lors de la lecture du fichier ${filePathEspècesMinistériellesCNPN} : ${err.message}`)
+        });
 
 /**
  * 
  * Génération du fichier liste espèces
  * 
  */
-Promise.all([taxrefP, protectionsEspècesP, listeEspècesMinistériellesP])
-.then(([taxref, protectionsEspèces, listeEspècesMinistérielles]) => {
+Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
+.then(([taxref, protectionsEspèces, listesEspècesMinistériellesCNPN]) => {
+    const [listeEspècesMinistérielles, listeEspècesCNPN] = listesEspècesMinistériellesCNPN
+
     /** @type {Map<EspèceProtégée['CD_REF'], Partial<EspèceProtégée>>} */
     const espècesProtégées = new Map()
 
@@ -157,7 +169,6 @@ Promise.all([taxrefP, protectionsEspècesP, listeEspècesMinistériellesP])
                 CD_TYPE_STATUTS: new Set(),
                 nomsScientifiques: new Set(),
                 nomsVernaculaires: new Set(),
-                espèceMinistérielle: '',
             }
             espècesProtégées.set(CD_REF, espèceProtégée)
         }
@@ -205,12 +216,18 @@ Promise.all([taxrefP, protectionsEspècesP, listeEspècesMinistériellesP])
             }
         }
     }
-    
-    // Indiquer pour chaque espèce protégée si elle figure dans la liste des espèces ministérielles
+
+
+    // Indiquer pour chaque espèce protégée 
+    // si elle figure dans la liste des espèces ministérielles 
+    // ou dans la liste des espèces CNPN
     for(const [_, espèce] of espècesProtégées){
-        const {nomsScientifiques} = espèce
+        const { nomsScientifiques } = espèce
         if (listeEspècesMinistérielles.find((espèceMinistérielle) => nomsScientifiques?.has(espèceMinistérielle['Nom scientifique']))) {
             espèce.espèceMinistérielle = 'O'
+        }
+        if (listeEspècesCNPN.find((espèceCNPN) => nomsScientifiques?.has(espèceCNPN['Nom scientifique']))) {
+            espèce.espèceCNPN = 'O'
         }
     }
 
@@ -227,7 +244,16 @@ Promise.all([taxrefP, protectionsEspècesP, listeEspècesMinistériellesP])
     });
 
     stringifier.pipe(createWriteStream('data/liste-espèces-protégées.csv'))
-    for(const {CD_REF, classification, nomsScientifiques, nomsVernaculaires, CD_TYPE_STATUTS, espèceMinistérielle} of espècesProtégéesArray){
+    for(const 
+            {
+                CD_REF, 
+                classification, 
+                nomsScientifiques, 
+                nomsVernaculaires, 
+                CD_TYPE_STATUTS, 
+                espèceMinistérielle,
+                espèceCNPN,
+            } of espècesProtégéesArray){
         stringifier.write({
             CD_REF, 
             classification, 
@@ -237,6 +263,7 @@ Promise.all([taxrefP, protectionsEspècesP, listeEspècesMinistériellesP])
                 return keptCdTypeStatus.indexOf(cd_type_statut_1) - keptCdTypeStatus.indexOf(cd_type_statut_2)
             }).join(','),
             espèceMinistérielle,
+            espèceCNPN
         })
     }
     stringifier.end()
