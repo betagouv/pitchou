@@ -22,10 +22,31 @@
 
     const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
 
-    // let nombreEspècesCNPNP = $derived(espècesImpactées?.then(
-    //     (espècesImpactées) => espècesImpactées["faune non-oiseau"]
-    //     .reduce((acc, {espèce}) => , 0)
-    // ))
+    /**
+     * Calcule le nombre d'espèces CNPN 
+     * et le nombre d'espèce ministérielles
+     * dans la liste des espèces impactées par ce projet
+     * @param {DescriptionMenacesEspèces} _espècesImpactées
+     * @returns { { nombreEspècesCNPN: number, nombreEspècesMinistérielles: number } }
+    */
+    function getNombreEspècesMinistérielleCNPN(_espècesImpactées) {
+        const toutesLesEspècesImpactées = [
+            ...(_espècesImpactées["faune non-oiseau"] ?? []),
+            ...(_espècesImpactées["flore"] ?? []),
+            ...(_espècesImpactées["oiseau"]  ?? []),
+        ]
+
+        const nombres = toutesLesEspècesImpactées.reduce((acc, {espèce}) => {
+                if (espèce.espèceCNPN) {
+                    acc['nombreEspècesCNPN']+=1
+                }
+                if (espèce.espèceMinistérielle) {
+                    acc['nombreEspècesMinistérielles']+=1
+                }
+                return acc
+            }, {nombreEspècesCNPN: 0, nombreEspècesMinistérielles: 0})
+        return nombres
+    }
 
     function makeFileContentBlob() {
         envoyerÉvènement({ type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: dossier.id } })
@@ -176,7 +197,16 @@
                 : "Non renseignée"}
         </p>
 
-        <h2>Espèces impactées</h2>
+        <h2>
+            Espèces impactées
+            {#if espècesImpactées}
+                {#await espècesImpactées then espècesImpactées}
+                    {@const {nombreEspècesCNPN, nombreEspècesMinistérielles} = getNombreEspècesMinistérielleCNPN(espècesImpactées)}
+                    <p class="fr-badge fr-badge--blue-ecume">CNPN {nombreEspècesCNPN}</p>
+                    <p class="fr-badge fr-badge--blue-ecume">Ministère {nombreEspècesMinistérielles}</p>
+                {/await}
+            {/if}
+        </h2>
         {#if dossier.espècesImpactées}
             <DownloadButton
                 {makeFileContentBlob}
