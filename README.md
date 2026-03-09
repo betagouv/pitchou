@@ -175,6 +175,12 @@ Dans le fichier `data/sources_especes/espèces_manquantes.ods` ajouter l'espèce
 
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces complétée.
 
+### Ajouter une espèce ministérielle ou une espèce CNPN
+
+Dans le fichier `data/sources_especes/espèces_ministérielles_cnpn.ods` ajouter l'espèce avec son nom scientifique et son nom vernaculaire.
+
+Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces à jour.
+
 
 ### Synchroniser dossiers récemment modifiés de Démarche Numérique
 
