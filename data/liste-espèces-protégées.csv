@@ -727,7 +727,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS;espèc
 60760;faune non-oiseau;Odobenus rosmarus rosmarus;;PN;;
 60765;faune non-oiseau;Cystophora cristata,Cystophora borealis,Phoca cristata;Phoque à capuchon,Phoque à crête;PN;;
 60768;faune non-oiseau;Erignathus barbatus,Phoca albigena,Phoca barbata,Phoca lepechenii,Phoca leporina,Phoca parsonii;Phoque barbu;PN;;
-60776;faune non-oiseau;Halichoerus grypus,Phoca atlantica,Phoca baltica,Phoca griseus,Phoca macrorhynchus,Phoca pachyrhynchus,Phocha halichoreus;Phoque gris;PN;;
+60776;faune non-oiseau;Halichoerus grypus,Phoca atlantica,Phoca baltica,Phoca griseus,Phoca macrorhynchus,Phoca pachyrhynchus,Phocha halichoreus;Phoque gris;PN;O;
 60785;faune non-oiseau;Monachus monachus,Monachus albiventer,Monachus atlantica,Monachus bicolor,Monachus hermannii,Monachus leucogaster,Monachus mediterraneus,Phoca monachus;Phoque moine,Phoque moine de Méditerranée;PN;O;
 60797;faune non-oiseau;Pagophilus groenlandicus,Phoca groenlandica;Phoque du Groenland;PN;;
 60801;faune non-oiseau;Pusa hispida,Phoca hispida;Phoque annelé;PN;;
@@ -919,7 +919,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS;espèc
 78141;faune non-oiseau;Vipera berus,Coluber berus,Pelias dorsalis,Vipera berus bosniensis,Vipera communis,Vipera torva,Vipera trigonocephala;Vipère péliade (La);PN;;
 78148;faune non-oiseau;Vipera berus berus;Vipère péliade (La);PN;;
 78162;faune non-oiseau;Vipera seoanei seoanei;Vipère de Seoane (La);PN;;
-78164;faune non-oiseau;Vipera ursinii,Pelias ursinii;Vipère d'Orsini (La);PN;;
+78164;faune non-oiseau;Vipera ursinii,Pelias ursinii;Vipère d'Orsini (La);PN;O;
 78166;faune non-oiseau;Vipera ursinii ursinii,Pelias ursinii alpesdehautensis,Vipera ursinii wettsteini;Vipère d'Orsini (La);PN;;
 79251;faune non-oiseau;Speleomantes strinatii,Hydromantes ambrosii strinatii,Hydromantes ambrosii,Hydromantes italicus strinatii,Hydromantes strinatii,Speleomantes ambrosii;Spélerpès de Strinati (Le);PN;;
 79261;faune non-oiseau;Hyla sarda,Dendrohyas sarda,Hyla arborea sarda;Rainette sarde (La);PN;;
