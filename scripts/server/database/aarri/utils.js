@@ -50,7 +50,7 @@ and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
 -- filtrer par semaine où le seuil est atteint et garder la semaine la plus ancienne
-seuil_atteint as (select personne, semaine
+seuil_atteint as (select personne, MIN(semaine) as semaine
 from evenements_par_personne
 WHERE nombre_evenements >= :nb_seuil_evenements
 group by personne
