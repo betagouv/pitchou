@@ -42,7 +42,7 @@ async function getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil) {
 with evenements_par_personne as (select
 	personne,
 	COUNT(évènement) as nombre_evenements,
-	date_trunc('week', e.date)::date as date
+	date
 from évènement_métrique as e
 join personne on personne.id = e.personne
 WHERE évènement IN (:evenements)
