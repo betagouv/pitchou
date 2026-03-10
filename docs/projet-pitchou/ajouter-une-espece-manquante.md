@@ -28,6 +28,7 @@ Quand on a tout ça, on peut rajouter une ligne dans le fichier [espèces_manqua
 
 Si l'espèce est une espèce ministérielle ou une espèce cnpn, on peut la rajouter dans le fichier [espèces_ministérielles_cnpn.ods](https://github.com/betagouv/pitchou/blob/main/data/sources_especes/esp%C3%A8ces_minist%C3%A9rielles_cnpn.ods).
 
+Attention, le nom scientifique doit être un des noms scientifiques renseignés dans la colonne nomScientifiques dans le fichier `liste-espèce-protégées.csv`. (Attention aux majuscules/minuscules).
 
 ### Re-générer la liste d'espèce et déployer sur pitchou.beta.gouv.fr
 

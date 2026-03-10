@@ -217,16 +217,18 @@ Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
         }
     }
 
-
     // Indiquer pour chaque espèce protégée 
     // si elle figure dans la liste des espèces ministérielles 
     // ou dans la liste des espèces CNPN
     for(const [_, espèce] of espècesProtégées){
-        const { nomsScientifiques } = espèce
-        if (listeEspècesMinistérielles.find((espèceMinistérielle) => nomsScientifiques?.has(espèceMinistérielle['Nom scientifique']))) {
+        const { nomsScientifiques, nomsVernaculaires } = espèce
+        const espèceMinistérielleTrouvée = listeEspècesMinistérielles.find((espèceMinistérielle) => nomsScientifiques?.has(espèceMinistérielle['Nom scientifique']))
+        if (espèceMinistérielleTrouvée) {
             espèce.espèceMinistérielle = 'O'
         }
-        if (listeEspècesCNPN.find((espèceCNPN) => nomsScientifiques?.has(espèceCNPN['Nom scientifique']))) {
+        const espèceCNPNTrouvée = listeEspècesCNPN.find((espèceCNPN) => (nomsScientifiques?.has(espèceCNPN['Nom scientifique']) || nomsVernaculaires?.has(espèceCNPN['Nom vernaculaire'])))
+
+        if (espèceCNPNTrouvée) {
             espèce.espèceCNPN = 'O'
         }
     }
