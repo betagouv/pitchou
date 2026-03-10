@@ -2,12 +2,12 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 // import { writeFile } from 'node:fs/promises'
-import { getPersonnesAcquises, getPersonnesActives, getPersonnesImpact } from '../../scripts/server/database/aarri/personnes-par-phase.js';
+import { getPersonnesAcquisesAvecDate, getPersonnesActivesAvecDate, getPersonnesImpactAvecDate } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
-const personnesAcquises = await getPersonnesAcquises()
-const personnesActives = await getPersonnesActives()
-const personnesImpact = await getPersonnesImpact()
+const personnesAcquises = await getPersonnesAcquisesAvecDate()
+const personnesActives = await getPersonnesActivesAvecDate()
+const personnesImpact = await getPersonnesImpactAvecDate()
 
 const personnesAcquisesEmailParDate = new Map(personnesAcquises.map(({email, date}) => [email, date]))
 const personnesActivesEmailParDate = new Map(personnesActives.map(({email, date}) => [email, date]))

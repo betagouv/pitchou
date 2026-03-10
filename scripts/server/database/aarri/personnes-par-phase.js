@@ -21,7 +21,7 @@ import { getPremièreDateAtteinteDuSeuilParPersonne } from './utils.js';
  *
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes acquises et la date à laquelle elles ont été acquises.
 */
-export async function getPersonnesAcquises() {
+export async function getPersonnesAcquisesAvecDate() {
     /** @type {[ÉvènementMétrique['type']]} */
     const évènements = ['seConnecter']
     const nombreSeuil = 1
@@ -36,7 +36,7 @@ export async function getPersonnesAcquises() {
  *
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
 */
-export async function getPersonnesActives() {
+export async function getPersonnesActivesAvecDate() {
     const évènements = ÉVÈNEMENTS_MODIFICATIONS
     const nombreSeuil = 5
     
@@ -49,7 +49,7 @@ export async function getPersonnesActives() {
  * 
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes dans la phase Impact et la date à laquelle elles ont été considérées dans la phase Impact.
 */
-export async function getPersonnesImpact() {
+export async function getPersonnesImpactAvecDate() {
     /*
         Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
         donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
