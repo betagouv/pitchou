@@ -42,20 +42,20 @@ async function getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil) {
 with evenements_par_personne as (select
 	personne,
 	COUNT(évènement) as nombre_evenements,
-	date
+	date_trunc('week', e.date)::date as semaine
 from évènement_métrique as e
 join personne on personne.id = e.personne
 WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
-group by personne, date),
+group by personne, semaine),
 
 -- filtrer par semaine où le seuil est atteint
-seuil_atteint as (select personne, date
+seuil_atteint as (select personne, semaine
 from evenements_par_personne
 WHERE nombre_evenements >= :nb_seuil_evenements
 )
 
-select personne.id, personne.email, date
+select personne.id, personne.email, semaine
 from seuil_atteint
 join personne on seuil_atteint.personne = personne.id`
         , {
@@ -68,16 +68,16 @@ join personne on seuil_atteint.personne = personne.id`
 
 /**
  * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil pour la première fois
- * ainsi que la date à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
+ * ainsi que la semaine à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>}
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>}
 */
 export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
     const personnesEtDates = await getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil)
 
-    /** @type {{id: Personne['id'], email: Personne['email'], date: Date}[]} */
+    /** @type {{id: Personne['id'], email: Personne['email'], semaine: Date}[]} */
     const résultat = Array.from(
     personnesEtDates.reduce((map, actuelle) => {
         const existante = map.get(actuelle.id);

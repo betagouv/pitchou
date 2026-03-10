@@ -2,16 +2,16 @@ import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
 // import { writeFile } from 'node:fs/promises'
-import { getPersonnesAcquisesAvecDate, getPersonnesActivesAvecDate, getPersonnesImpactAvecDate } from '../../scripts/server/database/aarri/personnes-par-phase.js';
+import { getPersonnesAcquisesAvecSemaine, getPersonnesActivesAvecSemaine, getPersonnesImpactAvecSemaine } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
-const personnesAcquises = await getPersonnesAcquisesAvecDate()
-const personnesActives = await getPersonnesActivesAvecDate()
-const personnesImpact = await getPersonnesImpactAvecDate()
+const personnesAcquises = await getPersonnesAcquisesAvecSemaine()
+const personnesActives = await getPersonnesActivesAvecSemaine()
+const personnesImpact = await getPersonnesImpactAvecSemaine()
 
-const personnesAcquisesEmailParDate = new Map(personnesAcquises.map(({email, date}) => [email, date]))
-const personnesActivesEmailParDate = new Map(personnesActives.map(({email, date}) => [email, date]))
-const personnesImpactEmailParDate = new Map(personnesImpact.map(({email, date}) => [email, date]))
+const personnesAcquisesEmailParSemaine = new Map(personnesAcquises.map(({email, semaine}) => [email, semaine]))
+const personnesActivesEmailParSemaine = new Map(personnesActives.map(({email, semaine}) => [email, semaine]))
+const personnesImpactEmailParSemaine = new Map(personnesImpact.map(({email, semaine}) => [email, semaine]))
 const entête = [[
   {
     value: "Email de la personne",
@@ -31,12 +31,12 @@ const entête = [[
   },
 ]]
 
-const personnes = [... new Set([...personnesAcquisesEmailParDate.keys(), ...personnesActivesEmailParDate.keys()])]
+const personnes = [... new Set([...personnesAcquisesEmailParSemaine.keys(), ...personnesActivesEmailParSemaine.keys()])]
 
 const lignes = personnes.map(( email ) => {
-  const dateAcquis = personnesAcquisesEmailParDate.get(email)
-  const dateActive = personnesActivesEmailParDate.get(email)
-  const dateImpact = personnesImpactEmailParDate.get(email)
+  const dateAcquis = personnesAcquisesEmailParSemaine.get(email)
+  const dateActive = personnesActivesEmailParSemaine.get(email)
+  const dateImpact = personnesImpactEmailParSemaine.get(email)
   if (dateAcquis || dateActive) {
     return (
         [

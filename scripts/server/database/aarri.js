@@ -1,10 +1,10 @@
 /** @import { IndicateursAARRI } from '../../types/API_Pitchou.js'; */
 /** @import { PersonneId } from '../../types/database/public/Personne.js' */
 
-import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, startOfWeek, subWeeks } from 'date-fns';
+import { compareAsc, compareDesc, eachWeekOfInterval, isAfter, isBefore, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../database.js';
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from './aarri/constantes.js';
-import { getPersonnesAcquisesAvecDate, getPersonnesActivesAvecDate, getPersonnesImpactAvecDate } from './aarri/personnes-par-phase.js';
+import { getPersonnesAcquisesAvecSemaine, getPersonnesActivesAvecSemaine, getPersonnesImpactAvecSemaine } from './aarri/personnes-par-phase.js';
 
 /**
  * Correspond au jour d'une semaine
@@ -67,10 +67,11 @@ function calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premi�
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre d'acquis.e au lundi de cette semaine
 */
 async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSemaineObservée) {
-    const personnesEtDate = await getPersonnesAcquisesAvecDate()
-    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
+    const personnesEtDate = await getPersonnesAcquisesAvecSemaine()
+    const personnesParDate = new Map(personnesEtDate.map(({semaine, id}) => [semaine, id]))
+    console.log('Acquis')
 
-    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([semaine]) => semaine.toISOString())
 
     return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
@@ -94,10 +95,10 @@ async function calculerIndicateurAcquis(premièreSemaineObservée, dernièreSema
  * @returns { Promise<Map<Semaine, number>> } Une correspondance entre la date de la semaine observée et le nombre de personnes actives au lundi de cette semaine.
 */
 async function calculerIndicateurActif(premièreSemaineObservée, dernièreSemaineObservée) {
-    const personnesEtDate = await getPersonnesActivesAvecDate()
-    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
-
-    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+    const personnesEtDate = await getPersonnesActivesAvecSemaine()
+    const personnesParDate = new Map(personnesEtDate.map(({semaine, id}) => [semaine, id]))
+    console.log('Actif')
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([semaine]) => semaine.toISOString())
 
     return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
@@ -115,10 +116,10 @@ async function calculerIndicateurActif(premièreSemaineObservée, dernièreSemai
  * @returns { Promise<Map<string, number>> } 
 */
 async function calculerIndicateurImpact(premièreSemaineObservée, dernièreSemaineObservée) {
-    const personnesEtDate = await getPersonnesImpactAvecDate()
-    const personnesParDate = new Map(personnesEtDate.map(({date, id}) => [date, id]))
-
-    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([_, date]) => startOfWeek(new Date(date), { weekStartsOn: 1 }).toISOString())
+    const personnesEtDate = await getPersonnesImpactAvecSemaine()
+    const personnesParDate = new Map(personnesEtDate.map(({semaine, id}) => [semaine, id]))
+    console.log('Impact')
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([semaine]) => semaine.toISOString())
 
     return calculerCumulPersonnesParSemaine(personnesRegroupéesParSemaine, premièreSemaineObservée, dernièreSemaineObservée)
 }
