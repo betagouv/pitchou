@@ -34,7 +34,7 @@ export async function getÉvènementsForPersonne(email) {
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>}
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>}
 */
 async function getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
@@ -49,10 +49,11 @@ WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
--- filtrer par semaine où le seuil est atteint
+-- filtrer par semaine où le seuil est atteint et garder la semaine la plus ancienne
 seuil_atteint as (select personne, semaine
 from evenements_par_personne
 WHERE nombre_evenements >= :nb_seuil_evenements
+group by personne
 )
 
 select personne.id, personne.email, semaine
@@ -77,18 +78,6 @@ join personne on seuil_atteint.personne = personne.id`
 export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
     const personnesEtDates = await getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil)
 
-    /** @type {{id: Personne['id'], email: Personne['email'], semaine: Date}[]} */
-    const résultat = Array.from(
-    personnesEtDates.reduce((map, actuelle) => {
-        const existante = map.get(actuelle.id);
-        if (!existante || actuelle.date < existante.date) {
-        map.set(actuelle.id, actuelle);
-        }
-
-        return map;
-    }, new Map()).values()
-    );
-
-    return résultat
+    return personnesEtDates
         
 }
