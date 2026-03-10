@@ -19,9 +19,9 @@ import { getPremièreDateAtteinteDuSeuilParPersonne } from './utils.js';
  * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
  * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
  *
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes acquises et la date à laquelle elles ont été acquises.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} Une liste des personnes acquises et la date à laquelle elles ont été acquises.
 */
-export async function getPersonnesAcquisesAvecDate() {
+export async function getPersonnesAcquisesAvecSemaine() {
     /** @type {[ÉvènementMétrique['type']]} */
     const évènements = ['seConnecter']
     const nombreSeuil = 1
@@ -34,9 +34,9 @@ export async function getPersonnesAcquisesAvecDate() {
  * Retourne les personnes actives et la date à laquelle elles ont été considérées comme actives.
  * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
  *
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
 */
-export async function getPersonnesActivesAvecDate() {
+export async function getPersonnesActivesAvecSemaine() {
     const évènements = ÉVÈNEMENTS_MODIFICATIONS
     const nombreSeuil = 5
     
@@ -47,9 +47,9 @@ export async function getPersonnesActivesAvecDate() {
  * Retourne les personnes dans la phae Impact et la date à laquelle elles ont été considérées dans la phase Impact.
  * L'impact de Pitchou est mesuré par les retours à conformité
  * 
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], date: Date}[]>} Une liste des personnes dans la phase Impact et la date à laquelle elles ont été considérées dans la phase Impact.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} Une liste des personnes dans la phase Impact et la date à laquelle elles ont été considérées dans la phase Impact.
 */
-export async function getPersonnesImpactAvecDate() {
+export async function getPersonnesImpactAvecSemaine() {
     /*
         Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
         donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
