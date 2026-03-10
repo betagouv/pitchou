@@ -29,14 +29,14 @@ export async function getÉvènementsForPersonne(email) {
 }
 
 /**
- * Renvoie la liste des fois où une personne a enregistré un nombre d'évènements au-delà d'un certain seuil
- * ainsi que la date à laquelle elles ont enregistré ce nombre d'évènements
+ * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil pour la première fois
+ * ainsi que la semaine à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>}
 */
-async function getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil) {
+export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
         `-- personnes et le nombre évènement suivis par semaine
 with evenements_par_personne as (select
@@ -63,21 +63,7 @@ join personne on seuil_atteint.personne = personne.id`
             nb_seuil_evenements: nombreSeuil,
             evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
         });
-    
-    return requêteSQL.rows
-}
-
-/**
- * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil pour la première fois
- * ainsi que la semaine à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
- * 
- * @param {ÉvènementMétrique['type'][]} évènements
- * @param {number} nombreSeuil
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>}
-*/
-export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
-    const personnesEtDates = await getPersonnesEtDatesQuandSeuilAtteint(évènements, nombreSeuil)
-
+    const personnesEtDates = requêteSQL.rows
     return personnesEtDates
         
 }
