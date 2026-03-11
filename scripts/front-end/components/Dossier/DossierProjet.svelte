@@ -22,6 +22,32 @@
 
     const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
 
+    /**
+     * Calcule le nombre d'espèces CNPN 
+     * et le nombre d'espèce ministérielles
+     * dans la liste des espèces impactées par ce projet
+     * @param {DescriptionMenacesEspèces} _espècesImpactées
+     * @returns { { nombreEspècesCNPN: number, nombreEspècesMinistérielles: number } }
+    */
+    function getNombreEspècesMinistérielleCNPN(_espècesImpactées) {
+        const toutesLesEspècesImpactées = [
+            ...(_espècesImpactées["faune non-oiseau"] ?? []),
+            ...(_espècesImpactées["flore"] ?? []),
+            ...(_espècesImpactées["oiseau"]  ?? []),
+        ]
+
+        const nombres = toutesLesEspècesImpactées.reduce((acc, {espèce}) => {
+                if (espèce.espèceCNPN) {
+                    acc['nombreEspècesCNPN']+=1
+                }
+                if (espèce.espèceMinistérielle) {
+                    acc['nombreEspècesMinistérielles']+=1
+                }
+                return acc
+            }, {nombreEspècesCNPN: 0, nombreEspècesMinistérielles: 0})
+        return nombres
+    }
+
     function makeFileContentBlob() {
         envoyerÉvènement({ type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: dossier.id } })
 
@@ -170,19 +196,28 @@
                 ? dossier.durée_intervention + " années"
                 : "Non renseignée"}
         </p>
-
-        <h2>Espèces impactées</h2>
+        <div class="container-titre-espèces-impactées">
+            <h2>
+                Espèces impactées
+            </h2>
+            {#if dossier.espècesImpactées}
+                <DownloadButton
+                    {makeFileContentBlob}
+                    {makeFilename}
+                    style="width: 15rem;"
+                    classname="fr-btn fr-btn--secondary"
+                    label="Télécharger le fichier des espèces impactées"
+                />
+            {/if}
+        </div>
         {#if dossier.espècesImpactées}
-            <DownloadButton
-                {makeFileContentBlob}
-                {makeFilename}
-                classname="fr-btn fr-btn--secondary"
-                label="Télécharger le fichier des espèces impactées"
-            />
             {#if espècesImpactées}
                 {#await Promise.all([espècesImpactées, promesseRéférentiels])}
                     <Loader></Loader>
                 {:then [espècesImpactées, {identifiantPitchouVersActivitéEtImpactsQuantifiés}]}
+                    {@const {nombreEspècesCNPN, nombreEspècesMinistérielles} = getNombreEspècesMinistérielleCNPN(espècesImpactées)}
+                    <p class="fr-badge fr-badge--blue-ecume">{nombreEspècesCNPN} {nombreEspècesCNPN>1 ? 'espèces' : 'espèce'} CNPN</p>
+                    <p class="fr-badge fr-badge--blue-ecume">{nombreEspècesMinistérielles} {nombreEspècesCNPN>1 ? 'espèces' : 'espèce'} Ministère</p>
                     <EspècesProtégéesGroupéesParImpact {espècesImpactées} {identifiantPitchouVersActivitéEtImpactsQuantifiés} />
                 {/await}
             {/if}
@@ -335,6 +370,22 @@
         & > :nth-child(2) {
             flex: 2;
         }
+    }
+
+    .container-titre-espèces-impactées {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .container-titre-espèces-impactées h2 {
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .bouton-telecharger-fichier-espece {
+        width: 15rem;
     }
 
     .pièces-jointes-pétitionnaire{

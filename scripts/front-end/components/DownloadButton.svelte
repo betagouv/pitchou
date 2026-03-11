@@ -11,6 +11,7 @@
      * @property {string} [label]
      * @property {() => string} makeFilename
      * @property {string} [classname]
+     * @property {string} [style]
      * @property {() => Blob | Promise<Blob>} makeFileContentBlob
      */
 
@@ -19,7 +20,8 @@
         label = "Télécharger",
         makeFilename,
         classname = "fr-btn fr-btn--lg",
-        makeFileContentBlob
+        makeFileContentBlob,
+        style
     } = $props();
 
     async function onClick(){
@@ -33,6 +35,6 @@
 
 </script>
 
-<button class={classname} onclick={onClick}>
+<button class={classname} onclick={onClick} style={style}>
     {label}
 </button>
