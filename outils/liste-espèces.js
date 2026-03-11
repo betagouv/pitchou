@@ -138,7 +138,6 @@ const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériel
         // @ts-ignore
         .then(sheetMap => ([sheetMap.get('Espèces Ministérielles'), sheetMap.get('Espèces CNPN')]))
         .then(([sheetEspècesMinistérielles, sheetEspècesCNPN]) => (
-            /** @type {[any, any]} */
             [
                 sheetRawContentToObjects(sheetEspècesMinistérielles.filter(isRowNotEmpty)), 
                 sheetRawContentToObjects(sheetEspècesCNPN.filter(isRowNotEmpty))
@@ -153,8 +152,18 @@ const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériel
  * Génération du fichier liste espèces
  * 
  */
-Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
-.then(([taxref, protectionsEspèces, listesEspècesMinistériellesCNPN]) => {
+Promise.all(
+    [
+        taxrefP, 
+        protectionsEspècesP, 
+        listesEspècesMinistériellesCNPNP
+    ])
+.then((
+    [
+        taxref, 
+        protectionsEspèces, 
+        listesEspècesMinistériellesCNPN
+    ]) => {
     const [listeEspècesMinistérielles, listeEspècesCNPN] = listesEspècesMinistériellesCNPN
 
     /** @type {Map<EspèceProtégée['CD_REF'], Partial<EspèceProtégée>>} */
