@@ -38,18 +38,30 @@ export interface BDC_STATUT_ROW {
 }
 
 /**
+ * Lignes des feuilles du fichier espèces_ministérielles_cnpn (produit par Pitchou)
+ */
+export interface ESPÈCES_MINISTÉRIELLES_CNPN_ROW {
+	'Nom vernaculaire': string,
+    'Nom scientifique': string,
+}
+
+/**
  * Lignes du fichier liste-espèces-protégées.csv
  * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes
  */
 export interface EspèceProtégée {
-    CD_REF: TAXREF_ROW['CD_REF'],
-    // TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
-    nomsVernaculaires: Set<TAXREF_ROW['NOM_VERN']>,
-    // plusieurs noms si plusieurs CD_NOM pour le même CD_REF
-    nomsScientifiques: Set<TAXREF_ROW['LB_NOM']>,
-    classification: ClassificationEtreVivant,
-    // types de protection associées à cette espèce
-    CD_TYPE_STATUTS: Set<BDC_STATUT_ROW['CD_TYPE_STATUT']>,
+	CD_REF: TAXREF_ROW['CD_REF'],
+	// TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
+	nomsVernaculaires: Set<TAXREF_ROW['NOM_VERN']>,
+	// plusieurs noms si plusieurs CD_NOM pour le même CD_REF
+	nomsScientifiques: Set<TAXREF_ROW['LB_NOM']>,
+	classification: ClassificationEtreVivant
+	// types de protection associées à cette espèce
+	CD_TYPE_STATUTS: Set<BDC_STATUT_ROW['CD_TYPE_STATUT']>,
+	// Espèce ministérielle
+	espèceMinistérielle: undefined | 'O',
+	// Espèce CNPN
+	espèceCNPN: undefined | 'O',
 }
 
 /**
