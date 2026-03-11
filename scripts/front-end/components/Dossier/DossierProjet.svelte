@@ -385,7 +385,6 @@
     }
 
     .bouton-telecharger-fichier-espece {
-        background-color: red;
         width: 15rem;
     }
 
