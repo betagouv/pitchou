@@ -8,6 +8,8 @@ interface Espece {
   nomVernaculaire: string;
   nomScientifique: string;
   liste_impacts_quantifiés: string[];
+  estCNPN: boolean;
+  estMinistérielle: boolean;
 }
 
 /**
