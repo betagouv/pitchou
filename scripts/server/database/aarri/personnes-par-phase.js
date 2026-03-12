@@ -13,13 +13,7 @@ import { getPremièreDateAtteinteDuSeuilParPersonne } from './utils.js';
  * Retourne les personnes acquises et la date à laquelle elles ont été considérées comme acquises.
  * Une personne acquise est une personne qui s'est connectée au moins une fois.
  *
- * @remarks
- *
- * Pour l'instant, on considère que se connecter correspond à l'action "a cliqué sur un lien de connexion".
- * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
- * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
- *
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} Une liste des personnes acquises et la date à laquelle elles ont été acquises.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} La liste des personnes acquises et la date à laquelle elles ont été acquises.
 */
 export async function getPersonnesAcquisesAvecSemaine() {
     /** @type {[ÉvènementMétrique['type']]} */
@@ -31,10 +25,10 @@ export async function getPersonnesAcquisesAvecSemaine() {
 
 
 /**
- * Retourne les personnes actives et la date à laquelle elles ont été considérées comme actives.
- * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * Retourne les personnes activées et la date à laquelle elles ont été considérées comme activées.
+ * Une personne activée est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
  *
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} Une liste des personnes actives et la date à laquelle elles ont été activées.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} La liste des personnes activées et la date à laquelle elles ont été activées.
 */
 export async function getPersonnesActivesAvecSemaine() {
     const évènements = ÉVÈNEMENTS_MODIFICATIONS
@@ -44,10 +38,10 @@ export async function getPersonnesActivesAvecSemaine() {
 }
 
 /**
- * Retourne les personnes dans la phae Impact et la date à laquelle elles ont été considérées dans la phase Impact.
+ * Retourne les personnes dans la phase Impact et la date à laquelle elles sont rentrées dans la phase Impact.
  * L'impact de Pitchou est mesuré par les retours à conformité
  * 
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} Une liste des personnes dans la phase Impact et la date à laquelle elles ont été considérées dans la phase Impact.
+ * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>} La liste des personnes dans la phase Impact et la date à laquelle elles sont rentrées dans la phase Impact.
 */
 export async function getPersonnesImpactAvecSemaine() {
     /*
