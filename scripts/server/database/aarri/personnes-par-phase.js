@@ -34,7 +34,7 @@ export async function getPersonnesActivesAvecSemaine() {
     const évènements = ÉVÈNEMENTS_MODIFICATIONS
     const nombreSeuil = 5
     
-    return await getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil)
+    return getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil)
 }
 
 /**
