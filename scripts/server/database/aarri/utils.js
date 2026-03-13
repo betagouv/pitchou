@@ -1,9 +1,18 @@
-
 /** @import Évènement from '../../../types/database/public/ÉvènementMétrique' */
 /** @import Personne from '../../../types/database/public/Personne' */
 /** @import { ÉvènementMétrique } from '../../../types/évènement.js' */
-
+import { eachWeekOfInterval, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../../database.js'
+
+/**
+ * Correspond au jour d'une semaine
+ * @typedef {string} Semaine
+ */
+
+/**
+ * @typedef {{id: Personne['id'], email: Personne['email'], semaine: Date}} PersonneAvecDate
+ */
+
 
 /**
  * @param {Personne['email']} email
@@ -34,7 +43,7 @@ export async function getÉvènementsForPersonne(email) {
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
- * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>}
+ * @returns {Promise<PersonneAvecDate[]>}
 */
 export async function getPersonnesAvecDateAtteinteSeuilÈvènements(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
@@ -66,4 +75,60 @@ join personne on seuil_atteint.personne = personne.id`
     const listePersonneAvecSemaine = requêteSQL.rows
     return listePersonneAvecSemaine
         
+}
+
+/**
+ * Calcule le cumul hebdomadaire du nombre de personnes
+ * pour un certain nombre de semaine.
+ * La période observée commence il y a X semaines et finit la semaine dernière.
+ * @param {PersonneAvecDate[]} personnesAvecDate
+ * @param {number} nombreSemainesObservées
+ *
+ * @returns {Map<Semaine, number>} Une correspondance entre les X semaines et le nombre de personnes cumulées.
+ */
+export function calculerCumulPersonnesParSemaineSurUnePériode(personnesAvecDate, nombreSemainesObservées) {
+    const personnesParDate = new Map(personnesAvecDate.map(({semaine, id}) => [semaine, id]))
+    const personnesRegroupéesParSemaine = Map.groupBy(personnesParDate, ([semaine]) => semaine.toISOString())
+
+    const aujourdhui = new Date()
+    //Les évènements des utilisateurices de Pitchou sont enregistrées depuis début 2026.
+    const débutEnregistrementÉvènements = new Date('01/01/2026');
+    /** @type {Semaine[]} */
+    const toutesLesSemaines = eachWeekOfInterval(
+        {
+            start: débutEnregistrementÉvènements,
+            end: aujourdhui,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+    const semaineDébutObservation = subWeeks(aujourdhui, nombreSemainesObservées)
+    const semaineFinObservation = subWeeks(aujourdhui, 1)
+
+    /** @type {Semaine[]} */
+    const semainesObservéesPourAARRI = eachWeekOfInterval(
+        {
+            start: semaineDébutObservation,
+            end: semaineFinObservation,
+        },
+        {
+            weekStartsOn: 1,
+        }
+    ).map((semaine) => semaine.toISOString())
+
+    /** @type {Map<Semaine, number>} */
+    const cumulParSemaineSurPériodeObservée = new Map(semainesObservéesPourAARRI.map((semaine) => [semaine, 0]))
+
+    let cumul = 0
+    for (const semaine of toutesLesSemaines) {
+        const élémentsParSemaine = personnesRegroupéesParSemaine.get(semaine) ?? []
+        cumul = cumul + élémentsParSemaine.length
+        if (cumulParSemaineSurPériodeObservée.has(semaine)) {
+            cumulParSemaineSurPériodeObservée.set(semaine, cumul)
+        }
+    }
+
+    return cumulParSemaineSurPériodeObservée
 }
