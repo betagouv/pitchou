@@ -36,7 +36,7 @@ export async function getÉvènementsForPersonne(email) {
  * @param {number} nombreSeuil
  * @returns {Promise<{id: Personne['id'], email: Personne['email'], semaine: Date}[]>}
 */
-export async function getPremièreDateAtteinteDuSeuilParPersonne(évènements, nombreSeuil) {
+export async function getPersonnesAvecDateAtteinteSeuilÈvènements(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
         `-- personnes et le nombre évènement suivis par semaine
 with evenements_par_personne as (select
