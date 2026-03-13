@@ -63,7 +63,7 @@ join personne on seuil_atteint.personne = personne.id`
             nb_seuil_evenements: nombreSeuil,
             evenements: directDatabaseConnection.raw(évènements.map(() => '?').join(', '), évènements)
         });
-    const listePersonneAvecDate = requêteSQL.rows
-    return listePersonneAvecDate
+    const listePersonneAvecSemaine = requêteSQL.rows
+    return listePersonneAvecSemaine
         
 }
