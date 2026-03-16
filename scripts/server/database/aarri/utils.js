@@ -1,7 +1,7 @@
 /** @import Évènement from '../../../types/database/public/ÉvènementMétrique' */
 /** @import Personne from '../../../types/database/public/Personne' */
 /** @import { ÉvènementMétrique } from '../../../types/évènement.js' */
-import { eachWeekOfInterval, subWeeks } from 'date-fns';
+import { compareAsc, eachWeekOfInterval, subWeeks } from 'date-fns';
 import { directDatabaseConnection } from '../../database.js'
 
 /**
@@ -38,14 +38,14 @@ export async function getÉvènementsForPersonne(email) {
 }
 
 /**
- * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil pour la première fois
- * ainsi que la semaine à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
+ * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil
+ * ainsi que les semaines auxquelles elles ont enregistré ce nombre d'évènements
  * 
  * @param {ÉvènementMétrique['type'][]} évènements
  * @param {number} nombreSeuil
  * @returns {Promise<PersonneAvecDate[]>}
 */
-export async function getPersonnesAvecDateAtteinteSeuilÈvènements(évènements, nombreSeuil) {
+export async function getPersonnesAvecDatesAtteinteSeuilÈvènements(évènements, nombreSeuil) {
     const requêteSQL = await directDatabaseConnection.raw(
         `-- personnes et le nombre évènement suivis par semaine
 with evenements_par_personne as (select
@@ -58,11 +58,11 @@ WHERE évènement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
--- filtrer par semaine où le seuil est atteint et garder la semaine la plus ancienne
-seuil_atteint as (select personne, MIN(semaine) as semaine
+-- filtrer par semaine où le seuil est atteint
+seuil_atteint as (select personne, semaine
 from evenements_par_personne
 WHERE nombre_evenements >= :nb_seuil_evenements
-group by personne
+group by personne, semaine
 )
 
 select personne.id, personne.email, semaine
@@ -74,6 +74,35 @@ join personne on seuil_atteint.personne = personne.id`
         });
     const listePersonneAvecSemaine = requêteSQL.rows
     return listePersonneAvecSemaine
+        
+}
+
+/**
+ * Renvoie la liste des personnes ayant enregistré un nombre d'évènements au-delà d'un certain seuil pour la première fois
+ * ainsi que la semaine à laquelle elles ont enregistré ce nombre d'évènements pour la première fois
+ * 
+ * @param {ÉvènementMétrique['type'][]} évènements
+ * @param {number} nombreSeuil
+ * @returns {Promise<PersonneAvecDate[]>}
+*/
+export async function getPersonnesAvecPremièreDateAtteinteSeuilÈvènements(évènements, nombreSeuil) {
+    const personnesAvecSemaines = await getPersonnesAvecDatesAtteinteSeuilÈvènements(évènements, nombreSeuil)
+
+    const personnesAvecPremièreSemaine = []
+    
+    const personnesAvecSemainesGroupéesParPersonne = Map.groupBy(personnesAvecSemaines, (personneAvecDate) => personneAvecDate.id)
+
+    const personnes = [...new Set([...personnesAvecSemainesGroupéesParPersonne.keys()])]
+
+    for (const personne of personnes) {
+        const résultatPourLaPersonne = personnesAvecSemainesGroupéesParPersonne.get(personne)
+        if (résultatPourLaPersonne) {
+            const personneAvecPremièreSemaine = (résultatPourLaPersonne.sort((a,b) => compareAsc(a.semaine, b.semaine)))[0]
+            personnesAvecPremièreSemaine.push(personneAvecPremièreSemaine)
+        }
+    }
+
+    return personnesAvecPremièreSemaine
         
 }
 
