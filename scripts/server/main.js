@@ -140,7 +140,7 @@ fastify.get('/import-dossier-historique/corse', sendIndexHTMLFile)
 fastify.get('/accessibilite', sendIndexHTMLFile)
 fastify.get('/donnees-personnelles', sendIndexHTMLFile)
 fastify.get('/aarri', sendIndexHTMLFile)
-
+fastify.get('/outil-interne', sendIndexHTMLFile)
 
 
 fastify.post('/lien-preremplissage', async function (request) {
