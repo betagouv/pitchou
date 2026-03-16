@@ -893,6 +893,27 @@ fastify.get('/declaration-geomce', async function(request, reply) {
   return générerDéclarationGeoMCE()
 })
 
+/**
+ * @type {RouteShorthandOptions}
+ * @const
+ */
+const optsOutilInterneDonnéesPourPersonne = {
+  schema: {
+    body: {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string' },
+      },
+    },
+  },
+};
+fastify.post('/outil-interne/donnees-pour-personne', optsOutilInterneDonnéesPourPersonne, (request) => {
+  const { body } = request
+  console.log('test dans le backend', body)
+  //TODO : appeler l'outil données-pour-personne
+})
+
 
 // Lancer le serveur HTTP
 try {
