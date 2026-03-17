@@ -36,6 +36,7 @@ import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, s
 import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
 import {générerDéclarationGeoMCE} from './database/geomce.js'
 import { getNotificationsPourPersonneDepuisCap, updateNotificationDossierFromCap } from './database/notification.js'
+import { lancerOutilDonnéesPourPersonne } from './outilsInternes.js'
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
@@ -909,9 +910,9 @@ const optsOutilInterneDonnéesPourPersonne = {
   },
 };
 fastify.post('/outil-interne/donnees-pour-personne', optsOutilInterneDonnéesPourPersonne, (request) => {
-  const { body } = request
-  console.log('test dans le backend', body)
-  //TODO : appeler l'outil données-pour-personne
+  // @ts-ignore
+  const email = request.body.email
+  lancerOutilDonnéesPourPersonne(email)
 })
 
 
