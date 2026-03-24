@@ -30,5 +30,9 @@ export async function up(knex) {
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-    return knex.schema.dropTable('espèces_impactées');
+    await knex.schema.dropTable('espèces_impactées');
+
+    return await knex.schema.raw(
+        `ALTER TABLE fichier RENAME CONSTRAINT fichier_pkey TO espèces_impactées_pkey`
+    );
 };
