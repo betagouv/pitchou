@@ -6,10 +6,12 @@ export async function up(knex) {
     await knex.schema.createTable('déclaration_espèces_impactées', (table) => {
         table.uuid('id').primary().defaultTo(knex.fn.uuid());
         table.uuid('fichier')
-            .references('fichier.id');
+            .references('fichier.id')
+            .notNullable();
         table.integer('dossier')
             .references('dossier.id')
-            .onDelete('CASCADE');
+            .onDelete('CASCADE')
+            .notNullable();
     });
 
     await knex.raw(`
@@ -33,7 +35,9 @@ EXECUTE PROCEDURE supprimer_fichier_déclaration_espèces_impactées();
 
     return knex.schema.createTable('espèce_impactée', (table) => {
         table.uuid('id').primary().defaultTo(knex.fn.uuid());
-        table.string('CD_REF').comment(`CD_REF est l'identifiant de l'espèce donné par le fichier TAX_REF.`);
+        table.string('CD_REF')
+            .comment(`CD_REF est l'identifiant de l'espèce donné par le fichier TAX_REF.`)
+            .notNullable();
         table.string('activité').comment(`Identifiant Pitchou qui dérive des identifiants du fichier .xsd créé pour le rapportage européen (cf https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd).`);
         table.string('méthode').comment(`Identifiant Pitchou qui dérive des identifiants du fichier .xsd créé pour le rapportage européen (cf https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd).`);
         table.string('moyen_de_poursuite').comment(`Identifiant Pitchou qui dérive des identifiants du fichier .xsd créé pour le rapportage européen (cf https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd).`);
@@ -45,7 +49,9 @@ EXECUTE PROCEDURE supprimer_fichier_déclaration_espèces_impactées();
         table.integer('nombre_œufs_min').comment(`Nombre minimal d'œufs impactés.`);
         table.integer('nombre_œufs_max').comment(`Nombre maximal d'œufs impactés.`);
         table.uuid('déclaration_espèces_impactées')
-            .references('déclaration_espèces_impactées.id');
+            .references('déclaration_espèces_impactées.id')
+            .onDelete('CASCADE')
+            .notNullable();
     });
 };
 

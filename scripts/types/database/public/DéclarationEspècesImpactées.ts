@@ -11,9 +11,9 @@ export type DClarationEspCesImpactEsId = string & { __brand: 'public.déclaratio
 export default interface DClarationEspCesImpactEs {
   id: DClarationEspCesImpactEsId;
 
-  fichier: FichierId | null;
+  fichier: FichierId;
 
-  dossier: DossierId | null;
+  dossier: DossierId;
 }
 
 /** Represents the initializer for the table public.déclaration_espèces_impactées */
@@ -21,16 +21,16 @@ export interface DClarationEspCesImpactEsInitializer {
   /** Default value: gen_random_uuid() */
   id?: DClarationEspCesImpactEsId;
 
-  fichier?: FichierId | null;
+  fichier: FichierId;
 
-  dossier?: DossierId | null;
+  dossier: DossierId;
 }
 
 /** Represents the mutator for the table public.déclaration_espèces_impactées */
 export interface DClarationEspCesImpactEsMutator {
   id?: DClarationEspCesImpactEsId;
 
-  fichier?: FichierId | null;
+  fichier?: FichierId;
 
-  dossier?: DossierId | null;
+  dossier?: DossierId;
 }

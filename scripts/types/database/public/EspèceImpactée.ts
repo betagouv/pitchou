@@ -11,7 +11,7 @@ export default interface EspCeImpactE {
   id: EspCeImpactEId;
 
   /** CD_REF est l'identifiant de l'espèce donné par le fichier TAX_REF. */
-  CD_REF: string | null;
+  CD_REF: string;
 
   /** Identifiant Pitchou qui dérive des identifiants du fichier .xsd créé pour le rapportage européen (cf https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd). */
   activité: string | null;
@@ -43,7 +43,7 @@ export default interface EspCeImpactE {
   /** Nombre maximal d'œufs impactés. */
   nombre_œufs_max: number | null;
 
-  déclaration_espèces_impactées: DClarationEspCesImpactEsId | null;
+  déclaration_espèces_impactées: DClarationEspCesImpactEsId;
 }
 
 /** Represents the initializer for the table public.espèce_impactée */
@@ -52,7 +52,7 @@ export interface EspCeImpactEInitializer {
   id?: EspCeImpactEId;
 
   /** CD_REF est l'identifiant de l'espèce donné par le fichier TAX_REF. */
-  CD_REF?: string | null;
+  CD_REF: string;
 
   /** Identifiant Pitchou qui dérive des identifiants du fichier .xsd créé pour le rapportage européen (cf https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd). */
   activité?: string | null;
@@ -84,7 +84,7 @@ export interface EspCeImpactEInitializer {
   /** Nombre maximal d'œufs impactés. */
   nombre_œufs_max?: number | null;
 
-  déclaration_espèces_impactées?: DClarationEspCesImpactEsId | null;
+  déclaration_espèces_impactées: DClarationEspCesImpactEsId;
 }
 
 /** Represents the mutator for the table public.espèce_impactée */
@@ -92,7 +92,7 @@ export interface EspCeImpactEMutator {
   id?: EspCeImpactEId;
 
   /** CD_REF est l'identifiant de l'espèce donné par le fichier TAX_REF. */
-  CD_REF?: string | null;
+  CD_REF?: string;
 
   /** Identifiant Pitchou qui dérive des identifiants du fichier .xsd créé pour le rapportage européen (cf https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd). */
   activité?: string | null;
@@ -124,5 +124,5 @@ export interface EspCeImpactEMutator {
   /** Nombre maximal d'œufs impactés. */
   nombre_œufs_max?: number | null;
 
-  déclaration_espèces_impactées?: DClarationEspCesImpactEsId | null;
+  déclaration_espèces_impactées?: DClarationEspCesImpactEsId;
 }
