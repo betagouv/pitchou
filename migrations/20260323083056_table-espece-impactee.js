@@ -11,7 +11,8 @@ export async function up(knex) {
         table.integer('dossier')
             .references('dossier.id')
             .onDelete('CASCADE')
-            .notNullable();
+            .notNullable()
+            .unique();
     });
 
     await knex.raw(`
