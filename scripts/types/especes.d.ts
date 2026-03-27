@@ -154,9 +154,9 @@ export interface DescriptionImpact {
 }
 
 export interface DescriptionMenacesEspèces {
-    oiseau: OiseauAtteint[],
-    "faune non-oiseau": FauneNonOiseauAtteinte[],
-    flore: FloreAtteinte[],
+    oiseau?: OiseauAtteint[],
+    "faune non-oiseau"?: FauneNonOiseauAtteinte[],
+    flore?: FloreAtteinte[],
 }
 
 export interface DescriptionMenaceEspèceJSON {

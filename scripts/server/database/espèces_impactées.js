@@ -1,5 +1,7 @@
 
+import pLimit from 'p-limit';
 import {directDatabaseConnection} from '../database.js'
+import { récupérerEspècesImpactéesFromFichierODS } from '../espèces-impactées/lire_fichier_ods.js';
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as DéclarationEspècesImpactées, DClarationEspCesImpactEsInitializer} from '../../../scripts/types/database/public/DéclarationEspècesImpactées.ts' */
@@ -9,6 +11,9 @@ import {directDatabaseConnection} from '../database.js'
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
+
+const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS = 6
+const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS)
 
 /**
  * 
@@ -84,9 +89,55 @@ export async function synchroniserFichiersEspècesImpactéesDepuisDS88444(espèc
                 throw new Error(`Aucun id de dossier ne correspond au numéro DN : ${numéroDossierDN}`)
             }
     })
-    const miseÀjourFichiersDansDéclarationsEspècesImpactéesP = databaseConnection('déclaration_espèces_impactées')
-        .insert(déclarationsEspècesImpactéesÀInsérer)
 
-    return Promise.all([miseÀjourFichiersDansDossierP, miseÀjourFichiersDansDéclarationsEspècesImpactéesP])
+    // Ajouter les espèces impactées dans la table espèce_impactée
+    /** @type { Pick<DéclarationEspècesImpactées, "id" | "fichier">[] } */
+    const déclarationsEspècesImpactées = (await databaseConnection('déclaration_espèces_impactées')
+        .insert(déclarationsEspècesImpactéesÀInsérer)
+        .returning(['id', 'fichier']));
+
+
+    /** @type {(Promise<void>)[]} */  
+    const miseÀjourFichiersDansDéclarationEspècesImpactéesP = []
+
+    // Récupérer les espèces impactées à partir du fichier espèce impactée et les insérer dans espèce_impactée.
+    for (const {fichier, id} of déclarationsEspècesImpactées) {
+        const miseÀjourFichierDansDéclarationEspècesImpactéesP = fenêtre(() => _récupérerEspècesImpactéesFromFichierODSEtInsérerDansEspèceImpactée(fichier, id, databaseConnection));
+        miseÀjourFichiersDansDéclarationEspècesImpactéesP.push(miseÀjourFichierDansDéclarationEspècesImpactéesP);
+    }
+
+    return Promise.all([
+        miseÀjourFichiersDansDossierP,
+        miseÀjourFichiersDansDéclarationEspècesImpactéesP
+    ])
     
+}
+
+/**
+ * @param {Fichier['id']} fichierId
+ * @param {NonNullable<DClarationEspCesImpactEsInitializer['id']>} déclarationEspècesImpactéesId
+ * @param {Knex.Transaction | Knex} databaseConnection
+ * @returns {Promise<void>}
+ */
+async function _récupérerEspècesImpactéesFromFichierODSEtInsérerDansEspèceImpactée(
+    fichierId, 
+    déclarationEspècesImpactéesId, 
+    databaseConnection
+) {
+    /** @type {Promise<Fichier>} */
+    const fichierP = databaseConnection('fichier')
+        .select('*')
+        .where('id', fichierId)
+        .first();
+
+    const espècesImpactéesP = fichierP.then((fichier) => récupérerEspècesImpactéesFromFichierODS(fichier, déclarationEspècesImpactéesId))
+
+    return espècesImpactéesP
+        .then((espècesImpactées) => 
+            { 
+                console.log('espècesImpactées', espècesImpactées)
+                return databaseConnection('espèce_impactée')
+                .insert(espècesImpactées)
+            }
+            )
 }

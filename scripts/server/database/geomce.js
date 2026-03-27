@@ -1,12 +1,12 @@
 import {join} from 'node:path'
 import {readFile} from 'node:fs/promises'
 
-import {dsvFormat} from 'd3-dsv'
 import memoize from 'just-memoize'
 
 import { byteFormat } from "../../commun/typeFormat.js";
 import { directDatabaseConnection } from '../../server/database.js';
-import { construireActivitésMéthodesMoyensDePoursuite, espèceProtégéeStringToEspèceProtégée, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
+import { construireActivitésMéthodesMoyensDePoursuite, importDescriptionMenacesEspècesFromOdsArrayBuffer } from '../../commun/outils-espèces.js';
+import { chargerActivitésMéthodesMoyensDePoursuite, chargerListeEspèceParCD_REF } from '../espèces-impactées/lire_fichier_ods.js';
 
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
@@ -15,35 +15,6 @@ import { construireActivitésMéthodesMoyensDePoursuite, espèceProtégéeString
 /** @import { PitchouState } from '../../front-end/store.js' */
 //@ts-ignore
 /** @import { EspèceProtégée, DescriptionMenacesEspèces, EspèceProtégéeStrings } from '../../types/especes.ts' */
-
-const DATA_DIR = join(import.meta.dirname, '../../../data')
-
-/**
- * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>> }
- */
-const chargerActivitésMéthodesMoyensDePoursuite = memoize(async function chargerActivitésMéthodesMoyensDePoursuite() {
-    const activitésBuffer = await readFile(join(DATA_DIR, 'activites-methodes-moyens-de-poursuite.ods'))
-    return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer)
-})
-
-/**
- * Le premier appel memoize une version parsée de liste-espèces-protégées.csv, donc plusieurs Mo
- * 
- * @returns {Promise<Map<EspèceProtégée['CD_REF'], EspèceProtégée>>}
- */
-const chargerListeEspèceParCD_REF = memoize(async function chargerListeEspèceParCD_REF() {
-    const espèceBuffer = await readFile(join(DATA_DIR, 'liste-espèces-protégées.csv'))
-    /** @type {EspèceProtégéeStrings[]} */
-    const listeEspèces = dsvFormat(';').parse(espèceBuffer.toString())
-
-    return new Map(listeEspèces.map((espèce) => {
-        return [
-            espèce['CD_REF'],
-            espèceProtégéeStringToEspèceProtégée(espèce)
-        ]
-    }))
-})
-
 
 /**
  *

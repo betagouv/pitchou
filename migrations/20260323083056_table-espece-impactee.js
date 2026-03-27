@@ -45,10 +45,8 @@ EXECUTE PROCEDURE supprimer_fichier_déclaration_espèces_impactées();
         table.integer('nombre_individus_min').comment(`Le nombre minimum d'individus impactées.`);
         table.integer('nombre_individus_max').comment(`Le nombre maximum d'individus impactées.`);
         table.integer('surface_habitat_détruit').comment(`Surface d'habitat détruit en m²`);
-        table.integer('nombre_nids_min').comment(`Nombre minimal de nids impactés.`);
-        table.integer('nombre_nids_max').comment(`Nombre maximal de nids impactés.`);
-        table.integer('nombre_œufs_min').comment(`Nombre minimal d'œufs impactés.`);
-        table.integer('nombre_œufs_max').comment(`Nombre maximal d'œufs impactés.`);
+        table.integer('nombre_nids').comment(`Nombre de nids impactés.`);
+        table.integer('nombre_œufs').comment(`Nombre d'œufs impactés.`);
         table.uuid('déclaration_espèces_impactées')
             .references('déclaration_espèces_impactées.id')
             .onDelete('CASCADE')

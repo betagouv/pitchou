@@ -214,15 +214,15 @@ function floresAtteintesToTableContent(floresAtteintes){
 export function descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces){
     const odsContent = new Map()
 
-    if(descriptionMenacesEspèces['oiseau'].length >= 1){
+    if(descriptionMenacesEspèces['oiseau'] && descriptionMenacesEspèces['oiseau'].length >= 1){
         odsContent.set('oiseau', oiseauxAtteintsToTableContent(descriptionMenacesEspèces['oiseau']))
     }
 
-    if(descriptionMenacesEspèces['faune non-oiseau'].length >= 1){
+    if(descriptionMenacesEspèces['faune non-oiseau'] && descriptionMenacesEspèces['faune non-oiseau'].length >= 1){
         odsContent.set('faune non-oiseau', faunesNonOiseauAtteintesToTableContent(descriptionMenacesEspèces['faune non-oiseau']))
     }
 
-    if(descriptionMenacesEspèces['flore'].length >= 1){
+    if(descriptionMenacesEspèces['flore'] && descriptionMenacesEspèces['flore'].length >= 1){
         odsContent.set('flore', floresAtteintesToTableContent(descriptionMenacesEspèces['flore']))
     }
 
@@ -349,6 +349,8 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     }
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
+        console.log('lignesOiseauOds', lignesOiseauOds)
+
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['oiseau'] = lignesOiseauOds
             .map(ligneOiseauOds => {

@@ -31,17 +31,11 @@ export default interface EspCeImpactE {
   /** Surface d'habitat détruit en m² */
   surface_habitat_détruit: number | null;
 
-  /** Nombre minimal de nids impactés. */
-  nombre_nids_min: number | null;
+  /** Nombre de nids impactés. */
+  nombre_nids: number | null;
 
-  /** Nombre maximal de nids impactés. */
-  nombre_nids_max: number | null;
-
-  /** Nombre minimal d'œufs impactés. */
-  nombre_œufs_min: number | null;
-
-  /** Nombre maximal d'œufs impactés. */
-  nombre_œufs_max: number | null;
+  /** Nombre d'œufs impactés. */
+  nombre_œufs: number | null;
 
   déclaration_espèces_impactées: DClarationEspCesImpactEsId;
 }
@@ -72,17 +66,11 @@ export interface EspCeImpactEInitializer {
   /** Surface d'habitat détruit en m² */
   surface_habitat_détruit?: number | null;
 
-  /** Nombre minimal de nids impactés. */
-  nombre_nids_min?: number | null;
+  /** Nombre de nids impactés. */
+  nombre_nids?: number | null;
 
-  /** Nombre maximal de nids impactés. */
-  nombre_nids_max?: number | null;
-
-  /** Nombre minimal d'œufs impactés. */
-  nombre_œufs_min?: number | null;
-
-  /** Nombre maximal d'œufs impactés. */
-  nombre_œufs_max?: number | null;
+  /** Nombre d'œufs impactés. */
+  nombre_œufs?: number | null;
 
   déclaration_espèces_impactées: DClarationEspCesImpactEsId;
 }
@@ -112,17 +100,11 @@ export interface EspCeImpactEMutator {
   /** Surface d'habitat détruit en m² */
   surface_habitat_détruit?: number | null;
 
-  /** Nombre minimal de nids impactés. */
-  nombre_nids_min?: number | null;
+  /** Nombre de nids impactés. */
+  nombre_nids?: number | null;
 
-  /** Nombre maximal de nids impactés. */
-  nombre_nids_max?: number | null;
-
-  /** Nombre minimal d'œufs impactés. */
-  nombre_œufs_min?: number | null;
-
-  /** Nombre maximal d'œufs impactés. */
-  nombre_œufs_max?: number | null;
+  /** Nombre d'œufs impactés. */
+  nombre_œufs?: number | null;
 
   déclaration_espèces_impactées?: DClarationEspCesImpactEsId;
 }
