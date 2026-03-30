@@ -131,7 +131,12 @@ function sendIndexHTMLFile(_request, reply){
   // Le protocole blob est utilisé pour dézipper les fichiers .ods
   // unsafe-eval permet de faire marcher des libs externes comme SES et d3-dsv
   // "unsafe-line" pour le polyfill (protocole difference dans index.html)
-    .header('content-security-policy', `default-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self' https://geo.api.gouv.fr`)
+    .header('content-security-policy', [
+      `script-src 'self' 'unsafe-eval' 'unsafe-inline'`,
+      `worker-src 'self' blob:`,
+      `connect-src 'self' https://geo.api.gouv.fr`,
+      `default-src 'self' data:`,
+    ].join('; '))
     .sendFile('index.html');
 }
 
