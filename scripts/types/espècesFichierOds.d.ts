@@ -16,14 +16,14 @@ export type FichierEspècesImpactéesOds_V1 =
 interface EtreVivantAtteintOds_V1{
     CD_REF: string,
     "nombre individus": string,
-    "surface habitat détruit": number,
+    "surface habitat détruit": number | '',
     "code activité": string,
     "identifiant pitchou activité"?: string, // cette propriété a été ajoutée en version 1.1.0
 }
 
 export interface OiseauAtteintOds_V1 extends EtreVivantAtteintOds_V1{
-    nids: number
-    œufs: number,
+    nids:  number | '',
+    œufs: number | '',
     "code méthode": string,
     "code transport": string
 }

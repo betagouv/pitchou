@@ -393,9 +393,9 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             return {
                 espèce,
                 nombreIndividus,
-                nombreNids,
-                nombreOeufs,
-                surfaceHabitatDétruit,
+                nombreNids: nombreNids === '' ? undefined : nombreNids,
+                nombreOeufs: nombreOeufs === '' ? undefined : nombreOeufs,
+                surfaceHabitatDétruit: surfaceHabitatDétruit === '' ? undefined : surfaceHabitatDétruit,
                 activité: activites['oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['oiseau'].get(codeMéthode),
                 moyenDePoursuite: moyensDePoursuite['oiseau'].get(moyenDePoursuite),
@@ -435,7 +435,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             return {
                 espèce,
                 nombreIndividus,
-                surfaceHabitatDétruit,
+                surfaceHabitatDétruit: surfaceHabitatDétruit === '' ? undefined : surfaceHabitatDétruit,
                 activité: activites['faune non-oiseau'].get(identifiantPitchouActivité),
                 méthode: methodes['faune non-oiseau'].get(codeMéthode),
                 moyenDePoursuite: moyensDePoursuite['faune non-oiseau'].get(codeMoyenDePoursuite),
@@ -463,7 +463,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
             return {
                 espèce,
                 nombreIndividus,
-                surfaceHabitatDétruit,
+                surfaceHabitatDétruit: surfaceHabitatDétruit === '' ? undefined : surfaceHabitatDétruit,
                 activité: activites['flore'].get(identifiantPitchouActivité || `P-${codeActivité}`)
             }
         })
