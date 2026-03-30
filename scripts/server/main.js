@@ -1,6 +1,6 @@
 //@ts-check
 
-/** @import {RouteShorthandOptions} from 'fastify' */
+/** @import {RouteShorthandOptions, FastifyReply} from 'fastify' */
 
 import path from 'node:path'
 
@@ -122,12 +122,20 @@ fastify.register(fastifyMultipart, {
 /**
  *
  * @param {any} _request
- * @param {any} reply
+ * @param {FastifyReply} reply
  */
 function sendIndexHTMLFile(_request, reply){
-  reply.sendFile('index.html')
+  reply
+  // On ajoute un header CSP afin de prévenir les exfiltrations de données.
+  // Le protocole data est utilisé par le DSFR
+  // Le protocole blob est utilisé pour dézipper les fichiers .ods
+  // unsafe-eval permet de faire marcher des libs externes comme SES et d3-dsv
+  // "unsafe-line" pour le polyfill (protocole difference dans index.html)
+    .header('content-security-policy', `default-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self' https://geo.api.gouv.fr`)
+    .sendFile('index.html');
 }
 
+fastify.get('/', sendIndexHTMLFile)
 fastify.get('/tous-les-dossiers', sendIndexHTMLFile)
 fastify.get('/mes-dossiers', sendIndexHTMLFile)
 fastify.get('/saisie-especes', sendIndexHTMLFile)
