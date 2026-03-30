@@ -1,7 +1,7 @@
 
 import pLimit from 'p-limit';
 import {directDatabaseConnection} from '../database.js'
-import { récupérerEspècesImpactéesFromFichierODS } from '../espèces-impactées/lire_fichier_ods.js';
+import { récupérerEspècesImpactéesFromFichier } from '../espèces-impactées/lire_fichier_ods.js';
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {default as DéclarationEspècesImpactées, DClarationEspCesImpactEsInitializer} from '../../../scripts/types/database/public/DéclarationEspècesImpactées.ts' */
@@ -117,7 +117,7 @@ export async function synchroniserFichiersEspècesImpactéesDepuisDS88444(espèc
  * @param {Fichier['id']} fichierId
  * @param {NonNullable<DClarationEspCesImpactEsInitializer['id']>} déclarationEspècesImpactéesId
  * @param {Knex.Transaction | Knex} databaseConnection
- * @returns {Promise<void>}
+ * @returns {Promise<any>}
  */
 async function _récupérerEspècesImpactéesFromFichierODSEtInsérerDansEspèceImpactée(
     fichierId, 
@@ -130,14 +130,12 @@ async function _récupérerEspècesImpactéesFromFichierODSEtInsérerDansEspèce
         .where('id', fichierId)
         .first();
 
-    const espècesImpactéesP = fichierP.then((fichier) => récupérerEspècesImpactéesFromFichierODS(fichier, déclarationEspècesImpactéesId))
-
-    return espècesImpactéesP
-        .then((espècesImpactées) => 
-            { 
-                console.log('espècesImpactées', espècesImpactées)
-                return databaseConnection('espèce_impactée')
+    return fichierP
+        .then((fichier) => récupérerEspècesImpactéesFromFichier(fichier, déclarationEspècesImpactéesId))
+        .then((espècesImpactées) => { 
+            return databaseConnection('espèce_impactée')
                 .insert(espècesImpactées)
-            }
-            )
+        })
+        .catch((e) => console.error(`Une erreur est survenue lors de l'extraction des données du fichier espèce impactée avec pour id "${fichierId}".`, e))
+    
 }

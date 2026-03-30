@@ -349,7 +349,6 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(odsF
     }
 
     if(lignesOiseauOds && lignesOiseauOds.length >= 1){
-        console.log('lignesOiseauOds', lignesOiseauOds)
 
         // recups les infos depuis les colonnes
         descriptionMenacesEspèces['oiseau'] = lignesOiseauOds

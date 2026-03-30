@@ -1,6 +1,4 @@
 /** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-/** @import { GeoMceMessage, DossierPourGeoMCE } from '../../types/geomce.ts' */
 /** @import { PitchouState } from '../../front-end/store.js' */
 /** @import { DescriptionMenacesEspèces } from "../../types/especes.ts" */
 /** @import { default as EspèceImpactée, EspCeImpactEInitializer as EspèceImpactéeInitializer } from "../../types/database/public/EspèceImpactée.ts" */
@@ -42,12 +40,12 @@ export const chargerActivitésMéthodesMoyensDePoursuite = memoize(async functio
 
 
 /**
- * Renvoie la liste des espèces impactées renseignées dans le fichier ods des espèces impactées en entrée
+ * Renvoie la liste des espèces impactées renseignées dans le fichier des espèces impactées en entrée
  * @param {Pick<Fichier, "contenu" | "nom">} fichier
-  * @param {EspèceImpactée['déclaration_espèces_impactées']} déclaration_espèces_impactées
+ * @param {EspèceImpactée['déclaration_espèces_impactées']} déclaration_espèces_impactées
  * @returns {Promise<EspèceImpactéeInitializer[]>}
  */
-export async function récupérerEspècesImpactéesFromFichierODS(fichier, déclaration_espèces_impactées) {
+export async function récupérerEspècesImpactéesFromFichier(fichier, déclaration_espèces_impactées) {
     const [
         espèceParCD_REF, 
         { activités, méthodes, moyensDePoursuite }
@@ -64,21 +62,23 @@ export async function récupérerEspècesImpactéesFromFichierODS(fichier, décl
         throw new Error(`Le fichier "${fichier.nom}" des espèces impactées a un contenu null.`)
     }
 
-    const descriptionMenacesEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
-        // @ts-expect-error, cette fonction accepte bien un Buffer (et pas qu'un ArrayBuffer) 
-        // mais le typage de la fonction odfjs appelée n'est pas assez précis
-        // cf https://github.com/odfjs/odfjs/issues/26
-        fichierContenu,
-        espèceParCD_REF,
-        activités,
-        méthodes,
-        moyensDePoursuite
-    )
-    console.log('descriptionMenacesEspèces', descriptionMenacesEspèces)
+    try {
+        const descriptionMenacesEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
+            // @ts-expect-error, cette fonction accepte bien un Buffer (et pas qu'un ArrayBuffer) 
+            // mais le typage de la fonction odfjs appelée n'est pas assez précis
+            // cf https://github.com/odfjs/odfjs/issues/26
+            fichierContenu,
+            espèceParCD_REF,
+            activités,
+            méthodes,
+            moyensDePoursuite
+        )
 
-    const espècesImpactées = fromDescriptionMenacesEspècesToEspècesImpactées(descriptionMenacesEspèces, déclaration_espèces_impactées)
-
-    return espècesImpactées
+        return fromDescriptionMenacesEspècesToEspècesImpactées(descriptionMenacesEspèces, déclaration_espèces_impactées)
+    } catch (e) {
+        // @ts-ignore
+        throw new Error(`Une erreur est survenue lors de l'extraction des données du fichier espèce impactée "${fichier.nom}".`, e)
+    }
 }
 
 /**
