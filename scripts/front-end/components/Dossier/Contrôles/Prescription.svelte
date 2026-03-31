@@ -31,23 +31,13 @@
     /** @type {Set<Partial<Contrôle>>}*/
     let contrôles = $derived(prescription.contrôles ? new SvelteSet(prescription.contrôles) : new SvelteSet())
 
-    $inspect('contrôles', contrôles)
+    // $inspect('contrôles', contrôles)
 
     const NON_RENSEIGNÉ = '(non renseigné)'
 
     let contrôlesTriés = $derived([...contrôles].toSorted(
         ({date_contrôle: dc1}, {date_contrôle: dc2}) => (dc2?.getTime() || 0) - (dc1?.getTime() || 0)
     ))
-
-    let contrôlesOuverts = $state(false)
-
-    function ouvrirContrôles(){
-        contrôlesOuverts = true;
-    }
-
-    function fermerContrôles(){
-        contrôlesOuverts = false;
-    }
 
     /** @type {Partial<Contrôle> | undefined} */
     let contrôleEnCours = $state(); 
@@ -191,91 +181,77 @@
                     </p>
                 {/if}
 
-                {#if contrôlesOuverts}
-                <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-survey-line" 
-                    onclick={() => fermerContrôles()}>
-                    Fermer contrôles
-                </button>
-                {:else}
-                <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-survey-line" 
-                    onclick={() => ouvrirContrôles()}>
-                    Ouvrir contrôles
-                </button>
-                {/if}
+                <section class="contrôles">
+                    <h6>{#if contrôles.size === 1}1 contrôle{:else}{contrôles.size} contrôles {/if}</h6>
 
-                {#if contrôlesOuverts}
-                    <section class="contrôles">
-                        <h6>{#if contrôles.size === 1}1 contrôle{:else}{contrôles.size} contrôles {/if}</h6>
+                    <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterContrôle}>
+                        Ajouter un contrôle
+                    </button>
 
-                        <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterContrôle}>
-                            Ajouter un contrôle
-                        </button>
+                    {#if contrôleEnCours}
+                        <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}>
+                            {#snippet boutonValider()}
+                                <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
+                                    Finir le contrôle
+                                </button>
+                            {/snippet}
+                            {#snippet boutonAnnuler()}
+                                <button
+                                    type="button"
+                                    class="fr-btn fr-btn--secondary"
+                                    onclick={() => (contrôleEnCours = undefined)}
+                                >
+                                    Fermer le contrôle sans sauvegarder
+                                </button>
+                            {/snippet}
+                        </FormulaireContrôle>
+                    {/if}
 
-                        {#if contrôleEnCours}
-                            <FormulaireContrôle contrôle={contrôleEnCours} onValider={créerContrôle}>
-                                {#snippet boutonValider()}
-                                    <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
-                                        Finir le contrôle
+                    {#each contrôlesTriés as contrôle}
+                        {#if contrôle === contrôleEnModification}
+                            <h6>Modification du contrôle</h6>
+
+                            <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}>
+                                {#snippet boutonAnnuler()}
+                                    <button type="button" class="fr-btn fr-btn--secondary" onclick={() => (contrôleEnModification = undefined)}>
+                                        Annuler
                                     </button>
                                 {/snippet}
-                                {#snippet boutonAnnuler()}
-                                    <button
-                                        type="button"
-                                        class="fr-btn fr-btn--secondary"
-                                        onclick={() => (contrôleEnCours = undefined)}
-                                    >
-                                        Fermer le contrôle sans sauvegarder
-                                    </button>
+                                {#snippet boutonSupprimer()}
+                                    <div class="bouton-supprimer">
+                                        <button
+                                            type="button"
+                                            class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
+                                            onclick={supprimerContrôleEnModification}
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </div>
                                 {/snippet}
                             </FormulaireContrôle>
+
+                        {:else}
+                            <section class="contrôle">
+                                <h6>
+                                    Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
+                                    <TagRésultatContrôle résultatContrôle={contrôle.résultat || NON_RENSEIGNÉ}></TagRésultatContrôle>
+                                    <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
+                                        onclick={() => passerContrôleEnModification(contrôle)}>
+                                        Modifier
+                                    </button>
+                                </h6>
+                                <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
+                                <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
+                                <strong>Date action suite au contrôle&nbsp;:</strong> 
+                                    <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
+                                <br>
+                                <strong>Date prochaine échéance&nbsp;:</strong> 
+                                    <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
+                                <br>
+                            </section>
                         {/if}
-
-                        {#each contrôlesTriés as contrôle}
-                            {#if contrôle === contrôleEnModification}
-                                <h6>Modification du contrôle</h6>
-
-                                <FormulaireContrôle contrôle={contrôleEnModification} onValider={validerModificationsContrôle}>
-                                    {#snippet boutonAnnuler()}
-                                        <button type="button" class="fr-btn fr-btn--secondary" onclick={() => (contrôleEnModification = undefined)}>
-                                            Annuler
-                                        </button>
-                                    {/snippet}
-                                    {#snippet boutonSupprimer()}
-                                        <div class="bouton-supprimer">
-                                            <button
-                                                type="button"
-                                                class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
-                                                onclick={supprimerContrôleEnModification}
-                                            >
-                                                Supprimer
-                                            </button>
-                                        </div>
-                                    {/snippet}
-                                </FormulaireContrôle>
-
-                            {:else}
-                                <section class="contrôle">
-                                    <h6>
-                                        Contrôle du <time datetime={contrôle.date_contrôle?.toISOString()}>{formatDateAbsolue(contrôle.date_contrôle)}</time>
-                                        <TagRésultatContrôle résultatContrôle={contrôle.résultat || NON_RENSEIGNÉ}></TagRésultatContrôle>
-                                        <button class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line" 
-                                            onclick={() => passerContrôleEnModification(contrôle)}>
-                                            Modifier
-                                        </button>
-                                    </h6>
-                                    <strong>Commentaire&nbsp;:</strong> {contrôle.commentaire}<br>
-                                    <strong>Action suite au contrôle&nbsp;:</strong> {contrôle.type_action_suite_contrôle}<br>
-                                    <strong>Date action suite au contrôle&nbsp;:</strong> 
-                                        <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}>{formatDateRelative(contrôle.date_action_suite_contrôle)}</time>
-                                    <br>
-                                    <strong>Date prochaine échéance&nbsp;:</strong> 
-                                        <time datetime={contrôle.date_prochaine_échéance?.toISOString()}>{formatDateRelative(contrôle.date_prochaine_échéance)}</time>
-                                    <br>
-                                </section>
-                            {/if}
-                        {/each}
-                    </section>
-                {/if}
+                    {/each}
+                </section>
             </section>
             {/snippet}
     </DéplierReplier>
@@ -288,6 +264,7 @@
 
     padding: var(--prescription-padding-top);
     margin-bottom: var(--prescription-padding-top);
+    border-bottom: 1px solid var(--border-default-grey);
 
     &:hover{
         background-color: var(--background-contrast-grey);
