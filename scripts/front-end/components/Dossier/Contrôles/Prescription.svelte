@@ -153,7 +153,9 @@
 <section class="prescription-consultée">
     <DéplierReplier>
         {#snippet summary()}
-                <h6 >
+            {@const dernierContrôle = contrôlesTriés[0]}
+            <h6 >
+                <TagRésultatContrôle résultatContrôle={dernierContrôle?.résultat || NON_RENSEIGNÉ}></TagRésultatContrôle>
                 {#if description}
                     {description}
                 {:else if numéro_article}
@@ -166,7 +168,7 @@
         {#snippet content()}
                 <section >
                 {#if numéro_article}
-                <p><strong>Numéro article&nbsp;:&nbsp;</strong>{numéro_article}</p>
+                    <p><strong>Numéro article&nbsp;:&nbsp;</strong>{numéro_article}</p>
                 {/if}
                 <p><strong>Date d'échéance&nbsp;:</strong>
                     {#if date_échéance}
