@@ -304,7 +304,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr>
                             <th scope="row"> <code>{liste_espèces}</code></th>
                             <td> liste</td>
-                            <td> Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : <code>{liste_impacts_quantifiés}</code>, <code>{nomScientifique}</code> et <code>{nomVernaculaire}</code></td>
+                            <td> Liste les espèces concernées par un impact. Chaque élément de la liste contient les propriétés : <code>{liste_impacts_quantifiés}</code>, <code>{nomScientifique}</code>, <code>{nomVernaculaire}</code>, <code>{estMinistérielle}</code> et <code>{estCNPN}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_noms_impacts_quantifiés}</code></th>
@@ -344,12 +344,22 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                         <tr>
                             <th scope="row"> <code>{nomScientifique}</code></th>
                             <td> texte</td>
-                            <td> Nom scientifique de l'espèce</td>
+                            <td> Nom scientifique de l'espèce.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{nomVernaculaire}</code></th>
                             <td> texte</td>
-                            <td> Nom vernaculaire de l'espèce</td>
+                            <td> Nom vernaculaire de l'espèce.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{estMinistérielle}</code></th>
+                            <td> booléen</td>
+                            <td>Ce champ vaut <code>true</code> si l'espèce est une espèce de compétence ministérielle, sinon <code>false</code>.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{estCNPN}</code></th>
+                            <td> booléen</td>
+                            <td>Ce champ vaut <code>true</code> si l'espèce est une espèce CNPN, sinon <code>false</code>.</td>
                         </tr>
                     </tbody>
                 </table>
