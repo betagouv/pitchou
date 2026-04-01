@@ -9,7 +9,6 @@ services:
       - "2648:2648"
     volumes:
       - ./:/app
-      - /tmp:/tmp
     working_dir: /app
     command: npx pnpm run start:server
     environment:
@@ -25,7 +24,6 @@ services:
       - db
     volumes:
       - ./:/app
-      - /tmp:/tmp
     working_dir: /app
     command: sleep 365d
     environment:
