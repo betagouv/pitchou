@@ -81,7 +81,16 @@ export function espèceLabel(espèce){
  * @param {EspèceProtégéeStrings} _
  * @returns {EspèceProtégée}
  */
-export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STATUTS, classification, nomsScientifiques, nomsVernaculaires}){
+export function espèceProtégéeStringToEspèceProtégée(
+    {
+        CD_REF, 
+        CD_TYPE_STATUTS, 
+        classification, 
+        nomsScientifiques, 
+        nomsVernaculaires,
+        espèceCNPN,
+        espèceMinistérielle
+    }){
     if(!isClassif(classification)){
         throw new TypeError(`Classification d'espèce non reconnue: ${classification}. Les choix sont : ${[...classificationEtreVivants].join(', ')}`)
     }
@@ -94,6 +103,8 @@ export function espèceProtégéeStringToEspèceProtégée({CD_REF, CD_TYPE_STAT
         classification,
         nomsScientifiques: new Set(nomsScientifiques.split(',')),
         nomsVernaculaires: new Set(nomsVernaculaires.split(',')),
+        espèceCNPN: espèceCNPN === 'O' ? espèceCNPN : undefined,
+        espèceMinistérielle: espèceMinistérielle === 'O' ? espèceMinistérielle : undefined,
     }
 }
 

@@ -50,6 +50,8 @@ const getterImpactQuantifié = new Map([
  * @prop {string} nomVernaculaire
  * @prop {string} nomScientifique
  * @prop {string} CD_REF
+ * @prop {boolean} espèceMinistérielle
+ * @prop {boolean} espèceCNPN
  * @prop {string[]} détails // impacts quantifiés pour cette activité
  */
 
@@ -87,6 +89,8 @@ export function créerEspècesGroupéesParImpact(espècesImpactées, identifiant
             CD_REF: espèceImpactée.espèce.CD_REF,
             nomScientifique: [...espèceImpactée.espèce.nomsScientifiques][0],
             nomVernaculaire: [...espèceImpactée.espèce.nomsVernaculaires][0],
+            espèceCNPN: espèceImpactée.espèce.espèceCNPN === 'O' ? true : false,
+            espèceMinistérielle: espèceImpactée.espèce.espèceMinistérielle === 'O' ? true : false,
             détails: [...impactsQuantifiés]
                 .map((donnéeSecondaire) => {
                     const funcDetail = getterImpactQuantifié.get(donnéeSecondaire)

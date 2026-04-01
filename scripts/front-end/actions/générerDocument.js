@@ -21,12 +21,6 @@ import {créerEspècesGroupéesParImpact} from './créerEspècesGroupéesParImpa
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
 export function getBalisesGénérationDocument(dossier, espècesImpactées, identifiantPitchouVersActivitéEtImpactsQuantifiés) {
-    const functions = {
-        afficher_nombre,
-        formatter_date,
-        formatter_date_simple
-    }
-
     const {
         nom,
         commentaire_libre,
@@ -113,10 +107,19 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, iden
         régime_autorisation_environnementale_renseigné: rattaché_au_régime_ae !== null,
         régime_autorisation_environnementale: rattaché_au_régime_ae===null ? 'Non renseigné' : rattaché_au_régime_ae,
         liste_espèces_par_impact: espèces_impacts?.map(({espèces,activité,impactsQuantifiés}) => ({
-            liste_espèces: espèces.map(({nomVernaculaire,nomScientifique, détails}) => ({
+            liste_espèces: espèces.map((
+                {
+                    nomVernaculaire,
+                    nomScientifique, 
+                    détails, 
+                    espèceCNPN, 
+                    espèceMinistérielle
+                }) => ({
                 nomVernaculaire,
                 nomScientifique,
                 liste_impacts_quantifiés:détails,
+                estCNPN: espèceCNPN,
+                estMinistérielle: espèceMinistérielle
             })),
             impact: activité,
             liste_noms_impacts_quantifiés: impactsQuantifiés,
@@ -136,7 +139,10 @@ export function getBalisesGénérationDocument(dossier, espècesImpactées, iden
             précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
         },
         identifiant_pitchou: dossier.id,
-        ...functions,
+        //Fonctions
+        afficher_nombre,
+        formatter_date,
+        formatter_date_simple
     }
 }
 
