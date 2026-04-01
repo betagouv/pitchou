@@ -270,17 +270,3 @@ Pour nettoyer tous les évènements concernant une personne spécifique :
 Pour nettoyer tous les évènements plus vieux que x semaines
 
 `docker exec tooling node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
-
-#### Création d'un fichier ODS avec les données d'une personne spécifique
-
-Extraire les données AARRI d'une personne spécifique dans un fichier ODS
-
-`docker exec tooling node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net'`
-
-
-```sh
-# En dev
-docker exec tooling node --env-file=.env outils/aarri/donnees-pour-personne.js --email 'mail@example.net' --origin 'http://localhost:2648'
-```
-
-

@@ -4,13 +4,9 @@ import { getÉvènementsForPersonne } from '../../scripts/server/database/aarri/
 import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
-import { writeFile, mkdir } from 'node:fs/promises'
-
-import {fichiersAARRIDirPath} from './constants.js'
 
 const args = parseArgs(process.argv)
 
-let origin = 'https://pitchou.beta.gouv.fr'
 
 if(args.origin)
     origin = args.origin
@@ -115,19 +111,7 @@ const content = new Map([
 
 /** @type {ArrayBuffer} */
 const ods = await createOdsFile(content)
-const nomDeFichierODS = email + '-' + Math.random().toString(36).slice(2) + '.ods'
-const cheminDuFichierODS = `${fichiersAARRIDirPath}/${nomDeFichierODS}`
 
-try {
-    console.log('📝 Création du fichier ODS avec les résultats...')
-    await mkdir(fichiersAARRIDirPath, {recursive: true})
-    await writeFile(cheminDuFichierODS, Buffer.from(ods))
-    console.log(`✅ Le fichier a bien été écrit dans ${cheminDuFichierODS}`)
-    const lienTéléchargementFichier = `${origin}/build/tmp-aarri/${nomDeFichierODS}`
-    console.log(`Télécharger le fichier en cliquant ici : ${lienTéléchargementFichier}`)
-
-  } catch (err) {
-    console.error(err);
-}
+console.log('ods', ods)
 
 closeDatabaseConnection()
