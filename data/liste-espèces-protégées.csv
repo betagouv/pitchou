@@ -3801,7 +3801,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS;espèc
 432721;oiseau;Heteroscelus incanus,Scolopax incana,Tringa incana;Chevalier errant;POM;;
 432722;oiseau;Charadrius bicinctus;Pluvier à double collier;POM;;
 432723;oiseau;Vanellus miles novaehollandiae;Vanneau soldat;POM;;
-432727;oiseau;Sterna dougallii bangsi;Sterne de Dougall;POM;;
+432727;oiseau;Sterna dougallii bangsi;Sterne de Dougall;POM;O;
 432729;oiseau;Anous minutus;Noddi noir;POM;;
 432730;oiseau;Gygis alba candida,Gygis alba microrhyncha,Gygis microrhyncha,Sterna candida;Gygis blanche,Sterne blanche;POM;;
 432731;oiseau;Columba vitiensis hypoenochroa,Ianthoenas hypoenochroa;Pigeon à gorge blanche,Collier blanc;POM;;
@@ -5428,7 +5428,7 @@ CD_REF;classification;nomsScientifiques;nomsVernaculaires;CD_TYPE_STATUTS;espèc
 520967;oiseau;Rhipidura albiscapa bulgeri;Rhipidure à collier,Petit lève-queue;POM;;
 520969;oiseau;Esacus magnirostris,Burhinus giganteus,Esacus giganteus,Esacus neglectus,Oedicnemus magnirostris;Oedicnème des récifs;POM;;
 520971;oiseau;Glycifohia undulata,Certhia undulata,Gliciphila undulata,Phylidonyris undulata,Phylidonyris undulatus;Méliphage barré,Grive perlée;POM;;
-520974;oiseau;Ixobrychus minutus dubius,Ixobrychus dubius;Blongios nain,Blongios d'Australie;POM;;
+520974;oiseau;Ixobrychus minutus dubius,Ixobrychus dubius;Blongios nain,Blongios d'Australie;POM;O;
 521586;oiseau;Todiramphus sanctus canacorum,Sauropatis sancta canacorum,Todirhamphus sanctus canacorum;Martin-chasseur sacré;POM;;
 521587;oiseau;Butorides striata rhizophorae,Butorides striatus rhizoporae;Héron strié;PD;;
 521588;oiseau;Butorides striata patruelis,Ardea patruelis,Butorides striatus patruelis;Héron vert;POM;;

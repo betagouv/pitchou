@@ -9,7 +9,7 @@ import {getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty} from '@o
 
 import {TAXREF_ROWClassification, nomsVernaculaires} from '../scripts/commun/outils-espèces.js'
 
-/** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée, ESPÈCES_MINISTÉRIELLES_CNPN_ROW} from "../scripts/types/especes.js" */
+/** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée, ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW} from "../scripts/types/especes.js" */
 
 process.title = `Génération liste espèces`
 
@@ -72,7 +72,6 @@ const espèces_manquantesP = readFile('data/sources_especes/espèces_manquantes.
         
         console.info(`Nombre d'espèces manquantes`, espècesProtégéesManquantesFichier.length)
 
-
         return espècesProtégéesManquantesFichier
             // @ts-ignore
             .map(({ CD_NOM, LABEL_STATUT }) => {
@@ -127,11 +126,11 @@ taxrefP.then(taxref => {
 })
 
 /**
- * Espèces ministérielles
+ * Espèces ministérielles et CNPN
  */
 const filePathEspècesMinistériellesCNPN = 'data/sources_especes/espèces_ministérielles_cnpn.ods'
 
-/** @type { Promise<[ESPÈCES_MINISTÉRIELLES_CNPN_ROW[], ESPÈCES_MINISTÉRIELLES_CNPN_ROW[]]> } */
+/** @type { Promise<[ESPÈCES_MINISTÉRIELLES_ROW[], ESPÈCES_CNPN_ROW[]]> } */
 // @ts-ignore
 const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériellesCNPN)
         .then(getODSTableRawContent)
@@ -231,11 +230,18 @@ Promise.all(
     // ou dans la liste des espèces CNPN
     for(const [_, espèce] of espècesProtégées){
         const { nomsScientifiques, nomsVernaculaires } = espèce
-        const espèceMinistérielleTrouvée = listeEspècesMinistérielles.find((espèceMinistérielle) => nomsScientifiques?.has(espèceMinistérielle['Nom scientifique']))
+
+        const espèceMinistérielleTrouvée = listeEspècesMinistérielles.find((espèceMinistérielle) => (
+            nomsScientifiques?.has(espèceMinistérielle['Nom scientifique']) 
+            || nomsVernaculaires?.has(espèceMinistérielle['Nom vernaculaire'])
+        ))
         if (espèceMinistérielleTrouvée) {
             espèce.espèceMinistérielle = 'O'
         }
-        const espèceCNPNTrouvée = listeEspècesCNPN.find((espèceCNPN) => (nomsScientifiques?.has(espèceCNPN['Nom scientifique']) || nomsVernaculaires?.has(espèceCNPN['Nom vernaculaire'])))
+        const espèceCNPNTrouvée = listeEspècesCNPN.find((espèceCNPN) => (
+            nomsScientifiques?.has(espèceCNPN['Nom scientifique']) 
+            || nomsVernaculaires?.has(espèceCNPN['Nom vernaculaire'])
+        ))
 
         if (espèceCNPNTrouvée) {
             espèce.espèceCNPN = 'O'

@@ -38,9 +38,17 @@ export interface BDC_STATUT_ROW {
 }
 
 /**
- * Lignes des feuilles du fichier espèces_ministérielles_cnpn (produit par Pitchou)
+ * Lignes de la feuille Espèce Ministérielle du fichier espèces_ministérielles_cnpn (produit par Pitchou)
  */
-export interface ESPÈCES_MINISTÉRIELLES_CNPN_ROW {
+export interface ESPÈCES_MINISTÉRIELLES_ROW {
+	'Nom vernaculaire': string,
+    'Nom scientifique': string,
+}
+
+/**
+ * Lignes de la feuille Espèces CNPN du fichier espèces_ministérielles_cnpn (produit par Pitchou)
+ */
+export interface ESPÈCES_CNPN_ROW {
 	'Nom vernaculaire': string,
     'Nom scientifique': string,
 }
