@@ -177,7 +177,7 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 ### Ajouter une espèce ministérielle ou une espèce CNPN
 
-Dans le fichier `data/sources_especes/espèces_ministérielles_cnpn.ods` ajouter l'espèce avec son nom scientifique et son nom vernaculaire. Attention, le nom scientifique doit être exactement le nom latin renseigné dans la colonne `LB_NOM` du fichier `espèces_manquantes.ods`.
+Dans le fichier `data/sources_especes/espèces_ministérielles_cnpn.ods` ajouter l'espèce avec son nom scientifique et son nom vernaculaire dans la feuille correspondante. Attention, le nom scientifique doit être exactement le nom latin renseigné dans la colonne `LB_NOM` du fichier `espèces_manquantes.ods`.
 
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces à jour.
 
