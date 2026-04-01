@@ -1,7 +1,5 @@
-import {createOdsFile} from '@odfjs/odfjs'
 import { formatDateAbsolue } from '../../scripts/front-end/affichageDossier.js';
 import { closeDatabaseConnection } from '../../scripts/server/database.js';
-// import { writeFile } from 'node:fs/promises'
 import { getPersonnesAcquisesAvecSemaine, getPersonnesActivesAvecSemaine, getPersonnesImpactAvecSemaine, getPersonnesRetenuesAvecSemaine } from '../../scripts/server/database/aarri/personnes-par-phase.js';
 
 // Récupération des données
@@ -52,7 +50,7 @@ const lignes = personnes.map(( email ) => {
               type: 'string'
             }, 
             {
-              value: dateAcquis ? true : false, // La date d'acquisition n'est pas forcément cohérente (parfois elle est antérieure à la date d'activation). C'est dû à notre ancienne façon de mesurer l'évènement "seConnecter". On décide donc de ne pas l'afficher.
+              value: dateAcquis ? true : false, // La date d'acquisition n'est pas forcément cohérente (parfois elle est antérieure à la date d'activation). C'est dû à notre ancienne façon de mesurer l'évènement "seConnecter".
               type: 'string'
             },
             {
@@ -82,24 +80,6 @@ const content = new Map([
     ],
 ])
 
-
-// Écriture du fichier
-/** @type {ArrayBuffer} */
-const ods = await createOdsFile(content)
-const nomDeFichierODS = Math.random().toString(36).slice(2) + '.ods'
-
-//TODO: changer ce chemin pour mettre le chemin d'un dossier temporaire en dehors du repo de l'application.
-const cheminDuFichierODS = `outils/aarri/tmp/${nomDeFichierODS}`
-
-try {
-    console.log('📝 Création du fichier ODS avec les résultats...')
-    // await writeFile(cheminDuFichierODS, Buffer.from(ods))
-    console.log(cheminDuFichierODS, ods)
-    console.log('lignes', lignes)
-    //TODO : donner le lien du téléchargement du fichier
-
-  } catch (err) {
-    console.error(err);
-}
+console.log('content', content)
 
 closeDatabaseConnection()
