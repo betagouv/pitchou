@@ -201,10 +201,12 @@
                 Espèces impactées
             </h2>
             {#if dossier.espècesImpactées}
+                <!-- // Dans Svelte, un composant enfant n'a pas accès aux classes de style définies dans le composant parent dans lequel il est appelé. On utilise donc un style inline. -->
+                {@const styleDownloadButton = "width: 15rem;"}
                 <DownloadButton
                     {makeFileContentBlob}
                     {makeFilename}
-                    style="width: 15rem;"
+                    style={styleDownloadButton}
                     classname="fr-btn fr-btn--secondary"
                     label="Télécharger le fichier des espèces impactées"
                 />
