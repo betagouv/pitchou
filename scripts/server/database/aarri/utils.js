@@ -4,6 +4,9 @@
 
 import { directDatabaseConnection } from '../../database.js'
 
+/** @type {'personneIntrouvablePourCeMail'} */
+export const CAUSE_PERSONNE_INTROUVABLE_POUR_EMAIL = 'personneIntrouvablePourCeMail'
+
 /**
  * @param {Personne['email']} email
  * @returns {Promise<Évènement[]>} 
@@ -14,7 +17,9 @@ export async function getÉvènementsForPersonne(email) {
         .where('email', '=', email)
 
     if (!(requêteSQL && Array.isArray(requêteSQL) && requêteSQL.length >=1 && requêteSQL[0].id)) {
-        throw new Error(`Aucun id n'a été trouvé pour l'email ${email}.`)
+        throw new Error(`Aucun id n'a été trouvé pour l'email ${email}.`, {
+            cause: CAUSE_PERSONNE_INTROUVABLE_POUR_EMAIL,
+        })
     }
 
     const personneId = requêteSQL[0].id

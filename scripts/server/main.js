@@ -36,7 +36,7 @@ import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, s
 import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
 import {générerDéclarationGeoMCE} from './database/geomce.js'
 import { getNotificationsPourPersonneDepuisCap, updateNotificationDossierFromCap } from './database/notification.js'
-import { lancerOutilDonnéesPourPersonne } from './outilsInternes.js'
+import { outilDonnéesPourPersonne } from './outils-internes/donnéesPourPersonne.js'
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
@@ -909,11 +909,10 @@ const optsOutilInterneDonnéesPourPersonne = {
     },
   },
 };
-fastify.post('/outil-interne/donnees-pour-personne', optsOutilInterneDonnéesPourPersonne, (request) => {
-  // @ts-ignore
-  const email = request.body.email
-  lancerOutilDonnéesPourPersonne(email)
-})
+fastify.post('/outil-interne/donnees-pour-personne', 
+  optsOutilInterneDonnéesPourPersonne, 
+  outilDonnéesPourPersonne
+)
 
 
 // Lancer le serveur HTTP

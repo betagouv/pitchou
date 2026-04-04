@@ -1,10 +1,11 @@
 <script>
+	import { normalisationEmail } from "../../../commun/manipulationStrings.js"
 	import { téléchargerDonnéesPourPersonne } from "../../actions/outilInterne.js"
-	/** @import { EventHandler } from "svelte/elements" */
+	import DownloadButton from "../DownloadButton.svelte"
+    import Squelette from "../Squelette.svelte"
+	import { formatDateAbsolue } from "../../affichageDossier.js"
     /** @import { PitchouState } from '../../store.js' */
 	/** @import { ComponentProps } from "svelte" */
-
-    import Squelette from "../Squelette.svelte"
 
     /**
     * @typedef {Object} Props
@@ -20,34 +21,36 @@
             résultatsSynchronisationDS88444,
         } = $props();
 
-    /**
-     * @type {EventHandler<SubmitEvent, HTMLFormElement>}
-     */
-    function handleSubmitDonnéesPourPersonnes(e) {
-        e.preventDefault()
+    /** @type {string | undefined} */
+    let emailInput = $state()
 
-        /** @type {string} */
-        // @ts-ignore
-        const email = e.target?.elements['input-email'].value
-
-        téléchargerDonnéesPourPersonne(email)
-
-        
-    }
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Outil interne">
     <h1>Outil interne</h1>
 
     <p>Je veux récupérer la liste des évènements enregistrés pour une personne.</p>
-    <form id="donnees-pour-personne" onsubmit={handleSubmitDonnéesPourPersonnes}>
-        <div class="fr-input-group" id="input-group-16">
-            <label class="fr-label" for="input-email"> Email de la personne (Champ obligatoire) </label>
-            <input required name="input-email" class="fr-input" aria-describedby="input-email-messages" id="input-email" type="email">
-            <div class="fr-messages-group" id="input-email-messages" aria-live="polite">
-            </div>
-        </div>
-        <button class="fr-btn fr-btn-primary" type="submit"> Télécharger le fichier </button>
-    </form>
+    <div class="fr-input-group">
+        <label 
+            class="fr-label" 
+            for="input-email"
+        > 
+            Email de la personne (Champ obligatoire)
+        </label>
+        <input 
+            required 
+            id="input-email" 
+            name="input-email" 
+            class="fr-input" 
+            type="email"
+            bind:value="{emailInput}"
+        />
+    </div>
+    <DownloadButton 
+        classname="fr-btn fr-btn-primary" 
+        label="Télécharger le fichier"
+        makeFileContentBlob={() => téléchargerDonnéesPourPersonne(emailInput ?? '')}
+        makeFilename={() => `donnees evenements pour ${normalisationEmail(emailInput ?? '')} ${formatDateAbsolue(new Date())}.ods`}
+    />
 </Squelette>
 
