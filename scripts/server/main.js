@@ -36,6 +36,7 @@ import { ajouterOuModifierAvisExpert, ajouterOuModifierAvisExpertAvecFichiers, s
 import {miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE} from './database/capability-geomce.js'
 import {générerDéclarationGeoMCE} from './database/geomce.js'
 import { getNotificationsPourPersonneDepuisCap, updateNotificationDossierFromCap } from './database/notification.js'
+import { outilDonnéesPourPersonne } from './outils-internes/donnéesPourPersonne.js'
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
@@ -140,7 +141,7 @@ fastify.get('/import-dossier-historique/corse', sendIndexHTMLFile)
 fastify.get('/accessibilite', sendIndexHTMLFile)
 fastify.get('/donnees-personnelles', sendIndexHTMLFile)
 fastify.get('/aarri', sendIndexHTMLFile)
-
+fastify.get('/outil-interne', sendIndexHTMLFile)
 
 
 fastify.post('/lien-preremplissage', async function (request) {
@@ -892,6 +893,26 @@ fastify.get('/declaration-geomce', async function(request, reply) {
 
   return générerDéclarationGeoMCE()
 })
+
+/**
+ * @type {RouteShorthandOptions}
+ * @const
+ */
+const optsOutilInterneDonnéesPourPersonne = {
+  schema: {
+    body: {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string' },
+      },
+    },
+  },
+};
+fastify.post('/outil-interne/donnees-pour-personne', 
+  optsOutilInterneDonnéesPourPersonne, 
+  outilDonnéesPourPersonne
+)
 
 
 // Lancer le serveur HTTP

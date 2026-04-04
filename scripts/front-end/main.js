@@ -18,6 +18,7 @@ import { init } from './actions/main.js';
 import Stats from './routes/Stats.js';
 import TousLesDossiers from './routes/TousLesDossiers.js';
 import MesDossiers from './routes/MesDossiers.js';
+import OutilInterne from './routes/OutilInterne.js';
 
 // Évite l'appel du routeur sur les liens dont le chemain est le même que la page courante mais l'ancre (#) est différente
 page((ctx, next) => {
@@ -43,6 +44,7 @@ page('/import-dossier-historique/corse', ImportDossierCorse)
 page('/accessibilite', Accessibilite)
 page('/donnees-personnelles', DonnéesPersonnelles)
 page('/aarri', AARRI)
+page('/outil-interne', OutilInterne)
 
 
 init()
