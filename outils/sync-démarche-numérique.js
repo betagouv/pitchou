@@ -463,6 +463,7 @@ const fichiersEspècesImpactéesSynchronisés = fichiersEspècesImpactéesTélé
 
         return synchroniserFichiersEspècesImpactéesDepuisDS88444(
             fichiersEspècesImpactéesTéléchargés,
+            dossierIdByDS_number,
             laTransactionDeSynchronisationDS
         )
     }
