@@ -28,7 +28,7 @@
     "@playwright/test": "^1.56.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@types/byte-size": "^8.1.2",
     "@types/d3-fetch": "^3.0.7",
     "@types/lunr": "^2.3.7",
