@@ -101,7 +101,17 @@ fastify.register(fastatic, {
   // certains fichiers ont vocation à rester secrets
   // ils sont protégés par une partie aléatoire dans leurs noms
   // cette option permet de ne pas dévoiler leur nom
-  list: false
+  list: false,
+  // Pour éviter de faire trop de requêtes serveurs,
+  // on met en cache certains fichiers statiques. (Par exemple, les fonts).
+  cacheControl: false,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css') || path.endsWith('.html') || path.endsWith('.js')) {
+      res.setHeader('cache-control', `max-age=0`)
+    } else {
+      res.setHeader('cache-control', `max-age=86400, must-revalidate`)
+    }
+  },
 })
 
 
