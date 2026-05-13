@@ -1,28 +1,26 @@
 {
-    "include": [
-      "scripts/**/*.js", 
-      "scripts/**/*.ts", 
-      "scripts/**/*.d.ts",
-      "outils/**/*.js",
-      "tests/**/*.js"
-    ],
-    "exclude": [
-      "node_modules"
-    ],
-    "compilerOptions": {
-      "allowJs": true,
-      "checkJs": true,
-      "allowImportingTsExtensions": true,
-      "noEmit": true,
-      "module": "esnext",
-      "strict": true,
-      "skipLibCheck": true,
-      "moduleResolution": "bundler",
-      "target": "esnext",
-      "lib": ["esnext", "dom", "dom.iterable"],
-      "downlevelIteration": true,
-      "types": [],
-      "noUnusedLocals": true,
-      "noUnusedParameters": true
-    }
+  "include": [
+    "scripts/**/*.js",
+    "scripts/**/*.ts",
+    "scripts/**/*.d.ts",
+    "outils/**/*.js",
+    "tests/**/*.js"
+  ],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "module": "esnext",
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "downlevelIteration": true,
+    "types": [],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
 }

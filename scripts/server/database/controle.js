@@ -1,4 +1,4 @@
-import {directDatabaseConnection} from '../database.js'
+import { directDatabaseConnection } from "../database.js";
 
 //@ts-ignore
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
@@ -7,56 +7,45 @@ import {directDatabaseConnection} from '../database.js'
 
 /** @import {Knex} from 'knex' */
 
-
 /**
- * 
- * @param {Prescription['id'][]} prescriptionIds 
+ *
+ * @param {Prescription['id'][]} prescriptionIds
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<Contrôle[]>}
  */
-export function getContrôles(prescriptionIds, databaseConnection = directDatabaseConnection){
-    return databaseConnection('contrôle')
-        .select('*')
-        .whereIn('prescription', prescriptionIds)
+export function getContrôles(prescriptionIds, databaseConnection = directDatabaseConnection) {
+  return databaseConnection("contrôle").select("*").whereIn("prescription", prescriptionIds);
 }
 
 /**
- * 
- * @param {Partial<Contrôle> | Partial<Contrôle>[]} contrôles 
+ *
+ * @param {Partial<Contrôle> | Partial<Contrôle>[]} contrôles
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function ajouterContrôles(contrôles, databaseConnection = directDatabaseConnection){
-    return databaseConnection('contrôle')
-        .insert(contrôles)
-        .returning(['id'])
-        .then(contrôles => contrôles.map(c => c.id))
+export function ajouterContrôles(contrôles, databaseConnection = directDatabaseConnection) {
+  return databaseConnection("contrôle")
+    .insert(contrôles)
+    .returning(["id"])
+    .then((contrôles) => contrôles.map((c) => c.id));
 }
 
-
-
-
 /**
- * 
- * @param {Partial<Contrôle>} contrôle 
+ *
+ * @param {Partial<Contrôle>} contrôle
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function modifierContrôle(contrôle, databaseConnection = directDatabaseConnection){
-    return databaseConnection('contrôle')
-        .update(contrôle)
-        .where({id: contrôle.id})
+export function modifierContrôle(contrôle, databaseConnection = directDatabaseConnection) {
+  return databaseConnection("contrôle").update(contrôle).where({ id: contrôle.id });
 }
 
-
 /**
- * 
- * @param {Contrôle['id']} id 
+ *
+ * @param {Contrôle['id']} id
  * @param {Knex.Transaction | Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function supprimerContrôle(id, databaseConnection = directDatabaseConnection){
-    return databaseConnection('contrôle')
-        .delete()
-        .where({id})
+export function supprimerContrôle(id, databaseConnection = directDatabaseConnection) {
+  return databaseConnection("contrôle").delete().where({ id });
 }

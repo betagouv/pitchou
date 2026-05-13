@@ -1,43 +1,38 @@
 <script>
-    //@ts-check
-  
-	/** @import {EspèceProtégée} from '../../types/especes.d.ts' */
+  //@ts-check
 
-    
-    /**
-     * @typedef {Object} Props
-     * @property {EspèceProtégée} espèce
-     */
+  /** @import {EspèceProtégée} from '../../types/especes.d.ts' */
 
-    /** @type {Props} */
-    let { espèce } = $props();
+  /**
+   * @typedef {Object} Props
+   * @property {EspèceProtégée} espèce
+   */
 
-    let [premierNomVernaculaire, ...autresNomsVernaculaires] = [...espèce.nomsVernaculaires]
-    let [premierNomScientifique, ...autresNomsScientifiques] = [...espèce.nomsScientifiques]
+  /** @type {Props} */
+  let { espèce } = $props();
 
-    /** @type {string | undefined} */
-    let title = $state();
+  let [premierNomVernaculaire, ...autresNomsVernaculaires] = [...espèce.nomsVernaculaires];
+  let [premierNomScientifique, ...autresNomsScientifiques] = [...espèce.nomsScientifiques];
 
-    if(autresNomsVernaculaires.length >= 1){
-        title = autresNomsVernaculaires.join(', ')
+  /** @type {string | undefined} */
+  let title = $state();
 
-        if(autresNomsScientifiques.length >= 1){
-            title += ' | ' + autresNomsScientifiques.join(', ')
-        }
+  if (autresNomsVernaculaires.length >= 1) {
+    title = autresNomsVernaculaires.join(", ");
+
+    if (autresNomsScientifiques.length >= 1) {
+      title += " | " + autresNomsScientifiques.join(", ");
     }
-    else{
-        if(autresNomsScientifiques.length >= 1){
-            title = autresNomsScientifiques.join(', ')
-        }
+  } else {
+    if (autresNomsScientifiques.length >= 1) {
+      title = autresNomsScientifiques.join(", ");
     }
-
+  }
 </script>
 
 <span {title}>
-    {premierNomVernaculaire} (<i>{premierNomScientifique}</i>)
+  {premierNomVernaculaire} (<i>{premierNomScientifique}</i>)
 </span>
 
-
 <style lang="scss">
-
 </style>

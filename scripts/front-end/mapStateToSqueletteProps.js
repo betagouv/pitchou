@@ -4,14 +4,14 @@
 /** @import Squelette from './components/Squelette.svelte' */
 
 /**
- * 
+ *
  * @param {PitchouState} state
  * @returns {Omit<ComponentProps<typeof Squelette>, 'children'>}
-*/
+ */
 export const mapStateToSqueletteProps = (state) => {
-    return {
-        email: state.identité && state.identité.email,
-        erreurs: state.erreurs,
-        résultatsSynchronisationDS88444: state.résultatsSynchronisationDS88444
-    }
-}
+  return {
+    email: state.identité && state.identité.email,
+    erreurs: state.erreurs,
+    résultatsSynchronisationDS88444: state.résultatsSynchronisationDS88444,
+  };
+};

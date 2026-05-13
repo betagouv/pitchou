@@ -1,6 +1,6 @@
 <script>
   /** @import {StatsConformité} from '../../../types/API_Pitchou' */
-  
+
   /**
    * @typedef {Object} Props
    * @property {StatsConformité} statsConformite
@@ -14,13 +14,19 @@
   const nbRetourConformite = statsConformite.nb_retour_conformite;
   const nbNonConforme = statsConformite.nb_non_conforme;
   const nbTropTard = statsConformite.nb_trop_tard;
-  const nbAutre = totalPrescriptions - (nbConformiteInitiale+nbRetourConformite+nbNonConforme+nbTropTard);
+  const nbAutre =
+    totalPrescriptions - (nbConformiteInitiale + nbRetourConformite + nbNonConforme + nbTropTard);
 
-  const pctConformiteInitiale = totalPrescriptions ? Math.round((nbConformiteInitiale/totalPrescriptions)*100) : 0;
-  const pctRetourConformite = totalPrescriptions ? Math.round((nbRetourConformite/totalPrescriptions)*100) : 0;
-  const pctNonConforme = totalPrescriptions ? Math.round((nbNonConforme/totalPrescriptions)*100) : 0;
-  const pctTropTard = totalPrescriptions ? Math.round((nbTropTard/totalPrescriptions)*100) : 0;
-
+  const pctConformiteInitiale = totalPrescriptions
+    ? Math.round((nbConformiteInitiale / totalPrescriptions) * 100)
+    : 0;
+  const pctRetourConformite = totalPrescriptions
+    ? Math.round((nbRetourConformite / totalPrescriptions) * 100)
+    : 0;
+  const pctNonConforme = totalPrescriptions
+    ? Math.round((nbNonConforme / totalPrescriptions) * 100)
+    : 0;
+  const pctTropTard = totalPrescriptions ? Math.round((nbTropTard / totalPrescriptions) * 100) : 0;
 </script>
 
 <section class="fr-mt-4w">
@@ -28,7 +34,6 @@
   <div class="fr-card fr-card--no-arrow stat-conformite-card">
     <div class="fr-card__body">
       <div class="fr-card__content">
-
         <div class="chiffres-conformite">
           <div class="chiffre-item conformité-initiale">
             <span class="stat-number">{nbConformiteInitiale}</span>
@@ -62,23 +67,34 @@
         <div class="legend-conformite">
           <div class="legend-conformite-item">
             <span class="legend-conformite-dot conformité-initiale"></span>
-            <span><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span>
+            <span
+              ><strong>Conformité initiale</strong> : Prescription validée dès le 1<sup>er</sup> contrôle.</span
+            >
           </div>
           <div class="legend-conformite-item">
             <span class="legend-conformite-dot retour-à-la-conformité"></span>
-            <span><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span>
+            <span
+              ><strong>Retour à la conformité</strong> : Prescription validée après au moins 2 contrôles.</span
+            >
           </div>
           <div class="legend-conformite-item">
             <span class="legend-conformite-dot non-conforme"></span>
-            <span><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span>
+            <span
+              ><strong>Non conforme</strong> : Prescription dont le dernier contrôle est "Non conforme".</span
+            >
           </div>
           <div class="legend-conformite-item">
             <span class="legend-conformite-dot trop-tard"></span>
-            <span><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour à la conformité.</span>
+            <span
+              ><strong>Trop tard</strong> : Prescription pour laquelle il n'est plus possible de retour
+              à la conformité.</span
+            >
           </div>
           <div class="legend-conformite-item">
             <span class="legend-conformite-dot autre"></span>
-            <span><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span>
+            <span
+              ><strong>Autre</strong> : Pas encore finalisé/manque d'information/non renseigné.</span
+            >
           </div>
         </div>
       </div>
@@ -93,11 +109,10 @@
   $couleur-trop-tard: var(--grey-50-1000);
   $couleur-autre: var(--text-disabled-grey);
 
-
   .stat-conformite-card {
     border: 1.5px solid var(--border-default-grey);
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     background: var(--background-default-grey);
     max-width: 100vw;
     margin: 0 -16px 2.5rem -16px;
@@ -131,19 +146,19 @@
         letter-spacing: 0.01em;
       }
 
-      &.conformité-initiale .stat-number{
+      &.conformité-initiale .stat-number {
         color: $couleur-conformité-initiale;
       }
-      &.retour-à-la-conformité .stat-number{
+      &.retour-à-la-conformité .stat-number {
         color: $couleur-retour-à-la-conformité;
       }
-      &.non-conforme .stat-number{
+      &.non-conforme .stat-number {
         color: $couleur-non-conforme;
       }
-      &.trop-tard .stat-number{
+      &.trop-tard .stat-number {
         color: $couleur-trop-tard;
       }
-      &.autre .stat-number{
+      &.autre .stat-number {
         color: $couleur-autre;
       }
 
@@ -154,12 +169,8 @@
         font-weight: 500;
       }
     }
-
   }
-  
-  
 
-  
   .bar-conformite {
     display: flex;
     margin: 1.5rem 0 2rem 0;
@@ -169,27 +180,25 @@
 
     height: 1.5rem;
 
-    & > div{
-      height: 100%; 
+    & > div {
+      height: 100%;
       transition: width 0.5s;
     }
 
-    .conformité-initiale{
+    .conformité-initiale {
       background: $couleur-conformité-initiale;
     }
-    .retour-à-la-conformité{
+    .retour-à-la-conformité {
       background: $couleur-retour-à-la-conformité;
     }
-    .non-conforme{
+    .non-conforme {
       background: $couleur-non-conforme;
     }
-    .trop-tard{
+    .trop-tard {
       background: $couleur-trop-tard;
     }
-
   }
-  
-  
+
   .legend-conformite {
     font-size: small;
 
@@ -200,27 +209,25 @@
       display: inline-block;
       margin-right: 0.5rem;
       border: 2px solid var(--border-default-grey);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 
-
-      &.conformité-initiale{
+      &.conformité-initiale {
         background: $couleur-conformité-initiale;
       }
-      &.retour-à-la-conformité{
+      &.retour-à-la-conformité {
         background: $couleur-retour-à-la-conformité;
       }
-      &.non-conforme{
+      &.non-conforme {
         background: $couleur-non-conforme;
       }
-      &.trop-tard{
+      &.trop-tard {
         background: $couleur-trop-tard;
       }
-      &.autre{
+      &.autre {
         background: $couleur-autre;
       }
     }
   }
-  
 
   @media (max-width: 900px) {
     .stat-conformite-card {
@@ -232,4 +239,4 @@
       padding: 0.75rem 0.25rem;
     }
   }
-</style> 
+</style>

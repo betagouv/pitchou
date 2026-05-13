@@ -1,58 +1,56 @@
-import ky from 'ky';
-import pLimit from 'p-limit';
+import ky from "ky";
+import pLimit from "p-limit";
 
-const TIMEOUT_DELAY = 20*1000; // ms
+const TIMEOUT_DELAY = 20 * 1000; // ms
 
 /**
- * 
- * @param {string} url 
+ *
+ * @param {string} url
  * @returns {Promise<{mediaType: string | null, contenu: ArrayBuffer}>}
  */
-async function _téléchargerFichierDS(url){
-    try{
-        const réponseSansBody = await ky.get(url, {
-            timeout: TIMEOUT_DELAY
-        })
-        
-        const mediaType = réponseSansBody?.headers?.get('Content-Type')
+async function _téléchargerFichierDS(url) {
+  try {
+    const réponseSansBody = await ky.get(url, {
+      timeout: TIMEOUT_DELAY,
+    });
 
-        const réponse = await réponseSansBody.arrayBuffer()
-    
-        return {
-            mediaType,
-            contenu: réponse
-        }
-    }
-    catch(err){
-        // @ts-ignore
-        if(err.name === 'TimeoutError'){
-            const message = `\nTimeout d'une requête HTTP vers DS après ${TIMEOUT_DELAY/1000} secondes\n\n`
-            const erreurSimple = new Error(message)
-            console.error(message)
-            throw erreurSimple
-        }
+    const mediaType = réponseSansBody?.headers?.get("Content-Type");
 
-        throw err
+    const réponse = await réponseSansBody.arrayBuffer();
+
+    return {
+      mediaType,
+      contenu: réponse,
+    };
+  } catch (err) {
+    // @ts-ignore
+    if (err.name === "TimeoutError") {
+      const message = `\nTimeout d'une requête HTTP vers DS après ${TIMEOUT_DELAY / 1000} secondes\n\n`;
+      const erreurSimple = new Error(message);
+      console.error(message);
+      throw erreurSimple;
     }
+
+    throw err;
+  }
 }
-
 
 /**
  * Afin de ne pas surcharger DS, nous limitons le nombre de téléchargements simultanés
- * Un petit nombre est plus accomodant pour DS, 
+ * Un petit nombre est plus accomodant pour DS,
  * mais réduit notre performance
- * Un gros nombre augmente notre parallélisme et sûrement notre performance (jusqu'à une limite), 
+ * Un gros nombre augmente notre parallélisme et sûrement notre performance (jusqu'à une limite),
  * mais surcharge + DS
- * 
+ *
  */
-const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS = 6
-const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS)
+const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS = 6;
+const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS);
 
 /**
- * 
- * @param {string} url 
+ *
+ * @param {string} url
  * @returns {Promise<{mediaType: string | null, contenu: ArrayBuffer}>}
  */
-export default async function téléchargerFichierDS(url){
-    return fenêtre(() => _téléchargerFichierDS(url))
+export default async function téléchargerFichierDS(url) {
+  return fenêtre(() => _téléchargerFichierDS(url));
 }

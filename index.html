@@ -1,52 +1,62 @@
 <!doctype html>
 <html lang="fr" data-fr-scheme="system">
-<head>
-    <meta charset="utf-8">
-    <meta name="referrer" content="no-referrer">
-    <link rel="icon" href="data:,">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="data:," />
 
-    <meta name="description" content=" ">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content=" " />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="apple-touch-icon" href="/public/favicon/apple-touch-icon.png"><!-- 180×180 -->
-    <link rel="icon" href="/public/favicon/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/public/favicon/favicon.ico" type="image/x-icon"><!-- 32×32 -->
-    <link rel="manifest" href="/public/favicon/manifest.webmanifest" crossorigin="use-credentials">
-
-    <link id="especes-data" href="/data/liste-espèces-protégées.csv" crossorigin="anonymous">
-    <link id="activites-methodes-moyens-de-poursuite-data" href="/data/activites-methodes-moyens-de-poursuite.ods" crossorigin="anonymous">
+    <link rel="apple-touch-icon" href="/public/favicon/apple-touch-icon.png" />
+    <!-- 180×180 -->
+    <link rel="icon" href="/public/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="/public/favicon/favicon.ico" type="image/x-icon" />
+    <!-- 32×32 -->
     <link
-        id="schema-DS8844"
-        href="/data/démarche-numérique/schema-DS/derogation-especes-protegees.json"
-        crossorigin="anonymous"
+      rel="manifest"
+      href="/public/favicon/manifest.webmanifest"
+      crossorigin="use-credentials"
     />
 
-    <link crossorigin="anonymous" rel="stylesheet" href="/docs/style/dsfr/dsfr.css">
-    <link crossorigin="anonymous" rel="stylesheet" href="/docs/style/dsfr/utility/utility.css">
+    <link id="especes-data" href="/data/liste-espèces-protégées.csv" crossorigin="anonymous" />
+    <link
+      id="activites-methodes-moyens-de-poursuite-data"
+      href="/data/activites-methodes-moyens-de-poursuite.ods"
+      crossorigin="anonymous"
+    />
+    <link
+      id="schema-DS8844"
+      href="/data/démarche-numérique/schema-DS/derogation-especes-protegees.json"
+      crossorigin="anonymous"
+    />
 
-    <link crossorigin="anonymous" rel="stylesheet" href="/public/style/custom-icons.css">
+    <link crossorigin="anonymous" rel="stylesheet" href="/docs/style/dsfr/dsfr.css" />
+    <link crossorigin="anonymous" rel="stylesheet" href="/docs/style/dsfr/utility/utility.css" />
 
-    <link crossorigin="anonymous" rel="stylesheet" href="/build/rollup-bundle-pitchou.css">
+    <link crossorigin="anonymous" rel="stylesheet" href="/public/style/custom-icons.css" />
+
+    <link crossorigin="anonymous" rel="stylesheet" href="/build/rollup-bundle-pitchou.css" />
 
     <script>
-        if (!Set.prototype.difference) {
-            Set.prototype.difference = function(otherSet) {
-                // Vérifie que l'argument est bien un Set
-                if (!(otherSet instanceof Set)) {
-                    throw new TypeError('Argument must be a Set');
-                }
+      if (!Set.prototype.difference) {
+        Set.prototype.difference = function (otherSet) {
+          // Vérifie que l'argument est bien un Set
+          if (!(otherSet instanceof Set)) {
+            throw new TypeError("Argument must be a Set");
+          }
 
-                // Crée un nouveau Set avec les éléments qui ne sont pas dans otherSet
-                return new Set([...this].filter(elem => !otherSet.has(elem)));
-            };
-        }
-
+          // Crée un nouveau Set avec les éléments qui ne sont pas dans otherSet
+          return new Set([...this].filter((elem) => !otherSet.has(elem)));
+        };
+      }
     </script>
 
     <script src="/build/rollup-bundle-pitchou.js" type="module" crossorigin="anonymous"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="svelte-main fr-container"></div>
     <!-- https://www.systeme-de-design.gouv.fr/utilisation-et-organisation/developpeurs/api-javascript -->
     <script type="module" src="/docs/style/dsfr/dsfr.module.js"></script>
-</body>
+  </body>
 </html>

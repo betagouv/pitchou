@@ -2,11 +2,10 @@
 
 // ce script recups les dossier de la démarche 88444
 
-import { formatISO } from 'date-fns';
+import { formatISO } from "date-fns";
 
-import queryGraphQL from './queryGraphQL.js'
-import {dossiersQuery} from './graphQLqueries.js'
-
+import queryGraphQL from "./queryGraphQL.js";
+import { dossiersQuery } from "./graphQLqueries.js";
 
 /**
  * @param {string} token
@@ -16,15 +15,14 @@ import {dossiersQuery} from './graphQLqueries.js'
  * @returns {Promise<any>}
  */
 function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, before) {
-    return queryGraphQL(token, dossiersQuery, {
-        demarcheNumber,
+  return queryGraphQL(token, dossiersQuery, {
+    demarcheNumber,
 
-        last: 100,
-        updatedSince: formatISO(updatedSince),
-        before
-    })
+    last: 100,
+    updatedSince: formatISO(updatedSince),
+    before,
+  });
 }
-
 
 /** @typedef {any} DossierAPI */
 
@@ -35,32 +33,35 @@ function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updat
  * @returns {Promise<any>}
  */
 export async function recupérerDossiersRécemmentModifiés(token, demarcheNumber, updatedSince) {
-    /** @type {any[]} */
-    let dossiers = []
-    let hasPreviousPage = true;
-    let startCursor = undefined
+  /** @type {any[]} */
+  let dossiers = [];
+  let hasPreviousPage = true;
+  let startCursor = undefined;
 
-    while (hasPreviousPage) {
-        const débutRequêtePage = Date.now()
-        const page = await récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, startCursor)
-        const finRequêtePage = Date.now()
+  while (hasPreviousPage) {
+    const débutRequêtePage = Date.now();
+    const page = await récupérerPageDossiersRécemmentModifiés(
+      token,
+      demarcheNumber,
+      updatedSince,
+      startCursor,
+    );
+    const finRequêtePage = Date.now();
 
-        const pageDossiers = page.demarche.dossiers.nodes
+    const pageDossiers = page.demarche.dossiers.nodes;
 
-        dossiers = pageDossiers.concat(dossiers)
+    dossiers = pageDossiers.concat(dossiers);
 
-        if(dossiers.length >= 100){
-            const délai = (finRequêtePage - débutRequêtePage)/1000
-            console.log('dossiers récupérés jusque-là', dossiers.length, `(${délai.toFixed(1)}secs)`)
-        }
-
-        const pageInfo = page.demarche.dossiers.pageInfo;
-
-        hasPreviousPage = pageInfo.hasPreviousPage
-        startCursor = pageInfo.startCursor
+    if (dossiers.length >= 100) {
+      const délai = (finRequêtePage - débutRequêtePage) / 1000;
+      console.log("dossiers récupérés jusque-là", dossiers.length, `(${délai.toFixed(1)}secs)`);
     }
 
-    return dossiers;
+    const pageInfo = page.demarche.dossiers.pageInfo;
+
+    hasPreviousPage = pageInfo.hasPreviousPage;
+    startCursor = pageInfo.startCursor;
+  }
+
+  return dossiers;
 }
-
-

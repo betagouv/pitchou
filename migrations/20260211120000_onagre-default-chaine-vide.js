@@ -6,21 +6,17 @@
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-
-    // Normaliser les données existantes : remplacer les NULL par une chaîne vide
-    await knex.raw(`
+  // Normaliser les données existantes : remplacer les NULL par une chaîne vide
+  await knex.raw(`
         UPDATE dossier
         SET historique_identifiant_demande_onagre = ''
         WHERE historique_identifiant_demande_onagre IS NULL;
     `);
 
-    // Rendre la colonne non nulle avec une valeur par défaut ''
-    await knex.schema.alterTable('dossier', function (table) {
-        table.string('historique_identifiant_demande_onagre')
-            .notNullable()
-            .defaultTo('')
-            .alter();
-    });
+  // Rendre la colonne non nulle avec une valeur par défaut ''
+  await knex.schema.alterTable("dossier", function (table) {
+    table.string("historique_identifiant_demande_onagre").notNullable().defaultTo("").alter();
+  });
 }
 
 /**
@@ -30,10 +26,7 @@ export async function up(knex) {
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-    await knex.schema.alterTable('dossier', function (table) {
-        table.string('historique_identifiant_demande_onagre')
-            .nullable()
-            .alter();
-    });
+  await knex.schema.alterTable("dossier", function (table) {
+    table.string("historique_identifiant_demande_onagre").nullable().alter();
+  });
 }
-

@@ -2,9 +2,9 @@
 
 /** @type {Set<TypeDécisionAdministrative>} */
 export const typesDécisionAdministrative = new Set([
-    'Arrêté dérogation',
-    'Arrêté refus',
-    'Arrêté modificatif',
-    'Courrier',
-    'Autre décision'
-])
+  "Arrêté dérogation",
+  "Arrêté refus",
+  "Arrêté modificatif",
+  "Courrier",
+  "Autre décision",
+]);

@@ -2,15 +2,23 @@
 
 // ce script recups les dossier de la démarche 88444
 
-import ky from 'ky';
+import ky from "ky";
 
-import {dossiersQuery, GroupeInstructeursQuery, annotationCheckboxMutationQuery, annotationDateMutationQuery, annotationTextMutationQuery, deletedDossiersQuery, pendingDeletedDossiersQuery} from './graphQLqueries.js'
+import {
+  dossiersQuery,
+  GroupeInstructeursQuery,
+  annotationCheckboxMutationQuery,
+  annotationDateMutationQuery,
+  annotationTextMutationQuery,
+  deletedDossiersQuery,
+  pendingDeletedDossiersQuery,
+} from "./graphQLqueries.js";
 
 /** @import {demarcheQueryResult, demarcheQueryResultDemarche, AnnotationMutationResult} from '../../types/démarche-numérique/api.js' */
 
-const ENDPOINT = 'https://www.demarches-simplifiees.fr/api/v2/graphql';
+const ENDPOINT = "https://www.demarches-simplifiees.fr/api/v2/graphql";
 
-const TIMEOUT_DELAY = 40*1000 // milliseconds
+const TIMEOUT_DELAY = 40 * 1000; // milliseconds
 
 /**
  * @overload
@@ -76,45 +84,43 @@ const TIMEOUT_DELAY = 40*1000 // milliseconds
  * @param {Record<string, any>} variables
  * @returns {Promise<unknown>}
  */
-export default async function(token, query, variables) {
-    //console.log('graphQL query', query, variables)
+export default async function (token, query, variables) {
+  //console.log('graphQL query', query, variables)
 
-    /** @type {{errors: any, data: unknown}} */
-    let response 
-    try{
-        response = await ky.post(ENDPOINT, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'User-Agent': 'https://github.com/betagouv/pitchou'
-            },
-            timeout: TIMEOUT_DELAY,
-            json: {
-                query,
-                variables
-            }
-        }).json();
-        
-        if (response.errors) {
-            throw new Error(`Erreur graphQL ${JSON.stringify(response.errors, null, 2)}`)
-        }
-    
-        return response.data;
-    }
-    catch(err){
-        // @ts-ignore
-        if(err.name === 'TimeoutError'){
-            const message = `\nTimeout d'une requête HTTP vers ${ENDPOINT} après ${TIMEOUT_DELAY/1000} secondes\n\n`
-            const erreurSimple = new Error(message)
-            console.error(message)
-            throw erreurSimple
-        }
-        else{
-            console.error('HTTP error', err)
-        }
+  /** @type {{errors: any, data: unknown}} */
+  let response;
+  try {
+    response = await ky
+      .post(ENDPOINT, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "https://github.com/betagouv/pitchou",
+        },
+        timeout: TIMEOUT_DELAY,
+        json: {
+          query,
+          variables,
+        },
+      })
+      .json();
 
-        throw err
+    if (response.errors) {
+      throw new Error(`Erreur graphQL ${JSON.stringify(response.errors, null, 2)}`);
     }
 
-    
+    return response.data;
+  } catch (err) {
+    // @ts-ignore
+    if (err.name === "TimeoutError") {
+      const message = `\nTimeout d'une requête HTTP vers ${ENDPOINT} après ${TIMEOUT_DELAY / 1000} secondes\n\n`;
+      const erreurSimple = new Error(message);
+      console.error(message);
+      throw erreurSimple;
+    } else {
+      console.error("HTTP error", err);
+    }
+
+    throw err;
+  }
 }

@@ -12,12 +12,10 @@
 /** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 
-
-import assert from 'node:assert/strict'
-import { déchiffrerDonnéesSupplémentairesDossiers } from '../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js'
-import { isAfter } from 'date-fns'
-import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
-
+import assert from "node:assert/strict";
+import { déchiffrerDonnéesSupplémentairesDossiers } from "../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js";
+import { isAfter } from "date-fns";
+import { normalisationEmail } from "../../scripts/commun/manipulationStrings.js";
 
 /**
  * @callback MakeColonnesCommunesDossierPourSynchro
@@ -42,25 +40,19 @@ import { normalisationEmail } from '../../scripts/commun/manipulationStrings.js'
  * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
 export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToChampDS) {
-    const {
-        demandeur,
-        champs,
-        nomMandataire = '',
-        prenomMandataire = '',
-        usager,
-    } = dossierDS
+  const { demandeur, champs, nomMandataire = "", prenomMandataire = "", usager } = dossierDS;
 
-    /**
-     * Champs
-     */
-    /** @type {Map<string | undefined, Champs88444>} */
-    /** @type {Map<string | undefined, any>} */
-    const champById = new Map()
-    for (const champ of champs) {
-        champById.set(champ.id, champ)
-    }
+  /**
+   * Champs
+   */
+  /** @type {Map<string | undefined, Champs88444>} */
+  /** @type {Map<string | undefined, any>} */
+  const champById = new Map();
+  for (const champ of champs) {
+    champById.set(champ.id, champ);
+  }
 
-    /*
+  /*
     Déposant
 
     Le déposant est la personne qui dépose le dossier sur DS
@@ -73,73 +65,74 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
     (qui est différent de notre "demandeur")
 
     */
-    /** @type {PersonneInitializer} */
-    let déposant;
-    /*
+  /** @type {PersonneInitializer} */
+  let déposant;
+  /*
     Demandeur
     Personne physique ou morale qui formule la demande de dérogation espèces protégées
     */
-    /** @type {PersonneInitializer | undefined} */
-    let demandeur_personne_physique = undefined;
-    /** @type {Entreprise | undefined} */
-    let demandeur_personne_morale = undefined
+  /** @type {PersonneInitializer | undefined} */
+  let demandeur_personne_physique = undefined;
+  /** @type {Entreprise | undefined} */
+  let demandeur_personne_morale = undefined;
 
-    /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
-    const personneMoraleOuPhysique = champById.get(pitchouKeyToChampDS.get('Le demandeur est…'))?.stringValue
+  /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
+  const personneMoraleOuPhysique = champById.get(
+    pitchouKeyToChampDS.get("Le demandeur est…"),
+  )?.stringValue;
 
-    if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === 'une personne physique') {
-        déposant = {
-            prénoms: prenomMandataire,
-            nom: nomMandataire,
-            email: normalisationEmail(usager.email)
-        }
-    } else {
-        déposant = {
-            prénoms: demandeur.prenom,
-            nom: demandeur.nom,
-            email: demandeur.email ? normalisationEmail(demandeur.email) : undefined,
-        }
+  if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === "une personne physique") {
+    déposant = {
+      prénoms: prenomMandataire,
+      nom: nomMandataire,
+      email: normalisationEmail(usager.email),
+    };
+  } else {
+    déposant = {
+      prénoms: demandeur.prenom,
+      nom: demandeur.nom,
+      email: demandeur.email ? normalisationEmail(demandeur.email) : undefined,
+    };
+  }
+
+  if (personneMoraleOuPhysique === "une personne physique") {
+    const { prenom, nom } = demandeur;
+
+    /** @type {DossierDemarcheNumerique88444['Adresse mail de contact'] | undefined} */
+    const adresseEmailDeContact = champById.get(
+      pitchouKeyToChampDS.get("Adresse mail de contact"),
+    )?.stringValue;
+
+    let email = adresseEmailDeContact || demandeur.email || déposant.email;
+
+    demandeur_personne_physique = {
+      prénoms: prenom,
+      nom,
+      email: email ? normalisationEmail(email) : undefined,
+    };
+  }
+
+  const SIRETChamp = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"));
+  if (SIRETChamp) {
+    const etablissement = SIRETChamp.etablissement;
+    if (etablissement) {
+      const { siret, address = {}, entreprise = {} } = etablissement;
+      const { streetAddress, postalCode, cityName } = address;
+      const { raisonSociale } = entreprise;
+
+      demandeur_personne_morale = {
+        siret,
+        raison_sociale: raisonSociale,
+        adresse: `${streetAddress}\n${postalCode} ${cityName}`,
+      };
     }
+  }
 
-    if (personneMoraleOuPhysique === "une personne physique") {
-        const {prenom, nom} = demandeur
-
-        /** @type {DossierDemarcheNumerique88444['Adresse mail de contact'] | undefined} */
-        const adresseEmailDeContact = champById.get(pitchouKeyToChampDS.get('Adresse mail de contact'))?.stringValue
-
-        let email = adresseEmailDeContact || demandeur.email || déposant.email
-
-        demandeur_personne_physique = {
-            prénoms: prenom,
-            nom,
-            email: email ? normalisationEmail(email) : undefined,
-        }
-    }
-
-
-    const SIRETChamp = champById.get(pitchouKeyToChampDS.get('Numéro de SIRET'))
-    if (SIRETChamp) {
-        const etablissement = SIRETChamp.etablissement
-        if (etablissement) {
-            const { siret, address = {}, entreprise = {} } = etablissement
-            const { streetAddress, postalCode, cityName } = address
-            const { raisonSociale } = entreprise
-
-
-            demandeur_personne_morale = {
-                siret,
-                raison_sociale: raisonSociale,
-                adresse: `${streetAddress}\n${postalCode} ${cityName}`
-            }
-        }
-    }
-
-    return {
-        déposant,
-        demandeur_personne_morale,
-        demandeur_personne_physique,
-    }
-
+  return {
+    déposant,
+    demandeur_personne_morale,
+    demandeur_personne_physique,
+  };
 }
 
 /**
@@ -150,25 +143,26 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
  * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }}
  */
 function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossierId) {
-    /** @type {DossierDS88444[]} */
-    let dossiersDSAInitialiser = []
-    /** @type {DossierDS88444[]} */
-    let dossiersDSAModifier = []
+  /** @type {DossierDS88444[]} */
+  let dossiersDSAInitialiser = [];
+  /** @type {DossierDS88444[]} */
+  let dossiersDSAModifier = [];
 
-    dossiersDS.forEach((dossier) => {
-        if (dossierNumberToDossierId.has(String(dossier.number))) {
-            dossiersDSAModifier.push(dossier)
-        } else {
-            dossiersDSAInitialiser.push(dossier)
-        }
-    })
+  dossiersDS.forEach((dossier) => {
+    if (dossierNumberToDossierId.has(String(dossier.number))) {
+      dossiersDSAModifier.push(dossier);
+    } else {
+      dossiersDSAInitialiser.push(dossier);
+    }
+  });
 
-    assert.deepEqual(
-        dossiersDSAModifier.length + dossiersDSAInitialiser.length,
-        dossiersDS.length,
-        `Une erreur est survenue lors de la séparation des dossiers DS en dossiers DS à initialiser (${dossiersDSAInitialiser.length} dossiers à modifier) et en dossiers DS à modifier (${dossiersDSAModifier.length} dossiers à modifier)`)
+  assert.deepEqual(
+    dossiersDSAModifier.length + dossiersDSAInitialiser.length,
+    dossiersDS.length,
+    `Une erreur est survenue lors de la séparation des dossiers DS en dossiers DS à initialiser (${dossiersDSAInitialiser.length} dossiers à modifier) et en dossiers DS à modifier (${dossiersDSAModifier.length} dossiers à modifier)`,
+  );
 
-    return { dossiersDSAInitialiser, dossiersDSAModifier }
+  return { dossiersDSAInitialiser, dossiersDSAModifier };
 }
 
 /**
@@ -180,39 +174,60 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossier
  * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
  * @returns {Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, 'dossier'>>}
  */
-async function makeChampsDossierPourInitialisation(dossierDS, démarcheNumber, pitchouKeyToChampDS, pitchouKeyToAnnotationDS, makeColonnesCommunesDossierPourSynchro) {
-    const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find((champ) => champ.label === 'NE PAS MODIFIER - Données techniques associées à votre dossier')?.stringValue
+async function makeChampsDossierPourInitialisation(
+  dossierDS,
+  démarcheNumber,
+  pitchouKeyToChampDS,
+  pitchouKeyToAnnotationDS,
+  makeColonnesCommunesDossierPourSynchro,
+) {
+  const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find(
+    (champ) => champ.label === "NE PAS MODIFIER - Données techniques associées à votre dossier",
+  )?.stringValue;
 
-    /**
-     * POUR IMPORT DOSSIERS HISTORIQUES
-     */
-    /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
-    let données_supplémentaires
-    try {
-        données_supplémentaires = données_supplémentaires_à_déchiffrer ? JSON.parse(await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer)) : undefined
+  /**
+   * POUR IMPORT DOSSIERS HISTORIQUES
+   */
+  /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
+  let données_supplémentaires;
+  try {
+    données_supplémentaires = données_supplémentaires_à_déchiffrer
+      ? JSON.parse(
+          await déchiffrerDonnéesSupplémentairesDossiers(données_supplémentaires_à_déchiffrer),
+        )
+      : undefined;
 
-        if (données_supplémentaires) {
-            // Ces données seront utilisées plus tard pour remplir des champs en base de données
-            console.log(`Il y a des données supplémentaires dans le dossier DN`, dossierDS.number, données_supplémentaires)
-        }
-    } catch (erreur) {
-        console.warn(`Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`)
+    if (données_supplémentaires) {
+      // Ces données seront utilisées plus tard pour remplir des champs en base de données
+      console.log(
+        `Il y a des données supplémentaires dans le dossier DN`,
+        dossierDS.number,
+        données_supplémentaires,
+      );
     }
+  } catch (erreur) {
+    console.warn(
+      `Une erreur est survenue pendant le déchiffrage des données supplémentaires: ${erreur}`,
+    );
+  }
 
-    return {
-        dossier: {
-            ...makeColonnesCommunesDossierPourSynchro(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
-            ...(données_supplémentaires?.dossier || {}),
-            date_dépôt: données_supplémentaires?.dossier?.date_dépôt ?? dossierDS.dateDepot,
-            "numéro_démarche": démarcheNumber,
-        },
-        évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
-        avis_expert: données_supplémentaires?.avis_expert,
-        décision_administrative: données_supplémentaires?.décision_administrative,
-        personnes_qui_suivent: données_supplémentaires?.personnes_qui_suivent,
-    }
+  return {
+    dossier: {
+      ...makeColonnesCommunesDossierPourSynchro(
+        dossierDS,
+        pitchouKeyToChampDS,
+        pitchouKeyToAnnotationDS,
+      ),
+      ...(données_supplémentaires?.dossier || {}),
+      date_dépôt: données_supplémentaires?.dossier?.date_dépôt ?? dossierDS.dateDepot,
+      numéro_démarche: démarcheNumber,
+    },
+    évènement_phase_dossier: données_supplémentaires?.évènement_phase_dossier,
+    avis_expert: données_supplémentaires?.avis_expert,
+    décision_administrative: données_supplémentaires?.décision_administrative,
+    personnes_qui_suivent: données_supplémentaires?.personnes_qui_suivent,
+  };
 }
-
 
 /**
  * Converti les "state" des "traitements" DS vers les phases Pitchou
@@ -222,18 +237,13 @@ async function makeChampsDossierPourInitialisation(dossierDS, démarcheNumber, p
  * @returns {import('../../scripts/types/API_Pitchou.ts').DossierPhase}
  */
 function traitementPhaseToDossierPhase(DSTraitementState) {
-    if (DSTraitementState === 'en_construction')
-        return "Accompagnement amont"
-    if (DSTraitementState === 'en_instruction')
-        return "Instruction"
-    if (DSTraitementState === 'accepte')
-        return "Contrôle"
-    if (DSTraitementState === 'sans_suite')
-        return "Classé sans suite"
-    if (DSTraitementState === 'refuse')
-        return "Obligations terminées"
+  if (DSTraitementState === "en_construction") return "Accompagnement amont";
+  if (DSTraitementState === "en_instruction") return "Instruction";
+  if (DSTraitementState === "accepte") return "Contrôle";
+  if (DSTraitementState === "sans_suite") return "Classé sans suite";
+  if (DSTraitementState === "refuse") return "Obligations terminées";
 
-    throw `Traitement phase non reconnue: ${DSTraitementState}`
+  throw `Traitement phase non reconnue: ${DSTraitementState}`;
 }
 
 /**
@@ -242,23 +252,22 @@ function traitementPhaseToDossierPhase(DSTraitementState) {
  * @param {Dossier['id']} [dossierId]
  */
 function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
-    /** @type {DossierPourInsert['évènement_phase_dossier']} */
-    const évènementsPhaseDossier = [];
+  /** @type {DossierPourInsert['évènement_phase_dossier']} */
+  const évènementsPhaseDossier = [];
 
-    for (const { dateTraitement, state, emailAgentTraitant, motivation } of traitements) {
-        évènementsPhaseDossier.push({
-            phase: traitementPhaseToDossierPhase(state),
-            dossier: dossierId,
-            horodatage: new Date(dateTraitement),
-            cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
-            DS_emailAgentTraitant: emailAgentTraitant,
-            DS_motivation: motivation
-        })
-    }
+  for (const { dateTraitement, state, emailAgentTraitant, motivation } of traitements) {
+    évènementsPhaseDossier.push({
+      phase: traitementPhaseToDossierPhase(state),
+      dossier: dossierId,
+      horodatage: new Date(dateTraitement),
+      cause_personne: null, // signifie que c'est l'outil de sync DS qui est la cause
+      DS_emailAgentTraitant: emailAgentTraitant,
+      DS_motivation: motivation,
+    });
+  }
 
-    return évènementsPhaseDossier
+  return évènementsPhaseDossier;
 }
-
 
 /**
  * Synchronisation des décisions administratives
@@ -272,42 +281,42 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
  * @param {DCisionAdministrative['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
  * @returns {PartialBy<DCisionAdministrativeInitializer, "dossier">[]}
  */
-function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, idPitchouDuDossier) {
-    /**@type { PartialBy<DCisionAdministrativeInitializer, "dossier">[] } */
-    const décisionsAdministratives = []
+function makeDécisionAdministrativeFromTraitementDS(
+  dossierDS,
+  fichiersMotivationTéléchargés,
+  idPitchouDuDossier,
+) {
+  /**@type { PartialBy<DCisionAdministrativeInitializer, "dossier">[] } */
+  const décisionsAdministratives = [];
 
-    if (fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1) {
-        const fichierMotivationId = fichiersMotivationTéléchargés.get(dossierDS.number)
+  if (fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1) {
+    const fichierMotivationId = fichiersMotivationTéléchargés.get(dossierDS.number);
 
-        /** @type {TypeDécisionAdministrative} */
-        let type = 'Autre décision';
+    /** @type {TypeDécisionAdministrative} */
+    let type = "Autre décision";
 
-        const traitements = dossierDS.traitements
-        let dernierTraitement = traitements[0];
-        for (const traitement of traitements) {
-            if (isAfter(traitement.dateTraitement, dernierTraitement.dateTraitement)) {
-                dernierTraitement = traitement
-            }
-        }
-        if (dernierTraitement.state === 'accepte')
-            type = 'Arrêté dérogation'
-        if (dernierTraitement.state === 'refuse')
-            type = 'Arrêté refus'
-
-        décisionsAdministratives.push({
-            dossier: idPitchouDuDossier ?? undefined,
-            fichier: fichierMotivationId,
-            type,
-            date_signature: null, // pas de remplissage par défaut
-            numéro: null,
-            date_fin_obligations: null
-        })
+    const traitements = dossierDS.traitements;
+    let dernierTraitement = traitements[0];
+    for (const traitement of traitements) {
+      if (isAfter(traitement.dateTraitement, dernierTraitement.dateTraitement)) {
+        dernierTraitement = traitement;
+      }
     }
+    if (dernierTraitement.state === "accepte") type = "Arrêté dérogation";
+    if (dernierTraitement.state === "refuse") type = "Arrêté refus";
 
-    return décisionsAdministratives
+    décisionsAdministratives.push({
+      dossier: idPitchouDuDossier ?? undefined,
+      fichier: fichierMotivationId,
+      type,
+      date_signature: null, // pas de remplissage par défaut
+      numéro: null,
+      date_fin_obligations: null,
+    });
+  }
+
+  return décisionsAdministratives;
 }
-
-
 
 /**
  * Récupère les données brutes des dossiers depuis Démarche Numérique
@@ -325,79 +334,98 @@ function makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivati
  * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>}
  */
 export async function makeDossiersPourSynchronisation(
-    dossiersDS, 
-    démarcheNumber, 
-    numberDSDossiersDéjàExistantsEnBDD, 
-    fichiersMotivationTéléchargés,
-    pitchouKeyToChampDS, 
-    pitchouKeyToAnnotationDS, 
-    getDonnéesPersonnesEntreprises,
-    makeColonnesCommunesDossierPourSynchro
+  dossiersDS,
+  démarcheNumber,
+  numberDSDossiersDéjàExistantsEnBDD,
+  fichiersMotivationTéléchargés,
+  pitchouKeyToChampDS,
+  pitchouKeyToAnnotationDS,
+  getDonnéesPersonnesEntreprises,
+  makeColonnesCommunesDossierPourSynchro,
 ) {
-    const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(dossiersDS, numberDSDossiersDéjàExistantsEnBDD)
+  const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(
+    dossiersDS,
+    numberDSDossiersDéjàExistantsEnBDD,
+  );
 
-    /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
-    const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
-        const champsDossierPourInitP = makeChampsDossierPourInitialisation(
-            dossierDS,
-            démarcheNumber,
-            pitchouKeyToChampDS,
-            pitchouKeyToAnnotationDS,
-            makeColonnesCommunesDossierPourSynchro
-        )
+  /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
+  const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
+    const champsDossierPourInitP = makeChampsDossierPourInitialisation(
+      dossierDS,
+      démarcheNumber,
+      pitchouKeyToChampDS,
+      pitchouKeyToAnnotationDS,
+      makeColonnesCommunesDossierPourSynchro,
+    );
 
-        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements)
+    const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(
+      dossierDS.traitements,
+    );
 
-        const décision_administrative = makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, null)
+    const décision_administrative = makeDécisionAdministrativeFromTraitementDS(
+      dossierDS,
+      fichiersMotivationTéléchargés,
+      null,
+    );
 
-        return champsDossierPourInitP.then(champsDossierPourInit => ({
-            dossier: {
-                ...champsDossierPourInit.dossier,
-                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS)
-            },
-            // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS
-            // ne concernent que les dossiers à mettre à jour (pas ceux créés)
-            évènement_phase_dossier: champsDossierPourInit.évènement_phase_dossier ?? évènement_phase_dossier,
-            avis_expert: champsDossierPourInit.avis_expert || [],
-            décision_administrative: [
-                ...(champsDossierPourInit.décision_administrative || []),
-                ...décision_administrative
-            ],
-            personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent
-        }))
-    })
+    return champsDossierPourInitP.then((champsDossierPourInit) => ({
+      dossier: {
+        ...champsDossierPourInit.dossier,
+        ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+      },
+      // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS
+      // ne concernent que les dossiers à mettre à jour (pas ceux créés)
+      évènement_phase_dossier:
+        champsDossierPourInit.évènement_phase_dossier ?? évènement_phase_dossier,
+      avis_expert: champsDossierPourInit.avis_expert || [],
+      décision_administrative: [
+        ...(champsDossierPourInit.décision_administrative || []),
+        ...décision_administrative,
+      ],
+      personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent,
+    }));
+  });
 
-    const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
-        const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number))
+  const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
+    const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number));
 
-        if (!dossierId) {
-            throw new Error(`dossier.id non trouvé pour dossier DS ${dossierDS.number} qui est en base de données`)
-        }
+    if (!dossierId) {
+      throw new Error(
+        `dossier.id non trouvé pour dossier DS ${dossierDS.number} qui est en base de données`,
+      );
+    }
 
-        const dossierPartiel = makeColonnesCommunesDossierPourSynchro(
-            dossierDS,
-            pitchouKeyToChampDS,
-            pitchouKeyToAnnotationDS
-        )
+    const dossierPartiel = makeColonnesCommunesDossierPourSynchro(
+      dossierDS,
+      pitchouKeyToChampDS,
+      pitchouKeyToAnnotationDS,
+    );
 
-        const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(dossierDS.traitements, dossierId)
+    const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(
+      dossierDS.traitements,
+      dossierId,
+    );
 
-        const décision_administrative = makeDécisionAdministrativeFromTraitementDS(dossierDS, fichiersMotivationTéléchargés, dossierId)
-
-        return ({
-            dossier: {
-                ...dossierPartiel,
-                ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
-            },
-            évènement_phase_dossier,
-            décision_administrative
-        })
-    })
-
-    const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP)
+    const décision_administrative = makeDécisionAdministrativeFromTraitementDS(
+      dossierDS,
+      fichiersMotivationTéléchargés,
+      dossierId,
+    );
 
     return {
-        dossiersAInitialiserPourSynchro,
-        dossiersAModifierPourSynchro
-    }
+      dossier: {
+        ...dossierPartiel,
+        ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+      },
+      évènement_phase_dossier,
+      décision_administrative,
+    };
+  });
+
+  const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP);
+
+  return {
+    dossiersAInitialiserPourSynchro,
+    dossiersAModifierPourSynchro,
+  };
 }

@@ -1,6 +1,6 @@
 //@ts-check
 
-import knex from 'knex';
+import knex from "knex";
 
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
@@ -8,39 +8,38 @@ import knex from 'knex';
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
 /** @import {StringValues} from '../types/tools.d.ts' */
 
-const DATABASE_URL = process.env.DATABASE_URL
-if(!DATABASE_URL){
-  throw new TypeError(`Variable d'environnement DATABASE_URL manquante`)
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new TypeError(`Variable d'environnement DATABASE_URL manquante`);
 }
 
 export const directDatabaseConnection = knex({
-    client: 'pg',
-    connection: DATABASE_URL,
+  client: "pg",
+  connection: DATABASE_URL,
 });
 
 /**
  *
  * @returns {ReturnType<knex.Knex['destroy']>}
  */
-export function closeDatabaseConnection(){
-    return directDatabaseConnection.destroy()
+export function closeDatabaseConnection() {
+  return directDatabaseConnection.destroy();
 }
 
 /**
  * @param {knex.Knex.TransactionConfig} [config]
  * @returns {Promise<knex.Knex.Transaction>}
  */
-export function créerTransaction(config){
-    return directDatabaseConnection.transaction(config)
+export function créerTransaction(config) {
+  return directDatabaseConnection.transaction(config);
 }
-
 
 /**
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Entreprise[]>}
  */
-export function listAllEntreprises(databaseConnection = directDatabaseConnection){
-    return databaseConnection('entreprise').select()
+export function listAllEntreprises(databaseConnection = directDatabaseConnection) {
+  return databaseConnection("entreprise").select();
 }
 
 /**
@@ -49,13 +48,9 @@ export function listAllEntreprises(databaseConnection = directDatabaseConnection
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export function dumpEntreprises(entreprises, databaseConnection = directDatabaseConnection){
-    return databaseConnection('entreprise')
-    .insert(entreprises)
-    .onConflict('siret')
-    .merge()
+export function dumpEntreprises(entreprises, databaseConnection = directDatabaseConnection) {
+  return databaseConnection("entreprise").insert(entreprises).onConflict("siret").merge();
 }
-
 
 /**
  *
@@ -63,71 +58,98 @@ export function dumpEntreprises(entreprises, databaseConnection = directDatabase
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<Partial<StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}>>}
  */
-export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, databaseConnection = directDatabaseConnection){
+export async function getInstructeurCapBundleByPersonneCodeAccès(
+  code_accès,
+  databaseConnection = directDatabaseConnection,
+) {
+  const remplirAnnotationsP = databaseConnection("arête_personne__cap_écriture_annotation")
+    .select("cap")
+    .leftJoin("cap_écriture_annotation", {
+      "cap_écriture_annotation.cap":
+        "arête_personne__cap_écriture_annotation.écriture_annotation_cap",
+    })
+    .where({ personne_cap: code_accès })
+    .first();
 
-    const remplirAnnotationsP = databaseConnection('arête_personne__cap_écriture_annotation')
-        .select('cap')
-        .leftJoin('cap_écriture_annotation', {
-            'cap_écriture_annotation.cap':
-            'arête_personne__cap_écriture_annotation.écriture_annotation_cap'
-        })
-        .where({personne_cap: code_accès})
-        .first();
+  const identitéP = databaseConnection("personne").select("email").where({ code_accès }).first();
 
-    const identitéP = databaseConnection('personne')
-        .select('email')
-        .where({code_accès})
-        .first();
+  const listerDossiersP = databaseConnection("cap_dossier")
+    .select("cap")
+    .where({ personne_cap: code_accès })
+    .first()
+    .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
-    const listerDossiersP = databaseConnection('cap_dossier')
-        .select('cap')
-        .where({personne_cap: code_accès})
-        .first()
-        .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
+  const créerÉvènementMetriqueP = databaseConnection("cap_évènement_métrique")
+    .select("cap")
+    .where({ personne_cap: code_accès })
+    .first()
+    .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
-    const créerÉvènementMetriqueP = databaseConnection('cap_évènement_métrique')
-        .select('cap')
-        .where({personne_cap: code_accès})
-        .first()
-        .then(cap_dossier => cap_dossier ? cap_dossier.cap : undefined)
+  // Pour le moment, les droits associés à tout un tas de capabilities la même partie secrète
+  // de la capability que pour lister les dossiers
+  const recupérerDossierCompletP = listerDossiersP;
+  const listerRelationSuiviP = listerDossiersP;
+  const modifierRelationSuiviP = listerDossiersP;
+  const listerÉvènementsPhaseDossierP = listerDossiersP;
+  const listerMessagesP = listerDossiersP;
+  const modifierDossierP = listerDossiersP;
+  const modifierDécisionAdministrativeDansDossierP = listerDossiersP;
+  const listerNotificationsP = listerDossiersP;
+  const updateNotificationP = listerDossiersP;
 
-    // Pour le moment, les droits associés à tout un tas de capabilities la même partie secrète
-    // de la capability que pour lister les dossiers
-    const recupérerDossierCompletP = listerDossiersP
-    const listerRelationSuiviP = listerDossiersP
-    const modifierRelationSuiviP = listerDossiersP
-    const listerÉvènementsPhaseDossierP = listerDossiersP
-    const listerMessagesP = listerDossiersP
-    const modifierDossierP = listerDossiersP
-    const modifierDécisionAdministrativeDansDossierP = listerDossiersP
-    const listerNotificationsP = listerDossiersP
-    const updateNotificationP = listerDossiersP
+  return Promise.all([
+    remplirAnnotationsP,
+    listerDossiersP,
+    recupérerDossierCompletP,
+    listerRelationSuiviP,
+    modifierRelationSuiviP,
+    listerÉvènementsPhaseDossierP,
+    listerMessagesP,
+    modifierDossierP,
+    modifierDécisionAdministrativeDansDossierP,
+    créerÉvènementMetriqueP,
+    identitéP,
+    listerNotificationsP,
+    updateNotificationP,
+  ]).then(
+    ([
+      remplirAnnotations,
+      listerDossiers,
+      recupérerDossierComplet,
+      listerRelationSuivi,
+      modifierRelationSuivi,
+      listerÉvènementsPhaseDossier,
+      listerMessages,
+      modifierDossier,
+      modifierDécisionAdministrativeDansDossier,
+      créerÉvènementMetrique,
+      identité,
+      listerNotifications,
+      updateNotificationForDossier,
+    ]) => {
+      /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
+      const ret = {
+        remplirAnnotations: undefined,
+        listerDossiers,
+        recupérerDossierComplet,
+        listerRelationSuivi,
+        modifierRelationSuivi,
+        listerÉvènementsPhaseDossier,
+        listerMessages,
+        modifierDossier,
+        identité,
+        créerÉvènementMetrique,
+        modifierDécisionAdministrativeDansDossier,
+        listerNotifications,
+        updateNotificationForDossier,
+      };
 
-    return Promise.all([remplirAnnotationsP, listerDossiersP, recupérerDossierCompletP, listerRelationSuiviP, modifierRelationSuiviP, listerÉvènementsPhaseDossierP, listerMessagesP, modifierDossierP, modifierDécisionAdministrativeDansDossierP, créerÉvènementMetriqueP, identitéP, listerNotificationsP, updateNotificationP])
-        .then(([remplirAnnotations, listerDossiers, recupérerDossierComplet, listerRelationSuivi, modifierRelationSuivi, listerÉvènementsPhaseDossier, listerMessages, modifierDossier, modifierDécisionAdministrativeDansDossier, créerÉvènementMetrique, identité, listerNotifications, updateNotificationForDossier]) => {
-            /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
-            const ret = {
-                remplirAnnotations: undefined,
-                listerDossiers,
-                recupérerDossierComplet,
-                listerRelationSuivi,
-                modifierRelationSuivi,
-                listerÉvènementsPhaseDossier,
-                listerMessages,
-                modifierDossier,
-                identité,
-                créerÉvènementMetrique,
-                modifierDécisionAdministrativeDansDossier,
-                listerNotifications,
-                updateNotificationForDossier
-            }
+      if (remplirAnnotations && remplirAnnotations.cap)
+        ret.remplirAnnotations = remplirAnnotations.cap;
 
-            if(remplirAnnotations && remplirAnnotations.cap)
-                ret.remplirAnnotations = remplirAnnotations.cap
-
-            return ret
-        })
-
+      return ret;
+    },
+  );
 }
 
 /**
@@ -136,49 +158,53 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(code_accès, d
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<ReturnType<PitchouInstructeurCapabilities['listerRelationSuivi']>>}
  */
-export async function getRelationSuivis(listeDossiersCap, databaseConnection = directDatabaseConnection){
-    const relsBDD = await databaseConnection('dossier')
-        .select(['dossier.id as dossier', 'personne.email as email'])
-        .join('arête_groupe_instructeurs__dossier', {'arête_groupe_instructeurs__dossier.dossier': 'dossier.id'})
-        .join(
-            'arête_cap_dossier__groupe_instructeurs',
-            {'arête_cap_dossier__groupe_instructeurs.groupe_instructeurs': 'arête_groupe_instructeurs__dossier.groupe_instructeurs'}
-        )
-        .where({"arête_cap_dossier__groupe_instructeurs.cap_dossier": listeDossiersCap})
-        .leftJoin(
-            'arête_personne_suit_dossier',
-            {'arête_personne_suit_dossier.dossier': 'dossier.id'}
-        )
-        .leftJoin('personne', {
-            'personne.id': 'arête_personne_suit_dossier.personne'
-        })
-        .whereNotNull('email')
+export async function getRelationSuivis(
+  listeDossiersCap,
+  databaseConnection = directDatabaseConnection,
+) {
+  const relsBDD = await databaseConnection("dossier")
+    .select(["dossier.id as dossier", "personne.email as email"])
+    .join("arête_groupe_instructeurs__dossier", {
+      "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
+    })
+    .join("arête_cap_dossier__groupe_instructeurs", {
+      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    })
+    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": listeDossiersCap })
+    .leftJoin("arête_personne_suit_dossier", {
+      "arête_personne_suit_dossier.dossier": "dossier.id",
+    })
+    .leftJoin("personne", {
+      "personne.id": "arête_personne_suit_dossier.personne",
+    })
+    .whereNotNull("email");
 
-    //console.log('relsBDD', relsBDD)
+  //console.log('relsBDD', relsBDD)
 
-    const retMap = new Map();
+  const retMap = new Map();
 
-    for(const {email, dossier} of relsBDD){
-        const dossiersSuivisIds = retMap.get(email) || new Set()
-        dossiersSuivisIds.add(dossier)
-        retMap.set(email, dossiersSuivisIds)
-    }
+  for (const { email, dossier } of relsBDD) {
+    const dossiersSuivisIds = retMap.get(email) || new Set();
+    dossiersSuivisIds.add(dossier);
+    retMap.set(email, dossiersSuivisIds);
+  }
 
-    return [...retMap].map(([email, dossiersSuivisIds]) =>
-        ({personneEmail: email, dossiersSuivisIds: [...dossiersSuivisIds]})
-    )
+  return [...retMap].map(([email, dossiersSuivisIds]) => ({
+    personneEmail: email,
+    dossiersSuivisIds: [...dossiersSuivisIds],
+  }));
 }
-
-
 
 /**
  *
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<RésultatSynchronisationDS88444[]>}
  */
-export async function getRésultatsSynchronisationDS88444(databaseConnection = directDatabaseConnection){
-    return databaseConnection('résultat_synchronisation_DS_88444')
-        .select('*')
+export async function getRésultatsSynchronisationDS88444(
+  databaseConnection = directDatabaseConnection,
+) {
+  return databaseConnection("résultat_synchronisation_DS_88444").select("*");
 }
 
 /**
@@ -187,9 +213,12 @@ export async function getRésultatsSynchronisationDS88444(databaseConnection = d
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  * @returns {Promise<any>}
  */
-export async function addRésultatSynchronisationDS88444(résultatSynchro, databaseConnection = directDatabaseConnection){
-    return databaseConnection('résultat_synchronisation_DS_88444')
-        .insert([résultatSynchro])
-        .onConflict('succès')
-        .merge()
+export async function addRésultatSynchronisationDS88444(
+  résultatSynchro,
+  databaseConnection = directDatabaseConnection,
+) {
+  return databaseConnection("résultat_synchronisation_DS_88444")
+    .insert([résultatSynchro])
+    .onConflict("succès")
+    .merge();
 }

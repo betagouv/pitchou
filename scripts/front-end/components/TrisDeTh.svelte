@@ -1,76 +1,74 @@
 <script>
-    // @ts-check
-    import clsx from 'clsx';
+  // @ts-check
+  import clsx from "clsx";
 
-    /** @import  { TriTableau } from '../../types/interfaceUtilisateur.ts' */
+  /** @import  { TriTableau } from '../../types/interfaceUtilisateur.ts' */
 
-    
+  /**
+   * @typedef {Object} Props
+   * @property {TriTableau[]} tris
+   * @property {TriTableau | undefined} [triSélectionné]
+   */
 
-    
-    /**
-     * @typedef {Object} Props
-     * @property {TriTableau[]} tris
-     * @property {TriTableau | undefined} [triSélectionné]
-     */
+  /** @type {Props} */
+  let { tris, triSélectionné = $bindable(undefined) } = $props();
 
-    /** @type {Props} */
-    let { tris, triSélectionné = $bindable(undefined) } = $props();
-
-    /** @type {(tri: TriTableau) => void} */
-    const sélectionnerTri = (tri) => { 
-        triSélectionné = tri
-        tri.trier()
-    }
+  /** @type {(tri: TriTableau) => void} */
+  const sélectionnerTri = (tri) => {
+    triSélectionné = tri;
+    tri.trier();
+  };
 </script>
 
 <ul class="fr-mt-1w">
-    {#each tris as tri}
-        <li class="fr-mb-1v">
-            <button 
-                class={clsx(['fr-pt-1v', 'fr-pb-1v', {"sélectionné": triSélectionné === tri}])} 
-                type="button" 
-                onclick={() => { sélectionnerTri(tri) }}
-            >
-                {tri["nom"]}
+  {#each tris as tri}
+    <li class="fr-mb-1v">
+      <button
+        class={clsx(["fr-pt-1v", "fr-pb-1v", { sélectionné: triSélectionné === tri }])}
+        type="button"
+        onclick={() => {
+          sélectionnerTri(tri);
+        }}
+      >
+        {tri["nom"]}
 
-                {#if tri === triSélectionné}
-                    <span class="fr-icon-check-line" aria-hidden="true"></span>
-                {/if}
-            </button>
-        </li>
-    {/each}
+        {#if tri === triSélectionné}
+          <span class="fr-icon-check-line" aria-hidden="true"></span>
+        {/if}
+      </button>
+    </li>
+  {/each}
 </ul>
 
 <style lang="scss">
+  ul {
+    list-style: none;
+    pointer-events: auto;
+    padding: 0;
 
-    ul {
-        list-style: none;
-        pointer-events: auto;
-        padding: 0;
+    li {
+      padding: 0;
+      display: flex;
+      list-style: none;
+    }
+  }
 
-        li {
-            padding: 0;
-            display: flex;
-            list-style: none;
-        }
+  button {
+    color: var(--text-mention-grey);
+    text-align: left;
+    background-color: var(--background-overlap-grey);
+
+    &:hover {
+      background-color: var(--background-overlap-grey-hover);
+    }
+    &:active {
+      background-color: var(--background-overlap-grey-active);
     }
 
-    button {
-        color: var(--text-mention-grey);
-        text-align: left;
-        background-color: var(--background-overlap-grey);
+    box-shadow: inset 0 1px 0 0 var(--border-open-blue-france);
 
-        &:hover{
-            background-color: var(--background-overlap-grey-hover);
-        } 
-        &:active{
-            background-color:var(--background-overlap-grey-active);
-        } 
-
-        box-shadow: inset 0 1px 0 0 var(--border-open-blue-france);
-
-        &.sélectionné { 
-            color: var(--text-active-grey);
-        }
+    &.sélectionné {
+      color: var(--text-active-grey);
     }
+  }
 </style>

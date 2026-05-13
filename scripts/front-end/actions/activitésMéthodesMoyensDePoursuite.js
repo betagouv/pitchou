@@ -1,61 +1,64 @@
 //@ts-check
 
-import {dsv, buffer} from 'd3-fetch'
-import store from "../store.js"
-import { getURL } from '../getLinkURL.js';
-import { espèceProtégéeStringToEspèceProtégée, actMetTransArraysToMapBundle, isClassif, construireActivitésMéthodesMoyensDePoursuite } from '../../commun/outils-espèces.js';
+import { dsv, buffer } from "d3-fetch";
+import store from "../store.js";
+import { getURL } from "../getLinkURL.js";
+import {
+  espèceProtégéeStringToEspèceProtégée,
+  actMetTransArraysToMapBundle,
+  isClassif,
+  construireActivitésMéthodesMoyensDePoursuite,
+} from "../../commun/outils-espèces.js";
 
 //@ts-ignore
 /** @import {PitchouState} from '../store.js' */
 //@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes' */
 
-
 /**
  * @returns {Promise<{espècesProtégéesParClassification: NonNullable<PitchouState['espècesProtégéesParClassification']>, espèceByCD_REF: NonNullable<PitchouState['espèceByCD_REF']>}>}
  */
-export async function chargerListeEspècesProtégées(){
+export async function chargerListeEspècesProtégées() {
+  if (store.state.espècesProtégéesParClassification && store.state.espèceByCD_REF) {
+    const { espècesProtégéesParClassification, espèceByCD_REF } = store.state;
 
-    if(store.state.espècesProtégéesParClassification && store.state.espèceByCD_REF){
-        const {espècesProtégéesParClassification, espèceByCD_REF} = store.state;
+    return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF });
+  }
 
-        return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF })
+  const dataEspèces = await dsv(";", getURL("link#especes-data"));
+
+  /** @type {PitchouState['espècesProtégéesParClassification']} */
+  const espècesProtégéesParClassification = {
+    oiseau: [],
+    "faune non-oiseau": [],
+    flore: [],
+  };
+  /** @type {PitchouState['espèceByCD_REF']} */
+  const espèceByCD_REF = new Map();
+
+  for (const espStr of dataEspèces) {
+    const { classification } = espStr;
+
+    if (!isClassif(classification)) {
+      throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`);
     }
 
-    const dataEspèces = await dsv(";", getURL('link#especes-data'))
+    const espèces = espècesProtégéesParClassification[classification] || [];
 
-    /** @type {PitchouState['espècesProtégéesParClassification']} */
-    const espècesProtégéesParClassification = {
-        oiseau: [] ,
-        "faune non-oiseau": [],
-        flore: []
-    }
-    /** @type {PitchouState['espèceByCD_REF']} */
-    const espèceByCD_REF = new Map()
+    /** @type {EspèceProtégée} */
+    // @ts-ignore
+    const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr));
 
-    for(const espStr of dataEspèces){
-        const {classification} = espStr
+    espèces.push(espèce);
+    espèceByCD_REF.set(espèce["CD_REF"], espèce);
 
-        if(!isClassif(classification)){
-            throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`)
-        }
+    espècesProtégéesParClassification[classification] = espèces;
+  }
 
-        const espèces = espècesProtégéesParClassification[classification] || []
+  store.mutations.setEspècesProtégéesParClassification(espècesProtégéesParClassification);
+  store.mutations.setEspèceByCD_REF(espèceByCD_REF);
 
-        /** @type {EspèceProtégée} */
-        // @ts-ignore
-        const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr))
-
-        espèces.push(espèce)
-        espèceByCD_REF.set(espèce['CD_REF'], espèce)
-
-        espècesProtégéesParClassification[classification] = espèces
-    }
-
-    store.mutations.setEspècesProtégéesParClassification(espècesProtégéesParClassification)
-    store.mutations.setEspèceByCD_REF(espèceByCD_REF)
-
-    return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF })
+  return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF });
 }
 
 /**
@@ -76,17 +79,16 @@ export async function chargerListeEspècesProtégées(){
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
-export async function chargerActivitésMéthodesMoyensDePoursuite(){
+export async function chargerActivitésMéthodesMoyensDePoursuite() {
+  if (store.state.ActivitésMéthodesMoyensDePoursuite) {
+    return Promise.resolve(store.state.ActivitésMéthodesMoyensDePoursuite);
+  }
 
-    if(store.state.ActivitésMéthodesMoyensDePoursuite){
-        return Promise.resolve(store.state.ActivitésMéthodesMoyensDePoursuite)
-    }
+  const odsData = await buffer(getURL("link#activites-methodes-moyens-de-poursuite-data"));
+  // @ts-ignore
+  const ret = await construireActivitésMéthodesMoyensDePoursuite(odsData);
 
-    const odsData = await buffer(getURL('link#activites-methodes-moyens-de-poursuite-data'))
-    // @ts-ignore
-    const ret = await construireActivitésMéthodesMoyensDePoursuite(odsData)
+  store.mutations.setActivitésMéthodesMoyensDePoursuite(ret);
 
-    store.mutations.setActivitésMéthodesMoyensDePoursuite(ret)
-
-    return ret
+  return ret;
 }

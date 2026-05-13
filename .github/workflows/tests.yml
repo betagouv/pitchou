@@ -12,30 +12,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Setup Node 22
-          uses: actions/setup-node@v4
-          with:
-                node-version: 22
-                registry-url: https://registry.npmjs.org/
-        - name: Install project dependencies
-          run: npm clean-install --ignore-scripts
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+      - name: Install project dependencies
+        run: npm clean-install --ignore-scripts
 
-        - name: Install Playwright Browsers
-          run: npx playwright install --with-deps
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-        - name: Build the app
-          run: npm run build
+      - name: Build the app
+        run: npm run build
 
-        - name: Run the tests
-          run: npm run test
-          timeout-minutes: 10
+      - name: Run the tests
+        run: npm run test
+        timeout-minutes: 10
 
-        - uses: actions/upload-artifact@v4
-          if: ${{ !cancelled() }}
-          with:
-            name: test-results
-            path: test-results/
-            retention-days: 2
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 2

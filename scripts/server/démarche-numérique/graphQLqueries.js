@@ -1,4 +1,3 @@
-
 export const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheckbox(
     $dossierId: ID!,
     $instructeurId: ID!,
@@ -19,7 +18,7 @@ export const annotationCheckboxMutationQuery = `mutation ModifierAnnotationCheck
         errors { message }
     }
   }
-`
+`;
 
 export const annotationTextMutationQuery = `mutation ModifierAnnotationText(
     $dossierId: ID!,
@@ -41,8 +40,7 @@ export const annotationTextMutationQuery = `mutation ModifierAnnotationText(
       errors { message }
     }
   }
-`
-
+`;
 
 export const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
     $dossierId: ID!,
@@ -64,7 +62,7 @@ export const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
         errors { message }
     }
   }
-`
+`;
 
 export const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
     demarche(number: $demarcheNumber) {
@@ -76,8 +74,7 @@ export const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
             }
         }
     }
-}`
-
+}`;
 
 // ne pas récupérer l'id https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/10669
 export const deletedDossiersQuery = `query getDemarche(

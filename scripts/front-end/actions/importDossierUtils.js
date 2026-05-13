@@ -4,21 +4,19 @@
 /** @import { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts" */
 
 import { json } from "d3-fetch";
-import memoize from 'just-memoize'
+import memoize from "just-memoize";
 import { normalisationEmail } from "../../commun/manipulationStrings.js";
-
 
 /**
  * @typedef {Partial<DossierPourInsertGénérique<Omit<DossierInitializer, 'numéro_démarche'>>>} DonnéesSupplémentairesPourCréationDossier
  */
 
-
 /**
- * 
+ *
  * Type qui définit les messages :
  *              - d'avertissement (où on peut proposer une alternative correcte)
  *              - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
- * 
+ *
  * @typedef {{
  *   type: 'erreur' | 'avertissement';
  *   message: string;
@@ -42,20 +40,22 @@ import { normalisationEmail } from "../../commun/manipulationStrings.js";
  * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
 async function getCommuneData(nomCommune) {
-    const commune = await json(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`);
+  const commune = await json(
+    `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`,
+  );
 
-    if (!Array.isArray(commune) || commune.length === 0) {
-        const messageAlerte = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`
-        console.warn(messageAlerte);
-        return {data: null, alerte: {type: 'avertissement', message: messageAlerte}};
-    }
+  if (!Array.isArray(commune) || commune.length === 0) {
+    const messageAlerte = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`;
+    console.warn(messageAlerte);
+    return { data: null, alerte: { type: "avertissement", message: messageAlerte } };
+  }
 
-    return {data: commune[0]}
+  return { data: commune[0] };
 }
 
-const memoizedGetCommuneData = memoize(getCommuneData)
+const memoizedGetCommuneData = memoize(getCommuneData);
 
-export { memoizedGetCommuneData as getCommuneData }
+export { memoizedGetCommuneData as getCommuneData };
 
 /**
  *
@@ -64,15 +64,17 @@ export { memoizedGetCommuneData as getCommuneData }
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
 async function _getDépartementData(code) {
-    const département = await json(`https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`);
+  const département = await json(
+    `https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`,
+  );
 
-    if (!département) {
-        const messageAlerte = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
-        console.warn(messageAlerte);
-        return { data: null, alerte: { type: 'erreur', message: messageAlerte } };
-    }
-    //@ts-ignore
-    return { data: département }
+  if (!département) {
+    const messageAlerte = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
+    console.warn(messageAlerte);
+    return { data: null, alerte: { type: "erreur", message: messageAlerte } };
+  }
+  //@ts-ignore
+  return { data: département };
 }
 
 /**
@@ -89,17 +91,14 @@ async function _getDépartementData(code) {
  * @returns {string[]} Un tableau contenant les noms des communes nettoyés.
  */
 export function extraireCommunes(valeur) {
-    if (typeof valeur !== 'string') return [];
+  if (typeof valeur !== "string") return [];
 
-    // Utilise une expression régulière pour séparer sur ',' ou '/'
-    const communes = valeur.split(/[\/,]/);
+  // Utilise une expression régulière pour séparer sur ',' ou '/'
+  const communes = valeur.split(/[\/,]/);
 
-    // Nettoie les espaces superflus et filtre les éléments vides
-    return communes.map(c => c.trim()).filter(c => c.length > 0);
+  // Nettoie les espaces superflus et filtre les éléments vides
+  return communes.map((c) => c.trim()).filter((c) => c.length > 0);
 }
-
-
-
 
 /**
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
@@ -108,56 +107,54 @@ export function extraireCommunes(valeur) {
  * @returns {Promise<{ data: GeoAPIDépartement[] | null, alertes: Alerte[] }>}
  */
 async function formaterDépartementDepuisValeur(valeur) {
-    /** @type {string[]} */
-    let codes = []
-    if (typeof valeur === 'number') {
-        codes = [valeur.toString()];
+  /** @type {string[]} */
+  let codes = [];
+  if (typeof valeur === "number") {
+    codes = [valeur.toString()];
+  }
+  if (typeof valeur === "string") {
+    const blocs = valeur.split("-");
+    // Cela permet de récupérer les valeurs comme "21-78"
+    for (const bloc of blocs) {
+      codes.push(bloc);
     }
-    if (typeof valeur === 'string') {
-        const blocs = valeur.split('-');
-        // Cela permet de récupérer les valeurs comme "21-78"
-        for (const bloc of blocs) {
-            codes.push(bloc)
-        }
+  }
+
+  const départementsP = codes.map((code) => _getDépartementData(code));
+  /** @type {Alerte[]} */
+  const alertes = [];
+
+  try {
+    const résultats = await Promise.all(départementsP);
+
+    for (const résultat of résultats) {
+      if (résultat.alerte) {
+        alertes.push(résultat.alerte);
+      }
     }
 
-    const départementsP = codes.map((code) => _getDépartementData(code))
-    /** @type {Alerte[]} */
-    const alertes = []
+    const départements = résultats.map((résultat) => résultat.data).filter((dep) => dep !== null);
 
-    try {
-        const résultats = await Promise.all(départementsP)
-
-        for (const résultat of résultats) {
-            if (résultat.alerte) {
-                alertes.push(résultat.alerte)
-            }
-        }
-
-        const départements = résultats
-            .map((résultat) => résultat.data)
-            .filter((dep) => dep !== null)
-
-        if (départements.length >= 1) {
-            // On force le cast car la logique garantit un tableau non vide
-            return {
-                data: /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements),
-                alertes
-            };
-        } else {
-            return { data: null, alertes };
-        }
-    } catch (e) {
-        const messageAlerte = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`
-        console.warn(messageAlerte)
-        alertes.push({ type: 'erreur', message: messageAlerte })
-        return { data: null, alertes }
+    if (départements.length >= 1) {
+      // On force le cast car la logique garantit un tableau non vide
+      return {
+        data: /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements),
+        alertes,
+      };
+    } else {
+      return { data: null, alertes };
     }
+  } catch (e) {
+    const messageAlerte = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`;
+    console.warn(messageAlerte);
+    alertes.push({ type: "erreur", message: messageAlerte });
+    return { data: null, alertes };
+  }
 }
 
-const memoizedFormaterDépartementDepuisValeur = memoize(formaterDépartementDepuisValeur)
+const memoizedFormaterDépartementDepuisValeur = memoize(formaterDépartementDepuisValeur);
 
-export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisValeur }
+export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisValeur };
 
 /**
  * Tente d'extraire un prénom et un nom à partir d'une chaîne de texte.
@@ -169,14 +166,14 @@ export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisV
  *   extraireNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
  */
 export function extraireNom(text) {
-    const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
+  const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
 
-    const match = nameRegex.exec(text);
+  const match = nameRegex.exec(text);
 
-    if (match) {
-        return { prénom: match[1], nom: match[2] };
-    }
-    return null;
+  if (match) {
+    return { prénom: match[1], nom: match[2] };
+  }
+  return null;
 }
 
 /**
@@ -189,11 +186,12 @@ export function extraireNom(text) {
  *   extrairePremierMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
  */
 export function extrairePremierMail(text) {
-    // Source Regex Mail : https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
-    const mailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-    const résultat = text.match(mailRegex)
+  // Source Regex Mail : https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
+  const mailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  const résultat = text.match(mailRegex);
 
-    return résultat && résultat?.length ? normalisationEmail(résultat[0]) : null
+  return résultat && résultat?.length ? normalisationEmail(résultat[0]) : null;
 }
 
 /**
@@ -206,29 +204,27 @@ export function extrairePremierMail(text) {
  *   extraireNomDunMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
  */
 export function extraireNomDunMail(mail) {
-    if (!mail.includes('@')) return { prénom: '', nom: '' };
+  if (!mail.includes("@")) return { prénom: "", nom: "" };
 
-    const localPart = mail.split('@')[0];
+  const localPart = mail.split("@")[0];
 
-    // Séparateurs fréquents
-    const parts = localPart.split(/[._\-]/).filter(s => s.length >= 1)
+  // Séparateurs fréquents
+  const parts = localPart.split(/[._\-]/).filter((s) => s.length >= 1);
 
+  if (parts.length === 2) {
+    const [a, b] = parts;
 
-    if (parts.length === 2) {
-        const [a, b] = parts;
-
-        // On fait l'hypothèse que la première partie est le prénom.
-        return {
-            prénom: capitalize(a),
-            nom: capitalize(b)
-        }
-    }
-
-
+    // On fait l'hypothèse que la première partie est le prénom.
     return {
-        prénom: '',
-        nom: ''
+      prénom: capitalize(a),
+      nom: capitalize(b),
     };
+  }
+
+  return {
+    prénom: "",
+    nom: "",
+  };
 }
 
 /**
@@ -241,6 +237,6 @@ export function extraireNomDunMail(mail) {
  *   capitalize("jean") // "Jean"
  */
 function capitalize(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
