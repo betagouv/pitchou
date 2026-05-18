@@ -27,7 +27,6 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
       expect(inserted.nom).toBe("");
       expect(inserted.prénoms).toBe("");
     });
-
   });
 
   describe("when a personne already exists (unique-constraint violation)", () => {
@@ -48,9 +47,9 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
     it("propagates the error instead of silently falling through to update", async () => {
       const originalError = new Error("connection refused");
       const db = fakeDatabase().insertRejects(originalError).build();
-      await expect(
-        créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex),
-      ).rejects.toBe(originalError);
+      await expect(créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex)).rejects.toBe(
+        originalError,
+      );
       expect(db.update).not.toHaveBeenCalled();
     });
   });
