@@ -16,7 +16,8 @@
         pkgs = import nixpkgs {
           inherit system;
         };
-        playwrightLibs = with pkgs; [
+        isLinux = pkgs.stdenv.isLinux;
+        playwrightLibs = pkgs.lib.optionals isLinux (with pkgs; [
           alsa-lib
           dbus.lib
           gtk3
@@ -27,7 +28,7 @@
           libxcomposite
           libxdamage
           libxfixes
-        ];
+        ]);
       in
       {
         devShells.default = pkgs.mkShell {
@@ -43,7 +44,9 @@
             corepack enable --install-directory="$PWD/.corepack"
             corepack prepare pnpm@10.27.0 --activate
             export PATH="$PWD/.corepack:$PATH"
-            export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath playwrightLibs}:''${LD_LIBRARY_PATH:-}"
+            ${pkgs.lib.optionalString isLinux ''
+              export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath playwrightLibs}:''${LD_LIBRARY_PATH:-}"
+            ''}
             export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
           '';
         };
