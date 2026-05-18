@@ -18,11 +18,11 @@ const inutile = true;
  * @param {PersonneInitializer} personne
  */
 export function créerPersonne(personne, databaseConnection = directDatabaseConnection) {
-  if (personne.email) {
-    personne.email = normalisationEmail(personne.email);
-  }
+  const normalised = personne.email
+    ? { ...personne, email: normalisationEmail(personne.email) }
+    : personne;
 
-  return databaseConnection("personne").insert(personne);
+  return databaseConnection("personne").insert(normalised);
 }
 
 /**
@@ -31,13 +31,13 @@ export function créerPersonne(personne, databaseConnection = directDatabaseConn
  * @returns { Promise<{id: Personne['id']}[]> }
  */
 export function créerPersonnes(personnes, databaseConnection = directDatabaseConnection) {
-  for (const personne of personnes) {
-    if (personne.email) {
-      personne.email = normalisationEmail(personne.email);
-    }
-  }
+  if (personnes.length === 0) return Promise.resolve([]);
 
-  return databaseConnection("personne").insert(personnes, ["id"]);
+  const normalised = personnes.map((personne) =>
+    personne.email ? { ...personne, email: normalisationEmail(personne.email) } : personne,
+  );
+
+  return databaseConnection("personne").insert(normalised, ["id"]);
 }
 
 /**
@@ -97,7 +97,7 @@ function updateCodeAccès(email, code_accès, databaseConnection = directDatabas
  *
  * @param {Personne['email']} email
  * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Personne['code_accès']>}
+ * @returns {Promise<string>}
  */
 export function créerPersonneOuMettreÀJourCodeAccès(
   email,
