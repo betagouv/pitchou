@@ -27,4 +27,5 @@ test-results/
 # Nix / direnv
 .direnv/
 .corepack/
+.cache/
 compose.override.yml
