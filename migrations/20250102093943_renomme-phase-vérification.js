@@ -1,5 +1,3 @@
-import knexModule from "knex";
-
 const ancienNom = "Vérification du dossier";
 const nouveauNom = "Étude recevabilité DDEP";
 
@@ -8,14 +6,7 @@ const nouveauNom = "Étude recevabilité DDEP";
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-  const databaseConnection = knexModule({
-    client: "pg",
-    connection: process.env.DATABASE_URL,
-  });
-
-  await databaseConnection("évènement_phase_dossier")
-    .update("phase", nouveauNom)
-    .where({ phase: ancienNom });
+  await knex("évènement_phase_dossier").update("phase", nouveauNom).where({ phase: ancienNom });
 }
 
 /**
@@ -23,12 +14,5 @@ export async function up(knex) {
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-  const databaseConnection = knexModule({
-    client: "pg",
-    connection: process.env.DATABASE_URL,
-  });
-
-  await databaseConnection("évènement_phase_dossier")
-    .update("phase", ancienNom)
-    .where({ phase: nouveauNom });
+  await knex("évènement_phase_dossier").update("phase", ancienNom).where({ phase: nouveauNom });
 }
