@@ -2,6 +2,7 @@
   "name": "pitchou",
   "version": "1.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.27.0",
   "engines": {
     "node": "22",
     "pnpm": "10.27.0"
@@ -82,7 +83,6 @@
     "page": "^1.11.6",
     "pg": "^8.11.5",
     "pino-pretty": "^11.2.2",
-    "pnpm": "^10.27.0",
     "remember": "github:DavidBruant/remember#v1.0.2"
   }
 }
