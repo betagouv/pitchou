@@ -17,18 +17,21 @@
           inherit system;
         };
         isLinux = pkgs.stdenv.isLinux;
-        playwrightLibs = pkgs.lib.optionals isLinux (with pkgs; [
-          alsa-lib
-          dbus.lib
-          gtk3
-          pango
-          atk
-          cairo
-          gdk-pixbuf
-          libxcomposite
-          libxdamage
-          libxfixes
-        ]);
+        playwrightLibs = pkgs.lib.optionals isLinux (
+          with pkgs;
+          [
+            alsa-lib
+            dbus.lib
+            gtk3
+            pango
+            atk
+            cairo
+            gdk-pixbuf
+            libxcomposite
+            libxdamage
+            libxfixes
+          ]
+        );
       in
       {
         devShells.default = pkgs.mkShell {
@@ -37,7 +40,9 @@
           ];
           nativeBuildInputs = with pkgs; [
             docker
+            just
             docker-compose
+            postgresql
           ];
           shellHook = ''
             mkdir -p "$PWD/.corepack"
