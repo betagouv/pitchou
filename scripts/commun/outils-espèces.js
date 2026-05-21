@@ -348,20 +348,20 @@ function descriptionMenacesEspècesFromJSON(
     descriptionMenacesEspèces[classification] = etresVivantsAtteints.map(
       //@ts-ignore
       ({ espèce, espece, activité, méthode, moyenDePoursuite, ...rest }) => {
-          //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas
-          // renseigné alors `espece` l'est forcément
-          const espèceParamDéprécié = espèceByCD_REF.get(espece);
+        //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas
+        // renseigné alors `espece` l'est forcément
+        const espèceParamDéprécié = espèceByCD_REF.get(espece);
 
-          return {
-            espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
-            // @ts-ignore
-            activité: activites[classification].get(activité),
-            méthode: methodes[classification].get(méthode),
-            moyenDePoursuite: moyensDePoursuite[classification].get(moyenDePoursuite),
-            ...rest,
-          };
-        },
-      );
+        return {
+          espèce: espèceByCD_REF.get(espèce) || espèceParamDéprécié,
+          // @ts-ignore
+          activité: activites[classification].get(activité),
+          méthode: methodes[classification].get(méthode),
+          moyenDePoursuite: moyensDePoursuite[classification].get(moyenDePoursuite),
+          ...rest,
+        };
+      },
+    );
   });
 
   return descriptionMenacesEspèces;
