@@ -3,10 +3,10 @@ default:
 
 deploy-staging:
     just ci
-    git push staging staging
+    git push staging staging:main
 
 ci:
-    just format
+    just format-check
     just lint
     just test
 
