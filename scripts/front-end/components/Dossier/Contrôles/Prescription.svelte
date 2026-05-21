@@ -82,9 +82,9 @@
         prescription.contrôles.length >= 2 &&
         prescription.contrôles.some((c) => c.résultat !== "Conforme")
       ) {
-        // @ts-ignore
         envoyerÉvènement({
           type: "retourÀLaConformité",
+          // @ts-ignore
           détails: { prescription: prescription.id },
         });
       }
