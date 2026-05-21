@@ -1,3 +1,4 @@
+//@ts-ignore TS ne comprends pas que le type est utilisé dans le jsdoc
 /** @import {EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from "../types/especes" */
 
 /**

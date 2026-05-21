@@ -56,6 +56,7 @@ const créerIndexDossiers = (dossiers) => {
     return indexCache.get(dossiers);
   else {
     const index = lunr(function () {
+      // @ts-ignore TS ne comprends pas qu'on a ajouté lunrfr
       this.use(lunr.fr);
 
       this.ref("id");
