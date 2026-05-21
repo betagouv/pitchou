@@ -35,8 +35,8 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(
   const numéroDécision = décisionAdministrative.numéro;
 
   /** @type {Omit<FrontEndPrescription, 'id'>[]} */
-  // @ts-ignore
   const candidatsPrescriptions = cleanData
+    // @ts-ignore
     .filter((row) => {
       const prescriptionNumDec =
         row["Numéro décision administrative"] && row["Numéro décision administrative"].trim();

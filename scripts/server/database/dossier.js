@@ -281,8 +281,8 @@ export async function synchroniserDossierDansGroupeInstructeur(
   const dossierNumberDSToId = await dossierNumberDSToIdP;
   const groupeInstructeursLabelToId = await groupeInstructeursLabelToIdP;
 
-  // @ts-ignore
   const arêtesGroupeTnstructeurs_Dossier = dossierDS.map(
+    // @ts-ignore
     ({ number, groupeInstructeur: { label } }) => {
       const dossierId = dossierNumberDSToId.get(String(number));
       const groupe_instructeursId = groupeInstructeursLabelToId.get(label);

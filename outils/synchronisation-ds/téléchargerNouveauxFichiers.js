@@ -86,8 +86,8 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
   // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données
   /** @type {typeof candidatsFichiersBDD} */
-  // @ts-ignore
   const fichiersÀTélécharger = new Map(
+    // @ts-ignore
     [...candidatsFichiersBDD]
       .map(([number, fichiers]) => {
         return [number, fichiers.filter((f) => !fichierHashDéjàEnBDD.has(makeFichierHash(f)))];
@@ -138,6 +138,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
               number,
               // @ts-ignore
               err.message,
+              // @ts-ignore
               err.cause ? `cause: ${err.cause?.message}` : "",
             );
           }

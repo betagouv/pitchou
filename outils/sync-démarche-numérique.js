@@ -383,8 +383,8 @@ const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(
 );
 
 /** @type {DossierPourUpdate[]} */
-// @ts-ignore La signature de remplacerPersonneEntrepriseInitializerParId ne permet pas d'assurer que si en entrée on a un DossierEntreprisesPersonneInitializersPourUpdate alors en sortie on aura un DossierPourUpdate
 const dossiersAModifier = dossiersAModifierPourSynchro.map(
+  // @ts-ignore La signature de remplacerPersonneEntrepriseInitializerParId ne permet pas d'assurer que si en entrée on a un DossierEntreprisesPersonneInitializersPourUpdate alors en sortie on aura un DossierPourUpdate
   remplacerPersonneEntrepriseInitializerParId,
 );
 

@@ -246,6 +246,7 @@ group by personne, semaine;
   const retourRequêteFormattée = retourRequête.rows.map((row) => ({
     personne: Number(row.personne),
     nombre_actions: Number(row.nombre_actions),
+    // @ts-ignore
     semaine: row.semaine.toISOString(),
   }));
 

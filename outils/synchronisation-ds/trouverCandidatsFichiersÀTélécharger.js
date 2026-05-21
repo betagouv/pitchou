@@ -17,8 +17,8 @@ const inutile = true;
  */
 export default function trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId) {
   /** @type {ReturnType<trouverCandidatsFichiersÀTélécharger>} */
-  // @ts-ignore
   const candidatsFichiers = new Map(
+    // @ts-ignore
     dossiers
       .map(({ number, champs, annotations }) => {
         /** @type {ChampDSPieceJustificative | ChampRépétéDSPieceJustificative | undefined} */

@@ -92,6 +92,7 @@ async function créerGroupesInstructeurs(
     .select(["cap", "personne_cap"])
     //@ts-ignore
     .whereIn(
+      //@ts-ignore
       "personne_cap",
       [...instructeurParEmail.values()].map(({ code_accès }) => code_accès),
     )

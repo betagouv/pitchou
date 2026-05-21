@@ -345,10 +345,9 @@ function descriptionMenacesEspècesFromJSON(
 
   descriptionMenacesEspècesJSON.forEach(({ classification, etresVivantsAtteints }) => {
     //@ts-ignore
-    descriptionMenacesEspèces[classification] =
+    descriptionMenacesEspèces[classification] = etresVivantsAtteints.map(
       //@ts-ignore
-      etresVivantsAtteints.map(
-        ({ espèce, espece, activité, méthode, moyenDePoursuite, ...rest }) => {
+      ({ espèce, espece, activité, méthode, moyenDePoursuite, ...rest }) => {
           //@ts-expect-error TS ne comprend pas que si `espèce` n'est pas
           // renseigné alors `espece` l'est forcément
           const espèceParamDéprécié = espèceByCD_REF.get(espece);

@@ -110,8 +110,8 @@ export function trierDossiersParPhaseProchaineAction(dossiers) {
       const prochaineActionAttenduePar1 = dossier1.prochaine_action_attendue_par;
       const prochaineActionAttenduePar2 = dossier2.prochaine_action_attendue_par;
 
-      // @ts-ignore
       const prochaineActionAttendueParComparison = compareProchaineActionAttenduePar(
+        // @ts-ignore
         prochaineActionAttenduePar1,
         prochaineActionAttenduePar2,
       );
