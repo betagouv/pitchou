@@ -2,16 +2,63 @@
 default:
     @just --list
 
-# Déploie sur l'environnement de staging après les vérifications CI
+# Déploie sur l'environnement de staging après toutes les vérifications CI
 deploy-staging:
     just ci
     git push staging staging:main
 
-# Lance les vérifications de qualité de code (format, lint, tests)
+# Lance toutes les vérifications de la CI (check + build + tests). À utiliser avant un push.
 ci:
-    just format-check
-    # just lint
+    just check
+    just build
     just test
+
+# Lance les vérifications statiques rapides (format, types, svelte-check)
+check:
+    just check-format
+    # just check-lint
+    just check-types
+    just check-svelte
+
+# Vérifie le formatage sans modifier les fichiers
+check-format:
+    pnpm run format:check
+
+# Vérifie les types TypeScript / JSDoc (équivalent du job CI tsc)
+check-types:
+    tsc
+
+# Vérifie les composants Svelte (équivalent du job CI svelte-check)
+check-svelte:
+    svelte-check --fail-on-warnings
+
+# Construit l'application (équivalent du job CI build)
+build:
+    pnpm run build
+
+# Lance Pitchou en mode dev (rollup watch + docker compose en parallèle, http://localhost:2648)
+dev:
+    pnpm run dev
+
+# Lance uniquement les conteneurs Docker (serveur node + Postgres + tooling + pgadmin)
+dev-docker:
+    DOCKER_UID="$(id -u)" DOCKER_GID="$(id -g)" docker compose up
+
+# Lance uniquement le watcher rollup (recompile le front à chaque changement)
+dev-rollup:
+    rollup -c -w
+
+# Arrête les conteneurs Docker
+dev-stop:
+    docker compose down
+
+# Suit les logs Docker en temps réel
+dev-logs:
+    docker compose logs -f
+
+# Redémarre les conteneurs Docker (utile après un changement de config)
+dev-restart:
+    docker compose restart
 
 # Applique les migrations en attente
 migrate-up:
@@ -49,10 +96,6 @@ build-types-ds-128114:
 format:
     pnpm run format
 
-# Vérifie le formatage sans modifier les fichiers
-format-check:
-    pnpm run format:check
-
 # Lance tous les tests (unitaires + e2e)
 test:
     just test-unit
@@ -64,7 +107,7 @@ test-e2e:
 
 # Lance les tests unitaires avec vitest
 test-unit:
-    vitest
+    vitest run
 
 # Lance les tests unitaires en mode watch
 test-unit-watch:
