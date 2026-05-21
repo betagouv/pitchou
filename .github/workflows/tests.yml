@@ -7,35 +7,32 @@ permissions:
   contents: read
 
 jobs:
-  e2e:
-    name: Run E2E tests
+  test-unit:
+    name: Unit tests (vitest)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Run unit tests
+        run: pnpm exec just test-unit
+        timeout-minutes: 5
 
-      - name: Setup Node 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org/
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+  test-e2e:
+    name: E2E tests (playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
 
       - name: Build the app
-        run: pnpm run build
+        run: pnpm exec just build
 
-      - name: Run the tests
-        run: pnpm run test
+      - name: Run E2E tests
+        run: pnpm exec just test-e2e
         timeout-minutes: 10
 
       - uses: actions/upload-artifact@v4
