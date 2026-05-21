@@ -26,7 +26,7 @@
  * ```
  */
 
-import { firefox } from "playwright";
+import { firefox } from "@playwright/test";
 import { execSync } from "node:child_process";
 import parseArgs from "minimist";
 
