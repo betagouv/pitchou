@@ -27,7 +27,7 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test tests/e2e",
-    "format": "prettier --write .",
+    "format": "prettier --write . --log-level warn",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
@@ -49,6 +49,7 @@
     "rollup": "^4.18.0",
     "rollup-plugin-css-only": "^4.5.2",
     "rollup-plugin-svelte": "^7.2.2",
+    "rust-just": "^1.51.0",
     "sass": "^1.58.3",
     "svelte": "5.25",
     "svelte-check": "^4.0.0",

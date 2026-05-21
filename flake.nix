@@ -40,7 +40,6 @@
           ];
           nativeBuildInputs = with pkgs; [
             docker
-            just
             docker-compose
             postgresql
           ];
