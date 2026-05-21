@@ -32,33 +32,27 @@ Un email est envoyé avec une capability url pour se connecter. Cet email contie
 - **Affichage de la page de login**
 
   Étapes :
-
   1. Accéder à la page de connexion par email.
 
   Résultat attendu :
-
   - La page s’affiche correctement.
 
 - **Envoi d’email pour une adresse valide**
 
   Étapes :
-
   1. Entrer une adresse email valide.
   2. Valider le formulaire.
 
   Résultat attendu :
-
   - Réception d’un email de connexion.
 
 - **Pas d’envoi d’email pour une adresse invalide**
 
   Étapes :
-
   1. Entrer une adresse email invalide.
   2. Valider le formulaire.
 
   Résultat attendu :
-
   - message d'erreur
 
 #### 2) À partir d’une page avec des données privées
@@ -66,36 +60,30 @@ Un email est envoyé avec une capability url pour se connecter. Cet email contie
 - **Affichage correct des données secrètes dans l’email**
 
   Étapes :
-
   1. Ouvrir l’email reçu.
   2. Vérifier le contenu du tableau de suivi et la présence des données secrètes.
   3. Vérifier que l’URL a été nettoyée du secret.
   4. Vérifier que le secret est bien stocké dans le `localStorage`.
 
   Résultat attendu :
-
   - Données affichées correctement, URL nettoyée, secret en `localStorage`.
 
 - **Persistance après rafraîchissement**
 
   Étapes :
-
   1. Depuis une page contenant des données privées, effectuer un rafraîchissement de la page.
 
   Résultat attendu :
-
   - La même page s’affiche toujours.
 
 - **Déconnexion**
 
   Étapes :
-
   1. Cliquer sur _Se déconnecter_.
   2. Vérifier que le token est supprimé du `localStorage`.
   3. Vérifier la redirection vers la page de connexion.
 
   Résultat attendu :
-
   - Déconnexion réussie et retour à la page de login.
 
 ---
@@ -105,11 +93,9 @@ Un email est envoyé avec une capability url pour se connecter. Cet email contie
 - **Déconnexion automatique**
 
   Étapes :
-
   1. Avoir un token invalide stocké dans le `localStorage`.
   2. Rafraîchir la page.
 
   Résultat attendu :
-
   - Token supprimé du `localStorage`.
   - Redirection vers la page d’accueil.
