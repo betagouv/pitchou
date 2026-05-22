@@ -1,5 +1,3 @@
-import knexModule from "knex";
-
 import { phases } from "../scripts/front-end/affichageDossier.js";
 
 /**
@@ -7,14 +5,7 @@ import { phases } from "../scripts/front-end/affichageDossier.js";
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-  const databaseConnection = knexModule({
-    client: "pg",
-    connection: process.env.DATABASE_URL,
-  });
-
-  await databaseConnection("évènement_phase_dossier")
-    .whereNotIn("phase", [...phases])
-    .delete();
+  await knex("évènement_phase_dossier").whereNotIn("phase", [...phases]).delete();
 }
 
 /**
