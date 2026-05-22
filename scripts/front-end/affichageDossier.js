@@ -2,73 +2,71 @@
 
 /** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.ts' */
 
-
-import { differenceInDays, format, formatRelative } from 'date-fns'
-import { fr } from 'date-fns/locale'
-
+import { differenceInDays, format, formatRelative } from "date-fns";
+import { fr } from "date-fns/locale";
 
 /**
  * @param {Partial<DossierComplet>} localisation
  * @returns {string}
  */
-export function formatLocalisation({communes, départements, régions}){
-    // Nettoyage du cas où un dossier a dit qu'il était sur plusieurs communes, mais n'a pas saisi les communes
-    if(Array.isArray(communes) && communes.length === 0){
-        communes = undefined
-    }
+export function formatLocalisation({ communes, départements, régions }) {
+  // Nettoyage du cas où un dossier a dit qu'il était sur plusieurs communes, mais n'a pas saisi les communes
+  if (Array.isArray(communes) && communes.length === 0) {
+    communes = undefined;
+  }
 
-    // Régions
-    if(!communes && !départements && régions){
-        return `Régions: ${régions.join(', ')}`
-    }
+  // Régions
+  if (!communes && !départements && régions) {
+    return `Régions: ${régions.join(", ")}`;
+  }
 
-    // Départements
-    if(!communes && départements){
-        return départements.join(', ')
-    }
+  // Départements
+  if (!communes && départements) {
+    return départements.join(", ");
+  }
 
-    // Communes
-    if(
-        !communes ||
-        (!communes && !départements) ||
-        (
-            (communes && Array.isArray(communes) && communes.length === 0) &&
-            (!départements || départements.length === 0)
-        )
-    ){
-        return '(inconnue)'
-    }
+  // Communes
+  if (
+    !communes ||
+    (!communes && !départements) ||
+    (communes &&
+      Array.isArray(communes) &&
+      communes.length === 0 &&
+      (!départements || départements.length === 0))
+  ) {
+    return "(inconnue)";
+  }
 
-    return communes.map(({name}) => name).join(', ') + ' ' + `(${Array.isArray(départements) ? départements.join(', ') : ''})`
+  return (
+    communes.map(({ name }) => name).join(", ") +
+    " " +
+    `(${Array.isArray(départements) ? départements.join(", ") : ""})`
+  );
 }
-
-
-
-
 
 /**
  * @param {DossierComplet | DossierRésumé} dossier
  * @returns {string}
  */
-function formatDéposant(dossier){
-    const INCONNU = '(inconnu)'
+function formatDéposant(dossier) {
+  const INCONNU = "(inconnu)";
 
-    let {déposant_nom, déposant_prénoms} = dossier
+  let { déposant_nom, déposant_prénoms } = dossier;
 
-    if(!déposant_nom && !déposant_prénoms){
-        if ("déposant_email" in dossier) {
-            return dossier.déposant_email ?? INCONNU
-        }
-        return INCONNU
+  if (!déposant_nom && !déposant_prénoms) {
+    if ("déposant_email" in dossier) {
+      return dossier.déposant_email ?? INCONNU;
     }
-    if(!déposant_nom){
-        déposant_nom = ''
-    }
-    if(!déposant_prénoms){
-        déposant_prénoms = ''
-    }
+    return INCONNU;
+  }
+  if (!déposant_nom) {
+    déposant_nom = "";
+  }
+  if (!déposant_prénoms) {
+    déposant_prénoms = "";
+  }
 
-    return déposant_nom ? déposant_nom + ' ' + déposant_prénoms : déposant_prénoms
+  return déposant_nom ? déposant_nom + " " + déposant_prénoms : déposant_prénoms;
 }
 
 /**
@@ -76,21 +74,19 @@ function formatDéposant(dossier){
  * @param {DossierComplet | DossierRésumé} dossier
  * @returns {string}
  */
-export function formatPorteurDeProjet(dossier){
-    if(dossier.demandeur_personne_morale_siret){
-        return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`
+export function formatPorteurDeProjet(dossier) {
+  if (dossier.demandeur_personne_morale_siret) {
+    return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`;
+  } else {
+    if (dossier.demandeur_personne_physique_nom) {
+      return (
+        dossier.demandeur_personne_physique_nom + " " + dossier.demandeur_personne_physique_prénoms
+      );
+    } else {
+      return formatDéposant(dossier);
     }
-    else{
-        if(dossier.demandeur_personne_physique_nom){
-            return dossier.demandeur_personne_physique_nom + ' ' + dossier.demandeur_personne_physique_prénoms
-        }
-        else{
-            return formatDéposant(dossier)
-        }
-    }
+  }
 }
-
-
 
 /**
  * Formate une date JavaScript selon un format spécifié, en utilisant la locale française.
@@ -102,51 +98,51 @@ export function formatPorteurDeProjet(dossier){
  * @param {string} [formatDemandé]
  * @returns {string}
  */
-export function formatDateAbsolue(date, formatDemandé = 'd MMMM yyyy') {
-    if(!date){
-        return '(date inconnue)'
-    }
+export function formatDateAbsolue(date, formatDemandé = "d MMMM yyyy") {
+  if (!date) {
+    return "(date inconnue)";
+  }
 
-    return format(date, formatDemandé, { locale: fr })
+  return format(date, formatDemandé, { locale: fr });
 }
 
-  /**
-   *
-   * @param {Date | undefined | null} date
-   * @returns {string}
-   */
+/**
+ *
+ * @param {Date | undefined | null} date
+ * @returns {string}
+ */
 export function formatDateRelative(date) {
-    if(!date){
-        return '(date inconnue)'
-    }
+  if (!date) {
+    return "(date inconnue)";
+  }
 
-    if (differenceInDays(date, new Date()) === 0) {
-      return `Aujourd'hui`
-    }
-    if (Math.abs(differenceInDays(date, new Date())) <= 7) {
-      return formatRelative(date, new Date(), {locale: fr })
-    }
+  if (differenceInDays(date, new Date()) === 0) {
+    return `Aujourd'hui`;
+  }
+  if (Math.abs(differenceInDays(date, new Date())) <= 7) {
+    return formatRelative(date, new Date(), { locale: fr });
+  }
 
-    return formatDateAbsolue(date)
+  return formatDateAbsolue(date);
 }
 
 /** @type {Set<DossierPhase>} */
 export const phases = new Set([
-    "Accompagnement amont",
-    "Étude recevabilité DDEP",
-    "Instruction",
-    "Contrôle",
-    "Classé sans suite",
-    "Obligations terminées"
-])
+  "Accompagnement amont",
+  "Étude recevabilité DDEP",
+  "Instruction",
+  "Contrôle",
+  "Classé sans suite",
+  "Obligations terminées",
+]);
 
 /** @type {Set<DossierProchaineActionAttenduePar>} */
 export const prochaineActionAttenduePar = new Set([
-    "Instructeur",
-    "CNPN/CSRPN",
-    "Pétitionnaire",
-    "Consultation du public",
-    "Autre administration",
-    "Autre",
-    "Personne"
-])
+  "Instructeur",
+  "CNPN/CSRPN",
+  "Pétitionnaire",
+  "Consultation du public",
+  "Autre administration",
+  "Autre",
+  "Personne",
+]);

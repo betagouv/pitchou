@@ -4,7 +4,6 @@
 
 Pitchou (le projet) repose principalement sur deux morceaux techniques : Démarches Numériques (DN) et pitchou.beta.gouv.fr
 
-
 ## État des lieux et futur
 
 L'équipe Pitchou a fait ce choix au début de la [phase de construction](https://doc.incubateur.net/communaute/gerer-son-produit/la-vie-du-produit/construction) pour des raisons techniques/économique : refaire un formulaire prendrait du temps et nous préférons passer ce temps à faire des choses qui ajoutent plus de valeur aux instructrices
@@ -14,7 +13,6 @@ L'équipe Pitchou a fait ce choix au début de la [phase de construction](https:
 **À moyen terme**, nous allons déplacer le travail d'instruction dans Pitchou afin que les instructeur.rices n'aient plus besoin d'aller sur DN et utilisent exclusivement pitchou.beta.gouv.fr. Nous imaginons que nous en serons à cette étape fin 2026
 
 **À long terme**, nous quitterons DN et les pétitionnaires. Nous n'avons pas de date prévue. Nous attendons d'avoir confiance que pitchou.beta.gouv.fr satisfait une grosse majorité d'instructeur.rices sur l'ensemble de la France
-
 
 ## Cycle de vie d'un dossier
 
@@ -46,8 +44,6 @@ Quand un pétitionnaire met à jour son dossier, les éléments mis à jour sont
 
 ⚠️ **Attention** : la mise à jour entre DN et Pitchou **n'est pas instantanée**. Elle se fait **environ toutes les 15 minutes**. Il est donc possible que les informations sur Pitchou ne soient pas immédiatement mises à jour. Il suffit d'attendre un peu.
 
-
-
 ## Différences entre DN et Pitchou
 
 ### Suivre un dossier
@@ -61,10 +57,10 @@ Si vous suivez un dossier sur DN, ce dossier n'est pas suivi sur Pitchou.
 
 Si vous suivez un dossier sur Pitchou, ce dossier n'est pas suivi sur DN.
 
-
 ### Phases
 
 DN a 5 phases :
+
 - en construction
 - instruction
 - accepté
@@ -73,7 +69,8 @@ DN a 5 phases :
 
 Quand on change la phase d'un dossier dans DN, le pétitionnaire reçoit un email de notification
 
-Pitchou a [6 phases](./phases-instructions) : 
+Pitchou a [6 phases](./phases-instructions) :
+
 - accompagnement amont
 - étude recevabilité DDEP
 - instruction
@@ -84,13 +81,13 @@ Pitchou a [6 phases](./phases-instructions) :
 Quand on change la phase d'un dossier dans Pitchou, le pétitionnaire **ne reçoit pas** d'email de notification
 
 Actuellement :
+
 - Les phases **sont synchronisées** de DN vers Pitchou
 - Les phases **ne sont pas synchronisées** de Pitchou vers DN
 
-Ainsi, 
+Ainsi,
 si vous passez un dossier en instruction sur DN, il sera passé en instruction sur Pitchou
 mais si vous passez un dossier en instruction sur Pitchou, **il restera en construction dans DN** (et le pétitionnaire ne sera pas informé du changement de phase)
-
 
 ### Instruction du dossier
 
@@ -102,13 +99,11 @@ Par le passé, nous avons utilisé cette fonctionnalité pour permettre aux inst
 
 D'ici fin 2026, tout se fera directement dans Pitchou
 
-
-#### Avis 
+#### Avis
 
 Si vous demandez un avis CSRPN sur DN via la fonctionnalité dédiée, ni la saisine ni l'avis ne sont actuellement récupérés sur Pitchou
 
 D'ici fin 2026, ces avis seront récupérés dans Pitchou
-
 
 #### Messagerie
 
@@ -119,13 +114,5 @@ Il n'est pas possible de pouvoir répondre à un message depuis Pitchou. Il faut
 L'équipe Pitchou n'a pas encore de position claire concernant le maintien ou le développement d'une fonctionnalité de messagerie au sein de Pitchou. Le travail d'instruction est souvent très lié à l'usage d'emails pour la communication.
 Nous avons déjà conscience d'une limitation de la messagerie de DN qui est qu'elle ne permet pas de mettre quelqu'un en copie d'un message facilement
 
-Une option envisagée est de créer une adresse email par dossier, par exemple `dossier-123456@pitchou.beta.gouv.fr`. Cette adresse pourrait être mise en copie de chaque échange avec le pétitionnaire et les messages envoyés à cette adresse seraient affichés dans l'onglet "Échange" du dossier. Si une personne a oublié de mettre l'adresse en copie, n'importe qui peut transférer un email à cette adresse a posteriori. 
+Une option envisagée est de créer une adresse email par dossier, par exemple `dossier-123456@pitchou.beta.gouv.fr`. Cette adresse pourrait être mise en copie de chaque échange avec le pétitionnaire et les messages envoyés à cette adresse seraient affichés dans l'onglet "Échange" du dossier. Si une personne a oublié de mettre l'adresse en copie, n'importe qui peut transférer un email à cette adresse a posteriori.
 L'équipe Pitchou n'a pas encore tranché de faire ou ne pas faire cette option, ni à quelle échéance
-
-
-
-
-
-
-
-

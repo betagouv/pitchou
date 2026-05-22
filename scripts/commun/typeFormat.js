@@ -1,93 +1,93 @@
 //@ts-check
 
-import { parse as parseDate } from "date-fns"
+import { parse as parseDate } from "date-fns";
 
 /**
- * 
- * @param {any} d 
+ *
+ * @param {any} d
  * @returns {boolean}
  */
 export function isValidDate(d) {
-    return d instanceof Date && !Number.isNaN(d.valueOf());
+  return d instanceof Date && !Number.isNaN(d.valueOf());
 }
 
 /**
- * 
+ *
  * @param {string} dateString
  * @returns {boolean}
  */
 export function isValidDateString(dateString) {
-    return !Number.isNaN(Date.parse(dateString))
+  return !Number.isNaN(Date.parse(dateString));
 }
 
 /**
- * 
+ *
  * @param {string | Date | number | undefined} d // peut-être une date
  */
-export function recoverDate(d){
-    if (typeof d === 'number') { return undefined }
+export function recoverDate(d) {
+  if (typeof d === "number") {
+    return undefined;
+  }
 
-    if (typeof d === 'object') {
-        if (isValidDate(d)) { 
-            return d 
-        } else {
-            return undefined
-        }
-    } 
-
-    if(!d)
-        return undefined
-
-    // typeof d === 'string'
-    d = d.trim()
-
-    let date = parseDate(d, 'dd/MM/yyyy', new Date())
-
-    if(!isValidDate(date)){
-        date = parseDate(d, 'dd/MM/yy', new Date())
+  if (typeof d === "object") {
+    if (isValidDate(d)) {
+      return d;
+    } else {
+      return undefined;
     }
-    if(!isValidDate(date)){
-        date = parseDate(d, 'yyyy', new Date())
-    }
+  }
 
-    // let's try the first chars in case there are several dates
+  if (!d) return undefined;
 
-    if(!isValidDate(date)){
-        date = parseDate(d.slice(0, 'dd/MM/yyyy'.length), 'dd/MM/yyyy', new Date())
-    }
-    if(!isValidDate(date)){
-        date = parseDate(d.slice(0, 'dd/MM/yy'.length), 'dd/MM/yy', new Date())
-    }
+  // typeof d === 'string'
+  d = d.trim();
 
-    if(isValidDate(date)){
-        return date
-    }
-    else{
-        //console.warn(`Date non reconnue (${d})`)
-        return undefined
-    }
+  let date = parseDate(d, "dd/MM/yyyy", new Date());
+
+  if (!isValidDate(date)) {
+    date = parseDate(d, "dd/MM/yy", new Date());
+  }
+  if (!isValidDate(date)) {
+    date = parseDate(d, "yyyy", new Date());
+  }
+
+  // let's try the first chars in case there are several dates
+
+  if (!isValidDate(date)) {
+    date = parseDate(d.slice(0, "dd/MM/yyyy".length), "dd/MM/yyyy", new Date());
+  }
+  if (!isValidDate(date)) {
+    date = parseDate(d.slice(0, "dd/MM/yy".length), "dd/MM/yy", new Date());
+  }
+
+  if (isValidDate(date)) {
+    return date;
+  } else {
+    //console.warn(`Date non reconnue (${d})`)
+    return undefined;
+  }
 }
 
 /**
- * 
- * @param {string} nomCommune 
+ *
+ * @param {string} nomCommune
  * @returns {string}
  */
 export function normalizeNomCommune(nomCommune) {
-    return nomCommune
-        .replace(/-|'/g, ' ')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // remove accents
-        .toLowerCase()
+  return nomCommune
+    .replace(/-|'/g, " ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .toLowerCase();
 }
 
 // https://stackoverflow.com/a/73974452
 export const byteFormat = new Intl.NumberFormat(
-    typeof document !== 'undefined' ? document.documentElement.lang || 'fr' : "fr",
-    { 
-        notation: "compact",
-        style: 'unit', 
-        unit: 'byte',
-        unitDisplay: 'narrow'
-    }
-)
+  typeof document !== "undefined" ? document.documentElement.lang || "fr" : "fr",
+  {
+    notation: "compact",
+    style: "unit",
+    unit: "byte",
+    unitDisplay: "narrow",
+  },
+);

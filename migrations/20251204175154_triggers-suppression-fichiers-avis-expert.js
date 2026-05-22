@@ -3,7 +3,7 @@
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-    await knex.raw(`
+  await knex.raw(`
         CREATE OR REPLACE FUNCTION supprimer_fichiers_avis_expert()
         RETURNS TRIGGER
         LANGUAGE PLPGSQL
@@ -22,7 +22,7 @@ CREATE TRIGGER supprimer_fichiers_avis_expert_trigger
 EXECUTE PROCEDURE supprimer_fichiers_avis_expert();
     `);
 
-    await knex.raw(`CREATE OR REPLACE FUNCTION supprimer_fichiers_avis_expert_orphelins()
+  await knex.raw(`CREATE OR REPLACE FUNCTION supprimer_fichiers_avis_expert_orphelins()
 RETURNS TRIGGER
 LANGUAGE PLPGSQL
 AS
@@ -50,17 +50,17 @@ EXECUTE PROCEDURE supprimer_fichiers_avis_expert_orphelins();`);
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-    await knex.raw(`
+  await knex.raw(`
 DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_trigger 
 ON public.avis_expert;
 
 DROP FUNCTION IF EXISTS supprimer_fichiers_avis_expert();
-`)
+`);
 
-    await knex.raw(`
+  await knex.raw(`
 DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_orphelins_trigger 
 ON public.avis_expert;
 
 DROP FUNCTION IF EXISTS supprimer_fichiers_avis_expert_orphelins();
-`)
-} 
+`);
+}

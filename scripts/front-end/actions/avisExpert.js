@@ -4,70 +4,72 @@
 import { text } from "d3-fetch";
 import { envoyerÉvènement } from "./aarri.js";
 
-
 /**
  * Ajoute un avis d'expert.
- * 
+ *
  * @param {Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>} frontEndAvisExpert
  * @param {File | undefined} [fileFichierSaisine]
  * @param {File | undefined} [fileFichierAvis]
  * @returns {Promise<string>}
  */
-export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisine, fileFichierAvis) {
-    const form = new FormData();
+export function ajouterOuModifierAvisExpert(
+  frontEndAvisExpert,
+  fileFichierSaisine,
+  fileFichierAvis,
+) {
+  const form = new FormData();
 
-    const copyFrontEndAvisExpert = Object.assign({}, frontEndAvisExpert)
+  const copyFrontEndAvisExpert = Object.assign({}, frontEndAvisExpert);
 
-    delete copyFrontEndAvisExpert.avis_fichier_url
-    delete copyFrontEndAvisExpert.saisine_fichier_url
-    
-    /**@type {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} */
-    const avisExpert = {...copyFrontEndAvisExpert}
+  delete copyFrontEndAvisExpert.avis_fichier_url;
+  delete copyFrontEndAvisExpert.saisine_fichier_url;
 
-    // Dans un objet FormData, la valeur de la clef ne peut être qu'un string ou un Blob,
-    // et dossier est de type number & {__brand: "public.dossier";}
-    // @ts-expect-error
-    form.append("dossier", avisExpert.dossier);
+  /**@type {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} */
+  const avisExpert = { ...copyFrontEndAvisExpert };
 
-    // Dans le cas d'une modification, 
-    // on fournit l'id de l'avis d'expert
-    if (avisExpert.id) {
-        form.append("id", avisExpert.id);
-        envoyerÉvènement({ type: 'modifierAvisExpert' })
-    } else {
-        // Dans le cas d'un ajout
-        envoyerÉvènement({ type: 'ajouterAvisExpert' })
-    }
+  // Dans un objet FormData, la valeur de la clef ne peut être qu'un string ou un Blob,
+  // et dossier est de type number & {__brand: "public.dossier";}
+  // @ts-expect-error
+  form.append("dossier", avisExpert.dossier);
 
-    if (avisExpert.avis) {
-        form.append("avis", avisExpert.avis);
-    }
+  // Dans le cas d'une modification,
+  // on fournit l'id de l'avis d'expert
+  if (avisExpert.id) {
+    form.append("id", avisExpert.id);
+    envoyerÉvènement({ type: "modifierAvisExpert" });
+  } else {
+    // Dans le cas d'un ajout
+    envoyerÉvènement({ type: "ajouterAvisExpert" });
+  }
 
-    if (avisExpert.date_avis) {
-        form.append("date_avis", avisExpert.date_avis.toJSON());
-    }
+  if (avisExpert.avis) {
+    form.append("avis", avisExpert.avis);
+  }
 
-    if (avisExpert.expert) {
-        form.append("expert", avisExpert.expert);
-    }
+  if (avisExpert.date_avis) {
+    form.append("date_avis", avisExpert.date_avis.toJSON());
+  }
 
-    if (avisExpert.date_saisine) {
-        form.append("date_saisine", avisExpert.date_saisine.toJSON());
-    }
+  if (avisExpert.expert) {
+    form.append("expert", avisExpert.expert);
+  }
 
-    if (fileFichierSaisine) {
-        form.append("blobFichierSaisine", fileFichierSaisine);
-    }
+  if (avisExpert.date_saisine) {
+    form.append("date_saisine", avisExpert.date_saisine.toJSON());
+  }
 
-    if (fileFichierAvis) {
-        form.append("blobFichierAvis", fileFichierAvis);
-    }
+  if (fileFichierSaisine) {
+    form.append("blobFichierSaisine", fileFichierSaisine);
+  }
 
-    return text('/avis-expert', 
-        { 
-            method: 'POST',
-            body: form 
-        })
+  if (fileFichierAvis) {
+    form.append("blobFichierAvis", fileFichierAvis);
+  }
+
+  return text("/avis-expert", {
+    method: "POST",
+    body: form,
+  });
 }
 
 /**
@@ -75,6 +77,6 @@ export function ajouterOuModifierAvisExpert(frontEndAvisExpert, fileFichierSaisi
  * @param {Pick<AvisExpert, "id">} avisExpert
  */
 export function supprimerAvisExpert(avisExpert) {
-    envoyerÉvènement({ type: 'supprimerAvisExpert' })
-    return text(`/avis-expert/${avisExpert.id}`, { method: 'DELETE'})
+  envoyerÉvènement({ type: "supprimerAvisExpert" });
+  return text(`/avis-expert/${avisExpert.id}`, { method: "DELETE" });
 }

@@ -1,4 +1,4 @@
-import {text, json} from 'd3-fetch'
+import { text, json } from "d3-fetch";
 
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
 /** @import {RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
@@ -8,52 +8,56 @@ const inutile = true;
 
 /** @type {Set<RésultatContrôle>} */
 export const résultatsContrôle = new Set([
-    "Conforme", "Non conforme", "Trop tard", "En cours","Non conforme (Pas d'informations reçues)"
-])
+  "Conforme",
+  "Non conforme",
+  "Trop tard",
+  "En cours",
+  "Non conforme (Pas d'informations reçues)",
+]);
 
 /** @type {Set<TypesActionSuiteContrôle>} */
 export const typesActionSuiteContrôle = new Set([
-    "Email", "Courrier", "Courrier recommandé avec accusé de réception"
-])
-
+  "Email",
+  "Courrier",
+  "Courrier recommandé avec accusé de réception",
+]);
 
 /**
- * 
- * @param {Partial<Contrôle>} contrôle 
+ *
+ * @param {Partial<Contrôle>} contrôle
  * @returns {Promise<Contrôle['id']>}
  */
-export function ajouterContrôle(contrôle){
-    //@ts-ignore
-    return json('/contrôle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contrôle)
+export function ajouterContrôle(contrôle) {
+  //@ts-ignore
+  return (
+    json("/contrôle", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(contrôle),
     })
-    // @ts-ignore
-    .then(ids => ids[0])
-
+      // @ts-ignore
+      .then((ids) => ids[0])
+  );
 }
 
 /**
- * 
- * @param {Partial<Contrôle>} contrôle 
+ *
+ * @param {Partial<Contrôle>} contrôle
  * @returns {Promise<undefined>}
  */
-export function modifierContrôle(contrôle){
-    return json('/contrôle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contrôle)
-    })
+export function modifierContrôle(contrôle) {
+  return json("/contrôle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(contrôle),
+  });
 }
 
 /**
- * 
+ *
  * @param {Contrôle['id']} id
  * @returns {Promise<unknown>}
  */
-export function supprimerContrôle(id){
-    return text(`/contrôle/${id}`, {method: 'DELETE'})
+export function supprimerContrôle(id) {
+  return text(`/contrôle/${id}`, { method: "DELETE" });
 }
-
-

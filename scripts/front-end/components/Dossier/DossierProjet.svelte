@@ -1,402 +1,397 @@
 <script>
-    import DownloadButton from "../DownloadButton.svelte";
-    import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
-    import { formatDateRelative } from "../../affichageDossier.js";
-    import { byteFormat } from "../../../commun/typeFormat.js";
-    import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
-	import Loader from "../Loader.svelte"
-	import { originDémarcheNumérique } from "../../../commun/constantes.js"
-    import { envoyerÉvènement } from "../../actions/aarri.js";
+  import DownloadButton from "../DownloadButton.svelte";
+  import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
+  import { formatDateRelative } from "../../affichageDossier.js";
+  import { byteFormat } from "../../../commun/typeFormat.js";
+  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
+  import Loader from "../Loader.svelte";
+  import { originDémarcheNumérique } from "../../../commun/constantes.js";
+  import { envoyerÉvènement } from "../../actions/aarri.js";
 
-    /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-    /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
+  /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
+  /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
 
-    /**
-     * @typedef {Object} Props
-     * @property {DossierComplet} dossier
-     * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
-     */
+  /**
+   * @typedef {Object} Props
+   * @property {DossierComplet} dossier
+   * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
+   */
 
-    /** @type {Props} */
-    let { dossier, espècesImpactées } = $props();
+  /** @type {Props} */
+  let { dossier, espècesImpactées } = $props();
 
-    const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
+  const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
 
-    /**
-     * Calcule le nombre d'espèces CNPN 
-     * et le nombre d'espèce ministérielles
-     * dans la liste des espèces impactées par ce projet
-     * @param {DescriptionMenacesEspèces} _espècesImpactées
-     * @returns { { nombreEspècesCNPN: number, nombreEspècesMinistérielles: number } }
-    */
-    function getNombreEspècesMinistérielleCNPN(_espècesImpactées) {
-        const toutesLesEspècesImpactées = [
-            ...(_espècesImpactées["faune non-oiseau"] ?? []),
-            ...(_espècesImpactées["flore"] ?? []),
-            ...(_espècesImpactées["oiseau"]  ?? []),
-        ]
+  /**
+   * Calcule le nombre d'espèces CNPN
+   * et le nombre d'espèce ministérielles
+   * dans la liste des espèces impactées par ce projet
+   * @param {DescriptionMenacesEspèces} _espècesImpactées
+   * @returns { { nombreEspècesCNPN: number, nombreEspècesMinistérielles: number } }
+   */
+  function getNombreEspècesMinistérielleCNPN(_espècesImpactées) {
+    const toutesLesEspècesImpactées = [
+      ...(_espècesImpactées["faune non-oiseau"] ?? []),
+      ...(_espècesImpactées["flore"] ?? []),
+      ...(_espècesImpactées["oiseau"] ?? []),
+    ];
 
-        const nombres = toutesLesEspècesImpactées.reduce((acc, {espèce}) => {
-                if (espèce.espèceCNPN) {
-                    acc['nombreEspècesCNPN']+=1
-                }
-                if (espèce.espèceMinistérielle) {
-                    acc['nombreEspècesMinistérielles']+=1
-                }
-                return acc
-            }, {nombreEspècesCNPN: 0, nombreEspècesMinistérielles: 0})
-        return nombres
-    }
-
-    function makeFileContentBlob() {
-        envoyerÉvènement({ type: 'téléchargerListeÉspècesImpactées', détails: { dossierId: dossier.id } })
-
-        return new Blob(
-            // @ts-ignore
-            [dossier.espècesImpactées && dossier.espècesImpactées.contenu],
-            {
-                type:
-                    dossier.espècesImpactées &&
-                    dossier.espècesImpactées.media_type,
-            },
-        );
-    }
-
-    function makeFilename() {
-        return dossier.espècesImpactées?.nom || "fichier";
-    }
-
-    const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
-
-    /** @type {{nom_complet:string,qualification:string}[]| undefined} */
-    // @ts-ignore
-    let scientifiquesIntervenants = dossier.scientifique_intervenants;
-
-    /** @type {string[] | undefined} */
-    // @ts-ignore
-    let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
-
-
-
-    /**
-     * @param {string | null} filename
-     */
-    function raccourcirNomFichier(filename, maxLength = 43, ellipsis = '(…)') {
-        if(!filename){
-            return '(fichier sans nom)'
+    const nombres = toutesLesEspècesImpactées.reduce(
+      (acc, { espèce }) => {
+        if (espèce.espèceCNPN) {
+          acc["nombreEspècesCNPN"] += 1;
         }
-
-        if (filename.length <= maxLength) { 
-            return filename
+        if (espèce.espèceMinistérielle) {
+          acc["nombreEspècesMinistérielles"] += 1;
         }
+        return acc;
+      },
+      { nombreEspècesCNPN: 0, nombreEspècesMinistérielles: 0 },
+    );
+    return nombres;
+  }
 
-        const lastDotIndex = filename.lastIndexOf('.');
-        
-        const extension = filename.substring(lastDotIndex);
-        const nameWithoutExt = filename.substring(0, lastDotIndex);
-        
-        const availableLength = maxLength - extension.length - ellipsis.length;
-        
-        return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
+  function makeFileContentBlob() {
+    envoyerÉvènement({
+      type: "téléchargerListeÉspècesImpactées",
+      détails: { dossierId: dossier.id },
+    });
+
+    return new Blob(
+      // @ts-ignore
+      [dossier.espècesImpactées && dossier.espècesImpactées.contenu],
+      {
+        type: dossier.espècesImpactées && dossier.espècesImpactées.media_type,
+      },
+    );
+  }
+
+  function makeFilename() {
+    return dossier.espècesImpactées?.nom || "fichier";
+  }
+
+  const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
+
+  /** @type {{nom_complet:string,qualification:string}[]| undefined} */
+  // @ts-ignore
+  let scientifiquesIntervenants = dossier.scientifique_intervenants;
+
+  /** @type {string[] | undefined} */
+  // @ts-ignore
+  let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
+
+  /**
+   * @param {string | null} filename
+   */
+  function raccourcirNomFichier(filename, maxLength = 43, ellipsis = "(…)") {
+    if (!filename) {
+      return "(fichier sans nom)";
     }
 
+    if (filename.length <= maxLength) {
+      return filename;
+    }
+
+    const lastDotIndex = filename.lastIndexOf(".");
+
+    const extension = filename.substring(lastDotIndex);
+    const nameWithoutExt = filename.substring(0, lastDotIndex);
+
+    const availableLength = maxLength - extension.length - ellipsis.length;
+
+    return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
+  }
 </script>
 
 <section class="row">
-    <section class="column">
-        <h2>Informations du projet</h2>
-        <p>
-            <strong>Identifiant Pitchou&nbsp;:</strong>
-            {dossier.id}
-        </p>
-        <p>
-            <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
-            {#if typeof dossier.etat_des_lieux_ecologique_complet_realise === 'boolean' }
-                {dossier.etat_des_lieux_ecologique_complet_realise ? 'Oui' : 'Non'}
-            {:else}
-                Non renseigné
-            {/if}
-        </p>
+  <section class="column">
+    <h2>Informations du projet</h2>
+    <p>
+      <strong>Identifiant Pitchou&nbsp;:</strong>
+      {dossier.id}
+    </p>
+    <p>
+      <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
+      {#if typeof dossier.etat_des_lieux_ecologique_complet_realise === "boolean"}
+        {dossier.etat_des_lieux_ecologique_complet_realise ? "Oui" : "Non"}
+      {:else}
+        Non renseigné
+      {/if}
+    </p>
 
-        <p>
-            <strong>Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence du projet ?&nbsp;:</strong>
-            {#if typeof dossier.presence_especes_dans_aire_influence === 'boolean' }
-                {dossier.presence_especes_dans_aire_influence ? 'Oui' : 'Non'}
-            {:else}
-                Non renseigné
-            {/if}
-        </p>
+    <p>
+      <strong
+        >Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence du
+        projet ?&nbsp;:</strong
+      >
+      {#if typeof dossier.presence_especes_dans_aire_influence === "boolean"}
+        {dossier.presence_especes_dans_aire_influence ? "Oui" : "Non"}
+      {:else}
+        Non renseigné
+      {/if}
+    </p>
 
-        <p>
-            <strong>Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment caractérisé pour les espèces protégées demeure-t-il ?&nbsp;:</strong>
-            {#if typeof dossier.risque_malgre_mesures_erc === 'boolean' }
-                {dossier.risque_malgre_mesures_erc ? 'Oui' : 'Non'}
-            {:else}
-                Non renseigné
-            {/if}
-        </p>
+    <p>
+      <strong
+        >Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment
+        caractérisé pour les espèces protégées demeure-t-il ?&nbsp;:</strong
+      >
+      {#if typeof dossier.risque_malgre_mesures_erc === "boolean"}
+        {dossier.risque_malgre_mesures_erc ? "Oui" : "Non"}
+      {:else}
+        Non renseigné
+      {/if}
+    </p>
 
-        <p>
-            <strong>Description&nbsp;:</strong>
-            {dossier.description && dossier.description.length >= 1
-                ? dossier.description
-                : "Non renseignée"}
-        </p>
+    <p>
+      <strong>Description&nbsp;:</strong>
+      {dossier.description && dossier.description.length >= 1
+        ? dossier.description
+        : "Non renseignée"}
+    </p>
 
-        <p>
-            <strong>Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet&nbsp;:</strong>
-            {
-                dossier.justification_absence_autre_solution_satisfaisante && dossier.justification_absence_autre_solution_satisfaisante.length >= 1 ? dossier.justification_absence_autre_solution_satisfaisante : `Non renseignée`
-            }
-        </p>
+    <p>
+      <strong
+        >Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet&nbsp;:</strong
+      >
+      {dossier.justification_absence_autre_solution_satisfaisante &&
+      dossier.justification_absence_autre_solution_satisfaisante.length >= 1
+        ? dossier.justification_absence_autre_solution_satisfaisante
+        : `Non renseignée`}
+    </p>
 
-        <p>
-            <strong>Motif de la dérogation&nbsp;:</strong>
-            {
-                dossier.motif_dérogation ?? `Non renseigné`
-            }
-        </p>
+    <p>
+      <strong>Motif de la dérogation&nbsp;:</strong>
+      {dossier.motif_dérogation ?? `Non renseigné`}
+    </p>
 
-        <p>
-            <strong>Synthèse des éléments justifiant le motif de la dérogation&nbsp;:</strong>
-            {
-                dossier.justification_motif_dérogation && dossier.justification_motif_dérogation.length >= 1 ? dossier.justification_motif_dérogation : `Non renseignée`
-            }
-        </p>
+    <p>
+      <strong>Synthèse des éléments justifiant le motif de la dérogation&nbsp;:</strong>
+      {dossier.justification_motif_dérogation && dossier.justification_motif_dérogation.length >= 1
+        ? dossier.justification_motif_dérogation
+        : `Non renseignée`}
+    </p>
 
-        <p>
-            <strong>Date de début d'intervention ou des travaux&nbsp;:</strong>
-            {#if dossier.date_début_intervention}
-                <time datetime={dossier.date_début_intervention.toISOString()}>
-                    {formatDateRelative(dossier.date_début_intervention)}
-                </time>
-            {:else}
-                Non renseignée
-            {/if}
-        </p>
+    <p>
+      <strong>Date de début d'intervention ou des travaux&nbsp;:</strong>
+      {#if dossier.date_début_intervention}
+        <time datetime={dossier.date_début_intervention.toISOString()}>
+          {formatDateRelative(dossier.date_début_intervention)}
+        </time>
+      {:else}
+        Non renseignée
+      {/if}
+    </p>
 
-        <p>
-            <strong>Date de fin d'intervention ou des travaux&nbsp;:</strong>
-            {#if dossier.date_fin_intervention}
-                <time
-                    datetime={new Date(
-                        dossier.date_fin_intervention,
-                    ).toISOString()}
-                >
-                    {formatDateRelative(dossier.date_fin_intervention)}
-                </time>
-            {:else}
-                Non renseignée
-            {/if}
-        </p>
+    <p>
+      <strong>Date de fin d'intervention ou des travaux&nbsp;:</strong>
+      {#if dossier.date_fin_intervention}
+        <time datetime={new Date(dossier.date_fin_intervention).toISOString()}>
+          {formatDateRelative(dossier.date_fin_intervention)}
+        </time>
+      {:else}
+        Non renseignée
+      {/if}
+    </p>
 
-        <p>
-            <strong>Durée de la dérogation&nbsp;:</strong>
-            {dossier.durée_intervention
-                ? dossier.durée_intervention + " années"
-                : "Non renseignée"}
-        </p>
-        <div class="container-titre-espèces-impactées">
-            <h2>
-                Espèces impactées
-            </h2>
-            {#if dossier.espècesImpactées}
-                <!-- // Dans Svelte, un composant enfant n'a pas accès aux classes de style définies dans le composant parent dans lequel il est appelé. On utilise donc un style inline. -->
-                {@const styleDownloadButton = "width: 15rem;"}
-                <DownloadButton
-                    {makeFileContentBlob}
-                    {makeFilename}
-                    style={styleDownloadButton}
-                    classname="fr-btn fr-btn--secondary"
-                    label="Télécharger le fichier des espèces impactées"
-                />
-            {/if}
-        </div>
-        {#if dossier.espècesImpactées}
-            {#if espècesImpactées}
-                {#await Promise.all([espècesImpactées, promesseRéférentiels])}
-                    <Loader></Loader>
-                {:then [espècesImpactées, {identifiantPitchouVersActivitéEtImpactsQuantifiés}]}
-                    {@const {nombreEspècesCNPN, nombreEspècesMinistérielles} = getNombreEspècesMinistérielleCNPN(espècesImpactées)}
-                    <p class="fr-badge fr-badge--blue-ecume">{nombreEspècesCNPN} {nombreEspècesCNPN>1 ? 'espèces' : 'espèce'} CNPN</p>
-                    <p class="fr-badge fr-badge--blue-ecume">{nombreEspècesMinistérielles} {nombreEspècesCNPN>1 ? 'espèces' : 'espèce'} Ministère</p>
-                    <EspècesProtégéesGroupéesParImpact {espècesImpactées} {identifiantPitchouVersActivitéEtImpactsQuantifiés} />
-                {/await}
-            {/if}
+    <p>
+      <strong>Durée de la dérogation&nbsp;:</strong>
+      {dossier.durée_intervention ? dossier.durée_intervention + " années" : "Non renseignée"}
+    </p>
+    <div class="container-titre-espèces-impactées">
+      <h2>Espèces impactées</h2>
+      {#if dossier.espècesImpactées}
+        <!-- // Dans Svelte, un composant enfant n'a pas accès aux classes de style définies dans le composant parent dans lequel il est appelé. On utilise donc un style inline. -->
+        {@const styleDownloadButton = "width: 15rem;"}
+        <DownloadButton
+          {makeFileContentBlob}
+          {makeFilename}
+          style={styleDownloadButton}
+          classname="fr-btn fr-btn--secondary"
+          label="Télécharger le fichier des espèces impactées"
+        />
+      {/if}
+    </div>
+    {#if dossier.espècesImpactées}
+      {#if espècesImpactées}
+        {#await Promise.all([espècesImpactées, promesseRéférentiels])}
+          <Loader></Loader>
+        {:then [espècesImpactées, { identifiantPitchouVersActivitéEtImpactsQuantifiés }]}
+          {@const { nombreEspècesCNPN, nombreEspècesMinistérielles } =
+            getNombreEspècesMinistérielleCNPN(espècesImpactées)}
+          <p class="fr-badge fr-badge--blue-ecume">
+            {nombreEspècesCNPN}
+            {nombreEspècesCNPN > 1 ? "espèces" : "espèce"} CNPN
+          </p>
+          <p class="fr-badge fr-badge--blue-ecume">
+            {nombreEspècesMinistérielles}
+            {nombreEspècesCNPN > 1 ? "espèces" : "espèce"} Ministère
+          </p>
+          <EspècesProtégéesGroupéesParImpact
+            {espècesImpactées}
+            {identifiantPitchouVersActivitéEtImpactsQuantifiés}
+          />
+        {/await}
+      {/if}
+    {:else}
+      <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
+    {/if}
+
+    {#if dossier.scientifique_type_demande}
+      <h2>Données scientifiques</h2>
+      <h3>Type de demande</h3>
+      <ul>
+        {#each dossier.scientifique_type_demande as typeDemande}
+          <li>{typeDemande}</li>
+        {/each}
+      </ul>
+
+      <h3>Programme de suivi antérieur</h3>
+      <p>
+        {#if dossier.scientifique_bilan_antérieur === null}
+          Non renseigné
         {:else}
-            <p>
-                Aucune données sur les espèces impactées n'a été fournie par le
-                pétitionnaire
-            </p>
+          {dossier.scientifique_bilan_antérieur ? "Oui" : "Non"}
         {/if}
+      </p>
 
-        {#if dossier.scientifique_type_demande}
-            <h2>Données scientifiques</h2>
-            <h3>Type de demande</h3>
-            <ul>
-                {#each dossier.scientifique_type_demande as typeDemande}
-                    <li>{typeDemande}</li>
-                {/each}
-            </ul>
+      <h3>Finalité de la demande</h3>
+      {#if Array.isArray(scientifiqueFinalitéDemande) && scientifiqueFinalitéDemande.length >= 1}
+        <ul>
+          {#each scientifiqueFinalitéDemande as finalité}
+            <li>{finalité}</li>
+          {/each}
+        </ul>
+      {:else}
+        Non renseigné
+      {/if}
 
-            <h3>Programme de suivi antérieur</h3>
-            <p>
-                {#if dossier.scientifique_bilan_antérieur === null}
-                    Non renseigné
-                {:else}
-                    {dossier.scientifique_bilan_antérieur ? 'Oui' : 'Non'}
-                {/if}
-            </p>
+      <h3>Protocole de suivi</h3>
+      <p>
+        {dossier.scientifique_description_protocole_suivi ?? "Non renseigné"}
+      </p>
 
+      <h3>Méthodes</h3>
 
-            <h3>Finalité de la demande</h3>
-            {#if Array.isArray(scientifiqueFinalitéDemande) && scientifiqueFinalitéDemande.length >= 1}
-                <ul>
-                    {#each scientifiqueFinalitéDemande as finalité}
-                        <li>{finalité}</li>
-                    {/each}
-                </ul>
-            {:else}
-                Non renseigné
-            {/if}
+      <p>
+        <strong> Modes de capture&nbsp;:</strong>
+        {dossier.scientifique_mode_capture && dossier.scientifique_mode_capture.length >= 1
+          ? dossier.scientifique_mode_capture.join(", ")
+          : "Non renseignées"}
+      </p>
+      <p>
+        <strong> Source lumineuse&nbsp;:</strong>
+        {dossier.scientifique_modalités_source_lumineuses ?? "Non renseignée"}
+      </p>
+      <p>
+        <strong> Marquage&nbsp;:</strong>
+        {dossier.scientifique_modalités_marquage ?? "Non renseigné"}
+      </p>
+      <p>
+        <strong> Transport&nbsp;:</strong>
+        {dossier.scientifique_modalités_transport ?? "Non renseigné"}
+      </p>
 
-
-            <h3>Protocole de suivi</h3>
-            <p>
-                {dossier.scientifique_description_protocole_suivi ??
-                    "Non renseigné"}
-            </p>
-
-            <h3>Méthodes</h3>
-
-            <p>
-                <strong> Modes de capture&nbsp;:</strong>
-                {dossier.scientifique_mode_capture &&
-                dossier.scientifique_mode_capture.length >= 1
-                    ? dossier.scientifique_mode_capture.join(", ")
-                    : "Non renseignées"}
-            </p>
-            <p>
-                <strong> Source lumineuse&nbsp;:</strong>
-                {dossier.scientifique_modalités_source_lumineuses ??
-                    "Non renseignée"}
-            </p>
-            <p>
-                <strong> Marquage&nbsp;:</strong>
-                {dossier.scientifique_modalités_marquage ?? "Non renseigné"}
-            </p>
-            <p>
-                <strong> Transport&nbsp;:</strong>
-                {dossier.scientifique_modalités_transport ?? "Non renseigné"}
-            </p>
-
-            <h3>Périmètre et intervenant.e.s</h3>
-            <p>
-                <strong>
-                    Périmètre&nbsp;:
-                </strong>{dossier.scientifique_périmètre_intervention ??
-                    "Non renseigné"}
-            </p>
-            <p>
-                <strong> Intervenant.e.s&nbsp;: </strong>
-                {#if scientifiquesIntervenants && scientifiquesIntervenants.length >= 1}
-                    {#each scientifiquesIntervenants as { nom_complet, qualification }}
-                        {nom_complet} - {qualification}
-                    {/each}
-                {:else}
-                    Non renseigné.e.s
-                {/if}
-            </p>
-            <p>
-                <strong>
-                    Précisions&nbsp;:
-                </strong>{dossier.scientifique_précisions_autres_intervenants ??
-                    "Non renseignées"}
-            </p>
-        {/if}
-    </section>
-
-    <section class="column">
-
-        <h2>{dossier.piècesJointesPétitionnaires.length} pièces jointes</h2>
-        {#if dossier.piècesJointesPétitionnaires.length === 0}
-            (aucune pièce jointe n'a été déposée par le pétitionnaire)
+      <h3>Périmètre et intervenant.e.s</h3>
+      <p>
+        <strong> Périmètre&nbsp;: </strong>{dossier.scientifique_périmètre_intervention ??
+          "Non renseigné"}
+      </p>
+      <p>
+        <strong> Intervenant.e.s&nbsp;: </strong>
+        {#if scientifiquesIntervenants && scientifiquesIntervenants.length >= 1}
+          {#each scientifiquesIntervenants as { nom_complet, qualification }}
+            {nom_complet} - {qualification}
+          {/each}
         {:else}
-            <ul class="pièces-jointes-pétitionnaire">
-            {#each dossier.piècesJointesPétitionnaires as {url, nom, media_type, taille}}
-                <li>
-                    <a class="fr-link fr-link--download" href={url} title={nom}>
-                        <!--
+          Non renseigné.e.s
+        {/if}
+      </p>
+      <p>
+        <strong> Précisions&nbsp;: </strong>{dossier.scientifique_précisions_autres_intervenants ??
+          "Non renseignées"}
+      </p>
+    {/if}
+  </section>
+
+  <section class="column">
+    <h2>{dossier.piècesJointesPétitionnaires.length} pièces jointes</h2>
+    {#if dossier.piècesJointesPétitionnaires.length === 0}
+      (aucune pièce jointe n'a été déposée par le pétitionnaire)
+    {:else}
+      <ul class="pièces-jointes-pétitionnaire">
+        {#each dossier.piècesJointesPétitionnaires as { url, nom, media_type, taille }}
+          <li>
+            <a class="fr-link fr-link--download" href={url} title={nom}>
+              <!--
                             On coupe le nom parce que s'il se met sur 2 lignes, le DSFR fait que la deuxième
                             ligne se superpose avec les détails en-dessous
                         -->
-                        {raccourcirNomFichier(nom)}
-                        <span class="fr-link__detail">
-                            {media_type} - {byteFormat.format(taille)}
-                        </span>
-                    </a>
-                </li>
-            {/each}
-            </ul>
+              {raccourcirNomFichier(nom)}
+              <span class="fr-link__detail">
+                {media_type} - {byteFormat.format(taille)}
+              </span>
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {/if}
 
-        {/if}
-
-        <h2>Dossier déposé</h2>
-        <a
-            class="fr-btn fr-btn--secondary fr-mb-1w"
-            target="_blank"
-            href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
-            >Dossier sur Démarche Numérique</a
-        >
-    </section>
+    <h2>Dossier déposé</h2>
+    <a
+      class="fr-btn fr-btn--secondary fr-mb-1w"
+      target="_blank"
+      href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
+      >Dossier sur Démarche Numérique</a
+    >
+  </section>
 </section>
 
 <style lang="scss">
-    .column {
-        h2 {
-            margin-top: 3rem;
-        }
-        & > :nth-child(1) {
-            margin-top: 0;
-        }
+  .column {
+    h2 {
+      margin-top: 3rem;
     }
-    .row {
-        display: flex;
-        flex-direction: row;
+    & > :nth-child(1) {
+      margin-top: 0;
+    }
+  }
+  .row {
+    display: flex;
+    flex-direction: row;
 
-        & > :nth-child(1) {
-            flex: 3;;
-            margin-right: 1rem;
-        }
-
-        & > :nth-child(2) {
-            flex: 2;
-        }
+    & > :nth-child(1) {
+      flex: 3;
+      margin-right: 1rem;
     }
 
-    .container-titre-espèces-impactées {
-        display: inline-flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
+    & > :nth-child(2) {
+      flex: 2;
     }
+  }
 
-    .container-titre-espèces-impactées h2 {
-        margin: 0;
-        white-space: nowrap;
+  .container-titre-espèces-impactées {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .container-titre-espèces-impactées h2 {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .bouton-telecharger-fichier-espece {
+    width: 15rem;
+  }
+
+  .pièces-jointes-pétitionnaire {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin-bottom: 0.3rem;
     }
-
-    .bouton-telecharger-fichier-espece {
-        width: 15rem;
-    }
-
-    .pièces-jointes-pétitionnaire{
-        list-style: none;
-        padding: 0;
-
-        li{
-            margin-bottom: 0.3rem;
-        }
-    }
-
+  }
 </style>

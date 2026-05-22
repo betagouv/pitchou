@@ -1,8 +1,8 @@
 <script>
   //@ts-check
   /** @import {StatsPubliques} from '../../../types/API_Pitchou' */
-  import StatistiquesConformites from '../stats/StatistiquesConformites.svelte';
-  
+  import StatistiquesConformites from "../stats/StatistiquesConformites.svelte";
+
   /**
    * @typedef {Object} Props
    * @property {StatsPubliques} stats
@@ -13,7 +13,9 @@
 
   const estimationNbPétitionnairesEnFranceParAn = 1500;
 
-  const pourcentageAvecDécision = Math.round((stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100);
+  const pourcentageAvecDécision = Math.round(
+    (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
+  );
   const pourcentageSansDecision = 100 - pourcentageAvecDécision;
 </script>
 
@@ -22,7 +24,9 @@
     <header class="fr-mb-2w">
       <h1>Pitchou - Statistiques publiques</h1>
       <p class="fr-text--lg fr-mb-0">
-        Ces données statistiques reposent sur un total de <strong>{stats.totalDossiers} dossiers </strong> enregistrés dans la base de données Pitchou.
+        Ces données statistiques reposent sur un total de <strong
+          >{stats.totalDossiers} dossiers
+        </strong> enregistrés dans la base de données Pitchou.
       </p>
     </header>
 
@@ -35,18 +39,25 @@
               <div class="fr-col-6">
                 <div class="stat-item total-stat">
                   <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
-                  <span class="stat-label">Pétitionnaires dans Pitchou<br><span class="fr-text--xs">(depuis 09/2024)</span></span>
+                  <span class="stat-label"
+                    >Pétitionnaires dans Pitchou<br /><span class="fr-text--xs"
+                      >(depuis 09/2024)</span
+                    ></span
+                  >
                 </div>
               </div>
               <div class="fr-col-6">
                 <div class="stat-item">
                   <span class="stat-number">{estimationNbPétitionnairesEnFranceParAn}</span>
-                  <span class="stat-label">Pétitionnaires en France<br><span class="fr-text--xs">(référence)</span></span>
+                  <span class="stat-label"
+                    >Pétitionnaires en France<br /><span class="fr-text--xs">(référence)</span
+                    ></span
+                  >
                 </div>
               </div>
             </div>
             <p class="fr-text--sm fr-mt-2w">
-              Ces chiffres correspondent à l'activité sur Pitchou depuis septembre 2024. 
+              Ces chiffres correspondent à l'activité sur Pitchou depuis septembre 2024.
               L'estimation France entière est indicative.
             </p>
           </div>
@@ -55,33 +66,50 @@
     </section>
 
     <section>
-      <h2 class="fr-mt-2w">Dossiers en phase <strong>Contrôle</strong> : avec ou sans décision administrative</h2>
+      <h2 class="fr-mt-2w">
+        Dossiers en phase <strong>Contrôle</strong> : avec ou sans décision administrative
+      </h2>
       <div class="fr-card fr-card--no-arrow">
         <div class="fr-card__body">
           <div class="fr-card__content">
-              <div class="definitions-in-card fr-mb-2w">
+            <div class="definitions-in-card fr-mb-2w">
               <div class="definition-block">
-                  <strong>Qu'est-ce qu'une décision administrative&nbsp;?</strong><br>
-                  <span>Une décision administrative correspond à un arrêté de dérogation, un arrêté de refus, un arrêté modificatif ou tout autre document administratif finalisant l'instruction du dossier.</span>
+                <strong>Qu'est-ce qu'une décision administrative&nbsp;?</strong><br />
+                <span
+                  >Une décision administrative correspond à un arrêté de dérogation, un arrêté de
+                  refus, un arrêté modificatif ou tout autre document administratif finalisant
+                  l'instruction du dossier.</span
+                >
               </div>
-              </div>
+            </div>
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
                   <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
-                  <span class="stat-label">Avec décision<br>{pourcentageAvecDécision}%</span>
+                  <span class="stat-label">Avec décision<br />{pourcentageAvecDécision}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
                   <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
-                  <span class="stat-label">Sans décision<br>{pourcentageSansDecision}%</span>
+                  <span class="stat-label">Sans décision<br />{pourcentageSansDecision}%</span>
                 </div>
               </div>
-              <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
-                <div style="width: {pourcentageAvecDécision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
-                <div style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
+              <div
+                class="fr-progress-bar fr-mt-2w"
+                style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
+              >
+                <div
+                  style="width: {pourcentageAvecDécision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+                ></div>
+                <div
+                  style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
+                ></div>
               </div>
               <div class="progress-total fr-mt-1w">
-                <span class="stat-label">Total dossiers en phase Contrôle : <strong>{stats.nbDossiersEnPhaseContrôle}</strong></span>
+                <span class="stat-label"
+                  >Total dossiers en phase Contrôle : <strong
+                    >{stats.nbDossiersEnPhaseContrôle}</strong
+                  ></span
+                >
               </div>
             </div>
           </div>
@@ -97,31 +125,73 @@
           <div class="fr-card__content">
             <div class="definitions-in-card fr-mb-2w">
               <div class="definition-block">
-                <strong>Qu'est-ce qu'une prescription&nbsp;?</strong><br>
-                <span>Une prescription est une exigence, mesure ou condition imposée par l’autorité administrative (ou parfois recommandée par l’instructeur du dossier) pour encadrer la réalisation d’un projet susceptible d’impacter des espèces protégées. Une prescription est soumise à des <strong>contrôles</strong>.</span>
+                <strong>Qu'est-ce qu'une prescription&nbsp;?</strong><br />
+                <span
+                  >Une prescription est une exigence, mesure ou condition imposée par l’autorité
+                  administrative (ou parfois recommandée par l’instructeur du dossier) pour encadrer
+                  la réalisation d’un projet susceptible d’impacter des espèces protégées. Une
+                  prescription est soumise à des <strong>contrôles</strong>.</span
+                >
               </div>
               <div class="definition-block">
-                <strong>Qu'est-ce qu'un contrôle&nbsp;?</strong><br>
-                <span>Un contrôle est vérification ou évaluation d’une <strong>prescription</strong>. Il permet de s’assurer que les conditions légales et réglementaires encadrant la protection des espèces protégées sont bien respectées. Un contrôle a deux états : <strong>conforme / non conforme</strong>.</span>
+                <strong>Qu'est-ce qu'un contrôle&nbsp;?</strong><br />
+                <span
+                  >Un contrôle est vérification ou évaluation d’une <strong>prescription</strong>.
+                  Il permet de s’assurer que les conditions légales et réglementaires encadrant la
+                  protection des espèces protégées sont bien respectées. Un contrôle a deux états :
+                  <strong>conforme / non conforme</strong>.</span
+                >
               </div>
             </div>
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
                   <span class="stat-number">{stats.nbPrescriptionsControlees}</span>
-                  <span class="stat-label">Contrôlées dans Pitchou<br>{stats.totalPrescriptions > 0 ? Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
+                  <span class="stat-label"
+                    >Contrôlées dans Pitchou<br />{stats.totalPrescriptions > 0
+                      ? Math.round(
+                          (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100,
+                        )
+                      : 0}%</span
+                  >
                 </div>
                 <div class="progress-label progress-label--right">
-                  <span class="stat-number">{stats.totalPrescriptions - stats.nbPrescriptionsControlees}</span>
-                  <span class="stat-label">Non contrôlées dans Pitchou<br>{stats.totalPrescriptions > 0 ? 100 - Math.round((stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100) : 0}%</span>
+                  <span class="stat-number"
+                    >{stats.totalPrescriptions - stats.nbPrescriptionsControlees}</span
+                  >
+                  <span class="stat-label"
+                    >Non contrôlées dans Pitchou<br />{stats.totalPrescriptions > 0
+                      ? 100 -
+                        Math.round(
+                          (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100,
+                        )
+                      : 0}%</span
+                  >
                 </div>
               </div>
-              <div class="fr-progress-bar fr-mt-2w" style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;">
-                <div style="width: {stats.totalPrescriptions > 0 ? (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100 : 0}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"></div>
-                <div style="width: {stats.totalPrescriptions > 0 ? ((stats.totalPrescriptions - stats.nbPrescriptionsControlees) / stats.totalPrescriptions) * 100 : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"></div>
+              <div
+                class="fr-progress-bar fr-mt-2w"
+                style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
+              >
+                <div
+                  style="width: {stats.totalPrescriptions > 0
+                    ? (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100
+                    : 0}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+                ></div>
+                <div
+                  style="width: {stats.totalPrescriptions > 0
+                    ? ((stats.totalPrescriptions - stats.nbPrescriptionsControlees) /
+                        stats.totalPrescriptions) *
+                      100
+                    : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
+                ></div>
               </div>
               <div class="progress-total fr-mt-1w">
-                <span class="stat-label">Total prescriptions contrôlables dans Pitchou : <strong>{stats.totalPrescriptions}</strong></span>
+                <span class="stat-label"
+                  >Total prescriptions contrôlables dans Pitchou : <strong
+                    >{stats.totalPrescriptions}</strong
+                  ></span
+                >
               </div>
             </div>
           </div>
@@ -129,7 +199,10 @@
       </div>
     </section>
 
-    <StatistiquesConformites statsConformite={stats.statsConformité} totalPrescriptions={stats.totalPrescriptions} />
+    <StatistiquesConformites
+      statsConformite={stats.statsConformité}
+      totalPrescriptions={stats.totalPrescriptions}
+    />
     <section class="fr-mt-4w">
       <h2 class="fr-mt-2w">Impact biodiversité des prescriptions conformes</h2>
       <div class="fr-card fr-card--no-arrow stat-biodiv-card">
@@ -137,15 +210,21 @@
           <div class="fr-card__content">
             <div class="biodiv-chiffres">
               <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_prescriptions_conformes}</span>
+                <span class="stat-number"
+                  >{stats.statsImpactBiodiversité.total_prescriptions_conformes}</span
+                >
                 <span class="stat-label">Prescriptions conformes</span>
               </div>
               <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_surface_évitée.toLocaleString()} m²</span>
+                <span class="stat-number"
+                  >{stats.statsImpactBiodiversité.total_surface_évitée.toLocaleString()} m²</span
+                >
                 <span class="stat-label">Surface évitée</span>
               </div>
               <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_surface_compensée.toLocaleString()} m²</span>
+                <span class="stat-number"
+                  >{stats.statsImpactBiodiversité.total_surface_compensée.toLocaleString()} m²</span
+                >
                 <span class="stat-label">Surface compensée</span>
               </div>
               <div class="biodiv-chiffre-item">
@@ -153,20 +232,28 @@
                 <span class="stat-label">Nids évités</span>
               </div>
               <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_compensés}</span>
+                <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_compensés}</span
+                >
                 <span class="stat-label">Nids compensés</span>
               </div>
               <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_individus_évités}</span>
+                <span class="stat-number"
+                  >{stats.statsImpactBiodiversité.total_individus_évités}</span
+                >
                 <span class="stat-label">Individus évités</span>
               </div>
               <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_individus_compensés}</span>
+                <span class="stat-number"
+                  >{stats.statsImpactBiodiversité.total_individus_compensés}</span
+                >
                 <span class="stat-label">Individus compensés</span>
               </div>
             </div>
             <div class="biodiv-note fr-mt-2w fr-text--xs">
-              <em>Ces chiffres agrègent les prescriptions dont le dernier contrôle est "Conforme" et pour lesquelles des valeurs quantitatives ont été renseignées.</em>
+              <em
+                >Ces chiffres agrègent les prescriptions dont le dernier contrôle est "Conforme" et
+                pour lesquelles des valeurs quantitatives ont été renseignées.</em
+              >
             </div>
           </div>
         </div>
@@ -180,7 +267,7 @@
   .stat-prescriptions-card {
     border: 1.5px solid var(--border-default-grey);
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     background: var(--background-default-grey);
     max-width: 100vw;
     margin: 0 -16px 2.5rem -16px;
@@ -267,7 +354,7 @@
   .stat-biodiv-card {
     border: 1.5px solid var(--border-default-grey);
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     background: var(--background-default-grey);
     max-width: 100vw;
     margin: 0 -16px 2.5rem -16px;
@@ -311,4 +398,4 @@
       margin: 0 -8px 1.5rem -8px;
     }
   }
-</style> 
+</style>

@@ -7,7 +7,7 @@
  * @returns {string} // utf-8-encoded base64 string
  */
 export function UTF8ToB64(s) {
-    return btoa(unescape(encodeURIComponent(s)))
+  return btoa(unescape(encodeURIComponent(s)));
 }
 
 /**
@@ -16,7 +16,7 @@ export function UTF8ToB64(s) {
  * @returns {string}
  */
 export function normalisationEmail(email) {
-    return email.toLowerCase()
+  return email.toLowerCase();
 }
 
 /**
@@ -24,15 +24,15 @@ export function normalisationEmail(email) {
  * @param {string} nom
  * @returns {string}
  */
-export function normalizeNomEspèce(nom){
-    return nom
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // remove accents
-        .toLowerCase()
-        .replaceAll('(le)', '')
-        .replaceAll('(la)', '')
-        .replaceAll(`(l')`, '')
-        .trim()
+export function normalizeNomEspèce(nom) {
+  return nom
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .toLowerCase()
+    .replaceAll("(le)", "")
+    .replaceAll("(la)", "")
+    .replaceAll(`(l')`, "")
+    .trim();
 }
 
 /**
@@ -40,13 +40,13 @@ export function normalizeNomEspèce(nom){
  * @param {string} texte
  * @returns {string}
  */
-export function normalizeTexteEspèce(texte){
-    return texte
-        .trim()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // remove accents
-        .replaceAll("’", "'")
-        .toLowerCase()
+export function normalizeTexteEspèce(texte) {
+  return texte
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replaceAll("’", "'")
+    .toLowerCase();
 }
 
 /**
@@ -55,5 +55,5 @@ export function normalizeTexteEspèce(texte){
  * @returns {string}
  */
 export function retirerAccents(texte) {
-    return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }

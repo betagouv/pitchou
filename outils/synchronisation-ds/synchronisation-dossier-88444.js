@@ -6,7 +6,10 @@
 /** @import {Knex} from 'knex' */
 /** @import { ChampFormulaire88444 } from '../../scripts/types/API_Pitchou.ts' */
 
-import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiersEspècesImpactées } from './téléchargerNouveauxFichiersParType.js'
+import {
+  téléchargerNouveauxFichiersFromChampId,
+  téléchargerNouveauxFichiersEspècesImpactées,
+} from "./téléchargerNouveauxFichiersParType.js";
 
 /**
  * Télécharge les nouveaux fichiers "Espèces impactées" pour la démarche 88444
@@ -15,53 +18,64 @@ import { téléchargerNouveauxFichiersFromChampId, téléchargerNouveauxFichiers
  * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
  */
-export function récupérerFichiersEspècesImpactées88444(dossiersDS, pitchouKeyToChampDS, laTransactionDeSynchronisationDS){
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get('Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes')
-    if(!fichierEspècesImpactéeChampId){
-        throw new Error('fichierEspècesImpactéeChampId is undefined')
-    }
+export function récupérerFichiersEspècesImpactées88444(
+  dossiersDS,
+  pitchouKeyToChampDS,
+  laTransactionDeSynchronisationDS,
+) {
+  /** @type {ChampDescriptor['id'] | undefined} */
+  const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get(
+    "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
+  );
+  if (!fichierEspècesImpactéeChampId) {
+    throw new Error("fichierEspècesImpactéeChampId is undefined");
+  }
 
-    return téléchargerNouveauxFichiersEspècesImpactées(
-        dossiersDS,
-        fichierEspècesImpactéeChampId,
-        laTransactionDeSynchronisationDS
-    )
+  return téléchargerNouveauxFichiersEspècesImpactées(
+    dossiersDS,
+    fichierEspècesImpactéeChampId,
+    laTransactionDeSynchronisationDS,
+  );
 }
 
 /**
  * Télécharge les pièces jointes au dossier fournies par le pétitionnaire pour la démarche 88444
- * 
+ *
  * @param {DossierDS88444[]} dossiersDS
  * @param {Map<ChampFormulaire88444, ChampDescriptor['id']>} pitchouKeyToChampDS
  * @param {ChampFormulaire88444[]} champsAvecPiècesJointes
  * @param {Knex.Transaction | Knex} databaseConnection
  * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
-export async function récupérerPiècesJointesPétitionnaire88444(dossiersDS, pitchouKeyToChampDS, champsAvecPiècesJointes, databaseConnection){
-    /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
-    const fichiersP = new Map()
+export async function récupérerPiècesJointesPétitionnaire88444(
+  dossiersDS,
+  pitchouKeyToChampDS,
+  champsAvecPiècesJointes,
+  databaseConnection,
+) {
+  /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
+  const fichiersP = new Map();
 
-    for (const champ of champsAvecPiècesJointes) {
-        const champId = pitchouKeyToChampDS.get(champ)
-        if(!champId){
-            throw new Error(`champId for ${champ} is undefined`)
-        }
-        const fichiersFromDossierP = téléchargerNouveauxFichiersFromChampId(
-            dossiersDS,
-            champId,
-            databaseConnection
-        )
-
-        const fichiersFromDossier = await fichiersFromDossierP
-
-        if(fichiersFromDossier){
-            for(const [number, fichierIds] of fichiersFromDossier){
-                const fichiersIdsDéjàLà = fichiersP.get(number) || []
-                fichiersP.set(number, [...fichierIds, ...fichiersIdsDéjàLà])
-            }
-        }
+  for (const champ of champsAvecPiècesJointes) {
+    const champId = pitchouKeyToChampDS.get(champ);
+    if (!champId) {
+      throw new Error(`champId for ${champ} is undefined`);
     }
+    const fichiersFromDossierP = téléchargerNouveauxFichiersFromChampId(
+      dossiersDS,
+      champId,
+      databaseConnection,
+    );
 
-    return fichiersP
+    const fichiersFromDossier = await fichiersFromDossierP;
+
+    if (fichiersFromDossier) {
+      for (const [number, fichierIds] of fichiersFromDossier) {
+        const fichiersIdsDéjàLà = fichiersP.get(number) || [];
+        fichiersP.set(number, [...fichierIds, ...fichiersIdsDéjàLà]);
+      }
+    }
+  }
+
+  return fichiersP;
 }

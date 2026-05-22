@@ -1,27 +1,26 @@
-import Dossier from './database/public/Dossier.ts'
-import { DossierDemarcheNumerique88444 } from './démarche-numérique/Démarche88444.ts'
-import Fichier from './database/public/Fichier.ts'
-import ÉvènementPhaseDossier from './database/public/ÉvènementPhaseDossier.ts'
-import DécisionAdministrative from './database/public/DécisionAdministrative.ts'
-import Prescription from './database/public/Prescription.ts'
-import Contrôle from './database/public/Contrôle.ts'
-import AvisExpert from './database/public/AvisExpert.ts'
-
+import Dossier from "./database/public/Dossier.ts";
+import { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
+import Fichier from "./database/public/Fichier.ts";
+import ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
+import DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
+import Prescription from "./database/public/Prescription.ts";
+import Contrôle from "./database/public/Contrôle.ts";
+import AvisExpert from "./database/public/AvisExpert.ts";
 
 type DossierPersonnesImpliquéesRésumé = {
-    déposant_nom: string;
-    déposant_prénoms: string;
-    demandeur_personne_physique_nom: string;
-    demandeur_personne_physique_prénoms: string;
-    demandeur_personne_morale_raison_sociale: string;
-    demandeur_personne_morale_siret: string
-}
+  déposant_nom: string;
+  déposant_prénoms: string;
+  demandeur_personne_physique_nom: string;
+  demandeur_personne_physique_prénoms: string;
+  demandeur_personne_morale_raison_sociale: string;
+  demandeur_personne_morale_siret: string;
+};
 
-type DossierPersonnesImpliquéesComplet =  DossierPersonnesImpliquéesRésumé & {
-    demandeur_adresse: string
-    déposant_email: string | null;
-    demandeur_personne_physique_email: string | null;
-}
+type DossierPersonnesImpliquéesComplet = DossierPersonnesImpliquéesRésumé & {
+  demandeur_adresse: string;
+  déposant_email: string | null;
+  demandeur_personne_physique_email: string | null;
+};
 
 /**
  * On génère automatiquement les types des propriétés d'un Dossier via Kanel
@@ -32,10 +31,22 @@ type DossierPersonnesImpliquéesComplet =  DossierPersonnesImpliquéesRésumé &
  * On surcharge ici ces propriétés pour contraindre les valeurs de ces propriétés.
  */
 
-export type DossierPhase = "Accompagnement amont" | "Étude recevabilité DDEP" | "Instruction" | "Contrôle" | "Classé sans suite" | "Obligations terminées"
+export type DossierPhase =
+  | "Accompagnement amont"
+  | "Étude recevabilité DDEP"
+  | "Instruction"
+  | "Contrôle"
+  | "Classé sans suite"
+  | "Obligations terminées";
 
-export type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "Pétitionnaire" | "Consultation du public" | "Autre administration" | "Autre" | "Personne";
-
+export type DossierProchaineActionAttenduePar =
+  | "Instructeur"
+  | "CNPN/CSRPN"
+  | "Pétitionnaire"
+  | "Consultation du public"
+  | "Autre administration"
+  | "Autre"
+  | "Personne";
 
 /**
  * Kanel génère un type `unknown` pour les champs JSON.
@@ -44,23 +55,24 @@ export type DossierProchaineActionAttenduePar = "Instructeur" | "CNPN/CSRPN" | "
  *
  */
 type DossierDémarcheSimplifiée88444Communes = {
-    name: string;
-    code: string;
-    postalCode: string;
-}
+  name: string;
+  code: string;
+  postalCode: string;
+};
 
 type DossierLocalisation = {
-    communes: DossierDémarcheSimplifiée88444Communes[] | null | undefined;
-    départements: string[] | null | undefined;
-    régions: string[] | null | undefined;
-}
-
+  communes: DossierDémarcheSimplifiée88444Communes[] | null | undefined;
+  départements: string[] | null | undefined;
+  régions: string[] | null | undefined;
+};
 
 type DossierActivitéPrincipale = {
-    activité_principale: DossierDemarcheNumerique88444["Activité principale"] | null
-}
+  activité_principale: DossierDemarcheNumerique88444["Activité principale"] | null;
+};
 
-type DonnéesDossierPourStats = { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined}
+type DonnéesDossierPourStats = {
+  décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
+};
 
 /**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
@@ -69,69 +81,90 @@ type DonnéesDossierPourStats = { décisionsAdministratives: FrontEndDécisionAd
  *
  * Il a pour objectif d'être plutôt facile à requêter en groupe
  */
-export type DossierRésumé = Pick<Dossier,
-    'id' | 'number_demarches_simplifiées' | 'nom' | 'date_dépôt' |
-    'enjeu_politique' | 'enjeu_écologique' | 'rattaché_au_régime_ae' |
-    'prochaine_action_attendue_par' | 'commentaire_libre' |
-    'historique_identifiant_demande_onagre'>
-    & {phase: DossierPhase, date_début_phase: Date}
-    & DossierLocalisation
-    & DossierPersonnesImpliquéesRésumé
-    & DossierActivitéPrincipale
-    & DonnéesDossierPourStats
+export type DossierRésumé = Pick<
+  Dossier,
+  | "id"
+  | "number_demarches_simplifiées"
+  | "nom"
+  | "date_dépôt"
+  | "enjeu_politique"
+  | "enjeu_écologique"
+  | "rattaché_au_régime_ae"
+  | "prochaine_action_attendue_par"
+  | "commentaire_libre"
+  | "historique_identifiant_demande_onagre"
+> & { phase: DossierPhase; date_début_phase: Date } & DossierLocalisation &
+  DossierPersonnesImpliquéesRésumé &
+  DossierActivitéPrincipale &
+  DonnéesDossierPourStats;
 
+export type FrontEndPrescription = Prescription & { contrôles: Contrôle[] | undefined };
 
-export type FrontEndPrescription = Prescription
-    &  { contrôles: Contrôle[] | undefined }
+export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, "fichier"> & {
+  fichier_url: string | undefined;
+} & { prescriptions: FrontEndPrescription[] | undefined };
 
+export type DécisionAdministrativePourTransfer = Partial<
+  Omit<DécisionAdministrative, "fichier"> & {
+    fichier_base64: { contenuBase64: string; nom: string; media_type: string };
+  }
+>;
 
-export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, 'fichier'>
-    & { fichier_url: string | undefined }
-    & { prescriptions: FrontEndPrescription[] | undefined }
-
-
-export type DécisionAdministrativePourTransfer = Partial<Omit<DécisionAdministrative, 'fichier'>
-    & { fichier_base64: {contenuBase64: string, nom: string, media_type: string} }>
-
-export type FrontEndAvisExpert = Omit<AvisExpert, 'avis_fichier' | 'saisine_fichier'> & {
-    avis_fichier_url: string | undefined;
-    saisine_fichier_url: string | undefined
-}
-
+export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fichier"> & {
+  avis_fichier_url: string | undefined;
+  saisine_fichier_url: string | undefined;
+};
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment le contenu du fichier espèces impactées s'il y en a un
  */
-export type DossierComplet = Omit<Dossier, 'communes' | 'départements' | 'régions' | 'activité_principale'> &
-	DossierLocalisation &
-	DossierPersonnesImpliquéesComplet &
-	DossierActivitéPrincipale &
-    { espècesImpactées: Pick<Fichier, 'contenu' | 'media_type' | 'nom'> | undefined } &
-    { évènementsPhase: ÉvènementPhaseDossier[]} &
-    { décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined } &
-    { avisExpert: FrontEndAvisExpert[]} &
-    { piècesJointesPétitionnaires: (Pick<Fichier, 'media_type' | 'nom'> & {url: string, taille: number})[] }
+export type DossierComplet = Omit<
+  Dossier,
+  "communes" | "départements" | "régions" | "activité_principale"
+> &
+  DossierLocalisation &
+  DossierPersonnesImpliquéesComplet &
+  DossierActivitéPrincipale & {
+    espècesImpactées: Pick<Fichier, "contenu" | "media_type" | "nom"> | undefined;
+  } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
+    décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
+  } & { avisExpert: FrontEndAvisExpert[] } & {
+    piècesJointesPétitionnaires: (Pick<Fichier, "media_type" | "nom"> & {
+      url: string;
+      taille: number;
+    })[];
+  };
 
+export type TypeDécisionAdministrative =
+  | "Arrêté dérogation"
+  | "Arrêté refus"
+  | "Arrêté modificatif"
+  | "Courrier"
+  | "Autre décision";
 
-export type TypeDécisionAdministrative = "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
-
-
-export type RésultatContrôle = "Conforme" | "Non conforme" | "Trop tard" | "En cours" | "Non conforme (Pas d'informations reçues)"
-export type TypesActionSuiteContrôle = "Email" | "Courrier" | "Courrier recommandé avec accusé de réception"
-
+export type RésultatContrôle =
+  | "Conforme"
+  | "Non conforme"
+  | "Trop tard"
+  | "En cours"
+  | "Non conforme (Pas d'informations reçues)";
+export type TypesActionSuiteContrôle =
+  | "Email"
+  | "Courrier"
+  | "Courrier recommandé avec accusé de réception";
 
 // - - - - - Statistiques - - - - - - //
 export interface StatsPubliques {
-    nbDossiersEnPhaseContrôle: number
-    nbDossiersEnPhaseContrôleAvecDécision: number
-    nbDossiersEnPhaseContrôleSansDécision: number
-    nbPétitionnairesDepuisSept2024: number
-    totalDossiers: number
-    totalPrescriptions: number
-    nbPrescriptionsControlees: number
-    statsConformité: StatsConformité
-    statsImpactBiodiversité: StatsImpactBiodiversité
+  nbDossiersEnPhaseContrôle: number;
+  nbDossiersEnPhaseContrôleAvecDécision: number;
+  nbDossiersEnPhaseContrôleSansDécision: number;
+  nbPétitionnairesDepuisSept2024: number;
+  totalDossiers: number;
+  totalPrescriptions: number;
+  nbPrescriptionsControlees: number;
+  statsConformité: StatsConformité;
+  statsImpactBiodiversité: StatsImpactBiodiversité;
 }
 
 /**
@@ -187,13 +220,12 @@ export interface StatsImpactBiodiversité {
  * AARRI (indicateurs de suivi).
  */
 export interface IndicateursAARRI {
-    nombreBaseUtilisateuricePotentielle: number;
-    nombreUtilisateuriceAcquis: number;
-    nombreUtilisateuriceActif: number;
-    nombreUtilisateuriceRetenu: number;
-    nombreUtilisateuriceImpact: number;
-    date: string,
+  nombreBaseUtilisateuricePotentielle: number;
+  nombreUtilisateuriceAcquis: number;
+  nombreUtilisateuriceActif: number;
+  nombreUtilisateuriceRetenu: number;
+  nombreUtilisateuriceImpact: number;
+  date: string;
 }
 
-
-export type ChampFormulaire88444 = keyof DossierDemarcheNumerique88444
+export type ChampFormulaire88444 = keyof DossierDemarcheNumerique88444;

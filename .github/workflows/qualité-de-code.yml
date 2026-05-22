@@ -2,7 +2,7 @@ name: Qualité de code
 
 on: [pull_request]
 
-#on: 
+#on:
 #  push:
 #      branches:
 #        - svelte-check-tower
@@ -25,36 +25,36 @@ jobs:
     name: Run svelte-check
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Setup Node 22
-          uses: actions/setup-node@v4
-          with:
-              node-version: 22
-              registry-url: https://registry.npmjs.org/
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
 
-        - name: Install
-          run: npm clean-install --ignore-scripts
+      - name: Install
+        run: npm clean-install --ignore-scripts
 
-        # Run the svelte check action
-        - name: Svelte Check
-          uses: ghostdevv/svelte-check-action@v1.5
-          with:
-            # filterChanges: false
-            failOnError: true
-  
+      # Run the svelte check action
+      - name: Svelte Check
+        uses: ghostdevv/svelte-check-action@v1.5
+        with:
+          # filterChanges: false
+          failOnError: true
+
   build:
     name: Test npm run build
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Setup Node 22
-          uses: actions/setup-node@v4
-          with:
-                node-version: 22
-                registry-url: https://registry.npmjs.org/
-        - run: npm clean-install --ignore-scripts
-        - run: npm run build
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+      - run: npm clean-install --ignore-scripts
+      - run: npm run build

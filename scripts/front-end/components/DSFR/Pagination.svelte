@@ -1,7 +1,7 @@
 <script>
-    import clsx from "clsx";
+  import clsx from "clsx";
 
-    /*
+  /*
     Implémentation du composant de pagination du DSFR
     https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/pagination/
 
@@ -19,28 +19,28 @@
 
     */
 
-    /** @typedef {() => void} SelectionneurPage */
+  /** @typedef {() => void} SelectionneurPage */
 
-    
-    /**
-     * @typedef {Object} Props
-     * @property {[undefined, ...rest: SelectionneurPage[]]} selectionneursPage
-     * @property {SelectionneurPage | undefined} pageActuelle
-     */
+  /**
+   * @typedef {Object} Props
+   * @property {[undefined, ...rest: SelectionneurPage[]]} selectionneursPage
+   * @property {SelectionneurPage | undefined} pageActuelle
+   */
 
-    /** @type {Props} */
-    let { selectionneursPage, pageActuelle } = $props();
+  /** @type {Props} */
+  let { selectionneursPage, pageActuelle } = $props();
 
+  let selectionnerPremièrePage = $derived(selectionneursPage[1]);
+  let selectionnerDernièrePage = $derived(selectionneursPage.at(-1));
+  let numéroDernièrePage = $derived(selectionneursPage.length - 1);
+  let numéroPageSelectionné = $derived(selectionneursPage.indexOf(pageActuelle));
+  let selectionnerPagePrécédente = $derived(selectionneursPage[numéroPageSelectionné - 1]);
+  let selectionnerPageSuivante = $derived(selectionneursPage[numéroPageSelectionné + 1]);
+  // Toujours afficher la première, la dernière, la page actuelle, deux avant et deux après
 
-    let selectionnerPremièrePage = $derived(selectionneursPage[1])
-    let selectionnerDernièrePage = $derived(selectionneursPage.at(-1))
-    let numéroDernièrePage = $derived(selectionneursPage.length - 1)
-    let numéroPageSelectionné = $derived(selectionneursPage.indexOf(pageActuelle))
-    let selectionnerPagePrécédente = $derived(selectionneursPage[numéroPageSelectionné - 1])
-    let selectionnerPageSuivante = $derived(selectionneursPage[numéroPageSelectionné + 1])
-    // Toujours afficher la première, la dernière, la page actuelle, deux avant et deux après
-
-    let listeNumérosPage = $derived([...new Set([
+  let listeNumérosPage = $derived(
+    [
+      ...new Set([
         1,
 
         numéroPageSelectionné - 2,
@@ -49,77 +49,78 @@
         numéroPageSelectionné + 1,
         numéroPageSelectionné + 2,
 
-        numéroDernièrePage
-    ])].filter(n => !!selectionneursPage[n]))
+        numéroDernièrePage,
+      ]),
+    ].filter((n) => !!selectionneursPage[n]),
+  );
 </script>
 
 <nav class="fr-pagination" aria-label="Pagination">
-    <ul class="fr-pagination__list">
-        <li>
-            <button
-                class="fr-pagination__link fr-pagination__link--first"
-                disabled={pageActuelle === selectionnerPremièrePage}
-                onclick={selectionnerPremièrePage}
-            >
-                Première page
-            </button>
-        </li>
-        <li>
-            <button
-                class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
-                disabled={pageActuelle === selectionnerPremièrePage}
-                onclick={selectionnerPagePrécédente}
-            >
-                Page précédente
-            </button>
-        </li>
+  <ul class="fr-pagination__list">
+    <li>
+      <button
+        class="fr-pagination__link fr-pagination__link--first"
+        disabled={pageActuelle === selectionnerPremièrePage}
+        onclick={selectionnerPremièrePage}
+      >
+        Première page
+      </button>
+    </li>
+    <li>
+      <button
+        class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
+        disabled={pageActuelle === selectionnerPremièrePage}
+        onclick={selectionnerPagePrécédente}
+      >
+        Page précédente
+      </button>
+    </li>
 
-        {#each listeNumérosPage as numéroPage, i}
-            {#if numéroPage === numéroDernièrePage && listeNumérosPage[i] - listeNumérosPage[i-1] >= 2}
-                <li><span aria-hidden="true" class="fr-pagination__link fr-displayed-lg"> … </span></li>
-            {/if}
+    {#each listeNumérosPage as numéroPage, i}
+      {#if numéroPage === numéroDernièrePage && listeNumérosPage[i] - listeNumérosPage[i - 1] >= 2}
+        <li><span aria-hidden="true" class="fr-pagination__link fr-displayed-lg"> … </span></li>
+      {/if}
 
-            <li>
-                <button 
-                    type="button"
-                    class={clsx(['fr-pagination__link', 'fr-displayed-lg'])} 
-                    aria-current={pageActuelle === selectionneursPage[numéroPage] ? "page" : undefined}
-                    title={`Page ${numéroPage}`}
-                    onclick={selectionneursPage[numéroPage]}
-                >
-                    {numéroPage}
-                </button>
-            </li>
+      <li>
+        <button
+          type="button"
+          class={clsx(["fr-pagination__link", "fr-displayed-lg"])}
+          aria-current={pageActuelle === selectionneursPage[numéroPage] ? "page" : undefined}
+          title={`Page ${numéroPage}`}
+          onclick={selectionneursPage[numéroPage]}
+        >
+          {numéroPage}
+        </button>
+      </li>
 
-            {#if numéroPage === 1 && listeNumérosPage[i+1] - listeNumérosPage[i] >= 2}
-                <li><span aria-hidden="true"  class="fr-pagination__link fr-displayed-lg"> … </span></li>
-            {/if}
-        {/each}
-        
-        <li>
+      {#if numéroPage === 1 && listeNumérosPage[i + 1] - listeNumérosPage[i] >= 2}
+        <li><span aria-hidden="true" class="fr-pagination__link fr-displayed-lg"> … </span></li>
+      {/if}
+    {/each}
 
-            <button
-                class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
-                disabled={pageActuelle === selectionnerDernièrePage}
-                onclick={selectionnerPageSuivante}
-            >
-                Page suivante
-            </button>
-        </li>
-        <li>
-            <button
-                class="fr-pagination__link fr-pagination__link--last"
-                disabled={pageActuelle === selectionnerDernièrePage}
-                onclick={selectionnerDernièrePage}
-            >
-                Dernière page
-            </button>
-        </li>
-    </ul>
+    <li>
+      <button
+        class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
+        disabled={pageActuelle === selectionnerDernièrePage}
+        onclick={selectionnerPageSuivante}
+      >
+        Page suivante
+      </button>
+    </li>
+    <li>
+      <button
+        class="fr-pagination__link fr-pagination__link--last"
+        disabled={pageActuelle === selectionnerDernièrePage}
+        onclick={selectionnerDernièrePage}
+      >
+        Dernière page
+      </button>
+    </li>
+  </ul>
 </nav>
 
 <style lang="scss">
-    nav ul {
-        justify-content: center;
-    }
+  nav ul {
+    justify-content: center;
+  }
 </style>

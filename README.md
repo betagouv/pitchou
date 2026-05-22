@@ -2,12 +2,10 @@
 
 Mieux contrôler les dérogations d'espèces protégées
 
-
 ## Installer
 
 Installer [docker](https://docs.docker.com/engine/) et [docker-compose](https://docs.docker.com/compose/)
 Peut-être via [Docker Desktop](https://docs.docker.com/desktop/), bonne chance !
-
 
 ## Architecture
 
@@ -16,7 +14,6 @@ Back-end en Node.js
 Base de données Postgres
 
 Le serveur récupère les données des dossiers via [l'API Démarche Numérique](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
-
 
 ## En dév
 
@@ -44,7 +41,6 @@ Pour régénérer tous les types :
 exécuter `npm run build-types:db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 
-
 #### Re-générer les types à partir des 2 schémas DS
 
 `npm run build-types:ds`
@@ -53,7 +49,6 @@ Cette commande télécharge aussi les dernières versions des schémas avant de 
 
 Pour éviter le téléchargement et créer les types à partir des fichiers schémas existants dans le repo, ajouter l'option `--skipDownload`, par exemple :
 `node outils/genere-types-schema-DS.js --skipDownload --idSchemaDS derogation-especes-protegees`
-
 
 ### Pour pgadmin
 
@@ -69,18 +64,21 @@ La documentation (dossier `docs/`) est déployée en production sur GitHub Pages
 Pour visualiser la documentation **en local** (avant de pousser sur GitHub), vous pouvez utiliser Docker pour lancer un serveur Jekyll identique à celui de GitHub Pages.
 
 Construire l'image Docker Jekyll
-   ```sh
-   cd docs
-   docker build -t mon-jekyll .
-   cd ..
-   ```
+
+```sh
+cd docs
+docker build -t mon-jekyll .
+cd ..
+```
 
 Lancer le serveur Jekyll en local
 
-   Toujours depuis la racine du projet :
-   ```sh
-   docker run --rm -p 4000:4000 -v "$PWD/docs":/srv/jekyll -e PAGES_REPO_NWO="dev" mon-jekyll
-   ```
+Toujours depuis la racine du projet :
+
+```sh
+docker run --rm -p 4000:4000 -v "$PWD/docs":/srv/jekyll -e PAGES_REPO_NWO="dev" mon-jekyll
+```
+
 Le site sera accessible à l'adresse :
 [http://localhost:4000/](http://localhost:4000/)
 
@@ -102,14 +100,12 @@ Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/
 
 On utilise une base de données Postgres 15.7 en prod
 
-
 #### Backups
 
 Scalingo fournit des backups
 https://doc.scalingo.com/databases/postgresql/backing-up
 
 Actuellement, on a un backup quotidien des 7 derniers jours, un backup hebdomadaire des 4 dernières semaines et 10 backups manuels
-
 
 ##### Restorer un backup en local
 
@@ -142,14 +138,11 @@ docker exec postgres_db createdb --username=dev especes_pro_3731
 docker exec postgres_db pg_restore --no-owner --no-privileges --dbname=especes_pro_3731 --username=dev --jobs=6 /var/lib/pitchou/backups/<nom du fichier>.pgsql
 ```
 
-
 ##### Restorer un backup en prod
 
 On peut faire un restore en un clic d'un backup dans l'onglet `BACKUPS` du dashboard de l'addon PostgreSQL
 
 Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.scalingo.com/databases/postgresql/restoring)
-
-
 
 ## Outils
 
@@ -161,13 +154,11 @@ Pour aller en arrière et en avant d'un cran dans la liste des migrations :
 `npm run migrate:down`
 `npm run migrate:up`
 
-
 ### Fabriquer la liste des espèces protégées
 
 pour les autocomplete de saisie espèces notamment
 
 `node outils/liste-espèces.js`
-
 
 ### Ajouter une espèce manquante
 
@@ -181,7 +172,6 @@ Dans le fichier `data/sources_especes/espèces_ministérielles_cnpn.ods` ajouter
 
 Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèces à jour.
 
-
 ### Synchroniser dossiers récemment modifiés de Démarche Numérique
 
 #### En dev
@@ -192,9 +182,7 @@ depuis le container du serveur
 
 `docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
 
-
 `docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
-
 
 #### En prod
 
@@ -204,17 +192,15 @@ Un [crontab](cron.json) tourne régulièrement pour récupérer les dossiers ré
 
 Pour modifier le cron : https://crontab.guru/
 
-
 ##### Synchronisation complète ponctuelle
 
 Parfois, notamment après des changements dans le modèle de données, il est nécessaire de synchroniser tous les dossiers
 
-Pour le faire, on peut utiliser un [*one-off container*}(https://doc.scalingo.com/platform/app/tasks) :
+Pour le faire, on peut utiliser un [_one-off container_}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
 scalingo --app especes-protegees run --size 2XL 'node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
 ```
-
 
 ### Lister les liens de connexion en local
 
@@ -230,14 +216,12 @@ Pour donner l'origine de manière libre :
 
 `docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
 
-
-
 ### GeoMCE
 
 Pitchou maintient une API pour que GeoMCE puisse récupérer les données que Pitchou doit déclarer
 (GeoMCE ne peut pas ouvrir d'API pour des raisons techniques de leur côté)
 
-Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme 
+Pitchou expose une [capability url](https://w3ctag.github.io/capability-urls/) de la forme
 `/declaration-geomce?secret=XXX`
 
 Un outil permet de récupérer la capability url pour la transmettre aux personnes de GeoMCE :
@@ -245,8 +229,6 @@ Un outil permet de récupérer la capability url pour la transmettre aux personn
 
 En cas de compromission ou régulièrement, la capability-url peut être reset:
 `scalingo --app especes-protegees run "node outils/geomce.js --reset-capability-url"`
-
-
 
 ### Outils AARRI
 
@@ -257,13 +239,13 @@ Les données de tracking nécessaires à AARRI sont stockées exclusivement dans
 Pour des raisons de minimisation des données, de protection des personnes et de conformité au RGPD, nous supprimons les données datant de plus d’un an.
 
 Nous avons un outil qui permet de faire ça.
-En production : 
+En production :
 `scalingo --app especes-protegees run "node outils/aarri/supprimer-evenements.js"`
 
-En dev : 
+En dev :
 `docker exec tooling node outils/aarri/supprimer-evenements.js`
 
-Pour nettoyer tous les évènements concernant une personne spécifique : 
+Pour nettoyer tous les évènements concernant une personne spécifique :
 
 `docker exec tooling node outils/aarri/supprimer-evenements.js --email david@example.net`
 

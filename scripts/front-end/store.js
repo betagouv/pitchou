@@ -1,9 +1,9 @@
 //@ts-check
 
-import Store from 'baredux'
+import Store from "baredux";
 
-import {DossierCompletToDossierRésumé} from '../commun/outils-dossiers.js'
-import { SvelteMap } from 'svelte/reactivity'
+import { DossierCompletToDossierRésumé } from "../commun/outils-dossiers.js";
+import { SvelteMap } from "svelte/reactivity";
 
 /**
  * Un store baredux a pour vocation de refléter notamment le modèle mental de la
@@ -18,7 +18,6 @@ import { SvelteMap } from 'svelte/reactivity'
 // DO NOT import x from 'remember' // do it in an action instead
 // DO NOT import x from './actions/*.js' // you're making an action, so add an action instead
 
-
 /** @import {DossierComplet, DossierRésumé} from '../types/API_Pitchou.d.ts' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.ts' */
 /** @import {PitchouInstructeurCapabilities, IdentitéInstructeurPitchou} from '../types/capabilities.d.ts' */
@@ -27,7 +26,6 @@ import { SvelteMap } from 'svelte/reactivity'
 /** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
 /** @import {default as Personne} from '../types/database/public/Personne.ts' */
 /** @import {default as Notification} from '../types/database/public/Notification.ts' */
-
 
 /**
  * @typedef {Object} PitchouState
@@ -46,8 +44,6 @@ import { SvelteMap } from 'svelte/reactivity'
  * @property { {horodatage: Date, succès: boolean}[] } [résultatsSynchronisationDS88444]
  */
 
-
-
 /** @type {PitchouState} */
 const state = {
   dossiersRésumés: new Map(),
@@ -55,8 +51,8 @@ const state = {
   messagesParDossierId: new Map(),
   erreurs: new Set(),
   capabilities: {},
-  notificationParDossier: new SvelteMap()
-}
+  notificationParDossier: new SvelteMap(),
+};
 
 const mutations = {
   /**
@@ -64,51 +60,51 @@ const mutations = {
    * @param {PitchouState['capabilities']} capabilities
    */
   setCapabilities(state, capabilities) {
-    state.capabilities = capabilities
+    state.capabilities = capabilities;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['dossiersRésumés']} dossiersRésumés
    */
   setDossiersRésumés(state, dossiersRésumés) {
-    state.dossiersRésumés = dossiersRésumés
+    state.dossiersRésumés = dossiersRésumés;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['dossiersComplets']} dossiersComplets
    */
   setDossiersComplets(state, dossiersComplets) {
-    state.dossiersComplets = dossiersComplets
+    state.dossiersComplets = dossiersComplets;
   },
   /**
    * @param {PitchouState} state
    * @param {DossierComplet} nouveauDossierComplet
    */
   setDossierComplet(state, nouveauDossierComplet) {
-    state.dossiersComplets.set(nouveauDossierComplet.id, nouveauDossierComplet)
-    const dossierRésumé = DossierCompletToDossierRésumé(nouveauDossierComplet)
-    state.dossiersRésumés.set(nouveauDossierComplet.id, dossierRésumé)
+    state.dossiersComplets.set(nouveauDossierComplet.id, nouveauDossierComplet);
+    const dossierRésumé = DossierCompletToDossierRésumé(nouveauDossierComplet);
+    state.dossiersRésumés.set(nouveauDossierComplet.id, dossierRésumé);
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['relationSuivis']} relationSuivis
    */
   setRelationSuivis(state, relationSuivis) {
-    state.relationSuivis = relationSuivis
+    state.relationSuivis = relationSuivis;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['notificationParDossier']} notificationParDossier
    */
   setNotificationParDossierPourInstructeurActuel(state, notificationParDossier) {
-    state.notificationParDossier = notificationParDossier
+    state.notificationParDossier = notificationParDossier;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['identité']} identité
    */
   setIdentité(state, identité) {
-    state.identité = identité
+    state.identité = identité;
   },
   /**
    * @param {PitchouState} state
@@ -116,68 +112,68 @@ const mutations = {
    * @param {Message[]} messages
    */
   setMessages(state, id, messages) {
-    state.messagesParDossierId.set(id, messages)
+    state.messagesParDossierId.set(id, messages);
   },
   /**
    * @param {PitchouState} state
    */
   resetMessages(state) {
-    state.messagesParDossierId = new Map()
+    state.messagesParDossierId = new Map();
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['schemaDS88444']} schemaDS88444
    */
   setSchemaDS88444(state, schemaDS88444) {
-    state.schemaDS88444 = schemaDS88444
+    state.schemaDS88444 = schemaDS88444;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['espècesProtégéesParClassification']} espècesProtégéesParClassification
    */
   setEspècesProtégéesParClassification(state, espècesProtégéesParClassification) {
-    state.espècesProtégéesParClassification = espècesProtégéesParClassification
+    state.espècesProtégéesParClassification = espècesProtégéesParClassification;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['espèceByCD_REF']} espèceByCD_REF
    */
   setEspèceByCD_REF(state, espèceByCD_REF) {
-    state.espèceByCD_REF = espèceByCD_REF
+    state.espèceByCD_REF = espèceByCD_REF;
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['ActivitésMéthodesMoyensDePoursuite']} ActivitésMéthodesMoyensDePoursuite
    */
   setActivitésMéthodesMoyensDePoursuite(state, ActivitésMéthodesMoyensDePoursuite) {
-    state.ActivitésMéthodesMoyensDePoursuite = ActivitésMéthodesMoyensDePoursuite
+    state.ActivitésMéthodesMoyensDePoursuite = ActivitésMéthodesMoyensDePoursuite;
   },
   /**
    * @param {PitchouState} state
    * @param {{message: string}} erreur
    */
   ajouterErreur(state, erreur) {
-    state.erreurs = new Set([erreur, ...state.erreurs])
+    state.erreurs = new Set([erreur, ...state.erreurs]);
   },
   /**
    * @param {PitchouState} state
    * @param {{message: string}} erreur
    */
-  enleverErreur(state, erreur){
-    state.erreurs.delete(erreur)
+  enleverErreur(state, erreur) {
+    state.erreurs.delete(erreur);
   },
   /**
    * @param {PitchouState} state
    * @param {PitchouState['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
    */
-  setRésultatsSynchronisationDS88444(state, résultatsSynchronisationDS88444){
-    state.résultatsSynchronisationDS88444 = résultatsSynchronisationDS88444
+  setRésultatsSynchronisationDS88444(state, résultatsSynchronisationDS88444) {
+    state.résultatsSynchronisationDS88444 = résultatsSynchronisationDS88444;
   },
-}
+};
 
 /** @typedef { typeof mutations } PitchouMutations */
 
 /** @type { import('baredux').BareduxStore<PitchouState, PitchouMutations> } */
-const store = Store({ state, mutations })
+const store = Store({ state, mutations });
 
-export default store
+export default store;
