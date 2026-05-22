@@ -382,10 +382,6 @@
     white-space: nowrap;
   }
 
-  .bouton-telecharger-fichier-espece {
-    width: 15rem;
-  }
-
   .pièces-jointes-pétitionnaire {
     list-style: none;
     padding: 0;
