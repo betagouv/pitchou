@@ -8,9 +8,9 @@
     "pnpm": "10.27.0"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "vite build",
     "dev": "npm-run-all --parallel dev:* start",
-    "dev:rollup": "rollup -c -w",
+    "dev:vite": "vite",
     "start": "DOCKER_UID=\"$(id -u)\" DOCKER_GID=\"$(id -g)\" docker compose up",
     "prestart:server": "knex migrate:unlock --env docker_dev && knex migrate:latest --env docker_dev",
     "start:server": "node --env-file=.env --watch scripts/server/main.js",
@@ -32,9 +32,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@types/byte-size": "^8.1.2",
     "@types/d3-fetch": "^3.0.7",
     "@types/lunr": "^2.3.7",
@@ -46,15 +44,12 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^3.3.3",
     "prettier-plugin-svelte": "^3.2.6",
-    "rollup": "^4.18.0",
-    "rollup-plugin-css-only": "^4.5.2",
-    "rollup-plugin-svelte": "^7.2.2",
     "rust-just": "^1.51.0",
     "sass": "^1.58.3",
     "svelte": "5.25",
     "svelte-check": "^4.0.0",
-    "svelte-preprocess": "^6.0.3",
     "typescript": "^5.8.3",
+    "vite": "^8.0.14",
     "vitest": "^4.1.6"
   },
   "dependencies": {

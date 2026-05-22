@@ -130,12 +130,20 @@ const fastify = Fastify({
 await fastify.register(fastifyCompress);
 
 fastify.register(fastatic, {
-  root: path.resolve(import.meta.dirname, "..", ".."),
+  root: path.resolve(import.meta.dirname, "..", "..", "dist"),
   extensions: ["html"],
-  // certains fichiers ont vocation à rester secrets
-  // ils sont protégés par une partie aléatoire dans leurs noms
-  // cette option permet de ne pas dévoiler leur nom
-  list: false,
+});
+
+fastify.register(fastatic, {
+  root: path.resolve(import.meta.dirname, "..", "..", "data"),
+  prefix: "/data/",
+  decorateReply: false,
+});
+
+fastify.register(fastatic, {
+  root: path.resolve(import.meta.dirname, "..", "..", "docs"),
+  prefix: "/docs/",
+  decorateReply: false,
 });
 
 fastify.register(fastifyMultipart, {
