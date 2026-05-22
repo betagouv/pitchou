@@ -22,7 +22,10 @@
     "build-types:ds:128114": "node outils/genere-types-schema-DS.js --idSchemaDS 7f52a348-fd16-4fcd-8a6f-2e78ddafaee4",
     "migrate:up": "docker exec tooling npx knex migrate:up --env docker_dev",
     "migrate:down": "docker exec tooling npx knex migrate:down --env docker_dev",
-    "test": "playwright test tests/e2e",
+    "test": "npm-run-all test:unit test:e2e",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test tests/e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -49,7 +52,8 @@
     "svelte": "5.25",
     "svelte-check": "^4.0.0",
     "svelte-preprocess": "^6.0.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.6"
   },
   "dependencies": {
     "@fastify/compress": "^8.0.1",
