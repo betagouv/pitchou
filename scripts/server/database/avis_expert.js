@@ -2,6 +2,7 @@
 /** @import { Knex } from 'knex' */
 /** @import { PickNonNullable } from '../../types/tools' */
 /** @import Fichier from '../../types/database/public/Fichier.ts' */
+/** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
 
 import { directDatabaseConnection } from "../database.js";
 import { ajouterFichier } from "./fichier.js";
@@ -120,7 +121,7 @@ export function modifierAvisExpert(avisExpert, databaseConnection = directDataba
  */
 export function supprimerAvisExpert(avisExpertId, databaseConnection = directDatabaseConnection) {
   const idsÀSupprimer = Array.isArray(avisExpertId) ? avisExpertId : [avisExpertId];
-  return databaseConnection("avis_expert").whereIn("id", idsÀSupprimer).delete();
+  return databaseConnection("avis_expert").delete().whereIn("id", idsÀSupprimer);
 }
 
 /**
@@ -136,4 +137,18 @@ export function getFichiersAvisSaisineAvisExpert(
   return databaseConnection("avis_expert")
     .where({ id: avisExpertId })
     .select("saisine_fichier", "avis_fichier");
+}
+
+/**
+ *
+ * @param { AvisExpert['id'] } id
+ * @param { Knex.Transaction | Knex } [databaseConnection]
+ * @returns { Promise<Dossier['id'] | undefined> }
+ */
+export async function getDossierIdFromAvisExpert(
+  id,
+  databaseConnection = directDatabaseConnection,
+) {
+  const rows = await databaseConnection("avis_expert").select(["dossier"]).where({ id });
+  return rows[0]?.dossier;
 }
