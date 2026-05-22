@@ -23,3 +23,8 @@ docs/Gemfile.lock
 docs/vendor/
 
 test-results/
+
+# Nix / direnv
+.direnv/
+.corepack/
+compose.override.yml
