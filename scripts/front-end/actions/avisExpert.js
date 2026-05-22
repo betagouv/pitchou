@@ -1,8 +1,8 @@
 /** @import { default as AvisExpert, AvisExpertInitializer } from "../../types/database/public/AvisExpert" */
 /** @import { FrontEndAvisExpert } from '../../types/API_Pitchou.js' */
 
-import { text } from "d3-fetch";
 import { envoyerÉvènement } from "./aarri.js";
+import store from "../store.js";
 
 /**
  * Ajoute un avis d'expert.
@@ -17,6 +17,11 @@ export function ajouterOuModifierAvisExpert(
   fileFichierSaisine,
   fileFichierAvis,
 ) {
+  const addOrUpdateAvisExpert = store.state.capabilities.addOrUpdateAvisExpert;
+  if (!addOrUpdateAvisExpert) {
+    throw new Error(`Pas les droits suffisants pour ajouter ou modifier un avis d'expert`);
+  }
+
   const form = new FormData();
 
   const copyFrontEndAvisExpert = Object.assign({}, frontEndAvisExpert);
@@ -66,10 +71,7 @@ export function ajouterOuModifierAvisExpert(
     form.append("blobFichierAvis", fileFichierAvis);
   }
 
-  return text("/avis-expert", {
-    method: "POST",
-    body: form,
-  });
+  return addOrUpdateAvisExpert(form);
 }
 
 /**
@@ -77,6 +79,11 @@ export function ajouterOuModifierAvisExpert(
  * @param {Pick<AvisExpert, "id">} avisExpert
  */
 export function supprimerAvisExpert(avisExpert) {
+  const deleteAvisExpert = store.state.capabilities.deleteAvisExpert;
+  if (!deleteAvisExpert) {
+    throw new Error(`Pas les droits suffisants pour supprimer un avis d'expert`);
+  }
+
   envoyerÉvènement({ type: "supprimerAvisExpert" });
-  return text(`/avis-expert/${avisExpert.id}`, { method: "DELETE" });
+  return deleteAvisExpert(avisExpert.id);
 }
