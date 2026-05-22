@@ -4,6 +4,8 @@
 /** @import {default as Personne, PersonneInitializer} from '../../types/database/public/Personne.ts' */
 /** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
 
+import { randomBytes } from "node:crypto";
+
 import knex from "knex";
 import { directDatabaseConnection } from "../database.js";
 import { normalisationEmail } from "../../commun/manipulationStrings.js";
@@ -101,7 +103,7 @@ export function créerPersonneOuMettreÀJourCodeAccès(
   email,
   databaseConnection = directDatabaseConnection,
 ) {
-  const codeAccès = Math.random().toString(36).slice(2);
+  const codeAccès = randomBytes(32).toString("base64url");
 
   return créerPersonne(
     {
@@ -112,9 +114,12 @@ export function créerPersonneOuMettreÀJourCodeAccès(
     },
     databaseConnection,
   )
-    .catch((_err) => {
-      // suppose qu'il y a une erreur parce qu'une personne avec cette adresse email existe déjà
-      return updateCodeAccès(email, codeAccès, databaseConnection);
+    .catch((err) => {
+      // 23505 = unique_violation in PostgreSQL. Assume the email already exists.
+      if (err?.code === "23505") {
+        return updateCodeAccès(email, codeAccès, databaseConnection);
+      }
+      throw err;
     })
     .then(() => codeAccès);
 }

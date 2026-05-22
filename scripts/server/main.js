@@ -97,6 +97,10 @@ if (!DEMARCHE_SIMPLIFIEE_API_TOKEN) {
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`);
 }
 
+if (!process.env.SITE_URL_PITCHOU) {
+  throw new TypeError("Variable d'environnement SITE_URL_PITCHOU manquante");
+}
+
 console.log("NODE_ENV", process.env.NODE_ENV);
 
 const ONE_MB = 1048576;
@@ -207,7 +211,7 @@ fastify.post("/envoi-email-connexion", async function (request, reply) {
     // le domaine est autorisé
     return créerPersonneOuMettreÀJourCodeAccès(email)
       .then((codeAccès) => {
-        const lienConnexion = `${request.headers.origin}/?secret=${codeAccès}`;
+        const lienConnexion = `${process.env.SITE_URL_PITCHOU}/?secret=${codeAccès}`;
         return envoyerEmailConnexion(email, lienConnexion);
       })
       .then(() => reply.code(204).send());
