@@ -99,7 +99,7 @@ function estRechercheDossierDétails(détails) {
  * @param {any} évènement
  * @returns { évènement is ÉvènementMétrique }
  */
-function évènementMétriqueGuard(évènement) {
+export function évènementMétriqueGuard(évènement) {
   if (!évènement.type) {
     return false;
   }
