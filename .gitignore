@@ -3,7 +3,8 @@
 
 node_modules/
 
-build/*
+.svelte-kit/
+build/
 dist/
 .vite/
 backups/*

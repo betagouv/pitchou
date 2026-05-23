@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { sveltekit } from "@sveltejs/kit/vite";
 
 const fastifyTarget = "http://127.0.0.1:2648";
 
@@ -27,7 +27,7 @@ const proxyPaths = [
 ];
 
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [sveltekit()],
   server: {
     port: 5173,
     strictPort: true,
