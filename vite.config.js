@@ -8,7 +8,7 @@ const fastifyTarget = "http://127.0.0.1:2648";
 // Remaining paths still served by Fastify during the migration
 // `^/dossier(/|$)` is a regex (Vite treats keys starting with ^ as regex) to
 // match /dossier and /dossier/* but NOT /dossiers since Kit owns /dossiers/*
-const proxyPaths = ["^/dossier(/|$)", "/data", "/docs"];
+const proxyPaths = ["^/dossier(/|$)"];
 
 export default defineConfig({
   plugins: [sveltekit()],
