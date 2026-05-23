@@ -1,13 +1,15 @@
 //@ts-check
 
-import { subtle } from "node:crypto";
+import { subtle, randomBytes } from "node:crypto";
 import { Buffer } from "node:buffer";
 
-const algorithm = { name: "AES-GCM", iv: Buffer.from("000000000000") }; // AES-GCM est un Algorithme de chiffrement symétrique, ignorer la valeur de 'iv'
-
+const ALGORITHM_NAME = "AES-GCM";
+const IV_LENGTH = 12;
+// 12 bytes of ASCII '0' (0x30): the IV used by the legacy fixed-IV format
+// Kept so ciphertexts written before the random-IV migration still decrypt
+const LEGACY_IV = Buffer.from("000000000000");
 const keyData = process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER;
-
-const encoding = "utf-8";
+const ENCODING = "utf-8";
 
 if (!keyData) {
   throw new Error(
@@ -15,36 +17,49 @@ if (!keyData) {
   );
 }
 
-const key = await subtle.importKey("raw", Buffer.from(keyData.slice(0, 32)), algorithm, false, [
-  "decrypt",
-  "encrypt",
-]);
+const key = await subtle.importKey(
+  "raw",
+  Buffer.from(keyData.slice(0, 32)),
+  { name: ALGORITHM_NAME },
+  false,
+  ["decrypt", "encrypt"],
+);
 
 /**
  * @param {string} donnéesSupplémentaires
  * @returns {Promise<string>}
  */
 export async function chiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentaires) {
+  const iv = randomBytes(IV_LENGTH);
   const donnéesChiffrées = await subtle.encrypt(
-    algorithm,
+    { name: ALGORITHM_NAME, iv },
     key,
-    Buffer.from(donnéesSupplémentaires, encoding),
+    Buffer.from(donnéesSupplémentaires, ENCODING),
   );
 
-  // Pour fournir des données qui se remplissent bien dans un champ texte sur DS, on restreint les caractères en choisissant 'base64'
-  return Buffer.from(donnéesChiffrées).toString("base64");
+  const ciphertextAndTag = Buffer.from(donnéesChiffrées);
+  // Prepend the IV so decrypt can recover it: [IV (12 bytes) || ciphertext || tag (16 bytes)]
+  const output = Buffer.concat([iv, ciphertextAndTag]);
+  // Base64 keeps the payload within the charset DS text fields accept
+  return output.toString("base64");
 }
 
-/**s
+/**
  * @param {string} donnéesSupplémentairesChiffrées
  * @returns {Promise<string>}
  */
 export async function déchiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentairesChiffrées) {
-  const donnéesSupplémentaires = await subtle.decrypt(
-    algorithm,
-    key,
-    Buffer.from(donnéesSupplémentairesChiffrées, "base64"),
-  );
+  const raw = Buffer.from(donnéesSupplémentairesChiffrées, "base64");
 
-  return Buffer.from(donnéesSupplémentaires).toString(encoding);
+  try {
+    // Mirror of the encrypt format: first 12 bytes are the IV, the rest is ciphertext+tag
+    const iv = raw.subarray(0, IV_LENGTH);
+    const ciphertextAndTag = raw.subarray(IV_LENGTH);
+    const plaintext = await subtle.decrypt({ name: ALGORITHM_NAME, iv }, key, ciphertextAndTag);
+    return Buffer.from(plaintext).toString(ENCODING);
+  } catch {
+    // Fallback for ciphertexts written before the random-IV migration: no IV prefix, decrypt under the legacy fixed IV
+    const plaintext = await subtle.decrypt({ name: ALGORITHM_NAME, iv: LEGACY_IV }, key, raw);
+    return Buffer.from(plaintext).toString(ENCODING);
+  }
 }
