@@ -10,7 +10,10 @@ if (!process.env.SITE_URL_PITCHOU) {
 
 console.log("NODE_ENV", process.env.NODE_ENV);
 
-await miseEnPlaceSecretGeoMCE();
+// fire-and-forget
+miseEnPlaceSecretGeoMCE().catch((err) => {
+  console.error("miseEnPlaceSecretGeoMCE failed:", err);
+});
 
 export const handle: Handle = async ({ event, resolve }) => {
   const start = Date.now();
