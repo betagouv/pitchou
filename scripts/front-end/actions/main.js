@@ -62,7 +62,7 @@ export function chargerSchemaDS88444() {
 }
 
 export function chargerRésultatsSynchronisation() {
-  return json("/résultats-synchronisation").then(
+  return json("/resultats-synchronisation").then(
     // @ts-ignore
     (/** @type {RésultatSynchronisationDS88444[]} */ résultatsSync) => {
       for (const r of résultatsSync) {

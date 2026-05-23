@@ -56,7 +56,7 @@ function wrapPOSTUrl(url) {
 const dossierIdURLParam = ":dossierId";
 const decisionAdministrativeIdURLParam = ":decisionAdministrativeId";
 const prescriptionIdURLParam = ":prescriptionId";
-const contrôleIdURLParam = ":contrôleId";
+const controleIdURLParam = ":controleId";
 const avisExpertIdURLParam = ":avisExpertId";
 
 /**
@@ -313,7 +313,7 @@ export default function (capURLs) {
     addPrescriptionsAndControles: wrapPOSTUrl(capURLs.addPrescriptionsAndControles),
     deletePrescription: wrapDeleteById(capURLs.deletePrescription, prescriptionIdURLParam),
     addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
-    deleteControle: wrapDeleteById(capURLs.deleteControle, contrôleIdURLParam),
+    deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),
     addOrUpdateAvisExpert: wrapPOSTMultipart(capURLs.addOrUpdateAvisExpert),
     deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
     créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
