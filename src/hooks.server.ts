@@ -15,11 +15,15 @@ miseEnPlaceSecretGeoMCE().catch((err) => {
   console.error("miseEnPlaceSecretGeoMCE failed:", err);
 });
 
+const STATIC_PREFIXES = ["/_app/", "/docs/", "/data/"];
+
 export const handle: Handle = async ({ event, resolve }) => {
   const start = Date.now();
   const response = await resolve(event);
-  console.log(
-    `${event.request.method} ${event.url.pathname} ${response.status} ${Date.now() - start}ms`,
-  );
+  const path = event.url.pathname;
+  const isStatic = STATIC_PREFIXES.some((p) => path.startsWith(p));
+  if (!isStatic) {
+    console.log(`${event.request.method} ${path} ${response.status} ${Date.now() - start}ms`);
+  }
   return response;
 };
