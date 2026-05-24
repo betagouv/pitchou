@@ -8,22 +8,28 @@ const IV_LENGTH = 12;
 // 12 bytes of ASCII '0' (0x30): the IV used by the legacy fixed-IV format
 // Kept so ciphertexts written before the random-IV migration still decrypt
 const LEGACY_IV = Buffer.from("000000000000");
-const keyData = process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER;
 const ENCODING = "utf-8";
 
-if (!keyData) {
-  throw new Error(
-    `Variable d'environnement KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER manquante`,
-  );
+/** @type {Promise<CryptoKey> | undefined} */
+let keyPromise;
+function getKey() {
+  if (!keyPromise) {
+    const keyData = process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER;
+    if (!keyData) {
+      throw new Error(
+        `Variable d'environnement KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER manquante`,
+      );
+    }
+    keyPromise = subtle.importKey(
+      "raw",
+      Buffer.from(keyData.slice(0, 32)),
+      { name: ALGORITHM_NAME },
+      false,
+      ["decrypt", "encrypt"],
+    );
+  }
+  return keyPromise;
 }
-
-const key = await subtle.importKey(
-  "raw",
-  Buffer.from(keyData.slice(0, 32)),
-  { name: ALGORITHM_NAME },
-  false,
-  ["decrypt", "encrypt"],
-);
 
 /**
  * @param {string} donnéesSupplémentaires
@@ -33,7 +39,7 @@ export async function chiffrerDonnéesSupplémentairesDossiers(donnéesSuppléme
   const iv = randomBytes(IV_LENGTH);
   const donnéesChiffrées = await subtle.encrypt(
     { name: ALGORITHM_NAME, iv },
-    key,
+    await getKey(),
     Buffer.from(donnéesSupplémentaires, ENCODING),
   );
 
@@ -51,6 +57,7 @@ export async function chiffrerDonnéesSupplémentairesDossiers(donnéesSuppléme
 export async function déchiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentairesChiffrées) {
   const raw = Buffer.from(donnéesSupplémentairesChiffrées, "base64");
 
+  const key = await getKey();
   try {
     // Mirror of the encrypt format: first 12 bytes are the IV, the rest is ciphertext+tag
     const iv = raw.subarray(0, IV_LENGTH);
