@@ -1,5 +1,6 @@
 <script>
   import { run } from "svelte/legacy";
+  import { untrack } from "svelte";
 
   //@ts-check
   import debounce from "just-debounce-it";
@@ -35,18 +36,21 @@
 
   const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe";
 
-  const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
+  const numdos = $derived(dossier.number_demarches_simplifiées);
+  const numéro_démarche = $derived(dossier.numéro_démarche);
 
   let phaseActuelle = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
   );
 
   let phase = $derived(phaseActuelle);
-  let ddep_nécessaire = $state(dossier.ddep_nécessaire);
-  let mesures_er_suffisantes = $state(dossier.mesures_er_suffisantes);
-  let commentaire_libre = $state(dossier.commentaire_libre);
-  let prochaine_action_attendue_par = $state(dossier.prochaine_action_attendue_par);
-  let historique_identifiant_demande_onagre = $state(dossier.historique_identifiant_demande_onagre);
+  let ddep_nécessaire = $state(untrack(() => dossier.ddep_nécessaire));
+  let mesures_er_suffisantes = $state(untrack(() => dossier.mesures_er_suffisantes));
+  let commentaire_libre = $state(untrack(() => dossier.commentaire_libre));
+  let prochaine_action_attendue_par = $state(untrack(() => dossier.prochaine_action_attendue_par));
+  let historique_identifiant_demande_onagre = $state(
+    untrack(() => dossier.historique_identifiant_demande_onagre),
+  );
 
   /**
    * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select

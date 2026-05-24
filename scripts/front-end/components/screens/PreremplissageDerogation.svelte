@@ -49,49 +49,54 @@
 
   /** @type {Dossier88444ChampDescriptor[]} */
   //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
-  let champsRemplissables = schemaDS88444["revision"]["champDescriptors"]
-    .filter((champ) => {
-      return champsPossibles.includes(champ["__typename"]);
-    })
-    .filter((champ, i, tableauActuel) => {
-      if (champ["__typename"] === "HeaderSectionChampDescriptor") {
-        const champSuivant = tableauActuel[i + 1];
+  let champsRemplissables = $derived(
+    schemaDS88444["revision"]["champDescriptors"]
+      .filter((champ) => {
+        return champsPossibles.includes(champ["__typename"]);
+      })
+      .filter((champ, i, tableauActuel) => {
+        if (champ["__typename"] === "HeaderSectionChampDescriptor") {
+          const champSuivant = tableauActuel[i + 1];
 
-        if (!champSuivant) return champ["__typename"] !== "HeaderSectionChampDescriptor";
+          if (!champSuivant) return champ["__typename"] !== "HeaderSectionChampDescriptor";
 
-        if (champSuivant["__typename"] !== "HeaderSectionChampDescriptor") {
-          return true;
+          if (champSuivant["__typename"] !== "HeaderSectionChampDescriptor") {
+            return true;
+          } else {
+            return false;
+          }
         } else {
-          return false;
+          return true;
         }
+      }),
+  );
+
+  let champsRemplissablesGroupés = $derived.by(() => {
+    /** @type {{nom: string, champs: Dossier88444ChampDescriptor[]}[]} */
+    const résultat = [];
+
+    /** @type {{nom: string, champs: Dossier88444ChampDescriptor[]}} */
+    let groupe = {
+      nom: "Questions préliminaires",
+      champs: [],
+    };
+
+    for (const champ of champsRemplissables) {
+      if (champ["__typename"] === "HeaderSectionChampDescriptor") {
+        if (groupe.champs.length) {
+          résultat.push(groupe);
+        }
+        groupe = {
+          nom: champ["label"],
+          champs: [],
+        };
       } else {
-        return true;
+        groupe.champs.push(champ);
       }
-    });
-
-  /** @type {(typeof groupe)[]} */
-  let champsRemplissablesGroupés = [];
-
-  let groupe = {
-    /** @type {string} */
-    nom: "Questions préliminaires",
-    /** @type {Dossier88444ChampDescriptor[]} */
-    champs: [],
-  };
-
-  for (const champ of champsRemplissables) {
-    if (champ["__typename"] === "HeaderSectionChampDescriptor") {
-      if (groupe.champs.length) {
-        champsRemplissablesGroupés.push(groupe);
-      }
-      groupe = {
-        nom: champ["label"],
-        champs: [],
-      };
-    } else {
-      groupe.champs.push(champ);
     }
-  }
+
+    return résultat;
+  });
 </script>
 
 <Squelette {email} title="Pré-remplissage dérogation">

@@ -1,6 +1,7 @@
 <script>
   /** @import { IndicateursAARRI } from '../../..//types/API_Pitchou.ts' */
   /** @import { ComponentProps } from 'svelte' */
+  import { untrack } from "svelte";
   import Squelette from "../Squelette.svelte";
   import Loader from "../Loader.svelte";
   import { formatDateAbsolue } from "../../affichageDossier.js";
@@ -17,7 +18,9 @@
 
   let dateChoisie = $state();
 
-  indicateursParDateP.then((indicateursParDate) => (dateChoisie = indicateursParDate[1].date));
+  untrack(() => indicateursParDateP).then(
+    (indicateursParDate) => (dateChoisie = indicateursParDate[1].date),
+  );
 
   const largeurBarreBase = 80;
 </script>

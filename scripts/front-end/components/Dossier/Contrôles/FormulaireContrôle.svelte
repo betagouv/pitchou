@@ -1,5 +1,6 @@
 <!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (bouton-valider to bouton_valider) making the component unusable -->
 <script>
+  import { untrack } from "svelte";
   import DateInput from "../../common/DateInput.svelte";
 
   import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
@@ -21,7 +22,7 @@
   let { contrôle, onValider, boutonValider, boutonAnnuler, boutonSupprimer } = $props();
 
   /** @type {Props['contrôle']} */
-  let contrôleEnÉdition = $state(contrôle);
+  let contrôleEnÉdition = $state(untrack(() => contrôle));
 
   /**
    *

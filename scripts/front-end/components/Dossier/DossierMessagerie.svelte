@@ -17,7 +17,8 @@
   /** @type {Props} */
   let { dossier, messages = [] } = $props();
 
-  const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
+  const numdos = $derived(dossier.number_demarches_simplifiées);
+  const numéro_démarche = $derived(dossier.numéro_démarche);
 
   let messagesTriés = $derived(
     messages.toSorted(

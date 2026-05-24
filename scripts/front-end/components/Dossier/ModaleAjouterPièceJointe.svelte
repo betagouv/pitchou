@@ -19,7 +19,7 @@
    *  @typedef {'Arrêté préfectoral' | 'Avis expert' | 'Saisine expert' | 'Autre'} TypePièceJointe
    */
 
-  const idTitreH2 = `${id}-title`;
+  const idTitreH2 = $derived(`${id}-title`);
 
   const OPTIONS_SERVICE_EXPERT = ["CSRPN", "CNPN", "Ministre", "Autre expert"];
 

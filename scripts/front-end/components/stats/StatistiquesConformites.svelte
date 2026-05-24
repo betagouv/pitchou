@@ -10,23 +10,26 @@
   /** @type {Props} */
   let { statsConformite, totalPrescriptions } = $props();
 
-  const nbConformiteInitiale = statsConformite.nb_conforme_apres_1;
-  const nbRetourConformite = statsConformite.nb_retour_conformite;
-  const nbNonConforme = statsConformite.nb_non_conforme;
-  const nbTropTard = statsConformite.nb_trop_tard;
-  const nbAutre =
-    totalPrescriptions - (nbConformiteInitiale + nbRetourConformite + nbNonConforme + nbTropTard);
+  const nbConformiteInitiale = $derived(statsConformite.nb_conforme_apres_1);
+  const nbRetourConformite = $derived(statsConformite.nb_retour_conformite);
+  const nbNonConforme = $derived(statsConformite.nb_non_conforme);
+  const nbTropTard = $derived(statsConformite.nb_trop_tard);
+  const nbAutre = $derived(
+    totalPrescriptions - (nbConformiteInitiale + nbRetourConformite + nbNonConforme + nbTropTard),
+  );
 
-  const pctConformiteInitiale = totalPrescriptions
-    ? Math.round((nbConformiteInitiale / totalPrescriptions) * 100)
-    : 0;
-  const pctRetourConformite = totalPrescriptions
-    ? Math.round((nbRetourConformite / totalPrescriptions) * 100)
-    : 0;
-  const pctNonConforme = totalPrescriptions
-    ? Math.round((nbNonConforme / totalPrescriptions) * 100)
-    : 0;
-  const pctTropTard = totalPrescriptions ? Math.round((nbTropTard / totalPrescriptions) * 100) : 0;
+  const pctConformiteInitiale = $derived(
+    totalPrescriptions ? Math.round((nbConformiteInitiale / totalPrescriptions) * 100) : 0,
+  );
+  const pctRetourConformite = $derived(
+    totalPrescriptions ? Math.round((nbRetourConformite / totalPrescriptions) * 100) : 0,
+  );
+  const pctNonConforme = $derived(
+    totalPrescriptions ? Math.round((nbNonConforme / totalPrescriptions) * 100) : 0,
+  );
+  const pctTropTard = $derived(
+    totalPrescriptions ? Math.round((nbTropTard / totalPrescriptions) * 100) : 0,
+  );
 </script>
 
 <section class="fr-mt-4w">

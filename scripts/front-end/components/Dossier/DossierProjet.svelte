@@ -20,7 +20,8 @@
   /** @type {Props} */
   let { dossier, espècesImpactées } = $props();
 
-  const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
+  const numdos = $derived(dossier.number_demarches_simplifiées);
+  const numéro_démarche = $derived(dossier.numéro_démarche);
 
   /**
    * Calcule le nombre d'espèces CNPN
@@ -74,11 +75,11 @@
 
   /** @type {{nom_complet:string,qualification:string}[]| undefined} */
   // @ts-ignore
-  let scientifiquesIntervenants = dossier.scientifique_intervenants;
+  let scientifiquesIntervenants = $derived(dossier.scientifique_intervenants);
 
   /** @type {string[] | undefined} */
   // @ts-ignore
-  let scientifiqueFinalitéDemande = dossier.scientifique_finalité_demande;
+  let scientifiqueFinalitéDemande = $derived(dossier.scientifique_finalité_demande);
 
   /**
    * @param {string | null} filename
