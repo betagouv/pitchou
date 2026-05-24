@@ -19,7 +19,7 @@ import { createOdsFile, getODSTableRawContent, tableRawContentToObjects } from "
  * } from "../types/especes.d.ts" */
 /** @import {SheetRawContent, SheetRawCellContent} from '@odfjs/odfjs' */
 /** @import {FauneNonOiseauAtteinteOds_V1, FichierEspècesImpactéesOds_V1, FloreAtteinteOds_V1, OiseauAtteintOds_V1} from '../types/espècesFichierOds.d.ts' */
-/** @import { PitchouState } from '../front-end/store.js' */
+/** @import { PitchouState } from '../front-end/store.svelte.ts' */
 
 /** @type {Set<'oiseau' | 'faune non-oiseau' | 'flore'>} */
 const classificationEtreVivants = new Set(["oiseau", "faune non-oiseau", "flore"]);

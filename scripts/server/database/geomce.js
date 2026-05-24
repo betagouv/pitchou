@@ -16,7 +16,7 @@ import {
 /** @import {default as Personne} from '../../types/database/public/Personne.ts' */
 /** @import { GeoMceMessage, DossierPourGeoMCE } from '../../types/geomce.ts' */
 //@ts-ignore
-/** @import { PitchouState } from '../../front-end/store.js' */
+/** @import { PitchouState } from '../../front-end/store.svelte.ts' */
 //@ts-ignore
 /** @import { EspèceProtégée, DescriptionMenacesEspèces, EspèceProtégéeStrings } from '../../types/especes.ts' */
 
