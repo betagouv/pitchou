@@ -21,6 +21,20 @@ jobs:
   test-e2e:
     name: E2E tests (playwright)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.7
+        env:
+          POSTGRES_USER: dev
+          POSTGRES_PASSWORD: dev_password
+          POSTGRES_DB: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U dev"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
