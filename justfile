@@ -22,7 +22,7 @@ check:
 
 # Vérifie le formatage sans modifier les fichiers
 check-format:
-    pnpm run format:check
+    prettier --check .
 
 # Vérifie les types TypeScript / JSDoc (équivalent du job CI tsc)
 check-types:
@@ -34,11 +34,11 @@ check-svelte:
 
 # Construit l'application (équivalent du job CI build)
 build:
-    pnpm run build
+    vite build
 
 # Lance Pitchou en mode dev (vite dev server SvelteKit, http://localhost:5173)
 dev:
-    pnpm run dev
+    vite dev
 
 # Lance les conteneurs Docker de support (Postgres + tooling + pgadmin)
 dev-docker:
@@ -58,11 +58,15 @@ dev-restart:
 
 # Applique les migrations en attente
 migrate-up:
-    pnpm run migrate:up
+    docker exec tooling npx knex migrate:up --env docker_dev
 
 # Annule la dernière migration appliquée
 migrate-down:
-    pnpm run migrate:down
+    docker exec tooling npx knex migrate:down --env docker_dev
+
+# Applique toutes les migrations en attente
+migrate-latest:
+    docker exec tooling npx knex migrate:latest --env docker_dev
 
 # Insère les données de dev en base
 seed-dev:
@@ -70,27 +74,29 @@ seed-dev:
 
 # Génère tous les types (base de données + Démarche Numérique)
 build-types:
-    pnpm run build-types
+    just build-types-db
+    just build-types-ds
 
 # Génère les types depuis le schéma de la base de données
 build-types-db:
-    pnpm run build-types:db
+    docker exec tooling npx kanel -d postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731 -o ./scripts/types/database
 
 # Génère les types des schémas Démarche Numérique
 build-types-ds:
-    pnpm run build-types:ds
+    just build-types-ds-88444
+    just build-types-ds-128114
 
 # Génère les types du schéma DDEP (88444)
 build-types-ds-88444:
-    pnpm run build-types:ds:88444
+    node outils/genere-types-schema-DS.js --idSchemaDS derogation-especes-protegees
 
 # Génère les types du schéma 128114
 build-types-ds-128114:
-    pnpm run build-types:ds:128114
+    node outils/genere-types-schema-DS.js --idSchemaDS 7f52a348-fd16-4fcd-8a6f-2e78ddafaee4
 
 # Reformate le code avec prettier
 format:
-    pnpm run format
+    prettier --write . --log-level warn
 
 # Lance tous les tests (unitaires + composants + intégration + e2e)
 test:
