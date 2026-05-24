@@ -36,17 +36,13 @@ check-svelte:
 build:
     pnpm run build
 
-# Lance Pitchou en mode dev (vite dev server + docker compose en parallèle, http://localhost:5173)
+# Lance Pitchou en mode dev (vite dev server SvelteKit, http://localhost:5173)
 dev:
     pnpm run dev
 
-# Lance uniquement les conteneurs Docker (serveur node + Postgres + tooling + pgadmin)
+# Lance les conteneurs Docker de support (Postgres + tooling + pgadmin)
 dev-docker:
     DOCKER_UID="$(id -u)" DOCKER_GID="$(id -g)" docker compose up
-
-# Lance uniquement le serveur Vite (HMR, http://localhost:5173, proxy backend → Fastify)
-dev-vite:
-    pnpm run dev:vite
 
 # Arrête les conteneurs Docker
 dev-stop:
@@ -96,19 +92,37 @@ build-types-ds-128114:
 format:
     pnpm run format
 
-# Lance tous les tests (unitaires + e2e)
+# Lance tous les tests (unitaires + composants + intégration + e2e)
 test:
     just test-unit
+    just test-component
+    just test-integration
     just test-e2e
 
-# Lance les tests end-to-end avec playwright
-test-e2e:
-    playwright test tests/e2e
+# Démarre le conteneur Postgres pour les tests d'intégration et e2e
+test-db-up:
+    docker compose -f tests/compose.yml up -d
+
+# Arrête le conteneur Postgres de test
+test-db-down:
+    docker compose -f tests/compose.yml down
 
 # Lance les tests unitaires avec vitest
 test-unit:
-    vitest run
+    vitest run --config tests/vitest.config.ts --project=unit
 
 # Lance les tests unitaires en mode watch
 test-unit-watch:
-    pnpm run test:unit:watch
+    vitest --config tests/vitest.config.ts --project=unit
+
+# Lance les tests de composants Svelte (vitest browser mode)
+test-component:
+    vitest run --config tests/vitest.config.ts --project=component
+
+# Lance les tests d'intégration (endpoints + base réelle)
+test-integration:
+    vitest run --config tests/vitest.config.ts --project=integration
+
+# Lance les tests end-to-end avec playwright
+test-e2e:
+    playwright test --config tests/playwright.config.ts
