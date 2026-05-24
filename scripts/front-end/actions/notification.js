@@ -1,12 +1,12 @@
 /** @import { default as Notification } from "../../types/database/public/Notification"; */
 
-import store from "../store";
+import { store } from "../store.svelte.ts";
 
 /**
  * @param { Pick<Notification, "dossier"> & Partial<Omit<Notification, 'dossier'>> } notification
  */
 export function updateNotificationForDossier(notification) {
-  const updateNotificationForDossier = store.state.capabilities.updateNotificationForDossier;
+  const updateNotificationForDossier = store.capabilities.updateNotificationForDossier;
 
   if (!updateNotificationForDossier) {
     throw new Error(

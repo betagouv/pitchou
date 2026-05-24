@@ -8,7 +8,7 @@ import { isValidDate } from "../../commun/typeFormat.js";
 import { ajouterPrescriptionsEtContrôles } from "./prescriptions.js";
 import { refreshDossierComplet } from "./dossier.js";
 import { envoyerÉvènement } from "./aarri.js";
-import store from "../store.js";
+import { store } from "../store.svelte.ts";
 
 /** @import {FrontEndPrescription, FrontEndDécisionAdministrative, RésultatContrôle, TypesActionSuiteContrôle, DécisionAdministrativePourTransfer} from '../../types/API_Pitchou.ts' */
 /** @import Contrôle from '../../types/database/public/Contrôle.ts' */
@@ -159,7 +159,7 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(
  * @returns {Promise<unknown>}
  */
 export function supprimerDécisionAdministrative(décisionAdministrativeId) {
-  const deleteDecisionAdministrative = store.state.capabilities.deleteDecisionAdministrative;
+  const deleteDecisionAdministrative = store.capabilities.deleteDecisionAdministrative;
   if (!deleteDecisionAdministrative) {
     throw new Error(`Pas les droits suffisants pour supprimer une décision administrative`);
   }
@@ -175,7 +175,7 @@ export function supprimerDécisionAdministrative(décisionAdministrativeId) {
  */
 export async function sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation) {
   const modifierDécisionAdministrativeDansDossier =
-    store.state.capabilities.modifierDécisionAdministrativeDansDossier;
+    store.capabilities.modifierDécisionAdministrativeDansDossier;
 
   if (!modifierDécisionAdministrativeDansDossier) {
     throw new Error(`Pas les droits suffisants pour créer une décision administrative`);

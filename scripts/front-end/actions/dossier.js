@@ -1,6 +1,6 @@
 //@ts-check
-/** @import {PitchouState} from '../store.js' */
-import store from "../store";
+/** @import {PitchouState} from '../store.svelte.ts' */
+import { store, setDossierComplet } from "../store.svelte.ts";
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "../../commun/outils-espèces.js";
 import {
@@ -26,7 +26,7 @@ import { chargerRelationSuivi } from "./main.js";
  * @returns {Promise<void>}
  */
 export function modifierDossier(dossier, modifs) {
-  if (!store.state.capabilities.modifierDossier)
+  if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 
   // modifier le dossier dans le store de manière optimiste
@@ -45,11 +45,11 @@ export function modifierDossier(dossier, modifs) {
     envoyerÉvènement({ type: "changerProchaineActionAttendueDe" });
   }
 
-  store.mutations.setDossierComplet(dossierModifié);
+  setDossierComplet(dossierModifié);
 
-  return store.state.capabilities.modifierDossier(dossier.id, modifs).catch((err) => {
+  return store.capabilities.modifierDossier(dossier.id, modifs).catch((err) => {
     // en cas d'erreur, remettre le dossier précédent dans le store comme avant la copie
-    store.mutations.setDossierComplet(dossier);
+    setDossierComplet(dossier);
     throw err;
   });
 }
@@ -59,17 +59,17 @@ export function modifierDossier(dossier, modifs) {
  * @returns {Promise<Message[]>}
  */
 export async function chargerMessagesDossier(id) {
-  if (!store.state.capabilities?.listerMessages)
+  if (!store.capabilities?.listerMessages)
     throw new TypeError(`Capability listerMessages manquante`);
 
-  const messagesP = store.state.capabilities
+  const messagesP = store.capabilities
     ?.listerMessages(id)
     .then((/** @type {Message[]} */ messages) => {
-      store.mutations.setMessages(id, messages);
+      store.messagesParDossierId.set(id, messages);
       return messages;
     });
 
-  return store.state.messagesParDossierId.get(id) || messagesP;
+  return store.messagesParDossierId.get(id) || messagesP;
 }
 
 /**
@@ -77,17 +77,17 @@ export async function chargerMessagesDossier(id) {
  * @returns {Promise<DossierComplet>}
  */
 export async function getDossierComplet(id) {
-  const dossierCompletInStore = store.state.dossiersComplets.get(id);
+  const dossierCompletInStore = store.dossiersComplets.get(id);
 
   if (dossierCompletInStore) {
     return dossierCompletInStore;
   }
 
-  if (!store.state.capabilities.recupérerDossierComplet)
+  if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const dossierComplet = await store.state.capabilities.recupérerDossierComplet(id);
-  store.mutations.setDossierComplet(dossierComplet);
+  const dossierComplet = await store.capabilities.recupérerDossierComplet(id);
+  setDossierComplet(dossierComplet);
 
   return dossierComplet;
 }
@@ -97,11 +97,11 @@ export async function getDossierComplet(id) {
  * @returns {Promise<DossierComplet>}
  */
 export async function refreshDossierComplet(id) {
-  if (!store.state.capabilities.recupérerDossierComplet)
+  if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const dossierComplet = await store.state.capabilities.recupérerDossierComplet(id);
-  store.mutations.setDossierComplet(dossierComplet);
+  const dossierComplet = await store.capabilities.recupérerDossierComplet(id);
+  setDossierComplet(dossierComplet);
 
   return dossierComplet;
 }
@@ -129,8 +129,8 @@ export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArray
 export function chargerDossiers() {
   chargerRelationSuivi();
 
-  if (store.state.capabilities?.listerDossiers) {
-    return store.state.capabilities?.listerDossiers().then((dossiers) => {
+  if (store.capabilities?.listerDossiers) {
+    return store.capabilities?.listerDossiers().then((dossiers) => {
       if (!isDossierRésuméArray(dossiers)) {
         throw new TypeError("On attendait un tableau de dossiers ici !");
       }
@@ -149,7 +149,7 @@ export function chargerDossiers() {
         dossiersById.set(dossier.id, dossier);
       }
 
-      store.mutations.setDossiersRésumés(dossiersById);
+      store.dossiersRésumés = dossiersById;
 
       return dossiersById;
     });

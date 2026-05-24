@@ -1,4 +1,4 @@
-import store from "../store.js";
+import { store } from "../store.svelte.ts";
 
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
 /** @import {RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
@@ -28,7 +28,7 @@ export const typesActionSuiteContrôle = new Set([
  * @returns {Promise<Contrôle['id']>}
  */
 export function ajouterContrôle(contrôle) {
-  const addOrUpdateControle = store.state.capabilities.addOrUpdateControle;
+  const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
   }
@@ -43,7 +43,7 @@ export function ajouterContrôle(contrôle) {
  * @returns {Promise<Contrôle['id'] | undefined>}
  */
 export function modifierContrôle(contrôle) {
-  const addOrUpdateControle = store.state.capabilities.addOrUpdateControle;
+  const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour modifier un contrôle`);
   }
@@ -56,7 +56,7 @@ export function modifierContrôle(contrôle) {
  * @returns {Promise<unknown>}
  */
 export function supprimerContrôle(id) {
-  const deleteControle = store.state.capabilities.deleteControle;
+  const deleteControle = store.capabilities.deleteControle;
   if (!deleteControle) {
     throw new Error(`Pas les droits suffisants pour supprimer un contrôle`);
   }
