@@ -25,7 +25,7 @@ import { recupérerDossiersRécemmentModifiés } from "../scripts/server/démarc
 import { recupérerGroupesInstructeurs } from "../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.js";
 import récupérerTousLesDossiersSupprimés from "../scripts/server/démarche-numérique/recupérerListeDossiersSupprimés.js";
 
-import { isValidDate } from "../scripts/commun/typeFormat.js";
+import { isValidDate } from "../scripts/commun/typeFormat.ts";
 
 import { téléchargerNouveauxFichiersMotivation } from "./synchronisation-ds/téléchargerNouveauxFichiersParType.js";
 import {

@@ -1,30 +1,19 @@
-//@ts-check
-
 // adapted from https://developer.mozilla.org/en-US/docs/Glossary/Base64#solution_1_%E2%80%93_escaping_the_string_before_encoding_it
-/**
- *
- * @param {string} s // cleartext string
- * @returns {string} // utf-8-encoded base64 string
- */
-export function UTF8ToB64(s) {
+export function UTF8ToB64(s: string): string {
   return btoa(unescape(encodeURIComponent(s)));
 }
 
 /**
  * Normalisation des adresses email
- * @param {string} email
- * @returns {string}
  */
-export function normalisationEmail(email) {
+export function normalisationEmail(email: string): string {
   return email.toLowerCase();
 }
 
 /**
  * Normalisation du nom vernaculaire ou scientifique d'une seule espèce
- * @param {string} nom
- * @returns {string}
  */
-export function normalizeNomEspèce(nom) {
+export function normalizeNomEspèce(nom: string): string {
   return nom
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // remove accents
@@ -37,10 +26,8 @@ export function normalizeNomEspèce(nom) {
 
 /**
  * Normalisation d'un texte long pouvant contenir des noms d'espèces
- * @param {string} texte
- * @returns {string}
  */
-export function normalizeTexteEspèce(texte) {
+export function normalizeTexteEspèce(texte: string): string {
   return texte
     .trim()
     .normalize("NFD")
@@ -49,11 +36,6 @@ export function normalizeTexteEspèce(texte) {
     .toLowerCase();
 }
 
-/**
- *
- * @param {string} texte
- * @returns {string}
- */
-export function retirerAccents(texte) {
+export function retirerAccents(texte: string): string {
   return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }

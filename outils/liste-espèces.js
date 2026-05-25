@@ -7,7 +7,7 @@ import { parse } from "csv-parse";
 import { stringify } from "csv-stringify";
 import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
 
-import { TAXREF_ROWClassification, nomsVernaculaires } from "../scripts/commun/outils-espèces.js";
+import { TAXREF_ROWClassification, nomsVernaculaires } from "../scripts/commun/outils-espèces.ts";
 
 /** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée, ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW} from "../scripts/types/especes.js" */
 

@@ -15,7 +15,7 @@
 import assert from "node:assert/strict";
 import { déchiffrerDonnéesSupplémentairesDossiers } from "../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js";
 import { isAfter } from "date-fns";
-import { normalisationEmail } from "../../scripts/commun/manipulationStrings.js";
+import { normalisationEmail } from "../../scripts/commun/manipulationStrings.ts";
 
 /**
  * @callback MakeColonnesCommunesDossierPourSynchro

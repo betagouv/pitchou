@@ -12,7 +12,6 @@ import { formatISO } from "date-fns";
  *
  */
 
-export default function toJSONPerserveDate() {
-  // @ts-ignore
+export default function toJSONPerserveDate(this: Date) {
   return formatISO(this, { representation: "date" });
 }

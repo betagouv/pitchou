@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { authorizedEmailDomains } from "$commun/constantes.js";
+import { authorizedEmailDomains } from "$commun/constantes.ts";
 import { créerPersonneOuMettreÀJourCodeAccès } from "$server/database/personne.js";
 import { envoyerEmailConnexion } from "$server/emails.js";
 

@@ -1,30 +1,14 @@
-//@ts-check
-
 import { parse as parseDate } from "date-fns";
 
-/**
- *
- * @param {any} d
- * @returns {boolean}
- */
-export function isValidDate(d) {
+export function isValidDate(d: unknown): d is Date {
   return d instanceof Date && !Number.isNaN(d.valueOf());
 }
 
-/**
- *
- * @param {string} dateString
- * @returns {boolean}
- */
-export function isValidDateString(dateString) {
+export function isValidDateString(dateString: string): boolean {
   return !Number.isNaN(Date.parse(dateString));
 }
 
-/**
- *
- * @param {string | Date | number | undefined} d // peut-être une date
- */
-export function recoverDate(d) {
+export function recoverDate(d: string | Date | number | undefined): Date | undefined {
   if (typeof d === "number") {
     return undefined;
   }
@@ -68,12 +52,7 @@ export function recoverDate(d) {
   }
 }
 
-/**
- *
- * @param {string} nomCommune
- * @returns {string}
- */
-export function normalizeNomCommune(nomCommune) {
+export function normalizeNomCommune(nomCommune: string): string {
   return nomCommune
     .replace(/-|'/g, " ")
     .normalize("NFD")

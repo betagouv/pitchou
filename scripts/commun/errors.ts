@@ -1,8 +1,7 @@
 export class HTTPError extends Error {
-  /**
-   * @param {number} status
-   */
-  constructor(status) {
+  status: number;
+
+  constructor(status: number) {
     const message = `Erreur HTTP ${status}`;
     super(message);
     this.name = "HTTPError";
@@ -11,10 +10,10 @@ export class HTTPError extends Error {
 }
 
 export class MediaTypeError extends Error {
-  /**
-   * @param {{attendu: string, obtenu: any}} _
-   */
-  constructor({ attendu, obtenu }) {
+  attendu: string;
+  obtenu: unknown;
+
+  constructor({ attendu, obtenu }: { attendu: string; obtenu: unknown }) {
     const message = `Media-type incorrect. Attendu : ${attendu}, obtenu : ${obtenu}`;
     super(message);
     this.name = "MediaTypeError";

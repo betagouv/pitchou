@@ -1,5 +1,3 @@
-//@ts-check
-
 /*
     Dans ce fichier, on s'intéresse spécifiquement à la démarche 88444
 
@@ -22,20 +20,16 @@ await fetch('https://demarche.numerique.gouv.fr/preremplir/derogation-especes-pr
 
 */
 
-/** @import {GeoAPICommune, GeoAPIDépartement} from "../types/GeoAPI.ts" */
-/** @import {DossierDemarcheNumerique88444} from "../types/démarche-numérique/Démarche88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
+import type { GeoAPICommune, GeoAPIDépartement } from "../types/GeoAPI.ts";
+import type { DossierDemarcheNumerique88444 } from "../types/démarche-numérique/Démarche88444.ts";
+import type { SchemaDémarcheSimplifiée } from "../types/démarche-numérique/schema.ts";
 
-/** @type {keyof DossierDemarcheNumerique88444} */
-export const clefAE =
+export const clefAE: keyof DossierDemarcheNumerique88444 =
   "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?";
 
-/**
- *
- * @param {SchemaDémarcheSimplifiée} schema
- * @returns {Map< keyof DossierDemarcheNumerique88444, string >}
- */
-export function schemaToChampLabelToChampId(schema) {
+export function schemaToChampLabelToChampId(
+  schema: SchemaDémarcheSimplifiée,
+): Map<keyof DossierDemarcheNumerique88444, string> {
   //@ts-expect-error les labels du schema sont les clefs de DossierDemarcheNumerique88444 et TS ne peut pas le comprendre
   return new Map(
     schema.revision.champDescriptors
@@ -48,13 +42,10 @@ export function schemaToChampLabelToChampId(schema) {
  * Buggé, mais on sait pas encore pourquoi
  * Sûrement un bug côté Démarche Numérique
  * https://mattermost.incubateur.net/betagouv/pl/tipfbemo1tfymr6qoguggag4gc
- *
- * @param {GeoAPICommune} _
- * @param {Map< keyof DossierDemarcheNumerique88444, string >} démarcheDossierLabelToId
  */
 function makeCommuneParam(
-  { code: codeInsee, codesPostaux: [codePostal] },
-  démarcheDossierLabelToId,
+  { code: codeInsee, codesPostaux: [codePostal] }: GeoAPICommune,
+  démarcheDossierLabelToId: Map<keyof DossierDemarcheNumerique88444, string>,
 ) {
   const communeChamp = `champ_${démarcheDossierLabelToId.get("Commune(s) où se situe le projet")}`;
   // Voir https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
@@ -66,10 +57,11 @@ function makeCommuneParam(
 
 /**
  * champ_Q2hhbXAtNDA0MTQ0NQ[][champ_Q2hhbXAtNDA0MTQ0Nw]=56&champ_Q2hhbXAtNDA0MTQ0NQ[][champ_Q2hhbXAtNDA0MTQ0Nw]=56
- * @param {GeoAPIDépartement} _
- * @param {Map< keyof DossierDemarcheNumerique88444, string >} démarcheDossierLabelToId
  */
-function makeDépartementParam({ code }, démarcheDossierLabelToId) {
+function makeDépartementParam(
+  { code }: GeoAPIDépartement,
+  démarcheDossierLabelToId: Map<keyof DossierDemarcheNumerique88444, string>,
+) {
   const départementChamp = `champ_${démarcheDossierLabelToId.get("Département(s) où se situe le projet")}`;
   // Voir https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
   const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`;
@@ -82,16 +74,14 @@ const basePréremplissage = `https://demarche.numerique.gouv.fr/commencer/deroga
 /**
  * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction créé un lien GET
- *
- * @param {Partial<DossierDemarcheNumerique88444>} dossierPartiel
- * @param {SchemaDémarcheSimplifiée} schema88444
- * @returns {string}
  */
-export function créerLienGETPréremplissageDémarche(dossierPartiel, schema88444) {
+export function créerLienGETPréremplissageDémarche(
+  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+  schema88444: SchemaDémarcheSimplifiée,
+): string {
   const démarcheDossierLabelToId = schemaToChampLabelToChampId(schema88444);
 
-  /** @type {Record<string, string>} */
-  const objetPréremplissage = {};
+  const objetPréremplissage: Record<string, string> = {};
 
   for (const champ of démarcheDossierLabelToId.keys()) {
     if (
@@ -101,8 +91,8 @@ export function créerLienGETPréremplissageDémarche(dossierPartiel, schema8844
         "Région(s) où se situe le projet",
       ].includes(champ)
     ) {
-      /** @type {DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined} */
-      const valeur = dossierPartiel[champ];
+      const valeur: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
+        dossierPartiel[champ];
       if (valeur !== undefined && valeur !== null && valeur !== "") {
         // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString();

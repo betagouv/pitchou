@@ -1,11 +1,6 @@
-//@ts-ignore
-/** @import {DossierComplet, DossierPhase, DossierRésumé} from '../types/API_Pitchou.ts' */
+import type { DossierComplet, DossierPhase, DossierRésumé } from "../types/API_Pitchou.ts";
 
-/**
- * @param {DossierComplet} dossierComplet
- * @returns {DossierRésumé}
- */
-export function DossierCompletToDossierRésumé(dossierComplet) {
+export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet): DossierRésumé {
   const {
     // Propriétés directement copiées
     id,
@@ -42,12 +37,12 @@ export function DossierCompletToDossierRésumé(dossierComplet) {
 
   // Trouver la phase la plus récente
   // PPP à corriger
-  /** @type {DossierPhase} */
-  const phaseActuelle = évènementsPhase[0] ? évènementsPhase[0].phase : "Accompagnement amont";
+  const phaseActuelle: DossierPhase = évènementsPhase[0]
+    ? évènementsPhase[0].phase
+    : "Accompagnement amont";
   const dateDébutPhaseActuelle = évènementsPhase[0] ? évènementsPhase[0].horodatage : date_dépôt;
 
-  /** @type {DossierRésumé} */
-  const dossierRésumé = {
+  const dossierRésumé: DossierRésumé = {
     // Propriétés simples
     id,
     number_demarches_simplifiées,

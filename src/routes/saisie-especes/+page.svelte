@@ -4,7 +4,7 @@
   import {
     importDescriptionMenacesEspècesFromOdsArrayBuffer,
     importDescriptionMenacesEspècesFromURL,
-  } from "$commun/outils-espèces.js";
+  } from "$commun/outils-espèces.ts";
   import {
     chargerListeEspècesProtégées,
     chargerActivitésMéthodesMoyensDePoursuite,

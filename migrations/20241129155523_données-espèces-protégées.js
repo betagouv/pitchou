@@ -6,7 +6,7 @@ import {
   descriptionMenacesEspècesToOdsArrayBuffer,
   espèceProtégéeStringToEspèceProtégée,
   actMetTransArraysToMapBundle,
-} from "../scripts/commun/outils-espèces.js";
+} from "../scripts/commun/outils-espèces.ts";
 
 /** @import {ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../scripts/types/especes.js' */
 /** @import {PitchouState} from '../scripts/front-end/store.js' */
