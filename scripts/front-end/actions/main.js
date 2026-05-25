@@ -72,26 +72,22 @@ export function chargerRésultatsSynchronisation() {
   );
 }
 
-export async function secretFromURL() {
-  const secret = new URLSearchParams(location.search).get("secret");
+/**
+ * @param {URL} url
+ */
+export async function consumeSecretFromURL(url) {
+  const secret = url.searchParams.get("secret");
+  if (!secret) return;
 
-  if (secret) {
-    const newURL = new URL(location.href);
-    newURL.searchParams.delete("secret");
-
-    // nettoyer l'url pour que le secret n'y apparaisse plus
-    history.replaceState(null, "", newURL);
-
-    return Promise.all([
-      remember(PITCHOU_SECRET_STORAGE_KEY, secret),
-      initCapabilities(secret).catch(async () => {
-        await logout();
-        store.erreurs.add({
-          message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
-        });
-      }),
-    ]);
-  }
+  return Promise.all([
+    remember(PITCHOU_SECRET_STORAGE_KEY, secret),
+    initCapabilities(secret).catch(async () => {
+      await logout();
+      store.erreurs.add({
+        message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
+      });
+    }),
+  ]);
 }
 
 export async function logout() {

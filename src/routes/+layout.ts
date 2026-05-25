@@ -1,5 +1,5 @@
 import { browser } from "$app/environment";
-import { init, secretFromURL } from "$front/actions/main.js";
+import { init, consumeSecretFromURL } from "$front/actions/main.js";
 
 export const ssr = false;
 export const prerender = false;
@@ -7,11 +7,11 @@ export const trailingSlash = "never";
 
 let initialised: Promise<unknown> | undefined;
 
-export const load = async () => {
+export const load = async ({ url }) => {
   if (browser && !initialised) {
     initialised = (async () => {
       await init();
-      await secretFromURL().catch(() => {});
+      await consumeSecretFromURL(url).catch(() => {});
     })();
   }
   if (initialised) {
