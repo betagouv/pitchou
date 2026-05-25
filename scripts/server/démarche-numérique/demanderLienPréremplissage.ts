@@ -1,28 +1,22 @@
-//@ts-check
-
 import ky from "ky";
 import {
   clefAE,
   schemaToChampLabelToChampId,
-} from "../../commun/préremplissageDémarcheNumérique.js";
+} from "../../commun/préremplissageDémarcheNumérique.ts";
 
-/** @import {DossierDemarcheNumerique88444} from "../../types/démarche-numérique/Démarche88444.js" */
-/** @import {SchemaDémarcheSimplifiée} from '../../types/démarche-numérique/schema.js' */
+import type { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts";
+import type { SchemaDémarcheSimplifiée } from "../../types/démarche-numérique/schema.ts";
 
 const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`;
 const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`;
 
-/**
- *
- * @param {Partial<DossierDemarcheNumerique88444>} dossierPartiel
- * @param {SchemaDémarcheSimplifiée} schema88444
- * @returns {Record<string, string | string[] | any[]>}
- */
-function créerObjetPréremplissageChamp(dossierPartiel, schema88444) {
+function créerObjetPréremplissageChamp(
+  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+  schema88444: SchemaDémarcheSimplifiée,
+): Record<string, string | string[] | any[]> {
   const démarcheDossierLabelToId = schemaToChampLabelToChampId(schema88444);
 
-  /** @type {ReturnType<créerObjetPréremplissageChamp>} */
-  const objetPréremplissage = {};
+  const objetPréremplissage: ReturnType<typeof créerObjetPréremplissageChamp> = {};
 
   for (const champ of démarcheDossierLabelToId.keys()) {
     if (
@@ -34,9 +28,9 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444) {
         // @ts-ignore
       ].includes(champ)
     ) {
-      /** @type {DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined} */
       // @ts-ignore
-      const valeur = dossierPartiel[champ];
+      const valeur: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
+        dossierPartiel[champ];
       if (valeur) {
         // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
         objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString();
@@ -109,12 +103,11 @@ function créerObjetPréremplissageChamp(dossierPartiel, schema88444) {
 /**
  * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
  * Cette fonction demande un lien via POST
- *
- * @param {Partial<DossierDemarcheNumerique88444>} dossierPartiel
- * @param {SchemaDémarcheSimplifiée} schema88444
- * @returns {Promise<{dossier_url: string}>}
  */
-export async function demanderLienPréremplissage(dossierPartiel, schema88444) {
+export async function demanderLienPréremplissage(
+  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+  schema88444: SchemaDémarcheSimplifiée,
+): Promise<{ dossier_url: string }> {
   const préRemplissageURL = `https://demarche.numerique.gouv.fr/api/public/v1/demarches/88444/dossiers`;
 
   return ky

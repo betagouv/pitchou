@@ -1,20 +1,16 @@
-//@ts-check
-
 // ce script recups les dossier de la démarche 88444
 
 import { formatISO } from "date-fns";
 
-import queryGraphQL from "./queryGraphQL.js";
-import { dossiersQuery } from "./graphQLqueries.js";
+import queryGraphQL from "./queryGraphQL.ts";
+import { dossiersQuery } from "./graphQLqueries.ts";
 
-/**
- * @param {string} token
- * @param {number} demarcheNumber
- * @param {Date} updatedSince
- * @param {string} [before]
- * @returns {Promise<any>}
- */
-function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updatedSince, before) {
+function récupérerPageDossiersRécemmentModifiés(
+  token: string,
+  demarcheNumber: number,
+  updatedSince: Date,
+  before?: string,
+): Promise<any> {
   return queryGraphQL(token, dossiersQuery, {
     demarcheNumber,
 
@@ -24,17 +20,12 @@ function récupérerPageDossiersRécemmentModifiés(token, demarcheNumber, updat
   });
 }
 
-/** @typedef {any} DossierAPI */
-
-/**
- * @param {string} token
- * @param {number} demarcheNumber
- * @param {Date} updatedSince
- * @returns {Promise<any>}
- */
-export async function recupérerDossiersRécemmentModifiés(token, demarcheNumber, updatedSince) {
-  /** @type {any[]} */
-  let dossiers = [];
+export async function recupérerDossiersRécemmentModifiés(
+  token: string,
+  demarcheNumber: number,
+  updatedSince: Date,
+): Promise<any> {
+  let dossiers: any[] = [];
   let hasPreviousPage = true;
   let startCursor = undefined;
 

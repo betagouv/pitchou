@@ -1,5 +1,3 @@
-//@ts-check
-
 import { subtle, randomBytes } from "node:crypto";
 import { Buffer } from "node:buffer";
 
@@ -10,8 +8,7 @@ const IV_LENGTH = 12;
 const LEGACY_IV = Buffer.from("000000000000");
 const ENCODING = "utf-8";
 
-/** @type {Promise<CryptoKey> | undefined} */
-let keyPromise;
+let keyPromise: Promise<CryptoKey> | undefined;
 function getKey() {
   if (!keyPromise) {
     const keyData = process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER;
@@ -31,11 +28,9 @@ function getKey() {
   return keyPromise;
 }
 
-/**
- * @param {string} donnéesSupplémentaires
- * @returns {Promise<string>}
- */
-export async function chiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentaires) {
+export async function chiffrerDonnéesSupplémentairesDossiers(
+  donnéesSupplémentaires: string,
+): Promise<string> {
   const iv = randomBytes(IV_LENGTH);
   const donnéesChiffrées = await subtle.encrypt(
     { name: ALGORITHM_NAME, iv },
@@ -50,11 +45,9 @@ export async function chiffrerDonnéesSupplémentairesDossiers(donnéesSuppléme
   return output.toString("base64");
 }
 
-/**
- * @param {string} donnéesSupplémentairesChiffrées
- * @returns {Promise<string>}
- */
-export async function déchiffrerDonnéesSupplémentairesDossiers(donnéesSupplémentairesChiffrées) {
+export async function déchiffrerDonnéesSupplémentairesDossiers(
+  donnéesSupplémentairesChiffrées: string,
+): Promise<string> {
   const raw = Buffer.from(donnéesSupplémentairesChiffrées, "base64");
 
   const key = await getKey();

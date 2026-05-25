@@ -13,7 +13,7 @@
 /** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
 
 import assert from "node:assert/strict";
-import { déchiffrerDonnéesSupplémentairesDossiers } from "../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js";
+import { déchiffrerDonnéesSupplémentairesDossiers } from "../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
 import { isAfter } from "date-fns";
 import { normalisationEmail } from "../../scripts/commun/manipulationStrings.ts";
 

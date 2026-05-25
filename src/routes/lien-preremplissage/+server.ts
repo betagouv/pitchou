@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
-import { demanderLienPréremplissage } from "$server/démarche-numérique/demanderLienPréremplissage.js";
-import { chiffrerDonnéesSupplémentairesDossiers } from "$server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.js";
+import { demanderLienPréremplissage } from "$server/démarche-numérique/demanderLienPréremplissage.ts";
+import { chiffrerDonnéesSupplémentairesDossiers } from "$server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
 import _schema88444 from "../../../data/démarche-numérique/schema-DS/derogation-especes-protegees.json" with { type: "json" };
 import type { DossierDemarcheNumerique88444 } from "$types/démarche-numérique/Démarche88444.js";
 import type { SchemaDémarcheSimplifiée } from "$types/démarche-numérique/schema.js";

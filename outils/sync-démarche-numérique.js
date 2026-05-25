@@ -21,9 +21,9 @@ import { listAllPersonnes, créerPersonnes } from "../scripts/server/database/pe
 import { synchroniserGroupesInstructeurs } from "../scripts/server/database/groupe_instructeurs.js";
 import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "../scripts/server/database/espèces_impactées.ts";
 
-import { recupérerDossiersRécemmentModifiés } from "../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.js";
-import { recupérerGroupesInstructeurs } from "../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.js";
-import récupérerTousLesDossiersSupprimés from "../scripts/server/démarche-numérique/recupérerListeDossiersSupprimés.js";
+import { recupérerDossiersRécemmentModifiés } from "../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.ts";
+import { recupérerGroupesInstructeurs } from "../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.ts";
+import récupérerTousLesDossiersSupprimés from "../scripts/server/démarche-numérique/recupérerListeDossiersSupprimés.ts";
 
 import { isValidDate } from "../scripts/commun/typeFormat.ts";
 
