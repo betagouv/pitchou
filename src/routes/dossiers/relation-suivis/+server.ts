@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { getRelationSuivis, créerTransaction } from "$server/database.js";
+import { getRelationSuivis, créerTransaction } from "$server/database.ts";
 import {
   trouverRelationPersonneDepuisCap,
   instructeurSuitDossier,

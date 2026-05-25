@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 
 import type { ÉvènementMétrique } from "../../types/évènement.d.ts";
 import type { default as Personne } from "../../types/database/public/Personne.ts";

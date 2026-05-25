@@ -2,8 +2,8 @@ import parseArgs from "minimist";
 import {
   resetSecretGeoMCE,
   récupérerSecretGeoMCE,
-} from "../scripts/server/database/capability-geomce.js";
-import { closeDatabaseConnection } from "../scripts/server/database.js";
+} from "../scripts/server/database/capability-geomce.ts";
+import { closeDatabaseConnection } from "../scripts/server/database.ts";
 
 const args = parseArgs(process.argv);
 

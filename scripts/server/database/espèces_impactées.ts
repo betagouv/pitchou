@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
-import { directDatabaseConnection } from "../database.js";
-import { supprimerFichiersSansAutresRéférences } from "./fichier.js";
+import { directDatabaseConnection } from "../database.ts";
+import { supprimerFichiersSansAutresRéférences } from "./fichier.ts";
 
 import type { default as Fichier } from "../../../scripts/types/database/public/Fichier.ts";
 import type { DossierDS88444 } from "../../types/démarche-numérique/apiSchema.ts";

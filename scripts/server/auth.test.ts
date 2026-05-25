@@ -4,7 +4,7 @@ vi.mock("./database/dossier.js", () => ({
   dossiersAccessibleViaCap: vi.fn(),
 }));
 
-import { checkDossierAccessByCap } from "./auth.js";
+import { checkDossierAccessByCap } from "./auth.ts";
 import { dossiersAccessibleViaCap } from "./database/dossier.js";
 
 const mockedDossiersAccessibleViaCap = vi.mocked(dossiersAccessibleViaCap);

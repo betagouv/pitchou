@@ -9,7 +9,7 @@ import {
   closeDatabaseConnection,
   créerTransaction,
   addRésultatSynchronisationDS88444,
-} from "../scripts/server/database.js";
+} from "../scripts/server/database.ts";
 import {
   dumpDossiers,
   getDossierIdsFromDS_Ids,

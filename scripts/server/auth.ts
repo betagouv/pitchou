@@ -1,19 +1,16 @@
-//@ts-check
-
 import { dossiersAccessibleViaCap } from "./database/dossier.js";
 
-/** @import {default as Dossier} from '../types/database/public/Dossier.ts' */
+import type { default as Dossier } from "../types/database/public/Dossier.ts";
 
 /**
  * Checks that the cap grants access to the given dossier
  * Writes a 4xx response on reply and returns `undefined` on failure
- *
- * @param {Dossier['id'] | undefined} dossierId
- * @param {string | undefined} cap
- * @param {any} reply
- * @returns {Promise<Dossier['id'] | undefined>}
  */
-export async function checkDossierAccessByCap(dossierId, cap, reply) {
+export async function checkDossierAccessByCap(
+  dossierId: Dossier["id"] | undefined,
+  cap: string | undefined,
+  reply: any,
+): Promise<Dossier["id"] | undefined> {
   if (!cap) {
     reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`);
     return undefined;

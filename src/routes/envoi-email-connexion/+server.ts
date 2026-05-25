@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { authorizedEmailDomains } from "$commun/constantes.ts";
 import { créerPersonneOuMettreÀJourCodeAccès } from "$server/database/personne.ts";
-import { envoyerEmailConnexion } from "$server/emails.js";
+import { envoyerEmailConnexion } from "$server/emails.ts";
 
 export const POST: RequestHandler = async ({ url }) => {
   const rawEmail = url.searchParams.get("email");

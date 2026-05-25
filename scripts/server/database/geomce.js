@@ -5,7 +5,7 @@ import { dsvFormat } from "d3-dsv";
 import memoize from "just-memoize";
 
 import { byteFormat } from "../../commun/typeFormat.js";
-import { directDatabaseConnection } from "../../server/database.js";
+import { directDatabaseConnection } from "../../server/database.ts";
 import {
   construireActivitésMéthodesMoyensDePoursuite,
   espèceProtégéeStringToEspèceProtégée,

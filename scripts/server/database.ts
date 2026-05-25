@@ -1,62 +1,46 @@
-//@ts-check
+import knex, { type Knex } from "knex";
 
-import knex from "knex";
-
-/** @import {default as Personne} from '../types/database/public/Personne.ts' */
-/** @import {default as Entreprise} from '../types/database/public/Entreprise.ts' */
-/** @import {default as RésultatSynchronisationDS88444} from '../types/database/public/RésultatSynchronisationDS88444.ts' */
-/** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
-/** @import {StringValues} from '../types/tools.d.ts' */
+import type { default as Personne } from "../types/database/public/Personne.ts";
+import type { default as Entreprise } from "../types/database/public/Entreprise.ts";
+import type { default as RésultatSynchronisationDS88444 } from "../types/database/public/RésultatSynchronisationDS88444.ts";
+import type {
+  IdentitéInstructeurPitchou,
+  PitchouInstructeurCapabilities,
+} from "../types/capabilities.ts";
+import type { StringValues } from "../types/tools.d.ts";
 
 export const directDatabaseConnection = knex({
   client: "pg",
   connection: process.env.DATABASE_URL,
 });
 
-/**
- *
- * @returns {ReturnType<knex.Knex['destroy']>}
- */
-export function closeDatabaseConnection() {
+export function closeDatabaseConnection(): ReturnType<Knex["destroy"]> {
   return directDatabaseConnection.destroy();
 }
 
-/**
- * @param {knex.Knex.TransactionConfig} [config]
- * @returns {Promise<knex.Knex.Transaction>}
- */
-export function créerTransaction(config) {
+export function créerTransaction(config?: Knex.TransactionConfig): Promise<Knex.Transaction> {
   return directDatabaseConnection.transaction(config);
 }
 
-/**
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Entreprise[]>}
- */
-export function listAllEntreprises(databaseConnection = directDatabaseConnection) {
+export function listAllEntreprises(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Entreprise[]> {
   return databaseConnection("entreprise").select();
 }
 
-/**
- *
- * @param {Entreprise[]} entreprises
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
-export function dumpEntreprises(entreprises, databaseConnection = directDatabaseConnection) {
+export function dumpEntreprises(
+  entreprises: Entreprise[],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
   return databaseConnection("entreprise").insert(entreprises).onConflict("siret").merge();
 }
 
-/**
- *
- * @param {NonNullable<Personne['code_accès']>} code_accès
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Partial<StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}>>}
- */
 export async function getInstructeurCapBundleByPersonneCodeAccès(
-  code_accès,
-  databaseConnection = directDatabaseConnection,
-) {
+  code_accès: NonNullable<Personne["code_accès"]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<
+  Partial<StringValues<PitchouInstructeurCapabilities> & { identité: IdentitéInstructeurPitchou }>
+> {
   const remplirAnnotationsP = databaseConnection("arête_personne__cap_écriture_annotation")
     .select("cap")
     .leftJoin("cap_écriture_annotation", {
@@ -122,8 +106,7 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
       listerNotifications,
       updateNotificationForDossier,
     ]) => {
-      /** @type {Awaited<ReturnType<getInstructeurCapBundleByPersonneCodeAccès>>} */
-      const ret = {
+      const ret: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAccès>> = {
         remplirAnnotations: undefined,
         listerDossiers,
         recupérerDossierComplet,
@@ -147,16 +130,10 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
   );
 }
 
-/**
- *
- * @param {NonNullable<Personne['code_accès']>} listeDossiersCap
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<ReturnType<PitchouInstructeurCapabilities['listerRelationSuivi']>>}
- */
 export async function getRelationSuivis(
-  listeDossiersCap,
-  databaseConnection = directDatabaseConnection,
-) {
+  listeDossiersCap: NonNullable<Personne["code_accès"]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<ReturnType<PitchouInstructeurCapabilities["listerRelationSuivi"]>> {
   const relsBDD = await databaseConnection("dossier")
     .select(["dossier.id as dossier", "personne.email as email"])
     .join("arête_groupe_instructeurs__dossier", {
@@ -191,27 +168,16 @@ export async function getRelationSuivis(
   }));
 }
 
-/**
- *
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<RésultatSynchronisationDS88444[]>}
- */
 export async function getRésultatsSynchronisationDS88444(
-  databaseConnection = directDatabaseConnection,
-) {
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<RésultatSynchronisationDS88444[]> {
   return databaseConnection("résultat_synchronisation_DS_88444").select("*");
 }
 
-/**
- *
- * @param {RésultatSynchronisationDS88444} résultatSynchro
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
 export async function addRésultatSynchronisationDS88444(
-  résultatSynchro,
-  databaseConnection = directDatabaseConnection,
-) {
+  résultatSynchro: RésultatSynchronisationDS88444,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
   return databaseConnection("résultat_synchronisation_DS_88444")
     .insert([résultatSynchro])
     .onConflict("succès")

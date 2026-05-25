@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import type { Knex } from "knex";
 
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 import { normalisationEmail } from "../../commun/manipulationStrings.ts";
 
 import type {

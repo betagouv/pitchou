@@ -1,8 +1,8 @@
 import type { Knex } from "knex";
 
 import trouverCandidatsFichiersÀTélécharger from "../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js";
-import { directDatabaseConnection } from "../database.js";
-import { supprimerFichiersSansAutresRéférences } from "./fichier.js";
+import { directDatabaseConnection } from "../database.ts";
+import { supprimerFichiersSansAutresRéférences } from "./fichier.ts";
 
 import type { default as Fichier } from "../../../scripts/types/database/public/Fichier.ts";
 import type {

@@ -1,28 +1,16 @@
-//@ts-check
-
-/** @import { ÉvènementMétrique, ÉvènementRechercheDossiersDétails } from '../types/évènement' */
-
-// @ts-expect-error 'ÉvènementRechercheDossiersDétails' est considéré inutilisé sinon
-const /** @type {ÉvènementRechercheDossiersDétails} **/ inutile = null;
-
 import { phases, prochaineActionAttenduePar } from "../front-end/affichageDossier.js";
 
-/**
- * @param {any} détails
- * @returns { détails is {dossierId: Dossier['id']} }
- */
-function estDétailsDossier(détails) {
+import type { ÉvènementMétrique, ÉvènementRechercheDossiersDétails } from "../types/évènement.d.ts";
+
+function estDétailsDossier(détails: any): détails is { dossierId: number } {
   if (Object(détails) === détails) {
     return Number.isInteger(détails.dossierId);
   } else {
     return false;
   }
 }
-/**
- * @param {any} détails
- * @returns { détails is ÉvènementRechercheDossiersDétails }
- */
-function estRechercheDossierDétails(détails) {
+
+function estRechercheDossierDétails(détails: any): détails is ÉvènementRechercheDossiersDétails {
   if (Object(détails) !== détails) {
     return false;
   }
@@ -59,7 +47,7 @@ function estRechercheDossierDétails(détails) {
 
   if (filtres.activitésPrincipales && Array.isArray(filtres.activitésPrincipales)) {
     const estActivitésPrincipales = filtres.activitésPrincipales.every(
-      (/** @type {any} */ activité) => typeof activité === "string",
+      (activité: any) => typeof activité === "string",
     );
 
     if (!estActivitésPrincipales) {
@@ -68,7 +56,7 @@ function estRechercheDossierDétails(détails) {
   }
 
   if (filtres.phases && Array.isArray(filtres.phases)) {
-    const estPhases = filtres.phases.every((/** @type {any} */ peutÊtrePhase) => {
+    const estPhases = filtres.phases.every((peutÊtrePhase: any) => {
       return phases.has(peutÊtrePhase);
     });
     if (!estPhases) {
@@ -78,7 +66,7 @@ function estRechercheDossierDétails(détails) {
 
   if (filtres.prochaineActionAttenduePar && Array.isArray(filtres.prochaineActionAttenduePar)) {
     const estProchaineActionAttenduePar = filtres.prochaineActionAttenduePar.every(
-      (/** @type {any} */ peutProchaineActionPar) => {
+      (peutProchaineActionPar: any) => {
         return (
           peutProchaineActionPar === "(vide)" ||
           prochaineActionAttenduePar.has(peutProchaineActionPar)
@@ -93,17 +81,12 @@ function estRechercheDossierDétails(détails) {
   return true;
 }
 
-/**
- * @param {any} évènement
- * @returns { évènement is ÉvènementMétrique }
- */
-export function évènementMétriqueGuard(évènement) {
+export function évènementMétriqueGuard(évènement: any): évènement is ÉvènementMétrique {
   if (!évènement.type) {
     return false;
   }
 
-  /** @type {ÉvènementMétrique['type']} */
-  const type = évènement.type;
+  const type: ÉvènementMétrique["type"] = évènement.type;
 
   switch (type) {
     case "seConnecter":
@@ -158,8 +141,7 @@ export function évènementMétriqueGuard(évènement) {
     }
     default: {
       // Pour que TypeScript détecte si on a oublié un 'case'
-      /** @type {never} */
-      const neverType = type;
+      const neverType: never = type;
 
       // faire semblant d'utiliser pour pour satisfaire TypeScript
       void neverType;

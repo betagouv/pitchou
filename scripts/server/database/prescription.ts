@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 
 import { ajouterContrôles } from "./controle.ts";
 import { getDossierIdFromDecisionAdministrative } from "./décision_administrative.ts";

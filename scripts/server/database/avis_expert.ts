@@ -8,7 +8,7 @@ import type { PickNonNullable } from "../../types/tools";
 import type Fichier from "../../types/database/public/Fichier.ts";
 import type { default as Dossier } from "../../types/database/public/Dossier.ts";
 
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 import { ajouterFichier } from "./fichier.ts";
 
 function estUnAvisExpertÀModifier(

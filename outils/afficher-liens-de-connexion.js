@@ -1,6 +1,6 @@
 import parseArgs from "minimist";
-import { getPersonnesByEmail } from "../scripts/server/database/personne.js";
-import { closeDatabaseConnection } from "../scripts/server/database.js";
+import { getPersonnesByEmail } from "../scripts/server/database/personne.ts";
+import { closeDatabaseConnection } from "../scripts/server/database.ts";
 
 const args = parseArgs(process.argv);
 

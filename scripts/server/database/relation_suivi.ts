@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 
 import type CapDossier from "../../types/database/public/CapDossier.ts";
 import type Dossier from "../../types/database/public/Dossier.ts";

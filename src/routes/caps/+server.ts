@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
-import { getInstructeurCapBundleByPersonneCodeAccès } from "$server/database.js";
+import { getInstructeurCapBundleByPersonneCodeAccès } from "$server/database.ts";
 import type {
   IdentitéInstructeurPitchou,
   PitchouInstructeurCapabilities,

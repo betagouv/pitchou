@@ -2,7 +2,7 @@ import { max as mostRecent } from "date-fns";
 
 import type { Knex } from "knex";
 
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 
 import type { default as Personne } from "../../types/database/public/Personne.ts";
 
