@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { authorizedEmailDomains } from "$commun/constantes.ts";
-import { créerPersonneOuMettreÀJourCodeAccès } from "$server/database/personne.js";
+import { créerPersonneOuMettreÀJourCodeAccès } from "$server/database/personne.ts";
 import { envoyerEmailConnexion } from "$server/emails.js";
 
 export const POST: RequestHandler = async ({ url }) => {

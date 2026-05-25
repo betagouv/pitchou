@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.js";
-import { getPersonneByDossierCap } from "./personne.js";
+import { getPersonneByDossierCap } from "./personne.ts";
 
 import type {
   default as Notification,

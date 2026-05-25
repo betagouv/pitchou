@@ -1,13 +1,12 @@
-/** @import {default as CapabilityGeomce} from '../../types/database/public/CapabilityGeomce.ts' */
-/** @import {Knex} from 'knex' */
+import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.js";
 
-/**
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<void>}
- */
-export async function miseEnPlaceSecretGeoMCE(databaseConnection = directDatabaseConnection) {
+import type { default as CapabilityGeomce } from "../../types/database/public/CapabilityGeomce.ts";
+
+export async function miseEnPlaceSecretGeoMCE(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
   const secretsGeoMCE = await databaseConnection("capability-geomce").select("*");
 
   if (secretsGeoMCE.length === 0) {
@@ -22,13 +21,10 @@ export async function miseEnPlaceSecretGeoMCE(databaseConnection = directDatabas
   }
 }
 
-/**
- *
- * @param {CapabilityGeomce['secret']} secret
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<void>}
- */
-export async function verifierSecretGeoMCE(secret, databaseConnection = directDatabaseConnection) {
+export async function verifierSecretGeoMCE(
+  secret: CapabilityGeomce["secret"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
   const secretsGeoMCE = await databaseConnection("capability-geomce")
     .select("*")
     .where({ secret: secret });
@@ -40,11 +36,10 @@ export async function verifierSecretGeoMCE(secret, databaseConnection = directDa
 
 /**
  * Fonction sensible. À appeler avec prudence
- *
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<void>}
  */
-export async function récupérerSecretGeoMCE(databaseConnection = directDatabaseConnection) {
+export async function récupérerSecretGeoMCE(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+) {
   const { secret } = await databaseConnection("capability-geomce").select("*").first();
 
   return secret;
@@ -52,11 +47,10 @@ export async function récupérerSecretGeoMCE(databaseConnection = directDatabas
 
 /**
  * Fonction sensible. À appeler avec prudence
- *
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<CapabilityGeomce['secret']>}
  */
-export async function resetSecretGeoMCE(databaseConnection = directDatabaseConnection) {
+export async function resetSecretGeoMCE(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<CapabilityGeomce["secret"]> {
   // supprimer le secret existant
   await databaseConnection("capability-geomce").delete();
 

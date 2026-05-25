@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import { getFichier } from "$server/database/fichier.js";
+import { getFichier } from "$server/database/fichier.ts";
 import type Fichier from "$types/database/public/Fichier.ts";
 
 export async function téléchargementFichierResponse(fichierId: Fichier["id"]): Promise<Response> {

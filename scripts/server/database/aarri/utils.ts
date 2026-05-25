@@ -1,13 +1,9 @@
-/** @import Évènement from '../../../types/database/public/ÉvènementMétrique' */
-/** @import Personne from '../../../types/database/public/Personne' */
-
 import { directDatabaseConnection } from "../../database.js";
 
-/**
- * @param {Personne['email']} email
- * @returns {Promise<Évènement[]>}
- */
-export async function getÉvènementsForPersonne(email) {
+import type Évènement from "../../../types/database/public/ÉvènementMétrique.ts";
+import type Personne from "../../../types/database/public/Personne.ts";
+
+export async function getÉvènementsForPersonne(email: Personne["email"]): Promise<Évènement[]> {
   const requêteSQL = await directDatabaseConnection("personne")
     .select("id")
     .where("email", "=", email);

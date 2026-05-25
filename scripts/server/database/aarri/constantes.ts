@@ -1,15 +1,13 @@
-/** @import { ÉvènementMétrique } from '../../../types/évènement.js' */
+import type { ÉvènementMétrique } from "../../../types/évènement.d.ts";
 
-/** @type {ÉvènementMétrique['type'][]} */
-export const ÉVÈNEMENTS_CONSULTATIONS = [
+export const ÉVÈNEMENTS_CONSULTATIONS: ÉvènementMétrique["type"][] = [
   "rechercherDesDossiers",
   "afficherLesDossiersSuivis",
   "consulterUnDossier",
   "téléchargerListeÉspècesImpactées",
 ];
 
-/** @type {ÉvènementMétrique['type'][]} */
-export const ÉVÈNEMENTS_MODIFICATIONS = [
+export const ÉVÈNEMENTS_MODIFICATIONS: ÉvènementMétrique["type"][] = [
   "suivreUnDossier",
   "modifierCommentaireInstruction",
   "changerPhase",

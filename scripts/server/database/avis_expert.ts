@@ -9,7 +9,7 @@ import type Fichier from "../../types/database/public/Fichier.ts";
 import type { default as Dossier } from "../../types/database/public/Dossier.ts";
 
 import { directDatabaseConnection } from "../database.js";
-import { ajouterFichier } from "./fichier.js";
+import { ajouterFichier } from "./fichier.ts";
 
 function estUnAvisExpertÀModifier(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),

@@ -17,9 +17,9 @@ import {
   deleteDossierByDSNumber,
   synchroniserDossierDansGroupeInstructeur,
 } from "../scripts/server/database/dossier.js";
-import { listAllPersonnes, créerPersonnes } from "../scripts/server/database/personne.js";
+import { listAllPersonnes, créerPersonnes } from "../scripts/server/database/personne.ts";
 import { synchroniserGroupesInstructeurs } from "../scripts/server/database/groupe_instructeurs.js";
-import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "../scripts/server/database/espèces_impactées.js";
+import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "../scripts/server/database/espèces_impactées.ts";
 
 import { recupérerDossiersRécemmentModifiés } from "../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.js";
 import { recupérerGroupesInstructeurs } from "../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.js";
@@ -40,7 +40,7 @@ import {
 import { makeColonnesCommunesDossierPourSynchro88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444 } from "../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.js";
+import { synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444 } from "../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.ts";
 import { mettreÀjourNotification } from "./synchronisation-ds/synchronisation-notification.js";
 
 /** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */

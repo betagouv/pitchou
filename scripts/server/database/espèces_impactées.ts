@@ -1,23 +1,15 @@
+import type { Knex } from "knex";
+
 import { directDatabaseConnection } from "../database.js";
 import { supprimerFichiersSansAutresRéférences } from "./fichier.js";
 
-/** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
-/** @import {DossierDS88444} from '../../types/démarche-numérique/apiSchema.ts' */
-/** @import {Knex} from 'knex' */
+import type { default as Fichier } from "../../../scripts/types/database/public/Fichier.ts";
+import type { DossierDS88444 } from "../../types/démarche-numérique/apiSchema.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
-/**
- *
- * @param {Map<DossierDS88444['number'], Fichier['id']>} espècesImpactéesParNuméroDossier
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
 export async function synchroniserFichiersEspècesImpactéesDepuisDS88444(
-  espècesImpactéesParNuméroDossier,
-  databaseConnection = directDatabaseConnection,
-) {
+  espècesImpactéesParNuméroDossier: Map<DossierDS88444["number"], Fichier["id"]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
   // Trouver les fichiers déjà en place (pour les supprimer plus bas)
   const fichiersIdPrécédents = await databaseConnection("dossier")
     .select(["espèces_impactées"])

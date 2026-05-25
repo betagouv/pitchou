@@ -1,14 +1,11 @@
-/** @import {Knex} from 'knex' */
-/** @import { ÉvènementMétrique } from '../../types/évènement.js' */
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
+import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.js";
 
-/**
- * @param {string} cap
- * @param {ÉvènementMétrique} évènement
- */
-export async function ajouterÉvènementDepuisCap(cap, évènement) {
+import type { ÉvènementMétrique } from "../../types/évènement.d.ts";
+import type { default as Personne } from "../../types/database/public/Personne.ts";
+
+export async function ajouterÉvènementDepuisCap(cap: string, évènement: ÉvènementMétrique) {
   const personne = await directDatabaseConnection("cap_évènement_métrique")
     .select("id")
     .from("personne")
@@ -29,30 +26,19 @@ export async function ajouterÉvènementDepuisCap(cap, évènement) {
   });
 }
 
-/**
- *
- * @param {NonNullable<Personne['email']>} email
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<number>}
- */
 export async function supprimerÉvènementsParEmail(
-  email,
-  databaseConnection = directDatabaseConnection,
-) {
+  email: NonNullable<Personne["email"]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<number> {
   return databaseConnection("évènement_métrique")
     .join("personne", { "personne.id": "évènement_métrique.personne" })
     .where({ email: email })
     .delete();
 }
-/**
- *
- * @param {Date} date
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<number>}
- */
+
 export async function supprimerÉvènementsAvantTelleDate(
-  date,
-  databaseConnection = directDatabaseConnection,
-) {
+  date: Date,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<number> {
   return databaseConnection("évènement_métrique").where("date", "<", date).delete();
 }

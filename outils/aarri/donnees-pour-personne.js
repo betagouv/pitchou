@@ -1,6 +1,6 @@
 //@ts-check
 import parseArgs from "minimist";
-import { getÉvènementsForPersonne } from "../../scripts/server/database/aarri/utils.js";
+import { getÉvènementsForPersonne } from "../../scripts/server/database/aarri/utils.ts";
 import { createOdsFile } from "@odfjs/odfjs";
 import { formatDateAbsolue } from "../../scripts/front-end/affichageDossier.js";
 import { closeDatabaseConnection } from "../../scripts/server/database.js";

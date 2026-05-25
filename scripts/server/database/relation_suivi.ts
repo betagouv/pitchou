@@ -1,27 +1,17 @@
+import type { Knex } from "knex";
+
 import { directDatabaseConnection } from "../database.js";
 
-/** @import {Knex} from 'knex' */
-/** @import CapDossier from '../../types/database/public/CapDossier.ts' */
-/** @import Dossier from '../../types/database/public/Dossier.ts' */
-/** @import Personne from '../../types/database/public/Personne.ts' */
+import type CapDossier from "../../types/database/public/CapDossier.ts";
+import type Dossier from "../../types/database/public/Dossier.ts";
+import type Personne from "../../types/database/public/Personne.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
-/**
- *
- * @param {CapDossier['cap']} cap
- * @param {NonNullable<Personne['email']>} personneEmail
- * @param {Dossier['id']} dossierId
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @return {Promise<any[]>}
- */
 export function trouverRelationPersonneDepuisCap(
-  cap,
-  personneEmail,
-  dossierId,
-  databaseConnection = directDatabaseConnection,
-) {
+  cap: CapDossier["cap"],
+  personneEmail: NonNullable<Personne["email"]>,
+  dossierId: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any[]> {
   return databaseConnection("cap_dossier")
     .select([
       "arête_groupe_instructeurs__dossier.dossier as dossier_id",
@@ -42,18 +32,11 @@ export function trouverRelationPersonneDepuisCap(
     });
 }
 
-/**
- *
- * @param {Personne['id']} personneid
- * @param {Dossier['id']} dossierId
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @return {Promise<void>}
- */
 export async function instructeurSuitDossier(
-  personneid,
-  dossierId,
-  databaseConnection = directDatabaseConnection,
-) {
+  personneid: Personne["id"],
+  dossierId: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
   return databaseConnection("arête_personne_suit_dossier")
     .insert({
       personne: personneid,
@@ -64,18 +47,11 @@ export async function instructeurSuitDossier(
     .then(() => undefined);
 }
 
-/**
- *
- * @param {Personne['id']} personneid
- * @param {Dossier['id']} dossierId
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @return {Promise<void>}
- */
 export async function instructeurLaisseDossier(
-  personneid,
-  dossierId,
-  databaseConnection = directDatabaseConnection,
-) {
+  personneid: Personne["id"],
+  dossierId: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
   return databaseConnection("arête_personne_suit_dossier")
     .delete()
     .where({

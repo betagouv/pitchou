@@ -6,8 +6,8 @@ import {
   trouverRelationPersonneDepuisCap,
   instructeurSuitDossier,
   instructeurLaisseDossier,
-} from "$server/database/relation_suivi.js";
-import { getPersonneByEmail } from "$server/database/personne.js";
+} from "$server/database/relation_suivi.ts";
+import { getPersonneByEmail } from "$server/database/personne.ts";
 import type { PitchouInstructeurCapabilities } from "$types/capabilities.ts";
 
 export const GET: RequestHandler = async ({ url }) => {

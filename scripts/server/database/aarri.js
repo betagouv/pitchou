@@ -4,7 +4,7 @@
 
 import { eachWeekOfInterval } from "date-fns";
 import { directDatabaseConnection } from "../database.js";
-import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.js";
+import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
 
 /**
  * Correspond au jour d'une semaine

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { créerPersonne, créerPersonneOuMettreÀJourCodeAccès, créerPersonnes } from "./personne.js";
+import { créerPersonne, créerPersonneOuMettreÀJourCodeAccès, créerPersonnes } from "./personne.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import { pgUniqueViolation } from "./pgErrors.js";
 

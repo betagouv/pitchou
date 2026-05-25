@@ -1,40 +1,32 @@
-/** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
-/** @import {default as Dossier, DossierId} from '../../../scripts/types/database/public/Dossier.ts' */
-/** @import {DossierDS88444, DSFile} from '../../types/démarche-numérique/apiSchema.ts' */
-/** @import {ChampDescriptor} from '../../types/démarche-numérique/schema.ts' */
-/** @import {DossierDemarcheNumerique88444} from '../../types/démarche-numérique/Démarche88444.ts' */
-/** @import {Knex} from 'knex' */
+import type { Knex } from "knex";
 
 import trouverCandidatsFichiersÀTélécharger from "../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js";
 import { directDatabaseConnection } from "../database.js";
 import { supprimerFichiersSansAutresRéférences } from "./fichier.js";
 
-/** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
+import type { default as Fichier } from "../../../scripts/types/database/public/Fichier.ts";
+import type {
+  default as Dossier,
+  DossierId,
+} from "../../../scripts/types/database/public/Dossier.ts";
+import type { DossierDS88444, DSFile } from "../../types/démarche-numérique/apiSchema.ts";
+import type { ChampDescriptor } from "../../types/démarche-numérique/schema.ts";
+import type { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts";
 
-/**
- *
- * @param {Map<Dossier['id'], Fichier['id'][]>} fichiersPiècesJointesPétitionnaireParNuméroDossier
- * @param {DossierDS88444[]} dossiersDS
- * @param {Map<DossierDS88444['number'], Dossier['id']>} dossierIdByDS_number
- * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @param {ChampFormulaire[]} champsAvecPiècesJointes
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
+type ChampFormulaire = keyof DossierDemarcheNumerique88444;
+
 export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
-  fichiersPiècesJointesPétitionnaireParNuméroDossier,
-  dossiersDS,
-  dossierIdByDS_number,
-  pitchouKeyToChampDS,
-  champsAvecPiècesJointes,
-  databaseConnection = directDatabaseConnection,
-) {
-  /** @type {Map<DossierDS88444['number'], DSFile[]>[]} */
-  let descriptionsFichiers = [];
+  fichiersPiècesJointesPétitionnaireParNuméroDossier: Map<Dossier["id"], Fichier["id"][]>,
+  dossiersDS: DossierDS88444[],
+  dossierIdByDS_number: Map<DossierDS88444["number"], Dossier["id"]>,
+  pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
+  champsAvecPiècesJointes: ChampFormulaire[],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
+  let descriptionsFichiers: Map<DossierDS88444["number"], DSFile[]>[] = [];
 
   for (const champ of champsAvecPiècesJointes) {
-    /** @type {ChampDescriptor['id'] | undefined} */
-    const champId = pitchouKeyToChampDS.get(champ);
+    const champId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(champ);
     if (!champId) {
       throw new Error(`champId for ${champ} is undefined`);
     }
@@ -43,9 +35,10 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     descriptionsFichiers.push(candidat);
   }
 
-  /** @type {Set<DossierId>} */
   // @ts-ignore
-  const dossierIds = new Set(dossiersDS.map(({ number }) => dossierIdByDS_number.get(number)));
+  const dossierIds: Set<DossierId> = new Set(
+    dossiersDS.map(({ number }) => dossierIdByDS_number.get(number)),
+  );
 
   const allDsFiles = descriptionsFichiers
     .flatMap((descriptionFichier) => [...descriptionFichier.values()])
@@ -66,8 +59,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     .whereIn("a.dossier", [...dossierIds])
     .andWhere("f.DS_checksum", "not in", [...checksumsDS]);
 
-  /** @type {Promise<any>} */
-  let fichiersOrphelinsNettoyés = Promise.resolve();
+  let fichiersOrphelinsNettoyés: Promise<any> = Promise.resolve();
 
   if (arêtesÀSupprimer.length >= 1) {
     const fichierIdsCandidatsÀSupprimer = [...new Set(arêtesÀSupprimer.map((a) => a.fichier))];
@@ -98,8 +90,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     )
     .flat();
 
-  /** @type {Promise<any>} */
-  let nouveauxFichiersSynchronisés = Promise.resolve();
+  let nouveauxFichiersSynchronisés: Promise<any> = Promise.resolve();
 
   if (arêtesFichierDossierPiècesJointePétitionnaires.length >= 1) {
     nouveauxFichiersSynchronisés = databaseConnection(

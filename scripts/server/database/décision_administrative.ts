@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.js";
 
-import { ajouterFichier, supprimerFichier } from "./fichier.js";
+import { ajouterFichier, supprimerFichier } from "./fichier.ts";
 
 import type { default as Fichier } from "../../../scripts/types/database/public/Fichier.ts";
 import type { default as Dossier } from "../../../scripts/types/database/public/Dossier.ts";

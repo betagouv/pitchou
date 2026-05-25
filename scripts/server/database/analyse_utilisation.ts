@@ -1,16 +1,14 @@
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-
 import { max as mostRecent } from "date-fns";
+
+import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.js";
 
-/**
- *
- * @returns {Promise<Map<NonNullable<Personne['email']>, Date>>}
- */
+import type { default as Personne } from "../../types/database/public/Personne.ts";
+
 export async function getDateDernièreUtilisationParInstructrice(
-  databaseConnection = directDatabaseConnection,
-) {
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Map<NonNullable<Personne["email"]>, Date>> {
   const emailsEtDates = await databaseConnection("personne")
     .select(["email"])
     .max("horodatage as changement_de_phase_le_plus_récent")
@@ -25,9 +23,10 @@ export async function getDateDernièreUtilisationParInstructrice(
     .leftJoin("avis_expert", { "avis_expert.dossier": "dossier.id" })
     .groupBy("email");
 
-  /** @type {Awaited<ReturnType<getDateDernièreUtilisationParInstructrice>>} */
-  // @ts-ignore
-  const dateDernièreUtilisationParInstructrice = new Map();
+  const dateDernièreUtilisationParInstructrice: Map<
+    NonNullable<Personne["email"]>,
+    Date
+  > = new Map();
 
   for (const {
     email,
