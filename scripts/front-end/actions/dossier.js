@@ -7,7 +7,7 @@ import {
   chargerActivitésMéthodesMoyensDePoursuite,
   chargerListeEspècesProtégées,
 } from "./activitésMéthodesMoyensDePoursuite.js";
-import { isDossierRésuméArray } from "../../types/typeguards.js";
+import { isDossierRésuméArray } from "../../types/typeguards.ts";
 import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "./aarri.js";
 import { chargerRelationSuivi } from "./main.js";
 

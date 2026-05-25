@@ -4,67 +4,57 @@ import { readFile } from "node:fs/promises";
 import { dsvFormat } from "d3-dsv";
 import memoize from "just-memoize";
 
-import { byteFormat } from "../../commun/typeFormat.js";
+import { byteFormat } from "../../commun/typeFormat.ts";
 import { directDatabaseConnection } from "../../server/database.ts";
 import {
   construireActivitésMéthodesMoyensDePoursuite,
   espèceProtégéeStringToEspèceProtégée,
   importDescriptionMenacesEspècesFromOdsArrayBuffer,
-} from "../../commun/outils-espèces.js";
+} from "../../commun/outils-espèces.ts";
 
-/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-/** @import { GeoMceMessage, DossierPourGeoMCE } from '../../types/geomce.ts' */
-//@ts-ignore
-/** @import { PitchouState } from '../../front-end/store.svelte.ts' */
-//@ts-ignore
-/** @import { EspèceProtégée, DescriptionMenacesEspèces, EspèceProtégéeStrings } from '../../types/especes.ts' */
+import type { default as Dossier } from "../../types/database/public/Dossier.ts";
+import type { default as Personne } from "../../types/database/public/Personne.ts";
+import type { GeoMceMessage, DossierPourGeoMCE } from "../../types/geomce.ts";
+import type { PitchouState } from "../../front-end/store.svelte.ts";
+import type {
+  EspèceProtégée,
+  DescriptionMenacesEspèces,
+  EspèceProtégéeStrings,
+} from "../../types/especes.ts";
 
 const DATA_DIR = join(import.meta.dirname, "../../../data");
 
-/**
- * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>> }
- */
-const chargerActivitésMéthodesMoyensDePoursuite = memoize(
-  async function chargerActivitésMéthodesMoyensDePoursuite() {
-    const activitésBuffer = await readFile(
-      join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
-    );
-    return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
-  },
-);
-
-/**
- * Le premier appel memoize une version parsée de liste-espèces-protégées.csv, donc plusieurs Mo
- *
- * @returns {Promise<Map<EspèceProtégée['CD_REF'], EspèceProtégée>>}
- */
-const chargerListeEspèceParCD_REF = memoize(async function chargerListeEspèceParCD_REF() {
-  const espèceBuffer = await readFile(join(DATA_DIR, "liste-espèces-protégées.csv"));
-  /** @type {EspèceProtégéeStrings[]} */
-  const listeEspèces = dsvFormat(";").parse(espèceBuffer.toString());
-
-  return new Map(
-    listeEspèces.map((espèce) => {
-      return [espèce["CD_REF"], espèceProtégéeStringToEspèceProtégée(espèce)];
-    }),
+const chargerActivitésMéthodesMoyensDePoursuite: () => Promise<
+  NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
+> = memoize(async function chargerActivitésMéthodesMoyensDePoursuite() {
+  const activitésBuffer = await readFile(
+    join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
   );
+  return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
 });
 
 /**
- *
- * @param {Date | null} date
- * @returns {string | null}
+ * Le premier appel memoize une version parsée de liste-espèces-protégées.csv, donc plusieurs Mo
  */
-function formatDate(date) {
+const chargerListeEspèceParCD_REF: () => Promise<Map<EspèceProtégée["CD_REF"], EspèceProtégée>> =
+  memoize(async function chargerListeEspèceParCD_REF() {
+    const espèceBuffer = await readFile(join(DATA_DIR, "liste-espèces-protégées.csv"));
+    const listeEspèces: EspèceProtégéeStrings[] = dsvFormat(";").parse(espèceBuffer.toString());
+
+    return new Map(
+      listeEspèces.map((espèce) => {
+        return [espèce["CD_REF"], espèceProtégéeStringToEspèceProtégée(espèce)];
+      }),
+    );
+  });
+
+function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
 }
 
-/**
- * @param {Dossier['id'][] | Dossier['id']} idDossiers
- * @returns {Promise<DossierPourGeoMCE[] | undefined>}
- */
-async function récupérerDossiersParIds(idDossiers) {
+async function récupérerDossiersParIds(
+  idDossiers: Dossier["id"][] | Dossier["id"],
+): Promise<DossierPourGeoMCE[] | undefined> {
   if (!Array.isArray(idDossiers)) {
     idDossiers = [idDossiers];
   }
@@ -102,19 +92,18 @@ async function récupérerDossiersParIds(idDossiers) {
     .join("personne", { "personne.id": "arête_personne_suit_dossier.personne" })
     .whereIn("arête_personne_suit_dossier.dossier", idDossiers);
 
-  /** @type {Promise<Map<Dossier['id'], Personne['email'][]>>} */
-  const instructeursByDossierIdP = instructeursDossierP.then((instructeursDossiers) => {
-    /** @type {Awaited<typeof instructeursByDossierIdP>} */
-    const instructeursByDossier = new Map();
+  const instructeursByDossierIdP: Promise<Map<Dossier["id"], Personne["email"][]>> =
+    instructeursDossierP.then((instructeursDossiers) => {
+      const instructeursByDossier: Awaited<typeof instructeursByDossierIdP> = new Map();
 
-    for (const { email, dossier } of instructeursDossiers) {
-      const instructeurs = instructeursByDossier.get(dossier) || [];
-      instructeurs.push(email);
-      instructeursByDossier.set(dossier, instructeurs);
-    }
+      for (const { email, dossier } of instructeursDossiers) {
+        const instructeurs = instructeursByDossier.get(dossier) || [];
+        instructeurs.push(email);
+        instructeursByDossier.set(dossier, instructeurs);
+      }
 
-    return instructeursByDossier;
-  });
+      return instructeursByDossier;
+    });
 
   const [
     espèceParCD_REF,
@@ -130,8 +119,7 @@ async function récupérerDossiersParIds(idDossiers) {
 
   return await Promise.all(
     dossiers.map(async (dossier) => {
-      /** @type {DescriptionMenacesEspèces} */
-      let descriptionEspèces = {
+      let descriptionEspèces: DescriptionMenacesEspèces = {
         oiseau: [],
         "faune non-oiseau": [],
         flore: [],
@@ -189,11 +177,7 @@ async function récupérerDossiersParIds(idDossiers) {
   );
 }
 
-/**
- * @param {DossierPourGeoMCE} dossierPourGeoMCE
- * @returns {GeoMceMessage}
- */
-function genererMessagesGeoMCE(dossierPourGeoMCE) {
+function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
   return {
     projet: {
       ref: `PITCHOU-${dossierPourGeoMCE.id}`,
@@ -229,11 +213,7 @@ function genererMessagesGeoMCE(dossierPourGeoMCE) {
   };
 }
 
-/**
- *
- * @returns {Promise<Dossier['id'][]>}
- */
-async function listerDossiersPourDéclarationGeoMCE() {
+async function listerDossiersPourDéclarationGeoMCE(): Promise<Dossier["id"][]> {
   const dossiers = await directDatabaseConnection("dossier")
     .select("dossier.id")
     .from("dossier")

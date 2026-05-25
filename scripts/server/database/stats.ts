@@ -1,15 +1,17 @@
-import knex from "knex";
-import { créerTransaction } from "../database.js";
+import type { Knex } from "knex";
+import { créerTransaction } from "../database.ts";
 import { formatISO, startOfToday } from "date-fns";
 
-//@ts-ignore
-/** @import {StatsPubliques, StatsConformité, StatsImpactBiodiversité} from '../../types/API_Pitchou.ts' */
+import type {
+  StatsPubliques,
+  StatsConformité,
+  StatsImpactBiodiversité,
+} from "../../types/API_Pitchou.ts";
 
 /**
  * Calcule les statistiques publiques de Pitchou
- * @returns {Promise<StatsPubliques>}
  */
-export async function getStatsPubliques() {
+export async function getStatsPubliques(): Promise<StatsPubliques> {
   const transaction = await créerTransaction({ readOnly: true });
   const aujourdhui = formatISO(startOfToday());
   try {
@@ -89,8 +91,7 @@ export async function getStatsPubliques() {
       .distinct("epd.dossier")
       .select("epd.dossier");
 
-    /** @type {StatsPubliques} */
-    let stats = {
+    const stats: StatsPubliques = {
       totalDossiers: dossiers.length,
       nbDossiersEnPhaseContrôle: dossiersEnPhaseContrôle.length,
       nbDossiersEnPhaseContrôleAvecDécision: décisionsPourDossierEnPhaseContrôle.length,
@@ -114,11 +115,11 @@ export async function getStatsPubliques() {
 /**
  * Récupère les statistiques relatives à la répartition des prescriptions
  * selon la conformité de leur dernier contrôle.
- * @param {knex.Knex.Transaction | knex.Knex} transaction
- * @param {knex.Knex.QueryBuilder} contrôleP
- * @returns {Promise<StatsConformité>}
  */
-async function getStatsConformité(transaction, contrôleP) {
+async function getStatsConformité(
+  transaction: Knex.Transaction | Knex,
+  contrôleP: Knex.QueryBuilder,
+): Promise<StatsConformité> {
   const nbControles = transaction
     .from(contrôleP.as("contrôle"))
     .select("prescription")
@@ -158,8 +159,7 @@ async function getStatsConformité(transaction, contrôleP) {
     ])
     .first();
 
-  /** @type StatsConformité */
-  const stats = {
+  const stats: StatsConformité = {
     nb_non_conforme: Number(résultatsRequêteSQL["nb_non_conforme"]),
     nb_conforme_apres_1: Number(résultatsRequêteSQL["nb_conforme_apres_1"]),
     nb_conforme_apres_2: Number(résultatsRequêteSQL["nb_conforme_apres_2"]),
@@ -173,11 +173,11 @@ async function getStatsConformité(transaction, contrôleP) {
 
 /**
  * Récupère les statistiques d'impact biodiversité pour les prescriptions ayant au moins un contrôle conforme.
- * @param {knex.Knex.Transaction | knex.Knex} transaction
- * @param {knex.Knex.QueryBuilder} prescriptionsP
- * @returns {Promise<StatsImpactBiodiversité>}
  */
-async function getStatsImpactBiodiversité(transaction, prescriptionsP) {
+async function getStatsImpactBiodiversité(
+  transaction: Knex.Transaction | Knex,
+  prescriptionsP: Knex.QueryBuilder,
+): Promise<StatsImpactBiodiversité> {
   const sousRequête = transaction
     .from(prescriptionsP.as("p"))
     .join("contrôle", "p.id", "contrôle.prescription")
@@ -210,8 +210,7 @@ async function getStatsImpactBiodiversité(transaction, prescriptionsP) {
     ])
     .first();
 
-  /** @type StatsImpactBiodiversité */
-  const stats = {
+  const stats: StatsImpactBiodiversité = {
     total_prescriptions_conformes: Number(résultat.total_prescriptions_conformes),
     total_surface_évitée: Number(résultat.total_surface_évitée),
     total_surface_compensée: Number(résultat.total_surface_compensée),

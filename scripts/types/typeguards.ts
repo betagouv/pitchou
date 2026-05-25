@@ -1,33 +1,20 @@
-//@ts-check
-
 // Fichier avec divers prédicats / type guards
 // https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
 
-import { isValidDateString } from "../commun/typeFormat.js";
+import { isValidDateString } from "../commun/typeFormat.ts";
 
-//@ts-ignore
-/** @import {ChampDSPieceJustificative, ChampRépétéDSPieceJustificative} from './démarche-numérique/apiSchema.ts' */
-/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
-//@ts-ignore
-/** @import {OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../types/especes.d.ts' */
+import type {
+  ChampDSPieceJustificative,
+  ChampRépétéDSPieceJustificative,
+} from "./démarche-numérique/apiSchema.ts";
+import type { DossierRésumé } from "./API_Pitchou.ts";
+import type { OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte } from "./especes.d.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
-/**
- *
- * @param {any} x
- * @returns {x is DossierRésumé[]}
- */
-export function isDossierRésuméArray(x) {
+export function isDossierRésuméArray(x: any): x is DossierRésumé[] {
   return Array.isArray(x) && x.every(isDossierRésumé);
 }
 
-/**
- * @param {any} value
- * @returns {value is DossierDémarcheSimplifiée88444Communes}
- */
-const isCommune = (value) => {
+const isCommune = (value: any): value is { name: string; code: string; postalCode: string } => {
   return (
     value &&
     typeof value.name === "string" &&
@@ -36,11 +23,7 @@ const isCommune = (value) => {
   );
 };
 
-/**
- * @param {any} value
- * @returns {value is string[] | null | undefined}
- */
-const isOptionalStringArray = (value) => {
+const isOptionalStringArray = (value: any): value is string[] | null | undefined => {
   return (
     value === null ||
     value === undefined ||
@@ -50,10 +33,8 @@ const isOptionalStringArray = (value) => {
 
 /**
  * Type guard to check if an object is a DossierRésumé
- * @param {any} x - The object to check
- * @returns {x is DossierRésumé} - True if the object matches DossierRésumé structure
  */
-function isDossierRésumé(x) {
+function isDossierRésumé(x: any): x is DossierRésumé {
   if (!x || typeof x !== "object") return false;
 
   // Basic properties
@@ -109,12 +90,7 @@ function isDossierRésumé(x) {
   return statsValid;
 }
 
-/**
- *
- * @param {any} e
- * @returns {e is OiseauAtteint}
- */
-export function isOiseauAtteint(e) {
+export function isOiseauAtteint(e: any): e is OiseauAtteint {
   return (
     typeof e === "object" &&
     e !== null &&
@@ -130,12 +106,7 @@ export function isOiseauAtteint(e) {
   );
 }
 
-/**
- *
- * @param {any} e
- * @returns {e is FauneNonOiseauAtteinte}
- */
-export function isFauneNonOiseauAtteinte(e) {
+export function isFauneNonOiseauAtteinte(e: any): e is FauneNonOiseauAtteinte {
   return (
     typeof e === "object" &&
     e !== null &&
@@ -149,12 +120,7 @@ export function isFauneNonOiseauAtteinte(e) {
   );
 }
 
-/**
- *
- * @param {any} e
- * @returns {e is FloreAtteinte}
- */
-export function isFloreAtteinte(e) {
+export function isFloreAtteinte(e: any): e is FloreAtteinte {
   return (
     typeof e === "object" &&
     e !== null &&
@@ -166,33 +132,18 @@ export function isFloreAtteinte(e) {
   );
 }
 
-/**
- *
- * @param {any} x
- * @returns {boolean}
- */
-export function _isBaseChampDS(x) {
+export function _isBaseChampDS(x: any): boolean {
   return x && typeof x === "object" && typeof x.id === "string" && typeof x.label === "string";
 }
 
-/**
- *
- * @param {any} x
- * @returns {x is ChampDSPieceJustificative}
- */
-export function isChampDSPieceJustificative(x) {
+export function isChampDSPieceJustificative(x: any): x is ChampDSPieceJustificative {
   return _isBaseChampDS(x) && Array.isArray(x.files);
 }
 
-/**
- *
- * @param {any} x
- * @returns {x is ChampRépétéDSPieceJustificative}
- */
-export function isChampRépétéDSPieceJustificative(x) {
+export function isChampRépétéDSPieceJustificative(x: any): x is ChampRépétéDSPieceJustificative {
   return (
     _isBaseChampDS(x) &&
     Array.isArray(x.rows) &&
-    x.rows.every((/** @type {any} */ r) => r.champs.every(isChampDSPieceJustificative))
+    x.rows.every((r: any) => r.champs.every(isChampDSPieceJustificative))
   );
 }

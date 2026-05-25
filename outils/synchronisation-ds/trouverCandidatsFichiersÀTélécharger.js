@@ -4,7 +4,7 @@
 import {
   isChampDSPieceJustificative,
   isChampRépétéDSPieceJustificative,
-} from "../../scripts/types/typeguards.js";
+} from "../../scripts/types/typeguards.ts";
 
 //@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
 const inutile = true;
