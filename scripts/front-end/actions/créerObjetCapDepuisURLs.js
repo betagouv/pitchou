@@ -54,6 +54,29 @@ function wrapPOSTUrl(url) {
 }*/
 
 const dossierIdURLParam = ":dossierId";
+const decisionAdministrativeIdURLParam = ":decisionAdministrativeId";
+const prescriptionIdURLParam = ":prescriptionId";
+const contrôleIdURLParam = ":contrôleId";
+const avisExpertIdURLParam = ":avisExpertId";
+
+/**
+ * Builds a DELETE-by-id wrapper. The cap URL must contain `placeholder` (e.g.
+ * `:decisionAdministrativeId`); it is replaced with the actual id at call time.
+ *
+ * @param {string | undefined} url
+ * @param {string} placeholder
+ * @returns {((id: any) => Promise<unknown>) | undefined}
+ */
+function wrapDeleteById(url, placeholder) {
+  if (!url) return undefined;
+
+  if (!url.includes(placeholder)) {
+    throw new Error(`Cap URL ${url} ne contient pas le placeholder ${placeholder}`);
+  }
+
+  return (id) =>
+    text(url.replace(placeholder, encodeURIComponent(String(id))), { method: "DELETE" });
+}
 
 /**
  *
@@ -231,6 +254,19 @@ function wrapModifierDécisionAdministrative(url) {
 }
 
 /**
+ * Thin wrapper for multipart POST routes. The caller supplies the FormData;
+ * the wrapper only attaches the cap URL and method.
+ *
+ * @param {string | undefined} url
+ * @returns {((form: FormData) => Promise<string>) | undefined}
+ */
+function wrapPOSTMultipart(url) {
+  if (!url) return undefined;
+
+  return (form) => text(url, { method: "POST", body: form });
+}
+
+/**
  *
  * @param {string | undefined} url
  * @returns {PitchouInstructeurCapabilities['modifierRelationSuivi'] | undefined}
@@ -269,6 +305,17 @@ export default function (capURLs) {
     modifierDécisionAdministrativeDansDossier: wrapModifierDécisionAdministrative(
       capURLs.modifierDécisionAdministrativeDansDossier,
     ),
+    deleteDecisionAdministrative: wrapDeleteById(
+      capURLs.deleteDecisionAdministrative,
+      decisionAdministrativeIdURLParam,
+    ),
+    addOrUpdatePrescription: wrapPOSTUrl(capURLs.addOrUpdatePrescription),
+    addPrescriptionsAndControles: wrapPOSTUrl(capURLs.addPrescriptionsAndControles),
+    deletePrescription: wrapDeleteById(capURLs.deletePrescription, prescriptionIdURLParam),
+    addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
+    deleteControle: wrapDeleteById(capURLs.deleteControle, contrôleIdURLParam),
+    addOrUpdateAvisExpert: wrapPOSTMultipart(capURLs.addOrUpdateAvisExpert),
+    deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
     créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
     identité: capURLs.identité,
     listerNotifications: wrapGETUrl(capURLs.listerNotifications),

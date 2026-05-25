@@ -193,3 +193,19 @@ export async function modifierDécisionAdministrative(
 export function supprimerDécisionAdministrative(id, databaseConnection = directDatabaseConnection) {
   return databaseConnection("décision_administrative").delete().where({ id });
 }
+
+/**
+ *
+ * @param {DécisionAdministrative['id']} id
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Dossier['id'] | undefined>}
+ */
+export async function getDossierIdFromDecisionAdministrative(
+  id,
+  databaseConnection = directDatabaseConnection,
+) {
+  const rows = await databaseConnection("décision_administrative")
+    .select(["dossier"])
+    .where({ id });
+  return rows[0]?.dossier;
+}

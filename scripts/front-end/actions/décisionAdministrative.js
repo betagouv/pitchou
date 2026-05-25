@@ -1,4 +1,3 @@
-import { text } from "d3-fetch";
 import {
   getODSTableRawContent,
   tableRawContentToObjects,
@@ -160,11 +159,14 @@ export async function créerPrescriptionContrôlesÀPartirDeFichier(
  * @returns {Promise<unknown>}
  */
 export function supprimerDécisionAdministrative(décisionAdministrativeId) {
+  const deleteDecisionAdministrative = store.state.capabilities.deleteDecisionAdministrative;
+  if (!deleteDecisionAdministrative) {
+    throw new Error(`Pas les droits suffisants pour supprimer une décision administrative`);
+  }
+
   envoyerÉvènement({ type: "supprimerDécisionAdministrative" });
 
-  return text(`/decision-administrative/${décisionAdministrativeId}`, {
-    method: "DELETE",
-  });
+  return deleteDecisionAdministrative(décisionAdministrativeId);
 }
 
 /**

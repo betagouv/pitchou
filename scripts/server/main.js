@@ -35,14 +35,21 @@ import {
   modifierDécisionAdministrative,
   supprimerDécisionAdministrative,
   ajouterDécisionAdministrativeAvecFichier,
+  getDossierIdFromDecisionAdministrative,
 } from "./database/décision_administrative.js";
 import {
   ajouterPrescription,
   modifierPrescription,
   supprimerPrescription,
   ajouterPrescriptionsEtContrôles,
+  getDossierIdFromPrescription,
 } from "./database/prescription.js";
-import { ajouterContrôles, modifierContrôle, supprimerContrôle } from "./database/controle.js";
+import {
+  ajouterContrôles,
+  modifierContrôle,
+  supprimerContrôle,
+  getDossierIdFromControle,
+} from "./database/controle.js";
 import { getFichier } from "./database/fichier.js";
 import { getStatsPubliques } from "./database/stats.js";
 
@@ -63,6 +70,7 @@ import {
   ajouterOuModifierAvisExpert,
   ajouterOuModifierAvisExpertAvecFichiers,
   supprimerAvisExpert,
+  getDossierIdFromAvisExpert,
 } from "./database/avis_expert.js";
 import { miseEnPlaceSecretGeoMCE, verifierSecretGeoMCE } from "./database/capability-geomce.js";
 import { générerDéclarationGeoMCE } from "./database/geomce.js";
@@ -70,6 +78,7 @@ import {
   getNotificationsPourPersonneDepuisCap,
   updateNotificationDossierFromCap,
 } from "./database/notification.js";
+import { checkDossierAccessByCap } from "./auth.js";
 
 /** @import {DossierDemarcheNumerique88444} from '../types/démarche-numérique/Démarche88444.js' */
 /** @import {SchemaDémarcheSimplifiée} from '../types/démarche-numérique/schema.js' */
@@ -280,7 +289,16 @@ fastify.get("/caps", async function (request, reply) {
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`;
   }
   if (capBundle.modifierDécisionAdministrativeDansDossier) {
-    ret.modifierDécisionAdministrativeDansDossier = `/decision-administrative?cap=${capBundle.modifierDécisionAdministrativeDansDossier}`;
+    const cap = capBundle.modifierDécisionAdministrativeDansDossier;
+    ret.modifierDécisionAdministrativeDansDossier = `/decision-administrative?cap=${cap}`;
+    ret.deleteDecisionAdministrative = `/decision-administrative/:decisionAdministrativeId?cap=${cap}`;
+    ret.addOrUpdatePrescription = `/prescription?cap=${cap}`;
+    ret.addPrescriptionsAndControles = `/prescriptions-et-contrôles?cap=${cap}`;
+    ret.deletePrescription = `/prescription/:prescriptionId?cap=${cap}`;
+    ret.addOrUpdateControle = `/contrôle?cap=${cap}`;
+    ret.deleteControle = `/contrôle/:contrôleId?cap=${cap}`;
+    ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
+    ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
   }
   if (capBundle.créerÉvènementMetrique) {
     ret.créerÉvènementMetrique = `/api/métriques/évènements?cap=${capBundle.créerÉvènementMetrique}`;
@@ -507,14 +525,39 @@ fastify.delete(
     }
 
     // @ts-ignore
-    return supprimerDécisionAdministrative(request.params.decisionAdministrativeId);
+    const { cap } = request.query;
+    //@ts-ignore
+    const decisionAdministrativeId = request.params.decisionAdministrativeId;
+
+    const dossierId = await getDossierIdFromDecisionAdministrative(decisionAdministrativeId);
+    const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+    if (!authorizedDossierId) return;
+
+    return supprimerDécisionAdministrative(decisionAdministrativeId);
   },
 );
 
-fastify.post("/prescription", function (request, reply) {
+fastify.post("/prescription", async function (request, reply) {
   /** @type { Partial<Prescription> } */
   // @ts-ignore
   const prescriptionData = request.body;
+
+  // @ts-ignore
+  const { cap } = request.query;
+
+  let dossierId;
+  if (prescriptionData.id) {
+    dossierId = await getDossierIdFromPrescription(prescriptionData.id);
+  } else if (prescriptionData.décision_administrative) {
+    dossierId = await getDossierIdFromDecisionAdministrative(
+      prescriptionData.décision_administrative,
+    );
+  } else {
+    dossierId = undefined;
+  }
+
+  const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+  if (!authorizedDossierId) return;
 
   let ret;
 
@@ -533,10 +576,26 @@ fastify.post("/prescription", function (request, reply) {
     });
 });
 
-fastify.post("/prescriptions-et-contrôles", function (request, reply) {
+fastify.post("/prescriptions-et-contrôles", async function (request, reply) {
   /** @type { Omit<FrontEndPrescription, 'id'>[] } */
   // @ts-ignore
   const prescriptionData = request.body;
+
+  // @ts-ignore
+  const { cap } = request.query;
+
+  if (!cap) {
+    reply.code(400).send(`Paramètre 'cap' manquant dans l'URL`);
+    return;
+  }
+
+  for (const prescription of prescriptionData) {
+    const dossierId = await getDossierIdFromDecisionAdministrative(
+      prescription.décision_administrative,
+    );
+    const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+    if (!authorizedDossierId) return;
+  }
 
   return ajouterPrescriptionsEtContrôles(prescriptionData)
     .then(() => {
@@ -555,13 +614,36 @@ fastify.delete("/prescription/:prescriptionId", async function (request, reply) 
   }
 
   // @ts-ignore
-  return supprimerPrescription(request.params.prescriptionId);
+  const { cap } = request.query;
+  //@ts-ignore
+  const prescriptionId = request.params.prescriptionId;
+
+  const dossierId = await getDossierIdFromPrescription(prescriptionId);
+  const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+  if (!authorizedDossierId) return;
+
+  return supprimerPrescription(prescriptionId);
 });
 
-fastify.post("/contrôle", function (request, reply) {
+fastify.post("/contrôle", async function (request, reply) {
   /** @type { Partial<Contrôle> } */
   // @ts-ignore
   const contrôleData = request.body;
+
+  // @ts-ignore
+  const { cap } = request.query;
+
+  let dossierId;
+  if (contrôleData.id) {
+    dossierId = await getDossierIdFromControle(contrôleData.id);
+  } else if (contrôleData.prescription) {
+    dossierId = await getDossierIdFromPrescription(contrôleData.prescription);
+  } else {
+    dossierId = undefined;
+  }
+
+  const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+  if (!authorizedDossierId) return;
 
   let ret;
 
@@ -588,7 +670,15 @@ fastify.delete("/contrôle/:contrôleId", async function (request, reply) {
   }
 
   // @ts-ignore
-  return supprimerContrôle(request.params.contrôleId);
+  const { cap } = request.query;
+  //@ts-ignore
+  const contrôleId = request.params.contrôleId;
+
+  const dossierId = await getDossierIdFromControle(contrôleId);
+  const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+  if (!authorizedDossierId) return;
+
+  return supprimerContrôle(contrôleId);
 });
 
 fastify.post(
@@ -633,7 +723,7 @@ fastify.post(
       },
     },
   },
-  async function (req) {
+  async function (req, reply) {
     // Récupérer les données du corps de la requête
     /** @type {any} */
     const body = req.body;
@@ -647,6 +737,14 @@ fastify.post(
     const date_avis = body["date_avis"] ? new Date(body["date_avis"].value) : undefined;
 
     const avisExpert = { dossier, id, expert, avis, date_avis, date_saisine };
+
+    // @ts-ignore
+    const { cap } = req.query;
+
+    const dossierIdForAuth = id ? await getDossierIdFromAvisExpert(id) : dossier;
+
+    const authorizedDossierId = await checkDossierAccessByCap(dossierIdForAuth, cap, reply);
+    if (!authorizedDossierId) return;
 
     // Récupérer les fichiers d'avis et de saisine
     /** @type { PickNonNullable<Fichier, 'nom' | 'contenu' | 'media_type'> | undefined} */
@@ -705,9 +803,15 @@ const optsAvisExpertDelete = {
   },
 };
 
-fastify.delete("/avis-expert/:avisExpertId", optsAvisExpertDelete, function (request) {
+fastify.delete("/avis-expert/:avisExpertId", optsAvisExpertDelete, async function (request, reply) {
   //@ts-ignore
   const { avisExpertId } = request.params;
+  // @ts-ignore
+  const { cap } = request.query;
+
+  const dossierId = await getDossierIdFromAvisExpert(avisExpertId);
+  const authorizedDossierId = await checkDossierAccessByCap(dossierId, cap, reply);
+  if (!authorizedDossierId) return;
 
   return supprimerAvisExpert(avisExpertId);
 });

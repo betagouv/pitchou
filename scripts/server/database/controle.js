@@ -1,9 +1,13 @@
 import { directDatabaseConnection } from "../database.js";
 
+import { getDossierIdFromPrescription } from "./prescription.js";
+
 //@ts-ignore
 /** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
 //@ts-ignore
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
+//@ts-ignore
+/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
 
 /** @import {Knex} from 'knex' */
 
@@ -48,4 +52,17 @@ export function modifierContrôle(contrôle, databaseConnection = directDatabase
  */
 export function supprimerContrôle(id, databaseConnection = directDatabaseConnection) {
   return databaseConnection("contrôle").delete().where({ id });
+}
+
+/**
+ *
+ * @param {Contrôle['id']} id
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Dossier['id'] | undefined>}
+ */
+export async function getDossierIdFromControle(id, databaseConnection = directDatabaseConnection) {
+  const rows = await databaseConnection("contrôle").select(["prescription"]).where({ id });
+  const prescriptionId = rows[0]?.prescription;
+  if (!prescriptionId) return undefined;
+  return getDossierIdFromPrescription(prescriptionId, databaseConnection);
 }
