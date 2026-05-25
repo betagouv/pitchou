@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getDossierIdFromAvisExpert, supprimerAvisExpert } from "./avis_expert.js";
+import { getDossierIdFromAvisExpert, supprimerAvisExpert } from "./avis_expert.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 
 describe("getDossierIdFromAvisExpert", () => {

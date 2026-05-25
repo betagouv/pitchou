@@ -4,7 +4,7 @@ import { requireCap } from "$lib/server/auth";
 import {
   getNotificationsPourPersonneDepuisCap,
   updateNotificationDossierFromCap,
-} from "$server/database/notification.js";
+} from "$server/database/notification.ts";
 import type { NotificationInitializer } from "$types/database/public/Notification.ts";
 
 export const GET: RequestHandler = async ({ url }) => {

@@ -5,7 +5,7 @@ import {
   ajouterOuModifierAvisExpert,
   ajouterOuModifierAvisExpertAvecFichiers,
   getDossierIdFromAvisExpert,
-} from "$server/database/avis_expert.js";
+} from "$server/database/avis_expert.ts";
 import type { AvisExpertId } from "$types/database/public/AvisExpert.ts";
 import type Fichier from "$types/database/public/Fichier.ts";
 import type { PickNonNullable } from "$types/tools";

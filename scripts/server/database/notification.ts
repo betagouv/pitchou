@@ -1,19 +1,21 @@
-/** @import { default as Notification, NotificationInitializer } from "../../types/database/public/Notification.ts" */
-/** @import { default as CapDossier } from '../../types/database/public/CapDossier.ts' */
+import type { Knex } from "knex";
 
-import knex from "knex";
 import { directDatabaseConnection } from "../database.js";
 import { getPersonneByDossierCap } from "./personne.js";
+
+import type {
+  default as Notification,
+  NotificationInitializer,
+} from "../../types/database/public/Notification.ts";
+import type { default as CapDossier } from "../../types/database/public/CapDossier.ts";
+
 /**
  * Récupère les notifications d'une personne donnée
- * @param {CapDossier['cap']} cap
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @return {Promise<Notification[]>}
  */
 export async function getNotificationsPourPersonneDepuisCap(
-  cap,
-  databaseConnection = directDatabaseConnection,
-) {
+  cap: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Notification[]> {
   const personne = await getPersonneByDossierCap(cap);
 
   if (!personne) {
@@ -25,14 +27,11 @@ export async function getNotificationsPourPersonneDepuisCap(
 
 /**
  * Met à jour la notification d'un dossier d'une personne à partir de sa capability.
- * @param { CapDossier['cap'] } cap
- * @param { NotificationInitializer } notification
- * @param { knex.Knex.Transaction | knex.Knex } [databaseConnection]
  */
 export async function updateNotificationDossierFromCap(
-  cap,
-  notification,
-  databaseConnection = directDatabaseConnection,
+  cap: CapDossier["cap"],
+  notification: NotificationInitializer,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const personne = await getPersonneByDossierCap(cap);
 

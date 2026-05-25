@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getDossierIdFromControle, supprimerContrôle } from "./controle.js";
+import { getDossierIdFromControle, supprimerContrôle } from "./controle.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 
 describe("getDossierIdFromControle", () => {

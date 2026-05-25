@@ -5,8 +5,8 @@ import {
   ajouterContrôles,
   modifierContrôle,
   getDossierIdFromControle,
-} from "$server/database/controle.js";
-import { getDossierIdFromPrescription } from "$server/database/prescription.js";
+} from "$server/database/controle.ts";
+import { getDossierIdFromPrescription } from "$server/database/prescription.ts";
 import type Contrôle from "$types/database/public/Contrôle.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {

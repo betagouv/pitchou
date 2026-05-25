@@ -6,7 +6,7 @@ import { dossiersAccessibleViaCap } from "$server/database/dossier.js";
 import {
   modifierDécisionAdministrative,
   ajouterDécisionAdministrativeAvecFichier,
-} from "$server/database/décision_administrative.js";
+} from "$server/database/décision_administrative.ts";
 import type { DécisionAdministrativePourTransfer } from "$types/API_Pitchou.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {
