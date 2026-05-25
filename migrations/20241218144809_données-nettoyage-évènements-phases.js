@@ -5,7 +5,9 @@ import { phases } from "../scripts/front-end/affichageDossier.js";
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-  await knex("évènement_phase_dossier").whereNotIn("phase", [...phases]).delete();
+  await knex("évènement_phase_dossier")
+    .whereNotIn("phase", [...phases])
+    .delete();
 }
 
 /**

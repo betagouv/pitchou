@@ -19,7 +19,6 @@ Il s'agit du formulaire où le pétitionnaire saisit les données associées aux
 - **Créer un fichier**
 
   Étapes :
-
   1. choisir une espèce d'oiseau, rajouter des données pour chaque case
   2. faire la même chose pour une faune non-oiseau
   3. faire la même chose avec une flore
@@ -29,17 +28,14 @@ Il s'agit du formulaire où le pétitionnaire saisit les données associées aux
 - **Affichage de la page de saisie**
 
   Étapes :
-
   1. Accéder à l’URL `http://localhost:2648/saisie-especes`.
 
   Résultat attendu :
-
   - La page s’affiche correctement.
 
 - **Saisie complète et vérification du lien généré**
 
   Étapes :
-
   1. Saisir une espèce de chaque type.
   2. Remplir une valeur pour chaque champ.
   3. Générer le lien.
@@ -47,25 +43,20 @@ Il s'agit du formulaire où le pétitionnaire saisit les données associées aux
   5. Vérifier que le contenu est identique à celui avant ouverture.
 
   Résultat attendu :
-
   - Contenu strictement identique entre la saisie initiale et l’ouverture via le lien généré.
 
 - **Saisie par texte libre**
 
   Étapes :
-
   1. Tester la saisie des espèces via l’option texte libre.
 
   Résultat attendu :
-
   - La saisie par texte libre est correctement enregistrée et affichée.
 
 - **Saisie par groupe d’espèces**
 
   Étapes :
-
   1. Tester la saisie des espèces via la sélection par groupe.
 
   Résultat attendu :
-
   - Les données saisies par groupe d’espèces sont correctement enregistrées et affichées.
