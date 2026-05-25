@@ -1,7 +1,7 @@
 <script>
   // MUST be the first import
-  // cf scripts/front-end/before-ses-lockdown.js
-  import "$front/before-ses-lockdown.js";
+  // cf scripts/front-end/before-ses-lockdown.ts
+  import "$front/before-ses-lockdown.ts";
 
   import { afterNavigate, goto } from "$app/navigation";
 

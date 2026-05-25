@@ -10,7 +10,7 @@
 
   import { logout } from "$front/actions/main.js";
   import { chargerDossiers } from "$front/actions/dossier.js";
-  import { envoiEmailConnexion } from "$front/serveur.js";
+  import { envoiEmailConnexion } from "$front/serveur.ts";
   import { authorizedEmailDomains } from "$commun/constantes.ts";
 
   /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */

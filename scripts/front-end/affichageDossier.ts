@@ -1,15 +1,18 @@
-//@ts-check
-
-/** @import {DossierPhase, DossierProchaineActionAttenduePar, DossierRésumé, DossierComplet} from '../types/API_Pitchou.ts' */
-
 import { differenceInDays, format, formatRelative } from "date-fns";
 import { fr } from "date-fns/locale";
 
-/**
- * @param {Partial<DossierComplet>} localisation
- * @returns {string}
- */
-export function formatLocalisation({ communes, départements, régions }) {
+import type {
+  DossierPhase,
+  DossierProchaineActionAttenduePar,
+  DossierRésumé,
+  DossierComplet,
+} from "../types/API_Pitchou.ts";
+
+export function formatLocalisation({
+  communes,
+  départements,
+  régions,
+}: Partial<DossierComplet>): string {
   // Nettoyage du cas où un dossier a dit qu'il était sur plusieurs communes, mais n'a pas saisi les communes
   if (Array.isArray(communes) && communes.length === 0) {
     communes = undefined;
@@ -44,11 +47,7 @@ export function formatLocalisation({ communes, départements, régions }) {
   );
 }
 
-/**
- * @param {DossierComplet | DossierRésumé} dossier
- * @returns {string}
- */
-function formatDéposant(dossier) {
+function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
   const INCONNU = "(inconnu)";
 
   let { déposant_nom, déposant_prénoms } = dossier;
@@ -69,12 +68,7 @@ function formatDéposant(dossier) {
   return déposant_nom ? déposant_nom + " " + déposant_prénoms : déposant_prénoms;
 }
 
-/**
- *
- * @param {DossierComplet | DossierRésumé} dossier
- * @returns {string}
- */
-export function formatPorteurDeProjet(dossier) {
+export function formatPorteurDeProjet(dossier: DossierComplet | DossierRésumé): string {
   if (dossier.demandeur_personne_morale_siret) {
     return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`;
   } else {
@@ -93,12 +87,11 @@ export function formatPorteurDeProjet(dossier) {
  *
  * Si la date est `null` ou `undefined`, la fonction retourne la chaîne "(date inconnue)".
  * Par défaut, le format demandé est : 'd MMMM yyyy'
- *
- * @param {Date | string | undefined | null} date
- * @param {string} [formatDemandé]
- * @returns {string}
  */
-export function formatDateAbsolue(date, formatDemandé = "d MMMM yyyy") {
+export function formatDateAbsolue(
+  date: Date | string | undefined | null,
+  formatDemandé: string = "d MMMM yyyy",
+): string {
   if (!date) {
     return "(date inconnue)";
   }
@@ -106,12 +99,7 @@ export function formatDateAbsolue(date, formatDemandé = "d MMMM yyyy") {
   return format(date, formatDemandé, { locale: fr });
 }
 
-/**
- *
- * @param {Date | undefined | null} date
- * @returns {string}
- */
-export function formatDateRelative(date) {
+export function formatDateRelative(date: Date | undefined | null): string {
   if (!date) {
     return "(date inconnue)";
   }
@@ -126,8 +114,7 @@ export function formatDateRelative(date) {
   return formatDateAbsolue(date);
 }
 
-/** @type {Set<DossierPhase>} */
-export const phases = new Set([
+export const phases: Set<DossierPhase> = new Set([
   "Accompagnement amont",
   "Étude recevabilité DDEP",
   "Instruction",
@@ -136,8 +123,7 @@ export const phases = new Set([
   "Obligations terminées",
 ]);
 
-/** @type {Set<DossierProchaineActionAttenduePar>} */
-export const prochaineActionAttenduePar = new Set([
+export const prochaineActionAttenduePar: Set<DossierProchaineActionAttenduePar> = new Set([
   "Instructeur",
   "CNPN/CSRPN",
   "Pétitionnaire",

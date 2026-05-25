@@ -1,7 +1,7 @@
 <script>
   // @ts-check
 
-  import { fourchettesIndividus } from "../../espèceFieldset.js";
+  import { fourchettesIndividus } from "../../espèceFieldset.ts";
 
   /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, ClassificationEtreVivant} from "../../../types/especes.js" */
 

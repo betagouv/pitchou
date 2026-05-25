@@ -1,4 +1,4 @@
-import { phases, prochaineActionAttenduePar } from "../front-end/affichageDossier.js";
+import { phases, prochaineActionAttenduePar } from "../front-end/affichageDossier.ts";
 
 import type { ÉvènementMétrique, ÉvènementRechercheDossiersDétails } from "../types/évènement.d.ts";
 

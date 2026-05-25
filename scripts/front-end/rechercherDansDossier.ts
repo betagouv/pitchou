@@ -2,19 +2,15 @@ import lunr from "lunr";
 import stemmerSupport from "lunr-languages/lunr.stemmer.support";
 import lunrfr from "lunr-languages/lunr.fr";
 
-import { retirerAccents } from "../commun/manipulationStrings.js";
+import { retirerAccents } from "../commun/manipulationStrings.ts";
 
-/** @import {StringValues} from "../types/tools.d.ts" */
-/** @import {DossierRésumé} from "../types/API_Pitchou.d.ts" */
+import type { StringValues } from "../types/tools.d.ts";
+import type { DossierRésumé } from "../types/API_Pitchou.ts";
 
 stemmerSupport(lunr);
 lunrfr(lunr);
 
-/**
- * @param {DossierRésumé} dossier
- * @returns {StringValues<Partial<DossierRésumé>>}
- */
-const créerDossierIndexable = (dossier) => {
+const créerDossierIndexable = (dossier: DossierRésumé): StringValues<Partial<DossierRésumé>> => {
   const {
     id,
     nom,
@@ -42,15 +38,9 @@ const créerDossierIndexable = (dossier) => {
   };
 };
 
-/** @type {Map<DossierRésumé[], lunr.Index>} */
-const indexCache = new Map();
+const indexCache: Map<DossierRésumé[], lunr.Index> = new Map();
 
-/**
- *
- * @param {DossierRésumé[]} dossiers
- * @returns {lunr.Index}
- */
-const créerIndexDossiers = (dossiers) => {
+const créerIndexDossiers = (dossiers: DossierRésumé[]): lunr.Index => {
   if (indexCache.has(dossiers))
     // @ts-expect-error TS ne comprend pas que le .get retourne un lunr.Index après un .has positif
     return indexCache.get(dossiers);
@@ -79,13 +69,10 @@ const créerIndexDossiers = (dossiers) => {
   }
 };
 
-/**
- *
- * @param {string} texteÀChercher
- * @param {DossierRésumé[]} dossiers
- * @returns {Set<DossierRésumé['id']>}
- */
-export const trouverDossiersIdCorrespondantsÀTexte = (texteÀChercher, dossiers) => {
+export const trouverDossiersIdCorrespondantsÀTexte = (
+  texteÀChercher: string,
+  dossiers: DossierRésumé[],
+): Set<DossierRésumé["id"]> => {
   const index = créerIndexDossiers(dossiers);
   const lunrRésultats = index.search(texteÀChercher);
 

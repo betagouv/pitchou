@@ -4,7 +4,7 @@
   import DéplierReplier from "../../common/DéplierReplier.svelte";
   import TagRésultatContrôle from "../../TagRésultatContrôle.svelte";
 
-  import { formatDateRelative, formatDateAbsolue } from "../../../affichageDossier.js";
+  import { formatDateRelative, formatDateAbsolue } from "../../../affichageDossier.ts";
   import {
     ajouterContrôle as envoyerContrôle,
     modifierContrôle,

@@ -1,16 +1,8 @@
-/** @import {
- *    OiseauAtteint,
- *    FauneNonOiseauAtteinte,
- *    FloreAtteinte,
- *  } from '../types/especes.d.ts'
- */
+import type { OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte } from "../types/especes.d.ts";
 
-/**
- *
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes
- * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]}
- */
-export const trierParOrdreAlphabétiqueEspèce = (espècesAtteintes) => {
+export const trierParOrdreAlphabétiqueEspèce = (
+  espècesAtteintes: OiseauAtteint[] | FauneNonOiseauAtteinte[] | FloreAtteinte[],
+): OiseauAtteint[] | FauneNonOiseauAtteinte[] | FloreAtteinte[] => {
   return [...espècesAtteintes].sort((espèceAtteinteA, espèceAtteinteB) => {
     const nomsVernaculairesA = [...espèceAtteinteA.espèce.nomsVernaculaires];
     const nomsVernaculairesB = [...espèceAtteinteB.espèce.nomsVernaculaires];
@@ -27,12 +19,9 @@ export const trierParOrdreAlphabétiqueEspèce = (espècesAtteintes) => {
   });
 };
 
-/**
- *
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]} espècesAtteintes
- * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]|FloreAtteinte[]}
- */
-export const grouperParActivité = (espècesAtteintes) => {
+export const grouperParActivité = (
+  espècesAtteintes: OiseauAtteint[] | FauneNonOiseauAtteinte[] | FloreAtteinte[],
+): OiseauAtteint[] | FauneNonOiseauAtteinte[] | FloreAtteinte[] => {
   return [...espècesAtteintes].sort((espèceAtteinteA, espèceAtteinteB) => {
     if (espèceAtteinteA.activité && espèceAtteinteB.activité) {
       return espèceAtteinteA.activité["Libellé Pitchou"].localeCompare(
@@ -52,12 +41,9 @@ export const grouperParActivité = (espècesAtteintes) => {
   });
 };
 
-/**
- *
- * @param {OiseauAtteint[]|FauneNonOiseauAtteinte[]} espècesAtteintes
- * @returns {OiseauAtteint[]|FauneNonOiseauAtteinte[]}
- */
-export const grouperParMéthode = (espècesAtteintes) => {
+export const grouperParMéthode = (
+  espècesAtteintes: OiseauAtteint[] | FauneNonOiseauAtteinte[],
+): OiseauAtteint[] | FauneNonOiseauAtteinte[] => {
   return [...espècesAtteintes].sort((espèceAtteinteA, espèceAtteinteB) => {
     if (espèceAtteinteA.méthode && espèceAtteinteB.méthode) {
       return espèceAtteinteA.méthode["Libellé Pitchou"].localeCompare(

@@ -1,7 +1,7 @@
 <script>
   import DownloadButton from "../DownloadButton.svelte";
   import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
-  import { formatDateRelative } from "../../affichageDossier.js";
+  import { formatDateRelative } from "../../affichageDossier.ts";
   import { byteFormat } from "../../../commun/typeFormat.js";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
   import Loader from "../Loader.svelte";

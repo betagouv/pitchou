@@ -1,10 +1,6 @@
 import { json } from "d3-fetch";
 
-/**
- *
- * @param {string} email
- */
-export function envoiEmailConnexion(email) {
+export function envoiEmailConnexion(email: string) {
   return json(`/envoi-email-connexion?email=${encodeURIComponent(email)}`, {
     method: "POST",
   });

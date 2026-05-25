@@ -1,17 +1,17 @@
-/** @import {DossierPhase, DossierProchaineActionAttenduePar} from '../types/API_Pitchou.js' */
-/** @import {DossierRésumé} from '../types/API_Pitchou.js' */
+import { formatLocalisation, formatPorteurDeProjet } from "./affichageDossier.ts";
 
-import { formatLocalisation, formatPorteurDeProjet } from "./affichageDossier.js";
+import { getDébutPhaseActuelle } from "./getDébutPhaseActuelle.ts";
 
-import { getDébutPhaseActuelle } from "./getDébutPhaseActuelle.js";
+import type {
+  DossierPhase,
+  DossierProchaineActionAttenduePar,
+  DossierRésumé,
+} from "../types/API_Pitchou.ts";
 
-/**
- *
- * @param {DossierRésumé[]} dossiers
- * @param {keyof DossierRésumé | "localisation" | "porteur de projet"} nomColonne
- * @returns {DossierRésumé[]}
- */
-export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) => {
+export const trierDossiersParOrdreAlphabétiqueColonne = (
+  dossiers: DossierRésumé[],
+  nomColonne: keyof DossierRésumé | "localisation" | "porteur de projet",
+): DossierRésumé[] => {
   return dossiers.toSorted((a, b) => {
     let colonneA;
     let colonneB;
@@ -38,8 +38,7 @@ export const trierDossiersParOrdreAlphabétiqueColonne = (dossiers, nomColonne) 
   });
 };
 
-/** @type {{[k in DossierPhase]: number}} */
-const phaseToImportance = {
+const phaseToImportance: { [k in DossierPhase]: number } = {
   "Accompagnement amont": 6,
   "Étude recevabilité DDEP": 5,
   Instruction: 4,
@@ -50,34 +49,28 @@ const phaseToImportance = {
 
 /**
  * Retourne un nombre positif si la phase1 est plus importante que la phase2
- *
- * @param {DossierPhase} phase1
- * @param {DossierPhase} phase2
  */
-function comparePhase(phase1, phase2) {
+function comparePhase(phase1: DossierPhase, phase2: DossierPhase) {
   return phaseToImportance[phase2] - phaseToImportance[phase1];
 }
 
-/** @type {{[k in DossierProchaineActionAttenduePar]: number}} */
-const prochaineActionAttendueParToImportance = {
-  Instructeur: 10,
-  "Consultation du public": 9,
-  "CNPN/CSRPN": 8,
-  Pétitionnaire: 7,
-  "Autre administration": 6,
-  Autre: 5,
-  Personne: 4,
-};
+const prochaineActionAttendueParToImportance: { [k in DossierProchaineActionAttenduePar]: number } =
+  {
+    Instructeur: 10,
+    "Consultation du public": 9,
+    "CNPN/CSRPN": 8,
+    Pétitionnaire: 7,
+    "Autre administration": 6,
+    Autre: 5,
+    Personne: 4,
+  };
 
 /**
  * Retourne un nombre positif si la phase1 est plus importante que la phase2
- *
- * @param {DossierProchaineActionAttenduePar} prochaineActionAttenduePar1
- * @param {DossierProchaineActionAttenduePar} prochaineActionAttenduePar2
  */
 function compareProchaineActionAttenduePar(
-  prochaineActionAttenduePar1,
-  prochaineActionAttenduePar2,
+  prochaineActionAttenduePar1: DossierProchaineActionAttenduePar,
+  prochaineActionAttenduePar2: DossierProchaineActionAttenduePar,
 ) {
   const importance1 = prochaineActionAttenduePar1
     ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar1]
@@ -89,12 +82,7 @@ function compareProchaineActionAttenduePar(
   return importance2 - importance1;
 }
 
-/**
- *
- * @param {DossierRésumé[]} dossiers
- * @returns {DossierRésumé[]}
- */
-export function trierDossiersParPhaseProchaineAction(dossiers) {
+export function trierDossiersParPhaseProchaineAction(dossiers: DossierRésumé[]): DossierRésumé[] {
   return dossiers.toSorted((dossier1, dossier2) => {
     const phase1 = dossier1.phase;
     const phase2 = dossier2.phase;

@@ -10,7 +10,7 @@
     formatDateAbsolue,
     phases,
     prochaineActionAttenduePar,
-  } from "../../affichageDossier.js";
+  } from "../../affichageDossier.ts";
   import { modifierDossier } from "../../actions/dossier.js";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";

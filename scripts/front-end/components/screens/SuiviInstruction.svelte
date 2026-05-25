@@ -16,12 +16,12 @@
     formatPorteurDeProjet,
     phases,
     prochaineActionAttenduePar,
-  } from "../../affichageDossier.js";
-  import { créerFiltreTexte } from "../../filtresTexte.js";
+  } from "../../affichageDossier.ts";
+  import { créerFiltreTexte } from "../../filtresTexte.ts";
   import {
     trierDossiersParOrdreAlphabétiqueColonne,
     trierDossiersParPhaseProchaineAction,
-  } from "../../triDossiers.js";
+  } from "../../triDossiers.ts";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import {

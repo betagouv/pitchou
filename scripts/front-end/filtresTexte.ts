@@ -1,6 +1,7 @@
-/** @import {DossierRésumé} from '../types/API_Pitchou.ts' */
-import { retirerAccents } from "../commun/manipulationStrings.js";
-import { trouverDossiersIdCorrespondantsÀTexte } from "./rechercherDansDossier.js";
+import { retirerAccents } from "../commun/manipulationStrings.ts";
+import { trouverDossiersIdCorrespondantsÀTexte } from "./rechercherDansDossier.ts";
+
+import type { DossierRésumé } from "../types/API_Pitchou.ts";
 
 /**
  * Crée un filtre pour rechercher dans les dossiers par texte.
@@ -10,12 +11,11 @@ import { trouverDossiersIdCorrespondantsÀTexte } from "./rechercherDansDossier.
  *
  * cf. https://github.com/MihaiValentin/lunr-languages/issues/66
  * lunr.fr n'indexe pas les chiffres, donc on gère la recherche sur les nombres avec une fonction séparée.
- *
- * @param {string} texteÀChercher - Le texte à chercher
- * @param {DossierRésumé[]} dossiers - Liste complète des dossiers pour créer l'index de recherche (nécessaire pour la recherche sans chiffres)
- * @returns {(dossier: DossierRésumé) => boolean} - Fonction de filtrage
  */
-export function créerFiltreTexte(texteÀChercher, dossiers) {
+export function créerFiltreTexte(
+  texteÀChercher: string,
+  dossiers: DossierRésumé[],
+): (dossier: DossierRésumé) => boolean {
   // Si le texte contient des chiffres, utiliser la recherche directe
   if (texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
     return (dossier) => {

@@ -8,7 +8,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-import { formatLocalisation, formatPorteurDeProjet } from "../affichageDossier.js";
+import { formatLocalisation, formatPorteurDeProjet } from "../affichageDossier.ts";
 import { créerEspècesGroupéesParImpact } from "./créerEspècesGroupéesParImpact.js";
 
 /**

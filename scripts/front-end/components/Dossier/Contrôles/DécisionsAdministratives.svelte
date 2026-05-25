@@ -6,7 +6,7 @@
 
   import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
 
-  import { formatDateAbsolue } from "../../../affichageDossier.js";
+  import { formatDateAbsolue } from "../../../affichageDossier.ts";
   import {
     supprimerPrescription as supprimerPrescriptionBaseDeDonnées,
     ajouterPrescription as ajouterPrescriptionBaseDeDonnées,
