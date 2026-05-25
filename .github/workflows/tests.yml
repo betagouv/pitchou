@@ -15,22 +15,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
+          cache: pnpm
+
       - name: Install project dependencies
-        run: npm clean-install --ignore-scripts
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Build the app
-        run: npm run build
+        run: pnpm run build
 
       - name: Run the tests
-        run: npm run test
+        run: pnpm run test
         timeout-minutes: 10
 
       - uses: actions/upload-artifact@v4

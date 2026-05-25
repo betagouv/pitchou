@@ -17,7 +17,7 @@ Le serveur récupère les données des dossiers via [l'API Démarche Numérique]
 
 ## En dév
 
-En dev, on peut lancer `npm run dev` pour lancer le tout.\
+En dev, on peut lancer `pnpm run dev` pour lancer le tout.\
 Le repo est synchronisé dans le conteneur du serveur via un volume.\
 Les données de la base de données sont sauvegarder dans un volume dans le repo (pour faire des test facilement)
 
@@ -34,16 +34,16 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 ### Types
 
 Pour régénérer tous les types :
-`npm run build-types`
+`pnpm run build-types`
 
 #### Regénérer les types des tables SQL
 
-exécuter `npm run build-types:db`
+exécuter `pnpm run build-types:db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 
 #### Re-générer les types à partir des 2 schémas DS
 
-`npm run build-types:ds`
+`pnpm run build-types:ds`
 
 Cette commande télécharge aussi les dernières versions des schémas avant de créer les types.
 
@@ -84,13 +84,13 @@ Le site sera accessible à l'adresse :
 
 ### Tests automatisés avec Playwright
 
-1. Installer le navigateur de test et les dépendances système: `npx playwright install --with-deps firefox`
-2. Lancer Pitchou en mode dev: `npm run dev`
-3. Lancer les tests `npx playwright test tests/e2e`
+1. Installer le navigateur de test et les dépendances système: `pnpm exec playwright install --with-deps firefox`
+2. Lancer Pitchou en mode dev: `pnpm run dev`
+3. Lancer les tests `pnpm exec playwright test tests/e2e`
 
 ## En prod
 
-`npm start:production`
+`pnpm start:production`
 
 L'application est déployée sur Scalingo
 
@@ -151,8 +151,8 @@ Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.s
 `knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
 
 Pour aller en arrière et en avant d'un cran dans la liste des migrations :
-`npm run migrate:down`
-`npm run migrate:up`
+`pnpm run migrate:down`
+`pnpm run migrate:up`
 
 ### Fabriquer la liste des espèces protégées
 
