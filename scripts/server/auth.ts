@@ -1,4 +1,4 @@
-import { dossiersAccessibleViaCap } from "./database/dossier.js";
+import { dossiersAccessibleViaCap } from "./database/dossier.ts";
 
 import type { default as Dossier } from "../types/database/public/Dossier.ts";
 

@@ -12,7 +12,7 @@ import {
   dossierSuiviNAVersAnnotationsDS88444,
 } from "../scripts/import-dossiers-historiques/nouvelle-aquitaine/conversions.js";
 import { normalizeNomCommune } from "../scripts/commun/typeFormat.ts";
-import { listAllDossiersComplets } from "../scripts/server/database/dossier.js";
+import { listAllDossiersComplets } from "../scripts/server/database/dossier.ts";
 import remplirAnnotations from "../scripts/server/démarche-numérique/remplirAnnotations.js";
 
 /** @import { DossierDémarcheSimplifiée88444, GeoAPICommune, GeoAPIDépartement, DossierComplet} from "../scripts/types.js" */

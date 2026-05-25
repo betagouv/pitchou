@@ -1,59 +1,62 @@
-/** @import {default as Dossier, DossierId} from '../../types/database/public/Dossier.ts' */
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-/** @import {default as Message} from '../../types/database/public/Message.ts' */
-/** @import {default as ÉvènementPhaseDossier} from '../../types/database/public/ÉvènementPhaseDossier.ts' */
-/** @import {default as AvisExpert, AvisExpertInitializer} from '../../types/database/public/AvisExpert.ts' */
-/** @import {default as DécisionAdministrative} from '../../types/database/public/DécisionAdministrative.ts' */
-/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
-/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
-/** @import {default as CapDossier} from '../../types/database/public/CapDossier.ts' */
-/** @import * as API_DS_SCHEMA from '../../types/démarche-numérique/apiSchema.js' */
-/** @import {DossierPourInsert, DossierPourUpdate} from '../../types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {default as Fichier} from '../../types/database/public/Fichier.ts' */
-/** @import ArTePersonneSuitDossier from '../../types/database/public/ArêtePersonneSuitDossier.ts' */
+import type { Knex } from "knex";
 
-import knex from "knex";
-
-import { directDatabaseConnection } from "../database.js";
+import { directDatabaseConnection } from "../database.ts";
 import {
   getDécisionAdministratives,
   getDécisionsAdministratives,
-} from "./décision_administrative.js";
-import { getPrescriptions } from "./prescription.js";
-import { getContrôles } from "./controle.js";
-import { normalisationEmail } from "../../commun/manipulationStrings.js";
+} from "./décision_administrative.ts";
+import { getPrescriptions } from "./prescription.ts";
+import { getContrôles } from "./controle.ts";
+import { normalisationEmail } from "../../commun/manipulationStrings.ts";
 
-//@ts-ignore
-/** @import {DossierComplet, DossierRésumé, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../types/API_Pitchou.d.ts' */
-//@ts-ignore
-/** @import {PartialBy, PickNonNullable} from '../../types/tools.d.ts' */
+import type { default as Dossier, DossierId } from "../../types/database/public/Dossier.ts";
+import type { default as Personne } from "../../types/database/public/Personne.ts";
+import type { default as Message } from "../../types/database/public/Message.ts";
+import type { default as ÉvènementPhaseDossier } from "../../types/database/public/ÉvènementPhaseDossier.ts";
+import type {
+  default as AvisExpert,
+  AvisExpertInitializer,
+} from "../../types/database/public/AvisExpert.ts";
+import type { default as DécisionAdministrative } from "../../types/database/public/DécisionAdministrative.ts";
+import type { default as Prescription } from "../../types/database/public/Prescription.ts";
+import type { default as Contrôle } from "../../types/database/public/Contrôle.ts";
+import type { default as CapDossier } from "../../types/database/public/CapDossier.ts";
+import type * as API_DS_SCHEMA from "../../types/démarche-numérique/apiSchema.ts";
+import type {
+  DossierPourInsert,
+  DossierPourUpdate,
+} from "../../types/démarche-numérique/DossierPourSynchronisation.ts";
+import type { default as Fichier } from "../../types/database/public/Fichier.ts";
+import type ArTePersonneSuitDossier from "../../types/database/public/ArêtePersonneSuitDossier.ts";
+import type {
+  DossierComplet,
+  DossierRésumé,
+  FrontEndDécisionAdministrative,
+  FrontEndPrescription,
+} from "../../types/API_Pitchou.ts";
+import type { PartialBy, PickNonNullable } from "../../types/tools.d.ts";
 
 /**
  * Récupérer les id Pitchou à partir des id DS (pas les numéro)
  *
  * PPP : c'est un peu bizarre d'utiliser les ids DS, on pourrait utiliser les numéros
- *
- * @param {Dossier['id_demarches_simplifiées'][]} DS_ids
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise< PickNonNullable<Dossier, 'id' | 'id_demarches_simplifiées' | 'number_demarches_simplifiées'>[] >}
  */
-export function getDossierIdsFromDS_Ids(DS_ids, databaseConnection = directDatabaseConnection) {
+export function getDossierIdsFromDS_Ids(
+  DS_ids: Dossier["id_demarches_simplifiées"][],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<
+  PickNonNullable<Dossier, "id" | "id_demarches_simplifiées" | "number_demarches_simplifiées">[]
+> {
   return databaseConnection("dossier")
     .select(["id", "id_demarches_simplifiées", "number_demarches_simplifiées"])
     .whereIn("id_demarches_simplifiées", DS_ids);
 }
 
-/**
- * @param {Map<Dossier['id'], API_DS_SCHEMA.Message[]>} idToMessages
- * @param {import('knex').Knex.Transaction | import('knex').Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
 export async function dumpDossierMessages(
-  idToMessages,
-  databaseConnection = directDatabaseConnection,
-) {
-  /** @type {Partial<Message>[]} */
-  const messages = [];
+  idToMessages: Map<Dossier["id"], API_DS_SCHEMA.Message[]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
+  const messages: Partial<Message>[] = [];
 
   for (const [dossierId, apiMessages] of idToMessages) {
     for (const { id, body, createdAt, email } of apiMessages) {
@@ -76,30 +79,22 @@ export async function dumpDossierMessages(
 /**
  * Cette fonction est sensible
  * Appeler dossiersAccessibleViaCap avant
- *
- * @param {Dossier['id']} dossierId
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Partial<Message>[] | null>}
  */
-export async function getDossierMessages(dossierId, databaseConnection = directDatabaseConnection) {
+export async function getDossierMessages(
+  dossierId: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Partial<Message>[] | null> {
   return databaseConnection("message")
     .select(["contenu", "date", "email_expéditeur"])
     .where({ dossier: dossierId });
 }
 
-/** @type {(keyof Pick<Dossier, "nom" | 'ddep_nécessaire'>)[]} */
-const varcharKeys = ["nom", "ddep_nécessaire"];
+const varcharKeys: (keyof Pick<Dossier, "nom" | "ddep_nécessaire">)[] = ["nom", "ddep_nécessaire"];
 
-/**
- *
- * @param {DossierPourInsert[]} dossiersPourInsert
- * @param {DossierPourUpdate[]} dossiersPourUpdate
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- */
 export async function dumpDossiers(
-  dossiersPourInsert,
-  dossiersPourUpdate,
-  databaseConnection = directDatabaseConnection,
+  dossiersPourInsert: DossierPourInsert[],
+  dossiersPourUpdate: DossierPourUpdate[],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   for (const { dossier: d } of [...dossiersPourInsert, ...dossiersPourUpdate]) {
     for (const k of varcharKeys) {
@@ -120,14 +115,11 @@ export async function dumpDossiers(
     }
   }
 
-  /**@type {knex.Knex.QueryBuilder<any, any>[]} */
-  let updatePromises = [];
+  let updatePromises: Knex.QueryBuilder<any, any>[] = [];
 
-  /** @type {ArTePersonneSuitDossier[]} */
-  const arêtePersonneSuitDossierDossier = [];
+  const arêtePersonneSuitDossierDossier: ArTePersonneSuitDossier[] = [];
 
-  /** @type {PartialBy<AvisExpertInitializer, "dossier">[]} */
-  let avisExpertDossier = [];
+  let avisExpertDossier: PartialBy<AvisExpertInitializer, "dossier">[] = [];
 
   if (dossiersPourUpdate.length >= 1) {
     updatePromises = dossiersPourUpdate.map(({ dossier: dossierAModifier }) => {
@@ -138,12 +130,10 @@ export async function dumpDossiers(
     });
   }
 
-  /** @type {Promise<any>} */
-  let synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP = Promise.resolve([]);
+  let synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP: Promise<any> = Promise.resolve([]);
 
   if (dossiersPourInsert.length >= 1) {
-    /**@type { {id: DossierId}[]} */
-    let insertedDossierIds = await databaseConnection("dossier")
+    let insertedDossierIds: { id: DossierId }[] = await databaseConnection("dossier")
       .insert(dossiersPourInsert.map((tables) => tables.dossier))
       .returning(["id"]);
 
@@ -246,19 +236,15 @@ export async function dumpDossiers(
   return Promise.all(databaseOperations);
 }
 
-/**
- * @param {any} dossierDS
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- */
 export async function synchroniserDossierDansGroupeInstructeur(
-  dossierDS,
-  databaseConnection = directDatabaseConnection,
+  dossierDS: any,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const dossierNumberDSToIdP = databaseConnection("dossier")
     .select(["id", "number_demarches_simplifiées"])
     .whereIn(
       "number_demarches_simplifiées",
-      dossierDS.map((/** @type {{ number: string; }} */ d) => d.number),
+      dossierDS.map((d: { number: string }) => d.number),
     )
     .then((dossiers) => {
       const dossierNumberDSToId = new Map();
@@ -301,8 +287,7 @@ export async function synchroniserDossierDansGroupeInstructeur(
     .merge(["groupe_instructeurs"]);
 }
 
-/** @type {(keyof DossierComplet)[]} */
-const colonnesDossierComplet = [
+const colonnesDossierComplet: (keyof DossierComplet)[] = [
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "dossier.id as id",
   //"id_demarches_simplifiées",
@@ -403,12 +388,9 @@ const colonnesDossierComplet = [
 */
 ];
 
-/**
- *
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<DossierComplet[]>}
- */
-export function listAllDossiersComplets(databaseConnection = directDatabaseConnection) {
+export function listAllDossiersComplets(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<DossierComplet[]> {
   return databaseConnection("dossier")
     .select(colonnesDossierComplet)
     .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
@@ -432,19 +414,12 @@ export function listAllDossiersComplets(databaseConnection = directDatabaseConne
     });
 }
 
-/**
- * @param {DossierComplet['id']} dossierId
- * @param {CapDossier['cap']} cap
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<DossierComplet | undefined>}
- */
 export async function getDossierComplet(
-  dossierId,
-  cap,
-  databaseConnection = directDatabaseConnection,
-) {
-  /** @type {knex.Knex.Transaction} */
-  let transaction;
+  dossierId: DossierComplet["id"],
+  cap: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<DossierComplet | undefined> {
+  let transaction: Knex.Transaction;
 
   if (databaseConnection.isTransaction) {
     //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
@@ -463,8 +438,14 @@ export async function getDossierComplet(
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
   }
 
-  /** @type {Promise<DossierComplet & {espèces_impactées_contenu?: Buffer | null, espèces_impactées_media_type?: string, espèces_impactées_nom?: string, demandeur_personne_morale_adresse?: string}>} */
-  const dossierP = transaction("dossier")
+  const dossierP: Promise<
+    DossierComplet & {
+      espèces_impactées_contenu?: Buffer | null;
+      espèces_impactées_media_type?: string;
+      espèces_impactées_nom?: string;
+      demandeur_personne_morale_adresse?: string;
+    }
+  > = transaction("dossier")
     .select(colonnesDossierComplet)
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
@@ -487,28 +468,30 @@ export async function getDossierComplet(
     .andWhere({ "dossier.id": dossierId })
     .first();
 
-  /** @type {Promise<ÉvènementPhaseDossier[]>} */
-  const évènementsPhaseDossierP = getÉvènementsPhaseDossier(dossierId, transaction);
-
-  /** @type {Promise<AvisExpert[]>} */
-  const tousLesAvisExpertDossierP = getAvisExpertDossier(dossierId, transaction);
-
-  /** @type {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type'> & {taille: number})[]>} */
-  const descriptionsPiècesJointesPétitionnaireP = getDescriptionsPiècesJointesPétitionnaire(
+  const évènementsPhaseDossierP: Promise<ÉvènementPhaseDossier[]> = getÉvènementsPhaseDossier(
     dossierId,
     transaction,
   );
 
-  /** @type {Promise<DécisionAdministrative[]>} */
-  const décisionsAdministrativesP = getDécisionAdministratives(dossierId, transaction);
+  const tousLesAvisExpertDossierP: Promise<AvisExpert[]> = getAvisExpertDossier(
+    dossierId,
+    transaction,
+  );
+
+  const descriptionsPiècesJointesPétitionnaireP: Promise<
+    (Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]
+  > = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction);
+
+  const décisionsAdministrativesP: Promise<DécisionAdministrative[]> = getDécisionAdministratives(
+    dossierId,
+    transaction,
+  );
   const decisionIds = (await décisionsAdministrativesP).map((d) => d.id);
 
-  /** @type {Promise<Prescription[]>} */
-  const prescriptionsP = getPrescriptions(decisionIds, transaction);
+  const prescriptionsP: Promise<Prescription[]> = getPrescriptions(decisionIds, transaction);
   const prescriptionIds = (await prescriptionsP).map((d) => d.id);
 
-  /** @type {Promise<Contrôle[]>} */
-  const contrôlesP = getContrôles(prescriptionIds, transaction);
+  const contrôlesP: Promise<Contrôle[]> = getContrôles(prescriptionIds, transaction);
 
   if (!databaseConnection.isTransaction) {
     // transaction locale à cette fonction
@@ -584,8 +567,7 @@ export async function getDossierComplet(
         delete dossier.espèces_impactées_nom;
       }
 
-      /** @type {Map<Prescription['id'], Contrôle[]>} */
-      const contrôlesParPrescriptionId = new Map();
+      const contrôlesParPrescriptionId: Map<Prescription["id"], Contrôle[]> = new Map();
       for (const c of contrôles) {
         const id = c.prescription;
         const contrôlesPourCetId = contrôlesParPrescriptionId.get(id) || [];
@@ -593,8 +575,8 @@ export async function getDossierComplet(
         contrôlesParPrescriptionId.set(id, contrôlesPourCetId);
       }
 
-      /** @type {Map<DécisionAdministrative['id'], FrontEndPrescription[]>} */
-      const prescriptionsParDécisionId = new Map();
+      const prescriptionsParDécisionId: Map<DécisionAdministrative["id"], FrontEndPrescription[]> =
+        new Map();
       for (const p of prescriptions) {
         const contrôles = contrôlesParPrescriptionId.get(p.id);
         // @ts-ignore p devient un FrontEndPrescription
@@ -628,8 +610,7 @@ export async function getDossierComplet(
   );
 }
 
-/** @type {(keyof DossierRésumé)[]} */
-const colonnesDossierRésumé = [
+const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
   //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "dossier.id as id",
   //"id_demarches_simplifiées",
@@ -675,14 +656,11 @@ const colonnesDossierRésumé = [
   "historique_identifiant_demande_onagre",
 ];
 
-/**
- * @param {CapDossier['cap']} cap
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<DossierRésumé[]>}
- */
-export async function getDossiersRésumésByCap(cap, databaseConnection = directDatabaseConnection) {
-  /** @type {knex.Knex.Transaction} */
-  let transaction;
+export async function getDossiersRésumésByCap(
+  cap: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<DossierRésumé[]> {
+  let transaction: Knex.Transaction;
 
   if (databaseConnection.isTransaction) {
     //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
@@ -691,8 +669,7 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
     transaction = await databaseConnection.transaction({ readOnly: true });
   }
 
-  /** @type {Promise<DossierRésumé[]>} */
-  const dossiersP = transaction("dossier")
+  const dossiersP: Promise<DossierRésumé[]> = transaction("dossier")
     .select(colonnesDossierRésumé)
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
@@ -716,8 +693,7 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
 
   const result = Promise.all([dossiersP, évènementsPhaseDossierP, décisionsAdministrativesP]).then(
     ([dossiers, évènementsPhaseDossier, décisionsAdministratives]) => {
-      /** @type {Map<Dossier['id'], ÉvènementPhaseDossier>} */
-      const évènementsPhaseDossierById = new Map();
+      const évènementsPhaseDossierById: Map<Dossier["id"], ÉvènementPhaseDossier> = new Map();
 
       for (const évènementPhaseDossier of évènementsPhaseDossier) {
         évènementsPhaseDossierById.set(évènementPhaseDossier.dossier, évènementPhaseDossier);
@@ -736,8 +712,8 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
         }
       }
 
-      /** @type {Map<Dossier['id'], FrontEndDécisionAdministrative[]>} */
-      const décisionsAdministrativesById = new Map();
+      const décisionsAdministrativesById: Map<Dossier["id"], FrontEndDécisionAdministrative[]> =
+        new Map();
       for (const décisionAdministrative of décisionsAdministratives) {
         const décisionsAdministrativesPourCetId =
           décisionsAdministrativesById.get(décisionAdministrative.dossier) || [];
@@ -773,17 +749,12 @@ export async function getDossiersRésumésByCap(cap, databaseConnection = direct
 
 /**
  * retourne le sous-ensemble de dossierIds accessibles via la cap
- *
- * @param {Dossier['id'] | Dossier['id'][]} dossierIds
- * @param {CapDossier['cap']} cap
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Set<Dossier['id']>>}
  */
 export async function dossiersAccessibleViaCap(
-  dossierIds,
-  cap,
-  databaseConnection = directDatabaseConnection,
-) {
+  dossierIds: Dossier["id"] | Dossier["id"][],
+  cap: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Set<Dossier["id"]>> {
   if (!Array.isArray(dossierIds)) dossierIds = [dossierIds];
 
   const ret = databaseConnection("arête_cap_dossier__groupe_instructeurs")
@@ -804,15 +775,11 @@ export async function dossiersAccessibleViaCap(
 /**
  * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier
  * La requête utilise une astuce à coup de distinctOn (spécifique à Postgresql) pour y arriver
- *
- * @param {CapDossier['cap']} cap_dossier
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<ÉvènementPhaseDossier[]>}
  */
 export async function getDerniersÉvènementsPhaseDossiers(
-  cap_dossier,
-  databaseConnection = directDatabaseConnection,
-) {
+  cap_dossier: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<ÉvènementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select(["évènement_phase_dossier.dossier as dossier", "phase", "horodatage"])
     .join("arête_groupe_instructeurs__dossier", {
@@ -837,15 +804,10 @@ export async function getDerniersÉvènementsPhaseDossiers(
     ]);
 }
 
-/**
- * @param {CapDossier['cap']} cap_dossier
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<ÉvènementPhaseDossier[]>}
- */
 export async function getÉvènementsPhaseDossiers(
-  cap_dossier,
-  databaseConnection = directDatabaseConnection,
-) {
+  cap_dossier: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<ÉvènementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select(["évènement_phase_dossier.dossier as dossier", "phase", "horodatage"])
     .join("arête_groupe_instructeurs__dossier", {
@@ -865,12 +827,10 @@ export async function getÉvènementsPhaseDossiers(
     });
 }
 
-/**
- * @param {Dossier['id']} idDossier
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<ÉvènementPhaseDossier[]>}
- */
-async function getÉvènementsPhaseDossier(idDossier, databaseConnection = directDatabaseConnection) {
+async function getÉvènementsPhaseDossier(
+  idDossier: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<ÉvènementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select("*")
     .where({ dossier: idDossier })
@@ -884,24 +844,17 @@ async function getÉvènementsPhaseDossier(idDossier, databaseConnection = direc
     .orderBy("horodatage", "desc");
 }
 
-/**
- * @param {Dossier['id']} idDossier
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<AvisExpert[]>}
- */
-async function getAvisExpertDossier(idDossier, databaseConnection = directDatabaseConnection) {
+async function getAvisExpertDossier(
+  idDossier: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<AvisExpert[]> {
   return databaseConnection("avis_expert").select("*").where({ dossier: idDossier });
 }
 
-/**
- * @param {Dossier['id']} idDossier
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<(Pick<Fichier, 'id' | 'nom' | 'media_type'> & {taille: number})[]>}
- */
 async function getDescriptionsPiècesJointesPétitionnaire(
-  idDossier,
-  databaseConnection = directDatabaseConnection,
-) {
+  idDossier: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<(Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]> {
   return databaseConnection("dossier")
     .select([
       "fichier.id as id",
@@ -918,31 +871,18 @@ async function getDescriptionsPiècesJointesPétitionnaire(
     .where({ dossier: idDossier });
 }
 
-/**
- *
- * @param {number[]} numbers
- * @returns
- */
-export function deleteDossierByDSNumber(numbers) {
+export function deleteDossierByDSNumber(numbers: number[]) {
   return directDatabaseConnection("dossier")
     .whereIn("number_demarches_simplifiées", numbers)
     .delete();
 }
 
-/**
- *
- * @param {Dossier['id']} id
- * @param {Partial<Dossier & {évènementsPhase: ÉvènementPhaseDossier[]}>} dossierParams
- * @param {Personne['id']} causePersonne
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
 export function updateDossier(
-  id,
-  dossierParams,
-  causePersonne,
-  databaseConnection = directDatabaseConnection,
-) {
+  id: Dossier["id"],
+  dossierParams: Partial<Dossier & { évènementsPhase: ÉvènementPhaseDossier[] }>,
+  causePersonne: Personne["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
   let phaseAjoutée = Promise.resolve();
 
   if (dossierParams.évènementsPhase) {
@@ -968,28 +908,24 @@ export function updateDossier(
 
 /**
  * Synchronise et retourne les personnes des dossiers à insérer.
- *
- * @param {DossierPourInsert[]} dossiersPourInsert
- * @param {knex.Knex.Transaction | knex.Knex} databaseConnection
  */
 async function synchroniserEtRetournerPersonnesPourDossiersInsérer(
-  dossiersPourInsert,
-  databaseConnection,
+  dossiersPourInsert: DossierPourInsert[],
+  databaseConnection: Knex.Transaction | Knex,
 ) {
-  /** @type {Personne[]} */
-  let personnes = [];
+  let personnes: Personne[] = [];
 
-  /** @type {Pick<Personne,"email" | "nom" |"prénoms">[]} */
   //@ts-ignore
-  const personnesQuiSuiventDossiers = dossiersPourInsert
-    .flatMap((dossier) => dossier.personnes_qui_suivent)
-    .filter((x) => x != null)
-    // On ne sélectionne que les propriétés que l'on veut garder (pas code_accès)
-    .map(({ email, nom, prénoms }) => ({
-      email: email ? normalisationEmail(email) : null,
-      nom,
-      prénoms,
-    }));
+  const personnesQuiSuiventDossiers: Pick<Personne, "email" | "nom" | "prénoms">[] =
+    dossiersPourInsert
+      .flatMap((dossier) => dossier.personnes_qui_suivent)
+      .filter((x) => x != null)
+      // On ne sélectionne que les propriétés que l'on veut garder (pas code_accès)
+      .map(({ email, nom, prénoms }) => ({
+        email: email ? normalisationEmail(email) : null,
+        nom,
+        prénoms,
+      }));
 
   if (personnesQuiSuiventDossiers.length >= 1) {
     await databaseConnection("personne")

@@ -1,25 +1,21 @@
-//@ts-check
+import type { Knex } from "knex";
 
-import knex from "knex";
+import { directDatabaseConnection } from "../database.ts";
 
-import { directDatabaseConnection } from "../database.js";
+import type { default as Personne } from "../../types/database/public/Personne.ts";
+import type { default as GroupeInstructeurs } from "../../types/database/public/GroupeInstructeurs.ts";
+import type { default as CapÉcritureAnnotation } from "../../types/database/public/CapÉcritureAnnotation.ts";
+import type * as API_DS from "../../types/démarche-numérique/apiSchema.ts";
 
-/** @import {default as Personne} from '../../types/database/public/Personne.ts' */
-/** @import {default as GroupeInstructeurs} from '../../types/database/public/GroupeInstructeurs.ts' */
-//@ts-ignore
-/** @import {default as CapÉcritureAnnotation} from '../../types/database/public/CapÉcritureAnnotation.ts' */
-//@ts-ignore
-/** @import * as API_DS from '../../types/démarche-numérique/apiSchema.ts' */
-
-/**
- * @param {number} demarcheNumber
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise< Map<GroupeInstructeurs['nom'], {id: GroupeInstructeurs['id'], instructeurs: Set<NonNullable<Personne['email']>>}> >}
- */
 async function getGroupesInstructeurs(
-  demarcheNumber,
-  databaseConnection = directDatabaseConnection,
-) {
+  demarcheNumber: number,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<
+  Map<
+    GroupeInstructeurs["nom"],
+    { id: GroupeInstructeurs["id"]; instructeurs: Set<NonNullable<Personne["email"]>> }
+  >
+> {
   const groupesInstructeursBDD = await databaseConnection("groupe_instructeurs")
     .select([
       "groupe_instructeurs.id as id_groupe",
@@ -52,18 +48,11 @@ async function getGroupesInstructeurs(
   return groupeByNom;
 }
 
-/**
- *
- * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI
- * @param {Map<Personne['email'], Partial<Personne>>} instructeurParEmail
- * @param {number} demarcheNumber
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- */
 async function créerGroupesInstructeurs(
-  groupesInstructeursAPI,
-  instructeurParEmail,
-  demarcheNumber,
-  databaseConnection = directDatabaseConnection,
+  groupesInstructeursAPI: API_DS.GroupeInstructeurs[],
+  instructeurParEmail: Map<Personne["email"], Partial<Personne>>,
+  demarcheNumber: number,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   //console.log('créerGroupesInstructeurs', instructeurParEmail)
 
@@ -136,29 +125,17 @@ async function créerGroupesInstructeurs(
   return databaseConnection("arête_cap_dossier__groupe_instructeurs").insert(arêtes);
 }
 
-/**
- *
- * @param {GroupeInstructeurs['id'][]} groupeIds
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns
- */
 async function supprimerGroupesInstructeurs(
-  groupeIds,
-  databaseConnection = directDatabaseConnection,
+  groupeIds: GroupeInstructeurs["id"][],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   return databaseConnection("groupe_instructeurs").delete().whereIn("id", groupeIds);
 }
 
-/**
- *
- * @param {NonNullable<Personne['email']>[]} emailsInstructeur
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<Pick<Personne, 'id' | 'email' | 'code_accès'>[]>}
- */
 async function createAndReturnInstructeurPersonne(
-  emailsInstructeur,
-  databaseConnection = directDatabaseConnection,
-) {
+  emailsInstructeur: NonNullable<Personne["email"]>[],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Pick<Personne, "id" | "email" | "code_accès">[]> {
   // Créer les personnes des instructeur.rices
   await databaseConnection("personne")
     .insert(
@@ -195,18 +172,11 @@ async function createAndReturnInstructeurPersonne(
     .whereIn("email", emailsInstructeur);
 }
 
-/**
- *
- * @param {GroupeInstructeurs['id']} groupe_instructeurs
- * @param {Set<NonNullable<Personne['email']>>} emails
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @return {Promise<void>}
- */
 async function ajouterPersonnesDansGroupeParEmails(
-  groupe_instructeurs,
-  emails,
-  databaseConnection = directDatabaseConnection,
-) {
+  groupe_instructeurs: GroupeInstructeurs["id"],
+  emails: Set<NonNullable<Personne["email"]>>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
   //console.log('ajouterPersonnesDansGroupeParEmails', groupe_instructeurs, emails)
 
   // Trouver les instructeurs pour lesquels il manque une cap_dossier
@@ -241,18 +211,11 @@ async function ajouterPersonnesDansGroupeParEmails(
   return databaseConnection("arête_cap_dossier__groupe_instructeurs").insert(arêtes);
 }
 
-/**
- *
- * @param {GroupeInstructeurs['id']} groupe_instructeurs
- * @param {Set<NonNullable<Personne['email']>>} emails
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<void>}
- */
 async function supprimerPersonnesDansGroupeParEmail(
-  groupe_instructeurs,
-  emails,
-  databaseConnection = directDatabaseConnection,
-) {
+  groupe_instructeurs: GroupeInstructeurs["id"],
+  emails: Set<NonNullable<Personne["email"]>>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
   //console.log('supprimerPersonnesDansGroupeParEmail', groupe_instructeurs, emails)
 
   const capDossierPourCesEmails = await databaseConnection("personne")
@@ -268,22 +231,15 @@ async function supprimerPersonnesDansGroupeParEmail(
     .delete();
 }
 
-/**
- *
- * @param {Map<API_DS.Instructeur['email'], API_DS.Instructeur['id']>} instructeurEmailToId
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
- * @returns {Promise<any>}
- */
 async function créerInstructeurCapsEtCompléterInstructeurIds(
-  instructeurEmailToId,
-  databaseConnection = directDatabaseConnection,
-) {
+  instructeurEmailToId: Map<API_DS.Instructeur["email"], API_DS.Instructeur["id"]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<any> {
   //console.log('instructeurEmailToId', instructeurEmailToId)
 
   // chercher les Personne avec un des emails des instructeur qui ont déjà un code d'accès
-  /** @type {Promise<Partial<Personne>[]>} */
   // @ts-ignore
-  const personnesAvecCodeP = databaseConnection("personne")
+  const personnesAvecCodeP: Promise<Partial<Personne>[]> = databaseConnection("personne")
     .select(["code_accès", "email"])
     .whereIn("email", [...instructeurEmailToId.keys()])
     .andWhereNot({ code_accès: null });
@@ -295,9 +251,8 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(
 
   // Supprimer les cap_dossier pour les instructeurs qui n'existent plus
   const deleteAbsentInstructeurCapDossier = personnesAvecCodeP.then((personnesAvecCode) => {
-    /** @type {string[]} */
     // @ts-ignore
-    const codes = personnesAvecCode.map(({ code_accès }) => code_accès);
+    const codes: string[] = personnesAvecCode.map(({ code_accès }) => code_accès);
 
     return databaseConnection("cap_dossier").whereNotIn("personne_cap", codes).delete();
   });
@@ -310,9 +265,8 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(
 
   // Rajouter les cap_dossier pour les nouveaux instructeurId s'il y en a
   const instructeurDossierCapsP = personnesAvecCodeP.then((personnesAvecCode) => {
-    /** @type {string[]} */
     // @ts-ignore
-    const codes = personnesAvecCode.map(({ code_accès }) => code_accès);
+    const codes: string[] = personnesAvecCode.map(({ code_accès }) => code_accès);
 
     return databaseConnection("cap_dossier")
       .insert(codes.map((code) => ({ personne_cap: code })))
@@ -322,9 +276,8 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(
 
   // Rajouter les cap_dossier pour les nouveaux instructeurId s'il y en a
   const instructeurÉvènementMétriqueCapsP = personnesAvecCodeP.then((personnesAvecCode) => {
-    /** @type {string[]} */
     // @ts-ignore
-    const codes = personnesAvecCode.map(({ code_accès }) => code_accès);
+    const codes: string[] = personnesAvecCode.map(({ code_accès }) => code_accès);
 
     return databaseConnection("cap_évènement_métrique")
       .insert(codes.map((code) => ({ personne_cap: code })))
@@ -342,8 +295,8 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(
         .whereIn("instructeur_id", [...instructeurEmailToId.values()]),
     )
     .then((instructeurIdAndCaps) => {
-      /** @type {Map<CapÉcritureAnnotation['instructeur_id'], CapÉcritureAnnotation['cap']>} */
-      const map = new Map();
+      const map: Map<CapÉcritureAnnotation["instructeur_id"], CapÉcritureAnnotation["cap"]> =
+        new Map();
 
       for (const { cap, instructeur_id } of instructeurIdAndCaps) {
         map.set(instructeur_id, cap);
@@ -385,24 +338,17 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(
 
 /**
  * Synchroniser le groupes instructeurs dans la base de données avec ceux qui viennent de l'API
- *
- * @param {API_DS.GroupeInstructeurs[]} groupesInstructeursAPI
- * @param {number} demarcheNumber
- * @param {knex.Knex.Transaction | knex.Knex} [databaseConnection]
  */
 export async function synchroniserGroupesInstructeurs(
-  groupesInstructeursAPI,
-  demarcheNumber,
-  databaseConnection = directDatabaseConnection,
+  groupesInstructeursAPI: API_DS.GroupeInstructeurs[],
+  demarcheNumber: number,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const instructeursEnBDD = await createAndReturnInstructeurPersonne([
     ...new Set(
-      /** @type {string[]} */
-      (
-        groupesInstructeursAPI
-          .map(({ instructeurs }) => instructeurs.map(({ email }) => email))
-          .flat(Infinity)
-      ),
+      groupesInstructeursAPI
+        .map(({ instructeurs }) => instructeurs.map(({ email }) => email))
+        .flat(Infinity) as string[],
     ),
   ]);
 
@@ -457,10 +403,8 @@ export async function synchroniserGroupesInstructeurs(
 
       if (groupeBDD) {
         const { id: idGroupeInstructeurs, instructeurs } = groupeBDD;
-        /** @type {Set<string>} */
-        const groupeBDDEmailsÀEnlever = new Set(instructeurs);
-        /** @type {Set<string>} */
-        const groupeBDDEmailÀAJouter = new Set();
+        const groupeBDDEmailsÀEnlever: Set<string> = new Set(instructeurs);
+        const groupeBDDEmailÀAJouter: Set<string> = new Set();
 
         for (const { email } of groupeAPIEmails) {
           if (groupeBDDEmailsÀEnlever.has(email)) {
@@ -507,8 +451,8 @@ export async function synchroniserGroupesInstructeurs(
   );
 
   // Rajouter les instructeurId potentiellement manquants
-  /** @type {Map<API_DS.Instructeur['email'], API_DS.Instructeur['id']>} */
-  const instructeurEmailToId = new Map();
+  const instructeurEmailToId: Map<API_DS.Instructeur["email"], API_DS.Instructeur["id"]> =
+    new Map();
   for (const groupeInstructeursAPI of groupesInstructeursAPI) {
     for (const { email, id } of groupeInstructeursAPI.instructeurs) {
       instructeurEmailToId.set(email, id);

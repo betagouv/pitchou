@@ -16,9 +16,9 @@ import {
   dumpDossierMessages,
   deleteDossierByDSNumber,
   synchroniserDossierDansGroupeInstructeur,
-} from "../scripts/server/database/dossier.js";
+} from "../scripts/server/database/dossier.ts";
 import { listAllPersonnes, créerPersonnes } from "../scripts/server/database/personne.ts";
-import { synchroniserGroupesInstructeurs } from "../scripts/server/database/groupe_instructeurs.js";
+import { synchroniserGroupesInstructeurs } from "../scripts/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "../scripts/server/database/espèces_impactées.ts";
 
 import { recupérerDossiersRécemmentModifiés } from "../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.ts";
