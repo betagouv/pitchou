@@ -7,10 +7,16 @@ on: [pull_request]
 #      branches:
 #        - svelte-check-tower
 
+permissions:
+  contents: read
+
 jobs:
   type-check:
     name: Type check (tsc + reviewdog)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -29,6 +35,9 @@ jobs:
   svelte-check:
     name: Svelte check (svelte-check + reviewdog)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
