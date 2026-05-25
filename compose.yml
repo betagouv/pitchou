@@ -12,6 +12,7 @@ services:
     working_dir: /app
     command: corepack pnpm run start:server
     environment:
+      HOME: /app
       PORT: 2648
       DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
     user: "${DOCKER_UID}:${DOCKER_GID}"
@@ -27,6 +28,7 @@ services:
     working_dir: /app
     command: sleep 365d
     environment:
+      HOME: /app
       DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
     user: "${DOCKER_UID}:${DOCKER_GID}"
     stop_grace_period: 1s

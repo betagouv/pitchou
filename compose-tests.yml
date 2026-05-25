@@ -12,6 +12,7 @@ services:
     working_dir: /app
     command: corepack pnpm run start:server
     environment:
+      HOME: /app
       PORT: 32648
       DATABASE_URL: "postgresql://dev:dev_password@test_db:5432/especes_pro_3731"
     user: "${DOCKER_UID}:${DOCKER_GID}"
