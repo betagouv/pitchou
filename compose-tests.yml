@@ -2,7 +2,8 @@ services:
   test_server:
     image: node:22
     depends_on:
-      - test_db
+      test_db:
+        condition: service_healthy
     restart: on-failure:3
     ports:
       - "32648:32648"
@@ -31,3 +32,8 @@ services:
     volumes:
       - ./tests/fixtures:/docker-entrypoint-initdb.d
       - ./tests/e2e:/tests
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d especes_pro_3731"]
+      interval: 2s
+      timeout: 5s
+      retries: 30

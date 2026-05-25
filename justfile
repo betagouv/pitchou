@@ -36,7 +36,7 @@ check-svelte:
 build:
     pnpm run build
 
-# Lance Pitchou en mode dev (rollup watch + docker compose en parallèle, http://localhost:2648)
+# Lance Pitchou en mode dev (vite dev server + docker compose en parallèle, http://localhost:5173)
 dev:
     pnpm run dev
 
@@ -44,9 +44,9 @@ dev:
 dev-docker:
     DOCKER_UID="$(id -u)" DOCKER_GID="$(id -g)" docker compose up
 
-# Lance uniquement le watcher rollup (recompile le front à chaque changement)
-dev-rollup:
-    rollup -c -w
+# Lance uniquement le serveur Vite (HMR, http://localhost:5173, proxy backend → Fastify)
+dev-vite:
+    pnpm run dev:vite
 
 # Arrête les conteneurs Docker
 dev-stop:
