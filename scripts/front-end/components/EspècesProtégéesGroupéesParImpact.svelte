@@ -1,7 +1,7 @@
 <script>
   /** @import {ActivitéMenançante,  DescriptionMenacesEspèces, ImpactQuantifié } from "../../types/especes" */
 
-  import { créerEspècesGroupéesParImpact } from "../actions/créerEspècesGroupéesParImpact";
+  import { créerEspècesGroupéesParImpact } from "../actions/créerEspècesGroupéesParImpact.ts";
   /**
    * @typedef {Object} Props
    * @property {DescriptionMenacesEspèces} espècesImpactées

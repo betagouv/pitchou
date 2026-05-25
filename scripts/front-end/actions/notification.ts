@@ -1,11 +1,10 @@
-/** @import { default as Notification } from "../../types/database/public/Notification"; */
-
 import { store } from "../store.svelte.ts";
 
-/**
- * @param { Pick<Notification, "dossier"> & Partial<Omit<Notification, 'dossier'>> } notification
- */
-export function updateNotificationForDossier(notification) {
+import type { default as Notification } from "../../types/database/public/Notification.ts";
+
+export function updateNotificationForDossier(
+  notification: Pick<Notification, "dossier"> & Partial<Omit<Notification, "dossier">>,
+) {
   const updateNotificationForDossier = store.capabilities.updateNotificationForDossier;
 
   if (!updateNotificationForDossier) {

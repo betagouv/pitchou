@@ -1,18 +1,12 @@
-import { envoyerÉvènement, envoyerÉvènementModifierPrescription } from "./aarri.js";
+import { envoyerÉvènement, envoyerÉvènementModifierPrescription } from "./aarri.ts";
 import { store } from "../store.svelte.ts";
 
-/** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
-/** @import {FrontEndPrescription} from '../../types/API_Pitchou.ts' */
+import type { default as Prescription } from "../../types/database/public/Prescription.ts";
+import type { FrontEndPrescription } from "../../types/API_Pitchou.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
-/**
- *
- * @param {Partial<Prescription>} prescription
- * @returns {Promise<Prescription['id'] | undefined>}
- */
-export function ajouterPrescription(prescription) {
+export function ajouterPrescription(
+  prescription: Partial<Prescription>,
+): Promise<Prescription["id"] | undefined> {
   const addOrUpdatePrescription = store.capabilities.addOrUpdatePrescription;
   if (!addOrUpdatePrescription) {
     throw new Error(`Pas les droits suffisants pour ajouter une prescription`);
@@ -23,11 +17,7 @@ export function ajouterPrescription(prescription) {
   return addOrUpdatePrescription(prescription);
 }
 
-/**
- *
- * @param {Omit<FrontEndPrescription, 'id'>[]} prescription
- */
-export function ajouterPrescriptionsEtContrôles(prescription) {
+export function ajouterPrescriptionsEtContrôles(prescription: Omit<FrontEndPrescription, "id">[]) {
   const addPrescriptionsAndControles = store.capabilities.addPrescriptionsAndControles;
   if (!addPrescriptionsAndControles) {
     throw new Error(`Pas les droits suffisants pour ajouter des prescriptions et contrôles`);
@@ -39,12 +29,9 @@ export function ajouterPrescriptionsEtContrôles(prescription) {
   return addPrescriptionsAndControles(prescription);
 }
 
-/**
- *
- * @param {Partial<Prescription>} prescription
- * @returns {Promise<Prescription['id'] | undefined>}
- */
-export function modifierPrescription(prescription) {
+export function modifierPrescription(
+  prescription: Partial<Prescription>,
+): Promise<Prescription["id"] | undefined> {
   const addOrUpdatePrescription = store.capabilities.addOrUpdatePrescription;
   if (!addOrUpdatePrescription) {
     throw new Error(`Pas les droits suffisants pour modifier une prescription`);
@@ -55,12 +42,7 @@ export function modifierPrescription(prescription) {
   return addOrUpdatePrescription(prescription);
 }
 
-/**
- *
- * @param {Prescription['id']} id
- * @returns {Promise<any>}
- */
-export function supprimerPrescription(id) {
+export function supprimerPrescription(id: Prescription["id"]): Promise<any> {
   const deletePrescription = store.capabilities.deletePrescription;
   if (!deletePrescription) {
     throw new Error(`Pas les droits suffisants pour supprimer une prescription`);

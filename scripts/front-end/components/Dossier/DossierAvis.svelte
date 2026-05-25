@@ -1,6 +1,6 @@
 <script>
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
-  import { supprimerAvisExpert as supprimerAvisExpertServeur } from "../../actions/avisExpert.js";
+  import { supprimerAvisExpert as supprimerAvisExpertServeur } from "../../actions/avisExpert.ts";
   import { refreshDossierComplet } from "../../actions/dossier.js";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";

@@ -3,13 +3,13 @@
 /** @import { ActivitéMenançante, DescriptionMenacesEspèces, ImpactQuantifié  } from '../../types/especes.ts' */
 /** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
 /** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
-/** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.js' */
+/** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.ts' */
 
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import { formatLocalisation, formatPorteurDeProjet } from "../affichageDossier.ts";
-import { créerEspècesGroupéesParImpact } from "./créerEspècesGroupéesParImpact.js";
+import { créerEspècesGroupéesParImpact } from "./créerEspècesGroupéesParImpact.ts";
 
 /**
  * @param {DossierComplet} dossier

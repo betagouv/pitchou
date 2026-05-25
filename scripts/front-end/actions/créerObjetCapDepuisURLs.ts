@@ -1,12 +1,13 @@
-//@ts-check
-
 import { json, text } from "d3-fetch";
 
-/** @import {StringValues} from '../../types/tools.d.ts' */
-/** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../../types/capabilities.ts' */
-/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
-/** @import {default as Message} from '../../types/database/public/Message.ts' */
-/** @import {DossierComplet} from '../../types/API_Pitchou.ts' */
+import type { StringValues } from "../../types/tools.d.ts";
+import type {
+  IdentitéInstructeurPitchou,
+  PitchouInstructeurCapabilities,
+} from "../../types/capabilities.ts";
+import type { default as Dossier } from "../../types/database/public/Dossier.ts";
+import type { default as Message } from "../../types/database/public/Message.ts";
+import type { DossierComplet } from "../../types/API_Pitchou.ts";
 
 const commonHeaders = {
   Accept: "application/json",
@@ -14,44 +15,22 @@ const commonHeaders = {
 
 const commonRequestInit = { headers: commonHeaders };
 
-/**
- *
- * @param {string | undefined} url
- * @returns {(() => Promise<any>) | undefined}
- */
-function wrapGETUrl(url) {
+function wrapGETUrl(url: string | undefined): (() => Promise<any>) | undefined {
   if (!url) return undefined;
 
   return () => json(url, commonRequestInit);
 }
 
-/**
- *
- * @param {string | undefined} url
- * @returns {((body: any) => Promise<any>) | undefined}
- */
-function wrapPOSTUrl(url) {
+function wrapPOSTUrl(url: string | undefined): ((body: any) => Promise<any>) | undefined {
   if (!url) return undefined;
 
-  return (/** @type {any} */ args) =>
+  return (args: any) =>
     json(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(args),
     });
 }
-
-/**
- *
- * @param {string | undefined} url
- * @returns {((body: any) => Promise<any>) | undefined}
- */
-/*function wrapDELETEUrl(url){
-    if(!url)
-        return undefined
-
-    return () => json(url, {method: 'DELETE'})
-}*/
 
 const dossierIdURLParam = ":dossierId";
 const decisionAdministrativeIdURLParam = ":decisionAdministrativeId";
@@ -62,12 +41,11 @@ const avisExpertIdURLParam = ":avisExpertId";
 /**
  * Builds a DELETE-by-id wrapper. The cap URL must contain `placeholder` (e.g.
  * `:decisionAdministrativeId`); it is replaced with the actual id at call time.
- *
- * @param {string | undefined} url
- * @param {string} placeholder
- * @returns {((id: any) => Promise<unknown>) | undefined}
  */
-function wrapDeleteById(url, placeholder) {
+function wrapDeleteById(
+  url: string | undefined,
+  placeholder: string,
+): ((id: any) => Promise<unknown>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(placeholder)) {
@@ -78,25 +56,16 @@ function wrapDeleteById(url, placeholder) {
     text(url.replace(placeholder, encodeURIComponent(String(id))), { method: "DELETE" });
 }
 
-/**
- *
- * @param {string | undefined} url
- * @returns {((dossierId: Dossier['id'], body: any) => Promise<any>) | undefined}
- */
-function wrapModifierDossier(url) {
+function wrapModifierDossier(
+  url: string | undefined,
+): ((dossierId: Dossier["id"], body: any) => Promise<any>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(dossierIdURLParam)) {
     throw new Error(`La capability modifierDossier ne contient pas '${dossierIdURLParam}'`);
   }
 
-  /**
-   *
-   * @param {Dossier['id']} dossierId
-   * @param {any} args
-   * @returns
-   */
-  function modifierDossier(dossierId, args) {
+  function modifierDossier(dossierId: Dossier["id"], args: any) {
     console.log("modifierDossier cap", args);
 
     return json(
@@ -113,35 +82,24 @@ function wrapModifierDossier(url) {
   return modifierDossier;
 }
 
-/**
- *
- * @param {string | undefined} url
- * @returns {((dossierId: Dossier['id']) => Promise<Message[]>) | undefined}
- */
-function wrapListerMessages(url) {
+function wrapListerMessages(
+  url: string | undefined,
+): ((dossierId: Dossier["id"]) => Promise<Message[]>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(dossierIdURLParam)) {
     throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`);
   }
 
-  /**
-   *
-   * @param {Dossier['id']} dossierId
-   * @returns {Promise<Message[]>}
-   */
-  return function listerMessages(dossierId) {
+  return function listerMessages(dossierId: Dossier["id"]): Promise<Message[]> {
     // @ts-ignore
     return json(url.replace(dossierIdURLParam, dossierId), commonRequestInit);
   };
 }
 
-/**
- *
- * @param {string | undefined} url
- * @returns {((dossierId: Dossier['id']) => Promise<DossierComplet>) | undefined}
- */
-function wrapRecupérerDossierComplet(url) {
+function wrapRecupérerDossierComplet(
+  url: string | undefined,
+): ((dossierId: Dossier["id"]) => Promise<DossierComplet>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(dossierIdURLParam)) {
@@ -149,13 +107,10 @@ function wrapRecupérerDossierComplet(url) {
   }
 
   /**
-   * @description Récupère les données du dossier et les formatte.
-   * @param {Dossier['id']} dossierId
-   * @returns {Promise<DossierComplet>}
+   * Récupère les données du dossier et les formatte.
    */
-  return async function getDossierComplet(dossierId) {
-    /** @type {Awaited<ReturnType<getDossierComplet>> | undefined} */
-    const ret = await json(
+  return async function getDossierComplet(dossierId: Dossier["id"]): Promise<DossierComplet> {
+    const ret: DossierComplet | undefined = await json(
       // @ts-ignore
       url.replace(dossierIdURLParam, dossierId),
       commonRequestInit,
@@ -237,15 +192,12 @@ function wrapRecupérerDossierComplet(url) {
   };
 }
 
-/**
- *
- * @param {string | undefined} url
- * @returns {((body: any) => Promise<any>) | undefined}
- */
-function wrapModifierDécisionAdministrative(url) {
+function wrapModifierDécisionAdministrative(
+  url: string | undefined,
+): ((body: any) => Promise<any>) | undefined {
   if (!url) return undefined;
 
-  return (/** @type {any} */ args) =>
+  return (args: any) =>
     text(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -256,22 +208,18 @@ function wrapModifierDécisionAdministrative(url) {
 /**
  * Thin wrapper for multipart POST routes. The caller supplies the FormData;
  * the wrapper only attaches the cap URL and method.
- *
- * @param {string | undefined} url
- * @returns {((form: FormData) => Promise<string>) | undefined}
  */
-function wrapPOSTMultipart(url) {
+function wrapPOSTMultipart(
+  url: string | undefined,
+): ((form: FormData) => Promise<string>) | undefined {
   if (!url) return undefined;
 
-  return (form) => text(url, { method: "POST", body: form });
+  return (form: FormData) => text(url, { method: "POST", body: form });
 }
 
-/**
- *
- * @param {string | undefined} url
- * @returns {PitchouInstructeurCapabilities['modifierRelationSuivi'] | undefined}
- */
-function wrapModifierRelationSuivi(url) {
+function wrapModifierRelationSuivi(
+  url: string | undefined,
+): PitchouInstructeurCapabilities["modifierRelationSuivi"] | undefined {
   if (!url) return undefined;
 
   return function modifierRelationSuivi(direction, personneEmail, dossierId) {
@@ -287,12 +235,11 @@ function wrapModifierRelationSuivi(url) {
   };
 }
 
-/**
- *
- * @param {StringValues<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}} capURLs
- * @returns {Partial<PitchouInstructeurCapabilities> & {identité: IdentitéInstructeurPitchou}}
- */
-export default function (capURLs) {
+export default function (
+  capURLs: StringValues<PitchouInstructeurCapabilities> & {
+    identité: IdentitéInstructeurPitchou;
+  },
+): Partial<PitchouInstructeurCapabilities> & { identité: IdentitéInstructeurPitchou } {
   return {
     listerDossiers: wrapGETUrl(capURLs.listerDossiers),
     recupérerDossierComplet: wrapRecupérerDossierComplet(capURLs.recupérerDossierComplet),

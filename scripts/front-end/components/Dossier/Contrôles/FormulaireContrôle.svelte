@@ -4,7 +4,7 @@
   import DateInput from "../../common/DateInput.svelte";
 
   import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
-  import { résultatsContrôle, typesActionSuiteContrôle } from "../../../actions/contrôle.js";
+  import { résultatsContrôle, typesActionSuiteContrôle } from "../../../actions/contrôle.ts";
 
   /** @import {Snippet} from 'svelte' */
   /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */

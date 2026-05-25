@@ -3,7 +3,7 @@
   import { store } from "$front/store.svelte.ts";
   import MesDossiers from "$front/components/screens/MesDossiers.svelte";
   import { chargerDossiers } from "$front/actions/dossier.js";
-  import { envoyerÉvènement } from "$front/actions/aarri.js";
+  import { envoyerÉvènement } from "$front/actions/aarri.ts";
   import { chargerNotificationParDossierPourInstructeurActuel } from "$front/actions/main.js";
 
   onMount(async () => {

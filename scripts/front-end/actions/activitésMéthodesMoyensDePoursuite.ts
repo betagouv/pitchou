@@ -1,24 +1,19 @@
-//@ts-check
-
 import { dsv, buffer } from "d3-fetch";
 import { store } from "../store.svelte.ts";
 import { ESPECES_DATA, ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "../dataPaths.ts";
 import {
   espèceProtégéeStringToEspèceProtégée,
-  actMetTransArraysToMapBundle,
   isClassif,
   construireActivitésMéthodesMoyensDePoursuite,
-} from "../../commun/outils-espèces.js";
+} from "../../commun/outils-espèces.ts";
 
-//@ts-ignore
-/** @import {PitchouState} from '../store.svelte.ts' */
-//@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes' */
+import type { PitchouState } from "../store.svelte.ts";
+import type { EspèceProtégée } from "../../types/especes.d.ts";
 
-/**
- * @returns {Promise<{espècesProtégéesParClassification: NonNullable<PitchouState['espècesProtégéesParClassification']>, espèceByCD_REF: NonNullable<PitchouState['espèceByCD_REF']>}>}
- */
-export async function chargerListeEspècesProtégées() {
+export async function chargerListeEspècesProtégées(): Promise<{
+  espècesProtégéesParClassification: NonNullable<PitchouState["espècesProtégéesParClassification"]>;
+  espèceByCD_REF: NonNullable<PitchouState["espèceByCD_REF"]>;
+}> {
   if (store.espècesProtégéesParClassification && store.espèceByCD_REF) {
     const { espècesProtégéesParClassification, espèceByCD_REF } = store;
 
@@ -27,14 +22,14 @@ export async function chargerListeEspècesProtégées() {
 
   const dataEspèces = await dsv(";", ESPECES_DATA);
 
-  /** @type {PitchouState['espècesProtégéesParClassification']} */
-  const espècesProtégéesParClassification = {
+  const espècesProtégéesParClassification: NonNullable<
+    PitchouState["espècesProtégéesParClassification"]
+  > = {
     oiseau: [],
     "faune non-oiseau": [],
     flore: [],
   };
-  /** @type {PitchouState['espèceByCD_REF']} */
-  const espèceByCD_REF = new Map();
+  const espèceByCD_REF: NonNullable<PitchouState["espèceByCD_REF"]> = new Map();
 
   for (const espStr of dataEspèces) {
     const { classification } = espStr;
@@ -45,9 +40,8 @@ export async function chargerListeEspècesProtégées() {
 
     const espèces = espècesProtégéesParClassification[classification] || [];
 
-    /** @type {EspèceProtégée} */
     // @ts-ignore
-    const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr));
+    const espèce: EspèceProtégée = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr));
 
     espèces.push(espèce);
     espèceByCD_REF.set(espèce["CD_REF"], espèce);
@@ -63,7 +57,8 @@ export async function chargerListeEspècesProtégées() {
 
 /**
  * Charge et organise données concernant les activités, méthodes et transports depuis les fichiers CSV externes.
- * @returns {Promise<NonNullable<PitchouState['ActivitésMéthodesMoyensDePoursuite']>>}
+ *
+ * Retourne :
  * - activités : Map indexée par classification d'espèce (oiseau, faune non-oiseau, flore) contenant les activités menaçantes indexées par leur code
  * - méthodes : Map indexée par classification d'espèce contenant les méthodes menaçantes indexées par leur code
  * - transports : Map indexée par classification d'espèce contenant les transports menaçants indexés par leur code
@@ -74,12 +69,12 @@ export async function chargerListeEspècesProtégées() {
  * - Cette fonction met également à jour le store avec les activités indexées par code
  * - Les lignes vides dans les fichiers CSV sont automatiquement ignorées
  *
- * @see {@link actMetTransArraysToMapBundle} Pour la logique de transformation des données
- *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
-export async function chargerActivitésMéthodesMoyensDePoursuite() {
+export async function chargerActivitésMéthodesMoyensDePoursuite(): Promise<
+  NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
+> {
   if (store.ActivitésMéthodesMoyensDePoursuite) {
     return Promise.resolve(store.ActivitésMéthodesMoyensDePoursuite);
   }

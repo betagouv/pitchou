@@ -3,7 +3,7 @@
   import { afficherString } from "../../affichageValeurs.ts";
   import TagPhase from "../TagPhase.svelte";
 
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
 
   /** @import {ComponentProps} from 'svelte' */
   /** @import Squelette from '../Squelette.svelte' */

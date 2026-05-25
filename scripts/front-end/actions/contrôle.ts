@@ -1,13 +1,9 @@
 import { store } from "../store.svelte.ts";
 
-/** @import {default as Contrôle} from '../../types/database/public/Contrôle.ts' */
-/** @import {RésultatContrôle, TypesActionSuiteContrôle} from '../../types/API_Pitchou.ts' */
+import type { default as Contrôle } from "../../types/database/public/Contrôle.ts";
+import type { RésultatContrôle, TypesActionSuiteContrôle } from "../../types/API_Pitchou.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
-/** @type {Set<RésultatContrôle>} */
-export const résultatsContrôle = new Set([
+export const résultatsContrôle: Set<RésultatContrôle> = new Set([
   "Conforme",
   "Non conforme",
   "Trop tard",
@@ -15,19 +11,13 @@ export const résultatsContrôle = new Set([
   "Non conforme (Pas d'informations reçues)",
 ]);
 
-/** @type {Set<TypesActionSuiteContrôle>} */
-export const typesActionSuiteContrôle = new Set([
+export const typesActionSuiteContrôle: Set<TypesActionSuiteContrôle> = new Set([
   "Email",
   "Courrier",
   "Courrier recommandé avec accusé de réception",
 ]);
 
-/**
- *
- * @param {Partial<Contrôle>} contrôle
- * @returns {Promise<Contrôle['id']>}
- */
-export function ajouterContrôle(contrôle) {
+export function ajouterContrôle(contrôle: Partial<Contrôle>): Promise<Contrôle["id"]> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
@@ -37,12 +27,7 @@ export function ajouterContrôle(contrôle) {
   return addOrUpdateControle(contrôle).then((ids) => ids[0]);
 }
 
-/**
- *
- * @param {Partial<Contrôle>} contrôle
- * @returns {Promise<Contrôle['id'] | undefined>}
- */
-export function modifierContrôle(contrôle) {
+export function modifierContrôle(contrôle: Partial<Contrôle>): Promise<Contrôle["id"] | undefined> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour modifier un contrôle`);
@@ -50,12 +35,7 @@ export function modifierContrôle(contrôle) {
   return addOrUpdateControle(contrôle);
 }
 
-/**
- *
- * @param {Contrôle['id']} id
- * @returns {Promise<unknown>}
- */
-export function supprimerContrôle(id) {
+export function supprimerContrôle(id: Contrôle["id"]): Promise<unknown> {
   const deleteControle = store.capabilities.deleteControle;
   if (!deleteControle) {
     throw new Error(`Pas les droits suffisants pour supprimer un contrôle`);

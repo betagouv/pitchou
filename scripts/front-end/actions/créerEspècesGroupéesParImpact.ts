@@ -1,84 +1,67 @@
-/** @import { ActivitéMenançante, DescriptionMenacesEspèces, ImpactQuantifié, FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from '../../types/especes.d.ts' */
+import type {
+  ActivitéMenançante,
+  DescriptionMenacesEspèces,
+  ImpactQuantifié,
+  FauneNonOiseauAtteinte,
+  FloreAtteinte,
+  OiseauAtteint,
+} from "../../types/especes.d.ts";
 
 const VALEUR_NON_RENSEIGNÉ = `(non renseigné)`;
 
-/**
- * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
- * @returns {string}
- */
-function individus(espèceImpactée) {
+function individus(espèceImpactée: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte): string {
   return espèceImpactée.nombreIndividus || VALEUR_NON_RENSEIGNÉ;
 }
 
-/**
- * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
- * @returns {string}
- */
-function surface(espèceImpactée) {
+function surface(espèceImpactée: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte): string {
   return espèceImpactée.surfaceHabitatDétruit
     ? `${espèceImpactée.surfaceHabitatDétruit}m²`
     : VALEUR_NON_RENSEIGNÉ;
 }
 
-/**
- * @param {OiseauAtteint} espèceImpactée
- * @returns {string}
- */
-function nids(espèceImpactée) {
+function nids(espèceImpactée: OiseauAtteint): string {
   return espèceImpactée.nombreNids ? `${espèceImpactée.nombreNids}` : VALEUR_NON_RENSEIGNÉ;
 }
 
-/**
- * @param {OiseauAtteint} espèceImpactée
- * @returns {string}
- */
-function œufs(espèceImpactée) {
+function œufs(espèceImpactée: OiseauAtteint): string {
   return espèceImpactée.nombreOeufs ? `${espèceImpactée.nombreOeufs}` : VALEUR_NON_RENSEIGNÉ;
 }
 
-/** @type {Map<ImpactQuantifié, ((esp: any) => string)>}  */
-const getterImpactQuantifié = new Map([
+const getterImpactQuantifié: Map<ImpactQuantifié, (esp: any) => string> = new Map([
   ["Nombre d'individus", individus],
   ["Nids", nids],
   ["Œufs", œufs],
   ["Surface habitat détruit (m²)", surface],
 ]);
 
-/**
- * @typedef EspèceImpactéeSimplifiée
- * @prop {string} nomVernaculaire
- * @prop {string} nomScientifique
- * @prop {string} CD_REF
- * @prop {boolean} espèceMinistérielle
- * @prop {boolean} espèceCNPN
- * @prop {string[]} détails // impacts quantifiés pour cette activité
- */
+export type EspèceImpactéeSimplifiée = {
+  nomVernaculaire: string;
+  nomScientifique: string;
+  CD_REF: string;
+  espèceMinistérielle: boolean;
+  espèceCNPN: boolean;
+  détails: string[];
+};
 
-/**
- * @typedef {Object} EspècesParActivité
- * @prop {string} activité
- * @prop {ImpactQuantifié[]} impactsQuantifiés
- * @prop {EspèceImpactéeSimplifiée[]} espèces
- */
+export type EspècesParActivité = {
+  activité: string;
+  impactsQuantifiés: ImpactQuantifié[];
+  espèces: EspèceImpactéeSimplifiée[];
+};
 
-/**
- *
- * @param {DescriptionMenacesEspèces} espècesImpactées
- * @param {Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} identifiantPitchouVersActivitéEtImpactsQuantifiés
- * @returns {EspècesParActivité[]}
- */
 export function créerEspècesGroupéesParImpact(
-  espècesImpactées,
-  identifiantPitchouVersActivitéEtImpactsQuantifiés,
-) {
-  /** @type {Map<ActivitéMenançante['Identifiant Pitchou'] | undefined, EspèceImpactéeSimplifiée[]>} */
-  const _espècesImpactéesParIdentifiantActivité = new Map();
+  espècesImpactées: DescriptionMenacesEspèces,
+  identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
+    string,
+    ActivitéMenançante & { impactsQuantifiés: ImpactQuantifié[] }
+  >,
+): EspècesParActivité[] {
+  const _espècesImpactéesParIdentifiantActivité: Map<
+    ActivitéMenançante["Identifiant Pitchou"] | undefined,
+    EspèceImpactéeSimplifiée[]
+  > = new Map();
 
-  /**
-   *
-   * @param {OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte} espèceImpactée
-   */
-  function push(espèceImpactée) {
+  function push(espèceImpactée: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte) {
     const identifiantPitchou = espèceImpactée.activité
       ? espèceImpactée.activité["Identifiant Pitchou"]
       : undefined;
@@ -109,7 +92,7 @@ export function créerEspècesGroupéesParImpact(
     _espècesImpactéesParIdentifiantActivité.set(identifiantPitchou, esps);
   }
 
-  for (const classif of /** @type {const} */ (["oiseau", "faune non-oiseau", "flore"])) {
+  for (const classif of ["oiseau", "faune non-oiseau", "flore"] as const) {
     if (espècesImpactées[classif]) {
       for (const espèceImpactée of espècesImpactées[classif]) {
         push(espèceImpactée);

@@ -9,8 +9,8 @@
     ajouterContrôle as envoyerContrôle,
     modifierContrôle,
     supprimerContrôle,
-  } from "../../../actions/contrôle.js";
-  import { envoyerÉvènement } from "../../../actions/aarri.js";
+  } from "../../../actions/contrôle.ts";
+  import { envoyerÉvènement } from "../../../actions/aarri.ts";
 
   /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
   /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */

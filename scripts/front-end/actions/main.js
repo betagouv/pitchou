@@ -8,8 +8,8 @@ import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "../store.svelte.ts";
 import { SCHEMA_DS_88444 } from "../dataPaths.ts";
 
-import créerObjetCapDepuisURLs from "./créerObjetCapDepuisURLs.js";
-import { envoyerÉvènement } from "./aarri.js";
+import créerObjetCapDepuisURLs from "./créerObjetCapDepuisURLs.ts";
+import { envoyerÉvènement } from "./aarri.ts";
 
 /** @import {default as RésultatSynchronisationDS88444} from '../../types/database/public/RésultatSynchronisationDS88444.js' */
 

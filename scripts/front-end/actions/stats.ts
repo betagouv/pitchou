@@ -1,15 +1,11 @@
-//@ts-check
-
 import { json } from "d3-fetch";
 
-// @ts-ignore
-/** @import {StatsPubliques} from '../../types/API_Pitchou.ts' */
+import type { StatsPubliques } from "../../types/API_Pitchou.ts";
 
 /**
  * Charge les statistiques depuis le backend
- * @returns {Promise<StatsPubliques>} Les statistiques calculées
  */
-export async function chargerStats() {
+export async function chargerStats(): Promise<StatsPubliques> {
   try {
     const stats = await json(`/api/stats-publiques`);
     if (!isStatsPubliques(stats)) {
@@ -17,7 +13,7 @@ export async function chargerStats() {
         `Réponse invalide reçue du serveur pour la route /api/stats-publiques. Réponse reçue : ${JSON.stringify(stats)}`,
       );
     }
-    return /** @type {StatsPubliques} */ (stats);
+    return stats as StatsPubliques;
   } catch (error) {
     console.error("Erreur lors du chargement des statistiques :", error);
     throw new Error(`${error}`);
@@ -32,11 +28,8 @@ export async function chargerStats() {
  * l'interface `StatsPubliques`.
  *
  * Si de nouvelles propriétés sont ajoutées à `StatsPubliques`, pensez à mettre à jour ce type guard.
- *
- * @param {any} stats
- * @returns {stats is StatsPubliques}
  */
-function isStatsPubliques(stats) {
+function isStatsPubliques(stats: any): stats is StatsPubliques {
   console.log({ stats });
   if (
     Object(stats) === stats &&
@@ -66,12 +59,10 @@ function isStatsPubliques(stats) {
   ) {
     /**
      * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
-     *
-     * @type {Required<StatsPubliques>}
      * Cette variable n'est utilisée que pour forcer une erreur TypeScript
      * si une propriété est ajoutée à `StatsPubliques` sans mettre à jour ce type guard.
      */
-    let statsOk = {
+    let statsOk: Required<StatsPubliques> = {
       nbDossiersEnPhaseContrôle: 0,
       nbDossiersEnPhaseContrôleAvecDécision: 0,
       nbDossiersEnPhaseContrôleSansDécision: 0,

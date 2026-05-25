@@ -10,7 +10,7 @@
   import { créerFiltreTexte } from "../filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
-  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "../actions/aarri.js";
+  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "../actions/aarri.ts";
   import { phases as toutesLesPhases } from "../affichageDossier.ts";
 
   /**

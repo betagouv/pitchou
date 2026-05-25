@@ -22,12 +22,12 @@
     trierDossiersParOrdreAlphabétiqueColonne,
     trierDossiersParPhaseProchaineAction,
   } from "../../triDossiers.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import {
     envoyerÉvènement,
     envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier,
-  } from "../../actions/aarri.js";
+  } from "../../actions/aarri.ts";
 
   /** @import {ComponentProps} from 'svelte' */
   /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/

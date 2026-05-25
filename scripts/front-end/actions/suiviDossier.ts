@@ -1,19 +1,14 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "../store.svelte.ts";
-import { envoyerÉvènement } from "./aarri.js";
+import { envoyerÉvènement } from "./aarri.ts";
 
-/** @import Dossier from '../../types/database/public/Dossier.ts' */
-/** @import Personne from '../../types/database/public/Personne.ts' */
+import type Dossier from "../../types/database/public/Dossier.ts";
+import type Personne from "../../types/database/public/Personne.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
-
-/**
- *
- * @param {NonNullable<Personne['email']>} instructeurEmail
- * @param {Dossier['id']} dossierId
- */
-export function instructeurSuitDossier(instructeurEmail, dossierId) {
+export function instructeurSuitDossier(
+  instructeurEmail: NonNullable<Personne["email"]>,
+  dossierId: Dossier["id"],
+) {
   console.log("instructeurSuitDossier", dossierId);
 
   const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
@@ -33,12 +28,10 @@ export function instructeurSuitDossier(instructeurEmail, dossierId) {
   return modifierRelationSuivi("suivre", instructeurEmail, dossierId);
 }
 
-/**
- *
- * @param {NonNullable<Personne['email']>} instructeurEmail
- * @param {Dossier['id']} dossierId
- */
-export function instructeurLaisseDossier(instructeurEmail, dossierId) {
+export function instructeurLaisseDossier(
+  instructeurEmail: NonNullable<Personne["email"]>,
+  dossierId: Dossier["id"],
+) {
   const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
 
   if (!modifierRelationSuivi) {

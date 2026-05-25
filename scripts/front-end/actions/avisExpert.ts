@@ -1,22 +1,20 @@
-/** @import { default as AvisExpert, AvisExpertInitializer } from "../../types/database/public/AvisExpert" */
-/** @import { FrontEndAvisExpert } from '../../types/API_Pitchou.js' */
-
-import { envoyerÉvènement } from "./aarri.js";
+import { envoyerÉvènement } from "./aarri.ts";
 import { store } from "../store.svelte.ts";
+
+import type {
+  default as AvisExpert,
+  AvisExpertInitializer,
+} from "../../types/database/public/AvisExpert.ts";
+import type { FrontEndAvisExpert } from "../../types/API_Pitchou.ts";
 
 /**
  * Ajoute un avis d'expert.
- *
- * @param {Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>} frontEndAvisExpert
- * @param {File | undefined} [fileFichierSaisine]
- * @param {File | undefined} [fileFichierAvis]
- * @returns {Promise<string>}
  */
 export function ajouterOuModifierAvisExpert(
-  frontEndAvisExpert,
-  fileFichierSaisine,
-  fileFichierAvis,
-) {
+  frontEndAvisExpert: Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>,
+  fileFichierSaisine?: File | undefined,
+  fileFichierAvis?: File | undefined,
+): Promise<string> {
   const addOrUpdateAvisExpert = store.capabilities.addOrUpdateAvisExpert;
   if (!addOrUpdateAvisExpert) {
     throw new Error(`Pas les droits suffisants pour ajouter ou modifier un avis d'expert`);
@@ -29,8 +27,9 @@ export function ajouterOuModifierAvisExpert(
   delete copyFrontEndAvisExpert.avis_fichier_url;
   delete copyFrontEndAvisExpert.saisine_fichier_url;
 
-  /**@type {Pick<AvisExpert, "dossier"> & AvisExpertInitializer} */
-  const avisExpert = { ...copyFrontEndAvisExpert };
+  const avisExpert: Pick<AvisExpert, "dossier"> & AvisExpertInitializer = {
+    ...copyFrontEndAvisExpert,
+  };
 
   // Dans un objet FormData, la valeur de la clef ne peut être qu'un string ou un Blob,
   // et dossier est de type number & {__brand: "public.dossier";}
@@ -76,9 +75,8 @@ export function ajouterOuModifierAvisExpert(
 
 /**
  * Supprime un avis d'expert.
- * @param {Pick<AvisExpert, "id">} avisExpert
  */
-export function supprimerAvisExpert(avisExpert) {
+export function supprimerAvisExpert(avisExpert: Pick<AvisExpert, "id">) {
   const deleteAvisExpert = store.capabilities.deleteAvisExpert;
   if (!deleteAvisExpert) {
     throw new Error(`Pas les droits suffisants pour supprimer un avis d'expert`);

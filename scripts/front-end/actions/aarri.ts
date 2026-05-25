@@ -1,16 +1,18 @@
-/** @import { IndicateursAARRI } from '../../types/API_Pitchou.ts' */
-/**  @import { ÉvènementMétrique, ÉvènementRechercheDossiersDétails } from '../../types/évènement' */
-
 import { json } from "d3-fetch";
-import { isValidDate } from "../../commun/typeFormat.js";
+import { isValidDate } from "../../commun/typeFormat.ts";
 import { store } from "../store.svelte.ts";
 import debounce from "just-debounce-it";
 
+import type { IndicateursAARRI } from "../../types/API_Pitchou.ts";
+import type {
+  ÉvènementMétrique,
+  ÉvènementRechercheDossiersDétails,
+} from "../../types/évènement.d.ts";
+
 /**
  * Charge les indicateurs AARRI depuis le backend
- * @returns {Promise<IndicateursAARRI[]>}
  */
-export async function chargerIndicateursAARRI() {
+export async function chargerIndicateursAARRI(): Promise<IndicateursAARRI[]> {
   try {
     const indicateursParDate = await json(`/api/aarri`).then((result) => {
       if (!Array.isArray(result)) {
@@ -32,11 +34,9 @@ export async function chargerIndicateursAARRI() {
   }
 }
 
-/**
- * @param {any} indicateursParDate
- * @returns {indicateursParDate is IndicateursAARRI[]}
- */
-function isIndicateursAARRIParDate(indicateursParDate) {
+function isIndicateursAARRIParDate(
+  indicateursParDate: any,
+): indicateursParDate is IndicateursAARRI[] {
   if (!Array.isArray(indicateursParDate)) {
     return false;
   }
@@ -44,11 +44,7 @@ function isIndicateursAARRIParDate(indicateursParDate) {
   return indicateursParDate.every(isIndicateursAARRI);
 }
 
-/**
- * @param {any} indicateurs
- * @returns {indicateurs is IndicateursAARRI}
- */
-function isIndicateursAARRI(indicateurs) {
+function isIndicateursAARRI(indicateurs: any): indicateurs is IndicateursAARRI {
   if (
     Object(indicateurs) === indicateurs &&
     typeof indicateurs.nombreBaseUtilisateuricePotentielle === "number" &&
@@ -64,10 +60,7 @@ function isIndicateursAARRI(indicateurs) {
   return false;
 }
 
-/**
- * @param {ÉvènementMétrique} évènement
- */
-export function envoyerÉvènement(évènement) {
+export function envoyerÉvènement(évènement: ÉvènementMétrique) {
   if (store.capabilities.créerÉvènementMetrique) {
     store.capabilities
       .créerÉvènementMetrique(évènement)
@@ -82,7 +75,7 @@ export const envoyerÉvènementModifierCommentaire = debounce(
 );
 
 export const envoyerÉvènementRechercherUnDossier = debounce(
-  (/** @type {ÉvènementRechercheDossiersDétails} */ détails) =>
+  (détails: ÉvènementRechercheDossiersDétails) =>
     envoyerÉvènement({ type: "rechercherDesDossiers", détails }),
   10 * 1000,
   true,

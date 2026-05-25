@@ -11,10 +11,10 @@
     supprimerPrescription as supprimerPrescriptionBaseDeDonnées,
     ajouterPrescription as ajouterPrescriptionBaseDeDonnées,
     modifierPrescription,
-  } from "../../../actions/prescriptions.js";
+  } from "../../../actions/prescriptions.ts";
   import { créerPrescriptionContrôlesÀPartirDeFichier } from "../../../actions/décisionAdministrative.js";
   import { refreshDossierComplet } from "../../../actions/dossier.js";
-  import { envoyerÉvènement } from "../../../actions/aarri.js";
+  import { envoyerÉvènement } from "../../../actions/aarri.ts";
 
   import { store } from "../../../store.svelte.ts";
 
