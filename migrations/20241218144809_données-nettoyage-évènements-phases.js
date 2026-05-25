@@ -1,4 +1,4 @@
-import { phases } from "../scripts/front-end/affichageDossier.js";
+import { phases } from "../scripts/front-end/affichageDossier.ts";
 
 /**
  * @param { import("knex").Knex } knex
