@@ -7,12 +7,14 @@ import {
 } from "$front/actions/main.js";
 import type { DossierId } from "$types/database/public/Dossier.ts";
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, parent }) => {
   const dossierId = Number(params.dossierId);
   if (!Number.isFinite(dossierId)) {
     error(400, "dossierId invalide");
   }
   const id = dossierId as DossierId;
+
+  await parent();
 
   chargerNotificationParDossierPourInstructeurActuel();
 
