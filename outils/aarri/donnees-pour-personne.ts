@@ -1,4 +1,3 @@
-//@ts-check
 import parseArgs from "minimist";
 import { getÉvènementsForPersonne } from "../../scripts/server/database/aarri/utils.ts";
 import { createOdsFile } from "@odfjs/odfjs";
@@ -7,6 +6,7 @@ import { closeDatabaseConnection } from "../../scripts/server/database.ts";
 
 const args = parseArgs(process.argv);
 
+// @ts-ignore
 if (args.origin) origin = args.origin;
 
 if (!args.email) {
@@ -110,8 +110,7 @@ const content = new Map([
   ["Évènements avec count", [...headerÉvènementsCount, ...évènementCountsFormattésPourODS]],
 ]);
 
-/** @type {ArrayBuffer} */
-const ods = await createOdsFile(content);
+const ods: ArrayBuffer = await createOdsFile(content);
 
 console.log("ods", ods);
 

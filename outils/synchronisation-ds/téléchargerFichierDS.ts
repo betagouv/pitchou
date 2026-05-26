@@ -3,12 +3,9 @@ import pLimit from "p-limit";
 
 const TIMEOUT_DELAY = 20 * 1000; // ms
 
-/**
- *
- * @param {string} url
- * @returns {Promise<{mediaType: string | null, contenu: ArrayBuffer}>}
- */
-async function _téléchargerFichierDS(url) {
+async function _téléchargerFichierDS(
+  url: string,
+): Promise<{ mediaType: string | null; contenu: ArrayBuffer }> {
   try {
     const réponseSansBody = await ky.get(url, {
       timeout: TIMEOUT_DELAY,
@@ -46,11 +43,8 @@ async function _téléchargerFichierDS(url) {
 const NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS = 6;
 const fenêtre = pLimit(NOMBRE_MAX_TÉLÉCHARGEMENTS_SIMULTANÉS);
 
-/**
- *
- * @param {string} url
- * @returns {Promise<{mediaType: string | null, contenu: ArrayBuffer}>}
- */
-export default async function téléchargerFichierDS(url) {
+export default async function téléchargerFichierDS(
+  url: string,
+): Promise<{ mediaType: string | null; contenu: ArrayBuffer }> {
   return fenêtre(() => _téléchargerFichierDS(url));
 }

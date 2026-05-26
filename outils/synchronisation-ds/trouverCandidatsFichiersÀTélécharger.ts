@@ -1,34 +1,33 @@
-/** @import {DossierDS88444, ChampDSPieceJustificative, DSFile, ChampRépétéDSPieceJustificative} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
-
 import {
   isChampDSPieceJustificative,
   isChampRépétéDSPieceJustificative,
 } from "../../scripts/types/typeguards.ts";
 
-//@ts-expect-error solution temporaire pour https://github.com/microsoft/TypeScript/issues/60908
-const inutile = true;
+import type {
+  DossierDS88444,
+  ChampDSPieceJustificative,
+  DSFile,
+  ChampRépétéDSPieceJustificative,
+} from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
 
-/**
- *
- * @param {DossierDS88444[]} dossiers
- * @param {ChampDescriptor['id']} champDescriptorId
- * @returns {Map<DossierDS88444['number'], DSFile[]>}
- */
-export default function trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId) {
-  /** @type {ReturnType<trouverCandidatsFichiersÀTélécharger>} */
-  const candidatsFichiers = new Map(
+export default function trouverCandidatsFichiersÀTélécharger(
+  dossiers: DossierDS88444[],
+  champDescriptorId: ChampDescriptor["id"],
+): Map<DossierDS88444["number"], DSFile[]> {
+  const candidatsFichiers: Map<DossierDS88444["number"], DSFile[]> = new Map(
     // @ts-ignore
     dossiers
       .map(({ number, champs, annotations }) => {
-        /** @type {ChampDSPieceJustificative | ChampRépétéDSPieceJustificative | undefined} */
         // @ts-ignore
-        const champFichier =
+        const champFichier:
+          | ChampDSPieceJustificative
+          | ChampRépétéDSPieceJustificative
+          | undefined =
           champs.find((c) => c.id === champDescriptorId) ||
           annotations.find((c) => c.id === champDescriptorId);
 
-        /** @type {DSFile[] | undefined} */
-        let descriptionFichiers;
+        let descriptionFichiers: DSFile[] | undefined;
 
         if (isChampDSPieceJustificative(champFichier)) {
           descriptionFichiers = champFichier.files;
