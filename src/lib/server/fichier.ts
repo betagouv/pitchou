@@ -14,10 +14,10 @@ export async function téléchargementFichierResponse(fichierId: Fichier["id"]):
     .replace(/[^\x00-\x7F]/g, ""); // strip remaining non-ASCII
 
   const headers = new Headers();
-  // both content-disposition forms kept for browser compatibility
-  // https://developer.mozilla.org/fr/docs/Web/HTTP/Reference/Headers/Content-Disposition
-  headers.append("content-disposition", `attachment; filename="${nomAscii}"`);
-  headers.append("content-disposition", `attachment; filename*=UTF-8''${encodeURI(fichier.nom)}`);
+  headers.set(
+    "content-disposition",
+    `attachment; filename="${nomAscii}"; filename*=UTF-8''${encodeURI(fichier.nom)}`,
+  );
   if (fichier.media_type) {
     headers.set("content-type", fichier.media_type);
   }
