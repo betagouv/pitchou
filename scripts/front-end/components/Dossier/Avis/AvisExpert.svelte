@@ -54,7 +54,11 @@
           ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)}
         </span>
         {#if avisExpert.saisine_fichier_url}
-          <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.saisine_fichier_url}>
+          <a
+            class="fr-btn fr-btn--secondary fr-btn--sm"
+            href={avisExpert.saisine_fichier_url}
+            data-sveltekit-reload
+          >
             Télécharger le fichier saisine
           </a>
         {:else}
@@ -67,7 +71,11 @@
             ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)}
           </span>
           {#if avisExpert.avis_fichier_url}
-            <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpert.avis_fichier_url}>
+            <a
+              class="fr-btn fr-btn--secondary fr-btn--sm"
+              href={avisExpert.avis_fichier_url}
+              data-sveltekit-reload
+            >
               Télécharger le fichier de l'avis
             </a>
           {:else if avisExpert.avis === "Avis favorable tacite"}
