@@ -1,28 +1,31 @@
-//@ts-check
-
-/** @import { ActivitéMenançante, DescriptionMenacesEspèces, ImpactQuantifié  } from '../../types/especes.ts' */
-/** @import { BalisesGénérationDocument } from '../../types/balisesGénérationDocument.ts' */
-/** @import { DossierComplet } from '../../types/API_Pitchou.ts' */
-/** @import { EspècesParActivité } from './créerEspècesGroupéesParImpact.ts' */
-
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import { formatLocalisation, formatPorteurDeProjet } from "../affichageDossier.ts";
 import { créerEspècesGroupéesParImpact } from "./créerEspècesGroupéesParImpact.ts";
 
+import type {
+  ActivitéMenançante,
+  DescriptionMenacesEspèces,
+  ImpactQuantifié,
+} from "../../types/especes.d.ts";
+import type { BalisesGénérationDocument } from "../../types/balisesGénérationDocument.ts";
+import type { DossierComplet } from "../../types/API_Pitchou.ts";
+import type { EspècesParActivité } from "./créerEspècesGroupéesParImpact.ts";
+
 /**
- * @param {DossierComplet} dossier
- * @param {DescriptionMenacesEspèces} espècesImpactées Description des espèces impactées par le dossier
- * @param {Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} identifiantPitchouVersActivitéEtImpactsQuantifiés
- * @returns {BalisesGénérationDocument} Liste des balises fournies aux instructeur.i.ces
+ * Liste des balises fournies aux instructeur.i.ces.
+ *
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
 export function getBalisesGénérationDocument(
-  dossier,
-  espècesImpactées,
-  identifiantPitchouVersActivitéEtImpactsQuantifiés,
-) {
+  dossier: DossierComplet,
+  espècesImpactées: DescriptionMenacesEspèces,
+  identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
+    string,
+    ActivitéMenançante & { impactsQuantifiés: ImpactQuantifié[] }
+  >,
+): BalisesGénérationDocument {
   const {
     nom,
     commentaire_libre,
@@ -59,15 +62,13 @@ export function getBalisesGénérationDocument(
     scientifique_précisions_autres_intervenants,
   } = dossier;
 
-  /** @type {EspècesParActivité[] | undefined} */
   // Transformer les espèces impactées si elles existent
-  const espèces_impacts = créerEspècesGroupéesParImpact(
+  const espèces_impacts: EspècesParActivité[] | undefined = créerEspècesGroupéesParImpact(
     espècesImpactées,
     identifiantPitchouVersActivitéEtImpactsQuantifiés,
   );
 
-  /** @type {BalisesGénérationDocument['hirondelles']} */
-  const hirondelles =
+  const hirondelles: BalisesGénérationDocument["hirondelles"] =
     type === "Hirondelle"
       ? {
           nids_détruits: nombre_nids_détruits_dossier_oiseau_simple ?? null,
@@ -75,8 +76,7 @@ export function getBalisesGénérationDocument(
         }
       : undefined;
 
-  /** @type {BalisesGénérationDocument['cigognes']} */
-  const cigognes =
+  const cigognes: BalisesGénérationDocument["cigognes"] =
     type === "Cigogne"
       ? {
           nids_détruits: nombre_nids_détruits_dossier_oiseau_simple ?? null,
@@ -155,13 +155,7 @@ export function getBalisesGénérationDocument(
   };
 }
 
-/**
- *
- * @param {any} n
- * @param {number} precision
- * @returns {string | undefined}
- */
-function afficher_nombre(n, precision = 2) {
+function afficher_nombre(n: any, precision: number = 2): string | undefined {
   if (typeof n === "string") {
     n = parseFloat(n);
   }
@@ -180,23 +174,12 @@ function afficher_nombre(n, precision = 2) {
   return undefined;
 }
 
-/**
- *
- * @param {any} date
- * @param {string} formatString
- * @returns {string | undefined}
- */
-function formatter_date(date, formatString) {
+function formatter_date(date: any, formatString: string): string | undefined {
   if (!date) return undefined;
   date = new Date(date);
   return format(date, formatString, { locale: fr });
 }
 
-/**
- *
- * @param {any} date
- * @returns {string | undefined}
- */
-function formatter_date_simple(date) {
+function formatter_date_simple(date: any): string | undefined {
   return formatter_date(date, "d MMMM yyyy");
 }

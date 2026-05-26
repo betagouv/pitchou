@@ -1,7 +1,7 @@
 <script>
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import { supprimerAvisExpert as supprimerAvisExpertServeur } from "../../actions/avisExpert.ts";
-  import { refreshDossierComplet } from "../../actions/dossier.js";
+  import { refreshDossierComplet } from "../../actions/dossier.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";

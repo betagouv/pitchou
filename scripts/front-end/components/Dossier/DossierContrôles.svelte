@@ -8,8 +8,8 @@
   import {
     sauvegardeNouvelleDécisionAdministrative,
     supprimerDécisionAdministrative,
-  } from "../../actions/décisionAdministrative.js";
-  import { refreshDossierComplet } from "../../actions/dossier.js";
+  } from "../../actions/décisionAdministrative.ts";
+  import { refreshDossierComplet } from "../../actions/dossier.ts";
 
   /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
   /** @import {DécisionAdministrativePourTransfer} from '../../../types/API_Pitchou.ts' */

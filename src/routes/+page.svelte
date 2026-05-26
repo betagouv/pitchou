@@ -8,8 +8,8 @@
   import LoginViaEmail from "$front/components/screens/LoginViaEmail.svelte";
   import SqueletteContenuVide from "$front/components/SqueletteContenuVide.svelte";
 
-  import { logout } from "$front/actions/main.js";
-  import { chargerDossiers } from "$front/actions/dossier.js";
+  import { logout } from "$front/actions/main.ts";
+  import { chargerDossiers } from "$front/actions/dossier.ts";
   import { envoiEmailConnexion } from "$front/serveur.ts";
   import { authorizedEmailDomains } from "$commun/constantes.ts";
 

@@ -1,37 +1,28 @@
-//@ts-check
-/** @import {PitchouState} from '../store.svelte.ts' */
 import { store, setDossierComplet } from "../store.svelte.ts";
 
-import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "../../commun/outils-espèces.js";
+import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "../../commun/outils-espèces.ts";
 import {
   chargerActivitésMéthodesMoyensDePoursuite,
   chargerListeEspècesProtégées,
-} from "./activitésMéthodesMoyensDePoursuite.js";
+} from "./activitésMéthodesMoyensDePoursuite.ts";
 import { isDossierRésuméArray } from "../../types/typeguards.ts";
-import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "./aarri.js";
-import { chargerRelationSuivi } from "./main.js";
+import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "./aarri.ts";
+import { chargerRelationSuivi } from "./main.ts";
 
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
-/** @import {DossierComplet, DossierPhase} from '../../types/API_Pitchou.d.ts' */
-//@ts-expect-error TS ne comprends pas que le type est utilisé dans le jsdoc
-/** @import {default as Dossier} from '../../types/database/public/Dossier.ts' */
-//@ts-ignore
-/** @import {default as Message} from '../../types/database/public/Message.ts' */
-//@ts-ignore
-/** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou} from '../../types/especes.d.ts' */
+import type { PitchouState } from "../store.svelte.ts";
+import type { DossierComplet } from "../../types/API_Pitchou.ts";
+import type { default as Message } from "../../types/database/public/Message.ts";
+import type { DescriptionMenacesEspèces } from "../../types/especes.d.ts";
 
-/**
- * @param {DossierComplet} dossier
- * @param {Partial<DossierComplet>} modifs
- * @returns {Promise<void>}
- */
-export function modifierDossier(dossier, modifs) {
+export function modifierDossier(
+  dossier: DossierComplet,
+  modifs: Partial<DossierComplet>,
+): Promise<void> {
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 
   // modifier le dossier dans le store de manière optimiste
-  /** @type {DossierComplet} */
-  const dossierModifié = Object.assign({}, dossier, modifs);
+  const dossierModifié: DossierComplet = Object.assign({}, dossier, modifs);
   if (modifs.évènementsPhase) {
     dossierModifié.évènementsPhase = [...modifs.évènementsPhase, ...dossier.évènementsPhase];
 
@@ -54,29 +45,19 @@ export function modifierDossier(dossier, modifs) {
   });
 }
 
-/**
- * @param {DossierComplet['id']} id
- * @returns {Promise<Message[]>}
- */
-export async function chargerMessagesDossier(id) {
+export async function chargerMessagesDossier(id: DossierComplet["id"]): Promise<Message[]> {
   if (!store.capabilities?.listerMessages)
     throw new TypeError(`Capability listerMessages manquante`);
 
-  const messagesP = store.capabilities
-    ?.listerMessages(id)
-    .then((/** @type {Message[]} */ messages) => {
-      store.messagesParDossierId.set(id, messages);
-      return messages;
-    });
+  const messagesP = store.capabilities?.listerMessages(id).then((messages: Message[]) => {
+    store.messagesParDossierId.set(id, messages);
+    return messages;
+  });
 
   return store.messagesParDossierId.get(id) || messagesP;
 }
 
-/**
- * @param {DossierComplet['id']} id
- * @returns {Promise<DossierComplet>}
- */
-export async function getDossierComplet(id) {
+export async function getDossierComplet(id: DossierComplet["id"]): Promise<DossierComplet> {
   const dossierCompletInStore = store.dossiersComplets.get(id);
 
   if (dossierCompletInStore) {
@@ -92,11 +73,7 @@ export async function getDossierComplet(id) {
   return dossierComplet;
 }
 
-/**
- * @param {DossierComplet['id']} id
- * @returns {Promise<DossierComplet>}
- */
-export async function refreshDossierComplet(id) {
+export async function refreshDossierComplet(id: DossierComplet["id"]): Promise<DossierComplet> {
   if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
@@ -106,11 +83,9 @@ export async function refreshDossierComplet(id) {
   return dossierComplet;
 }
 
-/**
- * @param {ArrayBuffer} fichierArrayBuffer
- * @returns {Promise<DescriptionMenacesEspèces>}
- */
-export async function espècesImpactéesDepuisFichierOdsArrayBuffer(fichierArrayBuffer) {
+export async function espècesImpactéesDepuisFichierOdsArrayBuffer(
+  fichierArrayBuffer: ArrayBuffer,
+): Promise<DescriptionMenacesEspèces> {
   const espècesProtégées = chargerListeEspècesProtégées();
   const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite();
 
@@ -141,8 +116,7 @@ export function chargerDossiers() {
         dossier.date_début_phase = new Date(dossier.date_début_phase);
       }
 
-      /** @type {PitchouState['dossiersRésumés']} */
-      const dossiersById = new Map();
+      const dossiersById: PitchouState["dossiersRésumés"] = new Map();
 
       for (const dossier of dossiers) {
         Object.freeze(dossier);

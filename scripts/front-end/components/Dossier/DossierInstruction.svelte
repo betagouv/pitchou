@@ -11,7 +11,7 @@
     phases,
     prochaineActionAttenduePar,
   } from "../../affichageDossier.ts";
-  import { modifierDossier } from "../../actions/dossier.js";
+  import { modifierDossier } from "../../actions/dossier.ts";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";

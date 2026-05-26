@@ -3,7 +3,7 @@
   import { fr } from "date-fns/locale";
 
   import { goto } from "$app/navigation";
-  import { logout } from "../actions/main.js";
+  import { logout } from "../actions/main.ts";
   import { store } from "../store.svelte.ts";
 
   /** @import {PitchouState} from '../store.svelte.ts' */

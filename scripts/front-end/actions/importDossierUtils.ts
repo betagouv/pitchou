@@ -1,45 +1,41 @@
-/** @import { GeoAPIDépartement, GeoAPICommune }  from '../../types/GeoAPI' */
-/** @import { DossierPourInsertGénérique,  } from '../../types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import { DossierInitializer } from '../../types/database/public/Dossier.ts' */
-/** @import { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts" */
-
 import { json } from "d3-fetch";
 import memoize from "just-memoize";
-import { normalisationEmail } from "../../commun/manipulationStrings.js";
+import { normalisationEmail } from "../../commun/manipulationStrings.ts";
+
+import type { GeoAPIDépartement, GeoAPICommune } from "../../types/GeoAPI.ts";
+import type { DossierPourInsertGénérique } from "../../types/démarche-numérique/DossierPourSynchronisation.ts";
+import type { DossierInitializer } from "../../types/database/public/Dossier.ts";
+import type { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts";
+
+export type DonnéesSupplémentairesPourCréationDossier = Partial<
+  DossierPourInsertGénérique<Omit<DossierInitializer, "numéro_démarche">>
+>;
 
 /**
- * @typedef {Partial<DossierPourInsertGénérique<Omit<DossierInitializer, 'numéro_démarche'>>>} DonnéesSupplémentairesPourCréationDossier
- */
-
-/**
- *
  * Type qui définit les messages :
- *              - d'avertissement (où on peut proposer une alternative correcte)
- *              - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
- *
- * @typedef {{
- *   type: 'erreur' | 'avertissement';
- *   message: string;
- * }} Alerte
+ *  - d'avertissement (où on peut proposer une alternative correcte)
+ *  - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
  */
+export type Alerte = {
+  type: "erreur" | "avertissement";
+  message: string;
+};
 
-/**
- * @typedef {Partial<
- *   DossierDemarcheNumerique88444 & {
- *     alertes: Alerte[];
- *   }
- * >} DossierAvecAlertes
- */
+export type DossierAvecAlertes = Partial<
+  DossierDemarcheNumerique88444 & {
+    alertes: Alerte[];
+  }
+>;
 
 /**
  * Récupère toutes les données de la commune ainsi que celles de son département.
  *
- * @param {string} nomCommune - Nom de la commune.
- * @returns {Promise<{ data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null, alerte?: Alerte }>}
- *
  * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
-async function getCommuneData(nomCommune) {
+async function getCommuneData(nomCommune: string): Promise<{
+  data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null;
+  alerte?: Alerte;
+}> {
   const commune = await json(
     `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`,
   );
@@ -58,12 +54,11 @@ const memoizedGetCommuneData = memoize(getCommuneData);
 export { memoizedGetCommuneData as getCommuneData };
 
 /**
- *
- * @param {string} code
- * @returns {Promise<{ data: GeoAPIDépartement | null, alerte?: Alerte }>}
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
-async function _getDépartementData(code) {
+async function _getDépartementData(
+  code: string,
+): Promise<{ data: GeoAPIDépartement | null; alerte?: Alerte }> {
   const département = await json(
     `https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`,
   );
@@ -86,11 +81,8 @@ async function _getDépartementData(code) {
  * - Mélisey
  *
  * On n'inclut pas le séparateur "-" car beaucoup de villes contiennent des "-"
- *
- * @param {string} valeur - La chaîne contenant une ou plusieurs communes séparées.
- * @returns {string[]} Un tableau contenant les noms des communes nettoyés.
  */
-export function extraireCommunes(valeur) {
+export function extraireCommunes(valeur: string): string[] {
   if (typeof valeur !== "string") return [];
 
   // Utilise une expression régulière pour séparer sur ',' ou '/'
@@ -103,12 +95,11 @@ export function extraireCommunes(valeur) {
 /**
  * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
  * Renvoie null si pas de département reconnu.
- * @param {string | number} valeur
- * @returns {Promise<{ data: GeoAPIDépartement[] | null, alertes: Alerte[] }>}
  */
-async function formaterDépartementDepuisValeur(valeur) {
-  /** @type {string[]} */
-  let codes = [];
+async function formaterDépartementDepuisValeur(
+  valeur: string | number,
+): Promise<{ data: GeoAPIDépartement[] | null; alertes: Alerte[] }> {
+  let codes: string[] = [];
   if (typeof valeur === "number") {
     codes = [valeur.toString()];
   }
@@ -121,8 +112,7 @@ async function formaterDépartementDepuisValeur(valeur) {
   }
 
   const départementsP = codes.map((code) => _getDépartementData(code));
-  /** @type {Alerte[]} */
-  const alertes = [];
+  const alertes: Alerte[] = [];
 
   try {
     const résultats = await Promise.all(départementsP);
@@ -138,7 +128,7 @@ async function formaterDépartementDepuisValeur(valeur) {
     if (départements.length >= 1) {
       // On force le cast car la logique garantit un tableau non vide
       return {
-        data: /** @type {[GeoAPIDépartement, ...GeoAPIDépartement[]]} */ (départements),
+        data: départements as [GeoAPIDépartement, ...GeoAPIDépartement[]],
         alertes,
       };
     } else {
@@ -159,13 +149,10 @@ export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisV
 /**
  * Tente d'extraire un prénom et un nom à partir d'une chaîne de texte.
  *
- * @param {string} text Chaîne contenant potentiellement un nom complet
- * @returns {Partial<{prénom: string, nom: string}> | null} Un objet {prénom, nom} si trouvé, sinon null
- *
  * @example
  *   extraireNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
  */
-export function extraireNom(text) {
+export function extraireNom(text: string): Partial<{ prénom: string; nom: string }> | null {
   const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
 
   const match = nameRegex.exec(text);
@@ -179,13 +166,10 @@ export function extraireNom(text) {
 /**
  * Extrait la première adresse mail trouvée dans une chaîne de texte.
  *
- * @param {string} text Chaîne contenant potentiellement une ou plusieurs adresses mail
- * @returns {string|null} La première adresse mail trouvée, ou null si aucune
- *
  * @example
  *   extrairePremierMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
  */
-export function extrairePremierMail(text) {
+export function extrairePremierMail(text: string): string | null {
   // Source Regex Mail : https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
   const mailRegex =
     /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -197,13 +181,10 @@ export function extrairePremierMail(text) {
 /**
  * Tente d'extraire un prénom et un nom à partir d'une adresse mail.
  *
- * @param {string} mail Adresse mail ou chaîne contenant une adresse mail
- * @returns {Partial<{prénom: string, nom: string}>} Un objet {prénom, nom} si possible, sinon des chaînes vides
- *
  * @example
  *   extraireNomDunMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
  */
-export function extraireNomDunMail(mail) {
+export function extraireNomDunMail(mail: string): Partial<{ prénom: string; nom: string }> {
   if (!mail.includes("@")) return { prénom: "", nom: "" };
 
   const localPart = mail.split("@")[0];
@@ -230,13 +211,10 @@ export function extraireNomDunMail(mail) {
 /**
  * Met une majuscule à la première lettre d'une chaîne, le reste en minuscules.
  *
- * @param {string} str Chaîne à capitaliser
- * @returns {string} Chaîne capitalisée
- *
  * @example
  *   capitalize("jean") // "Jean"
  */
-function capitalize(str) {
+function capitalize(str: string): string {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }

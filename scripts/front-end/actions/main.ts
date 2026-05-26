@@ -1,5 +1,3 @@
-//@ts-check
-
 import { json } from "d3-fetch";
 import remember, { forget } from "remember";
 import { goto } from "$app/navigation";
@@ -11,7 +9,7 @@ import { SCHEMA_DS_88444 } from "../dataPaths.ts";
 import créerObjetCapDepuisURLs from "./créerObjetCapDepuisURLs.ts";
 import { envoyerÉvènement } from "./aarri.ts";
 
-/** @import {default as RésultatSynchronisationDS88444} from '../../types/database/public/RésultatSynchronisationDS88444.js' */
+import type { default as RésultatSynchronisationDS88444 } from "../../types/database/public/RésultatSynchronisationDS88444.ts";
 
 const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
@@ -22,10 +20,10 @@ export function chargerRelationSuivi() {
         throw new TypeError("On attendait un tableau de relation suivis ici !");
       }
 
-      const relationSuivis = new SvelteMap();
+      const relationSuivis: NonNullable<typeof store.relationSuivis> = new SvelteMap();
 
       for (const { personneEmail, dossiersSuivisIds } of relationSuivisBDD) {
-        relationSuivis.set(personneEmail, new SvelteSet(dossiersSuivisIds));
+        relationSuivis.set(personneEmail!, new SvelteSet(dossiersSuivisIds));
       }
 
       store.relationSuivis = relationSuivis;
@@ -40,7 +38,9 @@ export function chargerNotificationParDossierPourInstructeurActuel() {
         throw new TypeError("On attendait un tableau de notifications ici !");
       }
 
-      const notificationParDossierPourInstructeurActuel = new SvelteMap();
+      const notificationParDossierPourInstructeurActuel: NonNullable<
+        typeof store.notificationParDossier
+      > = new SvelteMap();
 
       for (const notification of notificationsBDD) {
         notificationParDossierPourInstructeurActuel.set(notification.dossier, notification);
@@ -62,7 +62,7 @@ export function chargerSchemaDS88444() {
 export function chargerRésultatsSynchronisation() {
   return json("/resultats-synchronisation").then(
     // @ts-ignore
-    (/** @type {RésultatSynchronisationDS88444[]} */ résultatsSync) => {
+    (résultatsSync: RésultatSynchronisationDS88444[]) => {
       for (const r of résultatsSync) {
         r.horodatage = new Date(r.horodatage);
       }
@@ -103,12 +103,7 @@ export async function logout() {
   return forget(PITCHOU_SECRET_STORAGE_KEY);
 }
 
-/**
- *
- * @param {{message: string}} [erreur]
- * @returns
- */
-export async function logoutEtRedirigerVersAccueil(erreur) {
+export async function logoutEtRedirigerVersAccueil(erreur?: { message: string }) {
   if (erreur) {
     store.erreurs.add(erreur);
   }
@@ -116,12 +111,7 @@ export async function logoutEtRedirigerVersAccueil(erreur) {
   return logout().then(() => goto("/"));
 }
 
-/**
- *
- * @param {string} secret
- * @returns
- */
-function initCapabilities(secret) {
+function initCapabilities(secret: string) {
   return json(`/caps?secret=${secret}`).then((capsURLs) => {
     if (capsURLs && typeof capsURLs === "object") {
       //@ts-ignore

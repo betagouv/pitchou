@@ -12,8 +12,8 @@
     ajouterPrescription as ajouterPrescriptionBaseDeDonnées,
     modifierPrescription,
   } from "../../../actions/prescriptions.ts";
-  import { créerPrescriptionContrôlesÀPartirDeFichier } from "../../../actions/décisionAdministrative.js";
-  import { refreshDossierComplet } from "../../../actions/dossier.js";
+  import { créerPrescriptionContrôlesÀPartirDeFichier } from "../../../actions/décisionAdministrative.ts";
+  import { refreshDossierComplet } from "../../../actions/dossier.ts";
   import { envoyerÉvènement } from "../../../actions/aarri.ts";
 
   import { store } from "../../../store.svelte.ts";

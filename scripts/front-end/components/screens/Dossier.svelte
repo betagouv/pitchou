@@ -9,7 +9,7 @@
   import DossierContrôles from "../Dossier/DossierContrôles.svelte";
   import DossierGénérationDocuments from "../Dossier/DossierGénérationDocuments.svelte";
   import { MediaTypeError } from "../../../commun/errors.js";
-  import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "../../actions/dossier.js";
+  import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "../../actions/dossier.ts";
   import { envoyerÉvènement } from "../../actions/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
