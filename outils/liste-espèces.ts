@@ -1,5 +1,3 @@
-//@ts-check
-
 import { readFile } from "node:fs/promises";
 import { createReadStream, createWriteStream } from "node:fs";
 
@@ -9,7 +7,13 @@ import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "
 
 import { TAXREF_ROWClassification, nomsVernaculaires } from "../scripts/commun/outils-espèces.ts";
 
-/** @import {BDC_STATUT_ROW, TAXREF_ROW, EspèceProtégée, ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW} from "../scripts/types/especes.js" */
+import type {
+  BDC_STATUT_ROW,
+  TAXREF_ROW,
+  EspèceProtégée,
+  ESPÈCES_MINISTÉRIELLES_ROW,
+  ESPÈCES_CNPN_ROW,
+} from "../scripts/types/especes.d.ts";
 
 process.title = `Génération liste espèces`;
 

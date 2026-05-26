@@ -1,45 +1,53 @@
-/** @import {DonnéesPersonnesEntreprisesInitializer, DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert} from '../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheNumerique88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
-/** @import {DossierDS88444, Champs88444, Traitement} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import Dossier from '../../scripts/types/database/public/Dossier.ts' */
-/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
-/** @import {default as Entreprise} from '../../scripts/types/database/public/Entreprise.ts' */
-/** @import { FichierId } from '../../scripts/types/database/public/Fichier.ts' */
-/** @import DCisionAdministrative ,{DCisionAdministrativeInitializer} from '../../scripts/types/database/public/DécisionAdministrative.ts' */
-/** @import { PartialBy }  from '../../scripts/types/tools' */
-/** @import {TypeDécisionAdministrative} from '../../scripts/types/API_Pitchou.ts' */
-/** @import {DonnéesSupplémentairesPourCréationDossier} from '../../scripts/front-end/actions/importDossierUtils.js' */
-/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-
 import assert from "node:assert/strict";
 import { déchiffrerDonnéesSupplémentairesDossiers } from "../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
 import { isAfter } from "date-fns";
 import { normalisationEmail } from "../../scripts/commun/manipulationStrings.ts";
 
-/**
- * @callback MakeColonnesCommunesDossierPourSynchro
- * @param {DossierDS88444} dossierDS
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
- * @returns {DossierInitializer| DossierMutator}
- */
+import type {
+  DonnéesPersonnesEntreprisesInitializer,
+  DossierEntreprisesPersonneInitializersPourInsert,
+  DossierEntreprisesPersonneInitializersPourUpdate,
+  DossierPourInsert,
+} from "../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts";
+import type { DossierDemarcheNumerique88444 } from "../../scripts/types/démarche-numérique/Démarche88444.ts";
+import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
+import type {
+  DossierDS88444,
+  Traitement,
+} from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type Dossier from "../../scripts/types/database/public/Dossier.ts";
+import type { FichierId } from "../../scripts/types/database/public/Fichier.ts";
+import type {
+  default as DécisionAdministrative,
+  DCisionAdministrativeInitializer as DécisionAdministrativeInitializer,
+} from "../../scripts/types/database/public/DécisionAdministrative.ts";
+import type { PartialBy } from "../../scripts/types/tools.d.ts";
+import type { TypeDécisionAdministrative, DossierPhase } from "../../scripts/types/API_Pitchou.ts";
+import type { DonnéesSupplémentairesPourCréationDossier } from "../../scripts/front-end/actions/importDossierUtils.ts";
+import type {
+  DossierInitializer,
+  DossierMutator,
+} from "../../scripts/types/database/public/Dossier.ts";
+
+export type MakeColonnesCommunesDossierPourSynchro = (
+  dossierDS: DossierDS88444,
+  pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
+  pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
+) => DossierInitializer | DossierMutator;
 
 /**
- * @callback GetDonnéesPersonnesEntreprises
- *  * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données
- * @param {DossierDS88444} dossierDS
+ * Récupère les données d'un dossier DS nécessaires pour créer les personnes et les entreprises (déposants et demandeurs) en base de données.
  * Le premier paramètre de pitchouKeyToChampDS doit être une chaîne de caractère qui représente une clef du DossierDémarcheSimplifiée
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @returns {DonnéesPersonnesEntreprisesInitializer}
  */
+export type GetDonnéesPersonnesEntreprises = (
+  dossierDS: DossierDS88444,
+  pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
+) => DonnéesPersonnesEntreprisesInitializer;
 
-/**
- * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @returns {DonnéesPersonnesEntreprisesInitializer}
- */
-export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToChampDS) {
+export function getDonnéesPersonnesEntreprises88444(
+  dossierDS: DossierDS88444,
+  pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
+): DonnéesPersonnesEntreprisesInitializer {
   const { demandeur, champs, nomMandataire = "", prenomMandataire = "", usager } = dossierDS;
 
   /**
@@ -138,15 +146,13 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
 /**
  * Renvoie la liste des dossiers DS à initialiser la liste des dossiers DS à modifier à partir de la liste complète des dossiers DS à synchroniser.
  * La condition "ce dossier est un dossier à initialiser" se fait en vérifiant que le numéro de Démarche Numérique du dossier n'existe pas déjà en base de données.
- * @param {DossierDS88444[]} dossiersDS
- * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} dossierNumberToDossierId
- * @returns {{ dossiersDSAInitialiser: DossierDS88444[], dossiersDSAModifier: DossierDS88444[] }}
  */
-function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossierId) {
-  /** @type {DossierDS88444[]} */
-  let dossiersDSAInitialiser = [];
-  /** @type {DossierDS88444[]} */
-  let dossiersDSAModifier = [];
+function splitDossiersEnAInitialiserAModifier(
+  dossiersDS: DossierDS88444[],
+  dossierNumberToDossierId: Map<Dossier["number_demarches_simplifiées"], Dossier["id"]>,
+): { dossiersDSAInitialiser: DossierDS88444[]; dossiersDSAModifier: DossierDS88444[] } {
+  let dossiersDSAInitialiser: DossierDS88444[] = [];
+  let dossiersDSAModifier: DossierDS88444[] = [];
 
   dossiersDS.forEach((dossier) => {
     if (dossierNumberToDossierId.has(String(dossier.number))) {
@@ -167,20 +173,14 @@ function splitDossiersEnAInitialiserAModifier(dossiersDS, dossierNumberToDossier
 
 /**
  * Renvoyer le dossier rempli des champs obligatoires pour l'initialisation d'un nouveau dossier
- * @param {DossierDS88444} dossierDS
- * @param {number} démarcheNumber
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
- * @returns {Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, 'dossier'>>}
  */
 async function makeChampsDossierPourInitialisation(
-  dossierDS,
-  démarcheNumber,
-  pitchouKeyToChampDS,
-  pitchouKeyToAnnotationDS,
-  makeColonnesCommunesDossierPourSynchro,
-) {
+  dossierDS: DossierDS88444,
+  démarcheNumber: number,
+  pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
+  pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
+  makeColonnesCommunesDossierPourSynchro: MakeColonnesCommunesDossierPourSynchro,
+): Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, "dossier">> {
   const données_supplémentaires_à_déchiffrer = dossierDS?.champs.find(
     (champ) => champ.label === "NE PAS MODIFIER - Données techniques associées à votre dossier",
   )?.stringValue;
@@ -188,8 +188,7 @@ async function makeChampsDossierPourInitialisation(
   /**
    * POUR IMPORT DOSSIERS HISTORIQUES
    */
-  /** @type {DonnéesSupplémentairesPourCréationDossier | undefined} */
-  let données_supplémentaires;
+  let données_supplémentaires: DonnéesSupplémentairesPourCréationDossier | undefined;
   try {
     données_supplémentaires = données_supplémentaires_à_déchiffrer
       ? JSON.parse(
@@ -232,11 +231,8 @@ async function makeChampsDossierPourInitialisation(
 /**
  * Converti les "state" des "traitements" DS vers les phases Pitchou
  * Il n'existe pas de manière automatique de d'amener vers l'état "Vérification dossier" depuis DS
- *
- * @param {Traitement['state']} DSTraitementState
- * @returns {import('../../scripts/types/API_Pitchou.ts').DossierPhase}
  */
-function traitementPhaseToDossierPhase(DSTraitementState) {
+function traitementPhaseToDossierPhase(DSTraitementState: Traitement["state"]): DossierPhase {
   if (DSTraitementState === "en_construction") return "Accompagnement amont";
   if (DSTraitementState === "en_instruction") return "Instruction";
   if (DSTraitementState === "accepte") return "Contrôle";
@@ -246,14 +242,11 @@ function traitementPhaseToDossierPhase(DSTraitementState) {
   throw `Traitement phase non reconnue: ${DSTraitementState}`;
 }
 
-/**
- *
- * @param {DossierDS88444['traitements']} traitements
- * @param {Dossier['id']} [dossierId]
- */
-function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
-  /** @type {DossierPourInsert['évènement_phase_dossier']} */
-  const évènementsPhaseDossier = [];
+function makeÉvènementsPhaseDossierFromTraitementsDS(
+  traitements: DossierDS88444["traitements"],
+  dossierId?: Dossier["id"],
+) {
+  const évènementsPhaseDossier: DossierPourInsert["évènement_phase_dossier"] = [];
 
   for (const { dateTraitement, state, emailAgentTraitant, motivation } of traitements) {
     évènementsPhaseDossier.push({
@@ -274,26 +267,20 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(traitements, dossierId) {
  * Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
  * une nouvelle décision administrative qui n'est pas encore en BDD
  *
- * On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus)
- *
- * @param {DossierDS88444} dossierDS
- * @param {Map<DossierDS88444['number'], FichierId> | undefined} fichiersMotivationTéléchargés
- * @param {DCisionAdministrative['dossier'] | null } idPitchouDuDossier // Si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
- * @returns {PartialBy<DCisionAdministrativeInitializer, "dossier">[]}
+ * On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus).
+ * `idPitchouDuDossier`: si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
  */
 function makeDécisionAdministrativeFromTraitementDS(
-  dossierDS,
-  fichiersMotivationTéléchargés,
-  idPitchouDuDossier,
-) {
-  /**@type { PartialBy<DCisionAdministrativeInitializer, "dossier">[] } */
-  const décisionsAdministratives = [];
+  dossierDS: DossierDS88444,
+  fichiersMotivationTéléchargés: Map<DossierDS88444["number"], FichierId> | undefined,
+  idPitchouDuDossier: DécisionAdministrative["dossier"] | null,
+): PartialBy<DécisionAdministrativeInitializer, "dossier">[] {
+  const décisionsAdministratives: PartialBy<DécisionAdministrativeInitializer, "dossier">[] = [];
 
   if (fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1) {
     const fichierMotivationId = fichiersMotivationTéléchargés.get(dossierDS.number);
 
-    /** @type {TypeDécisionAdministrative} */
-    let type = "Autre décision";
+    let type: TypeDécisionAdministrative = "Autre décision";
 
     const traitements = dossierDS.traitements;
     let dernierTraitement = traitements[0];
@@ -322,69 +309,62 @@ function makeDécisionAdministrativeFromTraitementDS(
  * Récupère les données brutes des dossiers depuis Démarche Numérique
  * puis les transforme au format attendu par l'application
  * afin de permettre leur insertion ou mise à jour en base de données.
- *
- * @param {DossierDS88444[]} dossiersDS
- * @param {number} démarcheNumber
- * @param {Map<Dossier['number_demarches_simplifiées'], Dossier['id']>} numberDSDossiersDéjàExistantsEnBDD
- * @param {Map<number, FichierId> | undefined} fichiersMotivationTéléchargés
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToAnnotationDS
- * @param {GetDonnéesPersonnesEntreprises} getDonnéesPersonnesEntreprises
- * @param {MakeColonnesCommunesDossierPourSynchro} makeColonnesCommunesDossierPourSynchro
- * @returns {Promise<{ dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[], dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[] }>}
  */
 export async function makeDossiersPourSynchronisation(
-  dossiersDS,
-  démarcheNumber,
-  numberDSDossiersDéjàExistantsEnBDD,
-  fichiersMotivationTéléchargés,
-  pitchouKeyToChampDS,
-  pitchouKeyToAnnotationDS,
-  getDonnéesPersonnesEntreprises,
-  makeColonnesCommunesDossierPourSynchro,
-) {
+  dossiersDS: DossierDS88444[],
+  démarcheNumber: number,
+  numberDSDossiersDéjàExistantsEnBDD: Map<Dossier["number_demarches_simplifiées"], Dossier["id"]>,
+  fichiersMotivationTéléchargés: Map<number, FichierId> | undefined,
+  pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
+  pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
+  getDonnéesPersonnesEntreprises: GetDonnéesPersonnesEntreprises,
+  makeColonnesCommunesDossierPourSynchro: MakeColonnesCommunesDossierPourSynchro,
+): Promise<{
+  dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[];
+  dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[];
+}> {
   const { dossiersDSAInitialiser, dossiersDSAModifier } = splitDossiersEnAInitialiserAModifier(
     dossiersDS,
     numberDSDossiersDéjàExistantsEnBDD,
   );
 
-  /** @type {Promise<DossierEntreprisesPersonneInitializersPourInsert>[]} */
-  const dossiersAInitialiserPourSynchroP = dossiersDSAInitialiser.map((dossierDS) => {
-    const champsDossierPourInitP = makeChampsDossierPourInitialisation(
-      dossierDS,
-      démarcheNumber,
-      pitchouKeyToChampDS,
-      pitchouKeyToAnnotationDS,
-      makeColonnesCommunesDossierPourSynchro,
-    );
+  const dossiersAInitialiserPourSynchroP: Promise<DossierEntreprisesPersonneInitializersPourInsert>[] =
+    dossiersDSAInitialiser.map((dossierDS) => {
+      const champsDossierPourInitP = makeChampsDossierPourInitialisation(
+        dossierDS,
+        démarcheNumber,
+        pitchouKeyToChampDS,
+        pitchouKeyToAnnotationDS,
+        makeColonnesCommunesDossierPourSynchro,
+      );
 
-    const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(
-      dossierDS.traitements,
-    );
+      const évènement_phase_dossier = makeÉvènementsPhaseDossierFromTraitementsDS(
+        dossierDS.traitements,
+      );
 
-    const décision_administrative = makeDécisionAdministrativeFromTraitementDS(
-      dossierDS,
-      fichiersMotivationTéléchargés,
-      null,
-    );
+      const décision_administrative = makeDécisionAdministrativeFromTraitementDS(
+        dossierDS,
+        fichiersMotivationTéléchargés,
+        null,
+      );
 
-    return champsDossierPourInitP.then((champsDossierPourInit) => ({
-      dossier: {
-        ...champsDossierPourInit.dossier,
-        ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
-      },
-      // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS
-      // ne concernent que les dossiers à mettre à jour (pas ceux créés)
-      évènement_phase_dossier:
-        champsDossierPourInit.évènement_phase_dossier ?? évènement_phase_dossier,
-      avis_expert: champsDossierPourInit.avis_expert || [],
-      décision_administrative: [
-        ...(champsDossierPourInit.décision_administrative || []),
-        ...décision_administrative,
-      ],
-      personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent,
-    }));
-  });
+      return champsDossierPourInitP.then((champsDossierPourInit) => ({
+        dossier: {
+          ...champsDossierPourInit.dossier,
+          ...getDonnéesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+        },
+        // Les évènements phases retournées par makeÉvènementsPhaseDossierFromTraitementsDS
+        // ne concernent que les dossiers à mettre à jour (pas ceux créés)
+        évènement_phase_dossier:
+          champsDossierPourInit.évènement_phase_dossier ?? évènement_phase_dossier,
+        avis_expert: champsDossierPourInit.avis_expert || [],
+        décision_administrative: [
+          ...(champsDossierPourInit.décision_administrative || []),
+          ...décision_administrative,
+        ],
+        personnes_qui_suivent: champsDossierPourInit.personnes_qui_suivent,
+      }));
+    });
 
   const dossiersAModifierPourSynchro = dossiersDSAModifier.map((dossierDS) => {
     const dossierId = numberDSDossiersDéjàExistantsEnBDD.get(String(dossierDS.number));

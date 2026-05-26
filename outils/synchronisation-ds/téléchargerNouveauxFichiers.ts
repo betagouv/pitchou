@@ -2,16 +2,16 @@ import { extname } from "node:path";
 import byteSize from "byte-size";
 import { HTTPError } from "ky";
 
-import { ajouterFichier, trouverFichiersExistants } from "../../scripts/server/database/fichier.js";
-import { makeFichierHash } from "../../scripts/server/database/fichier.js";
+import { ajouterFichier, trouverFichiersExistants } from "../../scripts/server/database/fichier.ts";
+import { makeFichierHash } from "../../scripts/server/database/fichier.ts";
 
-import téléchargerFichierDS from "./téléchargerFichierDS.js";
+import téléchargerFichierDS from "./téléchargerFichierDS.ts";
 
-/** @import {DossierDS88444, DSFile} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
-/** @import {Knex} from 'knex' */
+import type { DossierDS88444, DSFile } from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type { default as Fichier } from "../../scripts/types/database/public/Fichier.ts";
+import type { Knex } from "knex";
 
-/** @typedef {Omit<Fichier, 'id' | 'contenu'> & {url: string}} FichierÀTélécharger */
+type FichierÀTélécharger = Omit<Fichier, "id" | "contenu"> & { url: string };
 
 const openDocumentTypes = new Map([
   [".odt", "application/vnd.oasis.opendocument.text"],
@@ -33,11 +33,11 @@ const openDocumentTypes = new Map([
 
 /**
  * Contournement de https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/11175
- *
- * @param {Pick<DSFile, 'contentType' | 'filename'>} contentType
- * @return {string}
  */
-function DScontentTypeToActualMediaType({ contentType, filename }) {
+function DScontentTypeToActualMediaType({
+  contentType,
+  filename,
+}: Pick<DSFile, "contentType" | "filename">): string {
   const extension = extname(filename);
 
   if (contentType === "application/zip") {
@@ -51,14 +51,12 @@ function DScontentTypeToActualMediaType({ contentType, filename }) {
 /**
  * Cette fonction lance les téléchargements, sauvegade les fichiers en base de données
  * et retourne l'association entre le dossier et les Fichier['id'] correspondants
- *
- * @param {Map<DossierDS88444['number'], DSFile[]>} candidatsFichiers
- * @param {Knex.Transaction | Knex} [transaction]
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
-export default async function téléchargerNouveauxFichiers(candidatsFichiers, transaction) {
-  /** @type {Map<DossierDS88444['number'], FichierÀTélécharger[]>} */
-  const candidatsFichiersBDD = new Map(
+export default async function téléchargerNouveauxFichiers(
+  candidatsFichiers: Map<DossierDS88444["number"], DSFile[]>,
+  transaction?: Knex.Transaction | Knex,
+): Promise<Map<DossierDS88444["number"], Fichier["id"][]>> {
+  const candidatsFichiersBDD: Map<DossierDS88444["number"], FichierÀTélécharger[]> = new Map(
     [...candidatsFichiers].map(([number, fichiers]) => {
       return [
         number,
@@ -88,8 +86,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
   //console.log('candidatsFichiersBDD', candidatsFichiersBDD)
 
   // Filtrer la liste des candidats en enlevant les fichiers déjà présents en base de données
-  /** @type {typeof candidatsFichiersBDD} */
-  const fichiersÀTélécharger = new Map(
+  const fichiersÀTélécharger: typeof candidatsFichiersBDD = new Map(
     // @ts-ignore
     [...candidatsFichiersBDD]
       .map(([number, fichiers]) => {
@@ -101,87 +98,86 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
 
   //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
 
-  /** @typedef { [DossierDS88444['number'], Fichier['id'][]] } ReturnMapEntryData */
+  type ReturnMapEntryData = [DossierDS88444["number"], Fichier["id"][]];
 
   // Télécharger les fichiers et les mettre directement en base de données
-  /** @type {Promise<ReturnMapEntryData | undefined>[]} */
-
   // @ts-ignore
-  const retMapDataPs = [...fichiersÀTélécharger].map(([number, fichiers]) => {
-    return Promise.all(
-      fichiers.map(async (fichier) => {
-        const { url } = fichier;
-        /** @type {Omit<Fichier, 'id'>} */
-        let fichierBDD;
+  const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersÀTélécharger].map(
+    ([number, fichiers]) => {
+      return Promise.all(
+        fichiers.map(async (fichier) => {
+          const { url } = fichier;
+          let fichierBDD: Omit<Fichier, "id">;
 
-        try {
-          const { contenu } = await téléchargerFichierDS(url);
-          const { DS_checksum, DS_createdAt, media_type, nom } = fichier;
+          try {
+            const { contenu } = await téléchargerFichierDS(url);
+            const { DS_checksum, DS_createdAt, media_type, nom } = fichier;
 
-          fichierBDD = {
-            DS_checksum,
-            DS_createdAt,
-            media_type,
-            nom,
-            contenu: Buffer.from(contenu), // knex n'accepte que les Buffer node, pas les ArrayBuffer
-          };
-        } catch (err) {
-          if (err instanceof HTTPError) {
-            console.error(
-              `Erreur HTTP ${err.response.status} lors du téléchagement de l'url`,
-              url,
-              `dossier DS`,
-              number,
-            );
-          } else {
-            console.error(
-              `Erreur lors du téléchargement d'un fichier`,
-              url,
-              `dossier DS`,
-              number,
-              // @ts-ignore
-              err.message,
-              // @ts-ignore
-              err.cause ? `cause: ${err.cause?.message}` : "",
-            );
+            fichierBDD = {
+              DS_checksum,
+              DS_createdAt,
+              media_type,
+              nom,
+              contenu: Buffer.from(contenu), // knex n'accepte que les Buffer node, pas les ArrayBuffer
+            };
+          } catch (err) {
+            if (err instanceof HTTPError) {
+              console.error(
+                `Erreur HTTP ${err.response.status} lors du téléchagement de l'url`,
+                url,
+                `dossier DS`,
+                number,
+              );
+            } else {
+              console.error(
+                `Erreur lors du téléchargement d'un fichier`,
+                url,
+                `dossier DS`,
+                number,
+                // @ts-ignore
+                err.message,
+                // @ts-ignore
+                err.cause ? `cause: ${err.cause?.message}` : "",
+              );
+            }
+
+            return undefined;
           }
 
+          console.log(
+            `Dossier DS`,
+            number,
+            `- Téléchargement et stockage fichier '${fichierBDD.nom}'`,
+            // @ts-ignore
+            `(${byteSize(fichierBDD.contenu?.byteLength)})`,
+          );
+
+          return ajouterFichier(fichierBDD, transaction).then((f) => f.id);
+        }),
+      ).then((fichiersTéléchargés) => {
+        const fichiersTéléchargésAvecSuccès = fichiersTéléchargés.filter((f) => f !== undefined);
+
+        if (fichiersTéléchargésAvecSuccès.length >= 1) {
+          return [number, fichiersTéléchargésAvecSuccès];
+        } else {
           return undefined;
         }
-
-        console.log(
-          `Dossier DS`,
-          number,
-          `- Téléchargement et stockage fichier '${fichierBDD.nom}'`,
-          // @ts-ignore
-          `(${byteSize(fichierBDD.contenu?.byteLength)})`,
-        );
-
-        return ajouterFichier(fichierBDD, transaction).then((f) => f.id);
-      }),
-    ).then((fichiersTéléchargés) => {
-      const fichiersTéléchargésAvecSuccès = fichiersTéléchargés.filter((f) => f !== undefined);
-
-      if (fichiersTéléchargésAvecSuccès.length >= 1) {
-        return [number, fichiersTéléchargésAvecSuccès];
-      } else {
-        return undefined;
-      }
-    });
-  });
+      });
+    },
+  );
 
   const nouveauxFichiersParDossier = new Map(
-    (await Promise.all(retMapDataPs)).filter((x) => x !== undefined),
+    (await Promise.all(retMapDataPs)).filter((x): x is ReturnMapEntryData => x !== undefined),
   );
 
   // Pour chaque dossier, on retourne les ids de tous les fichiers qui le concernent — qu'ils
   // viennent d'être téléchargés ou qu'ils étaient déjà en BDD (matchés par hash). Le consommateur
   // peut ainsi créer les arêtes de jointure dans les deux cas.
-  const fichiersParDossier = new Map();
+  const fichiersParDossier = new Map<DossierDS88444["number"], Fichier["id"][]>();
   for (const [numéroDossier, candidats] of candidatsFichiersBDD) {
     const idsFichiersDéjàEnBDD = candidats
       .map((c) => fichierIdParHashDéjàEnBDD.get(makeFichierHash(c)))
-      .filter((id) => id !== undefined);
+      .filter((id): id is Fichier["id"] => id !== undefined);
 
     const idsFichiersNouveaux = nouveauxFichiersParDossier.get(numéroDossier) ?? [];
 

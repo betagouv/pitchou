@@ -47,10 +47,7 @@ Options:
   process.exit(1);
 }
 
-/**
- * @param {string} emailArg
- */
-function fetchSecret(emailArg) {
+function fetchSecret(emailArg: string) {
   try {
     const cmd = `docker exec tooling node outils/afficher-liens-de-connexion.js --emails ${emailArg}`;
     const output = execSync(cmd, { encoding: "utf-8" });

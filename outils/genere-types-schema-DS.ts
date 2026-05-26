@@ -1,12 +1,15 @@
-//@ts-check
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor, ChampDescriptorTypename} from '../scripts/types/démarche-numérique/schema.ts' */
-/** @import {JSONSchema} from 'json-schema-to-typescript' */
-
 import { writeFile, readFile } from "node:fs/promises";
 
 import parseArgs from "minimist";
 import { compile } from "json-schema-to-typescript";
 import ky from "ky";
+
+import type {
+  SchemaDémarcheSimplifiée,
+  ChampDescriptor,
+  ChampDescriptorTypename,
+} from "../scripts/types/démarche-numérique/schema.ts";
+import type { JSONSchema } from "json-schema-to-typescript";
 
 const args = parseArgs(process.argv);
 

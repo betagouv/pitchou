@@ -3,7 +3,7 @@
 
   /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
   /** @import { ComponentProps } from 'svelte' */
-  /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.js" */
+  /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.ts" */
   /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarche-numérique/schema.js"; */
   /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
 

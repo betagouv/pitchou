@@ -1,26 +1,33 @@
-/** @import {DémarchesSimpliféesCommune, ChampDSCommunes, ChampDSDépartements, ChampDSRégions, ChampDSDépartement, DémarchesSimpliféesDépartement, ChampScientifiqueIntervenants, BaseChampDS, DossierDS88444, Annotations88444, Champs88444} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../../scripts/types/démarche-numérique/Démarche88444.ts' */
-/** @import {DossierInitializer, DossierMutator} from '../../scripts/types/database/public/Dossier.ts' */
-
-/** @import TypeDossier from '../../scripts/types/database/public/TypeDossier.ts' */
-
-/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
-
-//@ts-ignore
-const inutile = "que pour éviter un //@ts-ignore sur les imports ci-dessus";
+import type {
+  BaseChampDS,
+  ChampDSCommunes,
+  ChampDSDépartements,
+  ChampDSRégions,
+  ChampDSDépartement,
+  ChampScientifiqueIntervenants,
+  DossierDS88444,
+} from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type {
+  DossierDemarcheNumerique88444,
+  AnnotationsPriveesDemarcheNumerique88444,
+} from "../../scripts/types/démarche-numérique/Démarche88444.ts";
+import type {
+  DossierInitializer,
+  DossierMutator,
+} from "../../scripts/types/database/public/Dossier.ts";
+import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
 
 /**
  * Renvoie le dossier rempli des champs communs aux dossiers DS issus de la Démarche 88444 à initialiser et aux dossiers DS à modifier pour la synchronisation.
- * @param {DossierDS88444} dossierDS
- * @param {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToChampDS - Mapping des clés Pitchou vers les IDs de champs DS
- * @param {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>} pitchouKeyToAnnotationDS - Mapping des clés Pitchou vers les IDs d'annotations DS
- * @returns {DossierInitializer| DossierMutator}
  */
 export function makeColonnesCommunesDossierPourSynchro88444(
-  dossierDS,
-  pitchouKeyToChampDS,
-  pitchouKeyToAnnotationDS,
-) {
+  dossierDS: DossierDS88444,
+  pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
+  pitchouKeyToAnnotationDS: Map<
+    keyof AnnotationsPriveesDemarcheNumerique88444,
+    ChampDescriptor["id"]
+  >,
+): DossierInitializer | DossierMutator {
   const { id: id_demarches_simplifiées, number, champs, annotations } = dossierDS;
 
   /**
@@ -84,18 +91,18 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   const projetSitué = champById.get(
     pitchouKeyToChampDS.get("Le projet se situe au niveau…"),
   )?.stringValue;
-  /** @type {ChampDSCommunes} */
-  const champCommunes = champById.get(pitchouKeyToChampDS.get("Commune(s) où se situe le projet"));
-  /** @type {ChampDSDépartements} */
-  const champDépartements = champById.get(
+  const champCommunes: ChampDSCommunes = champById.get(
+    pitchouKeyToChampDS.get("Commune(s) où se situe le projet"),
+  );
+  const champDépartements: ChampDSDépartements = champById.get(
     pitchouKeyToChampDS.get("Département(s) où se situe le projet"),
   );
-  /** @type {ChampDSDépartement} */
-  const champDépartementPrincipal = champById.get(
+  const champDépartementPrincipal: ChampDSDépartement = champById.get(
     pitchouKeyToChampDS.get("Dans quel département se localise majoritairement votre projet ?"),
   );
-  /** @type {ChampDSRégions} */
-  const champRégions = champById.get(pitchouKeyToChampDS.get("Région(s) où se situe le projet"));
+  const champRégions: ChampDSRégions = champById.get(
+    pitchouKeyToChampDS.get("Région(s) où se situe le projet"),
+  );
 
   /** @type {DémarchesSimpliféesCommune[] | undefined} */
   let communes;
@@ -277,12 +284,10 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     champById.get(pitchouKeyToChampDS.get(`Précisez le périmètre d'intervention`))?.stringValue ||
     undefined;
 
-  /** @type {ChampScientifiqueIntervenants | undefined} */
-  let scientifique_qualifications_intervenants =
+  let scientifique_qualifications_intervenants: ChampScientifiqueIntervenants | undefined =
     champById.get(pitchouKeyToChampDS.get(`Qualification des intervenants`)) || undefined;
 
-  /** @type {BaseChampDS[][] | undefined} */
-  let rowsChamp =
+  let rowsChamp: BaseChampDS[][] | undefined =
     scientifique_qualifications_intervenants &&
     scientifique_qualifications_intervenants.rows.map((r) => r.champs);
 

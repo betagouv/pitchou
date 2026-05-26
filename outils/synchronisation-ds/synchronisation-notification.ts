@@ -1,24 +1,14 @@
-/** @import { DossierDS88444 } from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import { Knex } from 'knex' */
-/** @import { NotificationInitializer } from '../../scripts/types/database/public/Notification.ts' */
-/** @import { PersonneId } from '../../scripts/types/database/public/Personne.ts' */
-/** @import { DossierId } from '../../scripts/types/database/public/Dossier.ts' */
+import type { DossierDS88444 } from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type { Knex } from "knex";
+import type { NotificationInitializer } from "../../scripts/types/database/public/Notification.ts";
+import type { PersonneId } from "../../scripts/types/database/public/Personne.ts";
+import type { DossierId } from "../../scripts/types/database/public/Dossier.ts";
 
-//@ts-ignore
-const inutile = "que pour éviter un //@ts-ignore sur les imports ci-dessus";
-
-/**
- *
- * @param {DossierDS88444[]} dossiersDN
- * @param {Map<DossierDS88444['number'], DossierId>} dossierIdByDN_number
- * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<any | void>}
- */
 export async function mettreÀjourNotification(
-  dossiersDN,
-  dossierIdByDN_number,
-  laTransactionDeSynchronisationDS,
-) {
+  dossiersDN: DossierDS88444[],
+  dossierIdByDN_number: Map<DossierDS88444["number"], DossierId>,
+  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+): Promise<any | void> {
   if (dossiersDN.length === 0) {
     return;
   }
@@ -26,22 +16,18 @@ export async function mettreÀjourNotification(
   const dossierIds = [...dossierIdByDN_number.values()];
 
   // Pour chaque dossier, récupérer les personnes qui suivent ce dossiers.
-  /** @type {{personne: PersonneId, dossier: DossierId}[]} */
-  const rowsPersonneEtDossierSuivi = await laTransactionDeSynchronisationDS(
-    "arête_personne_suit_dossier",
-  )
-    .select("*")
-    .whereIn("dossier", dossierIds);
+  const rowsPersonneEtDossierSuivi: { personne: PersonneId; dossier: DossierId }[] =
+    await laTransactionDeSynchronisationDS("arête_personne_suit_dossier")
+      .select("*")
+      .whereIn("dossier", dossierIds);
 
-  /** @type {Map<DossierId, {personne: PersonneId}[]>} */
-  const personnesSuivantDossierParDossier = Map.groupBy(
+  const personnesSuivantDossierParDossier: Map<DossierId, { personne: PersonneId }[]> = Map.groupBy(
     rowsPersonneEtDossierSuivi,
     (row) => row.dossier,
   );
 
   // Pour chaque dossier, créer une notification pour chaque personne
-  /** @type {NotificationInitializer[]} */
-  let notifications = [];
+  let notifications: NotificationInitializer[] = [];
 
   for (const dossierDN of dossiersDN) {
     const dossierId = dossierIdByDN_number.get(dossierDN.number);

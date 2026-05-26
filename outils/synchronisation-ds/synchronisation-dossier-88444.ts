@@ -1,30 +1,23 @@
-//@ts-check
-
-/** @import {DossierDS88444} from '../../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
-/** @import {default as Fichier} from '../../scripts/types/database/public/Fichier.ts' */
-/** @import {Knex} from 'knex' */
-/** @import { ChampFormulaire88444 } from '../../scripts/types/API_Pitchou.ts' */
-
 import {
   téléchargerNouveauxFichiersFromChampId,
   téléchargerNouveauxFichiersEspècesImpactées,
-} from "./téléchargerNouveauxFichiersParType.js";
+} from "./téléchargerNouveauxFichiersParType.ts";
+
+import type { DossierDS88444 } from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
+import type { default as Fichier } from "../../scripts/types/database/public/Fichier.ts";
+import type { Knex } from "knex";
+import type { ChampFormulaire88444 } from "../../scripts/types/API_Pitchou.ts";
 
 /**
  * Télécharge les nouveaux fichiers "Espèces impactées" pour la démarche 88444
- * @param {DossierDS88444[]} dossiersDS
- * @param {Map<string, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @param {Knex.Transaction | Knex} laTransactionDeSynchronisationDS
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>}
  */
 export function récupérerFichiersEspècesImpactées88444(
-  dossiersDS,
-  pitchouKeyToChampDS,
-  laTransactionDeSynchronisationDS,
-) {
-  /** @type {ChampDescriptor['id'] | undefined} */
-  const fichierEspècesImpactéeChampId = pitchouKeyToChampDS.get(
+  dossiersDS: DossierDS88444[],
+  pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
+  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+): Promise<Map<DossierDS88444["number"], Fichier["id"]> | undefined> {
+  const fichierEspècesImpactéeChampId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(
     "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
   );
   if (!fichierEspècesImpactéeChampId) {
@@ -40,21 +33,14 @@ export function récupérerFichiersEspècesImpactées88444(
 
 /**
  * Télécharge les pièces jointes au dossier fournies par le pétitionnaire pour la démarche 88444
- *
- * @param {DossierDS88444[]} dossiersDS
- * @param {Map<ChampFormulaire88444, ChampDescriptor['id']>} pitchouKeyToChampDS
- * @param {ChampFormulaire88444[]} champsAvecPiècesJointes
- * @param {Knex.Transaction | Knex} databaseConnection
- * @returns {Promise<Map<DossierDS88444['number'], Fichier['id'][]>>}
  */
 export async function récupérerPiècesJointesPétitionnaire88444(
-  dossiersDS,
-  pitchouKeyToChampDS,
-  champsAvecPiècesJointes,
-  databaseConnection,
-) {
-  /** @type {Awaited<ReturnType<récupérerPiècesJointesPétitionnaire88444>>} */
-  const fichiersP = new Map();
+  dossiersDS: DossierDS88444[],
+  pitchouKeyToChampDS: Map<ChampFormulaire88444, ChampDescriptor["id"]>,
+  champsAvecPiècesJointes: ChampFormulaire88444[],
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<Map<DossierDS88444["number"], Fichier["id"][]>> {
+  const fichiersP: Map<DossierDS88444["number"], Fichier["id"][]> = new Map();
 
   for (const champ of champsAvecPiècesJointes) {
     const champId = pitchouKeyToChampDS.get(champ);

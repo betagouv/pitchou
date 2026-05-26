@@ -1,5 +1,3 @@
-//@ts-check
-
 import parseArgs from "minimist";
 import { sub, format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -27,38 +25,50 @@ import récupérerTousLesDossiersSupprimés from "../scripts/server/démarche-nu
 
 import { isValidDate } from "../scripts/commun/typeFormat.ts";
 
-import { téléchargerNouveauxFichiersMotivation } from "./synchronisation-ds/téléchargerNouveauxFichiersParType.js";
+import { téléchargerNouveauxFichiersMotivation } from "./synchronisation-ds/téléchargerNouveauxFichiersParType.ts";
 import {
   récupérerFichiersEspècesImpactées88444,
   récupérerPiècesJointesPétitionnaire88444,
-} from "./synchronisation-ds/synchronisation-dossier-88444.js";
+} from "./synchronisation-ds/synchronisation-dossier-88444.ts";
 
 import {
   getDonnéesPersonnesEntreprises88444,
   makeDossiersPourSynchronisation,
-} from "./synchronisation-ds/makeDossiersPourSynchronisation.js";
-import { makeColonnesCommunesDossierPourSynchro88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.js";
+} from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
+import { makeColonnesCommunesDossierPourSynchro88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444 } from "../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.ts";
-import { mettreÀjourNotification } from "./synchronisation-ds/synchronisation-notification.js";
+import { mettreÀjourNotification } from "./synchronisation-ds/synchronisation-notification.ts";
 
-/** @import {default as DatabaseDossier} from '../scripts/types/database/public/Dossier.ts' */
-/** @import {default as Personne, PersonneInitializer} from '../scripts/types/database/public/Personne.ts' */
-/** @import {default as Entreprise} from '../scripts/types/database/public/Entreprise.ts' */
-
-/** @import {default as RésultatSynchronisationDS88444} from '../scripts/types/database/public/RésultatSynchronisationDS88444.ts' */
-/** @import {default as Fichier} from '../scripts/types/database/public/Fichier.ts' */
-
-/** @import {Message} from '../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {DossierDS88444} from '../scripts/types/démarche-numérique/apiSchema.ts' */
-/** @import {SchemaDémarcheSimplifiée, ChampDescriptor} from '../scripts/types/démarche-numérique/schema.ts' */
-/** @import {DossierEntreprisesPersonneInitializersPourInsert, DossierEntreprisesPersonneInitializersPourUpdate, DossierPourInsert, DossierPourUpdate} from '../scripts/types/démarche-numérique/DossierPourSynchronisation.ts' */
-/** @import {DossierDemarcheNumerique88444, AnnotationsPriveesDemarcheNumerique88444} from '../scripts/types/démarche-numérique/Démarche88444.ts' */
-
-/** @import {GetDonnéesPersonnesEntreprises} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
-/** @import {MakeColonnesCommunesDossierPourSynchro} from './synchronisation-ds/makeDossiersPourSynchronisation.js'. */
-/** @import { ChampFormulaire88444 } from '../scripts/types/API_Pitchou.ts' */
+import type { default as DatabaseDossier } from "../scripts/types/database/public/Dossier.ts";
+import type {
+  default as Personne,
+  PersonneInitializer,
+} from "../scripts/types/database/public/Personne.ts";
+import type { default as Entreprise } from "../scripts/types/database/public/Entreprise.ts";
+import type { default as RésultatSynchronisationDS88444 } from "../scripts/types/database/public/RésultatSynchronisationDS88444.ts";
+import type { default as Fichier } from "../scripts/types/database/public/Fichier.ts";
+import type { Message, DossierDS88444 } from "../scripts/types/démarche-numérique/apiSchema.ts";
+import type {
+  SchemaDémarcheSimplifiée,
+  ChampDescriptor,
+} from "../scripts/types/démarche-numérique/schema.ts";
+import type {
+  DossierEntreprisesPersonneInitializersPourInsert,
+  DossierEntreprisesPersonneInitializersPourUpdate,
+  DossierPourInsert,
+  DossierPourUpdate,
+} from "../scripts/types/démarche-numérique/DossierPourSynchronisation.ts";
+import type {
+  DossierDemarcheNumerique88444,
+  AnnotationsPriveesDemarcheNumerique88444,
+} from "../scripts/types/démarche-numérique/Démarche88444.ts";
+import type {
+  GetDonnéesPersonnesEntreprises,
+  MakeColonnesCommunesDossierPourSynchro,
+} from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
+import type { ChampFormulaire88444 } from "../scripts/types/API_Pitchou.ts";
 
 // récups les données de DS
 

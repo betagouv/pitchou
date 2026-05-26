@@ -1,13 +1,5 @@
-//@ts-check
-/** @import { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils" */
-/** @import { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444" */
-/** @import { PartialBy }  from '../../types/tools' */
-/** @import {VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer}  from '../../types/database/public/ÉvènementPhaseDossier' */
-/** @import {DCisionAdministrativeInitializer as DécisionAdministrativeInitializer}  from '../../types/database/public/DécisionAdministrative' */
-/** @import {AvisExpertInitializer}  from '../../types/database/public/AvisExpert' */
-
 import { addMonths } from "date-fns";
-import { isValidDateString } from "../../commun/typeFormat";
+import { isValidDateString } from "../../commun/typeFormat.ts";
 import {
   extrairePremierMail,
   extraireNom,
@@ -15,66 +7,73 @@ import {
   formaterDépartementDepuisValeur,
   extraireCommunes,
   getCommuneData,
-} from "./importDossierUtils";
+} from "./importDossierUtils.ts";
 
-/** @typedef {{
- * "Date de sollicitation": Date;
- * ORIGINE: string;
- * OBJET: string;
- * "N° Dossier DEROG": number;
- * ÉCHÉANCE: string;
- * "POUR\nATTRIBUTION": string;
- * OBSERVATIONS: string;
- * PETITIONNAIRE: string;
- * "Catégorie du demandeur": string;
- * "Nom contact – mail": string;
- * "Année de première sollicitation": number;
- * Communes: string;
- * Département: number | string;
- * Thématique: string;
- * "Procédure associée": string;
- * "Etapes du projet": string;
- * "Stade de l’avis": string;
- * "Description avancement dossier avec dates": string;
- * "Avis SBEP": string;
- * "Date de rendu de l’avis/envoi réponse": Date;
- * "Sollicitation OFB pour avis": string;
- * DEP: string;
- * "Date de dépôt DEP": string;
- * "Saisine CSRPN/CNPN": string;
- * "Date saisine CSRPN/CNPN": string;
- * "Nom de l’expert désigné (pour le CSRPN)": string;
- * "N° de l’avis Onagre ou interne": string;
- * "Avis CSRPN/CNPN": string;
- * "Date avis CSRPN/CNPN": string;
- * "Dérogation accordée": string;
- * "Date AP": string;
- * }} LigneDossierBFC;
- */
+import type { DonnéesSupplémentairesPourCréationDossier } from "./importDossierUtils.ts";
+import type { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts";
+import type { PartialBy } from "../../types/tools.d.ts";
+import type { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../../types/database/public/ÉvènementPhaseDossier.ts";
+import type { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../../types/database/public/DécisionAdministrative.ts";
+import type { AvisExpertInitializer } from "../../types/database/public/AvisExpert.ts";
 
-/**
- * @typedef {"Autres" |
- *   "Autres EnR" |
- *   "Avis sur document d’urbanisme" |
- *   "Bâti (espèces anthropophiles)" |
- *   "Carrières" |
- *   "Dommages liés aux EP" |
- *   "Dessertes forestières" |
- *   "Éolien" |
- *   "Infrastructures linéaires" |
- *   "Inventaires, recherche scientifique" |
- *   "Manifestations sportives et culturelles" |
- *   "Naturalisation" |
- *   "Ouvrages cours d’eau" |
- *   "PPV" |
- *   "Projet agricole" |
- *   "Projet d’aménagement" |
- *   "Restauration" |
- *   "Transport de spécimens"} ThématiquesOptions
- */
+export type LigneDossierBFC = {
+  "Date de sollicitation": Date;
+  ORIGINE: string;
+  OBJET: string;
+  "N° Dossier DEROG": number;
+  ÉCHÉANCE: string;
+  "POUR\nATTRIBUTION": string;
+  OBSERVATIONS: string;
+  PETITIONNAIRE: string;
+  "Catégorie du demandeur": string;
+  "Nom contact – mail": string;
+  "Année de première sollicitation": number;
+  Communes: string;
+  Département: number | string;
+  Thématique: string;
+  "Procédure associée": string;
+  "Etapes du projet": string;
+  "Stade de l’avis": string;
+  "Description avancement dossier avec dates": string;
+  "Avis SBEP": string;
+  "Date de rendu de l’avis/envoi réponse": Date;
+  "Sollicitation OFB pour avis": string;
+  DEP: string;
+  "Date de dépôt DEP": string;
+  "Saisine CSRPN/CNPN": string;
+  "Date saisine CSRPN/CNPN": string;
+  "Nom de l’expert désigné (pour le CSRPN)": string;
+  "N° de l’avis Onagre ou interne": string;
+  "Avis CSRPN/CNPN": string;
+  "Date avis CSRPN/CNPN": string;
+  "Dérogation accordée": string;
+  "Date AP": string;
+};
 
-/** @type {Map<ThématiquesOptions, DossierDemarcheNumerique88444['Activité principale']>} */
-const correspondanceThématiqueVersActivitéPrincipale = new Map([
+type ThématiquesOptions =
+  | "Autres"
+  | "Autres EnR"
+  | "Avis sur document d’urbanisme"
+  | "Bâti (espèces anthropophiles)"
+  | "Carrières"
+  | "Dommages liés aux EP"
+  | "Dessertes forestières"
+  | "Éolien"
+  | "Infrastructures linéaires"
+  | "Inventaires, recherche scientifique"
+  | "Manifestations sportives et culturelles"
+  | "Naturalisation"
+  | "Ouvrages cours d’eau"
+  | "PPV"
+  | "Projet agricole"
+  | "Projet d’aménagement"
+  | "Restauration"
+  | "Transport de spécimens";
+
+const correspondanceThématiqueVersActivitéPrincipale: Map<
+  ThématiquesOptions,
+  DossierDemarcheNumerique88444["Activité principale"]
+> = new Map([
   ["Autres", "Autre"],
   ["Autres EnR", "Production énergie renouvelable - Méthaniseur, biomasse"],
   [
@@ -103,13 +102,10 @@ const correspondanceThématiqueVersActivitéPrincipale = new Map([
   ["Transport de spécimens", "Production énergie renouvelable - Éolien -  Suivi mortalité"],
 ]);
 
-/**
- *
- * @param {string} thématiqueBFC
- * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
- * @returns {DossierDemarcheNumerique88444['Activité principale']}
- */
-function convertirThématiqueEnActivitéPrincipale(thématiqueBFC, activitésPrincipales88444) {
+function convertirThématiqueEnActivitéPrincipale(
+  thématiqueBFC: string,
+  activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+): DossierDemarcheNumerique88444["Activité principale"] {
   // Si la thématique est déjà une valeur pitchou
   // @ts-ignore
   if (activitésPrincipales88444.has(thématiqueBFC)) {
@@ -118,7 +114,7 @@ function convertirThématiqueEnActivitéPrincipale(thématiqueBFC, activitésPri
   }
 
   const activité = correspondanceThématiqueVersActivitéPrincipale.get(
-    /** @type {ThématiquesOptions} */ (thématiqueBFC),
+    thématiqueBFC as ThématiquesOptions,
   );
   if (activité) {
     return activité;
@@ -129,21 +125,17 @@ function convertirThématiqueEnActivitéPrincipale(thématiqueBFC, activitésPri
   return "Autre";
 }
 
-/**
- * @param {LigneDossierBFC} ligne
- * @return {string}
- */
-export function créerNomPourDossier(ligne) {
+export function créerNomPourDossier(ligne: LigneDossierBFC): string {
   return "N° Dossier DEROG " + ligne["N° Dossier DEROG"] + " - " + ligne["OBJET"];
 }
 
 /**
  * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
- * @param {LigneDossierBFC} ligne
- * @param {Set<DossierDemarcheNumerique88444['Activité principale']>} activitésPrincipales88444
- * @returns {Promise<Partial<DossierDemarcheNumerique88444>>}
  */
-export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444) {
+export async function créerDossierDepuisLigne(
+  ligne: LigneDossierBFC,
+  activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+): Promise<Partial<DossierDemarcheNumerique88444>> {
   const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
   const donnéesDemandeurs = générerDonnéesDemandeurs(ligne);
   const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne);
@@ -186,12 +178,17 @@ export async function créerDossierDepuisLigne(ligne, activitésPrincipales88444
  * - Si la catégorie du demandeur est "particulier", le type est "une personne physique" et seul le mail est renseigné.
  * - Sinon, le type est "une personne morale" et on tente d'extraire le nom et prénom du représentant à partir du champ "Nom contact – mail".
  * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
- *
- * @param {LigneDossierBFC} ligne Ligne d'import contenant les informations du demandeur
- * @returns {Pick<DossierDemarcheNumerique88444, "Le demandeur est…" | "Nom du représentant" | "Prénom du représentant" | "Adresse mail de contact" | 'Qualité du représentant'>}
- *   Objet contenant le type de demandeur, le nom/prénom du représentant (si applicable), et l'adresse mail de contact.
  */
-function générerDonnéesDemandeurs(ligne) {
+function générerDonnéesDemandeurs(
+  ligne: LigneDossierBFC,
+): Pick<
+  DossierDemarcheNumerique88444,
+  | "Le demandeur est…"
+  | "Nom du représentant"
+  | "Prénom du représentant"
+  | "Adresse mail de contact"
+  | "Qualité du représentant"
+> {
   const typeDemandeur =
     ligne["Catégorie du demandeur"].toLowerCase() === "particulier"
       ? "une personne physique"
@@ -201,8 +198,10 @@ function générerDonnéesDemandeurs(ligne) {
 
   const mail = extrairePremierMail(nomContactMailValeur) || "";
 
-  /**@type {Partial<{prénom: string | undefined, nom: string | undefined}> | undefined | null} */
-  let prénomNom = extraireNom(nomContactMailValeur);
+  let prénomNom:
+    | Partial<{ prénom: string | undefined; nom: string | undefined }>
+    | undefined
+    | null = extraireNom(nomContactMailValeur);
 
   // Si pas de nom, on essaie de récupérer le nom et le prénom avec le mail
   if (!prénomNom && mail) {
@@ -228,11 +227,13 @@ function générerDonnéesDemandeurs(ligne) {
   }
 }
 
-/**
- * @param {LigneDossierBFC} ligne
- * @returns {Pick<DossierDemarcheNumerique88444, "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?" | "À quelle procédure le projet est-il soumis ?">}
- */
-function générerDonnéesAutorisationEnvironnementale(ligne) {
+function générerDonnéesAutorisationEnvironnementale(
+  ligne: LigneDossierBFC,
+): Pick<
+  DossierDemarcheNumerique88444,
+  | "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
+  | "À quelle procédure le projet est-il soumis ?"
+> {
   const procedure_associée = ligne["Procédure associée"].toLowerCase();
 
   if (procedure_associée === "autorisation environnementale") {
@@ -253,18 +254,23 @@ function générerDonnéesAutorisationEnvironnementale(ligne) {
   };
 }
 
-/**
- *
- * @param {{Communes: string | undefined, Département: number | string}} ligne
- * @returns { Promise<
- *              Partial<Pick<DossierDemarcheNumerique88444,
- *                  "Commune(s) où se situe le projet" |
- *                  "Département(s) où se situe le projet" |
- *                  "Le projet se situe au niveau…"
- *              >> & Pick<DossierDemarcheNumerique88444, "Dans quel département se localise majoritairement votre projet ?">
- *           >}
- */
-async function générerDonnéesLocalisations(ligne) {
+async function générerDonnéesLocalisations(ligne: {
+  Communes: string | undefined;
+  Département: number | string;
+}): Promise<
+  Partial<
+    Pick<
+      DossierDemarcheNumerique88444,
+      | "Commune(s) où se situe le projet"
+      | "Département(s) où se situe le projet"
+      | "Le projet se situe au niveau…"
+    >
+  > &
+    Pick<
+      DossierDemarcheNumerique88444,
+      "Dans quel département se localise majoritairement votre projet ?"
+    >
+> {
   const valeursCommunes = extraireCommunes(ligne["Communes"] ?? "");
 
   const communesP = valeursCommunes.map((com) => getCommuneData(com));
@@ -311,10 +317,8 @@ async function générerDonnéesLocalisations(ligne) {
 
 /**
  * Cette fonction permet de remplir le champ "prochaine_action_attendue_par" en base de données
- * @param {LigneDossierBFC} ligne
- * @returns {string}
  */
-function générerProchaineActionAttenduePar(ligne) {
+function générerProchaineActionAttenduePar(ligne: LigneDossierBFC): string {
   const valeur = ligne["Stade de l’avis"].trim();
 
   if (valeur === "En attente d’éléments pétitionnaire") {
@@ -333,16 +337,12 @@ function générerProchaineActionAttenduePar(ligne) {
   return "Instructeur";
 }
 
-/**
- *
- * @param {LigneDossierBFC} ligne
- * @returns {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[] | undefined}
- */
-function créerDonnéesEvénementPhaseDossier(ligne) {
+function créerDonnéesEvénementPhaseDossier(
+  ligne: LigneDossierBFC,
+): PartialBy<ÉvènementPhaseDossierInitializer, "dossier">[] | undefined {
   const aujourdhui = new Date();
 
-  /**@type {PartialBy<ÉvènementPhaseDossierInitializer, 'dossier'>[]} */
-  const donnéesEvénementPhaseDossier = [];
+  const donnéesEvénementPhaseDossier: PartialBy<ÉvènementPhaseDossierInitializer, "dossier">[] = [];
 
   const ligneEtapeProjet = ligne["Etapes du projet"].trim();
 
@@ -408,12 +408,9 @@ function créerDonnéesEvénementPhaseDossier(ligne) {
   }
 }
 
-/**
- *
- * @param {LigneDossierBFC} ligne
- * @returns {PartialBy<DécisionAdministrativeInitializer, 'dossier'>[] | undefined}
- */
-function créerDonnéesDécisionAdministrative(ligne) {
+function créerDonnéesDécisionAdministrative(
+  ligne: LigneDossierBFC,
+): PartialBy<DécisionAdministrativeInitializer, "dossier">[] | undefined {
   let décision_administrative;
 
   const ligneDérogationAccordée = ligne["Dérogation accordée"].trim().toLowerCase();
@@ -439,12 +436,9 @@ function créerDonnéesDécisionAdministrative(ligne) {
   }
 }
 
-/**
- *
- * @param {LigneDossierBFC} ligne
- * @returns {PartialBy<AvisExpertInitializer, 'dossier'>[] | undefined}
- */
-function créerDonnéesAvisExpert(ligne) {
+function créerDonnéesAvisExpert(
+  ligne: LigneDossierBFC,
+): PartialBy<AvisExpertInitializer, "dossier">[] | undefined {
   const saisine_csrpn_cnpn = ligne["Saisine CSRPN/CNPN"];
   const date_saisine_csrpn_cnpn = ligne["Date saisine CSRPN/CNPN"];
   const avis_csrpn_cnpn = ligne["Avis CSRPN/CNPN"];
@@ -468,10 +462,10 @@ function créerDonnéesAvisExpert(ligne) {
 
 /**
  * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
- * @param {LigneDossierBFC} ligne
- * @returns { DonnéesSupplémentairesPourCréationDossier } Données supplémentaires ou undefined
  */
-export function créerDonnéesSupplémentairesDepuisLigne(ligne) {
+export function créerDonnéesSupplémentairesDepuisLigne(
+  ligne: LigneDossierBFC,
+): DonnéesSupplémentairesPourCréationDossier {
   const description = ligne["Description avancement dossier avec dates"]
     ? "Description avancement dossier avec dates : " +
       ligne["Description avancement dossier avec dates"]
