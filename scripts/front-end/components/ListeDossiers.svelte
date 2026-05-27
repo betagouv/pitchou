@@ -1,7 +1,7 @@
 <script>
   /** @import { DossierRésumé, DossierPhase } from '../../types/API_Pitchou.ts' */
   /** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
-  /** @import { PitchouState } from '../store.js' */
+  /** @import { PitchouState } from '../store.svelte.ts' */
   /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
   /** @import { ÉvènementRechercheDossiersDétails } from '../../types/évènement'; */
   import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier";

@@ -1,5 +1,5 @@
 import { envoyerÉvènement, envoyerÉvènementModifierPrescription } from "./aarri.js";
-import store from "../store.js";
+import { store } from "../store.svelte.ts";
 
 /** @import {default as Prescription} from '../../types/database/public/Prescription.ts' */
 /** @import {FrontEndPrescription} from '../../types/API_Pitchou.ts' */
@@ -13,7 +13,7 @@ const inutile = true;
  * @returns {Promise<Prescription['id'] | undefined>}
  */
 export function ajouterPrescription(prescription) {
-  const addOrUpdatePrescription = store.state.capabilities.addOrUpdatePrescription;
+  const addOrUpdatePrescription = store.capabilities.addOrUpdatePrescription;
   if (!addOrUpdatePrescription) {
     throw new Error(`Pas les droits suffisants pour ajouter une prescription`);
   }
@@ -28,7 +28,7 @@ export function ajouterPrescription(prescription) {
  * @param {Omit<FrontEndPrescription, 'id'>[]} prescription
  */
 export function ajouterPrescriptionsEtContrôles(prescription) {
-  const addPrescriptionsAndControles = store.state.capabilities.addPrescriptionsAndControles;
+  const addPrescriptionsAndControles = store.capabilities.addPrescriptionsAndControles;
   if (!addPrescriptionsAndControles) {
     throw new Error(`Pas les droits suffisants pour ajouter des prescriptions et contrôles`);
   }
@@ -45,7 +45,7 @@ export function ajouterPrescriptionsEtContrôles(prescription) {
  * @returns {Promise<Prescription['id'] | undefined>}
  */
 export function modifierPrescription(prescription) {
-  const addOrUpdatePrescription = store.state.capabilities.addOrUpdatePrescription;
+  const addOrUpdatePrescription = store.capabilities.addOrUpdatePrescription;
   if (!addOrUpdatePrescription) {
     throw new Error(`Pas les droits suffisants pour modifier une prescription`);
   }
@@ -61,7 +61,7 @@ export function modifierPrescription(prescription) {
  * @returns {Promise<any>}
  */
 export function supprimerPrescription(id) {
-  const deletePrescription = store.state.capabilities.deletePrescription;
+  const deletePrescription = store.capabilities.deletePrescription;
   if (!deletePrescription) {
     throw new Error(`Pas les droits suffisants pour supprimer une prescription`);
   }

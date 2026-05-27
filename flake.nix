@@ -21,15 +21,29 @@
           with pkgs;
           [
             alsa-lib
-            dbus.lib
-            gtk3
-            pango
+            at-spi2-atk
+            at-spi2-core
             atk
             cairo
+            cups
+            dbus.lib
+            expat
             gdk-pixbuf
+            glib
+            gtk3
+            libdrm
+            libgbm
+            libxkbcommon
+            nspr
+            nss
+            pango
+            libx11
+            libxcb
             libxcomposite
             libxdamage
+            libxext
             libxfixes
+            libxrandr
           ]
         );
       in
@@ -42,6 +56,7 @@
             docker
             docker-compose
             postgresql
+            scalingo
           ];
           shellHook = ''
             mkdir -p "$PWD/.corepack"

@@ -2,7 +2,7 @@
 /** @import { FrontEndAvisExpert } from '../../types/API_Pitchou.js' */
 
 import { envoyerÉvènement } from "./aarri.js";
-import store from "../store.js";
+import { store } from "../store.svelte.ts";
 
 /**
  * Ajoute un avis d'expert.
@@ -17,7 +17,7 @@ export function ajouterOuModifierAvisExpert(
   fileFichierSaisine,
   fileFichierAvis,
 ) {
-  const addOrUpdateAvisExpert = store.state.capabilities.addOrUpdateAvisExpert;
+  const addOrUpdateAvisExpert = store.capabilities.addOrUpdateAvisExpert;
   if (!addOrUpdateAvisExpert) {
     throw new Error(`Pas les droits suffisants pour ajouter ou modifier un avis d'expert`);
   }
@@ -79,7 +79,7 @@ export function ajouterOuModifierAvisExpert(
  * @param {Pick<AvisExpert, "id">} avisExpert
  */
 export function supprimerAvisExpert(avisExpert) {
-  const deleteAvisExpert = store.state.capabilities.deleteAvisExpert;
+  const deleteAvisExpert = store.capabilities.deleteAvisExpert;
   if (!deleteAvisExpert) {
     throw new Error(`Pas les droits suffisants pour supprimer un avis d'expert`);
   }

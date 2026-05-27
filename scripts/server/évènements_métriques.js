@@ -1,12 +1,10 @@
 //@ts-check
 
 /** @import { ÉvènementMétrique, ÉvènementRechercheDossiersDétails } from '../types/évènement' */
-/** @import { FastifyReply, FastifyRequest } from 'fastify' */
 
 // @ts-expect-error 'ÉvènementRechercheDossiersDétails' est considéré inutilisé sinon
 const /** @type {ÉvènementRechercheDossiersDétails} **/ inutile = null;
 
-import { ajouterÉvènementDepuisCap } from "./database/évènements_métriques.js";
 import { phases, prochaineActionAttenduePar } from "../front-end/affichageDossier.js";
 
 /**
@@ -99,7 +97,7 @@ function estRechercheDossierDétails(détails) {
  * @param {any} évènement
  * @returns { évènement is ÉvènementMétrique }
  */
-function évènementMétriqueGuard(évènement) {
+export function évènementMétriqueGuard(évènement) {
   if (!évènement.type) {
     return false;
   }
@@ -170,36 +168,4 @@ function évènementMétriqueGuard(évènement) {
       return false;
     }
   }
-}
-
-/**
- * @param {FastifyRequest} request
- * @param {FastifyReply} reply
- */
-export async function créerÉvènementMétrique(request, reply) {
-  // @ts-ignore
-  const { cap } = request.query;
-
-  if (!cap) {
-    reply.code(400).send({ succès: false, erreur: `Paramètre 'cap' manquant dans l'URL` });
-    return;
-  }
-
-  /** @type {any} */
-  // @ts-ignore
-  const évènement = request.body;
-
-  if (!évènementMétriqueGuard(évènement)) {
-    reply.code(400).send({ succès: false, erreur: `Objet évènement mal formé` });
-    return;
-  }
-
-  try {
-    await ajouterÉvènementDepuisCap(cap, évènement);
-  } catch (e) {
-    // TODO: améliorer la gestion d’erreur ici
-    console.error(e);
-  }
-
-  reply.send({ succès: true });
 }

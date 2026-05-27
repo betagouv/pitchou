@@ -16,7 +16,8 @@
   /** @type {Props} */
   let { dossier } = $props();
 
-  const { number_demarches_simplifiées: numdos, numéro_démarche } = dossier;
+  const numdos = $derived(dossier.number_demarches_simplifiées);
+  const numéro_démarche = $derived(dossier.numéro_démarche);
   const idModaleAjouterPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
   let avisExpertTriés = $derived(

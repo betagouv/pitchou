@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
 
   import Squelette from "../Squelette.svelte";
@@ -32,7 +32,7 @@
   /** @import {ComponentProps} from 'svelte' */
   /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
   /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
-  /** @import {PitchouState} from '../../store.js' */
+  /** @import {PitchouState} from '../../store.svelte.ts' */
   /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
   /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
   /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
@@ -45,7 +45,7 @@
    * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
    * @property {DossierRésumé[]} [dossiers]
    * @property {PitchouState['relationSuivis']} relationSuivis
-   * @property {DossierDemarcheNumerique88444["Activité principale"][] | undefined} [activitésPrincipales]
+   * @property {string[] | undefined} [activitésPrincipales]
    * @property {TriTableau['id'] | undefined} [triIdSélectionné]
    * @property {Partial<FiltresLocalStorage>} [filtresSélectionnés]
    * @property {any} rememberTriFiltres
@@ -265,9 +265,11 @@
 
   /** @type {Set<DossierPhase>} */
   let phasesSélectionnées = $state(
-    filtresSélectionnés.phases
-      ? new SvelteSet(filtresSélectionnés.phases)
-      : new SvelteSet(["Accompagnement amont", "Étude recevabilité DDEP", "Instruction"]),
+    untrack(() =>
+      filtresSélectionnés.phases
+        ? new SvelteSet(filtresSélectionnés.phases)
+        : new SvelteSet(["Accompagnement amont", "Étude recevabilité DDEP", "Instruction"]),
+    ),
   );
 
   //$inspect(phasesSélectionnées)
@@ -306,9 +308,11 @@
   /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
   // @ts-ignore
   let prochainesActionsAttenduesParSélectionnés = $state(
-    filtresSélectionnés["prochaine action attendue de"]
-      ? new SvelteSet(filtresSélectionnés["prochaine action attendue de"])
-      : new SvelteSet(prochainesActionsAttenduesParOptions),
+    untrack(() =>
+      filtresSélectionnés["prochaine action attendue de"]
+        ? new SvelteSet(filtresSélectionnés["prochaine action attendue de"])
+        : new SvelteSet(prochainesActionsAttenduesParOptions),
+    ),
   );
 
   tousLesFiltres.set("prochaine action attendue de", (dossier) => {
@@ -340,7 +344,7 @@
     prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés),
   );
 
-  let texteÀChercher = $state(filtresSélectionnés.texte);
+  let texteÀChercher = $state(untrack(() => filtresSélectionnés.texte));
 
   /**
    * @param {string} _texteÀChercher
@@ -374,18 +378,24 @@
   }
 
   const AUCUN_INSTRUCTEUR = "(aucun instructeur)";
-  const instructeurEmailOptions =
-    (relationSuivis && Array.from(relationSuivis.keys()).sort()) || [];
+  const instructeurEmailOptions = $derived(
+    (relationSuivis && Array.from(relationSuivis.keys()).sort()) || [],
+  );
 
   /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-  const instructeursOptions = new SvelteSet([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions]);
+  const instructeursOptions = $derived(
+    new SvelteSet([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions]),
+  );
 
   //$inspect('')
 
   /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
   let instructeursSélectionnés = $state(
-    new SvelteSet(
-      filtresSélectionnés.instructeurs ? filtresSélectionnés.instructeurs : instructeursOptions,
+    untrack(
+      () =>
+        new SvelteSet(
+          filtresSélectionnés.instructeurs ? filtresSélectionnés.instructeurs : instructeursOptions,
+        ),
     ),
   );
 
@@ -433,18 +443,20 @@
 
   const AUCUNE_ACTIVITÉ_PRINCIPALE = "(aucune activité principale)";
   // @ts-ignore
-  const activitésPrincipalesOptions = new SvelteSet([
-    AUCUNE_ACTIVITÉ_PRINCIPALE,
-    ...activitésPrincipales,
-  ]);
+  const activitésPrincipalesOptions = $derived(
+    new SvelteSet([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales]),
+  );
 
   /** @type {Set<DossierDemarcheNumerique88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
   // @ts-ignore
   let activitésPrincipalesSélectionnées = $state(
-    new SvelteSet(
-      filtresSélectionnés.activitésPrincipales
-        ? filtresSélectionnés.activitésPrincipales
-        : activitésPrincipalesOptions,
+    untrack(
+      () =>
+        new SvelteSet(
+          filtresSélectionnés.activitésPrincipales
+            ? filtresSélectionnés.activitésPrincipales
+            : activitésPrincipalesOptions,
+        ),
     ),
   );
 

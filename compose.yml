@@ -1,23 +1,4 @@
 services:
-  web:
-    image: node:22
-    container_name: node_server
-    depends_on:
-      - db
-    restart: on-failure:3
-    ports:
-      - "2648:2648"
-    volumes:
-      - ./:/app
-    working_dir: /app
-    command: corepack pnpm run start:server
-    environment:
-      HOME: /app
-      PORT: 2648
-      DATABASE_URL: "postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731"
-    user: "${DOCKER_UID}:${DOCKER_GID}"
-    stop_grace_period: 2s
-
   tooling:
     image: node:22
     container_name: tooling

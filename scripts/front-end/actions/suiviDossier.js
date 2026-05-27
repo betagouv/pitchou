@@ -1,5 +1,5 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
-import store from "../store.js";
+import { store } from "../store.svelte.ts";
 import { envoyerÉvènement } from "./aarri.js";
 
 /** @import Dossier from '../../types/database/public/Dossier.ts' */
@@ -16,17 +16,17 @@ const inutile = true;
 export function instructeurSuitDossier(instructeurEmail, dossierId) {
   console.log("instructeurSuitDossier", dossierId);
 
-  const modifierRelationSuivi = store.state.capabilities.modifierRelationSuivi;
+  const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
 
   if (!modifierRelationSuivi) {
     throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`);
   }
 
-  const relationsSuivi = store.state.relationSuivis || new SvelteMap();
+  const relationsSuivi = store.relationSuivis || new SvelteMap();
   const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
   dossiersSuivisParInstructeur.add(dossierId);
   relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
-  store.mutations.setRelationSuivis(relationsSuivi);
+  store.relationSuivis = relationsSuivi;
 
   envoyerÉvènement({ type: "suivreUnDossier", détails: { dossierId } });
 
@@ -39,17 +39,17 @@ export function instructeurSuitDossier(instructeurEmail, dossierId) {
  * @param {Dossier['id']} dossierId
  */
 export function instructeurLaisseDossier(instructeurEmail, dossierId) {
-  const modifierRelationSuivi = store.state.capabilities.modifierRelationSuivi;
+  const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
 
   if (!modifierRelationSuivi) {
     throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`);
   }
 
-  const relationsSuivi = store.state.relationSuivis || new SvelteMap();
+  const relationsSuivi = store.relationSuivis || new SvelteMap();
   const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
   dossiersSuivisParInstructeur.delete(dossierId);
   relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
-  store.mutations.setRelationSuivis(relationsSuivi);
+  store.relationSuivis = relationsSuivi;
 
   return modifierRelationSuivi("laisser", instructeurEmail, dossierId);
 }

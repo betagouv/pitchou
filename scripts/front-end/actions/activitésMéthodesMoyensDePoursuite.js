@@ -1,8 +1,8 @@
 //@ts-check
 
 import { dsv, buffer } from "d3-fetch";
-import store from "../store.js";
-import { getURL } from "../getLinkURL.js";
+import { store } from "../store.svelte.ts";
+import { ESPECES_DATA, ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "../dataPaths.ts";
 import {
   espèceProtégéeStringToEspèceProtégée,
   actMetTransArraysToMapBundle,
@@ -11,7 +11,7 @@ import {
 } from "../../commun/outils-espèces.js";
 
 //@ts-ignore
-/** @import {PitchouState} from '../store.js' */
+/** @import {PitchouState} from '../store.svelte.ts' */
 //@ts-ignore
 /** @import {ParClassification, ActivitéMenançante, EspèceProtégée, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, CodeActivitéStandard, CodeActivitéPitchou, ImpactQuantifié} from '../../types/especes' */
 
@@ -19,13 +19,13 @@ import {
  * @returns {Promise<{espècesProtégéesParClassification: NonNullable<PitchouState['espècesProtégéesParClassification']>, espèceByCD_REF: NonNullable<PitchouState['espèceByCD_REF']>}>}
  */
 export async function chargerListeEspècesProtégées() {
-  if (store.state.espècesProtégéesParClassification && store.state.espèceByCD_REF) {
-    const { espècesProtégéesParClassification, espèceByCD_REF } = store.state;
+  if (store.espècesProtégéesParClassification && store.espèceByCD_REF) {
+    const { espècesProtégéesParClassification, espèceByCD_REF } = store;
 
     return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF });
   }
 
-  const dataEspèces = await dsv(";", getURL("link#especes-data"));
+  const dataEspèces = await dsv(";", ESPECES_DATA);
 
   /** @type {PitchouState['espècesProtégéesParClassification']} */
   const espècesProtégéesParClassification = {
@@ -55,8 +55,8 @@ export async function chargerListeEspècesProtégées() {
     espècesProtégéesParClassification[classification] = espèces;
   }
 
-  store.mutations.setEspècesProtégéesParClassification(espècesProtégéesParClassification);
-  store.mutations.setEspèceByCD_REF(espèceByCD_REF);
+  store.espècesProtégéesParClassification = espècesProtégéesParClassification;
+  store.espèceByCD_REF = espèceByCD_REF;
 
   return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF });
 }
@@ -80,15 +80,15 @@ export async function chargerListeEspècesProtégées() {
  * Référence du schéma XML de la directive Habides 2.0, définissant les types d’activités.
  */
 export async function chargerActivitésMéthodesMoyensDePoursuite() {
-  if (store.state.ActivitésMéthodesMoyensDePoursuite) {
-    return Promise.resolve(store.state.ActivitésMéthodesMoyensDePoursuite);
+  if (store.ActivitésMéthodesMoyensDePoursuite) {
+    return Promise.resolve(store.ActivitésMéthodesMoyensDePoursuite);
   }
 
-  const odsData = await buffer(getURL("link#activites-methodes-moyens-de-poursuite-data"));
+  const odsData = await buffer(ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA);
   // @ts-ignore
   const ret = await construireActivitésMéthodesMoyensDePoursuite(odsData);
 
-  store.mutations.setActivitésMéthodesMoyensDePoursuite(ret);
+  store.ActivitésMéthodesMoyensDePoursuite = ret;
 
   return ret;
 }

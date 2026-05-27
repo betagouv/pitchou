@@ -22,7 +22,7 @@ check:
 
 # Vérifie le formatage sans modifier les fichiers
 check-format:
-    pnpm run format:check
+    prettier --check .
 
 # Vérifie les types TypeScript / JSDoc (équivalent du job CI tsc)
 check-types:
@@ -34,19 +34,15 @@ check-svelte:
 
 # Construit l'application (équivalent du job CI build)
 build:
-    pnpm run build
+    vite build
 
-# Lance Pitchou en mode dev (vite dev server + docker compose en parallèle, http://localhost:5173)
+# Lance Pitchou en mode dev (vite dev server SvelteKit, http://localhost:5173)
 dev:
-    pnpm run dev
+    vite dev
 
-# Lance uniquement les conteneurs Docker (serveur node + Postgres + tooling + pgadmin)
+# Lance les conteneurs Docker de support (Postgres + tooling + pgadmin)
 dev-docker:
     DOCKER_UID="$(id -u)" DOCKER_GID="$(id -g)" docker compose up
-
-# Lance uniquement le serveur Vite (HMR, http://localhost:5173, proxy backend → Fastify)
-dev-vite:
-    pnpm run dev:vite
 
 # Arrête les conteneurs Docker
 dev-stop:
@@ -62,11 +58,15 @@ dev-restart:
 
 # Applique les migrations en attente
 migrate-up:
-    pnpm run migrate:up
+    docker exec tooling npx knex migrate:up --env docker_dev
 
 # Annule la dernière migration appliquée
 migrate-down:
-    pnpm run migrate:down
+    docker exec tooling npx knex migrate:down --env docker_dev
+
+# Applique toutes les migrations en attente
+migrate-latest:
+    docker exec tooling npx knex migrate:latest --env docker_dev
 
 # Insère les données de dev en base
 seed-dev:
@@ -74,41 +74,61 @@ seed-dev:
 
 # Génère tous les types (base de données + Démarche Numérique)
 build-types:
-    pnpm run build-types
+    just build-types-db
+    just build-types-ds
 
 # Génère les types depuis le schéma de la base de données
 build-types-db:
-    pnpm run build-types:db
+    docker exec tooling npx kanel -d postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731 -o ./scripts/types/database
 
 # Génère les types des schémas Démarche Numérique
 build-types-ds:
-    pnpm run build-types:ds
+    just build-types-ds-88444
+    just build-types-ds-128114
 
 # Génère les types du schéma DDEP (88444)
 build-types-ds-88444:
-    pnpm run build-types:ds:88444
+    node outils/genere-types-schema-DS.js --idSchemaDS derogation-especes-protegees
 
 # Génère les types du schéma 128114
 build-types-ds-128114:
-    pnpm run build-types:ds:128114
+    node outils/genere-types-schema-DS.js --idSchemaDS 7f52a348-fd16-4fcd-8a6f-2e78ddafaee4
 
 # Reformate le code avec prettier
 format:
-    pnpm run format
+    prettier --write . --log-level warn
 
-# Lance tous les tests (unitaires + e2e)
+# Lance tous les tests (unitaires + composants + intégration + e2e)
 test:
     just test-unit
+    just test-component
+    just test-integration
     just test-e2e
 
-# Lance les tests end-to-end avec playwright
-test-e2e:
-    playwright test tests/e2e
+# Démarre le conteneur Postgres pour les tests d'intégration et e2e
+test-db-up:
+    docker compose -f tests/compose.yml up -d
+
+# Arrête le conteneur Postgres de test
+test-db-down:
+    docker compose -f tests/compose.yml down
 
 # Lance les tests unitaires avec vitest
 test-unit:
-    vitest run
+    vitest run --config tests/vitest.config.ts --project=unit
 
 # Lance les tests unitaires en mode watch
 test-unit-watch:
-    pnpm run test:unit:watch
+    vitest --config tests/vitest.config.ts --project=unit
+
+# Lance les tests de composants Svelte (vitest browser mode)
+test-component:
+    vitest run --config tests/vitest.config.ts --project=component
+
+# Lance les tests d'intégration (endpoints + base réelle)
+test-integration:
+    vitest run --config tests/vitest.config.ts --project=integration
+
+# Lance les tests end-to-end avec playwright
+test-e2e:
+    playwright test --config tests/playwright.config.ts

@@ -18,7 +18,7 @@
   /** @import {ComponentProps} from 'svelte' */
   /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
   /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
-  /** @import {Onglet} from '../../routes/Dossier.js' */
+  /** @typedef {'instruction' | 'projet' | 'avis' | 'controles' | 'generation-document' | 'echanges'} Onglet */
   /** @import Personne from '../../../types/database/public/Personne.js' */
   /** @import Notification from '../../../types/database/public/Notification.js' */
 

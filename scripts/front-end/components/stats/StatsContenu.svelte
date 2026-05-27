@@ -13,10 +13,12 @@
 
   const estimationNbPétitionnairesEnFranceParAn = 1500;
 
-  const pourcentageAvecDécision = Math.round(
-    (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
+  const pourcentageAvecDécision = $derived(
+    Math.round(
+      (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
+    ),
   );
-  const pourcentageSansDecision = 100 - pourcentageAvecDécision;
+  const pourcentageSansDecision = $derived(100 - pourcentageAvecDécision);
 </script>
 
 <div class="fr-grid-row fr-mt-6w fr-grid-row--center">

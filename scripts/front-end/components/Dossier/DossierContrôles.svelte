@@ -46,7 +46,7 @@
     };
   }
 
-  const phase = dossier.évènementsPhase.at(-1)?.phase || "Accompagnement amont";
+  const phase = $derived(dossier.évènementsPhase.at(-1)?.phase || "Accompagnement amont");
 
   let classes = $derived(
     clsx([

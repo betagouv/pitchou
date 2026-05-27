@@ -2,11 +2,11 @@
 
 import { json } from "d3-fetch";
 import remember, { forget } from "remember";
-import page from "page";
+import { goto } from "$app/navigation";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import store from "../store.js";
-import { getURL } from "../getLinkURL.js";
+import { store } from "../store.svelte.ts";
+import { SCHEMA_DS_88444 } from "../dataPaths.ts";
 
 import créerObjetCapDepuisURLs from "./créerObjetCapDepuisURLs.js";
 import { envoyerÉvènement } from "./aarri.js";
@@ -16,8 +16,8 @@ import { envoyerÉvènement } from "./aarri.js";
 const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
 export function chargerRelationSuivi() {
-  if (store.state.capabilities?.listerRelationSuivi) {
-    store.state.capabilities?.listerRelationSuivi().then((relationSuivisBDD) => {
+  if (store.capabilities?.listerRelationSuivi) {
+    store.capabilities?.listerRelationSuivi().then((relationSuivisBDD) => {
       if (!relationSuivisBDD || !Array.isArray(relationSuivisBDD)) {
         throw new TypeError("On attendait un tableau de relation suivis ici !");
       }
@@ -28,14 +28,14 @@ export function chargerRelationSuivi() {
         relationSuivis.set(personneEmail, new SvelteSet(dossiersSuivisIds));
       }
 
-      store.mutations.setRelationSuivis(relationSuivis);
+      store.relationSuivis = relationSuivis;
     });
   }
 }
 
 export function chargerNotificationParDossierPourInstructeurActuel() {
-  if (store.state.capabilities?.listerNotifications) {
-    store.state.capabilities?.listerNotifications().then((notificationsBDD) => {
+  if (store.capabilities?.listerNotifications) {
+    store.capabilities?.listerNotifications().then((notificationsBDD) => {
       if (!notificationsBDD || !Array.isArray(notificationsBDD)) {
         throw new TypeError("On attendait un tableau de notifications ici !");
       }
@@ -46,57 +46,59 @@ export function chargerNotificationParDossierPourInstructeurActuel() {
         notificationParDossierPourInstructeurActuel.set(notification.dossier, notification);
       }
 
-      store.mutations.setNotificationParDossierPourInstructeurActuel(
-        notificationParDossierPourInstructeurActuel,
-      );
+      store.notificationParDossier = notificationParDossierPourInstructeurActuel;
     });
   }
 }
 
 export function chargerSchemaDS88444() {
-  return json(getURL("link#schema-DS8844")).then((schema) => {
+  return json(SCHEMA_DS_88444).then((schema) => {
     //@ts-ignore
-    store.mutations.setSchemaDS88444(schema);
+    store.schemaDS88444 = schema;
     return schema;
   });
 }
 
 export function chargerRésultatsSynchronisation() {
-  return json("/résultats-synchronisation").then(
+  return json("/resultats-synchronisation").then(
     // @ts-ignore
     (/** @type {RésultatSynchronisationDS88444[]} */ résultatsSync) => {
       for (const r of résultatsSync) {
         r.horodatage = new Date(r.horodatage);
       }
 
-      store.mutations.setRésultatsSynchronisationDS88444(résultatsSync);
+      store.résultatsSynchronisationDS88444 = résultatsSync;
     },
   );
 }
 
-export async function secretFromURL() {
-  const secret = new URLSearchParams(location.search).get("secret");
+/**
+ * @param {URL} url
+ */
+export async function consumeSecretFromURL(url) {
+  const secret = url.searchParams.get("secret");
+  if (!secret) return;
 
-  if (secret) {
-    const newURL = new URL(location.href);
-    newURL.searchParams.delete("secret");
-
-    // nettoyer l'url pour que le secret n'y apparaisse plus
-    history.replaceState(null, "", newURL);
-
-    return Promise.all([remember(PITCHOU_SECRET_STORAGE_KEY, secret), initCapabilities(secret)]);
-  }
+  return Promise.all([
+    remember(PITCHOU_SECRET_STORAGE_KEY, secret),
+    initCapabilities(secret).catch(async () => {
+      await logout();
+      store.erreurs.add({
+        message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
+      });
+    }),
+  ]);
 }
 
 export async function logout() {
-  store.mutations.setCapabilities({});
-  store.mutations.setIdentité(undefined);
+  store.capabilities = {};
+  store.identité = undefined;
 
-  store.mutations.setDossiersRésumés(new SvelteMap());
-  store.mutations.setDossiersComplets(new SvelteMap());
-  store.mutations.resetMessages();
-  store.mutations.setRelationSuivis(new SvelteMap());
-  store.mutations.setNotificationParDossierPourInstructeurActuel(new SvelteMap());
+  store.dossiersRésumés = new SvelteMap();
+  store.dossiersComplets = new SvelteMap();
+  store.messagesParDossierId = new SvelteMap();
+  store.relationSuivis = new SvelteMap();
+  store.notificationParDossier = new SvelteMap();
 
   return forget(PITCHOU_SECRET_STORAGE_KEY);
 }
@@ -108,10 +110,10 @@ export async function logout() {
  */
 export async function logoutEtRedirigerVersAccueil(erreur) {
   if (erreur) {
-    store.mutations.ajouterErreur(erreur);
+    store.erreurs.add(erreur);
   }
 
-  return logout().then(() => page("/"));
+  return logout().then(() => goto("/"));
 }
 
 /**
@@ -122,15 +124,13 @@ export async function logoutEtRedirigerVersAccueil(erreur) {
 function initCapabilities(secret) {
   return json(`/caps?secret=${secret}`).then((capsURLs) => {
     if (capsURLs && typeof capsURLs === "object") {
-      store.mutations.setCapabilities(
-        //@ts-ignore
-        créerObjetCapDepuisURLs(capsURLs),
-      );
+      //@ts-ignore
+      store.capabilities = créerObjetCapDepuisURLs(capsURLs);
 
       // @ts-ignore
       if (capsURLs.identité) {
         // @ts-ignore
-        store.mutations.setIdentité(capsURLs.identité);
+        store.identité = capsURLs.identité;
       }
 
       envoyerÉvènement({ type: "seConnecter" });

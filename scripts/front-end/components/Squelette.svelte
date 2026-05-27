@@ -2,14 +2,14 @@
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
 
-  import page from "page";
+  import { goto } from "$app/navigation";
   import { logout } from "../actions/main.js";
-  import store from "../store.js";
+  import { store } from "../store.svelte.ts";
 
-  /** @import {PitchouState} from '../store.js' */
+  /** @import {PitchouState} from '../store.svelte.ts' */
 
   function logoutAndRedirect() {
-    logout().then(() => page("/"));
+    logout().then(() => goto("/"));
   }
 
   /**
@@ -54,8 +54,6 @@
   let dernièreSynchronisationRéussie = $derived(
     résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find((r) => r.succès),
   );
-
-  let enleverErreur = store.mutations.enleverErreur;
 </script>
 
 <svelte:head>
@@ -188,7 +186,7 @@
           <div class="fr-alert-background fr-mb-1w">
             <div class="fr-alert fr-alert--error fr-alert--sm">
               <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
-              <button onclick={() => enleverErreur(erreur)} class="fr-link--close fr-link"
+              <button onclick={() => store.erreurs.delete(erreur)} class="fr-link--close fr-link"
                 >Masquer le message</button
               >
             </div>

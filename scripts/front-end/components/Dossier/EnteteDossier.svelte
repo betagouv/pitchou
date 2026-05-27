@@ -21,8 +21,9 @@
   /** @type {Props} */
   let { dossier, email, dossierActuelSuiviParInstructeurActuel } = $props();
 
-  let phase =
-    (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont";
+  let phase = $derived(
+    (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
+  );
 
   /**
    *

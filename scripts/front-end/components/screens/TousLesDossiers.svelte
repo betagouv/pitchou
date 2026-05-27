@@ -1,6 +1,6 @@
 <script>
   /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
-  /** @import { PitchouState } from '../../store.js' */
+  /** @import { PitchouState } from '../../store.svelte.ts' */
   /** @import { ComponentProps } from "svelte" */
   import Squelette from "../Squelette.svelte";
   import ListeDossiers from "../ListeDossiers.svelte";

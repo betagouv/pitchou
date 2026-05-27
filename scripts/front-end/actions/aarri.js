@@ -3,7 +3,7 @@
 
 import { json } from "d3-fetch";
 import { isValidDate } from "../../commun/typeFormat.js";
-import store from "../store.js";
+import { store } from "../store.svelte.ts";
 import debounce from "just-debounce-it";
 
 /**
@@ -68,8 +68,8 @@ function isIndicateursAARRI(indicateurs) {
  * @param {ÉvènementMétrique} évènement
  */
 export function envoyerÉvènement(évènement) {
-  if (store.state.capabilities.créerÉvènementMetrique) {
-    store.state.capabilities
+  if (store.capabilities.créerÉvènementMetrique) {
+    store.capabilities
       .créerÉvènementMetrique(évènement)
       .catch((e) => console.warn(`Échec lors de la création de l’évènement:`, e, évènement));
   }

@@ -16,7 +16,7 @@
   import { refreshDossierComplet } from "../../../actions/dossier.js";
   import { envoyerÉvènement } from "../../../actions/aarri.js";
 
-  import store from "../../../store.js";
+  import { store } from "../../../store.svelte.ts";
 
   /** @import {DécisionAdministrativePourTransfer, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
   /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
@@ -169,7 +169,7 @@
 
   function sauvegarderDécisionAdministrative() {
     const modifierDécisionAdministrativeDansDossier =
-      store.state.capabilities.modifierDécisionAdministrativeDansDossier;
+      store.capabilities.modifierDécisionAdministrativeDansDossier;
 
     if (!modifierDécisionAdministrativeDansDossier) {
       throw new Error(`Pas les droits suffisants pour modifier une décision administrative`);

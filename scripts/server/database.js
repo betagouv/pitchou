@@ -8,14 +8,9 @@ import knex from "knex";
 /** @import {IdentitéInstructeurPitchou, PitchouInstructeurCapabilities} from '../types/capabilities.ts' */
 /** @import {StringValues} from '../types/tools.d.ts' */
 
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  throw new TypeError(`Variable d'environnement DATABASE_URL manquante`);
-}
-
 export const directDatabaseConnection = knex({
   client: "pg",
-  connection: DATABASE_URL,
+  connection: process.env.DATABASE_URL,
 });
 
 /**

@@ -11,23 +11,24 @@
   /** @type {Props} */
   let { espèce } = $props();
 
-  let [premierNomVernaculaire, ...autresNomsVernaculaires] = [...espèce.nomsVernaculaires];
-  let [premierNomScientifique, ...autresNomsScientifiques] = [...espèce.nomsScientifiques];
+  let premierNomVernaculaire = $derived([...espèce.nomsVernaculaires][0]);
+  let autresNomsVernaculaires = $derived([...espèce.nomsVernaculaires].slice(1));
+  let premierNomScientifique = $derived([...espèce.nomsScientifiques][0]);
+  let autresNomsScientifiques = $derived([...espèce.nomsScientifiques].slice(1));
 
   /** @type {string | undefined} */
-  let title = $state();
-
-  if (autresNomsVernaculaires.length >= 1) {
-    title = autresNomsVernaculaires.join(", ");
-
-    if (autresNomsScientifiques.length >= 1) {
-      title += " | " + autresNomsScientifiques.join(", ");
+  let title = $derived.by(() => {
+    if (autresNomsVernaculaires.length >= 1) {
+      let t = autresNomsVernaculaires.join(", ");
+      if (autresNomsScientifiques.length >= 1) {
+        t += " | " + autresNomsScientifiques.join(", ");
+      }
+      return t;
+    } else if (autresNomsScientifiques.length >= 1) {
+      return autresNomsScientifiques.join(", ");
     }
-  } else {
-    if (autresNomsScientifiques.length >= 1) {
-      title = autresNomsScientifiques.join(", ");
-    }
-  }
+    return undefined;
+  });
 </script>
 
 <span {title}>
