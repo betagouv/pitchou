@@ -56,6 +56,7 @@
             docker
             docker-compose
             postgresql
+            scalingo
           ];
           shellHook = ''
             mkdir -p "$PWD/.corepack"
