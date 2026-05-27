@@ -7,6 +7,9 @@
     "node": "22",
     "pnpm": "10.27.0"
   },
+  "scripts": {
+    "build": "vite build"
+  },
   "devDependencies": {
     "@playwright/test": "^1.56.0",
     "@sveltejs/adapter-node": "^5.5.4",
