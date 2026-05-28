@@ -5,6 +5,8 @@
 
   import { afterNavigate, goto } from "$app/navigation";
 
+  import BandeauEnvironnement from "$front/components/BandeauEnvironnement.svelte";
+
   let { children } = $props();
 
   afterNavigate(({ to }) => {
@@ -16,5 +18,7 @@
     void goto(cleaned, { replaceState: true, invalidateAll: false, noScroll: true });
   });
 </script>
+
+<BandeauEnvironnement />
 
 {@render children()}
