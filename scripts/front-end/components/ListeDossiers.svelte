@@ -1,9 +1,9 @@
-<script>
-  /** @import { DossierRésumé, DossierPhase } from '../../types/API_Pitchou.ts' */
-  /** @import { ChangeEventHandler, EventHandler } from "svelte/elements" */
-  /** @import { PitchouState } from '../store.svelte.ts' */
-  /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
-  /** @import { ÉvènementRechercheDossiersDétails } from '../../types/évènement'; */
+<script lang="ts">
+  import type { DossierRésumé, DossierPhase } from "../../types/API_Pitchou.ts";
+  import type { ChangeEventHandler, EventHandler } from "svelte/elements";
+  import type { PitchouState } from "../store.svelte.ts";
+  import type Dossier from "../../types/database/public/Dossier.ts";
+  import type { ÉvènementRechercheDossiersDétails } from "../../types/évènement";
   import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "./DSFR/Pagination.svelte";
@@ -13,17 +13,16 @@
   import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "../actions/aarri.ts";
   import { phases as toutesLesPhases } from "../affichageDossier.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} titre
-   * @property {string} [email]
-   * @property {DossierRésumé[]} dossiers
-   * @property {PitchouState['relationSuivis']} [relationSuivis]
-   * @property {boolean} [afficherFiltreSansInstructeurice]
-   * @property {boolean} [afficherFiltreActionInstructeur]
-   * @property {PitchouState['notificationParDossier']} notificationParDossier
-   */
-  /** @type {Props} */
+  type Props = {
+    titre: string;
+    email?: string;
+    dossiers: DossierRésumé[];
+    relationSuivis?: PitchouState["relationSuivis"];
+    afficherFiltreSansInstructeurice?: boolean;
+    afficherFiltreActionInstructeur?: boolean;
+    notificationParDossier: PitchouState["notificationParDossier"];
+  };
+
   let {
     titre,
     email = "",
@@ -32,12 +31,12 @@
     afficherFiltreSansInstructeurice = false,
     afficherFiltreActionInstructeur = false,
     notificationParDossier,
-  } = $props();
+  }: Props = $props();
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 10;
 
-  /** @type {Map<'texte' | 'sansInstructeurice' | 'phase' | 'actionInstructeur' | 'nouveauté', (d: DossierRésumé) => boolean>} */
-  const tousLesFiltres = new SvelteMap();
+  type CléFiltre = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
+  const tousLesFiltres = new SvelteMap<CléFiltre, (d: DossierRésumé) => boolean>();
 
   const dossiersFiltrés = $derived.by(() => {
     let resultat = [...dossiers];
@@ -50,10 +49,7 @@
   });
 
   function envoyerÉvènementRechercherUnDossier() {
-    /**
-     * @type {ÉvènementRechercheDossiersDétails['filtres']}
-     */
-    const filtres = {
+    const filtres: ÉvènementRechercheDossiersDétails["filtres"] = {
       sansInstructeurice: tousLesFiltres.has("sansInstructeurice"),
       nouveauté: tousLesFiltres.has("nouveauté"),
     };
@@ -77,8 +73,7 @@
 
   let statusMessage = $state("");
 
-  /** @type {HTMLHeadingElement | undefined} */
-  let titrePageElement = $state();
+  let titrePageElement: HTMLHeadingElement | undefined = $state();
 
   /** Nombre total de pages */
   const nombreDePages = $derived.by(() => {
@@ -107,20 +102,16 @@
     }, 400);
   }
 
-  /** @type {string | undefined} */
-  let texteÀChercher = $state();
+  let texteÀChercher: string | undefined = $state();
 
-  /** @type {DossierPhase | undefined} */
-  let phaseSélectionnée = $state();
+  let phaseSélectionnée: DossierPhase | undefined = $state();
 
   const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set());
 
-  /** @typedef {() => void} SelectionneurPage */
-  /** @type {undefined | [undefined, ...rest: SelectionneurPage[]]} */
-  let selectionneursPage = $derived.by(() => {
+  type SelectionneurPage = () => void;
+  let selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(() => {
     if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
-      /** @type {SelectionneurPage[]} */
-      const sélectionneurs = [
+      const sélectionneurs: SelectionneurPage[] = [
         ...Array.from({ length: nombreDePages }, (_v, i) => () => {
           numéroDeLaPageSélectionnée = i + 1;
           tick().then(() => titrePageElement?.focus());
@@ -133,8 +124,7 @@
     }
   });
 
-  /** @type {typeof dossiers} */
-  let dossiersAffichés = $derived.by(() => {
+  let dossiersAffichés: typeof dossiers = $derived.by(() => {
     // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
     // puis par date de dépôt
     const dossiersTriés = [...dossiersFiltrés].sort((a, b) => {
@@ -166,8 +156,7 @@
     }
   });
 
-  /** @type {EventHandler<SubmitEvent, HTMLFormElement>}*/
-  function soumettreTextePourRecherche(e) {
+  const soumettreTextePourRecherche: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
     e.preventDefault();
     if (!texteÀChercher || texteÀChercher.trim() === "") {
       tousLesFiltres.delete("texte");
@@ -175,14 +164,12 @@
       tousLesFiltres.set("texte", créerFiltreTexte(texteÀChercher, dossiers));
     }
     envoyerÉvènementRechercherUnDossier();
-  }
+  };
 
   /**
    * Vérifie si un dossier est suivi par au moins une personne
-   * @param {Dossier['id']} dossierId
-   * @returns {boolean}
    */
-  function dossierEstSuivi(dossierId) {
+  function dossierEstSuivi(dossierId: Dossier["id"]): boolean {
     if (!relationSuivis) return false;
     for (const dossiersSuivis of relationSuivis.values()) {
       if (dossiersSuivis.has(dossierId)) {
@@ -236,10 +223,7 @@
     réinitialiserPage();
   }
 
-  /**
-   * @type {ChangeEventHandler<HTMLSelectElement>}
-   */
-  function sélectionnerPhase(e) {
+  const sélectionnerPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
     e.preventDefault();
     const phase = e.currentTarget.value;
     if (phase === "") {
@@ -250,21 +234,13 @@
     }
     envoyerÉvènementRechercherUnDossier();
     réinitialiserPage();
-  }
+  };
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelSuitDossier(id) {
+  function instructeurActuelSuitDossier(id: Dossier["id"]) {
     return instructeurSuitDossier(email, id);
   }
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelLaisseDossier(id) {
+  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
     return instructeurLaisseDossier(email, id);
   }
 </script>

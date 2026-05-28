@@ -1,24 +1,21 @@
-<script>
+<script lang="ts">
   import { run } from "svelte/legacy";
 
   import { format, parse } from "date-fns";
   import toJSONPerserveDate from "../../../commun/DateToJSON";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} [YYYYMMDD]
-   * @property {Date | null | undefined} [date]
-   * @property {string} [id]
-   */
+  type Props = {
+    YYYYMMDD?: string;
+    date?: Date | null | undefined;
+    id?: string;
+  };
 
-  /** @type {Props} */
-  let { YYYYMMDD = "yyyy-MM-dd", date = $bindable(undefined), id } = $props();
+  let { YYYYMMDD = "yyyy-MM-dd", date = $bindable(undefined), id }: Props = $props();
 
-  /** @type {string | null | undefined} */
-  let internal = $state();
+  let internal: string | null | undefined = $state();
 
-  const input = (/** @type {Date | null | undefined} */ x) => (internal = x && format(x, YYYYMMDD));
-  const output = (/** @type {string | null | undefined} */ x) => {
+  const input = (x: Date | null | undefined) => (internal = x && format(x, YYYYMMDD));
+  const output = (x: string | null | undefined) => {
     date = typeof x === "string" ? parse(x, YYYYMMDD, new Date()) : undefined;
     if (date) {
       Object.defineProperty(date, "toJSON", { value: toJSONPerserveDate });

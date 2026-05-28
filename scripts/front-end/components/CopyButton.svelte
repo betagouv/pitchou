@@ -1,22 +1,19 @@
-<script>
-  /**
-   * @typedef {Object} Props
-   * @property {() => string} textToCopy
-   * @property {string} [initialLabel]
-   * @property {string} [labelAfterCopy]
-   * @property {string} classname
-   */
+<script lang="ts">
+  type Props = {
+    textToCopy: () => string;
+    initialLabel?: string;
+    labelAfterCopy?: string;
+    classname: string;
+  };
 
-  /** @type {Props} */
   let {
     textToCopy,
     initialLabel = "Copier dans le presse-papier",
     labelAfterCopy = "Copié dans le presse-papier !",
     classname,
-  } = $props();
+  }: Props = $props();
 
-  /** @type {HTMLButtonElement} */
-  let copyButton;
+  let copyButton: HTMLButtonElement;
 
   function onClick() {
     copyButton.classList.add("animate");

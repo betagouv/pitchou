@@ -1,15 +1,21 @@
-<script>
-  /** @import {ActivitéMenançante,  DescriptionMenacesEspèces, ImpactQuantifié } from "../../types/especes" */
+<script lang="ts">
+  import type {
+    ActivitéMenançante,
+    DescriptionMenacesEspèces,
+    ImpactQuantifié,
+  } from "../../types/especes";
 
   import { créerEspècesGroupéesParImpact } from "../actions/créerEspècesGroupéesParImpact.ts";
-  /**
-   * @typedef {Object} Props
-   * @property {DescriptionMenacesEspèces} espècesImpactées
-   * @property {Map<string, ActivitéMenançante & {impactsQuantifiés: ImpactQuantifié[]}>} identifiantPitchouVersActivitéEtImpactsQuantifiés
-   */
 
-  /** @type {Props} */
-  let { espècesImpactées, identifiantPitchouVersActivitéEtImpactsQuantifiés } = $props();
+  type Props = {
+    espècesImpactées: DescriptionMenacesEspèces;
+    identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
+      string,
+      ActivitéMenançante & { impactsQuantifiés: ImpactQuantifié[] }
+    >;
+  };
+
+  let { espècesImpactées, identifiantPitchouVersActivitéEtImpactsQuantifiés }: Props = $props();
 
   let espècesImpactéesParActivité = $derived(
     créerEspècesGroupéesParImpact(

@@ -1,23 +1,18 @@
-<script>
-  //@ts-check
+<script lang="ts">
+  import type { EspèceProtégée } from "../../types/especes.d.ts";
 
-  /** @import {EspèceProtégée} from '../../types/especes.d.ts' */
+  type Props = {
+    espèce: EspèceProtégée;
+  };
 
-  /**
-   * @typedef {Object} Props
-   * @property {EspèceProtégée} espèce
-   */
-
-  /** @type {Props} */
-  let { espèce } = $props();
+  let { espèce }: Props = $props();
 
   let premierNomVernaculaire = $derived([...espèce.nomsVernaculaires][0]);
   let autresNomsVernaculaires = $derived([...espèce.nomsVernaculaires].slice(1));
   let premierNomScientifique = $derived([...espèce.nomsScientifiques][0]);
   let autresNomsScientifiques = $derived([...espèce.nomsScientifiques].slice(1));
 
-  /** @type {string | undefined} */
-  let title = $derived.by(() => {
+  let title: string | undefined = $derived.by(() => {
     if (autresNomsVernaculaires.length >= 1) {
       let t = autresNomsVernaculaires.join(", ");
       if (autresNomsScientifiques.length >= 1) {
