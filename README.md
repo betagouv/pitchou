@@ -176,13 +176,11 @@ Puis lancer `node outils/liste-espèces.js` pour régénérer une liste d'espèc
 
 #### En dev
 
-depuis le container du serveur
+`just sync-ds` (dernières heures par défaut)
 
-`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees` (dernières heures par défaut)
+`just sync-ds 2025-06-01` (synchroniser les dossiers modifiés depuis le 1 juin 2025)
 
-`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2025-06-01`(synchroniser les dossiers modifiés depuis le 1 juin 2025)
-
-`docker exec tooling node --env-file=.env outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01` (synchroniser tous les dossiers, date très distantes)
+`just sync-ds 2024-01-01` (synchroniser tous les dossiers, date très distantes)
 
 #### En prod
 
@@ -206,15 +204,15 @@ scalingo --app especes-protegees run --size 2XL 'node outils/sync-démarche-num�
 
 Utile pour tester rapidement en local après un restore de backup en tant qu'une personne en particulier
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
+`node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
 
 Pour les lien de connexion en production :
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
+`node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
 
 Pour donner l'origine de manière libre :
 
-`docker exec tooling node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
+`node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
 
 ### GeoMCE
 
@@ -243,12 +241,12 @@ En production :
 `scalingo --app especes-protegees run "node outils/aarri/supprimer-evenements.js"`
 
 En dev :
-`docker exec tooling node outils/aarri/supprimer-evenements.js`
+`node outils/aarri/supprimer-evenements.js`
 
 Pour nettoyer tous les évènements concernant une personne spécifique :
 
-`docker exec tooling node outils/aarri/supprimer-evenements.js --email david@example.net`
+`node outils/aarri/supprimer-evenements.js --email david@example.net`
 
 Pour nettoyer tous les évènements plus vieux que x semaines
 
-`docker exec tooling node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
+`node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
