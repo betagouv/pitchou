@@ -1,22 +1,42 @@
-<script>
+<script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import NomEspèce from "../../NomEspèce.svelte";
   import ImpactEspèce from "../../SaisieEspèces/ImpactEspèce.svelte";
   import { tick } from "svelte";
-  /** @import { EspèceProtégée, DescriptionImpact, ParClassification, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant } from '../../../../types/especes' **/
 
-  /**
-   * @typedef {Object} Props
-   * @property {'champTexte' | 'préciserImpact'} écranAffiché
-   * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesImpactéesPourPréremplir
-   * @property {(indexEspèceÀSupprimer: number) => Promise<void>} supprimerEspèceImpactée
-   * @property {() => void} préremplirAvecCesEspècesImpacts
-   * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
-   * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-   * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
-   * @property {(impactPourChaqueOiseau: DescriptionImpact, impactPourChaqueFauneNonOiseau: DescriptionImpact, impactPourChaqueFlore: DescriptionImpact) => void} ajouterImpactPourChaqueClassification
-   */
-  /** @type {Props} */
+  import type {
+    EspèceProtégée,
+    DescriptionImpact,
+    ParClassification,
+    ActivitéMenançante,
+    MéthodeMenançante,
+    MoyenDePoursuiteMenaçant,
+  } from "../../../../types/especes";
+
+  type Props = {
+    écranAffiché: "champTexte" | "préciserImpact";
+    espècesImpactéesPourPréremplir: Array<{
+      espèce?: EspèceProtégée;
+      impacts: DescriptionImpact[];
+    }>;
+    supprimerEspèceImpactée: (indexEspèceÀSupprimer: number) => Promise<void>;
+    préremplirAvecCesEspècesImpacts: () => void;
+    activitesParClassificationEtreVivant?: ParClassification<
+      Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>
+    >;
+    méthodesParClassificationEtreVivant: ParClassification<
+      Map<MéthodeMenançante["Code"], MéthodeMenançante>
+    >;
+    transportsParClassificationEtreVivant: ParClassification<
+      Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    >;
+    ajouterImpactPourChaqueClassification: (
+      impactPourChaqueOiseau: DescriptionImpact,
+      impactPourChaqueFauneNonOiseau: DescriptionImpact,
+      impactPourChaqueFlore: DescriptionImpact,
+    ) => void;
+  };
+
   let {
     écranAffiché = $bindable(),
     espècesImpactéesPourPréremplir,
@@ -26,44 +46,32 @@
     transportsParClassificationEtreVivant,
     activitesParClassificationEtreVivant,
     ajouterImpactPourChaqueClassification,
-  } = $props();
+  }: Props = $props();
 
-  /**
-   * @type {DescriptionImpact}
-   */
-  let impactPourChaqueOiseau = $state({});
+  let impactPourChaqueOiseau: DescriptionImpact = $state({});
 
-  /**
-   * @type {DescriptionImpact}
-   */
-  let impactPourChaqueFauneNonOiseau = $state({});
+  let impactPourChaqueFauneNonOiseau: DescriptionImpact = $state({});
 
-  /**
-   * @type {DescriptionImpact}
-   */
-  let impactPourChaqueFlore = $state({});
+  let impactPourChaqueFlore: DescriptionImpact = $state({});
 
-  /** @type { SvelteSet<EspèceProtégée> }*/
   //@ts-ignore
-  let oiseauxÀPréremplir = $derived(
+  let oiseauxÀPréremplir: SvelteSet<EspèceProtégée> = $derived(
     new SvelteSet(
       [...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(
         (e) => e && e.classification === "oiseau",
       ),
     ),
   );
-  /** @type { SvelteSet<EspèceProtégée> }*/
   //@ts-ignore
-  let fauneNonOiseauxÀPréremplir = $derived(
+  let fauneNonOiseauxÀPréremplir: SvelteSet<EspèceProtégée> = $derived(
     new SvelteSet(
       [...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(
         (e) => e && e.classification === "faune non-oiseau",
       ),
     ),
   );
-  /** @type { SvelteSet<EspèceProtégée> }*/
   //@ts-ignore
-  let floreÀPréremplir = $derived(
+  let floreÀPréremplir: SvelteSet<EspèceProtégée> = $derived(
     new SvelteSet(
       [...espècesImpactéesPourPréremplir.map(({ espèce }) => espèce)].filter(
         (e) => e && e.classification === "flore",
@@ -71,22 +79,17 @@
     ),
   );
 
-  /**
-   * @type {HTMLElement}
-   */
-  let titreModale;
+  let titreModale: HTMLElement;
 
   /**
    * Référence vers le bouton retour
-   * @type {HTMLButtonElement | undefined}
    */
-  let boutonRetour = $state();
+  let boutonRetour: HTMLButtonElement | undefined = $state();
 
   /**
    * Tableau de références vers les boutons de suppression, indexé par l'index dans espècesImpactéesPourPréremplir
-   * @type {HTMLElement[]}
    */
-  let référencesBoutonsSupprimer = $state([]);
+  let référencesBoutonsSupprimer: HTMLElement[] = $state([]);
 
   $effect.pre(() => {
     if (écranAffiché === "préciserImpact") {
@@ -96,10 +99,7 @@
     }
   });
 
-  /**
-   * @param {EspèceProtégée} espèce
-   */
-  async function supprimerEspèceImpactéeDepuisClassification(espèce) {
+  async function supprimerEspèceImpactéeDepuisClassification(espèce: EspèceProtégée) {
     const indexDansListe = espècesImpactéesPourPréremplir.findIndex(
       ({ espèce: espèceImpactée }) => espèceImpactée === espèce,
     );

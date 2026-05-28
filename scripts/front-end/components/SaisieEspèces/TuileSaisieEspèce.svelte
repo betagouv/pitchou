@@ -1,30 +1,40 @@
-<script>
+<script lang="ts">
   import { tick } from "svelte";
-
-  // @ts-check
 
   import AutocompleteEspeces from "./AutocompleteEspèces.svelte";
   import ImpactEspèce from "./ImpactEspèce.svelte";
   import { espèceLabel } from "../../../commun/outils-espèces.js";
 
-  /** @import {ParClassification, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionImpact, ClassificationEtreVivant} from "../../../types/especes.js" */
+  import type {
+    ParClassification,
+    EspèceProtégée,
+    ActivitéMenançante,
+    MéthodeMenançante,
+    MoyenDePoursuiteMenaçant,
+    DescriptionImpact,
+    ClassificationEtreVivant,
+  } from "../../../types/especes.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {number} [index]
-   * @property {string} [idModaleEspèceNonTrouvée]
-   * @property {EspèceProtégée | undefined} [espèce]
-   * @property {DescriptionImpact[] | undefined} [descriptionImpacts]
-   * @property {(() => Promise<void>) | undefined} [onDupliquerEspèce]
-   * @property {((e: Event) => void) | undefined} [onOuvertureModale]
-   * @property {(() => Promise<void>) | undefined} [onSuprimerEspèce]
-   * @property {EspèceProtégée[]} [espècesProtégées]
-   * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
-   * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-   * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
-   */
+  type Props = {
+    index?: number;
+    idModaleEspèceNonTrouvée?: string;
+    espèce?: EspèceProtégée | undefined;
+    descriptionImpacts?: DescriptionImpact[] | undefined;
+    onDupliquerEspèce?: (() => Promise<void>) | undefined;
+    onOuvertureModale?: ((e: Event) => void) | undefined;
+    onSuprimerEspèce?: (() => Promise<void>) | undefined;
+    espècesProtégées?: EspèceProtégée[];
+    activitesParClassificationEtreVivant?: ParClassification<
+      Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>
+    >;
+    méthodesParClassificationEtreVivant: ParClassification<
+      Map<MéthodeMenançante["Code"], MéthodeMenançante>
+    >;
+    transportsParClassificationEtreVivant: ParClassification<
+      Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    >;
+  };
 
-  /** @type {Props} */
   let {
     index,
     idModaleEspèceNonTrouvée,
@@ -37,12 +47,9 @@
     activitesParClassificationEtreVivant,
     méthodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
-  } = $props();
+  }: Props = $props();
 
-  /**
-   * @type ClassificationEtreVivant | undefined
-   */
-  let espèceClassification = $state(espèce?.classification);
+  let espèceClassification: ClassificationEtreVivant | undefined = $state(espèce?.classification);
 
   async function ajouterImpact() {
     descriptionImpacts.push({});
@@ -53,10 +60,7 @@
     référencesImpact[référencesImpact.length - 1].focusFormulaireImpact();
   }
 
-  /**
-   * @param {number} indexImpactÀSupprimer
-   */
-  async function supprimerImpact(indexImpactÀSupprimer) {
+  async function supprimerImpact(indexImpactÀSupprimer: number) {
     descriptionImpacts.splice(indexImpactÀSupprimer, 1);
     descriptionImpacts = descriptionImpacts;
 
@@ -88,11 +92,7 @@
     espèce = undefined;
   }
 
-  /**
-   *
-   * @param {EspèceProtégée} nouvelleEspèce
-   */
-  function onChangeEspèce(nouvelleEspèce) {
+  function onChangeEspèce(nouvelleEspèce: EspèceProtégée) {
     if (nouvelleEspèce.classification !== espèceClassification) {
       descriptionImpacts = [{}];
     }
@@ -100,20 +100,11 @@
     espèceClassification = nouvelleEspèce.classification;
   }
 
-  /**
-   * @type {ImpactEspèce[]}
-   */
-  let référencesImpact = $state([]);
+  let référencesImpact: ImpactEspèce[] = $state([]);
 
-  /**
-   * @type {HTMLElement}
-   */
-  let boutonSupprimer;
+  let boutonSupprimer: HTMLElement;
 
-  /**
-   * @type {AutocompleteEspeces}
-   */
-  let autocomplete;
+  let autocomplete: AutocompleteEspeces;
 </script>
 
 <div class="tuile-espece">

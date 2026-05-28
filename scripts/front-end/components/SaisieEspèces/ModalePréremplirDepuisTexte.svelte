@@ -1,21 +1,35 @@
-<script>
+<script lang="ts">
   import EcranChampTexte from "./ModalePréremplirDepuisTexte/EcranChampTexte.svelte";
   import EcranPréciserImpact from "./ModalePréremplirDepuisTexte/EcranPréciserImpact.svelte";
   import TuileSaisieEspèce from "../SaisieEspèces/TuileSaisieEspèce.svelte";
   import { normalizeNomEspèce, normalizeTexteEspèce } from "../../../commun/manipulationStrings.js";
-  /** @import { ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant } from '../../../types/especes' **/
 
-  /**
-   * @typedef {Object} Props
-   * @property {TuileSaisieEspèce[]} référencesEspèces
-   * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-   * @property {(espècesImpactées: Array<{ espèce: EspèceProtégée, impacts: DescriptionImpact[] }>) => void} onClickPréRemplirAvecDocumentTexte
-   * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
-   * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-   * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
-   */
+  import type {
+    ParClassification,
+    EspèceProtégée,
+    DescriptionImpact,
+    ActivitéMenançante,
+    MéthodeMenançante,
+    MoyenDePoursuiteMenaçant,
+  } from "../../../types/especes";
 
-  /** @type {Props} */
+  type Props = {
+    référencesEspèces: TuileSaisieEspèce[];
+    espècesProtégéesParClassification: ParClassification<EspèceProtégée[]>;
+    onClickPréRemplirAvecDocumentTexte: (
+      espècesImpactées: Array<{ espèce: EspèceProtégée; impacts: DescriptionImpact[] }>,
+    ) => void;
+    activitesParClassificationEtreVivant?: ParClassification<
+      Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>
+    >;
+    méthodesParClassificationEtreVivant: ParClassification<
+      Map<MéthodeMenançante["Code"], MéthodeMenançante>
+    >;
+    transportsParClassificationEtreVivant: ParClassification<
+      Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    >;
+  };
+
   let {
     référencesEspèces = $bindable(),
     espècesProtégéesParClassification,
@@ -23,18 +37,12 @@
     méthodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
     activitesParClassificationEtreVivant,
-  } = $props();
+  }: Props = $props();
 
   const idModalePréremplirDepuisTexte = "modale-préremplir-depuis-texte";
 
-  /**
-   *
-   * @param {string} texte
-   * @returns {Set<EspèceProtégée>}
-   */
-  function chercherEspècesDansTexte(texte) {
-    /** @type {Set<EspèceProtégée>}*/
-    let espècesTrouvées = new Set();
+  function chercherEspècesDansTexte(texte: string): Set<EspèceProtégée> {
+    let espècesTrouvées: Set<EspèceProtégée> = new Set();
 
     for (const [nom, espClassif] of nomVersEspèceClassif) {
       if (texte.includes(nom)) {
@@ -45,8 +53,7 @@
     return espècesTrouvées;
   }
 
-  /** @type {'champTexte' | 'préciserImpact'}*/
-  let écranAffiché = $state("champTexte");
+  let écranAffiché: "champTexte" | "préciserImpact" = $state("champTexte");
 
   let nomVersEspèceClassif = $derived(créerNomVersEspèceClassif(espècesProtégéesParClassification));
 
@@ -55,8 +62,8 @@
    */
   let texteEspèces = $state("");
 
-  /** @type {Set<EspèceProtégée>} - Source de vérité : espèces trouvées dans le texte */
-  let espècesTrouvéesDansTexte = $derived(
+  /** Source de vérité : espèces trouvées dans le texte */
+  let espècesTrouvéesDansTexte: Set<EspèceProtégée> = $derived(
     chercherEspècesDansTexte(normalizeTexteEspèce(texteEspèces)),
   );
 
@@ -65,24 +72,17 @@
     réinitialiserEspècesImpactées(espècesTrouvéesDansTexte);
   });
 
-  /**
-   * @type {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>}
-   */
-  let espècesImpactéesPourPréremplir = $state([]);
+  let espècesImpactéesPourPréremplir: Array<{
+    espèce?: EspèceProtégée;
+    impacts: DescriptionImpact[];
+  }> = $state([]);
 
-  /**
-   * @param {number} indexEspèceÀSupprimer
-   */
-  async function supprimerEspèceImpactéeImpactée(indexEspèceÀSupprimer) {
+  async function supprimerEspèceImpactéeImpactée(indexEspèceÀSupprimer: number) {
     espècesImpactéesPourPréremplir.splice(indexEspèceÀSupprimer, 1);
   }
 
-  /**
-   * @param {Set<EspèceProtégée>} nouvellesEspècesImpactées
-   */
-  function réinitialiserEspècesImpactées(nouvellesEspècesImpactées) {
-    /** @type { Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}> }*/
-    let _espècesImpactées = [];
+  function réinitialiserEspècesImpactées(nouvellesEspècesImpactées: Set<EspèceProtégée>) {
+    let _espècesImpactées: Array<{ espèce: EspèceProtégée; impacts: DescriptionImpact[] }> = [];
     nouvellesEspècesImpactées.forEach((espèce) => {
       _espècesImpactées.push({ espèce, impacts: [{}] });
     });
@@ -90,24 +90,21 @@
   }
 
   function préremplirAvecCesEspècesImpacts() {
-    /** @type {Array<{espèce: EspèceProtégée, impacts: DescriptionImpact[]}>}*/
     //@ts-ignore
-    let nouvellesEspècesImpactées = espècesImpactéesPourPréremplir.filter(
+    let nouvellesEspècesImpactées: Array<{
+      espèce: EspèceProtégée;
+      impacts: DescriptionImpact[];
+    }> = espècesImpactéesPourPréremplir.filter(
       (espèceImpactée) => espèceImpactée?.espèce !== undefined,
     );
 
     onClickPréRemplirAvecDocumentTexte(nouvellesEspècesImpactées);
   }
 
-  /**
-   * @param {DescriptionImpact} impactPourChaqueOiseau
-   * @param {DescriptionImpact} impactPourChaqueFauneNonOiseau
-   * @param {DescriptionImpact} impactPourChaqueFlore
-   */
   function ajouterImpactPourChaqueClassification(
-    impactPourChaqueOiseau,
-    impactPourChaqueFauneNonOiseau,
-    impactPourChaqueFlore,
+    impactPourChaqueOiseau: DescriptionImpact,
+    impactPourChaqueFauneNonOiseau: DescriptionImpact,
+    impactPourChaqueFlore: DescriptionImpact,
   ) {
     espècesImpactéesPourPréremplir.forEach((espèceImpactée) => {
       if (espèceImpactée.espèce && espèceImpactée.espèce.classification === "oiseau") {
@@ -125,13 +122,11 @@
 
   /**
    * Recheche "à l'arrache"
-   *
-   * @param {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-   * @returns {Map<string, EspèceProtégée>}
    */
-  function créerNomVersEspèceClassif(espècesProtégéesParClassification) {
-    /** @type {Map<string, EspèceProtégée>}>} */
-    const nomVersEspèceClassif = new Map();
+  function créerNomVersEspèceClassif(
+    espècesProtégéesParClassification: ParClassification<EspèceProtégée[]>,
+  ): Map<string, EspèceProtégée> {
+    const nomVersEspèceClassif: Map<string, EspèceProtégée> = new Map();
 
     for (const espèces of Object.values(espècesProtégéesParClassification)) {
       for (const espèce of espèces) {

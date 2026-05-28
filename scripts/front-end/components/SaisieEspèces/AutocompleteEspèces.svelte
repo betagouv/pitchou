@@ -1,16 +1,15 @@
-<script>
-  /** @import {EspèceProtégée} from '../../../types/especes' */
+<script lang="ts">
+  import type { EspèceProtégée } from "../../../types/especes";
 
   import { normalizeNomEspèce, normalizeTexteEspèce } from "../../../commun/manipulationStrings";
   import { espèceLabel } from "../../../commun/outils-espèces.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {EspèceProtégée[]} espèces
-   * @property {EspèceProtégée | undefined} [espèceSélectionnée]
-   * @property {function | undefined} [onChange]
-   * @property {string} [id]
-   */
+  type Props = {
+    espèces: EspèceProtégée[];
+    espèceSélectionnée?: EspèceProtégée | undefined;
+    onChange?: ((espèce: EspèceProtégée) => void) | undefined;
+    id?: string;
+  };
 
   /**
    * Ressources utilisées / inspirations:
@@ -19,15 +18,12 @@
    * - https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-autocomplete-list/
    */
 
-  /** @type {Props} */
-
-  let { espèces, onChange, id = "", espèceSélectionnée = $bindable(undefined) } = $props();
+  let { espèces, onChange, id = "", espèceSélectionnée = $bindable(undefined) }: Props = $props();
 
   let text = $state(espèceSélectionnée ? espèceLabel(espèceSélectionnée) : "");
   let statusMessage = $state("");
 
-  /** @type {number | null}*/
-  let selectedOption = $state(null);
+  let selectedOption: number | null = $state(null);
 
   let showListBox = $state(false);
 
@@ -59,11 +55,7 @@
     }
   }
 
-  /**
-   * @param {FocusEvent} e
-   * @param {number} indexOption
-   */
-  function onOptionBlur(e, indexOption) {
+  function onOptionBlur(e: FocusEvent, indexOption: number) {
     const focusInput = e.relatedTarget === input;
     const focusOtherOption = selectedOption !== indexOption && selectedOption !== null;
 
@@ -73,25 +65,16 @@
     }
   }
 
-  /**
-   * @param {EspèceProtégée} espèce
-   */
-  function onOptionClick(espèce) {
+  function onOptionClick(espèce: EspèceProtégée) {
     selectionnerEspèce(espèce);
   }
 
-  /**
-   * @param {MouseEvent} e
-   */
-  function onOptionMouseDown(e) {
+  function onOptionMouseDown(e: MouseEvent) {
     // Évite la perte du focus et la fermeture de liste d'option
     e.preventDefault();
   }
 
-  /**
-   * @param {number | null} elementToFocus
-   */
-  function focusElement(elementToFocus) {
+  function focusElement(elementToFocus: number | null) {
     if (elementToFocus === null) {
       input.focus();
     } else {
@@ -99,10 +82,7 @@
     }
   }
 
-  /**
-   * @param {KeyboardEvent} e
-   */
-  function onKeyDown(e) {
+  function onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
       case "ArrowUp":
         if (showListBox && selectedOption !== null) {
@@ -149,11 +129,9 @@
     }
   }
 
-  /** @type {EspèceProtégée[]} */
-  let espècesPertinentes = $state([]);
+  let espècesPertinentes: EspèceProtégée[] = $state([]);
 
-  /** @param {string} text */
-  function filtrerEspeces(text) {
+  function filtrerEspeces(text: string) {
     if (text.trim().length === 0) return [];
 
     return espèces
@@ -164,7 +142,7 @@
           .map(normalizeTexteEspèce)
           .filter((x) => x.length >= 1);
 
-        return textParts.every((/** @type {string} */ part) => {
+        return textParts.every((part: string) => {
           for (let nom of nomsScientifiques) {
             nom = normalizeNomEspèce(nom);
             if (nom.includes(part)) {
@@ -183,21 +161,14 @@
       .slice(0, 12);
   }
 
-  /**
-   * @param {string} text
-   */
-  function messageLive(text) {
+  function messageLive(text: string) {
     statusMessage = text;
     setTimeout(() => {
       statusMessage = "";
     }, 400);
   }
 
-  /**
-   *
-   * @param {EspèceProtégée} espèce
-   */
-  function selectionnerEspèce(espèce) {
+  function selectionnerEspèce(espèce: EspèceProtégée) {
     if (onChange) {
       onChange(espèce);
     }
@@ -213,15 +184,9 @@
     input?.focus();
   }
 
-  /**
-   * @type {HTMLElement}
-   */
-  let input;
+  let input: HTMLElement;
 
-  /**
-   * @type {HTMLElement[]}
-   */
-  let optionsRefs = $state([]);
+  let optionsRefs: HTMLElement[] = $state([]);
 </script>
 
 <div class="autocomplete-container" title={text}>
