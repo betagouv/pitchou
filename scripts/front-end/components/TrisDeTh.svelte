@@ -1,20 +1,16 @@
-<script>
-  // @ts-check
+<script lang="ts">
   import clsx from "clsx";
 
-  /** @import  { TriTableau } from '../../types/interfaceUtilisateur.ts' */
+  import type { TriTableau } from "../../types/interfaceUtilisateur.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {TriTableau[]} tris
-   * @property {TriTableau | undefined} [triSélectionné]
-   */
+  type Props = {
+    tris: TriTableau[];
+    triSélectionné?: TriTableau | undefined;
+  };
 
-  /** @type {Props} */
-  let { tris, triSélectionné = $bindable(undefined) } = $props();
+  let { tris, triSélectionné = $bindable(undefined) }: Props = $props();
 
-  /** @type {(tri: TriTableau) => void} */
-  const sélectionnerTri = (tri) => {
+  const sélectionnerTri = (tri: TriTableau): void => {
     triSélectionné = tri;
     tri.trier();
   };

@@ -1,23 +1,19 @@
-<script>
+<script lang="ts">
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
+  import type { Snippet } from "svelte";
 
   import { goto } from "$app/navigation";
   import { logout } from "../actions/main.ts";
   import { store } from "../store.svelte.ts";
 
-  /** @import {PitchouState} from '../store.svelte.ts' */
+  import type { PitchouState } from "../store.svelte.ts";
 
   function logoutAndRedirect() {
     logout().then(() => goto("/"));
   }
 
-  /**
-   *
-   * @param {Date} date
-   * @returns {string}
-   */
-  export function formatDate(date) {
+  export function formatDate(date: Date): string {
     const diff = differenceInMinutes(new Date(), date);
 
     if (diff <= 1) {
@@ -31,17 +27,15 @@
     return format(date, `d MMMM yyyy HH'h'mm`, { locale: fr });
   }
 
-  /**
-   * @typedef {Object} Props
-   * @property {boolean} [nav]
-   * @property {string | undefined} [email]
-   * @property {string | undefined} [title]
-   * @property {PitchouState['erreurs']} [erreurs]
-   * @property {PitchouState['résultatsSynchronisationDS88444']} [résultatsSynchronisationDS88444]
-   * @property {import('svelte').Snippet} [children]
-   */
+  type Props = {
+    nav?: boolean;
+    email?: string | undefined;
+    title?: string | undefined;
+    erreurs?: PitchouState["erreurs"];
+    résultatsSynchronisationDS88444?: PitchouState["résultatsSynchronisationDS88444"];
+    children?: Snippet;
+  };
 
-  /** @type {Props} */
   let {
     nav = true,
     email = undefined,
@@ -49,7 +43,7 @@
     résultatsSynchronisationDS88444 = undefined,
     title = undefined,
     children,
-  } = $props();
+  }: Props = $props();
 
   let dernièreSynchronisationRéussie = $derived(
     résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find((r) => r.succès),

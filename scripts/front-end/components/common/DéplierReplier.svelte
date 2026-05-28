@@ -1,21 +1,19 @@
-<script>
-  /**
-   * Composant utilisé pour un usage un peu similaire à l'accordéon du DSFR...
-   * https://www.systeme-de-design.gouv.fr/version-courante/fr/composants/accordeon
-   *
-   * ...mais quand celui-ci est trop balourd et qu'on préfère un details/summary pus léger visuellement
-   * et standard
-   */
+<script lang="ts">
+  // Composant utilisé pour un usage un peu similaire à l'accordéon du DSFR...
+  // https://www.systeme-de-design.gouv.fr/version-courante/fr/composants/accordeon
+  //
+  // ...mais quand celui-ci est trop balourd et qu'on préfère un details/summary pus léger visuellement
+  // et standard
 
-  /**
-   * @typedef {Object} Props
-   * @property {boolean} [open]
-   * @property {import('svelte').Snippet} [summary]
-   * @property {import('svelte').Snippet} [content]
-   */
+  import type { Snippet } from "svelte";
 
-  /** @type {Props} */
-  let { open = false, summary, content } = $props();
+  type Props = {
+    open?: boolean;
+    summary?: Snippet;
+    content?: Snippet;
+  };
+
+  let { open = false, summary, content }: Props = $props();
 </script>
 
 <details {open}>

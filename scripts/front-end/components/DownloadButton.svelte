@@ -1,21 +1,19 @@
-<script>
-  /**
-   * @typedef {Object} Props
-   * @property {string} [label]
-   * @property {() => string} makeFilename
-   * @property {string} [classname]
-   * @property {string} [style]
-   * @property {() => Blob | Promise<Blob>} makeFileContentBlob
-   */
+<script lang="ts">
+  type Props = {
+    label?: string;
+    makeFilename: () => string;
+    classname?: string;
+    style?: string;
+    makeFileContentBlob: () => Blob | Promise<Blob>;
+  };
 
-  /** @type {Props} */
   let {
     label = "Télécharger",
     makeFilename,
     classname = "fr-btn fr-btn--lg",
     makeFileContentBlob,
     style,
-  } = $props();
+  }: Props = $props();
 
   async function onClick() {
     const link = document.createElement("a");

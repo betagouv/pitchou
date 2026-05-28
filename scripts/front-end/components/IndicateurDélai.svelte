@@ -1,17 +1,17 @@
-<script>
+<script lang="ts">
   import { run } from "svelte/legacy";
 
   import clsx from "clsx";
 
-  /**
-   * @typedef {Object} Props
-   * @property { 'info' | 'succès' | 'avertissement' | 'erreur' } [style]
-   * @property { number } quantité
-   * @property { string } alt
-   */
+  type StyleIndicateur = "info" | "succès" | "avertissement" | "erreur";
 
-  /** @type {Props} */
-  let { style = "info", quantité, alt } = $props();
+  type Props = {
+    style?: StyleIndicateur;
+    quantité: number;
+    alt: string;
+  };
+
+  let { style = "info", quantité, alt }: Props = $props();
 
   let quantitéAjustée = $derived(quantité);
   run(() => {

@@ -1,17 +1,15 @@
-<script>
+<script lang="ts">
   import { differenceInMonths, differenceInWeeks, addMonths, format } from "date-fns";
   import IndicateurDélai from "./IndicateurDélai.svelte";
   import { getDébutPhaseActuelle } from "../getDébutPhaseActuelle.ts";
 
-  /** @import {DossierRésumé} from '../../types/API_Pitchou.js' */
+  import type { DossierRésumé } from "../../types/API_Pitchou.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property { DossierRésumé } dossier
-   */
+  type Props = {
+    dossier: DossierRésumé;
+  };
 
-  /** @type {Props} */
-  let { dossier } = $props();
+  let { dossier }: Props = $props();
 
   let débutPhaseActuelle = $derived(getDébutPhaseActuelle(dossier));
   let monthDiff = $derived(differenceInMonths(new Date(), débutPhaseActuelle.dateDébut));

@@ -1,33 +1,32 @@
-<script>
+<script lang="ts">
   /**
    * @deprecated Utiliser BadgePhase à la place.
    */
 
-  /** @import { MouseEventHandler } from 'svelte/elements' */
-  /** @import { DossierPhase } from '../../types/API_Pitchou.ts' */
+  import type { MouseEventHandler } from "svelte/elements";
+  import type { DossierPhase } from "../../types/API_Pitchou.ts";
 
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierPhase} phase
-   * @property {'SM' | 'MD'} [taille]
-   * @property {MouseEventHandler<HTMLButtonElement> | undefined} [onClick]
-   * @property {boolean | undefined} [ariaPressed]
-   * @property {string[]} [classes]
-   */
+  type Taille = "SM" | "MD";
 
-  /** @type {Props} */
+  type Props = {
+    phase: DossierPhase;
+    taille?: Taille;
+    onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
+    ariaPressed?: boolean | undefined;
+    classes?: string[];
+  };
+
   let {
     phase,
     taille = "MD",
     onClick = undefined,
     ariaPressed = undefined,
     classes = [],
-  } = $props();
+  }: Props = $props();
 
-  /** @type {Map<DossierPhase, string>} */
-  const phaseToClass = new Map([
+  const phaseToClass = new Map<DossierPhase, string>([
     ["Accompagnement amont", "phase--accompagnement-amont"],
     ["Étude recevabilité DDEP", "phase--étude-recevabilité"],
     ["Instruction", "phase--instruction"],
@@ -36,8 +35,7 @@
     ["Obligations terminées", "phase--obligations-terminées"],
   ]);
 
-  /** @type {Map<typeof taille, string>} */
-  const tailleToClass = new Map([
+  const tailleToClass = new Map<Taille, string>([
     ["SM", "fr-tag--sm"],
     ["MD", "fr-tag--md"],
   ]);
@@ -46,17 +44,14 @@
     ["fr-tag", tailleToClass.get(taille), phaseToClass.get(phase), ...classes].filter((x) => !!x),
   );
 
-  /**
-   * Le DSFR rajoute ses propres listeners pour gérer les aria-pressed, mais on n'en a pas besoin
-   * alors, on désactive la propagation des évènements pour éviter des problèmes d'affichage
-   */
-  /** @type {MouseEventHandler<HTMLButtonElement>} */
-  function onClickWithDSFROverride(e) {
+  // Le DSFR rajoute ses propres listeners pour gérer les aria-pressed, mais on n'en a pas besoin
+  // alors, on désactive la propagation des évènements pour éviter des problèmes d'affichage
+  const onClickWithDSFROverride: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (onClick) {
       e.stopImmediatePropagation();
       onClick(e);
     }
-  }
+  };
 </script>
 
 {#if typeof onClick === "function"}
