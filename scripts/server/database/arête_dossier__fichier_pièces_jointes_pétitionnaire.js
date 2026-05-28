@@ -7,6 +7,7 @@
 
 import trouverCandidatsFichiersÀTélécharger from "../../../outils/synchronisation-ds/trouverCandidatsFichiersÀTélécharger.js";
 import { directDatabaseConnection } from "../database.js";
+import { supprimerFichiersSansAutresRéférences } from "./fichier.js";
 
 /** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
 
@@ -55,32 +56,38 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
   //console.log('dossierIds', dossierIds)
   //console.log('checksumsDS', checksumsDS)
 
-  // Trouver les fichiers qui sont en base de données, mais ne sont plus dans DS
-  const fichierIdsEnBDDMaisPlusDansDS = await databaseConnection("dossier")
-    .select(["fichier.id as id"])
-    .leftJoin("arête_dossier__fichier_pièces_jointes_pétitionnaire", {
-      "arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier": "dossier.id",
-    })
-    .leftJoin("fichier", {
-      "fichier.id": "arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier",
-    })
-    .whereIn("dossier.id", [...dossierIds])
-    .andWhere("DS_checksum", "not in", [...checksumsDS]);
-
-  //console.log('fichier ids orphelins', fichierIdsEnBDDMaisPlusDansDS)
+  // Trouver les (dossier, fichier) à délier : fichiers liés à un dossier du lot via la jointure PJ pétitionnaire,
+  // mais dont le DS_checksum n'est plus dans la liste des candidats DS pour ces dossiers
+  const arêtesÀSupprimer = await databaseConnection(
+    "arête_dossier__fichier_pièces_jointes_pétitionnaire as a",
+  )
+    .select(["a.dossier as dossier", "a.fichier as fichier"])
+    .innerJoin("fichier as f", "f.id", "a.fichier")
+    .whereIn("a.dossier", [...dossierIds])
+    .andWhere("f.DS_checksum", "not in", [...checksumsDS]);
 
   /** @type {Promise<any>} */
   let fichiersOrphelinsNettoyés = Promise.resolve();
 
-  if (fichierIdsEnBDDMaisPlusDansDS.length >= 1) {
-    // supprimer les fichier
-    // les arêtes correspondantes sont supprimées via le ON DELETE CASCADE
-    fichiersOrphelinsNettoyés = databaseConnection("fichier")
-      .delete()
-      .whereIn(
-        "id",
-        fichierIdsEnBDDMaisPlusDansDS.map((f) => f.id),
+  if (arêtesÀSupprimer.length >= 1) {
+    const fichierIdsCandidatsÀSupprimer = [...new Set(arêtesÀSupprimer.map((a) => a.fichier))];
+
+    fichiersOrphelinsNettoyés = (async () => {
+      // 1. Délier : supprimer les arêtes PJ pétitionnaire concernées (le fichier peut encore servir ailleurs)
+      await databaseConnection("arête_dossier__fichier_pièces_jointes_pétitionnaire")
+        .delete()
+        .whereIn(
+          ["dossier", "fichier"],
+          arêtesÀSupprimer.map((a) => [a.dossier, a.fichier]),
+        );
+
+      // 2. Supprimer les fichiers maintenant que les arêtes sont parties, uniquement
+      //    s'ils ne sont plus référencés ailleurs
+      await supprimerFichiersSansAutresRéférences(
+        fichierIdsCandidatsÀSupprimer,
+        databaseConnection,
       );
+    })();
   }
 
   const arêtesFichierDossierPiècesJointePétitionnaires = [
@@ -97,7 +104,10 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
   if (arêtesFichierDossierPiècesJointePétitionnaires.length >= 1) {
     nouveauxFichiersSynchronisés = databaseConnection(
       "arête_dossier__fichier_pièces_jointes_pétitionnaire",
-    ).insert(arêtesFichierDossierPiècesJointePétitionnaires);
+    )
+      .insert(arêtesFichierDossierPiècesJointePétitionnaires)
+      .onConflict(["dossier", "fichier"])
+      .ignore();
   }
 
   return Promise.all([fichiersOrphelinsNettoyés, nouveauxFichiersSynchronisés]);

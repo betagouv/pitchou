@@ -79,7 +79,10 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
     transaction,
   );
 
-  const fichierHashDéjàEnBDD = new Set(fichiersDéjaEnBDD.map(makeFichierHash));
+  const fichierIdParHashDéjàEnBDD = new Map(
+    // @ts-ignore
+    fichiersDéjaEnBDD.map((f) => [makeFichierHash(f), f.id]),
+  );
 
   //console.log('fichiersDéjaEnBDD', fichiersDéjaEnBDD)
   //console.log('candidatsFichiersBDD', candidatsFichiersBDD)
@@ -90,7 +93,7 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
     // @ts-ignore
     [...candidatsFichiersBDD]
       .map(([number, fichiers]) => {
-        return [number, fichiers.filter((f) => !fichierHashDéjàEnBDD.has(makeFichierHash(f)))];
+        return [number, fichiers.filter((f) => !fichierIdParHashDéjàEnBDD.has(makeFichierHash(f)))];
       })
       // @ts-ignore
       .filter(([_, fichiers]) => fichiers.length >= 1),
@@ -167,9 +170,25 @@ export default async function téléchargerNouveauxFichiers(candidatsFichiers, t
     });
   });
 
-  /** @type {ReturnMapEntryData[]} */
-  const ret = (await Promise.all(retMapDataPs)) // ignore download errors
-    .filter((x) => x !== undefined);
+  const nouveauxFichiersParDossier = new Map(
+    (await Promise.all(retMapDataPs)).filter((x) => x !== undefined),
+  );
 
-  return new Map(ret);
+  // Pour chaque dossier, on retourne les ids de tous les fichiers qui le concernent — qu'ils
+  // viennent d'être téléchargés ou qu'ils étaient déjà en BDD (matchés par hash). Le consommateur
+  // peut ainsi créer les arêtes de jointure dans les deux cas.
+  const fichiersParDossier = new Map();
+  for (const [numéroDossier, candidats] of candidatsFichiersBDD) {
+    const idsFichiersDéjàEnBDD = candidats
+      .map((c) => fichierIdParHashDéjàEnBDD.get(makeFichierHash(c)))
+      .filter((id) => id !== undefined);
+
+    const idsFichiersNouveaux = nouveauxFichiersParDossier.get(numéroDossier) ?? [];
+
+    const tousLesIds = [...idsFichiersDéjàEnBDD, ...idsFichiersNouveaux];
+
+    if (tousLesIds.length >= 1) fichiersParDossier.set(numéroDossier, tousLesIds);
+  }
+
+  return fichiersParDossier;
 }

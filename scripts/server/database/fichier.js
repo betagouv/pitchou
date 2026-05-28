@@ -34,7 +34,7 @@ export function trouverFichiersExistants(
   databaseConnection = directDatabaseConnection,
 ) {
   return databaseConnection("fichier")
-    .select(["DS_checksum", "nom", "media_type"])
+    .select(["id", "DS_checksum", "nom", "media_type"])
     .whereIn(
       ["DS_checksum", "nom", "media_type"],
       // @ts-ignore
@@ -69,4 +69,46 @@ export function getFichier(fichierId, databaseConnection = directDatabaseConnect
  */
 export function supprimerFichier(id, databaseConnection = directDatabaseConnection) {
   return databaseConnection("fichier").delete().where({ id });
+}
+
+// Toutes les tables/colonnes qui peuvent référencer un fichier (cf. les FK vers `fichier` dans les migrations).
+// Centralisé ici pour que `supprimerFichiersSansAutresRéférences` reste exhaustive.
+const FICHIER_REFERENCES = [
+  { table: "arête_dossier__fichier_pièces_jointes_pétitionnaire", column: "fichier" },
+  { table: "dossier", column: "espèces_impactées" },
+  { table: "décision_administrative", column: "fichier" },
+  { table: "avis_expert", column: "saisine_fichier" },
+  { table: "avis_expert", column: "avis_fichier" },
+];
+
+/**
+ * Supprime du `fichier` uniquement les IDs qui ne sont plus référencés par aucune autre table.
+ * Préserve les fichiers partagés entre plusieurs usages (un même contenu peut être à la fois
+ * une PJ pétitionnaire, un fichier espèces impactées, un avis expert, etc.).
+ *
+ * @param {Fichier['id'][]} fichierIds
+ * @param {Knex.Transaction | Knex} [databaseConnection]
+ * @returns {Promise<Fichier['id'][]>} les IDs effectivement supprimés
+ */
+export async function supprimerFichiersSansAutresRéférences(
+  fichierIds,
+  databaseConnection = directDatabaseConnection,
+) {
+  if (fichierIds.length === 0) return [];
+
+  const stillReferenced = new Set();
+  for (const { table, column } of FICHIER_REFERENCES) {
+    const rows = await databaseConnection(table).select(column).whereIn(column, fichierIds);
+    for (const r of rows) {
+      if (r[column] !== null) stillReferenced.add(r[column]);
+    }
+  }
+
+  const àSupprimer = fichierIds.filter((id) => !stillReferenced.has(id));
+
+  if (àSupprimer.length >= 1) {
+    await databaseConnection("fichier").delete().whereIn("id", àSupprimer);
+  }
+
+  return àSupprimer;
 }
