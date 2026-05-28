@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       - ./backups:/var/lib/pitchou/backups
 
   pgadmin:
@@ -28,3 +28,6 @@ services:
       PGADMIN_CONFIG_SERVER_HEARTBEAT_TIMEOUT: 3600 # secondes = une heure
     restart: unless-stopped
     stop_grace_period: 2s
+
+volumes:
+  pgdata:
