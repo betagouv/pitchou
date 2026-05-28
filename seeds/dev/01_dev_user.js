@@ -10,7 +10,7 @@ import { randomBytes } from "node:crypto";
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 const SEED_GROUP_NAME = "Groupe de démonstration (seed)";
 const SEED_DEMARCHE_NUMBER = 999999;
-const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:2648";
+const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
 /** @type {Array<Pick<DossierInitializer, 'nom' | 'number_demarches_simplifiées'>>} */
 const FAKE_DOSSIERS = [

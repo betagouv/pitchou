@@ -72,7 +72,7 @@ migrate-latest:
 
 # Insère les données de dev en base
 seed-dev:
-    pnpm run seed:dev
+    knex seed:run --env docker_dev
 
 # Synchronise les dossiers depuis Démarches Simplifiées (sans argument : dernières heures ; sinon depuis la date passée, ex: just sync-ds 2025-06-01)
 sync-ds lastModified="":
