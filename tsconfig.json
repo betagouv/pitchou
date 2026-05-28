@@ -14,7 +14,7 @@
     "scripts/**/*.svelte",
     "outils/**/*.js",
     "tests/**/*.js",
-    "tests/**/*.ts"
+    "seeds/**/*.js"
   ],
   "exclude": ["node_modules"],
   "compilerOptions": {

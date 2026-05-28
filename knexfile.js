@@ -14,6 +14,9 @@ export default {
     migrations: {
       tableName: "knex_migrations",
     },
+    seeds: {
+      directory: "./seeds/dev",
+    },
   },
 
   production: {
