@@ -1,4 +1,5 @@
 import { directDatabaseConnection } from "../database.js";
+import { supprimerFichiersSansAutresRéférences } from "./fichier.js";
 
 /** @import {default as Fichier} from '../../../scripts/types/database/public/Fichier.ts' */
 /** @import {DossierDS88444} from '../../types/démarche-numérique/apiSchema.ts' */
@@ -31,13 +32,8 @@ export async function synchroniserFichiersEspècesImpactéesDepuisDS88444(
   });
 
   // Supprimer les fichiers qui étaient attachés à un dossier et ne sont plus pertinents
-  return Promise.all(updatePs).then(() => {
-    const fichiersOrphelinsIds = fichiersIdPrécédents.map(
-      ({ espèces_impactées }) => espèces_impactées,
-    );
+  await Promise.all(updatePs);
 
-    if (fichiersOrphelinsIds.length >= 1) {
-      return databaseConnection("fichier").delete().whereIn("id", fichiersOrphelinsIds);
-    }
-  });
+  const fichiersAncienIds = fichiersIdPrécédents.map(({ espèces_impactées }) => espèces_impactées);
+  await supprimerFichiersSansAutresRéférences(fichiersAncienIds, databaseConnection);
 }
