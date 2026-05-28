@@ -3,21 +3,17 @@
 /** @import {Knex} from 'knex' */
 /** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
 /** @import {GroupeInstructeursInitializer} from '../../scripts/types/database/public/GroupeInstructeurs.ts' */
-/** @import {DossierInitializer} from '../../scripts/types/database/public/Dossier.ts' */
+
 
 import { randomBytes } from "node:crypto";
+import {
+  SEED_DEMARCHE_NUMBER,
+  FAKE_DOSSIERS,
+} from "../dossiers.js";
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 const SEED_GROUP_NAME = "Groupe de démonstration (seed)";
-const SEED_DEMARCHE_NUMBER = 999999;
 const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
-
-/** @type {Array<Pick<DossierInitializer, 'nom' | 'number_demarches_simplifiées'>>} */
-const FAKE_DOSSIERS = [
-  { nom: "Parc éolien des Hauteurs (démo)", number_demarches_simplifiées: "999000001" },
-  { nom: "Reconstruction pont sur la Loire (démo)", number_demarches_simplifiées: "999000002" },
-  { nom: "Carrière de granulats du Sud (démo)", number_demarches_simplifiées: "999000003" },
-];
 
 /**
  * @param {Knex} knex
@@ -77,14 +73,7 @@ export async function seed(knex) {
         .where({ number_demarches_simplifiées: fakeDossier.number_demarches_simplifiées })
         .first();
       if (!dossier) {
-        /** @type {DossierInitializer} */
-        const newDossier = {
-          nom: fakeDossier.nom,
-          number_demarches_simplifiées: fakeDossier.number_demarches_simplifiées,
-          date_dépôt: new Date(),
-          numéro_démarche: SEED_DEMARCHE_NUMBER,
-        };
-        const [inserted] = await transaction("dossier").insert(newDossier).returning("id");
+        const [inserted] = await transaction("dossier").insert(fakeDossier).returning("id");
         dossier = inserted;
       }
 
