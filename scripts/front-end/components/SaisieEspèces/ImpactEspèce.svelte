@@ -1,24 +1,34 @@
-<script>
-  // @ts-check
-
+<script lang="ts">
   import { fourchettesIndividus } from "../../espèceFieldset.ts";
 
-  /** @import {ParClassification, DescriptionImpact, EspèceProtégée, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, ClassificationEtreVivant} from "../../../types/especes.js" */
+  import type {
+    ParClassification,
+    DescriptionImpact,
+    EspèceProtégée,
+    ActivitéMenançante,
+    MéthodeMenançante,
+    MoyenDePoursuiteMenaçant,
+    ClassificationEtreVivant,
+  } from "../../../types/especes.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {number} [indexEspèce]
-   * @property {number} [indexImpact]
-   * @property {DescriptionImpact} [impact]
-   * @property {(() => Promise<void>)} [onSupprimerImpact]
-   * @property {EspèceProtégée} [espèce]
-   * @property {ClassificationEtreVivant} [espèceClassification]
-   * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
-   * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-   * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
-   */
+  type Props = {
+    indexEspèce?: number;
+    indexImpact?: number;
+    impact?: DescriptionImpact;
+    onSupprimerImpact?: () => Promise<void>;
+    espèce?: EspèceProtégée;
+    espèceClassification?: ClassificationEtreVivant;
+    activitesParClassificationEtreVivant?: ParClassification<
+      Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>
+    >;
+    méthodesParClassificationEtreVivant: ParClassification<
+      Map<MéthodeMenançante["Code"], MéthodeMenançante>
+    >;
+    transportsParClassificationEtreVivant: ParClassification<
+      Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    >;
+  };
 
-  /** @type {Props} */
   let {
     indexEspèce,
     indexImpact,
@@ -29,7 +39,7 @@
     activitesParClassificationEtreVivant,
     méthodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
-  } = $props();
+  }: Props = $props();
 
   let activitésMenaçantes = $derived(
     espèceClassification && activitesParClassificationEtreVivant
@@ -66,15 +76,9 @@
     impact.nombreOeufs = undefined;
   }
 
-  /**
-   * @type {HTMLElement | undefined}
-   */
-  let boutonSupprimer = $state();
+  let boutonSupprimer: HTMLElement | undefined = $state();
 
-  /**
-   * @type {HTMLElement}
-   */
-  let selectImpact;
+  let selectImpact: HTMLElement;
 </script>
 
 <fieldset class="fr-fieldset fr-input-group fr-fieldset__element">

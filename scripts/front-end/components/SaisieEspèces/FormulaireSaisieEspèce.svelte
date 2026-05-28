@@ -1,22 +1,33 @@
-<script>
+<script lang="ts">
   import { tick } from "svelte";
   import TuileSaisieEspèce from "../SaisieEspèces/TuileSaisieEspèce.svelte";
   import { mailtoJeNetrouvePasUneEspèce } from "../../../commun/constantes.js";
 
-  /** @import {ParClassification, EspèceProtégée, DescriptionImpact, ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant} from "../../../types/especes.js" */
+  import type {
+    ParClassification,
+    EspèceProtégée,
+    DescriptionImpact,
+    ActivitéMenançante,
+    MéthodeMenançante,
+    MoyenDePoursuiteMenaçant,
+  } from "../../../types/especes.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {number} [index]
-   * @property {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>} [espècesImpactées]
-   * @property {EspèceProtégée[]} [espècesProtégées]
-   * @property {TuileSaisieEspèce[]} référencesEspèces
-   * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} [activitesParClassificationEtreVivant]
-   * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-   * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
-   */
+  type Props = {
+    index?: number;
+    espècesImpactées?: Array<{ espèce?: EspèceProtégée; impacts?: DescriptionImpact[] }>;
+    espècesProtégées?: EspèceProtégée[];
+    référencesEspèces: TuileSaisieEspèce[];
+    activitesParClassificationEtreVivant?: ParClassification<
+      Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>
+    >;
+    méthodesParClassificationEtreVivant: ParClassification<
+      Map<MéthodeMenançante["Code"], MéthodeMenançante>
+    >;
+    transportsParClassificationEtreVivant: ParClassification<
+      Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    >;
+  };
 
-  /** @type {Props} */
   let {
     espècesImpactées = $bindable([{ impacts: [{}] }]),
     référencesEspèces = $bindable(),
@@ -24,7 +35,7 @@
     activitesParClassificationEtreVivant,
     méthodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
-  } = $props();
+  }: Props = $props();
 
   async function ajouterEspèce() {
     espècesImpactées.push({
@@ -37,10 +48,7 @@
     référencesEspèces[référencesEspèces.length - 1].focusFormulaireEspèce();
   }
 
-  /**
-   * @param {number} indexEspèceÀSupprimer
-   */
-  async function supprimerEspèce(indexEspèceÀSupprimer) {
+  async function supprimerEspèce(indexEspèceÀSupprimer: number) {
     espècesImpactées.splice(indexEspèceÀSupprimer, 1);
 
     await tick();
@@ -60,10 +68,7 @@
     }
   }
 
-  /**
-   * @param {number} indexEspèceÀDuppliquer
-   */
-  async function duppliquerEspèce(indexEspèceÀDuppliquer) {
+  async function duppliquerEspèce(indexEspèceÀDuppliquer: number) {
     const nouvelleEspèceImpactée = {
       espèce: espècesImpactées[indexEspèceÀDuppliquer].espèce,
       impacts: espècesImpactées[indexEspèceÀDuppliquer].impacts?.map((i) => Object.assign({}, i)),
@@ -78,10 +83,7 @@
     référencesEspèces[indexEspèceÀDuppliquer + 1].focusFormulaireEspèce();
   }
 
-  /**
-   * @param {Event} e
-   */
-  function onOuvertureModale(e) {
+  function onOuvertureModale(e: Event) {
     // @ts-ignore EventTarget est un HTMLElement dans ce cas-ci
     modaleButton = e.target;
   }
@@ -92,10 +94,7 @@
     }
   }
 
-  /**
-   * @type {HTMLElement | null}
-   */
-  let modaleButton;
+  let modaleButton: HTMLElement | null;
 </script>
 
 <form class="fr-mb-4w">
