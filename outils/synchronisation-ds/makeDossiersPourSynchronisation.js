@@ -116,9 +116,9 @@ export function getDonnéesPersonnesEntreprises88444(dossierDS, pitchouKeyToCham
   if (SIRETChamp) {
     const etablissement = SIRETChamp.etablissement;
     if (etablissement) {
-      const { siret, address = {}, entreprise = {} } = etablissement;
+      const { siret, address = {}, entreprise } = etablissement;
       const { streetAddress, postalCode, cityName } = address;
-      const { raisonSociale } = entreprise;
+      const { raisonSociale } = entreprise ?? {};
 
       demandeur_personne_morale = {
         siret,
