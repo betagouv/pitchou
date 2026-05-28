@@ -1,61 +1,46 @@
-<script>
+<script lang="ts">
   import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.ts";
   import { refreshDossierComplet } from "../../actions/dossier.ts";
   import { formatDateAbsolue } from "../../affichageDossier.ts";
   import DateInput from "../common/DateInput.svelte";
 
-  /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
+  import type { DossierComplet, FrontEndAvisExpert } from "../../../types/API_Pitchou.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} id
-   * @property {Pick<DossierComplet, 'id' | 'avisExpert'>} dossier
-   */
+  type Props = {
+    id: string;
+    dossier: Pick<DossierComplet, "id" | "avisExpert">;
+  };
 
-  /** @type {Props} */
-  let { id, dossier } = $props();
+  let { id, dossier }: Props = $props();
 
-  /**
-   *  @typedef {'Arrêté préfectoral' | 'Avis expert' | 'Saisine expert' | 'Autre'} TypePièceJointe
-   */
+  type TypePièceJointe = "Arrêté préfectoral" | "Avis expert" | "Saisine expert" | "Autre";
 
   const idTitreH2 = $derived(`${id}-title`);
 
   const OPTIONS_SERVICE_EXPERT = ["CSRPN", "CNPN", "Ministre", "Autre expert"];
 
-  /** @type {FileList | undefined} */
-  let fileListPièceJointe = $state();
+  let fileListPièceJointe: FileList | undefined = $state();
 
-  /** @type {TypePièceJointe | null} */
-  let typePièceJointe = $state(null);
+  let typePièceJointe: TypePièceJointe | null = $state(null);
 
-  /** @type {string | null} */
-  let serviceOuPersonneExperte = $state(null);
+  let serviceOuPersonneExperte: string | null = $state(null);
 
-  /** @type {string | null} */
-  let autreExpertTexte = $state(null);
+  let autreExpertTexte: string | null = $state(null);
 
-  /** @type {string | null} */
   // avis de l'expert (favorable, non favorable...)
-  let avis = $state(null);
+  let avis: string | null = $state(null);
 
-  /** @type {FrontEndAvisExpert['date_saisine'] | undefined}*/
-  let dateSaisine = $state();
+  let dateSaisine: FrontEndAvisExpert["date_saisine"] | undefined = $state();
 
-  /** @type {FrontEndAvisExpert['date_avis'] | undefined}*/
-  let dateAvis = $state();
+  let dateAvis: FrontEndAvisExpert["date_avis"] | undefined = $state();
 
-  /** @type {FrontEndAvisExpert['id'] | 'nouvel-avis-expert' | null} */
-  let avisExpertSélectionné = $state(null);
+  let avisExpertSélectionné: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
 
-  /** @type {string | null} */
-  let messageErreur = $state(null);
+  let messageErreur: string | null = $state(null);
 
-  /** @type {HTMLElement | undefined} */
-  let modale;
+  let modale: HTMLElement | undefined;
 
-  /** @type {HTMLInputElement | undefined} */
-  let fileInput = $state();
+  let fileInput: HTMLInputElement | undefined = $state();
 
   let saisinesSansAvis = $derived(
     dossier.avisExpert.filter(
@@ -66,8 +51,7 @@
     ),
   );
 
-  /** @type {Promise<void>} */
-  let ajouterUneNouvellePièceJointeP = $state(Promise.resolve());
+  let ajouterUneNouvellePièceJointeP: Promise<void> = $state(Promise.resolve());
 
   // Pré-cocher automatiquement la saisine si il n'y en a qu'une seule
   $effect(() => {
@@ -139,8 +123,8 @@
             serviceOuPersonneExperte === "Autre expert"
               ? autreExpertTexte
               : serviceOuPersonneExperte;
-          /** @type {Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>}*/
-          const avisExpertÀCréer = {
+          const avisExpertÀCréer: Pick<FrontEndAvisExpert, "dossier"> &
+            Partial<FrontEndAvisExpert> = {
             dossier: dossier.id,
             expert: expert,
             avis,

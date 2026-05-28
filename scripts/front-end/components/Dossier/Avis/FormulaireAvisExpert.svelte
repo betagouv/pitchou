@@ -1,60 +1,47 @@
-<script>
-  /** @import { DossierComplet, FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
+<script lang="ts">
+  import type { DossierComplet, FrontEndAvisExpert } from "../../../../types/API_Pitchou.js";
 
   import { ajouterOuModifierAvisExpert } from "../../../actions/avisExpert.ts";
   import { refreshDossierComplet } from "../../../actions/dossier.ts";
   import DateInput from "../../common/DateInput.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet['id']} dossierId
-   * @property {() => void} fermerLeFormulaire
-   * @property {FrontEndAvisExpert} [avisExpertInitial]
-   */
+  type Props = {
+    dossierId: DossierComplet["id"];
+    fermerLeFormulaire: () => void;
+    avisExpertInitial?: FrontEndAvisExpert;
+  };
 
-  /** @type {Props} */
-  let { fermerLeFormulaire, dossierId, avisExpertInitial = $bindable() } = $props();
+  let { fermerLeFormulaire, dossierId, avisExpertInitial = $bindable() }: Props = $props();
 
-  /** @type {Partial<Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">>} */
-  let avisExpert = $state(avisExpertInitial ?? {});
+  let avisExpert: Partial<
+    Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">
+  > = $state(avisExpertInitial ?? {});
 
-  /** @type {FileList | undefined} */
-  let fileListFichierSaisine = $state();
+  let fileListFichierSaisine: FileList | undefined = $state();
 
-  /** @type {FileList | undefined} */
-  let fileListFichierAvis = $state();
+  let fileListFichierAvis: FileList | undefined = $state();
 
-  /** @type {string | null} */
-  let messageErreur = $state(null);
+  let messageErreur: string | null = $state(null);
 
-  /** @type {Promise<void>} */
-  let chargementAjouterOuModifierAvisExpertP = $state(Promise.resolve());
+  let chargementAjouterOuModifierAvisExpertP: Promise<void> = $state(Promise.resolve());
 
-  /** @type {string} */
-  let serviceOuPersonneExperte = $state(
+  let serviceOuPersonneExperte: string = $state(
     avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
       ? avisExpert.expert
       : "Autre expert",
   );
 
-  /** @type {string | null} */
-  let autreExpertTexte = $state(
+  let autreExpertTexte: string | null = $state(
     avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
       ? null
       : (avisExpert?.expert ?? ""),
   );
 
-  /**
-   *
-   * @param {SubmitEvent} e
-   */
-  function sauvegarderAvisExpert(e) {
+  function sauvegarderAvisExpert(e: SubmitEvent) {
     e.preventDefault();
 
-    /** @type {File | undefined} */
-    let fichierSaisine;
-    /** @type {File | undefined} */
-    let fichierAvis;
+    let fichierSaisine: File | undefined;
+    let fichierAvis: File | undefined;
 
     if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
       fichierSaisine = fileListFichierSaisine[0];

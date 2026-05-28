@@ -1,5 +1,4 @@
-<script>
-  //@ts-check
+<script lang="ts">
   import clsx from "clsx";
 
   import DécisionsAdministratives from "./Contrôles/DécisionsAdministratives.svelte";
@@ -11,28 +10,26 @@
   } from "../../actions/décisionAdministrative.ts";
   import { refreshDossierComplet } from "../../actions/dossier.ts";
 
-  /** @import {DossierComplet, FrontEndDécisionAdministrative} from '../../../types/API_Pitchou.ts' */
-  /** @import {DécisionAdministrativePourTransfer} from '../../../types/API_Pitchou.ts' */
+  import type {
+    DossierComplet,
+    FrontEndDécisionAdministrative,
+    DécisionAdministrativePourTransfer,
+  } from "../../../types/API_Pitchou.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   */
+  type Props = {
+    dossier: DossierComplet;
+  };
 
-  /** @type {Props} */
-  let { dossier } = $props();
+  let { dossier }: Props = $props();
 
-  /** @type {FrontEndDécisionAdministrative[]} */
-  let décisionsAdministratives = $derived(dossier.décisionsAdministratives || []);
+  let décisionsAdministratives: FrontEndDécisionAdministrative[] = $derived(
+    dossier.décisionsAdministratives || [],
+  );
 
   //$inspect('dossier', dossier)
   //$inspect('décisionsAdministratives', décisionsAdministratives)
 
-  /**
-   *
-   * @param {FrontEndDécisionAdministrative} décisionAdministrative
-   */
-  function créerFonctionSupprimer(décisionAdministrative) {
+  function créerFonctionSupprimer(décisionAdministrative: FrontEndDécisionAdministrative) {
     return function () {
       const index = décisionsAdministratives.indexOf(décisionAdministrative);
 
@@ -61,8 +58,7 @@
     ]),
   );
 
-  /** @type {DécisionAdministrativePourTransfer | undefined} */
-  let décisionAdministrativeEnCréation = $state();
+  let décisionAdministrativeEnCréation: DécisionAdministrativePourTransfer | undefined = $state();
 
   function commencerCréationDécisionAdministrative() {
     décisionAdministrativeEnCréation = {

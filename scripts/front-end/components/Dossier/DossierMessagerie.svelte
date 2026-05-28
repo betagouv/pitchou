@@ -1,21 +1,17 @@
-<script>
+<script lang="ts">
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
-
-  //@ts-check
 
   import { formatDateRelative, formatDateAbsolue } from "../../affichageDossier.ts";
 
-  /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-  /** @import {default as Message} from '../../../types/database/public/Message.ts' */
+  import type { DossierComplet } from "../../../types/API_Pitchou.ts";
+  import type Message from "../../../types/database/public/Message.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   * @property {Partial<Message>[]} [messages]
-   */
+  type Props = {
+    dossier: DossierComplet;
+    messages?: Partial<Message>[];
+  };
 
-  /** @type {Props} */
-  let { dossier, messages = [] } = $props();
+  let { dossier, messages = [] }: Props = $props();
 
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);

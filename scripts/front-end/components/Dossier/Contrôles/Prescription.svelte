@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import FormulaireContrôle from "./FormulaireContrôle.svelte";
   import DéplierReplier from "../../common/DéplierReplier.svelte";
@@ -12,17 +12,15 @@
   } from "../../../actions/contrôle.ts";
   import { envoyerÉvènement } from "../../../actions/aarri.ts";
 
-  /** @import {FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
-  /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
+  import type { FrontEndPrescription } from "../../../../types/API_Pitchou.ts";
+  import type Contrôle from "../../../../types/database/public/Contrôle.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Partial<FrontEndPrescription>} prescription
-   * @property {() => Promise<any>} refreshDossierComplet
-   */
+  type Props = {
+    prescription: Partial<FrontEndPrescription>;
+    refreshDossierComplet: () => Promise<any>;
+  };
 
-  /** @type {Props} */
-  let { prescription, refreshDossierComplet } = $props();
+  let { prescription, refreshDossierComplet }: Props = $props();
 
   let {
     id,
@@ -37,8 +35,7 @@
     nids_compensés,
   } = $derived(prescription);
 
-  /** @type {Set<Partial<Contrôle>>}*/
-  let contrôles = $derived(
+  let contrôles: Set<Partial<Contrôle>> = $derived(
     prescription.contrôles ? new SvelteSet(prescription.contrôles) : new SvelteSet(),
   );
 
@@ -53,11 +50,9 @@
     ),
   );
 
-  /** @type {Partial<Contrôle> | undefined} */
-  let contrôleEnCours = $state();
+  let contrôleEnCours: Partial<Contrôle> | undefined = $state();
 
   function ajouterContrôle() {
-    /** @type {Contrôle} */
     contrôleEnCours = {
       prescription: id,
       date_contrôle: new Date(),
@@ -103,20 +98,13 @@
 
   // ne pas créer de proxy pour pouvoir faire des comparaisons ===
   // https://svelte.dev/docs/svelte/runtime-warnings#Client-warnings-state_proxy_equality_mismatch
-  /** @type {Partial<Contrôle> | undefined}*/
-  let contrôleEnModification = $state.raw();
+  let contrôleEnModification: Partial<Contrôle> | undefined = $state.raw();
 
-  /**
-   * @param {Partial<Contrôle>} contrôle
-   */
-  function passerContrôleEnModification(contrôle) {
+  function passerContrôleEnModification(contrôle: Partial<Contrôle>) {
     contrôleEnModification = contrôle;
   }
 
-  /**
-   * @param {Partial<Contrôle>} contrôleValidé
-   */
-  async function validerModificationsContrôle(contrôleValidé) {
+  async function validerModificationsContrôle(contrôleValidé: Partial<Contrôle>) {
     if (!contrôleEnModification) throw new TypeError(`pas de contrôle en modificaion`);
 
     // remplacer contrôleEnModification par contrôleValidé dans le tableau des contrôles
