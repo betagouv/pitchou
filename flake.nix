@@ -53,6 +53,7 @@
             nodejs_22
           ];
           nativeBuildInputs = with pkgs; [
+            awscli2
             docker
             docker-compose
             postgresql

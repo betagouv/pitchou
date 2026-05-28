@@ -141,3 +141,19 @@ test-integration:
 # Lance les tests end-to-end avec playwright
 test-e2e:
     playwright test --config tests/playwright.config.ts
+
+# Liste tous les buckets du compte (vérifie creds + endpoint)
+aws-buckets:
+    aws s3api list-buckets
+
+# Liste récursivement les fichiers du bucket courant ($S3_BUCKET)
+aws-ls:
+    aws s3 ls "s3://$S3_BUCKET" --recursive
+
+# Affiche taille totale et nombre de fichiers du bucket
+aws-usage:
+    aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2
+
+# Supprime un objet du bucket (ex: just aws-rm test-uploads/abc-123)
+aws-rm KEY:
+    aws s3 rm "s3://$S3_BUCKET/{{KEY}}"
