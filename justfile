@@ -1,3 +1,5 @@
+set dotenv-load
+
 # Liste les recettes disponibles
 default:
     @just --list
@@ -40,9 +42,9 @@ build:
 dev:
     vite dev
 
-# Lance les conteneurs Docker de support (Postgres + tooling + pgadmin)
+# Lance les conteneurs Docker de support (Postgres + pgadmin)
 dev-docker:
-    DOCKER_UID="$(id -u)" DOCKER_GID="$(id -g)" docker compose up
+    docker compose up
 
 # Arrête les conteneurs Docker
 dev-stop:
@@ -58,19 +60,23 @@ dev-restart:
 
 # Applique les migrations en attente
 migrate-up:
-    docker exec tooling npx knex migrate:up --env docker_dev
+    knex migrate:up --env docker_dev
 
 # Annule la dernière migration appliquée
 migrate-down:
-    docker exec tooling npx knex migrate:down --env docker_dev
+    knex migrate:down --env docker_dev
 
 # Applique toutes les migrations en attente
 migrate-latest:
-    docker exec tooling npx knex migrate:latest --env docker_dev
+    knex migrate:latest --env docker_dev
 
 # Insère les données de dev en base
 seed-dev:
     pnpm run seed:dev
+
+# Synchronise les dossiers depuis Démarches Simplifiées (sans argument : dernières heures ; sinon depuis la date passée, ex: just sync-ds 2025-06-01)
+sync-ds lastModified="":
+    node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
 
 # Génère tous les types (base de données + Démarche Numérique)
 build-types:
@@ -79,7 +85,7 @@ build-types:
 
 # Génère les types depuis le schéma de la base de données
 build-types-db:
-    docker exec tooling npx kanel -d postgresql://dev:dev_password@postgres_db:5432/especes_pro_3731 -o ./scripts/types/database
+    kanel -d "$DATABASE_URL" -o ./scripts/types/database
 
 # Génère les types des schémas Démarche Numérique
 build-types-ds:
