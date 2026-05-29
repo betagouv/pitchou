@@ -1,29 +1,23 @@
-<script>
+<script lang="ts">
   import { preventDefault } from "svelte/legacy";
 
   import Squelette from "../Squelette.svelte";
   import Loader from "../Loader.svelte";
   import { normalisationEmail } from "../../../commun/manipulationStrings";
 
-  /** @import {ComponentProps} from 'svelte' */
+  import type { ComponentProps } from "svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Set<string>} authorizedEmailDomains
-   * @property {(email: string) => Promise<unknown>} envoiEmailConnexion
-   * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
-   */
+  type Props = {
+    authorizedEmailDomains: Set<string>;
+    envoiEmailConnexion: (email: string) => Promise<unknown>;
+    erreurs: ComponentProps<typeof Squelette>["erreurs"];
+  };
 
-  /** @type {Props} */
-  let { authorizedEmailDomains, envoiEmailConnexion, erreurs } = $props();
+  let { authorizedEmailDomains, envoiEmailConnexion, erreurs }: Props = $props();
 
-  /** @type {string} */
-  let email = $state("");
+  let email: string = $state("");
 
-  /**
-   * @type {Promise<unknown> | undefined}
-   */
-  let emailInProgress = $state();
+  let emailInProgress: Promise<unknown> | undefined = $state();
 
   function onSubmit() {
     emailInProgress = envoiEmailConnexion(normalisationEmail(email));

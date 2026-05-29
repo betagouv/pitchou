@@ -1,21 +1,22 @@
-<script>
-  /** @import { DossierRésumé } from '../../../types/API_Pitchou.ts' */
-  /** @import { PitchouState } from '../../store.svelte.ts' */
-  /** @import { ComponentProps } from "svelte" */
+<script lang="ts">
+  import type { DossierRésumé } from "../../../types/API_Pitchou.ts";
+  import type { PitchouState } from "../../store.svelte.ts";
+  import type { ComponentProps } from "svelte";
 
   import Squelette from "../Squelette.svelte";
   import ListeDossiers from "../ListeDossiers.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} [email]
-   * @property {DossierRésumé[]} dossiers
-   * @property {PitchouState['relationSuivis']} [relationSuivis]
-   * @property {PitchouState['erreurs']} [erreurs]
-   * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
-   * @property {PitchouState['notificationParDossier']} notificationParDossier
-   */
-  /** @type {Props} */
+  type Props = {
+    email?: string;
+    dossiers: DossierRésumé[];
+    relationSuivis?: PitchouState["relationSuivis"];
+    erreurs?: PitchouState["erreurs"];
+    résultatsSynchronisationDS88444: ComponentProps<
+      typeof Squelette
+    >["résultatsSynchronisationDS88444"];
+    notificationParDossier: PitchouState["notificationParDossier"];
+  };
+
   let {
     email = "",
     dossiers = [],
@@ -23,7 +24,7 @@
     erreurs = new Set(),
     résultatsSynchronisationDS88444,
     notificationParDossier,
-  } = $props();
+  }: Props = $props();
 </script>
 
 <Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Mes dossiers">

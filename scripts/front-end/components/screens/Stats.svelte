@@ -1,21 +1,18 @@
-<script>
-  //@ts-check
+<script lang="ts">
   import Loader from "../Loader.svelte";
   import Squelette from "../Squelette.svelte";
   import StatsContenu from "../stats/StatsContenu.svelte";
 
-  /** @import {ComponentProps} from 'svelte' */
-  /** @import {StatsPubliques} from '../../../types/API_Pitchou.ts' */
+  import type { ComponentProps } from "svelte";
+  import type { StatsPubliques } from "../../../types/API_Pitchou.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Promise<StatsPubliques>} statsP
-   * @property {string | undefined} [email]
-   * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
-   */
+  type Props = {
+    statsP: Promise<StatsPubliques>;
+    email?: string | undefined;
+    erreurs: ComponentProps<typeof Squelette>["erreurs"];
+  };
 
-  /** @type {Props} */
-  let { statsP, email = undefined, erreurs } = $props();
+  let { statsP, email = undefined, erreurs }: Props = $props();
 </script>
 
 <Squelette {email} nav={false} {erreurs}>

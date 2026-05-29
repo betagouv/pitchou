@@ -1,11 +1,9 @@
-<script>
-  //@ts-check
-
-  /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
-  /** @import { ComponentProps } from 'svelte' */
-  /** @import { LigneDossierBFC } from "../../actions/importDossierBFC.ts" */
-  /** @import {SchemaDémarcheSimplifiée} from "../../../types/démarche-numérique/schema.js"; */
-  /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
+<script lang="ts">
+  import type { DossierRésumé } from "../../../types/API_Pitchou.js";
+  import type { ComponentProps } from "svelte";
+  import type { LigneDossierBFC } from "../../actions/importDossierBFC.ts";
+  import type { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js";
+  import type { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js";
 
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
@@ -17,45 +15,38 @@
   import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
   import BoutonModale from "../DSFR/BoutonModale.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {ComponentProps<typeof Squelette>['email']} [email]
-   * @property {DossierRésumé[]} [dossiers]
-   * @property {SchemaDémarcheSimplifiée | undefined} schema
-   */
+  type Props = {
+    email?: ComponentProps<typeof Squelette>["email"];
+    dossiers?: DossierRésumé[];
+    schema: SchemaDémarcheSimplifiée | undefined;
+  };
 
-  /** @type {Props} */
-  let { email = undefined, dossiers = [], schema } = $props();
+  let { email = undefined, dossiers = [], schema }: Props = $props();
 
   // Pré-calcul: ensemble des noms présents en base (lookup O(1))
   const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
 
   const nomToDossierId = $derived(new Map(dossiers.map((d) => [d.nom, d.id])));
 
-  /** @type {Set<DossierDemarcheNumerique88444['Activité principale']>} } */
   // @ts-ignore
-  const activitésPrincipales88444 = $derived(
-    schema
-      ? new Set(
-          schema.revision.champDescriptors.find((c) => c.label === "Activité principale")?.options,
-        )
-      : new Set(),
-  );
-  /** @type {LigneDossierBFC[]} */
-  let lignesTableauImport = $state([]);
-  /** @type {LigneDossierBFC[]} */
-  let lignesFiltréesTableauImport = $state([]);
-  /** @type {DossierRésumé[]} */
-  let dossiersDéjàEnBDD = $state([]);
+  const activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
+    $derived(
+      schema
+        ? new Set(
+            schema.revision.champDescriptors.find((c) => c.label === "Activité principale")
+              ?.options,
+          )
+        : new Set(),
+    );
+  let lignesTableauImport: LigneDossierBFC[] = $state([]);
+  let lignesFiltréesTableauImport: LigneDossierBFC[] = $state([]);
+  let dossiersDéjàEnBDD: DossierRésumé[] = $state([]);
 
-  /** @type {Map<any,string>} */
-  let ligneToLienPréremplissage = $state(new SvelteMap());
+  let ligneToLienPréremplissage: Map<any, string> = $state(new SvelteMap());
 
-  /**@type {number | undefined}*/
-  let pourcentageDeDossierCrééEnBDD = $state();
+  let pourcentageDeDossierCrééEnBDD: number | undefined = $state();
 
-  /**@type {boolean}*/
-  let afficherTousLesDossiers = $state(false);
+  let afficherTousLesDossiers: boolean = $state(false);
 
   let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
   let nombreDossiersAImporter = $derived(lignesTableauImport.length - nombreDossiersDéjàImportés);
@@ -63,24 +54,18 @@
   /**
    * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
    * La recherche s'effectue en comparant le nom du projet (champ 'nom' de la table 'dossier').
-   * @param {LigneDossierBFC} LigneDossierBFC
-   * @returns {boolean}
    */
-  function ligneDossierEnBDD(LigneDossierBFC) {
+  function ligneDossierEnBDD(LigneDossierBFC: LigneDossierBFC): boolean {
     return nomsEnBDD.has(créerNomPourDossier(LigneDossierBFC));
   }
 
-  /**
-   * @param {Event} event
-   */
-  async function handleFileChange(event) {
+  async function handleFileChange(event: Event) {
     const target = event.target;
     if (!(target instanceof HTMLInputElement && target && target.files && target.files[0])) {
       console.error("Le champ de fichier est introuvable ou ne contient aucun fichier.");
       return;
     }
-    /** @type {FileList | null} */
-    const files =
+    const files: FileList | null =
       target instanceof HTMLInputElement && target && target?.files ? target?.files : null;
 
     const file = files && files[0];
@@ -114,10 +99,7 @@
     }
   }
 
-  /**
-   * @param {LigneDossierBFC} LigneDossierBFC
-   */
-  async function handleCréerLienPréRemplissage(LigneDossierBFC) {
+  async function handleCréerLienPréRemplissage(LigneDossierBFC: LigneDossierBFC) {
     const dossier = await créerDossierDepuisLigne(LigneDossierBFC, activitésPrincipales88444);
 
     console.log(
@@ -142,16 +124,14 @@
   }
 
   // Pagination du tableau de suivi
-  /** @typedef {() => void} SelectionneurPage */
+  type SelectionneurPage = () => void;
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 20;
 
   // numéro de page qui correspond à celui affiché, donc commençant à 1
-  /** @type {number} */
-  let numéroPageSelectionnée = $state(1);
+  let numéroPageSelectionnée: number = $state(1);
 
-  /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
-  let selectionneursPage = $derived.by(() => {
+  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(() => {
     if (lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
       const nombreDePages = Math.ceil(lignesTableauImport.length / NOMBRE_DOSSIERS_PAR_PAGE);
 
@@ -171,8 +151,7 @@
     if (selectionneursPage) numéroPageSelectionnée = 1;
   });
 
-  /** @type {typeof lignesTableauImport} */
-  let lignesAffichéesTableauImport = $derived.by(() => {
+  let lignesAffichéesTableauImport: typeof lignesTableauImport = $derived.by(() => {
     const lignesÀAfficher = afficherTousLesDossiers
       ? lignesTableauImport
       : lignesFiltréesTableauImport;
