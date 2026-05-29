@@ -21,7 +21,13 @@
   import type Personne from "../../../types/database/public/Personne.js";
   import type Notification from "../../../types/database/public/Notification.js";
 
-  type Onglet = "instruction" | "projet" | "avis" | "controles" | "generation-document" | "echanges";
+  type Onglet =
+    | "instruction"
+    | "projet"
+    | "avis"
+    | "controles"
+    | "generation-document"
+    | "echanges";
 
   function changerOnglet(nouvelOnglet: Onglet) {
     ongletActif = nouvelOnglet;
@@ -102,8 +108,9 @@
 
   let ongletActif = $derived(ongletActifInitial);
 
-  let espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined =
-    $derived(getEspècesImpactés(dossier));
+  let espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined = $derived(
+    getEspècesImpactés(dossier),
+  );
 </script>
 
 <Squelette

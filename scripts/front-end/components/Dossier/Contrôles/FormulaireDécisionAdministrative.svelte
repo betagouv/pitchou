@@ -15,13 +15,8 @@
     boutonSupprimer?: Snippet;
   };
 
-  let {
-    décisionAdministrative,
-    onValider,
-    boutonValider,
-    boutonAnnuler,
-    boutonSupprimer,
-  }: Props = $props();
+  let { décisionAdministrative, onValider, boutonValider, boutonAnnuler, boutonSupprimer }: Props =
+    $props();
 
   let fichiers: FileList | undefined = $state();
 

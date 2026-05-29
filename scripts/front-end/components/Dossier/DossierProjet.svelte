@@ -26,9 +26,10 @@
    * et le nombre d'espèce ministérielles
    * dans la liste des espèces impactées par ce projet
    */
-  function getNombreEspècesMinistérielleCNPN(
-    _espècesImpactées: DescriptionMenacesEspèces,
-  ): { nombreEspècesCNPN: number; nombreEspècesMinistérielles: number } {
+  function getNombreEspècesMinistérielleCNPN(_espècesImpactées: DescriptionMenacesEspèces): {
+    nombreEspècesCNPN: number;
+    nombreEspècesMinistérielles: number;
+  } {
     const toutesLesEspècesImpactées = [
       ...(_espècesImpactées["faune non-oiseau"] ?? []),
       ...(_espècesImpactées["flore"] ?? []),
