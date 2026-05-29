@@ -1,5 +1,4 @@
-<script>
-  // @ts-check
+<script lang="ts">
   import Squelette from "../Squelette.svelte";
   import DownloadButton from "../DownloadButton.svelte";
   import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
@@ -11,23 +10,37 @@
   import { tick } from "svelte";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
 
-  /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
-  /** @import { ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, DescriptionImpact } from '../../../types/especes.d.ts' **/
+  import type {
+    ParClassification,
+    EspèceProtégée,
+    OiseauAtteint,
+    FauneNonOiseauAtteinte,
+    FloreAtteinte,
+    ActivitéMenançante,
+    MéthodeMenançante,
+    MoyenDePoursuiteMenaçant,
+    DescriptionMenacesEspèces,
+    DescriptionImpact,
+  } from "../../../types/especes.d.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string | undefined} [email]
-   * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-   * @property {ParClassification<Map<ActivitéMenançante['Identifiant Pitchou'], ActivitéMenançante>>} activitesParClassificationEtreVivant
-   * @property {ParClassification<Map<MéthodeMenançante['Code'], MéthodeMenançante>>} méthodesParClassificationEtreVivant
-   * @property {ParClassification<Map<MoyenDePoursuiteMenaçant['Code'], MoyenDePoursuiteMenaçant>>} transportsParClassificationEtreVivant
-   * @property {(x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>} importDescriptionMenacesEspècesFromOds
-   * @property {OiseauAtteint[]} oiseauxAtteints
-   * @property {FauneNonOiseauAtteinte[]} faunesNonOiseauxAtteintes
-   * @property {FloreAtteinte[]} floresAtteintes
-   */
+  type Props = {
+    email?: string | undefined;
+    espècesProtégéesParClassification: ParClassification<EspèceProtégée[]>;
+    activitesParClassificationEtreVivant: ParClassification<
+      Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>
+    >;
+    méthodesParClassificationEtreVivant: ParClassification<
+      Map<MéthodeMenançante["Code"], MéthodeMenançante>
+    >;
+    transportsParClassificationEtreVivant: ParClassification<
+      Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    >;
+    importDescriptionMenacesEspècesFromOds: (x: ArrayBuffer) => Promise<DescriptionMenacesEspèces>;
+    oiseauxAtteints: OiseauAtteint[];
+    faunesNonOiseauxAtteintes: FauneNonOiseauAtteinte[];
+    floresAtteintes: FloreAtteinte[];
+  };
 
-  /** @type {Props} */
   let {
     email = undefined,
     espècesProtégéesParClassification,
@@ -38,42 +51,28 @@
     oiseauxAtteints = $bindable(),
     faunesNonOiseauxAtteintes = $bindable(),
     floresAtteintes = $bindable(),
-  } = $props();
+  }: Props = $props();
 
-  /**
-   * @type {Array<{ espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>}
-   */
-  let espècesImpactées = $state([{ impacts: [{}] }]);
+  let espècesImpactées: Array<{ espèce?: EspèceProtégée; impacts?: DescriptionImpact[] }> = $state([
+    { impacts: [{}] },
+  ]);
 
   let nombreEspècesSaisies = $derived(espècesImpactées.filter((espèce) => !!espèce.espèce).length);
 
-  /** @type {File | undefined} */
-  let fichierEspècesOds = $state();
+  let fichierEspècesOds: File | undefined = $state();
 
-  /** @type {string | undefined} */
-  let messageErreurPréRemplirAvecDocumentOds = $state();
+  let messageErreurPréRemplirAvecDocumentOds: string | undefined = $state();
 
-  /** @type {HTMLInputElement | undefined} */
-  let inputFileUpload = $state();
+  let inputFileUpload: HTMLInputElement | undefined = $state();
 
-  /** @type {HTMLElement | undefined} */
-  let modale;
+  let modale: HTMLElement | undefined;
 
   let modeLecture = $state(false);
 
-  /**
-   * @type {TuileSaisieEspèce[]}
-   */
-  let référencesEspèces = $state([]);
+  let référencesEspèces: TuileSaisieEspèce[] = $state([]);
 
-  /**
-   * @type {DescriptionMenacesEspèces}
-   */
-  let espècesImpactéesParClassification = $derived.by(() => {
-    /**
-     * @type {DescriptionMenacesEspèces}
-     */
-    let espècesImpactéesParClassification = {
+  let espècesImpactéesParClassification: DescriptionMenacesEspèces = $derived.by(() => {
+    let espècesImpactéesParClassification: DescriptionMenacesEspèces = {
       oiseau: [],
       "faune non-oiseau": [],
       flore: [],
@@ -96,21 +95,17 @@
 
   const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
 
-  /**
-   * @param {DescriptionMenacesEspèces} descriptionMenacesEspèces
-   */
-  function impactsParClassificationVerListeEspècesImpactées(descriptionMenacesEspèces) {
-    /**
-     * @type {Map<EspèceProtégée['CD_REF'], { espèce?: EspèceProtégée, impacts?: DescriptionImpact[] }>}
-     */
-    const impactParEspèces = new Map();
+  function impactsParClassificationVerListeEspècesImpactées(
+    descriptionMenacesEspèces: DescriptionMenacesEspèces,
+  ) {
+    const impactParEspèces: Map<
+      EspèceProtégée["CD_REF"],
+      { espèce?: EspèceProtégée; impacts?: DescriptionImpact[] }
+    > = new Map();
     const espèceParCD_REF = new Map();
     for (const classfication in descriptionMenacesEspèces) {
-      /**
-       * @type {Array<OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte>}
-       */
-      //@ts-ignore
-      const espèces = descriptionMenacesEspèces[classfication] ?? [];
+      const espèces: Array<OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte> =
+        (descriptionMenacesEspèces as any)[classfication] ?? [];
 
       for (const espèce of espèces) {
         const espèceEtImpacts = impactParEspèces.get(espèce.espèce.CD_REF) ?? {
@@ -142,13 +137,10 @@
    * Mais, vraissemblablement, il y avait un bug de svelte qui considérait que files changeait quand
    * d'autres choses non-liés changeaient dans la page
    * Alors, on gère plutôt ça avec un évènement 'input' désormais plutôt que la réactivité de svelte
-   *
-   * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
    */
-  async function onFileInput(e) {
+  async function onFileInput(e: Event & { currentTarget: HTMLElement & HTMLInputElement }) {
     messageErreurPréRemplirAvecDocumentOds = undefined;
-    /** @type {FileList | null} */
-    const files = e.currentTarget.files;
+    const files: FileList | null = e.currentTarget.files;
     fichierEspècesOds = (files && files[0]) || undefined;
   }
 
@@ -188,10 +180,12 @@
     }
   }
 
-  /**
-   * @param {Array<{ espèce: EspèceProtégée, impacts?: DescriptionImpact[] }>} espècesImpactéesPourPréremplissage
-   */
-  async function onClickPréRemplirAvecDocumentTexte(espècesImpactéesPourPréremplissage) {
+  async function onClickPréRemplirAvecDocumentTexte(
+    espècesImpactéesPourPréremplissage: Array<{
+      espèce: EspèceProtégée;
+      impacts?: DescriptionImpact[];
+    }>,
+  ) {
     if (espècesImpactéesPourPréremplissage.length >= 1) {
       espècesImpactées = espècesImpactéesPourPréremplissage;
 

@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
+  // @ts-nocheck
   import { endOfYear, getYear, isAfter, isBefore, startOfYear, sub } from "date-fns";
-  //@ts-nocheck
   /*
         Notes pour la prochaine itération
 
@@ -12,36 +12,28 @@
   import Squelette from "../Squelette.svelte";
   import TagPhase from "../TagPhase.svelte";
 
-  /** @import {DossierRésumé} from '../../../types/API_Pitchou.ts' */
+  import type { DossierRésumé } from "../../../types/API_Pitchou.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierRésumé[]} [dossiers]
-   * @property {string | undefined} [email]
-   */
+  type Props = {
+    dossiers?: DossierRésumé[];
+    email?: string | undefined;
+  };
 
-  /** @type {Props} */
-  let { dossiers = [], email = undefined } = $props();
+  let { dossiers = [], email = undefined }: Props = $props();
 
   const aujourdhui = new Date();
 
-  /**
-   *
-   * @param {DossierRésumé[]} dossiers
-   */
-  function trouverDossiersEnContrôle(dossiers) {
+  function trouverDossiersEnContrôle(dossiers: DossierRésumé[]) {
     return dossiers.filter((dossier) => dossier.phase === "Contrôle");
   }
 
   let dossierEnPhaseContrôle = $derived(trouverDossiersEnContrôle(dossiers));
 
-  /**
-   *
-   * @param {DossierRésumé[]} dossiers
-   * @param {Date} dateDebut
-   * @param {Date | undefined} dateFin
-   */
-  function trouverDossiersAvecAPPrisDepuis(dossiers, dateDebut, dateFin = aujourdhui) {
+  function trouverDossiersAvecAPPrisDepuis(
+    dossiers: DossierRésumé[],
+    dateDebut: Date,
+    dateFin: Date | undefined = aujourdhui,
+  ) {
     return dossiers.filter((d) => {
       return d.décisionsAdministratives?.find(
         (décision) =>
@@ -66,21 +58,13 @@
     ),
   );
 
-  /**
-   *
-   * @param {DossierRésumé[]} dossiers
-   */
-  function trouverDossiersEnAccompagnement(dossiers) {
+  function trouverDossiersEnAccompagnement(dossiers: DossierRésumé[]) {
     return dossiers.filter((dossier) => dossier.phase === "Accompagnement amont");
   }
 
   let dossiersEnAccompagnement = $derived(trouverDossiersEnAccompagnement(dossiers));
 
-  /**
-   *
-   * @param {DossierRésumé[]} dossiers
-   */
-  function trouverDossiersDeMoinsDe3Ans(dossiers) {
+  function trouverDossiersDeMoinsDe3Ans(dossiers: DossierRésumé[]) {
     return dossiers.filter((d) => isBefore(sub(aujourdhui, { years: 3 }), d.date_dépôt));
   }
 
@@ -88,11 +72,7 @@
     trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement),
   );
 
-  /**
-   *
-   * @param {DossierRésumé[]} dossiers
-   */
-  function trouverDossiersNonScientifiques(dossiers) {
+  function trouverDossiersNonScientifiques(dossiers: DossierRésumé[]) {
     return dossiers.filter((d) => d.activité_principale !== "Demande à caractère scientifique");
   }
 

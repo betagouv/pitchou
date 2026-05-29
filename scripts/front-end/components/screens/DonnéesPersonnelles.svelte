@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Squelette from "../Squelette.svelte";
 </script>
 

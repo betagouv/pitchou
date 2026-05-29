@@ -1,10 +1,8 @@
-<script>
-  //@ts-check
+<script lang="ts">
   import Squelette from "../Squelette.svelte";
   import Loader from "../Loader.svelte";
 
-  /** @type {{ title?: string, html?: string }} */
-  let { title = "Accessibilité", html = "" } = $props();
+  let { title = "Accessibilité", html = "" }: { title?: string; html?: string } = $props();
 </script>
 
 <Squelette nav={false} {title}>

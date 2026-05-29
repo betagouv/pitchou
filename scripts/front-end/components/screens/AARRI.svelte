@@ -1,22 +1,24 @@
-<script>
-  /** @import { IndicateursAARRI } from '../../..//types/API_Pitchou.ts' */
-  /** @import { ComponentProps } from 'svelte' */
+<script lang="ts">
+  import type { IndicateursAARRI } from "../../..//types/API_Pitchou.ts";
+  import type { ComponentProps } from "svelte";
   import { untrack } from "svelte";
   import Squelette from "../Squelette.svelte";
   import Loader from "../Loader.svelte";
   import { formatDateAbsolue } from "../../affichageDossier.ts";
   import { isSameDay } from "date-fns";
 
-  /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'> & {indicateursParDateP: Promise<IndicateursAARRI[]>}} Props */
+  type Props = Omit<ComponentProps<typeof Squelette>, "children"> & {
+    indicateursParDateP: Promise<IndicateursAARRI[]>;
+  };
 
-  /** @type {Props} */
-  let { email, erreurs, résultatsSynchronisationDS88444, indicateursParDateP } = $props();
+  let { email, erreurs, résultatsSynchronisationDS88444, indicateursParDateP }: Props = $props();
 
   let indicateursAujourdhuiP = $derived(
     indicateursParDateP.then((indicateursParDate) => indicateursParDate[0]),
   );
 
-  let dateChoisie = $state();
+  // typage volontairement laxe : la valeur peut être Date (depuis l'option) ou "" (option par défaut)
+  let dateChoisie: any = $state();
 
   untrack(() => indicateursParDateP).then(
     (indicateursParDate) => (dateChoisie = indicateursParDate[1].date),
