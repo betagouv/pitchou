@@ -1,5 +1,4 @@
-<script>
-  //@ts-check
+<script lang="ts">
   import { onMount } from "svelte";
   import remember from "remember";
 
@@ -13,13 +12,16 @@
   import { envoiEmailConnexion } from "$front/serveur.ts";
   import { authorizedEmailDomains } from "$commun/constantes.ts";
 
-  /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
-  /** @import {TriFiltreLocalStorage, FiltresLocalStorage, TriTableau} from '../../scripts/types/interfaceUtilisateur.ts' */
+  import type { ChampDescriptor } from "$types/démarche-numérique/schema.ts";
+  import type {
+    TriFiltreLocalStorage,
+    FiltresLocalStorage,
+    TriTableau,
+  } from "$types/interfaceUtilisateur.ts";
 
   const TRI_FILTRE_CLEF_LOCALSTORAGE = "tri-filtres-tableau-suivi";
 
-  /** @type {TriFiltreLocalStorage | undefined} */
-  let trisFiltresSélectionnés = $state();
+  let trisFiltresSélectionnés = $state<TriFiltreLocalStorage | undefined>();
 
   let chargementDossiersTerminé = $state(false);
 
@@ -55,23 +57,15 @@
     chargementDossiersTerminé = true;
   });
 
-  /**
-   * @param {{message: string}} [erreur]
-   */
-  async function logoutEtAfficherLoginParEmail(erreur) {
+  async function logoutEtAfficherLoginParEmail(erreur?: { message: string }) {
     if (erreur) {
       store.erreurs.add(erreur);
     }
     await logout();
   }
 
-  /**
-   * @param {TriTableau} tri
-   * @param {Partial<FiltresLocalStorage>} filtres
-   */
-  function rememberTriFiltres(tri, filtres) {
-    /** @type {TriFiltreLocalStorage} */
-    const nouveaux = {
+  function rememberTriFiltres(tri: TriTableau, filtres: Partial<FiltresLocalStorage>) {
+    const nouveaux: TriFiltreLocalStorage = {
       tri: tri.id,
       filtres: {
         phases: filtres.phases ? [...filtres.phases] : undefined,
@@ -96,8 +90,9 @@
   const dossiers = $derived([...store.dossiersRésumés.values()]);
   const relationSuivis = $derived(store.relationSuivis);
 
-  /** @type {ChampDescriptor[] | undefined} */
-  const schemaChamps = $derived(store.schemaDS88444?.revision.champDescriptors);
+  const schemaChamps = $derived<ChampDescriptor[] | undefined>(
+    store.schemaDS88444?.revision.champDescriptors,
+  );
 
   const activitésPrincipales = $derived(
     schemaChamps?.find((c) => c.label === "Activité principale")?.options,

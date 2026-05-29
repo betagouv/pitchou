@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   // MUST be the first import
   // cf scripts/front-end/before-ses-lockdown.ts
   import "$front/before-ses-lockdown.ts";

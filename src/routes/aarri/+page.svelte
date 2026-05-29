@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { store } from "$front/store.svelte.ts";
   import AARRI from "$front/components/screens/AARRI.svelte";
   import { chargerIndicateursAARRI } from "$front/actions/aarri.ts";

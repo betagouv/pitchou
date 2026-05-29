@@ -1,14 +1,19 @@
-<script>
-  //@ts-check
+<script lang="ts">
   import { store } from "$front/store.svelte.ts";
   import Dossier from "$front/components/screens/Dossier.svelte";
   import SqueletteContenuVide from "$front/components/SqueletteContenuVide.svelte";
 
-  /** @import {PageProps} from './$types' */
-  /** @typedef {'instruction' | 'projet' | 'avis' | 'controles' | 'generation-document' | 'echanges'} Onglet */
+  import type { PageProps } from "./$types";
 
-  /** @param {string} onglet @returns {onglet is Onglet} */
-  function isOngletValide(onglet) {
+  type Onglet =
+    | "instruction"
+    | "projet"
+    | "avis"
+    | "controles"
+    | "generation-document"
+    | "echanges";
+
+  function isOngletValide(onglet: string): onglet is Onglet {
     return [
       "instruction",
       "projet",
@@ -19,8 +24,7 @@
     ].includes(onglet);
   }
 
-  /** @type {PageProps} */
-  let { data } = $props();
+  let { data }: PageProps = $props();
 
   const id = $derived(data.dossierId);
 
