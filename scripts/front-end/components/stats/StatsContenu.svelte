@@ -1,15 +1,12 @@
-<script>
-  //@ts-check
-  /** @import {StatsPubliques} from '../../../types/API_Pitchou' */
+<script lang="ts">
+  import type { StatsPubliques } from "../../../types/API_Pitchou";
   import StatistiquesConformites from "../stats/StatistiquesConformites.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {StatsPubliques} stats
-   */
+  type Props = {
+    stats: StatsPubliques;
+  };
 
-  /** @type {Props} */
-  let { stats } = $props();
+  let { stats }: Props = $props();
 
   const estimationNbPétitionnairesEnFranceParAn = 1500;
 
