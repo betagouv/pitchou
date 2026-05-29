@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import { store } from "$front/store.svelte.ts";
   import MesDossiers from "$front/components/screens/MesDossiers.svelte";
