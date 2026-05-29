@@ -109,20 +109,22 @@
   const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set());
 
   type SelectionneurPage = () => void;
-  let selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(() => {
-    if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
-      const sélectionneurs: SelectionneurPage[] = [
-        ...Array.from({ length: nombreDePages }, (_v, i) => () => {
-          numéroDeLaPageSélectionnée = i + 1;
-          tick().then(() => titrePageElement?.focus());
-        }),
-      ];
+  let selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(
+    () => {
+      if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
+        const sélectionneurs: SelectionneurPage[] = [
+          ...Array.from({ length: nombreDePages }, (_v, i) => () => {
+            numéroDeLaPageSélectionnée = i + 1;
+            tick().then(() => titrePageElement?.focus());
+          }),
+        ];
 
-      return [undefined, ...sélectionneurs];
-    } else {
-      return undefined;
-    }
-  });
+        return [undefined, ...sélectionneurs];
+      } else {
+        return undefined;
+      }
+    },
+  );
 
   let dossiersAffichés: typeof dossiers = $derived.by(() => {
     // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente

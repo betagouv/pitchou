@@ -39,10 +39,7 @@
   import type { PitchouState } from "../../store.svelte.ts";
   import type Dossier from "../../../types/database/public/Dossier.ts";
   import type Personne from "../../../types/database/public/Personne.ts";
-  import type {
-    FiltresLocalStorage,
-    TriTableau,
-  } from "../../../types/interfaceUtilisateur.ts";
+  import type { FiltresLocalStorage, TriTableau } from "../../../types/interfaceUtilisateur.ts";
   import type { ÉvènementRechercheDossiersDétails } from "../../../types/évènement";
 
   type Props = {
@@ -494,21 +491,23 @@
   // numéro de page qui correspond à celui affiché, donc commençant à 1
   let numéroPageSelectionnée: number = $state(1);
 
-  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(() => {
-    if (dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-      const nombreDePages = Math.ceil(dossiersSelectionnés.length / NOMBRE_DOSSIERS_PAR_PAGE);
+  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
+    () => {
+      if (dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
+        const nombreDePages = Math.ceil(dossiersSelectionnés.length / NOMBRE_DOSSIERS_PAR_PAGE);
 
-      return [
-        undefined,
-        ...[...Array(nombreDePages).keys()].map((i) => () => {
-          console.log("sélection de la page", i + 1);
-          numéroPageSelectionnée = i + 1;
-        }),
-      ];
-    }
+        return [
+          undefined,
+          ...[...Array(nombreDePages).keys()].map((i) => () => {
+            console.log("sélection de la page", i + 1);
+            numéroPageSelectionnée = i + 1;
+          }),
+        ];
+      }
 
-    return undefined;
-  });
+      return undefined;
+    },
+  );
 
   $effect(() => {
     if (selectionneursPage) numéroPageSelectionnée = 1;
