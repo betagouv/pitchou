@@ -1,3 +1,5 @@
+<script lang="ts"></script>
+
 <div>
   <svg
     version="1.1"
