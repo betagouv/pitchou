@@ -135,6 +135,18 @@ const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériel
     sheetRawContentToObjects(sheetEspècesMinistérielles.filter(isRowNotEmpty)),
     sheetRawContentToObjects(sheetEspècesCNPN.filter(isRowNotEmpty)),
   ])
+  .then(([listesMinistérielles, listesCNPN]) => {
+    // Non-breaking spaces (U+00A0) silently appear when copy-pasting from websites
+    // or PDFs, breaking exact Set matching against TAXREF names.
+    const normaliserNom = (/** @type {string} */ s) => s.replace(/ /g, " ").trim();
+    const normaliserListe = (/** @type {any[]} */ liste) =>
+      liste.map((row) =>
+        Object.fromEntries(
+          Object.entries(row).map(([k, v]) => [k, typeof v === "string" ? normaliserNom(v) : v]),
+        ),
+      );
+    return [normaliserListe(listesMinistérielles), normaliserListe(listesCNPN)];
+  })
   .catch((err) => {
     console.error(
       `Une erreur est survenue lors de la lecture du fichier ${filePathEspècesMinistériellesCNPN} : ${err.message}`,
