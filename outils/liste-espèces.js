@@ -51,7 +51,7 @@ const bdc_statutsP = new Promise((resolve, reject) => {
   bdcParser.on("end", () => resolve(espècesProtégéesBDC_STATUTS));
 });
 
-createReadStream("data/sources_especes/BDC_STATUTS_17.csv").pipe(bdcParser);
+createReadStream("data/sources_especes/bdc_18_01.csv").pipe(bdcParser);
 
 bdc_statutsP.then((bdc_statuts) => {
   console.info("bdc_statuts.length", bdc_statuts.length);
@@ -114,7 +114,7 @@ const taxrefP = new Promise((resolve, reject) => {
   taxrefParser.on("end", () => resolve(taxref));
 });
 
-createReadStream("data/sources_especes/TAXREFv17.txt").pipe(taxrefParser);
+createReadStream("data/sources_especes/TAXREFv18.txt").pipe(taxrefParser);
 
 taxrefP.then((taxref) => {
   console.info("taxref.length", taxref.length);
