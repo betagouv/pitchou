@@ -51,7 +51,7 @@ const bdc_statutsP = new Promise((resolve, reject) => {
   bdcParser.on("end", () => resolve(espècesProtégéesBDC_STATUTS));
 });
 
-createReadStream("data/sources_especes/BDC_STATUTS_17.csv").pipe(bdcParser);
+createReadStream("data/sources_especes/bdc_18_01.csv").pipe(bdcParser);
 
 bdc_statutsP.then((bdc_statuts) => {
   console.info("bdc_statuts.length", bdc_statuts.length);
@@ -114,7 +114,7 @@ const taxrefP = new Promise((resolve, reject) => {
   taxrefParser.on("end", () => resolve(taxref));
 });
 
-createReadStream("data/sources_especes/TAXREFv17.txt").pipe(taxrefParser);
+createReadStream("data/sources_especes/TAXREFv18.txt").pipe(taxrefParser);
 
 taxrefP.then((taxref) => {
   console.info("taxref.length", taxref.length);
@@ -135,6 +135,18 @@ const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériel
     sheetRawContentToObjects(sheetEspècesMinistérielles.filter(isRowNotEmpty)),
     sheetRawContentToObjects(sheetEspècesCNPN.filter(isRowNotEmpty)),
   ])
+  .then(([listesMinistérielles, listesCNPN]) => {
+    // Non-breaking spaces (U+00A0) silently appear when copy-pasting from websites
+    // or PDFs, breaking exact Set matching against TAXREF names.
+    const normaliserNom = (/** @type {string} */ s) => s.replace(/ /g, " ").trim();
+    const normaliserListe = (/** @type {any[]} */ liste) =>
+      liste.map((row) =>
+        Object.fromEntries(
+          Object.entries(row).map(([k, v]) => [k, typeof v === "string" ? normaliserNom(v) : v]),
+        ),
+      );
+    return [normaliserListe(listesMinistérielles), normaliserListe(listesCNPN)];
+  })
   .catch((err) => {
     console.error(
       `Une erreur est survenue lors de la lecture du fichier ${filePathEspècesMinistériellesCNPN} : ${err.message}`,
@@ -236,6 +248,41 @@ Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
 
       if (espèceCNPNTrouvée) {
         espèce.espèceCNPN = "O";
+      }
+    }
+
+    // Alerter sur les espèces CNPN/ministérielles sans correspondance dans la liste protégée
+    const espècesProtégéesValues = [...espècesProtégées.values()];
+    const nonMatchéesMinistérielles = listeEspècesMinistérielles.filter(
+      (em) =>
+        !espècesProtégéesValues.some(
+          (e) =>
+            e.nomsScientifiques?.has(em["Nom scientifique"]) ||
+            e.nomsVernaculaires?.has(em["Nom vernaculaire"]),
+        ),
+    );
+    if (nonMatchéesMinistérielles.length > 0) {
+      console.warn(
+        `⚠️  ${nonMatchéesMinistérielles.length} espèce(s) ministérielle(s) sans correspondance dans la liste protégée :`,
+      );
+      for (const em of nonMatchéesMinistérielles) {
+        console.warn(`   - sci: "${em["Nom scientifique"]}" | vern: "${em["Nom vernaculaire"]}"`);
+      }
+    }
+    const nonMatchéesCNPN = listeEspècesCNPN.filter(
+      (ec) =>
+        !espècesProtégéesValues.some(
+          (e) =>
+            e.nomsScientifiques?.has(ec["Nom scientifique"]) ||
+            e.nomsVernaculaires?.has(ec["Nom vernaculaire"]),
+        ),
+    );
+    if (nonMatchéesCNPN.length > 0) {
+      console.warn(
+        `⚠️  ${nonMatchéesCNPN.length} espèce(s) CNPN sans correspondance dans la liste protégée :`,
+      );
+      for (const ec of nonMatchéesCNPN) {
+        console.warn(`   - sci: "${ec["Nom scientifique"]}" | vern: "${ec["Nom vernaculaire"]}"`);
       }
     }
 
