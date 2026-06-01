@@ -239,6 +239,41 @@ Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
       }
     }
 
+    // Alerter sur les espèces CNPN/ministérielles sans correspondance dans la liste protégée
+    const espècesProtégéesValues = [...espècesProtégées.values()];
+    const nonMatchéesMinistérielles = listeEspècesMinistérielles.filter(
+      (em) =>
+        !espècesProtégéesValues.some(
+          (e) =>
+            e.nomsScientifiques?.has(em["Nom scientifique"]) ||
+            e.nomsVernaculaires?.has(em["Nom vernaculaire"]),
+        ),
+    );
+    if (nonMatchéesMinistérielles.length > 0) {
+      console.warn(
+        `⚠️  ${nonMatchéesMinistérielles.length} espèce(s) ministérielle(s) sans correspondance dans la liste protégée :`,
+      );
+      for (const em of nonMatchéesMinistérielles) {
+        console.warn(`   - sci: "${em["Nom scientifique"]}" | vern: "${em["Nom vernaculaire"]}"`);
+      }
+    }
+    const nonMatchéesCNPN = listeEspècesCNPN.filter(
+      (ec) =>
+        !espècesProtégéesValues.some(
+          (e) =>
+            e.nomsScientifiques?.has(ec["Nom scientifique"]) ||
+            e.nomsVernaculaires?.has(ec["Nom vernaculaire"]),
+        ),
+    );
+    if (nonMatchéesCNPN.length > 0) {
+      console.warn(
+        `⚠️  ${nonMatchéesCNPN.length} espèce(s) CNPN sans correspondance dans la liste protégée :`,
+      );
+      for (const ec of nonMatchéesCNPN) {
+        console.warn(`   - sci: "${ec["Nom scientifique"]}" | vern: "${ec["Nom vernaculaire"]}"`);
+      }
+    }
+
     // Trier les espèces par CD_REF
     // ce n'est utile que pour pouvoir inspecter facilement les diffs du fichier généré
     const espècesProtégéesArray = [...espècesProtégées.values()].sort(
