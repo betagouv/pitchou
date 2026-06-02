@@ -1,0 +1,130 @@
+import { expect, test } from "vitest";
+import { GetObjectCommand, HeadObjectCommand, S3ServiceException } from "@aws-sdk/client-s3";
+import { db } from "../setup/db.ts";
+import { getTestS3 } from "../setup/s3.ts";
+import { createInstructeurWithDossier } from "../factories/index.ts";
+import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
+
+async function s3HasKey(key: string): Promise<boolean> {
+  const { client, bucket } = await getTestS3();
+  try {
+    await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    return true;
+  } catch (e) {
+    if (e instanceof S3ServiceException && (e.name === "NotFound" || e.name === "NoSuchKey")) {
+      return false;
+    }
+    throw e;
+  }
+}
+
+async function readKey(key: string): Promise<Buffer> {
+  const { client, bucket } = await getTestS3();
+  const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+  const chunks: Buffer[] = [];
+  for await (const c of res.Body as AsyncIterable<Buffer | Uint8Array>) {
+    chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c));
+  }
+  return Buffer.concat(chunks);
+}
+
+test("POST /decision-administrative crée la décision et stocke le PDF sur S3", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
+  const pdfBytes = Buffer.from("DECISION-PDF-V1");
+
+  const res = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      dossier: dossier.id,
+      numéro: "AP-001",
+      type: "Arrêté dérogation",
+      date_signature: new Date("2026-04-15").toISOString(),
+      date_fin_obligations: new Date("2031-04-15").toISOString(),
+      fichier_base64: {
+        nom: "arrete.pdf",
+        media_type: "application/pdf",
+        contenuBase64: pdfBytes.toString("base64"),
+      },
+    }),
+  });
+  expect(res.status).toBe(200);
+
+  const décisions = await db("décision_administrative").select("*").where({ dossier: dossier.id });
+  expect(décisions).toHaveLength(1);
+  const décision = décisions[0];
+  expect(décision.fichier).not.toBeNull();
+
+  const fichier = await db("fichier")
+    .select("file_id", "contenu")
+    .where({ id: décision.fichier })
+    .first();
+  expect(fichier.contenu).toBeNull();
+  expect(fichier.file_id).not.toBeNull();
+
+  const onS3 = await readKey(`files/${fichier.file_id}`);
+  expect(onS3.equals(pdfBytes)).toBe(true);
+});
+
+test("POST /decision-administrative en modification remplace le PDF S3 (best-effort cleanup ancien objet)", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
+  const v1 = Buffer.from("DECISION-V1");
+  const v2 = Buffer.from("DECISION-V2-DIFFERENT");
+
+  // initial creation
+  const res1 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      dossier: dossier.id,
+      numéro: "AP-002",
+      type: "Arrêté dérogation",
+      date_signature: new Date("2026-04-15").toISOString(),
+      date_fin_obligations: new Date("2031-04-15").toISOString(),
+      fichier_base64: {
+        nom: "v1.pdf",
+        media_type: "application/pdf",
+        contenuBase64: v1.toString("base64"),
+      },
+    }),
+  });
+  expect(res1.status).toBe(200);
+  const décision1 = await db("décision_administrative")
+    .select("*")
+    .where({ dossier: dossier.id })
+    .first();
+  const fichier1 = await db("fichier").select("file_id").where({ id: décision1.fichier }).first();
+  const v1Key = `files/${fichier1.file_id}`;
+
+  // modification
+  const res2 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: décision1.id,
+      dossier: dossier.id,
+      numéro: "AP-002",
+      type: "Arrêté dérogation",
+      date_signature: new Date("2026-04-15").toISOString(),
+      date_fin_obligations: new Date("2031-04-15").toISOString(),
+      fichier_base64: {
+        nom: "v2.pdf",
+        media_type: "application/pdf",
+        contenuBase64: v2.toString("base64"),
+      },
+    }),
+  });
+  expect(res2.status).toBe(200);
+
+  const décision2 = await db("décision_administrative")
+    .select("*")
+    .where({ id: décision1.id })
+    .first();
+  expect(décision2.fichier).not.toBe(décision1.fichier); // new fichier id
+  const fichier2 = await db("fichier").select("file_id").where({ id: décision2.fichier }).first();
+  const v2Key = `files/${fichier2.file_id}`;
+
+  expect((await readKey(v2Key)).equals(v2)).toBe(true);
+  // old object should have been swept
+  expect(await s3HasKey(v1Key)).toBe(false);
+});

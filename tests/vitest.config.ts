@@ -1,8 +1,9 @@
 import { defineConfig } from "vitest/config";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { sveltekit } from "@sveltejs/kit/vite";
 import { playwright } from "@vitest/browser-playwright";
 
 export default defineConfig({
+  plugins: [sveltekit()],
   test: {
     exclude: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.direnv/**", "tests/e2e/**"],
     projects: [
@@ -11,13 +12,17 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
-          include: ["scripts/**/*.test.ts", "scripts/**/*.test.js"],
+          include: [
+            "scripts/**/*.test.ts",
+            "scripts/**/*.test.js",
+            "src/**/*.test.ts",
+            "src/**/*.test.js",
+          ],
           exclude: ["scripts/**/*.svelte.test.ts"],
         },
       },
       {
         extends: true,
-        plugins: [svelte()],
         test: {
           name: "component",
           include: ["scripts/**/*.svelte.test.ts"],

@@ -14,3 +14,12 @@ services:
       interval: 2s
       timeout: 5s
       retries: 30
+
+  test_s3:
+    image: rustfs/rustfs:1.0.0-beta.6
+    restart: always
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+    ports:
+      - "9100:9000" # S3 API (decalé pour éviter les collisions locales)
