@@ -6,6 +6,8 @@ export const authorizedEmailDomains = new Set([
   "nord.gouv.fr",
   "loiret.gouv.fr",
   "mer.gouv.fr",
+  "indre-et-loire.gouv.fr",
+  "guyane.gouv.fr",
 ]);
 
 export const mailtoJeNetrouvePasUneEspèce =
