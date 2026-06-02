@@ -1,5 +1,4 @@
 <script lang="ts">
-  // @ts-nocheck
   import { endOfYear, getYear, isAfter, isBefore, startOfYear, sub } from "date-fns";
   /*
         Notes pour la prochaine itération
