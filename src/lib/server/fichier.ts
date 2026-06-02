@@ -1,9 +1,10 @@
+import { Readable } from "node:stream";
 import { error } from "@sveltejs/kit";
-import { getFichier } from "$server/database/fichier.ts";
+import { loadFichierContent } from "$server/database/fichier.ts";
 import type Fichier from "$types/database/public/Fichier.ts";
 
 export async function téléchargementFichierResponse(fichierId: Fichier["id"]): Promise<Response> {
-  const fichier = await getFichier(fichierId);
+  const fichier = await loadFichierContent(fichierId);
   if (!fichier) {
     error(404, "Fichier non trouvé");
   }
@@ -21,6 +22,14 @@ export async function téléchargementFichierResponse(fichierId: Fichier["id"]):
   if (fichier.media_type) {
     headers.set("content-type", fichier.media_type);
   }
+  if (fichier.taille !== undefined) {
+    headers.set("content-length", String(fichier.taille));
+  }
 
-  return new Response(fichier.contenu as BodyInit, { headers });
+  const body =
+    fichier.body instanceof Readable
+      ? (Readable.toWeb(fichier.body) as ReadableStream)
+      : (fichier.body as unknown as BodyInit);
+
+  return new Response(body, { headers });
 }

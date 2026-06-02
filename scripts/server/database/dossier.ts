@@ -902,7 +902,7 @@ async function getDescriptionsPiècesJointesPétitionnaire(
       "fichier.id as id",
       "fichier.nom as nom",
       "fichier.media_type as media_type",
-      databaseConnection.raw("length(contenu) as taille"),
+      databaseConnection.raw("coalesce(length(fichier.contenu), file.taille)::integer as taille"),
     ])
     .leftJoin("arête_dossier__fichier_pièces_jointes_pétitionnaire", {
       "arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier": "dossier.id",
@@ -910,6 +910,7 @@ async function getDescriptionsPiècesJointesPétitionnaire(
     .leftJoin("fichier", {
       "fichier.id": "arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier",
     })
+    .leftJoin("file", { "file.id": "fichier.file_id" })
     .where({ dossier: idDossier });
 }
 
