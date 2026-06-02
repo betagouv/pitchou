@@ -371,7 +371,7 @@ async function importDescriptionMenacesEspècesFromOdsArrayBuffer_version_1(
   const descriptionMenacesEspèces: DescriptionMenacesEspèces = Object.create(null);
 
   const odsRawContent = await getODSTableRawContent(odsFile);
-  const odsContent: FichierEspècesImpactéesOds_V1 = tableRawContentToObjects(odsRawContent);
+  const odsContent = tableRawContentToObjects(odsRawContent) as FichierEspècesImpactéesOds_V1;
 
   let lignesOiseauOds = odsContent.get("oiseau");
   let lignesFauneNonOiseauOds =
@@ -526,34 +526,23 @@ export async function construireActivitésMéthodesMoyensDePoursuite(
   // utilisée par Svelte
 
   const activitésBrutes: ParClassification<ActivitéMenançante[]> = {
-    oiseau: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités oiseau").map(
-      // @ts-ignore
-      (row) => Object.assign({}, row),
+    oiseau: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités oiseau")!.map((row) =>
+      Object.assign({}, row),
     ),
     "faune non-oiseau": ActivitésMéthodesMoyensDePoursuiteBruts.get(
       "Activités faune non oiseau",
-    ).map(
-      // @ts-ignore
-      (row) => Object.assign({}, row),
-    ),
-    flore: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités flore").map(
-      // @ts-ignore
-      (row) => Object.assign({}, row),
+    )!.map((row) => Object.assign({}, row)),
+    flore: ActivitésMéthodesMoyensDePoursuiteBruts.get("Activités flore")!.map((row) =>
+      Object.assign({}, row),
     ),
   };
 
   const méthodesBrutes: MéthodeMenançante[] = ActivitésMéthodesMoyensDePoursuiteBruts.get(
     "Méthodes",
-  ).map(
-    // @ts-ignore
-    (row) => Object.assign({}, row),
-  );
+  )!.map((row) => Object.assign({}, row));
   const moyensPoursuite: MoyenDePoursuiteMenaçant[] = ActivitésMéthodesMoyensDePoursuiteBruts.get(
     "Moyens de poursuite",
-  ).map(
-    // @ts-ignore
-    (row) => Object.assign({}, row),
-  );
+  )!.map((row) => Object.assign({}, row));
 
   const ActivitésMéthodesMoyensDePoursuite = actMetTransArraysToMapBundle(
     activitésBrutes,
