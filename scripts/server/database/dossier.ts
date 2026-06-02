@@ -34,7 +34,7 @@ import type {
   FrontEndDécisionAdministrative,
   FrontEndPrescription,
 } from "../../types/API_Pitchou.ts";
-import type { PartialBy, PickNonNullable } from "../../types/tools.d.ts";
+import type { AliasedColumn, PartialBy, PickNonNullable } from "../../types/tools.d.ts";
 
 /**
  * Récupérer les id Pitchou à partir des id DS (pas les numéro)
@@ -287,14 +287,25 @@ export async function synchroniserDossierDansGroupeInstructeur(
     .merge(["groupe_instructeurs"]);
 }
 
-const colonnesDossierComplet: (keyof DossierComplet)[] = [
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+/**
+ * Forme de la ligne renvoyée par knex pour les dossiers complets :
+ * `DossierComplet` plus les colonnes plates intermédiaires issues des jointures,
+ * que `getDossierComplet` reshape ensuite en `espècesImpactées` / `demandeur_adresse`.
+ */
+type DossierCompletRow = DossierComplet & {
+  espèces_impactées_id?: Fichier["id"] | null;
+  espèces_impactées_contenu?: Buffer | null;
+  espèces_impactées_media_type?: string;
+  espèces_impactées_nom?: string;
+  demandeur_personne_morale_adresse?: string;
+};
+
+const colonnesDossierComplet: AliasedColumn<DossierCompletRow>[] = [
   "dossier.id as id",
   //"id_demarches_simplifiées",
   "number_demarches_simplifiées",
   "numéro_démarche",
   "date_dépôt",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "dossier.nom as nom",
   "description",
 
@@ -306,13 +317,9 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "motif_dérogation",
   "justification_motif_dérogation",
 
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.id as espèces_impactées_id",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.contenu as espèces_impactées_contenu",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.nom as espèces_impactées_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.media_type as espèces_impactées_media_type",
   "rattaché_au_régime_ae",
   "activité_principale",
@@ -326,27 +333,18 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "prochaine_action_attendue_par",
 
   // déposant
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "déposant.nom as déposant_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "déposant.prénoms as déposant_prénoms",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "déposant.email as déposant_email",
 
   // demandeur_personne_physique
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_physique.email as demandeur_personne_physique_email",
 
   // demandeur_personne_morale
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
 
   // annotations privées
@@ -438,14 +436,7 @@ export async function getDossierComplet(
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
   }
 
-  const dossierP: Promise<
-    DossierComplet & {
-      espèces_impactées_contenu?: Buffer | null;
-      espèces_impactées_media_type?: string;
-      espèces_impactées_nom?: string;
-      demandeur_personne_morale_adresse?: string;
-    }
-  > = transaction("dossier")
+  const dossierP: Promise<DossierCompletRow> = transaction("dossier")
     .select(colonnesDossierComplet)
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
@@ -610,13 +601,11 @@ export async function getDossierComplet(
   );
 }
 
-const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+const colonnesDossierRésumé: AliasedColumn<DossierRésumé>[] = [
   "dossier.id as id",
   //"id_demarches_simplifiées",
   "number_demarches_simplifiées",
   "date_dépôt",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "dossier.nom as nom",
   "rattaché_au_régime_ae",
   "activité_principale",
@@ -630,21 +619,15 @@ const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
   "prochaine_action_attendue_par",
 
   // déposant
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "déposant.nom as déposant_nom",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "déposant.prénoms as déposant_prénoms",
 
   // demandeur_personne_physique
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
 
   // demandeur_personne_morale
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
   "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
 
   // annotations privées
