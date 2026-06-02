@@ -73,14 +73,12 @@ const FICHIER_REFERENCES = [
  * Préserve les fichiers partagés entre plusieurs usages (un même contenu peut être à la fois
  * une PJ pétitionnaire, un fichier espèces impactées, un avis expert, etc.).
  *
- * @param {Fichier['id'][]} fichierIds
- * @param {Knex.Transaction | Knex} [databaseConnection]
- * @returns {Promise<Fichier['id'][]>} les IDs effectivement supprimés
+ * Retourne les IDs effectivement supprimés.
  */
 export async function supprimerFichiersSansAutresRéférences(
-  fichierIds,
-  databaseConnection = directDatabaseConnection,
-) {
+  fichierIds: Fichier["id"][],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Fichier["id"][]> {
   if (fichierIds.length === 0) return [];
 
   const stillReferenced = new Set();

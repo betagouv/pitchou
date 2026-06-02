@@ -72,10 +72,7 @@ export function chargerRésultatsSynchronisation() {
   );
 }
 
-/**
- * @param {URL} url
- */
-export async function consumeSecretFromURL(url) {
+export async function consumeSecretFromURL(url: URL) {
   const secret = url.searchParams.get("secret");
   if (!secret) return;
 
