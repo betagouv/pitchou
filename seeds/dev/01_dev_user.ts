@@ -1,34 +1,28 @@
-//@ts-check
-
-/** @import {Knex} from 'knex' */
-/** @import {PersonneInitializer} from '../../scripts/types/database/public/Personne.ts' */
-/** @import {GroupeInstructeursInitializer} from '../../scripts/types/database/public/GroupeInstructeurs.ts' */
-/** @import {DossierInitializer} from '../../scripts/types/database/public/Dossier.ts' */
-
 import { randomBytes } from "node:crypto";
+
+import type { Knex } from "knex";
+
+import type { PersonneInitializer } from "../../scripts/types/database/public/Personne.ts";
+import type { GroupeInstructeursInitializer } from "../../scripts/types/database/public/GroupeInstructeurs.ts";
+import type { DossierInitializer } from "../../scripts/types/database/public/Dossier.ts";
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 const SEED_GROUP_NAME = "Groupe de démonstration (seed)";
 const SEED_DEMARCHE_NUMBER = 999999;
 const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
-/** @type {Array<Pick<DossierInitializer, 'nom' | 'number_demarches_simplifiées'>>} */
-const FAKE_DOSSIERS = [
+const FAKE_DOSSIERS: Pick<DossierInitializer, "nom" | "number_demarches_simplifiées">[] = [
   { nom: "Parc éolien des Hauteurs (démo)", number_demarches_simplifiées: "999000001" },
   { nom: "Reconstruction pont sur la Loire (démo)", number_demarches_simplifiées: "999000002" },
   { nom: "Carrière de granulats du Sud (démo)", number_demarches_simplifiées: "999000003" },
 ];
 
-/**
- * @param {Knex} knex
- */
-export async function seed(knex) {
+export async function seed(knex: Knex) {
   await knex.transaction(async (transaction) => {
     let person = await transaction("personne").where({ email: SEED_EMAIL }).first();
     if (!person) {
       const accessCode = randomBytes(16).toString("hex");
-      /** @type {PersonneInitializer} */
-      const newPerson = {
+      const newPerson: PersonneInitializer = {
         email: SEED_EMAIL,
         nom: "Dev",
         prénoms: "Local",
@@ -56,8 +50,10 @@ export async function seed(knex) {
 
     let group = await transaction("groupe_instructeurs").where({ nom: SEED_GROUP_NAME }).first();
     if (!group) {
-      /** @type {GroupeInstructeursInitializer} */
-      const newGroup = { nom: SEED_GROUP_NAME, numéro_démarche: SEED_DEMARCHE_NUMBER };
+      const newGroup: GroupeInstructeursInitializer = {
+        nom: SEED_GROUP_NAME,
+        numéro_démarche: SEED_DEMARCHE_NUMBER,
+      };
       const [inserted] = await transaction("groupe_instructeurs").insert(newGroup).returning("id");
       group = inserted;
     }
@@ -77,8 +73,7 @@ export async function seed(knex) {
         .where({ number_demarches_simplifiées: fakeDossier.number_demarches_simplifiées })
         .first();
       if (!dossier) {
-        /** @type {DossierInitializer} */
-        const newDossier = {
+        const newDossier: DossierInitializer = {
           nom: fakeDossier.nom,
           number_demarches_simplifiées: fakeDossier.number_demarches_simplifiées,
           date_dépôt: new Date(),
