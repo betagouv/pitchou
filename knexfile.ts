@@ -1,9 +1,6 @@
-// Update with your config settings.
+import type { Knex } from "knex";
 
-/**
- * @type { Object.<string, import("knex").Knex.Config> }
- */
-export default {
+const config: Record<string, Knex.Config> = {
   docker_dev: {
     client: "postgresql",
     connection: process.env.DATABASE_URL,
@@ -31,3 +28,5 @@ export default {
     },
   },
 };
+
+export default config;

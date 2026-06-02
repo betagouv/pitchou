@@ -29,7 +29,7 @@ async function dropAndCreateDb(dbName: string): Promise<void> {
 
 async function runMigrations(dbName: string): Promise<void> {
   process.env.DATABASE_URL = databaseUrl(dbName);
-  const knexfile = (await import(path.join(repoRoot, "knexfile.js"))).default;
+  const knexfile = (await import(path.join(repoRoot, "knexfile.ts"))).default;
   const db = makeKnex(dbName);
   try {
     await db.migrate.latest(knexfile.production.migrations);
