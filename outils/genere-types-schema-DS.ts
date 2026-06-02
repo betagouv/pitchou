@@ -21,14 +21,12 @@ if (!ID_SCHEMA_DS) {
 
 const urlSchema = `https://www.demarches-simplifiees.fr/preremplir/${ID_SCHEMA_DS}/schema`;
 
-/** @type {SchemaDémarcheSimplifiée} */
-let schema;
+let schema: SchemaDémarcheSimplifiée;
 
 const schemaPath = `data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`;
 
 if (args.skipDownload) {
-  /** @type {string} */
-  let schemaStr;
+  let schemaStr: string;
   try {
     schemaStr = await readFile(schemaPath, "utf-8");
   } catch (e) {
@@ -62,27 +60,20 @@ if (args.skipDownload) {
   }
 }
 
-/**
- * @param {Pick<ChampDescriptor, 'description'>} _
- * @returns {JSONSchema}
- */
-function champToStringJSONSchema({ description }) {
+function champToStringJSONSchema({
+  description,
+}: Pick<ChampDescriptor, "description">): JSONSchema {
   return { type: "string", description };
 }
 
-/**
- * @param {Pick<ChampDescriptor, 'description' | 'options'>} _
- * @returns {JSONSchema}
- */
-function champToStringEnumJSONSchema({ description, options }) {
+function champToStringEnumJSONSchema({
+  description,
+  options,
+}: Pick<ChampDescriptor, "description" | "options">): JSONSchema {
   return { type: "string", description, enum: options };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToStringArrayJSONSchema({ description, options }) {
+function champToStringArrayJSONSchema({ description, options }: ChampDescriptor): JSONSchema {
   // enum: options
   return {
     type: "array",
@@ -93,59 +84,34 @@ function champToStringArrayJSONSchema({ description, options }) {
   };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToDateJSONSchema({ description }) {
+function champToDateJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "string", format: "date-time", tsType: "Date", description };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToBooleanJSONSchema({ description }) {
+function champToBooleanJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "boolean", description };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToNumberJSONSchema({ description }) {
+function champToNumberJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "number", description };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToDépartementJSONSchema({ description }) {
+function champToDépartementJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "object", tsType: "GeoAPIDépartement", description };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToCommuneJSONSchema({ description }) {
+function champToCommuneJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "object", tsType: "(GeoAPICommune | string)", description };
 }
 
-/**
- * @param {ChampDescriptor} _
- * @returns {JSONSchema}
- */
-function champToFileJSONSchema({ description }) {
+function champToFileJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "object", tsType: "ChampDSPieceJustificative", description };
 }
 
-/**
- * @param {ChampDescriptor} champ
- * @returns {JSONSchema | undefined}
- */
-function champToArrayJSONSchema({ description, champDescriptors }) {
+function champToArrayJSONSchema({
+  description,
+  champDescriptors,
+}: ChampDescriptor): JSONSchema | undefined {
   if (!champDescriptors) {
     throw new TypeError("missing champDescriptors");
   }
@@ -158,8 +124,7 @@ function champToArrayJSONSchema({ description, champDescriptors }) {
     );
   });
 
-  /** @type {JSONSchema} */
-  let items;
+  let items: JSONSchema;
 
   if (champDescriptors.length === 0) {
     return undefined;
@@ -185,8 +150,10 @@ function champToArrayJSONSchema({ description, champDescriptors }) {
   };
 }
 
-/** @type {Map<ChampDescriptorTypename, (cd: ChampDescriptor) => (JSONSchema | undefined)>} */
-const DSTypenameToJSONSchema = new Map([
+const DSTypenameToJSONSchema = new Map<
+  ChampDescriptorTypename,
+  (cd: ChampDescriptor) => JSONSchema | undefined
+>([
   ["DropDownListChampDescriptor", champToStringEnumJSONSchema],
   ["MultipleDropDownListChampDescriptor", champToStringArrayJSONSchema],
   ["YesNoChampDescriptor", champToBooleanJSONSchema],
@@ -210,11 +177,8 @@ const {
   revision: { champDescriptors, annotationDescriptors },
 } = schema;
 
-/**
- * champDescriptors vers JSONSchema
- * @param {ChampDescriptor[]} champDescriptors
- */
-function champDescriptorsToJSONSchemaObjectType(champDescriptors) {
+// champDescriptors vers JSONSchema
+function champDescriptorsToJSONSchemaObjectType(champDescriptors: ChampDescriptor[]) {
   const properties = Object.create(null);
   const required = [];
 
