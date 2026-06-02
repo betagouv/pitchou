@@ -109,13 +109,16 @@
         }
 
         emailsParInitials = new SvelteMap(
-          rawDataEmailsParInitials.map((row: { value: any }[]) => {
-            if (row.length >= 1 && row?.[0]?.value && extrairePremierMail(row[1]?.value ?? "")) {
-              return [row?.[0]?.value, extrairePremierMail(row[1]?.value ?? "")];
-            } else {
-              return [];
-            }
-          }),
+          rawDataEmailsParInitials
+            .map((row: { value: any }[]): [string, string] | null => {
+              const initials = row?.[0]?.value;
+              const email = extrairePremierMail(row[1]?.value ?? "");
+              if (row.length >= 1 && initials && email) {
+                return [initials, email];
+              }
+              return null;
+            })
+            .filter((entry): entry is [string, string] => entry !== null),
         );
 
         const lignes = [
