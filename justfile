@@ -45,7 +45,7 @@ build:
 dev:
     vite dev
 
-# Lance les conteneurs Docker de support (Postgres + pgadmin)
+# Lance les conteneurs Docker de support (Postgres + pgadmin + rustfs S3)
 dev-docker:
     docker compose up
 
@@ -62,20 +62,34 @@ dev-restart:
     docker compose restart
 
 # Applique les migrations en attente
-migrate-up:
+db-migrate-up:
     {{ knex }} migrate:up --env docker_dev
 
 # Annule la dernière migration appliquée
-migrate-down:
+db-migrate-down:
     {{ knex }} migrate:down --env docker_dev
 
 # Applique toutes les migrations en attente
-migrate-latest:
+db-migrate-latest:
     {{ knex }} migrate:latest --env docker_dev
 
 # Insère les données de dev en base
-seed-dev:
+db-seed:
     {{ knex }} seed:run --env docker_dev
+
+# Vide toute la BDD (drop + recréation du schéma public, supprime aussi l'historique des migrations)
+db-clear:
+    psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+
+# Réinitialise la BDD de zéro : vide tout, rejoue les migrations, puis insère les seeds
+db-reset:
+    just db-clear
+    just db-migrate-latest
+    just db-seed
+
+# Affiche la taille des tables
+db-size:
+    psql "$DATABASE_URL" -c "SELECT relname, pg_size_pretty(pg_total_relation_size(relid)) AS total FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;"
 
 # Synchronise les dossiers depuis Démarches Simplifiées (sans argument : dernières heures ; sinon depuis la date passée, ex: just sync-ds 2025-06-01)
 sync-ds lastModified="":
@@ -114,12 +128,12 @@ test:
     just test-integration
     just test-e2e
 
-# Démarre le conteneur Postgres pour les tests d'intégration et e2e
-test-db-up:
+# Démarre les conteneurs (Postgres + Garage S3) pour les tests d'intégration et e2e
+test-compose-up:
     docker compose -f tests/compose.yml up -d
 
-# Arrête le conteneur Postgres de test
-test-db-down:
+# Arrête les conteneurs de test
+test-compose-down:
     docker compose -f tests/compose.yml down
 
 # Lance les tests unitaires avec vitest
