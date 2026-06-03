@@ -2,11 +2,17 @@
   import { goto } from "$app/navigation";
   import { logout } from "../actions/main.ts";
 
+  import AccountMenu from "./AccountMenu.svelte";
+  import Navbar from "./Navbar.svelte";
+
   type Props = {
+    nav?: boolean;
     email?: string | undefined;
   };
 
-  let { email = undefined }: Props = $props();
+  let { nav = true, email = undefined }: Props = $props();
+
+  let afficheMenu = $derived(nav || Boolean(email));
 
   function logoutAndRedirect() {
     logout().then(() => goto("/"));
@@ -35,6 +41,18 @@
                 <br />Française
               </p>
             </div>
+            {#if afficheMenu}
+              <div class="fr-header__navbar">
+                <button
+                  data-fr-opened="false"
+                  aria-controls="modal-header-menu"
+                  title="Menu"
+                  type="button"
+                  id="button-header-menu"
+                  class="fr-btn--menu fr-btn">Menu</button
+                >
+              </div>
+            {/if}
           </div>
           <div class="fr-header__service">
             <a href="/" title="Accueil - Pitchou - DGALN">
@@ -45,31 +63,36 @@
         </div>
 
         {#if email}
-          <div class="fr-header__tools">
-            <div class="fr-header__tools-links">
-              <ul class="fr-btns-group">
-                <li>
-                  <span>{email}</span>
-                  <button class="fr-btn fr-icon-lock-line" onclick={logoutAndRedirect}>
-                    Se déconnecter
-                  </button>
-                </li>
-              </ul>
-            </div>
+          <div class="fr-header__tools fr-hidden fr-unhidden-lg">
+            <AccountMenu {email} onLogout={logoutAndRedirect} />
           </div>
         {/if}
       </div>
     </div>
   </div>
-  <div class="fr-header__menu fr-modal" id="modal-2568" aria-labelledby="button-2569">
-    <div class="fr-container">
-      <button
-        aria-controls="modal-2568"
-        id="button-2571"
-        title="Fermer"
-        class="fr-btn--close fr-btn">Fermer</button
-      >
-      <div class="fr-header__menu-links"></div>
+
+  {#if afficheMenu}
+    <div
+      class="fr-header__menu fr-modal"
+      id="modal-header-menu"
+      aria-labelledby="button-header-menu"
+    >
+      <div class="fr-container">
+        <button
+          aria-controls="modal-header-menu"
+          title="Fermer"
+          type="button"
+          class="fr-btn--close fr-btn">Fermer</button
+        >
+        <div class="fr-header__menu-links">
+          {#if email}
+            <AccountMenu {email} onLogout={logoutAndRedirect} align="start" />
+          {/if}
+        </div>
+        {#if nav}
+          <Navbar />
+        {/if}
+      </div>
     </div>
-  </div>
+  {/if}
 </header>

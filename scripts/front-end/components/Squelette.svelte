@@ -4,7 +4,6 @@
   import { store } from "../store.svelte.ts";
 
   import Header from "./Header.svelte";
-  import Navbar from "./Navbar.svelte";
   import Footer from "./Footer.svelte";
 
   import type { PitchouState } from "../store.svelte.ts";
@@ -32,31 +31,29 @@
   <title>{title ? `${title} — ` : ""}Pitchou</title>
 </svelte:head>
 
-<Header {email} />
-
-{#if nav}
-  <Navbar />
-{/if}
+<Header {nav} {email} />
 
 <main tabindex="-1" id="main">
-  {#if erreurs.size >= 1}
-    <section class="erreurs fr-grid-row fr-grid-row--center">
-      <div class="fr-col">
-        {#each [...erreurs] as erreur}
-          <div class="fr-alert-background fr-mb-1w">
-            <div class="fr-alert fr-alert--error fr-alert--sm">
-              <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
-              <button onclick={() => store.erreurs.delete(erreur)} class="fr-link--close fr-link"
-                >Masquer le message</button
-              >
+  <div class="fr-container">
+    {#if erreurs.size >= 1}
+      <section class="erreurs fr-grid-row fr-grid-row--center">
+        <div class="fr-col">
+          {#each [...erreurs] as erreur}
+            <div class="fr-alert-background fr-mb-1w">
+              <div class="fr-alert fr-alert--error fr-alert--sm">
+                <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
+                <button onclick={() => store.erreurs.delete(erreur)} class="fr-link--close fr-link"
+                  >Masquer le message</button
+                >
+              </div>
             </div>
-          </div>
-        {/each}
-      </div>
-    </section>
-  {/if}
+          {/each}
+        </div>
+      </section>
+    {/if}
 
-  {@render children?.()}
+    {@render children?.()}
+  </div>
 </main>
 
 <Footer {résultatsSynchronisationDS88444} />

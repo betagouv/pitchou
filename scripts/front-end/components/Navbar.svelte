@@ -1,6 +1,6 @@
 <script lang="ts"></script>
 
-<nav class="fr-nav" id="navigation-773" aria-label="Menu principal">
+<nav class="fr-nav" aria-label="Menu principal">
   <ul class="fr-nav__list">
     <li class="fr-nav__item">
       <a class="fr-nav__link" href="/">Tableau de suivi</a>
@@ -30,13 +30,6 @@
 </nav>
 
 <style lang="scss">
-  .fr-nav__item {
-    // pour une raison pas claire, cette règle est annulée par une media query @media (min-width: 62em)
-    // et ça casse le menu.
-    // Cette ligne le répare
-    position: relative;
-  }
-
   nav span.fr-badge {
     font-size: 0.55rem;
   }

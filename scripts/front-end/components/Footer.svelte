@@ -1,7 +1,6 @@
 <script lang="ts">
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
-  import { onMount } from "svelte";
 
   import type { PitchouState } from "../store.svelte.ts";
 
@@ -30,27 +29,6 @@
     }
 
     return format(date, `d MMMM yyyy HH'h'mm`, { locale: fr });
-  }
-
-  let theme = $state<"light" | "dark">("light");
-
-  onMount(() => {
-    const root = document.documentElement;
-    const sync = () => {
-      theme = root.getAttribute("data-fr-theme") === "dark" ? "dark" : "light";
-    };
-    sync();
-    // DSFR met à jour data-fr-theme en fonction de data-fr-scheme ; on suit cet attribut
-    const observer = new MutationObserver(sync);
-    observer.observe(root, { attributes: true, attributeFilter: ["data-fr-theme"] });
-    return () => observer.disconnect();
-  });
-
-  function toggleTheme() {
-    const root = document.documentElement;
-    const next = root.getAttribute("data-fr-theme") === "dark" ? "light" : "dark";
-    // DSFR observe data-fr-scheme, applique data-fr-theme et persiste le choix
-    root.setAttribute("data-fr-scheme", next);
   }
 </script>
 
@@ -137,17 +115,6 @@
         </li>
         <li class="fr-footer__bottom-item">
           <a href="/donnees-personnelles" class="fr-footer__bottom-link"> Données personnelles </a>
-        </li>
-        <li class="fr-footer__bottom-item">
-          <button
-            type="button"
-            class="fr-footer__bottom-link fr-icon-{theme === 'dark'
-              ? 'sun'
-              : 'moon'}-line fr-link--icon-left"
-            onclick={toggleTheme}
-          >
-            {theme === "dark" ? "Thème clair" : "Thème sombre"}
-          </button>
         </li>
         {#if dernièreSynchronisationRéussie}
           <li class="fr-footer__bottom-item">
