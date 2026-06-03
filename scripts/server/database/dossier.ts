@@ -91,6 +91,43 @@ export async function getDossierMessages(
 
 const varcharKeys: (keyof Pick<Dossier, "nom" | "ddep_nécessaire">)[] = ["nom", "ddep_nécessaire"];
 
+type DecisionAdministrativeToInsert = NonNullable<
+  DossierPourInsert["décision_administrative"]
+>[number];
+
+/**
+ * Keeps only the decisions administratives whose (dossier, fichier) pair
+ * is not already present in the database.
+ */
+async function getDecisionsAdministrativesNotInDB(
+  decisions: DecisionAdministrativeToInsert[],
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<DecisionAdministrativeToInsert[]> {
+  const fichiers = decisions
+    .map((decision) => decision.fichier)
+    .filter((fichier): fichier is Fichier["id"] => fichier !== undefined && fichier !== null);
+
+  if (fichiers.length === 0) {
+    return decisions;
+  }
+
+  const decisionsInDB = await databaseConnection("décision_administrative")
+    .select(["dossier", "fichier"])
+    .whereIn("fichier", fichiers);
+
+  const dossierFichierKey = (decision: DecisionAdministrativeToInsert) =>
+    `${decision.dossier}:${decision.fichier}`;
+
+  const keysInDB = new Set(decisionsInDB.map(dossierFichierKey));
+
+  const isAlreadyInDB = (decision: DecisionAdministrativeToInsert) =>
+    keysInDB.has(dossierFichierKey(decision));
+
+  const newDecisions = decisions.filter((decision) => !isAlreadyInDB(decision));
+
+  return newDecisions;
+}
+
 export async function dumpDossiers(
   dossiersPourInsert: DossierPourInsert[],
   dossiersPourUpdate: DossierPourUpdate[],
@@ -205,6 +242,11 @@ export async function dumpDossiers(
     .filter((x) => x !== undefined)
     .flat();
 
+  const decisionsAdministrativesToInsert = await getDecisionsAdministrativesNotInDB(
+    décisionAdministrativeDossier,
+    databaseConnection,
+  );
+
   const databaseOperations = [
     évènementsPhaseDossier.length > 0
       ? databaseConnection("évènement_phase_dossier")
@@ -217,8 +259,8 @@ export async function dumpDossiers(
       ? databaseConnection("avis_expert").insert(avisExpertDossier)
       : Promise.resolve([]),
 
-    décisionAdministrativeDossier.length > 0
-      ? databaseConnection("décision_administrative").insert(décisionAdministrativeDossier)
+    decisionsAdministrativesToInsert.length > 0
+      ? databaseConnection("décision_administrative").insert(decisionsAdministrativesToInsert)
       : Promise.resolve([]),
 
     arêtePersonneSuitDossierDossier.length > 0

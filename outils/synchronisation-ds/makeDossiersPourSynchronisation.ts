@@ -264,8 +264,7 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(
 
 /**
  * Synchronisation des décisions administratives
- * Les fichiers téléchargés correspondent à ceux qui n'avaient pas été téléchargés et donc sûrement à
- * une nouvelle décision administrative qui n'est pas encore en BDD
+ * On crée une décision administrative pour le dossier qui a un fichier de motivation associé.
  *
  * On utilise le dernier traitement du dossier pour déterminer le type de décision administrative (acceptation, refus).
  * `idPitchouDuDossier`: si le dossier est à insérer et pas à updater, alors l'id du dossier n'existe pas encore et il est défini à null.
@@ -277,9 +276,9 @@ function makeDécisionAdministrativeFromTraitementDS(
 ): PartialBy<DécisionAdministrativeInitializer, "dossier">[] {
   const décisionsAdministratives: PartialBy<DécisionAdministrativeInitializer, "dossier">[] = [];
 
-  if (fichiersMotivationTéléchargés && fichiersMotivationTéléchargés.size >= 1) {
-    const fichierMotivationId = fichiersMotivationTéléchargés.get(dossierDS.number);
+  const fichierMotivationId = fichiersMotivationTéléchargés?.get(dossierDS.number);
 
+  if (fichierMotivationId) {
     let type: TypeDécisionAdministrative = "Autre décision";
 
     const traitements = dossierDS.traitements;
