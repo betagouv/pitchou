@@ -59,6 +59,17 @@
 <Footer {résultatsSynchronisationDS88444} />
 
 <style lang="scss">
+  // Pied de page collé en bas quand le contenu est plus court que la fenêtre
+  :global(body) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  main {
+    flex: 1 0 auto;
+  }
+
   section.erreurs {
     position: relative;
     height: 0;
