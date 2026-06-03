@@ -4,7 +4,7 @@
   import { untrack } from "svelte";
   import Squelette from "../Squelette.svelte";
   import Loader from "../Loader.svelte";
-  import { formatDateAbsolue } from "../../affichageDossier.js";
+  import { formatDateAbsolue } from "../../affichageDossier.ts";
   import { isSameDay } from "date-fns";
 
   /** @typedef {Omit<ComponentProps<typeof Squelette>, 'children'> & {indicateursParDateP: Promise<IndicateursAARRI[]>}} Props */

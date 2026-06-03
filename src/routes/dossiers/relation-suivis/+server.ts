@@ -1,13 +1,13 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { getRelationSuivis, créerTransaction } from "$server/database.js";
+import { getRelationSuivis, créerTransaction } from "$server/database.ts";
 import {
   trouverRelationPersonneDepuisCap,
   instructeurSuitDossier,
   instructeurLaisseDossier,
-} from "$server/database/relation_suivi.js";
-import { getPersonneByEmail } from "$server/database/personne.js";
+} from "$server/database/relation_suivi.ts";
+import { getPersonneByEmail } from "$server/database/personne.ts";
 import type { PitchouInstructeurCapabilities } from "$types/capabilities.ts";
 
 export const GET: RequestHandler = async ({ url }) => {

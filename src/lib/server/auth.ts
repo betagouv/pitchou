@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import { dossiersAccessibleViaCap } from "$server/database/dossier.js";
+import { dossiersAccessibleViaCap } from "$server/database/dossier.ts";
 import type Dossier from "$types/database/public/Dossier.ts";
 import type { CapDossierCap } from "$types/database/public/CapDossier.ts";
 

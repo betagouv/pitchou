@@ -7,11 +7,11 @@
   import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "./DSFR/Pagination.svelte";
-  import { créerFiltreTexte } from "../filtresTexte.js";
+  import { créerFiltreTexte } from "../filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
-  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "../actions/aarri.js";
-  import { phases as toutesLesPhases } from "../affichageDossier.js";
+  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "../actions/aarri.ts";
+  import { phases as toutesLesPhases } from "../affichageDossier.ts";
 
   /**
    * @typedef {Object} Props

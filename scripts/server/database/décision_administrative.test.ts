@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   getDossierIdFromDecisionAdministrative,
   supprimerDécisionAdministrative,
-} from "./décision_administrative.js";
+} from "./décision_administrative.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 
 describe("getDossierIdFromDecisionAdministrative", () => {

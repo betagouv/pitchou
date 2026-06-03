@@ -57,6 +57,7 @@
     "minimist": "^1.2.8",
     "p-limit": "^6.2.0",
     "pg": "^8.11.5",
-    "remember": "github:DavidBruant/remember#v1.0.2"
+    "remember": "github:DavidBruant/remember#v1.0.2",
+    "tsx": "^4.22.3"
   }
 }

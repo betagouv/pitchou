@@ -1,8 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { évènementMétriqueGuard } from "$server/évènements_métriques.js";
-import { ajouterÉvènementDepuisCap } from "$server/database/évènements_métriques.js";
+import { évènementMétriqueGuard } from "$server/évènements_métriques.ts";
+import { ajouterÉvènementDepuisCap } from "$server/database/évènements_métriques.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);

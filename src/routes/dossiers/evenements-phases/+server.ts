@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { getÉvènementsPhaseDossiers } from "$server/database/dossier.js";
+import { getÉvènementsPhaseDossiers } from "$server/database/dossier.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
   const cap = requireCap(url);

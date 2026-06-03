@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("./database/dossier.js", () => ({
+vi.mock("./database/dossier.ts", () => ({
   dossiersAccessibleViaCap: vi.fn(),
 }));
 
-import { checkDossierAccessByCap } from "./auth.js";
-import { dossiersAccessibleViaCap } from "./database/dossier.js";
+import { checkDossierAccessByCap } from "./auth.ts";
+import { dossiersAccessibleViaCap } from "./database/dossier.ts";
 
 const mockedDossiersAccessibleViaCap = vi.mocked(dossiersAccessibleViaCap);
 

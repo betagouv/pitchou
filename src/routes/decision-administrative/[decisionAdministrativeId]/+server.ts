@@ -3,7 +3,7 @@ import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
   supprimerDécisionAdministrative,
   getDossierIdFromDecisionAdministrative,
-} from "$server/database/décision_administrative.js";
+} from "$server/database/décision_administrative.ts";
 import type { DCisionAdministrativeId } from "$types/database/public/DécisionAdministrative.ts";
 
 export const DELETE: RequestHandler = async ({ url, params }) => {

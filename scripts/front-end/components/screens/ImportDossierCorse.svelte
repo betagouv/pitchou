@@ -1,8 +1,8 @@
 <script>
-  /** @import { DossierAvecAlertes, } from "../../actions/importDossierUtils.js" */
+  /** @import { DossierAvecAlertes, } from "../../actions/importDossierUtils.ts" */
   /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
   /** @import { ComponentProps } from 'svelte' */
-  /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.js" */
+  /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.ts" */
   /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js"; */
   /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
 

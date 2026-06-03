@@ -1,10 +1,10 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { getDossierComplet, chargerMessagesDossier } from "$front/actions/dossier.js";
+import { getDossierComplet, chargerMessagesDossier } from "$front/actions/dossier.ts";
 import {
   chargerNotificationParDossierPourInstructeurActuel,
   chargerRelationSuivi,
-} from "$front/actions/main.js";
+} from "$front/actions/main.ts";
 import type { DossierId } from "$types/database/public/Dossier.ts";
 
 export const load: PageLoad = async ({ params, parent }) => {

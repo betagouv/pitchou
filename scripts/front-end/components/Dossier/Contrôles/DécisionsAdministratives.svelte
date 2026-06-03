@@ -6,15 +6,15 @@
 
   import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
 
-  import { formatDateAbsolue } from "../../../affichageDossier.js";
+  import { formatDateAbsolue } from "../../../affichageDossier.ts";
   import {
     supprimerPrescription as supprimerPrescriptionBaseDeDonnées,
     ajouterPrescription as ajouterPrescriptionBaseDeDonnées,
     modifierPrescription,
-  } from "../../../actions/prescriptions.js";
-  import { créerPrescriptionContrôlesÀPartirDeFichier } from "../../../actions/décisionAdministrative.js";
-  import { refreshDossierComplet } from "../../../actions/dossier.js";
-  import { envoyerÉvènement } from "../../../actions/aarri.js";
+  } from "../../../actions/prescriptions.ts";
+  import { créerPrescriptionContrôlesÀPartirDeFichier } from "../../../actions/décisionAdministrative.ts";
+  import { refreshDossierComplet } from "../../../actions/dossier.ts";
+  import { envoyerÉvènement } from "../../../actions/aarri.ts";
 
   import { store } from "../../../store.svelte.ts";
 

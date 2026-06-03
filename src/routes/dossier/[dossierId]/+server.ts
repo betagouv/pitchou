@@ -1,8 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { getDossierComplet, updateDossier } from "$server/database/dossier.js";
-import { getPersonneByDossierCap } from "$server/database/personne.js";
+import { getDossierComplet, updateDossier } from "$server/database/dossier.ts";
+import { getPersonneByDossierCap } from "$server/database/personne.ts";
 import type { DossierId } from "$types/database/public/Dossier.ts";
 
 function parseDossierId(raw: string): DossierId {

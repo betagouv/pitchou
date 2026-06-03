@@ -16,18 +16,18 @@
     formatPorteurDeProjet,
     phases,
     prochaineActionAttenduePar,
-  } from "../../affichageDossier.js";
-  import { créerFiltreTexte } from "../../filtresTexte.js";
+  } from "../../affichageDossier.ts";
+  import { créerFiltreTexte } from "../../filtresTexte.ts";
   import {
     trierDossiersParOrdreAlphabétiqueColonne,
     trierDossiersParPhaseProchaineAction,
-  } from "../../triDossiers.js";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
+  } from "../../triDossiers.ts";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import {
     envoyerÉvènement,
     envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier,
-  } from "../../actions/aarri.js";
+  } from "../../actions/aarri.ts";
 
   /** @import {ComponentProps} from 'svelte' */
   /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/

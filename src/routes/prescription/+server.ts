@@ -5,8 +5,8 @@ import {
   ajouterPrescription,
   modifierPrescription,
   getDossierIdFromPrescription,
-} from "$server/database/prescription.js";
-import { getDossierIdFromDecisionAdministrative } from "$server/database/décision_administrative.js";
+} from "$server/database/prescription.ts";
+import { getDossierIdFromDecisionAdministrative } from "$server/database/décision_administrative.ts";
 import type Prescription from "$types/database/public/Prescription.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {

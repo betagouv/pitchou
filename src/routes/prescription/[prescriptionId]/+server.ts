@@ -3,7 +3,7 @@ import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
   supprimerPrescription,
   getDossierIdFromPrescription,
-} from "$server/database/prescription.js";
+} from "$server/database/prescription.ts";
 import type { PrescriptionId } from "$types/database/public/Prescription.ts";
 
 export const DELETE: RequestHandler = async ({ url, params }) => {

@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { supprimerContrôle, getDossierIdFromControle } from "$server/database/controle.js";
+import { supprimerContrôle, getDossierIdFromControle } from "$server/database/controle.ts";
 import type { ContrLeId } from "$types/database/public/Contrôle.ts";
 
 export const DELETE: RequestHandler = async ({ url, params }) => {

@@ -4,11 +4,11 @@
   import {
     importDescriptionMenacesEspècesFromOdsArrayBuffer,
     importDescriptionMenacesEspècesFromURL,
-  } from "$commun/outils-espèces.js";
+  } from "$commun/outils-espèces.ts";
   import {
     chargerListeEspècesProtégées,
     chargerActivitésMéthodesMoyensDePoursuite,
-  } from "$front/actions/activitésMéthodesMoyensDePoursuite.js";
+  } from "$front/actions/activitésMéthodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([
     chargerListeEspècesProtégées(),

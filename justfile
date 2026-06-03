@@ -1,5 +1,8 @@
 set dotenv-load
 
+# Lance le CLI knex via tsx pour supporter le knexfile et les migrations/seeds en TypeScript
+knex := "node --import tsx ./node_modules/knex/bin/cli.js"
+
 # Liste les recettes disponibles
 default:
     @just --list
@@ -60,19 +63,19 @@ dev-restart:
 
 # Applique les migrations en attente
 migrate-up:
-    knex migrate:up --env docker_dev
+    {{ knex }} migrate:up --env docker_dev
 
 # Annule la dernière migration appliquée
 migrate-down:
-    knex migrate:down --env docker_dev
+    {{ knex }} migrate:down --env docker_dev
 
 # Applique toutes les migrations en attente
 migrate-latest:
-    knex migrate:latest --env docker_dev
+    {{ knex }} migrate:latest --env docker_dev
 
 # Insère les données de dev en base
 seed-dev:
-    knex seed:run --env docker_dev
+    {{ knex }} seed:run --env docker_dev
 
 # Synchronise les dossiers depuis Démarches Simplifiées (sans argument : dernières heures ; sinon depuis la date passée, ex: just sync-ds 2025-06-01)
 sync-ds lastModified="":

@@ -10,9 +10,9 @@
     formatDateAbsolue,
     phases,
     prochaineActionAttenduePar,
-  } from "../../affichageDossier.js";
-  import { modifierDossier } from "../../actions/dossier.js";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
+  } from "../../affichageDossier.ts";
+  import { modifierDossier } from "../../actions/dossier.ts";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 

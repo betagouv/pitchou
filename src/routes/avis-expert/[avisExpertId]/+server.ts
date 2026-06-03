@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { supprimerAvisExpert, getDossierIdFromAvisExpert } from "$server/database/avis_expert.js";
+import { supprimerAvisExpert, getDossierIdFromAvisExpert } from "$server/database/avis_expert.ts";
 import type { AvisExpertId } from "$types/database/public/AvisExpert.ts";
 
 export const DELETE: RequestHandler = async ({ url, params }) => {

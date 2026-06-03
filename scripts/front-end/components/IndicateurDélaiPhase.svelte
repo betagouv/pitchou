@@ -1,7 +1,7 @@
 <script>
   import { differenceInMonths, differenceInWeeks, addMonths, format } from "date-fns";
   import IndicateurDélai from "./IndicateurDélai.svelte";
-  import { getDébutPhaseActuelle } from "../getDébutPhaseActuelle.js";
+  import { getDébutPhaseActuelle } from "../getDébutPhaseActuelle.ts";
 
   /** @import {DossierRésumé} from '../../types/API_Pitchou.js' */
 

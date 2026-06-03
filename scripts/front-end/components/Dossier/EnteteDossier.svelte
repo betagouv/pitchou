@@ -1,9 +1,9 @@
 <script>
-  import { formatLocalisation, formatPorteurDeProjet } from "../../affichageDossier.js";
-  import { afficherString } from "../../affichageValeurs.js";
+  import { formatLocalisation, formatPorteurDeProjet } from "../../affichageDossier.ts";
+  import { afficherString } from "../../affichageValeurs.ts";
   import TagPhase from "../TagPhase.svelte";
 
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.js";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
 
   /** @import {ComponentProps} from 'svelte' */
   /** @import Squelette from '../Squelette.svelte' */

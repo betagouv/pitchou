@@ -1,5 +1,5 @@
 <script>
-  import { formatDateAbsolue } from "../../../affichageDossier.js";
+  import { formatDateAbsolue } from "../../../affichageDossier.ts";
   import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
   /** @import { DossierComplet, FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
   /**

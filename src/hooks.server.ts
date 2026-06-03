@@ -1,5 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
-import { miseEnPlaceSecretGeoMCE } from "$server/database/capability-geomce.js";
+import { miseEnPlaceSecretGeoMCE } from "$server/database/capability-geomce.ts";
 
 if (!process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN) {
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`);

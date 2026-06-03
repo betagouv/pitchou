@@ -1,12 +1,12 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { créerTransaction } from "$server/database.js";
-import { dossiersAccessibleViaCap } from "$server/database/dossier.js";
+import { créerTransaction } from "$server/database.ts";
+import { dossiersAccessibleViaCap } from "$server/database/dossier.ts";
 import {
   modifierDécisionAdministrative,
   ajouterDécisionAdministrativeAvecFichier,
-} from "$server/database/décision_administrative.js";
+} from "$server/database/décision_administrative.ts";
 import type { DécisionAdministrativePourTransfer } from "$types/API_Pitchou.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {

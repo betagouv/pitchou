@@ -8,10 +8,10 @@
   import LoginViaEmail from "$front/components/screens/LoginViaEmail.svelte";
   import SqueletteContenuVide from "$front/components/SqueletteContenuVide.svelte";
 
-  import { logout } from "$front/actions/main.js";
-  import { chargerDossiers } from "$front/actions/dossier.js";
-  import { envoiEmailConnexion } from "$front/serveur.js";
-  import { authorizedEmailDomains } from "$commun/constantes.js";
+  import { logout } from "$front/actions/main.ts";
+  import { chargerDossiers } from "$front/actions/dossier.ts";
+  import { envoiEmailConnexion } from "$front/serveur.ts";
+  import { authorizedEmailDomains } from "$commun/constantes.ts";
 
   /** @import {ChampDescriptor} from '../../scripts/types/démarche-numérique/schema.ts' */
   /** @import {TriFiltreLocalStorage, FiltresLocalStorage, TriTableau} from '../../scripts/types/interfaceUtilisateur.ts' */

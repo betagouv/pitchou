@@ -1,7 +1,7 @@
 <script>
-  import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.js";
-  import { refreshDossierComplet } from "../../actions/dossier.js";
-  import { formatDateAbsolue } from "../../affichageDossier.js";
+  import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.ts";
+  import { refreshDossierComplet } from "../../actions/dossier.ts";
+  import { formatDateAbsolue } from "../../affichageDossier.ts";
   import DateInput from "../common/DateInput.svelte";
 
   /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */

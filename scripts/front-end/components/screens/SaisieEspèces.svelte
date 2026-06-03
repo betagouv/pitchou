@@ -9,7 +9,7 @@
   import Loader from "../Loader.svelte";
   import TuileSaisieEspèce from "../SaisieEspèces/TuileSaisieEspèce.svelte";
   import { tick } from "svelte";
-  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
+  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
 
   /** @import { ParClassification, EspèceProtégée, OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte} from '../../../types/especes.d.ts' **/
   /** @import { ActivitéMenançante, MéthodeMenançante, MoyenDePoursuiteMenaçant, DescriptionMenacesEspèces, DescriptionImpact } from '../../../types/especes.d.ts' **/

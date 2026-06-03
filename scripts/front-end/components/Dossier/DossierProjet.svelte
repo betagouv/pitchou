@@ -1,12 +1,12 @@
 <script>
   import DownloadButton from "../DownloadButton.svelte";
   import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
-  import { formatDateRelative } from "../../affichageDossier.js";
+  import { formatDateRelative } from "../../affichageDossier.ts";
   import { byteFormat } from "../../../commun/typeFormat.js";
-  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.js";
+  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
   import Loader from "../Loader.svelte";
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
-  import { envoyerÉvènement } from "../../actions/aarri.js";
+  import { envoyerÉvènement } from "../../actions/aarri.ts";
 
   /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
   /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
