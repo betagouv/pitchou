@@ -1,12 +1,11 @@
+import type { Knex } from "knex";
+
 /**
  * Le nettoyage des `fichier` orphelins suite à une suppression ou modification
- * d'`avis_expert` est désormais effectué côté application (cf. avis_expert.js),
+ * d'`avis_expert` est désormais effectué côté application (cf. avis_expert.ts),
  * ce qui permet aussi de supprimer l'objet S3 associé via `file_id`.
- *
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
  */
-export async function up(knex) {
+export async function up(knex: Knex) {
   await knex.raw(`
 DROP TRIGGER IF EXISTS supprimer_fichiers_avis_expert_trigger ON public.avis_expert;
 DROP FUNCTION IF EXISTS supprimer_fichiers_avis_expert();
@@ -16,11 +15,7 @@ DROP FUNCTION IF EXISTS supprimer_fichiers_avis_expert_orphelins();
 `);
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex) {
+export async function down(knex: Knex) {
   await knex.raw(`
 CREATE OR REPLACE FUNCTION supprimer_fichiers_avis_expert()
 RETURNS TRIGGER

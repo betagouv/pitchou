@@ -1,8 +1,6 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex) {
+import type { Knex } from "knex";
+
+export async function up(knex: Knex) {
   await knex.schema.createTable("file", function (table) {
     table.uuid("id").primary().defaultTo(knex.raw("gen_random_uuid()"));
     table.string("nom").notNullable();
@@ -19,11 +17,7 @@ export async function up(knex) {
   });
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex) {
+export async function down(knex: Knex) {
   await knex.schema.alterTable("fichier", function (table) {
     table.dropForeign("file_id");
     table.dropColumn("file_id");
