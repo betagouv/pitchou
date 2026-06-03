@@ -98,16 +98,14 @@ Voici la liste des ids des schémas DS disponibles :
   process.exit(1);
 }
 
-/** @type {Date} */
-let lastModified;
+let lastModified: Date;
 
 if (typeof args.lastModified === "string" && isValidDate(new Date(args.lastModified))) {
   lastModified = new Date(args.lastModified);
 } else {
   lastModified = sub(new Date(), { hours: 12 });
 }
-/** @type {SchemaDémarcheSimplifiée} */
-const schema = (
+const schema: SchemaDémarcheSimplifiée = (
   await import(`../data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`, {
     with: { type: "json" },
   })
@@ -138,8 +136,7 @@ const groupesInstructeursSynchronisés = recupérerGroupesInstructeurs(
   ),
 );
 
-/** @type {DossierDS88444[]} */
-const dossiersDS = await recupérerDossiersRécemmentModifiés(
+const dossiersDS: DossierDS88444[] = await recupérerDossiersRécemmentModifiés(
   DEMARCHE_SIMPLIFIEE_API_TOKEN,
   DEMARCHE_NUMBER,
   lastModified,
@@ -152,23 +149,21 @@ console.info("Nombre de dossiers", dossiersDS.length);
 
 // stocker les dossiers en BDD
 
-/** @type {Map<keyof DossierDemarcheNumerique88444, ChampDescriptor['id']>} */
-//@ts-expect-error TS ne comprend pas que les clefs de keyof DossierDemarcheNumerique88444 sont les schema88444.revision.champDescriptors.map(label)
 const pitchouKeyToChampDS = new Map(
-  schema.revision.champDescriptors.map(({ label, id }) => [label, id]),
-);
+  schema.revision.champDescriptors.map(({ label, id }: ChampDescriptor) => [label, id] as const),
+) as Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>;
 
-/** @type {Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor['id']>} */
-//@ts-expect-error TS ne comprend pas que les clefs de keyof AnnotationsPriveesDemarcheNumerique88444 sont les schema88444.revision.annotationDescriptors.map(label)
 export const pitchouKeyToAnnotationDS = new Map(
-  schema.revision.annotationDescriptors.map(({ label, id }) => [label, id]),
-);
+  schema.revision.annotationDescriptors.map(
+    ({ label, id }: ChampDescriptor) => [label, id] as const,
+  ),
+) as Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor["id"]>;
 
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
 const dossiersDéjàExistantsEnBDD = await getDossierIdsFromDS_Ids(
-  dossiersDS.map((d) => d.id),
+  dossiersDS.map((d: DossierDS88444) => d.id),
   laTransactionDeSynchronisationDS,
 );
 const dossierNumberToDossierId = new Map(
@@ -176,25 +171,21 @@ const dossierNumberToDossierId = new Map(
 );
 
 /** Télécharger les nouveaux fichiers 'motivation' */
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
-const fichiersMotivationTéléchargésP = téléchargerNouveauxFichiersMotivation(
-  dossiersDS,
-  laTransactionDeSynchronisationDS,
-);
+const fichiersMotivationTéléchargésP: Promise<
+  Map<DossierDS88444["number"], Fichier["id"]> | undefined
+> = téléchargerNouveauxFichiersMotivation(dossiersDS, laTransactionDeSynchronisationDS);
 
 const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP;
 
 const { getDonnéesPersonnesEntreprises, makeColonnesCommunesDossierPourSynchro } = (() => {
   if (DEMARCHE_NUMBER === 88444) {
     return {
-      /** @type {GetDonnéesPersonnesEntreprises} **/
-      //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-      // ici, on voudrait que le type GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheNumerique88444
-      getDonnéesPersonnesEntreprises: getDonnéesPersonnesEntreprises88444,
-      /** @type {MakeColonnesCommunesDossierPourSynchro} **/
-      //@ts-ignore On ne peut pas créer des types qui dépendent d'un paramètre
-      // ici, on voudrait que le type makeColonnesCommunesDossierPourSynchro88444 soit fonction de keyof AnnotationsPriveesDemarcheNumerique88444
-      makeColonnesCommunesDossierPourSynchro: makeColonnesCommunesDossierPourSynchro88444,
+      // On ne peut pas créer des types qui dépendent d'un paramètre — ici on voudrait que
+      // GetDonnéesPersonnesEntreprises soit fonction de keyof DossierDemarcheNumerique88444
+      getDonnéesPersonnesEntreprises:
+        getDonnéesPersonnesEntreprises88444 as unknown as GetDonnéesPersonnesEntreprises,
+      makeColonnesCommunesDossierPourSynchro:
+        makeColonnesCommunesDossierPourSynchro88444 as unknown as MakeColonnesCommunesDossierPourSynchro,
     };
   } else {
     throw new Error(
@@ -219,8 +210,7 @@ const { dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro } =
     Créer toutes les personnes manquantes en BDD pour qu'elles aient toutes un id
 */
 
-/** @type {Map<Personne['email'], Personne>} */
-const personneByEmail = new Map();
+const personneByEmail = new Map<Personne["email"], Personne>();
 const allPersonnesCurrentlyInDatabase = await allPersonnesCurrentlyInDatabaseP;
 
 for (const personne of allPersonnesCurrentlyInDatabase) {
@@ -229,15 +219,13 @@ for (const personne of allPersonnesCurrentlyInDatabase) {
   }
 }
 
-/** @type {readonly (DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate)[] } */
-const dossiersPourSynchronisation = Object.freeze([
-  ...dossiersAInitialiserPourSynchro,
-  ...dossiersAModifierPourSynchro,
-]);
+const dossiersPourSynchronisation: readonly (
+  | DossierEntreprisesPersonneInitializersPourInsert
+  | DossierEntreprisesPersonneInitializersPourUpdate
+)[] = Object.freeze([...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro]);
 
-/** @type {Map<PersonneInitializer['email'], PersonneInitializer>} */
-const personnesInDossiersAvecEmail = new Map();
-const personnesInDossiersSansEmail = new Map();
+const personnesInDossiersAvecEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
+const personnesInDossiersSansEmail = new Map<string, PersonneInitializer>();
 
 for (const {
   dossier: { déposant, demandeur_personne_physique },
@@ -265,12 +253,9 @@ for (const {
   }
 }
 
-/**
- *
- * @param {Personne | undefined} descriptionPersonne
- * @returns {Personne['id'] | undefined}
- */
-function getPersonneId(descriptionPersonne) {
+function getPersonneId(
+  descriptionPersonne: Personne | PersonneInitializer | undefined,
+): Personne["id"] | undefined {
   if (!descriptionPersonne) {
     return undefined;
   }
@@ -315,8 +300,7 @@ if (personnesInDossiersWithoutId.length >= 1) {
     Rajouter les entreprises demandeuses qui ne sont pas déjà en BDD
 */
 
-/** @type {Map<Entreprise['siret'], Entreprise>} */
-const entreprisesInDossiersBySiret = new Map();
+const entreprisesInDossiersBySiret = new Map<Entreprise["siret"], Entreprise>();
 
 for (const {
   dossier: { demandeur_personne_morale, id_demarches_simplifiées },
@@ -329,8 +313,7 @@ for (const {
       );
     }
 
-    // @ts-expect-error TS ne comprend pas que demandeur_personne_morale est forcément une Entreprise
-    entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale);
+    entreprisesInDossiersBySiret.set(siret, demandeur_personne_morale as Entreprise);
   }
 }
 
@@ -347,22 +330,11 @@ if (entreprisesInDossiersBySiret.size >= 1) {
  * et les objets Personne par leur id
  */
 
-/**
- * @overload
- * @param {DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation
- * @return {DossierPourUpdate}
- */
-/**
- * @overload
- * @param {DossierEntreprisesPersonneInitializersPourInsert} dossierPourSynchronisation
- * @returns {DossierPourInsert}
- */
-/**
- *
- * @param {DossierEntreprisesPersonneInitializersPourInsert | DossierEntreprisesPersonneInitializersPourUpdate} dossierPourSynchronisation
- * @returns {DossierPourInsert | DossierPourUpdate}
- */
-function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation) {
+function _remplacerPersonneEntreprise(
+  dossierPourSynchronisation:
+    | DossierEntreprisesPersonneInitializersPourInsert
+    | DossierEntreprisesPersonneInitializersPourUpdate,
+) {
   const {
     dossier: {
       déposant,
@@ -375,9 +347,7 @@ function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation)
 
   return {
     dossier: {
-      //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
       déposant: getPersonneId(déposant) || null,
-      //@ts-expect-error on fait un peu nimps entre l'objet déposant construit à partir de DS et l'identifiant de personne
       demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
       demandeur_personne_morale:
         (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
@@ -387,20 +357,25 @@ function remplacerPersonneEntrepriseInitializerParId(dossierPourSynchronisation)
   };
 }
 
-/** @type {DossierPourInsert[]} */
-const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(
-  remplacerPersonneEntrepriseInitializerParId,
-);
+function remplacerPourInsert(
+  d: DossierEntreprisesPersonneInitializersPourInsert,
+): DossierPourInsert {
+  return _remplacerPersonneEntreprise(d) as DossierPourInsert;
+}
 
-/** @type {DossierPourUpdate[]} */
-const dossiersAModifier = dossiersAModifierPourSynchro.map(
-  // @ts-ignore La signature de remplacerPersonneEntrepriseInitializerParId ne permet pas d'assurer que si en entrée on a un DossierEntreprisesPersonneInitializersPourUpdate alors en sortie on aura un DossierPourUpdate
-  remplacerPersonneEntrepriseInitializerParId,
-);
+function remplacerPourUpdate(
+  d: DossierEntreprisesPersonneInitializersPourUpdate,
+): DossierPourUpdate {
+  return _remplacerPersonneEntreprise(d) as DossierPourUpdate;
+}
+
+const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(remplacerPourInsert);
+const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPourUpdate);
 
 /** Télécharger les nouveaux fichiers espèces impactées */
-/** @type {Promise<Map<DossierDS88444['number'], Fichier['id']> | undefined>} */
-const fichiersEspècesImpactéesTéléchargésP = (async () => {
+const fichiersEspècesImpactéesTéléchargésP: Promise<
+  Map<DossierDS88444["number"], Fichier["id"]> | undefined
+> = (async () => {
   if (DEMARCHE_NUMBER === 88444) {
     return récupérerFichiersEspècesImpactées88444(
       dossiersDS,
@@ -414,9 +389,7 @@ const fichiersEspècesImpactéesTéléchargésP = (async () => {
   }
 })();
 
-/** @typedef {keyof DossierDemarcheNumerique88444} ChampFormulaire */
-/** @type {ChampFormulaire88444[]} */
-const champsAvecPiècesJointes88444 = [
+const champsAvecPiècesJointes88444: ChampFormulaire88444[] = [
   "Dépot du dossier complet de demande de dérogation",
   "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande",
   "Diagnostic écologique",
@@ -475,13 +448,11 @@ await Promise.all([dossiersSynchronisés, dossiersSupprimés]);
  */
 
 const dossierIds = await getDossierIdsFromDS_Ids(
-  dossiersDS.map((d) => d.id),
+  dossiersDS.map((d: DossierDS88444) => d.id),
   laTransactionDeSynchronisationDS,
 );
-/** @type {Map<NonNullable<DossierDS88444['id']>, DatabaseDossier['id']>} */
-const dossierIdByDS_id = new Map();
-/** @type {Map<DossierDS88444['number'], DatabaseDossier['id']>} */
-const dossierIdByDS_number = new Map();
+const dossierIdByDS_id = new Map<NonNullable<DossierDS88444["id"]>, DatabaseDossier["id"]>();
+const dossierIdByDS_number = new Map<DossierDS88444["number"], DatabaseDossier["id"]>();
 
 for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of dossierIds) {
   dossierIdByDS_id.set(id_demarches_simplifiées, id);
@@ -490,20 +461,18 @@ for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of d
 
 /** Synchronisation de la messagerie */
 
-/** @type {Map<NonNullable<DatabaseDossier['id_demarches_simplifiées']>, Message[]>} */
-const messagesÀMettreEnBDDAvecDossierId_DS = new Map(
-  dossiersDS.map(({ id: id_DS, messages }) => [id_DS, messages]),
-);
+const messagesÀMettreEnBDDAvecDossierId_DS = new Map<
+  NonNullable<DatabaseDossier["id_demarches_simplifiées"]>,
+  Message[]
+>(dossiersDS.map(({ id: id_DS, messages }: DossierDS88444) => [id_DS, messages]));
 
 let messagesSynchronisés;
 
-/** @type {Map<DatabaseDossier['id'], Message[]>} */
-const messagesÀMettreEnBDDAvecDossierId = new Map();
+const messagesÀMettreEnBDDAvecDossierId = new Map<DatabaseDossier["id"], Message[]>();
 for (const [id_DS, messages] of messagesÀMettreEnBDDAvecDossierId_DS) {
   const dossierId = dossierIdByDS_id.get(id_DS);
 
-  // @ts-ignore
-  messagesÀMettreEnBDDAvecDossierId.set(dossierId, messages);
+  messagesÀMettreEnBDDAvecDossierId.set(dossierId!, messages);
 }
 
 if (messagesÀMettreEnBDDAvecDossierId.size >= 1) {
@@ -590,8 +559,7 @@ Promise.all([
 ])
   .then(() => {
     console.log("Sync terminé avec succès, commit de la transaction");
-    /** @type {RésultatSynchronisationDS88444} */
-    const résultatSynchro = {
+    const résultatSynchro: RésultatSynchronisationDS88444 = {
       succès: true,
       horodatage: new Date(),
       erreur: null,
@@ -605,8 +573,7 @@ Promise.all([
   .catch((err) => {
     console.error("Sync échoué", err, "rollback de la transaction");
 
-    /** @type {RésultatSynchronisationDS88444} */
-    const résultatSynchro = {
+    const résultatSynchro: RésultatSynchronisationDS88444 = {
       succès: false,
       horodatage: new Date(),
       erreur: err.toString(),

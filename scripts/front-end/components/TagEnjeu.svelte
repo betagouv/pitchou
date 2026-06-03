@@ -1,26 +1,23 @@
-<script>
-  //@ts-check
-
+<script lang="ts">
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-  /**
-   * @typedef {Object} Props
-   * @property {'écologique' | 'politique'} enjeu
-   * @property {'SM' | 'MD'} [taille]
-   * @property {string[]} [classes]
-   */
+  type Enjeu = "écologique" | "politique";
+  type Taille = "SM" | "MD";
 
-  /** @type {Props} */
-  let { enjeu, taille = "MD", classes = [] } = $props();
+  type Props = {
+    enjeu: Enjeu;
+    taille?: Taille;
+    classes?: string[];
+  };
 
-  /** @type {Map<typeof enjeu, string>} */
-  const enjeuToClass = new Map([
+  let { enjeu, taille = "MD", classes = [] }: Props = $props();
+
+  const enjeuToClass = new Map<Enjeu, string>([
     ["écologique", "enjeu--écologique"],
     ["politique", "enjeu--politique"],
   ]);
 
-  /** @type {Map<typeof taille, string>} */
-  const tailleToClass = new Map([
+  const tailleToClass = new Map<Taille, string>([
     ["SM", "fr-tag--sm"],
     ["MD", "fr-tag--md"],
   ]);

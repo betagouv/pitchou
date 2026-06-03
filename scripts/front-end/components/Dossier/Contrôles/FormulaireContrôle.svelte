@@ -1,34 +1,27 @@
 <!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (bouton-valider to bouton_valider) making the component unusable -->
-<script>
+<script lang="ts">
   import { untrack } from "svelte";
   import DateInput from "../../common/DateInput.svelte";
 
   import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
   import { résultatsContrôle, typesActionSuiteContrôle } from "../../../actions/contrôle.ts";
 
-  /** @import {Snippet} from 'svelte' */
-  /** @import Contrôle from '../../../../types/database/public/Contrôle.ts' */
+  import type { Snippet } from "svelte";
+  import type Contrôle from "../../../../types/database/public/Contrôle.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Contrôle | Partial<Contrôle>} contrôle
-   * @property {(contrôle: Contrôle | Partial<Contrôle>) => Promise<any>} onValider
-   * @property {Snippet} [boutonValider]
-   * @property {Snippet} [boutonAnnuler]
-   * @property {Snippet} [boutonSupprimer]
-   */
+  type Props = {
+    contrôle: Contrôle | Partial<Contrôle>;
+    onValider: (contrôle: Contrôle | Partial<Contrôle>) => Promise<any>;
+    boutonValider?: Snippet;
+    boutonAnnuler?: Snippet;
+    boutonSupprimer?: Snippet;
+  };
 
-  /** @type {Props} */
-  let { contrôle, onValider, boutonValider, boutonAnnuler, boutonSupprimer } = $props();
+  let { contrôle, onValider, boutonValider, boutonAnnuler, boutonSupprimer }: Props = $props();
 
-  /** @type {Props['contrôle']} */
-  let contrôleEnÉdition = $state(untrack(() => contrôle));
+  let contrôleEnÉdition: Props["contrôle"] = $state(untrack(() => contrôle));
 
-  /**
-   *
-   * @param {Event} e
-   */
-  async function formSubmit(e) {
+  async function formSubmit(e: Event) {
     e.preventDefault();
 
     if (contrôleEnÉdition.date_action_suite_contrôle) {

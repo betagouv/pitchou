@@ -1,13 +1,13 @@
-<script>
-  /** @import {Snippet} from 'svelte' */
-  /**
-   * @typedef {Object} Props
-   * @property {Snippet} [boutonOuvrir]
-   * @property {Snippet} contenu
-   * @property {string} id
-   */
-  /** @type {Props} */
-  let { boutonOuvrir, contenu, id } = $props();
+<script lang="ts">
+  import type { Snippet } from "svelte";
+
+  type Props = {
+    boutonOuvrir?: Snippet;
+    contenu: Snippet;
+    id: string;
+  };
+
+  let { boutonOuvrir, contenu, id }: Props = $props();
 </script>
 
 {#if boutonOuvrir}

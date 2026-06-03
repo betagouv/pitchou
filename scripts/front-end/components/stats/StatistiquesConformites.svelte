@@ -1,14 +1,12 @@
-<script>
-  /** @import {StatsConformité} from '../../../types/API_Pitchou' */
+<script lang="ts">
+  import type { StatsConformité } from "../../../types/API_Pitchou";
 
-  /**
-   * @typedef {Object} Props
-   * @property {StatsConformité} statsConformite
-   * @property {number} totalPrescriptions
-   */
+  type Props = {
+    statsConformite: StatsConformité;
+    totalPrescriptions: number;
+  };
 
-  /** @type {Props} */
-  let { statsConformite, totalPrescriptions } = $props();
+  let { statsConformite, totalPrescriptions }: Props = $props();
 
   const nbConformiteInitiale = $derived(statsConformite.nb_conforme_apres_1);
   const nbRetourConformite = $derived(statsConformite.nb_retour_conformite);

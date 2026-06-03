@@ -1,8 +1,7 @@
-<script>
+<script lang="ts">
   import { run } from "svelte/legacy";
   import { untrack } from "svelte";
 
-  //@ts-check
   import debounce from "just-debounce-it";
   import TagPhase from "../TagPhase.svelte";
   import {
@@ -16,23 +15,25 @@
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
-  /** @import Personne from '../../../types/database/public/Personne.js' */
-  /** @import {DossierComplet} from '../../../types/API_Pitchou' */
-  /** @import Dossier from '../../../types/database/public/Dossier.ts' */
-  /** @import {ComponentProps} from 'svelte' */
-  /** @import Squelette from '../Squelette.svelte' */
+  import type Personne from "../../../types/database/public/Personne.js";
+  import type { DossierComplet } from "../../../types/API_Pitchou";
+  import type Dossier from "../../../types/database/public/Dossier.ts";
+  import type { ComponentProps } from "svelte";
+  import type Squelette from "../Squelette.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
-   * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
-   * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
-   */
+  type Props = {
+    dossier: DossierComplet;
+    personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
+    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
+    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+  };
 
-  /** @type {Props} */
-  let { dossier, personnesQuiSuiventDossier, dossierActuelSuiviParInstructeurActuel, email } =
-    $props();
+  let {
+    dossier,
+    personnesQuiSuiventDossier,
+    dossierActuelSuiviParInstructeurActuel,
+    email,
+  }: Props = $props();
 
   const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe";
 
@@ -54,9 +55,12 @@
 
   /**
    * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select
-   * @returns {'oui' | 'non_sans_objet' | 'non_mesures_er_suffisantes' | 'a_determiner'}
    */
-  function getDDEPValeurComposite() {
+  function getDDEPValeurComposite():
+    | "oui"
+    | "non_sans_objet"
+    | "non_mesures_er_suffisantes"
+    | "a_determiner" {
     if (ddep_nécessaire === true) {
       return "oui";
     } else if (ddep_nécessaire === false) {
@@ -78,8 +82,7 @@
   let messageErreur = $state("");
   let afficherMessageSucces = $state(false);
 
-  /** @type {((modifs: Partial<DossierComplet>) => void)} */
-  const modifierChamp = (modifs) => {
+  const modifierChamp: (modifs: Partial<DossierComplet>) => void = (modifs) => {
     modifierDossier(dossier, modifs)
       .then(() => (afficherMessageSucces = true))
       .catch((error) => {
@@ -91,8 +94,7 @@
   const modifierChampAvecDebounce = debounce(modifierChamp, 1000);
 
   run(() => {
-    /** @type {Partial<DossierComplet>} */
-    const modifs = {};
+    const modifs: Partial<DossierComplet> = {};
 
     if (phaseActuelle !== phase) {
       modifs.évènementsPhase = [
@@ -152,28 +154,20 @@
     afficherMessageSucces = false;
   };
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelSuitDossier(id) {
+  function instructeurActuelSuitDossier(id: Dossier["id"]) {
     return instructeurSuitDossier(email, id);
   }
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelLaisseDossier(id) {
+  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
     return instructeurLaisseDossier(email, id);
   }
 
   /**
    * Met à jour les deux champs ddep_nécessaire et mesures_er_suffisantes à partir de la valeur composite
-   * @param {Event & {currentTarget: EventTarget & HTMLSelectElement; }} e
-   * @returns {void}
    */
-  function setDDEPValeurComposite(e) {
+  function setDDEPValeurComposite(
+    e: Event & { currentTarget: EventTarget & HTMLSelectElement },
+  ): void {
     const valeur = e.currentTarget.value;
     if (valeur === "oui") {
       ddep_nécessaire = true;

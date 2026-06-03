@@ -1,24 +1,21 @@
-<script>
-  //@ts-check
-
+<script lang="ts">
   import clsx from "clsx";
 
-  /** @import { RésultatContrôle } from '../../types/API_Pitchou.ts' */
+  import type { RésultatContrôle } from "../../types/API_Pitchou.ts";
 
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-  /**
-   * @typedef {Object} Props
-   * @property {RésultatContrôle | string} résultatContrôle
-   * @property {'SM' | 'MD'} [taille]
-   * @property {string[]} [classes]
-   */
+  type Taille = "SM" | "MD";
 
-  /** @type {Props} */
-  let { résultatContrôle, taille = "SM", classes = [] } = $props();
+  type Props = {
+    résultatContrôle: RésultatContrôle | string;
+    taille?: Taille;
+    classes?: string[];
+  };
 
-  /** @type {Map<RésultatContrôle, string>} */
-  const résultatToClass = new Map([
+  let { résultatContrôle, taille = "SM", classes = [] }: Props = $props();
+
+  const résultatToClass = new Map<RésultatContrôle, string>([
     ["Conforme", "résultat--conforme"],
     ["Non conforme", "résultat--non-conforme"],
     ["Non conforme (Pas d'informations reçues)", "résultat--non-conforme-pas-information"],
@@ -26,8 +23,7 @@
     ["Trop tard", "résultat--trop-tard"],
   ]);
 
-  /** @type {Map<typeof taille, string>} */
-  const tailleToClass = new Map([
+  const tailleToClass = new Map<Taille, string>([
     ["SM", "fr-tag--sm"],
     ["MD", "fr-tag--md"],
   ]);
@@ -35,8 +31,7 @@
   let allClasses = $derived([
     "fr-tag",
     tailleToClass.get(taille),
-    // @ts-ignore
-    résultatToClass.get(résultatContrôle) || "résultat--autre",
+    résultatToClass.get(résultatContrôle as RésultatContrôle) || "résultat--autre",
     ...classes,
   ]);
 </script>

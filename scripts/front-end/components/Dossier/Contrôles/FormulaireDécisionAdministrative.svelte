@@ -1,33 +1,26 @@
-<script>
+<script lang="ts">
   import DateInput from "../../common/DateInput.svelte";
 
   import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
   import { typesDécisionAdministrative } from "../../../../commun/décision-administrative.js";
 
-  /** @import {Snippet} from 'svelte' */
-  /** @import {DécisionAdministrativePourTransfer} from '../../../../types/API_Pitchou.js' */
+  import type { Snippet } from "svelte";
+  import type { DécisionAdministrativePourTransfer } from "../../../../types/API_Pitchou.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DécisionAdministrativePourTransfer} décisionAdministrative
-   * @property {(décision: DécisionAdministrativePourTransfer) => any} onValider
-   * @property {Snippet} boutonValider
-   * @property {Snippet} [boutonAnnuler]
-   * @property {Snippet} [boutonSupprimer]
-   */
+  type Props = {
+    décisionAdministrative: DécisionAdministrativePourTransfer;
+    onValider: (décision: DécisionAdministrativePourTransfer) => any;
+    boutonValider: Snippet;
+    boutonAnnuler?: Snippet;
+    boutonSupprimer?: Snippet;
+  };
 
-  /** @type {Props} */
-  let { décisionAdministrative, onValider, boutonValider, boutonAnnuler, boutonSupprimer } =
+  let { décisionAdministrative, onValider, boutonValider, boutonAnnuler, boutonSupprimer }: Props =
     $props();
 
-  /** @type {FileList | undefined}*/
-  let fichiers = $state();
+  let fichiers: FileList | undefined = $state();
 
-  /**
-   *
-   * @param {Event} e
-   */
-  async function formSubmit(e) {
+  async function formSubmit(e: Event) {
     //console.log('submit', fichiers)
     e.preventDefault();
 
@@ -48,12 +41,12 @@
       const nom = fichier.name;
       const media_type = fichier.type;
 
-      const contenuBase64P = new Promise((resolve, reject) => {
+      const contenuBase64P = new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.addEventListener(
           "load",
           () => {
-            resolve(reader.result);
+            resolve(reader.result as string);
           },
           false,
         );

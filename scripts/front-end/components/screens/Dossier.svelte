@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Squelette from "../Squelette.svelte";
   import EnteteDossier from "../Dossier/EnteteDossier.svelte";
 
@@ -15,37 +15,35 @@
   import { onMount } from "svelte";
   import { updateNotificationForDossier } from "../../actions/notification.ts";
 
-  /** @import {ComponentProps} from 'svelte' */
-  /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-  /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
-  /** @typedef {'instruction' | 'projet' | 'avis' | 'controles' | 'generation-document' | 'echanges'} Onglet */
-  /** @import Personne from '../../../types/database/public/Personne.js' */
-  /** @import Notification from '../../../types/database/public/Notification.js' */
+  import type { ComponentProps } from "svelte";
+  import type { DossierComplet } from "../../../types/API_Pitchou.ts";
+  import type { DescriptionMenacesEspèces } from "../../../types/especes.d.ts";
+  import type Personne from "../../../types/database/public/Personne.js";
+  import type Notification from "../../../types/database/public/Notification.js";
 
-  /**
-   * @param {Onglet} nouvelOnglet
-   */
-  function changerOnglet(nouvelOnglet) {
+  type Onglet =
+    | "instruction"
+    | "projet"
+    | "avis"
+    | "controles"
+    | "generation-document"
+    | "echanges";
+
+  function changerOnglet(nouvelOnglet: Onglet) {
     ongletActif = nouvelOnglet;
     // Mettre à jour l'URL sans recharger la page
     window.history.replaceState(null, "", `#${nouvelOnglet}`);
   }
 
-  /**
-   * @param {Onglet} onglet
-   */
-  function handleTabClick(onglet) {
+  function handleTabClick(onglet: Onglet) {
     changerOnglet(onglet);
   }
 
   const EXTENSION_ATTENDUE = ".ods";
 
-  /**
-   *
-   * @param {DossierComplet} dossier
-   * @return {ReturnType<espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined}
-   */
-  function getEspècesImpactés(dossier) {
+  function getEspècesImpactés(
+    dossier: DossierComplet,
+  ): ReturnType<typeof espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined {
     const espècesImpactées = dossier.espècesImpactées;
 
     if (!espècesImpactées || !espècesImpactées.contenu) {
@@ -62,19 +60,19 @@
     return espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu);
   }
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   * @property {Onglet} ongletActifInitial
-   * @property {any} messages
-   * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
-   * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
-   * @property {NonNullable<Personne['email']>[]} personnesQuiSuiventDossier
-   * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
-   * @property {Pick<Notification, "vue" | "date_dernière_mise_à_jour">} [notification]
-   */
+  type Props = {
+    dossier: DossierComplet;
+    ongletActifInitial: Onglet;
+    messages: any;
+    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
+    résultatsSynchronisationDS88444: ComponentProps<
+      typeof Squelette
+    >["résultatsSynchronisationDS88444"];
+    personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
+    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+    notification?: Pick<Notification, "vue" | "date_dernière_mise_à_jour">;
+  };
 
-  /** @type {Props} */
   let {
     dossier,
     ongletActifInitial,
@@ -84,7 +82,7 @@
     personnesQuiSuiventDossier,
     dossierActuelSuiviParInstructeurActuel,
     notification,
-  } = $props();
+  }: Props = $props();
 
   $inspect("Dossier complet", dossier);
 
@@ -110,8 +108,9 @@
 
   let ongletActif = $derived(ongletActifInitial);
 
-  /** @type {Promise<DescriptionMenacesEspèces> | undefined}*/
-  let espècesImpactées = $derived(getEspècesImpactés(dossier));
+  let espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined = $derived(
+    getEspècesImpactés(dossier),
+  );
 </script>
 
 <Squelette

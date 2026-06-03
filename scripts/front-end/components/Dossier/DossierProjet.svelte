@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import DownloadButton from "../DownloadButton.svelte";
   import EspècesProtégéesGroupéesParImpact from "../EspècesProtégéesGroupéesParImpact.svelte";
   import { formatDateRelative } from "../../affichageDossier.ts";
@@ -8,17 +8,15 @@
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import { envoyerÉvènement } from "../../actions/aarri.ts";
 
-  /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-  /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
+  import type { DossierComplet } from "../../../types/API_Pitchou.ts";
+  import type { DescriptionMenacesEspèces } from "../../../types/especes.d.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
-   */
+  type Props = {
+    dossier: DossierComplet;
+    espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined;
+  };
 
-  /** @type {Props} */
-  let { dossier, espècesImpactées } = $props();
+  let { dossier, espècesImpactées }: Props = $props();
 
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
@@ -27,10 +25,11 @@
    * Calcule le nombre d'espèces CNPN
    * et le nombre d'espèce ministérielles
    * dans la liste des espèces impactées par ce projet
-   * @param {DescriptionMenacesEspèces} _espècesImpactées
-   * @returns { { nombreEspècesCNPN: number, nombreEspècesMinistérielles: number } }
    */
-  function getNombreEspècesMinistérielleCNPN(_espècesImpactées) {
+  function getNombreEspècesMinistérielleCNPN(_espècesImpactées: DescriptionMenacesEspèces): {
+    nombreEspècesCNPN: number;
+    nombreEspècesMinistérielles: number;
+  } {
     const toutesLesEspècesImpactées = [
       ...(_espècesImpactées["faune non-oiseau"] ?? []),
       ...(_espècesImpactées["flore"] ?? []),
@@ -73,18 +72,16 @@
 
   const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
 
-  /** @type {{nom_complet:string,qualification:string}[]| undefined} */
   // @ts-ignore
-  let scientifiquesIntervenants = $derived(dossier.scientifique_intervenants);
+  let scientifiquesIntervenants: { nom_complet: string; qualification: string }[] | undefined =
+    $derived(dossier.scientifique_intervenants);
 
-  /** @type {string[] | undefined} */
   // @ts-ignore
-  let scientifiqueFinalitéDemande = $derived(dossier.scientifique_finalité_demande);
+  let scientifiqueFinalitéDemande: string[] | undefined = $derived(
+    dossier.scientifique_finalité_demande,
+  );
 
-  /**
-   * @param {string | null} filename
-   */
-  function raccourcirNomFichier(filename, maxLength = 43, ellipsis = "(…)") {
+  function raccourcirNomFichier(filename: string | null, maxLength = 43, ellipsis = "(…)") {
     if (!filename) {
       return "(fichier sans nom)";
     }

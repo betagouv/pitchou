@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { originDémarcheNumérique } from "../../../commun/constantes.js";
   import { supprimerAvisExpert as supprimerAvisExpertServeur } from "../../actions/avisExpert.ts";
   import { refreshDossierComplet } from "../../actions/dossier.ts";
@@ -6,15 +6,13 @@
   import { differenceInDays } from "date-fns";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
-  /** @import {DossierComplet, FrontEndAvisExpert} from '../../../types/API_Pitchou.js' */
+  import type { DossierComplet, FrontEndAvisExpert } from "../../../types/API_Pitchou.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   */
+  type Props = {
+    dossier: DossierComplet;
+  };
 
-  /** @type {Props} */
-  let { dossier } = $props();
+  let { dossier }: Props = $props();
 
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
@@ -28,10 +26,7 @@
     }),
   );
 
-  /**
-   * @param {FrontEndAvisExpert} avisExpert
-   */
-  async function supprimerAvisExpert(avisExpert) {
+  async function supprimerAvisExpert(avisExpert: FrontEndAvisExpert) {
     await supprimerAvisExpertServeur(avisExpert);
     await refreshDossierComplet(dossier.id);
   }

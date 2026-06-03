@@ -1,26 +1,22 @@
-<script>
+<script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Set<string>} options
-   * @property {string} titre
-   * @property {function} mettreÀJourOptionsSélectionnées
-   * @property {Set<string>} [optionsSélectionnées]
-   */
+  // TODO: remplacer Set<any> par un générique `<T extends string>`
+  type Props = {
+    options: Set<any>;
+    titre: string;
+    mettreÀJourOptionsSélectionnées: (optionsSélectionnées: Set<any>) => void;
+    optionsSélectionnées?: Set<any>;
+  };
 
-  /** @type {Props} */
   let {
     options,
     titre,
     mettreÀJourOptionsSélectionnées,
     optionsSélectionnées = new SvelteSet(options),
-  } = $props();
+  }: Props = $props();
 
-  /**
-   * @param {string} option
-   */
-  function mettreÀJourOption(option) {
+  function mettreÀJourOption(option: string) {
     if (optionsSélectionnées.has(option)) {
       optionsSélectionnées.delete(option);
     } else {
@@ -42,15 +38,10 @@
 
   let open = $state(false);
 
-  /** @type {HTMLElement | undefined} */
-  let details = $state();
+  let details: HTMLElement | undefined = $state();
 
-  /**
-   * @param {MouseEvent} e
-   */
-  function detailsOnClick(e) {
-    // @ts-ignore
-    if (!details?.contains(e.target)) {
+  function detailsOnClick(e: MouseEvent) {
+    if (!details?.contains(e.target as Node)) {
       open = false;
     }
   }

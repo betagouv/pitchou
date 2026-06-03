@@ -1,45 +1,35 @@
-<script>
+<script lang="ts">
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
   import { getBalisesGénérationDocument } from "../../../front-end/actions/générerDocument.ts";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
   import { envoyerÉvènement } from "../../actions/aarri.ts";
 
-  /** @import {DossierComplet} from '../../../types/API_Pitchou' */
-  /** @import {DescriptionMenacesEspèces} from '../../../types/especes.d.ts' */
+  import type { DossierComplet } from "../../../types/API_Pitchou";
+  import type { DescriptionMenacesEspèces } from "../../../types/especes.d.ts";
 
-  /** @type {FileList | undefined} */
-  let templateFiles = $state();
+  let templateFiles: FileList | undefined = $state();
   let template = $derived(templateFiles && templateFiles[0]);
 
-  /** @type {Error | undefined}*/
-  let erreurGénérationDocument = $state();
+  let erreurGénérationDocument: Error | undefined = $state();
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   * @property {Promise<DescriptionMenacesEspèces> | undefined} espècesImpactées
-   */
+  type Props = {
+    dossier: DossierComplet;
+    espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined;
+  };
 
-  /** @type {Props} */
-  let { dossier, espècesImpactées } = $props();
+  let { dossier, espècesImpactées }: Props = $props();
 
-  /** @type {Blob | undefined} */
-  let documentGénéré = $state();
-  /** @type {string | undefined} */
-  let urlDocumentGénéré = $derived(documentGénéré && URL.createObjectURL(documentGénéré));
-  /** @type {string | undefined} */
-  let nomDocumentGénéré = $state();
+  let documentGénéré: Blob | undefined = $state();
+  let urlDocumentGénéré: string | undefined = $derived(
+    documentGénéré && URL.createObjectURL(documentGénéré),
+  );
+  let nomDocumentGénéré: string | undefined = $state();
 
-  /** @type {Promise<string> | undefined} */
-  let texteDocumentGénéré = $derived(
+  let texteDocumentGénéré: Promise<string> | undefined = $derived(
     documentGénéré && documentGénéré.arrayBuffer().then(getOdtTextContent),
   );
 
-  /**
-   *
-   * @param {SubmitEvent} e
-   */
-  async function generateDoc(e) {
+  async function generateDoc(e: SubmitEvent) {
     e.preventDefault();
 
     if (!template) {

@@ -31,14 +31,11 @@ const bdcParser = parse({
   trim: true,
 });
 
-/** @type {Promise<BDC_STATUT_ROW[]>} */
-const bdc_statutsP = new Promise((resolve, reject) => {
-  /** @type {BDC_STATUT_ROW[]} */
-  const espècesProtégéesBDC_STATUTS = [];
+const bdc_statutsP = new Promise<BDC_STATUT_ROW[]>((resolve, reject) => {
+  const espècesProtégéesBDC_STATUTS: BDC_STATUT_ROW[] = [];
   // Use the readable stream api to consume records
   bdcParser.on("readable", function () {
-    /** @type {BDC_STATUT_ROW} */
-    let record;
+    let record: BDC_STATUT_ROW;
     while ((record = bdcParser.read()) !== null) {
       // > Le CD_NOM du taxon retenu dans la base de connaissance est celui du nom cité dans
       // le document source faisant référence au statut. Le CD_REF est l’identifiant attaché
@@ -63,31 +60,34 @@ bdc_statutsP.then((bdc_statuts) => {
 });
 
 // Espèces Manquantes
-/** @type {Promise<BDC_STATUT_ROW[]>} */
-const espèces_manquantesP = readFile("data/sources_especes/espèces_manquantes.ods")
+const espèces_manquantesP: Promise<BDC_STATUT_ROW[]> = readFile(
+  "data/sources_especes/espèces_manquantes.ods",
+)
   .then(getODSTableRawContent)
-  // @ts-ignore
   .then((sheetMap) => sheetMap.get("espèces_manquantes"))
   .then((sheet) => {
+    if (!sheet) {
+      throw new TypeError("Feuille 'espèces_manquantes' introuvable");
+    }
     const espècesProtégéesManquantesFichier = sheetRawContentToObjects(sheet.filter(isRowNotEmpty));
 
     console.info(`Nombre d'espèces manquantes`, espècesProtégéesManquantesFichier.length);
 
-    return (
-      espècesProtégéesManquantesFichier
-        // @ts-ignore
-        .map(({ CD_NOM, LABEL_STATUT }) => {
-          CD_NOM = CD_NOM.toString(10);
-
-          return { CD_NOM, CD_REF: CD_NOM, CD_TYPE_STATUT: "Protection Pitchou", LABEL_STATUT };
-        })
-    );
+    return espècesProtégéesManquantesFichier.map(({ CD_NOM, LABEL_STATUT }) => {
+      const cdNomStr = (CD_NOM as number | string).toString(10);
+      return {
+        CD_NOM: cdNomStr,
+        CD_REF: cdNomStr,
+        CD_TYPE_STATUT: "Protection Pitchou",
+        LABEL_STATUT,
+      } as BDC_STATUT_ROW;
+    });
   });
 
-/** @type {Promise<BDC_STATUT_ROW[]>} */
-const protectionsEspècesP = Promise.all([bdc_statutsP, espèces_manquantesP])
-  // @ts-ignore
-  .then(([bdc_statuts, espèce_manquantes]) => [...espèce_manquantes, ...bdc_statuts]);
+const protectionsEspècesP: Promise<BDC_STATUT_ROW[]> = Promise.all([
+  bdc_statutsP,
+  espèces_manquantesP,
+]).then(([bdc_statuts, espèce_manquantes]) => [...espèce_manquantes, ...bdc_statuts]);
 
 /**
  *
@@ -100,14 +100,11 @@ const taxrefParser = parse({
   trim: true,
 });
 
-/** @type {Promise<TAXREF_ROW[]>} */
-const taxrefP = new Promise((resolve, reject) => {
-  /** @type {TAXREF_ROW[]} */
-  const taxref = [];
+const taxrefP = new Promise<TAXREF_ROW[]>((resolve, reject) => {
+  const taxref: TAXREF_ROW[] = [];
   // Use the readable stream api to consume records
   taxrefParser.on("readable", function () {
-    /** @type {TAXREF_ROW} */
-    let record;
+    let record: TAXREF_ROW;
     while ((record = taxrefParser.read()) !== null) {
       const { LB_NOM, CD_NOM, NOM_VERN, CD_REF, REGNE, CLASSE } = record;
       taxref.push({ LB_NOM, CD_NOM, CD_REF, NOM_VERN, REGNE, CLASSE });
@@ -129,35 +126,40 @@ taxrefP.then((taxref) => {
  */
 const filePathEspècesMinistériellesCNPN = "data/sources_especes/espèces_ministérielles_cnpn.ods";
 
-/** @type { Promise<[ESPÈCES_MINISTÉRIELLES_ROW[], ESPÈCES_CNPN_ROW[]]> } */
-// @ts-ignore
-const listesEspècesMinistériellesCNPNP = readFile(filePathEspècesMinistériellesCNPN)
+const listesEspècesMinistériellesCNPNP: Promise<
+  [ESPÈCES_MINISTÉRIELLES_ROW[], ESPÈCES_CNPN_ROW[]]
+> = readFile(filePathEspècesMinistériellesCNPN)
   .then(getODSTableRawContent)
-  // @ts-ignore
-  .then((sheetMap) => [sheetMap.get("Espèces Ministérielles"), sheetMap.get("Espèces CNPN")])
+  .then(
+    (sheetMap) => [sheetMap.get("Espèces Ministérielles")!, sheetMap.get("Espèces CNPN")!] as const,
+  )
   .then(([sheetEspècesMinistérielles, sheetEspècesCNPN]) => [
-    sheetRawContentToObjects(sheetEspècesMinistérielles.filter(isRowNotEmpty)),
-    sheetRawContentToObjects(sheetEspècesCNPN.filter(isRowNotEmpty)),
+    sheetRawContentToObjects<ESPÈCES_MINISTÉRIELLES_ROW>(
+      sheetEspècesMinistérielles.filter(isRowNotEmpty),
+    ),
+    sheetRawContentToObjects<ESPÈCES_CNPN_ROW>(sheetEspècesCNPN.filter(isRowNotEmpty)),
   ])
   .then(([listesMinistérielles, listesCNPN]) => {
     // Non-breaking spaces (U+00A0) silently appear when copy-pasting from websites
     // or PDFs, breaking exact Set matching against TAXREF names.
-    const normaliserNom = (/** @type {string} */ s) => s.replace(/ /g, " ").trim();
-    const normaliserListe = (/** @type {any[]} */ liste) =>
+    const normaliserNom = (s: string) => s.replace(/ /g, " ").trim();
+    const normaliserListe = (liste: any[]) =>
       liste.map((row) =>
         Object.fromEntries(
           Object.entries(row).map(([k, v]) => [k, typeof v === "string" ? normaliserNom(v) : v]),
         ),
       );
-    return [normaliserListe(listesMinistérielles), normaliserListe(listesCNPN)];
+    return [normaliserListe(listesMinistérielles), normaliserListe(listesCNPN)] as unknown as [
+      ESPÈCES_MINISTÉRIELLES_ROW[],
+      ESPÈCES_CNPN_ROW[],
+    ];
   })
   .catch((err) => {
     console.error(
       `Une erreur est survenue lors de la lecture du fichier ${filePathEspècesMinistériellesCNPN} : ${err.message}`,
     );
-  });
-
-/**
+    throw err;
+  }); /**
  *
  * Génération du fichier liste espèces
  *
@@ -166,8 +168,7 @@ Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
   ([taxref, protectionsEspèces, listesEspècesMinistériellesCNPN]) => {
     const [listeEspècesMinistérielles, listeEspècesCNPN] = listesEspècesMinistériellesCNPN;
 
-    /** @type {Map<EspèceProtégée['CD_REF'], Partial<EspèceProtégée>>} */
-    const espècesProtégées = new Map();
+    const espècesProtégées = new Map<EspèceProtégée["CD_REF"], Partial<EspèceProtégée>>();
 
     for (const { CD_REF, CD_TYPE_STATUT } of protectionsEspèces) {
       let espèceProtégée = espècesProtégées.get(CD_REF);

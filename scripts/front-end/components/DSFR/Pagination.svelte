@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import clsx from "clsx";
 
   /*
@@ -12,23 +12,21 @@
     Le dernier élément de la pagination est la dernière page de la liste. L’utilisateur connait ainsi le nombre total de pages.
     Le lien “précédent” doit être désactivé quand l’utilisateur est sur la première page, et la page “suivant” quand l’utilisateur est sur la dernière page.
     Toujours donner un accès rapide à la première et dernière page lorsque celles-ci ne sont pas actives, soit avec les boutons “I<“ et “>I”, soit avec la page “1” et la dernière page.
-    Il est recommandé de limiter à 5 ou 7 le nombre de page visibles et affichées par défaut dans la pagination. Au-delà les autres pages sont masquées par un système de troncature. La troncature est matérialisée par l’icône “…” : il ne s’affiche que quand le nombre de pages dépasse de la liste est supérieur à la limite fixée. 
+    Il est recommandé de limiter à 5 ou 7 le nombre de page visibles et affichées par défaut dans la pagination. Au-delà les autres pages sont masquées par un système de troncature. La troncature est matérialisée par l’icône “…” : il ne s’affiche que quand le nombre de pages dépasse de la liste est supérieur à la limite fixée.
 
     Par défaut nous recommandons d’afficher la troncature “…” : après la 5ème page sur les grandes et moyennes résolutions
-    La double troncature apparait lorsque la page consultée est séparée par 5 pages ou plus de la première et de la dernière page sur les grandes et moyennes résolutions 
+    La double troncature apparait lorsque la page consultée est séparée par 5 pages ou plus de la première et de la dernière page sur les grandes et moyennes résolutions
 
     */
 
-  /** @typedef {() => void} SelectionneurPage */
+  type SelectionneurPage = () => void;
 
-  /**
-   * @typedef {Object} Props
-   * @property {[undefined, ...rest: SelectionneurPage[]]} selectionneursPage
-   * @property {SelectionneurPage | undefined} pageActuelle
-   */
+  type Props = {
+    selectionneursPage: [undefined, ...rest: SelectionneurPage[]];
+    pageActuelle: SelectionneurPage | undefined;
+  };
 
-  /** @type {Props} */
-  let { selectionneursPage, pageActuelle } = $props();
+  let { selectionneursPage, pageActuelle }: Props = $props();
 
   let selectionnerPremièrePage = $derived(selectionneursPage[1]);
   let selectionnerDernièrePage = $derived(selectionneursPage.at(-1));

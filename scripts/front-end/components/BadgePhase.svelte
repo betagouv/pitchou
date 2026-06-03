@@ -1,15 +1,13 @@
-<script>
-  /** @import { DossierPhase } from '../../types/API_Pitchou.ts' */
+<script lang="ts">
+  import type { DossierPhase } from "../../types/API_Pitchou.ts";
 
-  /** @typedef Props
-   * @property {DossierPhase} phase
-   */
+  type Props = {
+    phase: DossierPhase;
+  };
 
-  /** @type {Props}*/
-  let { phase } = $props();
+  let { phase }: Props = $props();
 
-  /** @type {Map<DossierPhase, string>} */
-  const classParPhase = new Map([
+  const classParPhase = new Map<DossierPhase, string>([
     ["Accompagnement amont", "fr-badge--yellow-tournesol"],
     ["Étude recevabilité DDEP", "fr-badge--yellow-moutarde"],
     ["Instruction", "fr-badge--blue-cumulus"],

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount, untrack } from "svelte";
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
 
@@ -29,29 +29,33 @@
     envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier,
   } from "../../actions/aarri.ts";
 
-  /** @import {ComponentProps} from 'svelte' */
-  /** @import {DossierDemarcheNumerique88444} from '../../../types/démarche-numérique/Démarche88444.ts'*/
-  /** @import {DossierRésumé, DossierPhase, DossierProchaineActionAttenduePar} from '../../../types/API_Pitchou.ts' */
-  /** @import {PitchouState} from '../../store.svelte.ts' */
-  /** @import {default as Dossier} from '../../../types/database/public/Dossier.ts' */
-  /** @import {default as Personne} from '../../../types/database/public/Personne.ts' */
-  /** @import { FiltresLocalStorage, TriTableau } from '../../../types/interfaceUtilisateur.ts' */
-  /** @import { ÉvènementRechercheDossiersDétails } from '../../../types/évènement'; */
+  import type { ComponentProps } from "svelte";
+  import type { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.ts";
+  import type {
+    DossierRésumé,
+    DossierPhase,
+    DossierProchaineActionAttenduePar,
+  } from "../../../types/API_Pitchou.ts";
+  import type { PitchouState } from "../../store.svelte.ts";
+  import type Dossier from "../../../types/database/public/Dossier.ts";
+  import type Personne from "../../../types/database/public/Personne.ts";
+  import type { FiltresLocalStorage, TriTableau } from "../../../types/interfaceUtilisateur.ts";
+  import type { ÉvènementRechercheDossiersDétails } from "../../../types/évènement";
 
-  /**
-   * @typedef {Object} Props
-   * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
-   * @property {ComponentProps<typeof Squelette>['erreurs']} erreurs
-   * @property {ComponentProps<typeof Squelette>['résultatsSynchronisationDS88444']} résultatsSynchronisationDS88444
-   * @property {DossierRésumé[]} [dossiers]
-   * @property {PitchouState['relationSuivis']} relationSuivis
-   * @property {string[] | undefined} [activitésPrincipales]
-   * @property {TriTableau['id'] | undefined} [triIdSélectionné]
-   * @property {Partial<FiltresLocalStorage>} [filtresSélectionnés]
-   * @property {any} rememberTriFiltres
-   */
+  type Props = {
+    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
+    erreurs: ComponentProps<typeof Squelette>["erreurs"];
+    résultatsSynchronisationDS88444: ComponentProps<
+      typeof Squelette
+    >["résultatsSynchronisationDS88444"];
+    dossiers?: DossierRésumé[];
+    relationSuivis: PitchouState["relationSuivis"];
+    activitésPrincipales?: string[] | undefined;
+    triIdSélectionné?: TriTableau["id"] | undefined;
+    filtresSélectionnés?: Partial<FiltresLocalStorage>;
+    rememberTriFiltres: any;
+  };
 
-  /** @type {Props} */
   let {
     email,
     erreurs,
@@ -62,7 +66,7 @@
     triIdSélectionné = undefined,
     filtresSélectionnés = {},
     rememberTriFiltres,
-  } = $props();
+  }: Props = $props();
 
   //$inspect('dossiers', dossiers)
   //$inspect('filtresSélectionnés', filtresSélectionnés)
@@ -84,8 +88,7 @@
     return new SvelteSet(dossierIdsSansSuivi);
   });
 
-  /** @type {DossierRésumé[]} */
-  let dossiersSelectionnés = $state([]);
+  let dossiersSelectionnés: DossierRésumé[] = $state([]);
 
   //$inspect('dossiersSelectionnés', dossiersSelectionnés)
 
@@ -93,8 +96,7 @@
     console.log("relationSuivis effect", relationSuivis);
   });
 
-  /** @type {Set<Dossier['id']>} */
-  let dossierIdsSuivisParInstructeurActuel = $derived(
+  let dossierIdsSuivisParInstructeurActuel: Set<Dossier["id"]> = $derived(
     relationSuivis?.get(email) || new SvelteSet(),
   );
 
@@ -202,8 +204,7 @@
     },
   ];
 
-  /** @type {TriTableau[]} */
-  const tris = [
+  const tris: TriTableau[] = [
     ...trisActivitéPrincipale,
     ...trisNomProjet,
     ...trisLocalisation,
@@ -212,13 +213,18 @@
   ];
 
   // Cette ligne doit être tolérante à ce que triIdSélectionné soit undefined ou n'importe quoi
-  /** @type {TriTableau | undefined} */
-  let triSélectionné = $state(
+  let triSélectionné: TriTableau | undefined = $state(
     tris.find((t) => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0],
   );
 
-  /** @type {Map<'phase' | 'prochaine action attendue de' | 'texte' | 'suivis' | 'instructeurs' | 'activité principale', (d: DossierRésumé) => boolean>} */
-  const tousLesFiltres = new SvelteMap();
+  type CléFiltre =
+    | "phase"
+    | "prochaine action attendue de"
+    | "texte"
+    | "suivis"
+    | "instructeurs"
+    | "activité principale";
+  const tousLesFiltres = new SvelteMap<CléFiltre, (d: DossierRésumé) => boolean>();
 
   function filtrerDossiers() {
     let nouveauxDossiersSélectionnés = dossiers;
@@ -235,10 +241,7 @@
   }
 
   function envoyerÉvènementRechercherUnDossier() {
-    /**
-     * @type {ÉvènementRechercheDossiersDétails['filtres']}
-     */
-    const filtres = {
+    const filtres: ÉvènementRechercheDossiersDétails["filtres"] = {
       suiviPar: {
         nombreSéléctionnées: instructeursSélectionnés.has(AUCUN_INSTRUCTEUR)
           ? instructeursSélectionnés.size - 1
@@ -260,11 +263,9 @@
     _envoyerÉvènementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnés.length });
   }
 
-  /** @type {Set<DossierPhase>}*/
-  const phaseOptions = new SvelteSet([...phases]);
+  const phaseOptions: Set<DossierPhase> = new SvelteSet([...phases]);
 
-  /** @type {Set<DossierPhase>} */
-  let phasesSélectionnées = $state(
+  let phasesSélectionnées: Set<DossierPhase> = $state(
     untrack(() =>
       filtresSélectionnés.phases
         ? new SvelteSet(filtresSélectionnés.phases)
@@ -274,11 +275,7 @@
 
   //$inspect(phasesSélectionnées)
 
-  /**
-   *
-   * @param {DossierPhase} phase
-   */
-  function makeTagPhaseOnClick(phase) {
+  function makeTagPhaseOnClick(phase: DossierPhase) {
     return () => {
       console.log("click on phase", phase);
 
@@ -299,15 +296,16 @@
     return phasesSélectionnées.has(dossier.phase);
   });
 
-  const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = "(vide)";
+  const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = "(vide)" as const;
   const prochainesActionsAttenduesParOptions = new SvelteSet([
     ...prochaineActionAttenduePar,
     PROCHAINE_ACTION_ATTENDUE_PAR_VIDE,
   ]);
 
-  /** @type {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} */
   // @ts-ignore
-  let prochainesActionsAttenduesParSélectionnés = $state(
+  let prochainesActionsAttenduesParSélectionnés: Set<
+    DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
+  > = $state(
     untrack(() =>
       filtresSélectionnés["prochaine action attendue de"]
         ? new SvelteSet(filtresSélectionnés["prochaine action attendue de"])
@@ -318,20 +316,23 @@
   tousLesFiltres.set("prochaine action attendue de", (dossier) => {
     if (
       !dossier.prochaine_action_attendue_par ||
-      !prochainesActionsAttenduesParOptions.has(dossier.prochaine_action_attendue_par)
+      !prochainesActionsAttenduesParOptions.has(
+        dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
+      )
     ) {
       return prochainesActionsAttenduesParSélectionnés.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
     }
 
-    // @ts-ignore
-    return prochainesActionsAttenduesParSélectionnés.has(dossier.prochaine_action_attendue_par);
+    return prochainesActionsAttenduesParSélectionnés.has(
+      dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
+    );
   });
 
-  /**
-   *
-   * @param {Set<DossierProchaineActionAttenduePar | PROCHAINE_ACTION_ATTENDUE_PAR_VIDE>} _prochainesActionsAttenduesParSélectionnés
-   */
-  function filtrerParProchainesActionsAttenduesPar(_prochainesActionsAttenduesParSélectionnés) {
+  function filtrerParProchainesActionsAttenduesPar(
+    _prochainesActionsAttenduesParSélectionnés: Set<
+      DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
+    >,
+  ) {
     prochainesActionsAttenduesParSélectionnés = new SvelteSet(
       _prochainesActionsAttenduesParSélectionnés,
     );
@@ -346,29 +347,19 @@
 
   let texteÀChercher = $state(untrack(() => filtresSélectionnés.texte));
 
-  /**
-   * @param {string} _texteÀChercher
-   */
-  function ajouterFiltreTexte(_texteÀChercher) {
+  function ajouterFiltreTexte(_texteÀChercher: string) {
     texteÀChercher = _texteÀChercher.trim();
     tousLesFiltres.set("texte", créerFiltreTexte(texteÀChercher, dossiers));
   }
 
-  /**
-   * @param {string} _texteÀChercher
-   */
-  function filtrerParTexte(_texteÀChercher) {
+  function filtrerParTexte(_texteÀChercher: string) {
     ajouterFiltreTexte(_texteÀChercher);
 
     filtrerDossiers();
     envoyerÉvènementRechercherUnDossier();
   }
 
-  /**
-   *
-   * @param {Event} e
-   */
-  function onSupprimerFiltreTexte(e) {
+  function onSupprimerFiltreTexte(e: Event) {
     e.preventDefault();
 
     tousLesFiltres.delete("texte");
@@ -377,27 +368,27 @@
     filtrerDossiers();
   }
 
-  const AUCUN_INSTRUCTEUR = "(aucun instructeur)";
+  const AUCUN_INSTRUCTEUR = "(aucun instructeur)" as const;
   const instructeurEmailOptions = $derived(
     (relationSuivis && Array.from(relationSuivis.keys()).sort()) || [],
   );
 
-  /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-  const instructeursOptions = $derived(
-    new SvelteSet([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions]),
-  );
+  const instructeursOptions: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
+    $derived(new SvelteSet([email, AUCUN_INSTRUCTEUR, ...instructeurEmailOptions]));
 
   //$inspect('')
 
-  /** @type {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} */
-  let instructeursSélectionnés = $state(
-    untrack(
-      () =>
-        new SvelteSet(
-          filtresSélectionnés.instructeurs ? filtresSélectionnés.instructeurs : instructeursOptions,
-        ),
-    ),
-  );
+  let instructeursSélectionnés: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
+    $state(
+      untrack(
+        () =>
+          new SvelteSet(
+            filtresSélectionnés.instructeurs
+              ? filtresSélectionnés.instructeurs
+              : instructeursOptions,
+          ),
+      ),
+    );
 
   $inspect("instructeursSélectionnés", instructeursSélectionnés);
 
@@ -421,11 +412,9 @@
     return false;
   });
 
-  /**
-   *
-   * @param {Set<NonNullable<Personne['email']> | AUCUN_INSTRUCTEUR>} _instructeursSélectionnées
-   */
-  function filtrerParInstructeurs(_instructeursSélectionnées) {
+  function filtrerParInstructeurs(
+    _instructeursSélectionnées: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR>,
+  ) {
     instructeursSélectionnés = new SvelteSet(_instructeursSélectionnées);
 
     filtrerDossiers();
@@ -441,15 +430,16 @@
     instructeursOptions.difference(instructeursSélectionnés),
   );
 
-  const AUCUNE_ACTIVITÉ_PRINCIPALE = "(aucune activité principale)";
+  const AUCUNE_ACTIVITÉ_PRINCIPALE = "(aucune activité principale)" as const;
   // @ts-ignore
   const activitésPrincipalesOptions = $derived(
     new SvelteSet([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales]),
   );
 
-  /** @type {Set<DossierDemarcheNumerique88444["Activité principale"] | AUCUNE_ACTIVITÉ_PRINCIPALE>} */
   // @ts-ignore
-  let activitésPrincipalesSélectionnées = $state(
+  let activitésPrincipalesSélectionnées: Set<
+    DossierDemarcheNumerique88444["Activité principale"] | typeof AUCUNE_ACTIVITÉ_PRINCIPALE
+  > = $state(
     untrack(
       () =>
         new SvelteSet(
@@ -470,11 +460,9 @@
     return activitésPrincipalesSélectionnées.has(dossier.activité_principale);
   });
 
-  /**
-   *
-   * @param {Set<DossierDemarcheNumerique88444["Activité principale"]>} _activitésPrincipalesSélectionnées
-   */
-  function filtrerParActivitéPrincipale(_activitésPrincipalesSélectionnées) {
+  function filtrerParActivitéPrincipale(
+    _activitésPrincipalesSélectionnées: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+  ) {
     activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées);
 
     filtrerDossiers();
@@ -496,37 +484,36 @@
   });
 
   // Pagination du tableau de suivi
-  /** @typedef {() => void} SelectionneurPage */
+  type SelectionneurPage = () => void;
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 20;
 
   // numéro de page qui correspond à celui affiché, donc commençant à 1
-  /** @type {number} */
-  let numéroPageSelectionnée = $state(1);
+  let numéroPageSelectionnée: number = $state(1);
 
-  /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
-  let selectionneursPage = $derived.by(() => {
-    if (dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-      const nombreDePages = Math.ceil(dossiersSelectionnés.length / NOMBRE_DOSSIERS_PAR_PAGE);
+  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
+    () => {
+      if (dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
+        const nombreDePages = Math.ceil(dossiersSelectionnés.length / NOMBRE_DOSSIERS_PAR_PAGE);
 
-      return [
-        undefined,
-        ...[...Array(nombreDePages).keys()].map((i) => () => {
-          console.log("sélection de la page", i + 1);
-          numéroPageSelectionnée = i + 1;
-        }),
-      ];
-    }
+        return [
+          undefined,
+          ...[...Array(nombreDePages).keys()].map((i) => () => {
+            console.log("sélection de la page", i + 1);
+            numéroPageSelectionnée = i + 1;
+          }),
+        ];
+      }
 
-    return undefined;
-  });
+      return undefined;
+    },
+  );
 
   $effect(() => {
     if (selectionneursPage) numéroPageSelectionnée = 1;
   });
 
-  /** @type {typeof dossiersSelectionnés} */
-  let dossiersAffichés = $derived.by(() => {
+  let dossiersAffichés: typeof dossiersSelectionnés = $derived.by(() => {
     if (!selectionneursPage) return dossiersSelectionnés;
     else {
       return dossiersSelectionnés.slice(
@@ -547,19 +534,11 @@
     filtrerDossiers();
   });
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelSuitDossier(id) {
+  function instructeurActuelSuitDossier(id: Dossier["id"]) {
     return instructeurSuitDossier(email, id);
   }
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelLaisseDossier(id) {
+  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
     return instructeurLaisseDossier(email, id);
   }
 </script>

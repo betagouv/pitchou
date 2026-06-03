@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { store } from "$front/store.svelte.ts";
   import SaisieEspèces from "$front/components/screens/SaisieEspèces.svelte";
   import {

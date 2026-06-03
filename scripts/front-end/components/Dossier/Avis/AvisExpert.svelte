@@ -1,28 +1,24 @@
-<script>
+<script lang="ts">
   import { formatDateAbsolue } from "../../../affichageDossier.ts";
   import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
-  /** @import { DossierComplet, FrontEndAvisExpert } from '../../../../types/API_Pitchou.js' */
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet['id']} dossierId
-   * @property {FrontEndAvisExpert} avisExpert
-   * @property {(avisExpert: FrontEndAvisExpert) => void} supprimerAvisExpert
-   */
 
-  /** @type {Props} */
-  let { dossierId, avisExpert, supprimerAvisExpert } = $props();
+  import type { DossierComplet, FrontEndAvisExpert } from "../../../../types/API_Pitchou.js";
 
-  /** @type {boolean} */
-  let avisExpertEnModification = $state(false);
+  type Props = {
+    dossierId: DossierComplet["id"];
+    avisExpert: FrontEndAvisExpert;
+    supprimerAvisExpert: (avisExpert: FrontEndAvisExpert) => void;
+  };
+
+  let { dossierId, avisExpert, supprimerAvisExpert }: Props = $props();
+
+  let avisExpertEnModification: boolean = $state(false);
 
   function fermerLeFormulaire() {
     avisExpertEnModification = false;
   }
 
-  /**
-   * @param {FrontEndAvisExpert} avisExpert
-   */
-  function onClickSupprimer(avisExpert) {
+  function onClickSupprimer(avisExpert: FrontEndAvisExpert) {
     supprimerAvisExpert(avisExpert);
     fermerLeFormulaire();
   }

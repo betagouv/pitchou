@@ -1,34 +1,29 @@
-<script>
-  /** @import {DossierDemarcheNumerique88444} from "../../../types/démarche-numérique/Démarche88444.js" */
-  /** @import {SchemaDémarcheSimplifiée, Dossier88444ChampDescriptor} from '../../../types/démarche-numérique/schema.js' */
+<script lang="ts">
+  import type { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js";
+  import type {
+    SchemaDémarcheSimplifiée,
+    Dossier88444ChampDescriptor,
+  } from "../../../types/démarche-numérique/schema.js";
   import { créerLienGETPréremplissageDémarche } from "../../../commun/préremplissageDémarcheNumérique.js";
   import Squelette from "../Squelette.svelte";
   import CopyButton from "../CopyButton.svelte";
 
-  /**
-   * @param {string} label
-   * @returns {string}
-   */
-  function labelToId(label) {
+  function labelToId(label: string): string {
     return label.replace(/[^a-zA-Z0-9]+/g, "-");
   }
 
-  /**
-   * @typedef {Object} Props
-   * @property {SchemaDémarcheSimplifiée} schemaDS88444
-   * @property {string} [email]
-   */
+  type Props = {
+    schemaDS88444: SchemaDémarcheSimplifiée;
+    email?: string;
+  };
 
-  /** @type {Props} */
-  let { schemaDS88444, email = undefined } = $props();
+  let { schemaDS88444, email = undefined }: Props = $props();
 
-  /** @type {Partial<DossierDemarcheNumerique88444>} */
-  let nouveauDossierPartiel = $state({});
+  let nouveauDossierPartiel: Partial<DossierDemarcheNumerique88444> = $state({});
   let lienDePreremplissage = $state("");
 
-  /** @type { (keyof DossierDemarcheNumerique88444)[] } */
   //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
-  let champsPreremplis = $derived(
+  let champsPreremplis: (keyof DossierDemarcheNumerique88444)[] = $derived(
     Object.keys(nouveauDossierPartiel).filter((champ) => {
       //@ts-expect-error pareil
       return nouveauDossierPartiel[champ] !== "";
@@ -47,9 +42,8 @@
     "HeaderSectionChampDescriptor",
   ];
 
-  /** @type {Dossier88444ChampDescriptor[]} */
   //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
-  let champsRemplissables = $derived(
+  let champsRemplissables: Dossier88444ChampDescriptor[] = $derived(
     schemaDS88444["revision"]["champDescriptors"]
       .filter((champ) => {
         return champsPossibles.includes(champ["__typename"]);
@@ -72,11 +66,9 @@
   );
 
   let champsRemplissablesGroupés = $derived.by(() => {
-    /** @type {{nom: string, champs: Dossier88444ChampDescriptor[]}[]} */
-    const résultat = [];
+    const résultat: { nom: string; champs: Dossier88444ChampDescriptor[] }[] = [];
 
-    /** @type {{nom: string, champs: Dossier88444ChampDescriptor[]}} */
-    let groupe = {
+    let groupe: { nom: string; champs: Dossier88444ChampDescriptor[] } = {
       nom: "Questions préliminaires",
       champs: [],
     };

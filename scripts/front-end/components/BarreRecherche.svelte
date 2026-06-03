@@ -1,22 +1,14 @@
-<script>
-  //@ts-check
+<script lang="ts">
+  type Props = {
+    titre: string;
+    mettreÀJourTexteRecherche: (valeur: string) => void;
+  };
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} titre
-   * @property {function} mettreÀJourTexteRecherche
-   */
-
-  /** @type {Props} */
-  let { titre, mettreÀJourTexteRecherche } = $props();
+  let { titre, mettreÀJourTexteRecherche }: Props = $props();
 
   let valeur = $state("");
 
-  /**
-   *
-   * @param {SubmitEvent} e
-   */
-  function onMettreÀJourValeurSélectionnée(e) {
+  function onMettreÀJourValeurSélectionnée(e: SubmitEvent) {
     e.preventDefault();
     mettreÀJourTexteRecherche(valeur);
     valeur = "";

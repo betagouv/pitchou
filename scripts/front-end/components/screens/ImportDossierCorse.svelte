@@ -1,10 +1,10 @@
-<script>
-  /** @import { DossierAvecAlertes, } from "../../actions/importDossierUtils.ts" */
-  /** @import { DossierRésumé } from "../../../types/API_Pitchou.js"; */
-  /** @import { ComponentProps } from 'svelte' */
-  /** @import { LigneDossierCorse } from "../../actions/importDossierCorse.ts" */
-  /** @import { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js"; */
-  /** @import { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js" */
+<script lang="ts">
+  import type { DossierAvecAlertes } from "../../actions/importDossierUtils.ts";
+  import type { DossierRésumé } from "../../../types/API_Pitchou.js";
+  import type { ComponentProps } from "svelte";
+  import type { LigneDossierCorse } from "../../actions/importDossierCorse.ts";
+  import type { SchemaDémarcheSimplifiée } from "../../../types/démarche-numérique/schema.js";
+  import type { DossierDemarcheNumerique88444 } from "../../../types/démarche-numérique/Démarche88444.js";
 
   import { extrairePremierMail } from "../../actions/importDossierUtils";
   import DéplierReplier from "../common/DéplierReplier.svelte";
@@ -24,15 +24,13 @@
   const NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES = "Instructeur DREAL";
   const DREAL = "Corse";
 
-  /**
-   * @typedef {Object} Props
-   * @property {ComponentProps<typeof Squelette>['email']} [email]
-   * @property {DossierRésumé[]} [dossiers]
-   * @property {SchemaDémarcheSimplifiée | undefined} schema
-   */
+  type Props = {
+    email?: ComponentProps<typeof Squelette>["email"];
+    dossiers?: DossierRésumé[];
+    schema: SchemaDémarcheSimplifiée | undefined;
+  };
 
-  /** @type {Props} */
-  let { email = undefined, dossiers = [], schema } = $props();
+  let { email = undefined, dossiers = [], schema }: Props = $props();
 
   const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
 
@@ -42,40 +40,31 @@
     new Map(dossiers.map((d) => [d.nom, d.historique_identifiant_demande_onagre])),
   );
 
-  /** @type {Set<DossierDemarcheNumerique88444['Activité principale']>} } */
   // @ts-ignore
-  const activitésPrincipales88444 = $derived(
-    schema
-      ? new Set(
-          schema.revision.champDescriptors.find((c) => c.label === "Activité principale")?.options,
-        )
-      : new Set(),
-  );
-  /** @type {LigneDossierCorse[]} */
-  let lignesTableauImport = $state([]);
-  /** @type {LigneDossierCorse[]} */
-  let lignesFiltréesTableauImport = $state([]);
-  /** @type {DossierRésumé[]} */
-  let dossiersDéjàEnBDD = $state([]);
-  /** @type {Map<LigneDossierCorse, DossierAvecAlertes>}*/
-  let ligneVersDossierAvecAlertes = new SvelteMap();
-  /** @type {Map<string, string>}*/
-  let emailsParInitials = $state(new SvelteMap());
+  const activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
+    $derived(
+      schema
+        ? new Set(
+            schema.revision.champDescriptors.find((c) => c.label === "Activité principale")
+              ?.options,
+          )
+        : new Set(),
+    );
+  let lignesTableauImport: LigneDossierCorse[] = $state([]);
+  let lignesFiltréesTableauImport: LigneDossierCorse[] = $state([]);
+  let dossiersDéjàEnBDD: DossierRésumé[] = $state([]);
+  let ligneVersDossierAvecAlertes: Map<LigneDossierCorse, DossierAvecAlertes> = new SvelteMap();
+  let emailsParInitials: Map<string, string> = $state(new SvelteMap());
 
-  /** @type {Map<any,string>} */
-  let ligneToLienPréremplissage = $state(new SvelteMap());
+  let ligneToLienPréremplissage: Map<any, string> = $state(new SvelteMap());
 
-  /**@type {number | undefined}*/
-  let pourcentageDeDossierCrééEnBDD = $state();
+  let pourcentageDeDossierCrééEnBDD: number | undefined = $state();
 
-  /**@type {boolean}*/
-  let afficherTousLesDossiers = $state(false);
+  let afficherTousLesDossiers: boolean = $state(false);
 
-  /** @type {Promise<void[]>} */
-  let loadingChargementDuFichier = $state(Promise.resolve([]));
+  let loadingChargementDuFichier: Promise<void[]> = $state(Promise.resolve([]));
 
-  /**@type {number | undefined}*/
-  let nombreDossiersAvecAlertes = $derived(
+  let nombreDossiersAvecAlertes: number | undefined = $derived(
     Array.from(ligneVersDossierAvecAlertes).filter(
       (ligneEtDossierAvecAlertes) =>
         ligneEtDossierAvecAlertes[1].alertes && ligneEtDossierAvecAlertes[1].alertes.length >= 1,
@@ -85,17 +74,13 @@
   let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
   let nombreDossiersAImporter = $derived(lignesTableauImport.length - nombreDossiersDéjàImportés);
 
-  /**
-   * @param {Event} event
-   */
-  async function handleFileChange(event) {
+  async function handleFileChange(event: Event) {
     const target = event.target;
     if (!(target instanceof HTMLInputElement && target && target.files && target.files[0])) {
       console.error("Le champ de fichier est introuvable ou ne contient aucun fichier.");
       return;
     }
-    /** @type {FileList | null} */
-    const files =
+    const files: FileList | null =
       target instanceof HTMLInputElement && target && target?.files ? target?.files : null;
 
     const file = files && files[0];
@@ -124,13 +109,16 @@
         }
 
         emailsParInitials = new SvelteMap(
-          rawDataEmailsParInitials.map((/** @type {{ value: any; }[]} */ row) => {
-            if (row.length >= 1 && row?.[0]?.value && extrairePremierMail(row[1]?.value ?? "")) {
-              return [row?.[0]?.value, extrairePremierMail(row[1]?.value ?? "")];
-            } else {
-              return [];
-            }
-          }),
+          rawDataEmailsParInitials
+            .map((row: { value: any }[]): [string, string] | null => {
+              const initials = row?.[0]?.value;
+              const email = extrairePremierMail(row[1]?.value ?? "");
+              if (row.length >= 1 && initials && email) {
+                return [initials, email];
+              }
+              return null;
+            })
+            .filter((entry): entry is [string, string] => entry !== null),
         );
 
         const lignes = [
@@ -167,10 +155,7 @@
     }
   }
 
-  /**
-   * @param {LigneDossierCorse} LigneDossierCorse
-   */
-  async function handleCréerLienPréRemplissage(LigneDossierCorse) {
+  async function handleCréerLienPréRemplissage(LigneDossierCorse: LigneDossierCorse) {
     const dossier = ligneVersDossierAvecAlertes.get(LigneDossierCorse);
 
     if (!dossier) {
@@ -201,37 +186,36 @@
   }
 
   // Pagination du tableau de suivi
-  /** @typedef {() => void} SelectionneurPage */
+  type SelectionneurPage = () => void;
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 20;
 
   // numéro de page qui correspond à celui affiché, donc commençant à 1
-  /** @type {number} */
-  let numéroPageSelectionnée = $state(1);
+  let numéroPageSelectionnée: number = $state(1);
 
-  /** @type {[undefined, ...rest: SelectionneurPage[]] | undefined} */
-  let selectionneursPage = $derived.by(() => {
-    if (lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-      const nombreDePages = Math.ceil(lignesTableauImport.length / NOMBRE_DOSSIERS_PAR_PAGE);
+  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
+    () => {
+      if (lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
+        const nombreDePages = Math.ceil(lignesTableauImport.length / NOMBRE_DOSSIERS_PAR_PAGE);
 
-      return [
-        undefined,
-        ...[...Array(nombreDePages).keys()].map((i) => () => {
-          //console.log('sélection de la page', i+1)
-          numéroPageSelectionnée = i + 1;
-        }),
-      ];
-    }
+        return [
+          undefined,
+          ...[...Array(nombreDePages).keys()].map((i) => () => {
+            //console.log('sélection de la page', i+1)
+            numéroPageSelectionnée = i + 1;
+          }),
+        ];
+      }
 
-    return undefined;
-  });
+      return undefined;
+    },
+  );
 
   $effect(() => {
     if (selectionneursPage) numéroPageSelectionnée = 1;
   });
 
-  /** @type {typeof lignesTableauImport} */
-  let lignesAffichéesTableauImport = $derived.by(() => {
+  let lignesAffichéesTableauImport: typeof lignesTableauImport = $derived.by(() => {
     const lignesÀAfficher = afficherTousLesDossiers
       ? lignesTableauImport
       : lignesFiltréesTableauImport;
@@ -388,14 +372,12 @@
                                     {#if clefDossierEtAlertes !== "alertes"}
                                       {#if clefDossierEtAlertes === "NE PAS MODIFIER - Données techniques associées à votre dossier"}
                                         {@const donnéesSupplémentaires = Object.entries(
-                                          JSON.parse(
-                                            /** @type {string} */ (valeurDossierEtAlertes),
-                                          ),
+                                          JSON.parse(valeurDossierEtAlertes as string),
                                         )}
                                         {#each donnéesSupplémentaires as [clefDonnéesSupplémentaire, valeurDonnéesSupplémentaire]}
                                           {#if clefDonnéesSupplémentaire === "dossier"}
                                             {@const donnéesDossierDesDonnéesSupplémentaires =
-                                              Object.entries(valeurDonnéesSupplémentaire)}
+                                              Object.entries(valeurDonnéesSupplémentaire as object)}
                                             {#each donnéesDossierDesDonnéesSupplémentaires as donnéeDossierDesDonnéesSupplémentaires}
                                               <li>
                                                 <strong

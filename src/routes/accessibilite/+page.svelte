@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import Accessibilite from "$front/components/screens/Accessibilite.svelte";
 

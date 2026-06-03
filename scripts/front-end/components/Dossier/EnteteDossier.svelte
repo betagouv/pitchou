@@ -1,43 +1,33 @@
-<script>
+<script lang="ts">
   import { formatLocalisation, formatPorteurDeProjet } from "../../affichageDossier.ts";
   import { afficherString } from "../../affichageValeurs.ts";
   import TagPhase from "../TagPhase.svelte";
 
   import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
 
-  /** @import {ComponentProps} from 'svelte' */
-  /** @import Squelette from '../Squelette.svelte' */
+  import type { ComponentProps } from "svelte";
+  import type Squelette from "../Squelette.svelte";
 
-  /** @import {DossierComplet} from '../../../types/API_Pitchou.ts' */
-  /** @import Dossier from '../../../types/database/public/Dossier.ts' */
+  import type { DossierComplet } from "../../../types/API_Pitchou.ts";
+  import type Dossier from "../../../types/database/public/Dossier.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {DossierComplet} dossier
-   * @property {NonNullable<ComponentProps<typeof Squelette>['email']>} email
-   * @property {boolean | undefined} dossierActuelSuiviParInstructeurActuel
-   */
+  type Props = {
+    dossier: DossierComplet;
+    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
+    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+  };
 
-  /** @type {Props} */
-  let { dossier, email, dossierActuelSuiviParInstructeurActuel } = $props();
+  let { dossier, email, dossierActuelSuiviParInstructeurActuel }: Props = $props();
 
   let phase = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
   );
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelSuitDossier(id) {
+  function instructeurActuelSuitDossier(id: Dossier["id"]) {
     return instructeurSuitDossier(email, id);
   }
 
-  /**
-   *
-   * @param {Dossier['id']} id
-   */
-  function instructeurActuelLaisseDossier(id) {
+  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
     return instructeurLaisseDossier(email, id);
   }
 </script>

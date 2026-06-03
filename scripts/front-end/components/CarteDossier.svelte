@@ -1,6 +1,6 @@
-<script>
-  /** @import { DossierRésumé } from "../../types/API_Pitchou" **/
-  /** @import { default as Dossier } from '../../types/database/public/Dossier.ts' */
+<script lang="ts">
+  import type { DossierRésumé } from "../../types/API_Pitchou";
+  import type Dossier from "../../types/database/public/Dossier.ts";
   import {
     formatDateAbsolue,
     formatLocalisation,
@@ -9,22 +9,21 @@
   import BoutonModale from "./DSFR/BoutonModale.svelte";
   import BadgePhase from "./BadgePhase.svelte";
 
-  /**
-   * @typedef Props
-   * @property {DossierRésumé} dossier
-   * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelSuitDossier
-   * @property {(id: Dossier["id"]) => Promise<void>} instructeurActuelLaisseDossier
-   * @property {boolean} nouveautéVueParInstructeur
-   * @property {boolean} dossierSuiviParInstructeurActuel
-   */
-  /** @type {Props}*/
+  type Props = {
+    dossier: DossierRésumé;
+    instructeurActuelSuitDossier: (id: Dossier["id"]) => Promise<void>;
+    instructeurActuelLaisseDossier: (id: Dossier["id"]) => Promise<void>;
+    nouveautéVueParInstructeur: boolean;
+    dossierSuiviParInstructeurActuel: boolean;
+  };
+
   let {
     dossier,
     dossierSuiviParInstructeurActuel,
     instructeurActuelSuitDossier,
     instructeurActuelLaisseDossier,
     nouveautéVueParInstructeur,
-  } = $props();
+  }: Props = $props();
 </script>
 
 <div class="carte fr-p-2w" data-testid="carte-dossier">

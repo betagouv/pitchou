@@ -1,25 +1,30 @@
-<script>
+<script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
   import NomEspèce from "../../NomEspèce.svelte";
   import DéplierReplier from "../../common/DéplierReplier.svelte";
   import { mailtoJeNetrouvePasUneEspèce } from "../../../../commun/constantes.js";
 
-  /** @import { ParClassification, EspèceProtégée, DescriptionImpact } from '../../../../types/especes' **/
+  import type {
+    ParClassification,
+    EspèceProtégée,
+    DescriptionImpact,
+  } from "../../../../types/especes";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Set<EspèceProtégée>} espècesTrouvéesDansTexte
-   * @property {string} texteEspèces
-   * @property {'champTexte' | 'préciserImpact'} écranAffiché
-   * @property {Array<{ espèce?: EspèceProtégée, impacts: DescriptionImpact[] }>} espècesImpactéesPourPréremplir
-   * @property {() => void} préremplirAvecCesEspècesImpacts
-   * @property {(indexEspèceÀSupprimer: number) => void} supprimerEspèceImpactée
-   * @property {ParClassification<EspèceProtégée[]>} espècesProtégéesParClassification
-   * @property {string} idModalePréremplirDepuisTexte
-   */
+  type Props = {
+    espècesTrouvéesDansTexte: Set<EspèceProtégée>;
+    texteEspèces: string;
+    écranAffiché: "champTexte" | "préciserImpact";
+    espècesImpactéesPourPréremplir: Array<{
+      espèce?: EspèceProtégée;
+      impacts: DescriptionImpact[];
+    }>;
+    préremplirAvecCesEspècesImpacts: () => void;
+    supprimerEspèceImpactée: (indexEspèceÀSupprimer: number) => void;
+    espècesProtégéesParClassification: ParClassification<EspèceProtégée[]>;
+    idModalePréremplirDepuisTexte: string;
+  };
 
-  /** @type {Props} */
   let {
     espècesTrouvéesDansTexte = $bindable(),
     texteEspèces = $bindable(),
@@ -28,29 +33,26 @@
     idModalePréremplirDepuisTexte,
     préremplirAvecCesEspècesImpacts,
     supprimerEspèceImpactée,
-  } = $props();
+  }: Props = $props();
 
-  /** @type { SvelteSet<EspèceProtégée> }*/
   //@ts-ignore
-  let oiseauxÀPréremplir = $derived(
+  let oiseauxÀPréremplir: SvelteSet<EspèceProtégée> = $derived(
     new SvelteSet(
       [...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(
         (e) => e && e.classification === "oiseau",
       ),
     ),
   );
-  /** @type { SvelteSet<EspèceProtégée> }*/
   //@ts-ignore
-  let fauneNonOiseauxÀPréremplir = $derived(
+  let fauneNonOiseauxÀPréremplir: SvelteSet<EspèceProtégée> = $derived(
     new SvelteSet(
       [...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(
         (e) => e && e.classification === "faune non-oiseau",
       ),
     ),
   );
-  /** @type { SvelteSet<EspèceProtégée> }*/
   //@ts-ignore
-  let floreÀPréremplir = $derived(
+  let floreÀPréremplir: SvelteSet<EspèceProtégée> = $derived(
     new SvelteSet(
       [...espècesImpactéesPourPréremplir.map((espèceImpactée) => espèceImpactée.espèce)].filter(
         (e) => e && e.classification === "flore",
@@ -60,15 +62,13 @@
 
   /**
    * Tableau de références vers les boutons de suppression, indexé par l'index dans espècesImpactéesPourPréremplir
-   * @type {HTMLElement[]}
    */
-  let référencesBoutonsSupprimer = $state([]);
+  let référencesBoutonsSupprimer: HTMLElement[] = $state([]);
 
   /**
    * Référence vers le champ texte
-   * @type {HTMLTextAreaElement | undefined}
    */
-  let champTexte = $state();
+  let champTexte: HTMLTextAreaElement | undefined = $state();
 
   export function focusBoutonSupprimer() {
     const dernierBouton = référencesBoutonsSupprimer.filter((b) => b !== null).pop();
@@ -79,10 +79,7 @@
     écranAffiché = "préciserImpact";
   }
 
-  /**
-   * @param {EspèceProtégée} espèce
-   */
-  async function supprimerEspèceImpactéeDepuisClassification(espèce) {
+  async function supprimerEspèceImpactéeDepuisClassification(espèce: EspèceProtégée) {
     const indexDansListe = espècesImpactéesPourPréremplir.findIndex(
       ({ espèce: espèceImpactée }) => espèceImpactée === espèce,
     );

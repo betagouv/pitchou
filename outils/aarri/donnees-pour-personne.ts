@@ -110,7 +110,7 @@ const content = new Map([
   ["Évènements avec count", [...headerÉvènementsCount, ...évènementCountsFormattésPourODS]],
 ]);
 
-const ods: ArrayBuffer = await createOdsFile(content);
+const ods: ArrayBuffer = await createOdsFile(content as Parameters<typeof createOdsFile>[0]);
 
 console.log("ods", ods);
 

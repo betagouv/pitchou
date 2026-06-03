@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
   import DateInput from "../../common/DateInput.svelte";
   import Prescription from "./Prescription.svelte";
@@ -18,31 +18,32 @@
 
   import { store } from "../../../store.svelte.ts";
 
-  /** @import {DécisionAdministrativePourTransfer, FrontEndDécisionAdministrative, FrontEndPrescription} from '../../../../types/API_Pitchou.ts' */
-  /** @import Dossier from '../../../../types/database/public/Dossier.ts' */
-  /** @import PrescriptionType from '../../../../types/database/public/Prescription.ts' */
+  import type {
+    DécisionAdministrativePourTransfer,
+    FrontEndDécisionAdministrative,
+    FrontEndPrescription,
+  } from "../../../../types/API_Pitchou.ts";
+  import type Dossier from "../../../../types/database/public/Dossier.ts";
+  import type PrescriptionType from "../../../../types/database/public/Prescription.ts";
 
-  /**
-   * @typedef {Object} Props
-   * @property {Dossier['id']} dossierId
-   * @property {FrontEndDécisionAdministrative} décisionAdministrative
-   * @property {() => Promise<unknown>} supprimerDécisionAdministrative
-   */
+  type Props = {
+    dossierId: Dossier["id"];
+    décisionAdministrative: FrontEndDécisionAdministrative;
+    supprimerDécisionAdministrative: () => Promise<unknown>;
+  };
 
-  /** @type {Props} */
   let {
     dossierId,
     décisionAdministrative = $bindable(),
     supprimerDécisionAdministrative,
-  } = $props();
+  }: Props = $props();
 
   //$inspect('décisionAdministrative', décisionAdministrative)
 
   let { id, numéro, type, date_signature, date_fin_obligations, fichier_url } =
     $derived(décisionAdministrative);
 
-  /** @type {Set<Partial<FrontEndPrescription>>}*/
-  let prescriptions = $state(
+  let prescriptions: Set<Partial<FrontEndPrescription>> = $state(
     décisionAdministrative.prescriptions
       ? new SvelteSet(décisionAdministrative.prescriptions)
       : new SvelteSet(),
@@ -52,8 +53,7 @@
   const NON_RENSEIGNÉ = "(non renseigné)";
 
   function ajouterPrescription() {
-    /** @type {Partial<PrescriptionType>} */
-    const nouvellePrescription = {
+    const nouvellePrescription: Partial<PrescriptionType> = {
       décision_administrative: décisionAdministrative.id,
       date_échéance: undefined,
       numéro_article: "",
@@ -71,14 +71,15 @@
     vuePrescription = "modifier";
   }
 
-  /** @type {Map<Partial<PrescriptionType>, {prescriptionIdP: Promise<PrescriptionType['id'] | undefined>, updateAfterRecievingId: boolean}>}*/
-  const prescriptionToPendingIdAndLatestData = new SvelteMap();
+  const prescriptionToPendingIdAndLatestData = new SvelteMap<
+    Partial<PrescriptionType>,
+    {
+      prescriptionIdP: Promise<PrescriptionType["id"] | undefined>;
+      updateAfterRecievingId: boolean;
+    }
+  >();
 
-  /**
-   *
-   * @param {Partial<FrontEndPrescription>} prescription
-   */
-  async function savePrescription(prescription) {
+  async function savePrescription(prescription: Partial<FrontEndPrescription>) {
     if (prescription.date_échéance) {
       Object.defineProperty(prescription.date_échéance, "toJSON", { value: toJSONPerserveDate });
     }
@@ -93,8 +94,8 @@
       if (pendingPrescriptionIdEntry) {
         pendingPrescriptionIdEntry.updateAfterRecievingId = true;
       } else {
-        /** @type {Promise<PrescriptionType['id'] | undefined>} */
-        const prescriptionIdP = ajouterPrescriptionBaseDeDonnées(prescription);
+        const prescriptionIdP: Promise<PrescriptionType["id"] | undefined> =
+          ajouterPrescriptionBaseDeDonnées(prescription);
 
         const newPendingPrescriptionIdEntry = {
           prescriptionIdP,
@@ -116,11 +117,7 @@
     }
   }
 
-  /**
-   *
-   * @param {Partial<PrescriptionType>} prescription
-   */
-  function supprimerPrescription(prescription) {
+  function supprimerPrescription(prescription: Partial<PrescriptionType>) {
     if (prescription.id) {
       supprimerPrescriptionBaseDeDonnées(prescription.id);
     }
@@ -128,12 +125,8 @@
     prescriptions.delete(prescription);
   }
 
-  /**
-   * @param {Event & {currentTarget: HTMLElement & HTMLInputElement}} e
-   */
-  async function onFileInput(e) {
-    /** @type {FileList | null} */
-    const files = e.currentTarget.files;
+  async function onFileInput(e: Event & { currentTarget: HTMLElement & HTMLInputElement }) {
+    const files: FileList | null = e.currentTarget.files;
     const file = files && files[0];
 
     if (file) {
@@ -149,8 +142,8 @@
     }
   }
 
-  /** @type {DécisionAdministrativePourTransfer | undefined} */
-  let décisionAdministrativeEnModification = $state();
+  let décisionAdministrativeEnModification: DécisionAdministrativePourTransfer | undefined =
+    $state();
 
   function passerEnVueModifierDécisionAdministrative() {
     décisionAdministrativeEnModification = {
@@ -194,8 +187,7 @@
     refreshDossierComplet(dossierId);
   }
 
-  /** @type {'consulter' | 'modifier'} */
-  let vuePrescription = $state("consulter");
+  let vuePrescription: "consulter" | "modifier" = $state("consulter");
 </script>
 
 <section class="décision-administrative">
