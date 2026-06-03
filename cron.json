@@ -5,7 +5,7 @@
       "size": "L"
     },
     {
-      "command": "0 23 * * 0 tsx outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 50",
+      "command": "0 23 * * 0 tsx outils/aarri/supprimer-evenements.ts --conserver-dernières-semaines 50",
       "size": "S"
     }
   ]
