@@ -108,9 +108,9 @@
       <a
         href="https://doc.incubateur.net/communaute/gerer-son-produit/aide-a-la-mise-en-application-des-standards/pourquoi-le-deploiement-dun-service-public-en-ligne-est-il-important/methode-aarri"
         >méthodologie AARRI</a
-      >. Elles sont <a href="pitchou.beta.gouv.fr/aarri">agrégées sous forme d'indicateurs</a> pour comprendre
-      l'évolution de l'usage de la plateforme Pitchou. Ces données peuvent aussi être réutilsées pour
-      contacter les instructrices afin de mieux comprendre leur utilisation de la plateforme.
+      >. Elles sont <a href="/stats">agrégées sous forme d'indicateurs</a> pour comprendre l'évolution
+      de l'usage de la plateforme Pitchou. Ces données peuvent aussi être réutilsées pour contacter les
+      instructrices afin de mieux comprendre leur utilisation de la plateforme.
     </p>
 
     <h4>Licéité</h4>
