@@ -1,7 +1,6 @@
 <script lang="ts">
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
-  import { onMount } from "svelte";
 
   import type { PitchouState } from "../store.svelte.ts";
 
@@ -18,6 +17,13 @@
     résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find((r) => r.succès),
   );
 
+  function toggleTheme() {
+    const root = document.documentElement;
+    const next = root.getAttribute("data-fr-theme") === "dark" ? "light" : "dark";
+    // DSFR observe data-fr-scheme, applique data-fr-theme et persiste le choix
+    root.setAttribute("data-fr-scheme", next);
+  }
+
   function formatDate(date: Date): string {
     const diff = differenceInMinutes(new Date(), date);
 
@@ -31,43 +37,75 @@
 
     return format(date, `d MMMM yyyy HH'h'mm`, { locale: fr });
   }
-
-  let theme = $state<"light" | "dark">("light");
-
-  onMount(() => {
-    const root = document.documentElement;
-    const sync = () => {
-      theme = root.getAttribute("data-fr-theme") === "dark" ? "dark" : "light";
-    };
-    sync();
-    // DSFR met à jour data-fr-theme en fonction de data-fr-scheme ; on suit cet attribut
-    const observer = new MutationObserver(sync);
-    observer.observe(root, { attributes: true, attributeFilter: ["data-fr-theme"] });
-    return () => observer.disconnect();
-  });
-
-  function toggleTheme() {
-    const root = document.documentElement;
-    const next = root.getAttribute("data-fr-theme") === "dark" ? "light" : "dark";
-    // DSFR observe data-fr-scheme, applique data-fr-theme et persiste le choix
-    root.setAttribute("data-fr-scheme", next);
-  }
 </script>
 
 <footer class="fr-footer fr-mt-2w" id="footer">
+  <div class="fr-footer__top">
+    <div class="fr-container">
+      <div class="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-sm-4 fr-col-md-3">
+          <h3 class="fr-footer__top-cat">À propos</h3>
+          <ul class="fr-footer__top-list">
+            <li>
+              <a class="fr-footer__top-link" href="/stats">Statistiques</a>
+            </li>
+            <li>
+              <a
+                class="fr-footer__top-link fr-icon-external-link-line fr-link--icon-right"
+                href={BUDGET_URL}
+                target="_blank"
+                rel="noopener external"
+                title="Budget - nouvelle fenêtre">Budget</a
+              >
+            </li>
+            <li>
+              <a
+                class="fr-footer__top-link fr-icon-external-link-line fr-link--icon-right"
+                href="https://github.com/betagouv/pitchou"
+                target="_blank"
+                rel="noopener external"
+                title="Code source - nouvelle fenêtre">Code source</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="fr-container">
     <div class="fr-footer__body">
       <div class="fr-footer__brand fr-enlarge-link">
         <p class="fr-logo">République <br />Française</p>
       </div>
       <div class="fr-footer__content">
+        <p class="fr-footer__content-desc">
+          Pitchou accompagne l'instruction des demandes de dérogation à la protection des espèces.
+        </p>
         <ul class="fr-footer__content-list">
           <li class="fr-footer__content-item">
             <a
               class="fr-footer__content-link"
               target="_blank"
               rel="noopener external"
-              title="[À MODIFIER - Intitulé] - nouvelle fenêtre"
+              title="info.gouv.fr - nouvelle fenêtre"
+              href="https://info.gouv.fr">info.gouv.fr</a
+            >
+          </li>
+          <li class="fr-footer__content-item">
+            <a
+              class="fr-footer__content-link"
+              target="_blank"
+              rel="noopener external"
+              title="service-public.gouv.fr - nouvelle fenêtre"
+              href="https://service-public.gouv.fr">service-public.gouv.fr</a
+            >
+          </li>
+          <li class="fr-footer__content-item">
+            <a
+              class="fr-footer__content-link"
+              target="_blank"
+              rel="noopener external"
+              title="legifrance.gouv.fr - nouvelle fenêtre"
               href="https://legifrance.gouv.fr">legifrance.gouv.fr</a
             >
           </li>
@@ -76,25 +114,7 @@
               class="fr-footer__content-link"
               target="_blank"
               rel="noopener external"
-              title="[À MODIFIER - Intitulé] - nouvelle fenêtre"
-              href="https://gouvernement.fr">gouvernement.fr</a
-            >
-          </li>
-          <li class="fr-footer__content-item">
-            <a
-              class="fr-footer__content-link"
-              target="_blank"
-              rel="noopener external"
-              title="[À MODIFIER - Intitulé] - nouvelle fenêtre"
-              href="https://service-public.fr">service-public.fr</a
-            >
-          </li>
-          <li class="fr-footer__content-item">
-            <a
-              class="fr-footer__content-link"
-              target="_blank"
-              rel="noopener external"
-              title="[À MODIFIER - Intitulé] - nouvelle fenêtre"
+              title="data.gouv.fr - nouvelle fenêtre"
               href="https://data.gouv.fr">data.gouv.fr</a
             >
           </li>
@@ -104,27 +124,7 @@
     <div class="fr-footer__bottom">
       <ul class="fr-footer__bottom-list">
         <li class="fr-footer__bottom-item">
-          <a
-            class="fr-footer__bottom-link fr-icon-external-link-line fr-link--icon-right"
-            href="https://github.com/betagouv/pitchou"
-            target="_blank"
-            rel="noopener external"
-            title="Code source - nouvelle fenêtre">Code source</a
-          >
-        </li>
-        <li class="fr-footer__bottom-item">
-          <a href="/stats" class="fr-footer__bottom-link"> Statistiques </a>
-        </li>
-        <li class="fr-footer__bottom-item">
-          <a
-            href={BUDGET_URL}
-            class="fr-footer__bottom-link fr-icon-external-link-line fr-link--icon-right"
-            target="_blank"
-            rel="noopener external"
-            title="Budget - nouvelle fenêtre"
-          >
-            Budget
-          </a>
+          <a href="/plan-du-site" class="fr-footer__bottom-link"> Plan du site </a>
         </li>
         <li class="fr-footer__bottom-item">
           <a
@@ -140,13 +140,10 @@
         </li>
         <li class="fr-footer__bottom-item">
           <button
-            type="button"
-            class="fr-footer__bottom-link fr-icon-{theme === 'dark'
-              ? 'sun'
-              : 'moon'}-line fr-link--icon-left"
+            class="fr-footer__bottom-link fr-icon-theme-fill fr-link--icon-left"
             onclick={toggleTheme}
           >
-            {theme === "dark" ? "Thème clair" : "Thème sombre"}
+            Paramètres d'affichage
           </button>
         </li>
         {#if dernièreSynchronisationRéussie}
