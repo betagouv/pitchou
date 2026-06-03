@@ -1,7 +1,7 @@
 {
   "jobs": [
     {
-      "command": "*/10 * * * * tsx outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees",
+      "command": "*/10 * * * * tsx outils/sync-démarche-numérique.ts --IdSchemaDS derogation-especes-protegees",
       "size": "L"
     },
     {
