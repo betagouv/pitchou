@@ -115,18 +115,14 @@ export function supprimerFichier(
 export async function loadFichierContent(
   fichierId: Fichier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<{ nom: string; media_type: string | null; body: Buffer | Readable; taille?: number } | null> {
+): Promise<{
+  nom: string;
+  media_type: string | null;
+  body: Buffer | Readable;
+  taille?: number;
+} | null> {
   const f = await getFichier(fichierId, databaseConnection);
   if (!f) return null;
-
-  if (f.contenu !== null) {
-    return {
-      nom: f.nom,
-      media_type: f.media_type,
-      body: f.contenu,
-      taille: f.contenu.byteLength,
-    };
-  }
 
   if (f.file_id) {
     const fileMeta = await getFile(f.file_id, databaseConnection);
@@ -136,6 +132,15 @@ export async function loadFichierContent(
       media_type: f.media_type,
       body: s3.body,
       taille: fileMeta?.taille ? Number(fileMeta.taille) : undefined,
+    };
+  }
+
+  if (f.contenu !== null) {
+    return {
+      nom: f.nom,
+      media_type: f.media_type,
+      body: f.contenu,
+      taille: f.contenu.byteLength,
     };
   }
 
