@@ -4,7 +4,7 @@
 
 Quand un utilisateur réalise certaines actions dans Pitchou, l'application enregistre silencieusement un **évènement** en base de données. Ces données ne sont pas envoyées à un outil externe : elles restent dans Pitchou et servent à calculer les [indicateurs AARRI](https://beta.gouv.fr/startups/pitchou.html) de l'équipe (Acquis, Actif, Retenu, Impact).
 
-Un évènement correspond à un Action précis : un clic sur un bouton, une modification dans un formulaire, le chargement d'une page. Tous les évènements sont listés ci-dessous.
+Un évènement correspond à une action précise : un clic sur un bouton, une modification dans un formulaire, le chargement d'une page. Tous les évènements sont listés ci-dessous.
 ---
 
 ## Les évènements
