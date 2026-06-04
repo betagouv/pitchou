@@ -4,14 +4,7 @@
 
 Quand un utilisateur réalise certaines actions dans Pitchou, l'application enregistre silencieusement un **évènement** en base de données. Ces données ne sont pas envoyées à un outil externe : elles restent dans Pitchou et servent à calculer les [indicateurs AARRI](https://beta.gouv.fr/startups/pitchou.html) de l'équipe (Acquis, Actif, Retenu, Impact).
 
-Un évènement correspond à un geste précis : un clic sur un bouton, une modification dans un formulaire, le chargement d'une page. Tous les évènements sont listés ci-dessous.
-
-## Comment ça fonctionne ?
-
-Quand l'action est réalisée → Pitchou envoie l'évènement au serveur → il est enregistré en base de données.
-
-Certains évènements sont **debounces** : pour éviter de compter des dizaines de fois la même action répétée rapidement (par exemple taper du texte), l'évènement n'est enregistré qu'une seule fois sur une fenêtre de temps donnée.
-
+Un évènement correspond à un Action précis : un clic sur un bouton, une modification dans un formulaire, le chargement d'une page. Tous les évènements sont listés ci-dessous.
 ---
 
 ## Les évènements
@@ -24,7 +17,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Une connexion à Pitchou |
 | **Page** | N'importe quelle page |
-| **Geste** | Automatique — se déclenche quand l'utilisateur ouvre Pitchou avec un lien d'accès valide |
+| **Action** | Automatique — se déclenche quand l'utilisateur ouvre Pitchou avec un lien d'accès valide |
 
 ---
 
@@ -36,7 +29,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Utiliser les filtres ou la recherche dans la liste des dossiers |
 | **Page** | "Tous les dossiers" |
-| **Geste** | Modifier un filtre : champ texte de recherche, tags de phase, filtre "activité principale", filtre "prochaine action attendue de", filtre par instructeur |
+| **Action** | Modifier un filtre : champ texte de recherche, tags de phase, filtre "activité principale", filtre "prochaine action attendue de", filtre par instructeur |
 | **Note** | Déclenché au plus une fois toutes les 10 secondes |
 
 #### `afficherLesDossiersSuivis`
@@ -45,7 +38,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Filtrer pour n'afficher que les dossiers que je suis |
 | **Page** | "Tous les dossiers" |
-| **Geste** | Cliquer le bouton "Suivi par moi" |
+| **Action** | Cliquer le bouton "Suivi par moi" |
 
 #### `consulterUnDossier`
 
@@ -53,7 +46,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Accéder à l'onglet Projet d'un dossier |
 | **Page** | Page d'un dossier |
-| **Geste** | Cliquer sur l'onglet **"Projet"** |
+| **Action** | Cliquer sur l'onglet **"Projet"** |
 | **Note** | Déclenché au plus une fois toutes les 15 minutes pour le même dossier |
 
 #### `téléchargerListeÉspècesImpactées`
@@ -62,7 +55,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Télécharger le fichier des espèces impactées d'un dossier |
 | **Page** | Page d'un dossier → onglet **"Projet"** |
-| **Geste** | Cliquer le bouton "Télécharger le fichier des espèces impactées" |
+| **Action** | Cliquer le bouton "Télécharger le fichier des espèces impactées" |
 
 ---
 
@@ -74,7 +67,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Mettre un dossier en suivi |
 | **Page** | "Tous les dossiers" — tableau de dossiers |
-| **Geste** | Cliquer le bouton "Suivre" sur la ligne d'un dossier |
+| **Action** | Cliquer le bouton "Suivre" sur la ligne d'un dossier |
 
 #### `modifierCommentaireInstruction`
 
@@ -82,7 +75,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Rédiger ou modifier le commentaire d'instruction d'un dossier |
 | **Page** | Page d'un dossier → onglet **"Instruction"** |
-| **Geste** | Taper dans le champ commentaire libre |
+| **Action** | Taper dans le champ commentaire libre |
 | **Note** | Déclenché au plus une fois toutes les 15 minutes |
 
 #### `changerPhase`
@@ -91,7 +84,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Changer la phase d'un dossier |
 | **Page** | Page d'un dossier → onglet **"Instruction"** |
-| **Geste** | Sélectionner une nouvelle phase dans le menu déroulant de phase |
+| **Action** | Sélectionner une nouvelle phase dans le menu déroulant de phase |
 
 #### `changerProchaineActionAttendueDe`
 
@@ -99,7 +92,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Modifier qui est responsable de la prochaine action sur le dossier |
 | **Page** | Page d'un dossier → onglet **"Instruction"** |
-| **Geste** | Sélectionner une option dans le menu déroulant "Prochaine action attendue de" |
+| **Action** | Sélectionner une option dans le menu déroulant "Prochaine action attendue de" |
 
 #### `ajouterDécisionAdministrative`
 
@@ -107,7 +100,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Ajouter une décision administrative à un dossier |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer "Rajouter une décision administrative" puis valider le formulaire |
+| **Action** | Cliquer "Rajouter une décision administrative" puis valider le formulaire |
 
 #### `modifierDécisionAdministrative`
 
@@ -115,7 +108,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Modifier une décision administrative existante |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer "Modifier" sur une décision puis valider le formulaire |
+| **Action** | Cliquer "Modifier" sur une décision puis valider le formulaire |
 
 #### `supprimerDécisionAdministrative`
 
@@ -123,7 +116,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Supprimer une décision administrative |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer "Supprimer cette décision administrative" dans le formulaire de modification |
+| **Action** | Cliquer "Supprimer cette décision administrative" dans le formulaire de modification |
 
 #### `ajouterPrescription`
 
@@ -131,7 +124,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Ajouter une prescription à une décision administrative |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer "Ajouter une prescription" (saisie manuelle) ou importer un fichier `.ods` de prescriptions |
+| **Action** | Cliquer "Ajouter une prescription" (saisie manuelle) ou importer un fichier `.ods` de prescriptions |
 
 #### `modifierPrescription`
 
@@ -139,7 +132,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Modifier le contenu d'une prescription |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Éditer un champ dans le tableau des prescriptions (numéro article, description, date échéance, métriques de surface/individus) |
+| **Action** | Éditer un champ dans le tableau des prescriptions (numéro article, description, date échéance, métriques de surface/individus) |
 | **Note** | Déclenché au plus une fois toutes les 15 minutes |
 
 #### `supprimerPrescription`
@@ -148,7 +141,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Supprimer une prescription |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer le bouton "Supprimer" sur la ligne d'une prescription |
+| **Action** | Cliquer le bouton "Supprimer" sur la ligne d'une prescription |
 
 #### `ajouterContrôle`
 
@@ -156,7 +149,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Ajouter un contrôle de conformité sur une prescription |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** → section d'une prescription |
-| **Geste** | Cliquer "Ajouter un contrôle" puis valider le formulaire (date, résultat, commentaire) |
+| **Action** | Cliquer "Ajouter un contrôle" puis valider le formulaire (date, résultat, commentaire) |
 
 #### `modifierContrôle`
 
@@ -164,7 +157,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Modifier un contrôle existant |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer "Modifier" sur un contrôle puis valider le formulaire |
+| **Action** | Cliquer "Modifier" sur un contrôle puis valider le formulaire |
 
 #### `supprimerContrôle`
 
@@ -172,7 +165,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Supprimer un contrôle |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Cliquer "Supprimer" dans le formulaire de modification d'un contrôle |
+| **Action** | Cliquer "Supprimer" dans le formulaire de modification d'un contrôle |
 
 #### `ajouterAvisExpert`
 
@@ -180,7 +173,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Ajouter un avis expert ou une saisine |
 | **Page** | Page d'un dossier → onglet **"Avis"** |
-| **Geste** | Cliquer "Ajouter un avis ou une saisine" puis valider le formulaire dans la modale |
+| **Action** | Cliquer "Ajouter un avis ou une saisine" puis valider le formulaire dans la modale |
 
 #### `modifierAvisExpert`
 
@@ -188,7 +181,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Modifier un avis expert existant |
 | **Page** | Page d'un dossier → onglet **"Avis"** |
-| **Geste** | Modifier un avis existant puis valider |
+| **Action** | Modifier un avis existant puis valider |
 
 #### `supprimerAvisExpert`
 
@@ -196,7 +189,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Supprimer un avis expert |
 | **Page** | Page d'un dossier → onglet **"Avis"** |
-| **Geste** | Cliquer le bouton de suppression sur un avis |
+| **Action** | Cliquer le bouton de suppression sur un avis |
 
 #### `générerUnDocument`
 
@@ -204,7 +197,7 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Générer un document à partir d'un modèle |
 | **Page** | Page d'un dossier → onglet **"Génération document"** |
-| **Geste** | Sélectionner un fichier modèle `.odt` puis cliquer "Générer le document !" |
+| **Action** | Sélectionner un fichier modèle `.odt` puis cliquer "Générer le document !" |
 
 ---
 
@@ -216,5 +209,5 @@ Certains évènements sont **debounces** : pour éviter de compter des dizaines 
 |---|---|
 | **Ce que ça représente** | Une prescription passe de non-conforme à conforme |
 | **Page** | Page d'un dossier → onglet **"Contrôles"** |
-| **Geste** | Ajouter un contrôle avec le résultat **"Conforme"** alors qu'au moins un contrôle précédent était non-conforme sur la même prescription |
+| **Action** | Ajouter un contrôle avec le résultat **"Conforme"** alors qu'au moins un contrôle précédent était non-conforme sur la même prescription |
 | **Note** | Cet évènement n'est pas déclenché à chaque ajout de contrôle "Conforme" — seulement quand il y a eu une non-conformité antérieure. C'est lui qui alimente l'indicateur AARRI **Impact**. |
