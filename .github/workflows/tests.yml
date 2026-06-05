@@ -35,6 +35,13 @@ jobs:
           --health-interval 2s
           --health-timeout 5s
           --health-retries 30
+      rustfs:
+        image: rustfs/rustfs:1.0.0-beta.6
+        env:
+          RUSTFS_ACCESS_KEY: rustfsadmin
+          RUSTFS_SECRET_KEY: rustfsadmin
+        ports:
+          - 9100:9000
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup

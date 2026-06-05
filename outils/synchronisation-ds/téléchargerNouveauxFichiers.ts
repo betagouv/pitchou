@@ -2,8 +2,11 @@ import { extname } from "node:path";
 import byteSize from "byte-size";
 import { HTTPError } from "ky";
 
-import { ajouterFichier, trouverFichiersExistants } from "../../scripts/server/database/fichier.ts";
-import { makeFichierHash } from "../../scripts/server/database/fichier.ts";
+import {
+  makeFichierHash,
+  stockerNouveauFichier,
+  trouverFichiersExistants,
+} from "../../scripts/server/database/fichier.ts";
 
 import téléchargerFichierDS from "./téléchargerFichierDS.ts";
 
@@ -11,7 +14,10 @@ import type { DossierDS88444, DSFile } from "../../scripts/types/démarche-numé
 import type { default as Fichier } from "../../scripts/types/database/public/Fichier.ts";
 import type { Knex } from "knex";
 
-type FichierÀTélécharger = Omit<Fichier, "id" | "contenu"> & { url: string };
+type FichierÀTélécharger = Omit<Fichier, "id" | "contenu" | "file_id" | "nom"> & {
+  url: string;
+  nom: string;
+};
 
 const openDocumentTypes = new Map([
   [".odt", "application/vnd.oasis.opendocument.text"],
@@ -107,19 +113,12 @@ export default async function téléchargerNouveauxFichiers(
       return Promise.all(
         fichiers.map(async (fichier) => {
           const { url } = fichier;
-          let fichierBDD: Omit<Fichier, "id">;
+          const { DS_checksum, DS_createdAt, media_type, nom } = fichier;
 
+          let buffer: Buffer;
           try {
             const { contenu } = await téléchargerFichierDS(url);
-            const { DS_checksum, DS_createdAt, media_type, nom } = fichier;
-
-            fichierBDD = {
-              DS_checksum,
-              DS_createdAt,
-              media_type,
-              nom,
-              contenu: Buffer.from(contenu), // knex n'accepte que les Buffer node, pas les ArrayBuffer
-            };
+            buffer = Buffer.from(contenu);
           } catch (err) {
             if (err instanceof HTTPError) {
               console.error(
@@ -140,19 +139,32 @@ export default async function téléchargerNouveauxFichiers(
                 err.cause ? `cause: ${err.cause?.message}` : "",
               );
             }
-
             return undefined;
           }
 
-          console.log(
-            `Dossier DS`,
-            number,
-            `- Téléchargement et stockage fichier '${fichierBDD.nom}'`,
-            // @ts-ignore
-            `(${byteSize(fichierBDD.contenu?.byteLength)})`,
-          );
-
-          return ajouterFichier(fichierBDD, transaction).then((f) => f.id);
+          try {
+            const fichierInséré = await stockerNouveauFichier(
+              { nom, contenu: buffer, media_type, DS_checksum, DS_createdAt },
+              transaction,
+            );
+            console.log(
+              `Dossier DS`,
+              number,
+              `- Téléchargement et stockage fichier '${nom}'`,
+              `(${byteSize(buffer.byteLength)})`,
+            );
+            return fichierInséré.id;
+          } catch (err) {
+            console.error(
+              `Échec stockage fichier pour`,
+              url,
+              `dossier DS`,
+              number,
+              // @ts-ignore
+              err.message,
+            );
+            return undefined;
+          }
         }),
       ).then((fichiersTéléchargés) => {
         const fichiersTéléchargésAvecSuccès = fichiersTéléchargés.filter((f) => f !== undefined);

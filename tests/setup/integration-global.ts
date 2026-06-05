@@ -3,6 +3,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { INTEGRATION_DB_NAME, databaseUrl, makeAdminKnex, makeKnex } from "./db.ts";
+import { initTestS3, type TestS3Credentials } from "./init-test-s3.ts";
 
 export const INTEGRATION_PORT = 32649;
 export const INTEGRATION_BASE_URL = `http://127.0.0.1:${INTEGRATION_PORT}`;
@@ -53,7 +54,11 @@ async function waitForKitReady(url: string, timeoutMs = 60_000): Promise<void> {
   throw new Error(`Kit server did not start in ${timeoutMs}ms: ${String(lastError)}`);
 }
 
-async function spawnKit(dbName: string, port: number): Promise<ChildProcess> {
+async function spawnKit(
+  dbName: string,
+  port: number,
+  s3: TestS3Credentials,
+): Promise<ChildProcess> {
   const child = spawn("node", ["build/index.js"], {
     cwd: repoRoot,
     env: {
@@ -69,6 +74,11 @@ async function spawnKit(dbName: string, port: number): Promise<ChildProcess> {
         process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER ??
         "testtesttesttesttesttesttesttesttesttest",
       SITE_URL_PITCHOU: `http://127.0.0.1:${port}`,
+      AWS_ENDPOINT_URL_S3: s3.endpoint,
+      AWS_REGION: s3.region,
+      AWS_ACCESS_KEY_ID: s3.accessKeyId,
+      AWS_SECRET_ACCESS_KEY: s3.secretAccessKey,
+      S3_BUCKET: s3.bucket,
     },
     stdio: ["ignore", "inherit", "inherit"],
   });
@@ -83,7 +93,8 @@ async function spawnKit(dbName: string, port: number): Promise<ChildProcess> {
 export default async function setup() {
   await dropAndCreateDb(INTEGRATION_DB_NAME);
   await runMigrations(INTEGRATION_DB_NAME);
-  kitProcess = await spawnKit(INTEGRATION_DB_NAME, INTEGRATION_PORT);
+  const s3 = await initTestS3();
+  kitProcess = await spawnKit(INTEGRATION_DB_NAME, INTEGRATION_PORT, s3);
   await waitForKitReady(INTEGRATION_BASE_URL);
 
   return async () => {

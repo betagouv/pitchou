@@ -52,36 +52,78 @@ class FakeDatabaseBuilder {
   }
 
   build() {
-    const insert = vi.fn(this.insertImpl);
-    const update = vi.fn(this.updateImpl);
+    const insertImpl = this.insertImpl;
+    const updateImpl = this.updateImpl;
     const deleteImpl = this.deleteImpl;
     const defaultRows = this.defaultSelectRows;
     const rowsByTable = this.selectRowsByTable;
     // SELECT response depends on the most recent table(...) call, so we track it here.
     let lastTable = "";
 
-    const where = vi.fn((_criteria: AnyValues) => {
-      const rows = rowsByTable.get(lastTable) ?? defaultRows;
-      const result: any = Promise.resolve(rows);
-      result.update = update;
-      result.delete = del;
-      return result;
+    const rowsForLastTable = () => rowsByTable.get(lastTable) ?? defaultRows;
+
+    // Thenable that resolves to the SELECT rows for the current table, and
+    // supports `.first()`, `.update()`, `.delete()` continuations.
+    const buildWhereResult = () => {
+      const rows = rowsForLastTable();
+      const thenable: any = Promise.resolve(rows);
+      thenable.first = () => Promise.resolve(rows[0]);
+      thenable.update = update;
+      thenable.delete = deleteQuery;
+      return thenable;
+    };
+
+    const where = vi.fn((_criteria: AnyValues) => buildWhereResult());
+
+    // Tracks every whereIn call regardless of the chain (select vs delete).
+    const whereIn = vi.fn();
+
+    const whereInForSelect = (column: string, values: unknown[]) => {
+      whereIn(column, values);
+      return Promise.resolve(rowsForLastTable());
+    };
+
+    const whereInForDelete = (column: string, values: unknown[]) => {
+      whereIn(column, values);
+      return deleteImpl();
+    };
+
+    const deleteQuery = vi.fn(() => {
+      const thenable: any = deleteImpl();
+      thenable.where = where;
+      thenable.whereIn = whereInForDelete;
+      return thenable;
     });
 
-    const whereIn = vi.fn((_column: string, _values: unknown[]) => deleteImpl());
-
-    const del = vi.fn(() => {
-      const promise: any = deleteImpl();
-      promise.where = where;
-      promise.whereIn = whereIn;
-      return promise;
+    const insert = vi.fn((...args: InsertArgs) => {
+      const thenable: any = insertImpl(...args);
+      thenable.returning = () => thenable;
+      thenable.onConflict = () => ({
+        merge: () => thenable,
+        ignore: () => thenable,
+      });
+      return thenable;
     });
 
-    const select = vi.fn((_columns: string | string[]) => ({ where }));
+    const update = vi.fn((values: AnyValues) => {
+      const thenable: any = updateImpl(values);
+      thenable.returning = () => thenable;
+      thenable.where = (_criteria: AnyValues) => {
+        const updateAfterWhere: any = updateImpl(values);
+        updateAfterWhere.returning = () => updateAfterWhere;
+        return updateAfterWhere;
+      };
+      return thenable;
+    });
 
-    const table = vi.fn((name: string) => {
-      lastTable = name;
-      return { insert, where, whereIn, select, delete: del };
+    const select = vi.fn((_columns: string | string[]) => ({
+      where,
+      whereIn: whereInForSelect,
+    }));
+
+    const table = vi.fn((tableName: string) => {
+      lastTable = tableName;
+      return { insert, where, whereIn, select, delete: deleteQuery, update };
     });
 
     return {
@@ -92,7 +134,7 @@ class FakeDatabaseBuilder {
       whereIn,
       update,
       select,
-      delete: del,
+      delete: deleteQuery,
     };
   }
 }

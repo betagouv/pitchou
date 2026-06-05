@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 
-import { ajouterFichier, supprimerFichier } from "./fichier.ts";
+import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "./fichier.ts";
 
 import type { default as Fichier } from "../../../scripts/types/database/public/Fichier.ts";
 import type { default as Dossier } from "../../../scripts/types/database/public/Dossier.ts";
@@ -30,18 +30,13 @@ export async function ajouterDécisionAdministrativeAvecFichier(
 
   if (décision.fichier_base64) {
     const { nom, media_type, contenuBase64 } = décision.fichier_base64;
-
     const contenu = Buffer.from(contenuBase64, "base64");
 
-    const fichierBDD: Partial<Fichier> = {
-      nom,
-      media_type,
-      contenu,
-    };
-
-    await ajouterFichier(fichierBDD, databaseConnection).then((fichier) => {
-      décisionAdministrativeBDD.fichier = fichier.id;
-    });
+    await stockerNouveauFichier({ nom, media_type, contenu }, databaseConnection).then(
+      (fichier) => {
+        décisionAdministrativeBDD.fichier = fichier.id;
+      },
+    );
   }
 
   return databaseConnection("décision_administrative")
@@ -115,20 +110,14 @@ export async function modifierDécisionAdministrative(
 
   if (décisionAdministrative.fichier_base64) {
     const { nom, media_type, contenuBase64 } = décisionAdministrative.fichier_base64;
-
     const contenu = Buffer.from(contenuBase64, "base64");
 
-    const fichierBDD: Partial<Fichier> = {
-      nom,
-      media_type,
-      contenu,
-    };
-
-    décisionAdministrativePrêteP = ajouterFichier(fichierBDD, databaseConnection).then(
-      (fichier) => {
-        décisionAdministrativeBDD.fichier = fichier.id;
-      },
-    );
+    décisionAdministrativePrêteP = stockerNouveauFichier(
+      { nom, media_type, contenu },
+      databaseConnection,
+    ).then((fichier) => {
+      décisionAdministrativeBDD.fichier = fichier.id;
+    });
 
     fichierIdPrécédentP = databaseConnection("décision_administrative")
       .select(["fichier"])
@@ -144,17 +133,28 @@ export async function modifierDécisionAdministrative(
   return Promise.all([fichierIdPrécédentP, décisionAdministrativeÀJourP]).then(
     ([fichierIdPrécédent]) => {
       if (fichierIdPrécédent) {
-        return supprimerFichier(fichierIdPrécédent, databaseConnection);
+        return supprimerFichiersSansAutresRéférences([fichierIdPrécédent], databaseConnection);
       }
     },
   );
 }
 
-export function supprimerDécisionAdministrative(
+export async function supprimerDécisionAdministrative(
   id: DécisionAdministrative["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  return databaseConnection("décision_administrative").delete().where({ id });
+  const lignes = await databaseConnection("décision_administrative")
+    .select("fichier")
+    .where({ id });
+  const fichierIds = lignes.map((r) => r.fichier).filter((fichierId) => fichierId !== null);
+
+  const result = await databaseConnection("décision_administrative").delete().where({ id });
+
+  if (fichierIds.length >= 1) {
+    await supprimerFichiersSansAutresRéférences(fichierIds, databaseConnection);
+  }
+
+  return result;
 }
 
 export async function getDossierIdFromDecisionAdministrative(

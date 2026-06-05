@@ -1,8 +1,14 @@
+import { randomUUID } from "node:crypto";
+import type { Readable } from "node:stream";
+
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { addFile, deleteFile, getFile } from "./file.ts";
+import { deleteObject, fileKey, getObject, putObject } from "../object-storage.ts";
 
 import type { default as Fichier } from "../../types/database/public/Fichier.ts";
+import type { FileId } from "../../types/database/public/File.ts";
 
 /**
  * Fonction qui créé une clef unique pour la valeur de son argument
@@ -44,6 +50,50 @@ export function ajouterFichier(
     .then((files) => files[0]);
 }
 
+/**
+ * Stocke un nouveau fichier : upload S3 puis insert dans `file` et `fichier`.
+ *
+ * UUID généré côté app pour permettre l'ordre upload-S3 → insert-DB.
+ * Si l'insert DB échoue, l'objet S3 est supprimé (best-effort) avant de relancer l'erreur.
+ */
+export async function stockerNouveauFichier(
+  fichier: {
+    nom: string;
+    contenu: Buffer;
+    media_type: string | null;
+    DS_checksum?: string | null;
+    DS_createdAt?: Date | null;
+  },
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Partial<Fichier>> {
+  const { nom, contenu, media_type, DS_checksum, DS_createdAt } = fichier;
+  const fileId = randomUUID() as FileId;
+  const key = fileKey(fileId);
+
+  await putObject(key, contenu, media_type);
+
+  try {
+    await addFile(
+      {
+        id: fileId,
+        nom,
+        media_type,
+        taille: String(contenu.byteLength),
+        DS_checksum,
+        DS_createdAt,
+      },
+      databaseConnection,
+    );
+    return await ajouterFichier(
+      { nom, media_type, DS_checksum, DS_createdAt, file_id: fileId },
+      databaseConnection,
+    );
+  } catch (err) {
+    await deleteObject(key).catch(() => {});
+    throw err;
+  }
+}
+
 export function getFichier(
   fichierId: Fichier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
@@ -56,6 +106,45 @@ export function supprimerFichier(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   return databaseConnection("fichier").delete().where({ id });
+}
+
+/**
+ * Retourne le contenu d'un fichier, soit depuis le blob legacy (`fichier.contenu`),
+ * soit depuis S3 via `fichier.file_id`. Pour les fichiers S3, `body` est un stream.
+ */
+export async function loadFichierContent(
+  fichierId: Fichier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<{
+  nom: string;
+  media_type: string | null;
+  body: Buffer | Readable;
+  taille?: number;
+} | null> {
+  const f = await getFichier(fichierId, databaseConnection);
+  if (!f) return null;
+
+  if (f.file_id) {
+    const fileMeta = await getFile(f.file_id, databaseConnection);
+    const s3 = await getObject(fileKey(f.file_id));
+    return {
+      nom: f.nom,
+      media_type: f.media_type,
+      body: s3.body,
+      taille: fileMeta?.taille ? Number(fileMeta.taille) : undefined,
+    };
+  }
+
+  if (f.contenu !== null) {
+    return {
+      nom: f.nom,
+      media_type: f.media_type,
+      body: f.contenu,
+      taille: f.contenu.byteLength,
+    };
+  }
+
+  return null;
 }
 
 // Toutes les tables/colonnes qui peuvent référencer un fichier (cf. les FK vers `fichier` dans les migrations).
@@ -92,7 +181,19 @@ export async function supprimerFichiersSansAutresRéférences(
   const àSupprimer = fichierIds.filter((id) => !stillReferenced.has(id));
 
   if (àSupprimer.length >= 1) {
+    const fileIdRows = await databaseConnection("fichier")
+      .select("file_id")
+      .whereIn("id", àSupprimer);
+    const fileIdsÀSupprimer = fileIdRows.map((r) => r.file_id).filter((id) => id !== null);
+
     await databaseConnection("fichier").delete().whereIn("id", àSupprimer);
+
+    for (const fileId of fileIdsÀSupprimer) {
+      await deleteFile(fileId, databaseConnection);
+      await deleteObject(fileKey(fileId)).catch((err) => {
+        console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err.message);
+      });
+    }
   }
 
   return àSupprimer;
