@@ -44,25 +44,23 @@ afterEach(() => {
 describe("supprimerAvisExpert", () => {
   it("wraps a single id into an array for whereIn", async () => {
     const db = fakeDatabase().selectResolves([]).build();
-    // @ts-ignore
-    await supprimerAvisExpert("ae-id", db.knex);
-    expect(db.whereIn).toHaveBeenCalledWith("id", ["ae-id"]);
+    await supprimerAvisExpert(aeId, db.knex);
+    expect(db.whereIn).toHaveBeenCalledWith("id", [aeId]);
     expect(db.delete).toHaveBeenCalledTimes(1);
   });
 
   it("passes an array of ids through unchanged", async () => {
     const db = fakeDatabase().selectResolves([]).build();
-    // @ts-ignore
-    await supprimerAvisExpert(["a", "b", "c"], db.knex);
-    expect(db.whereIn).toHaveBeenCalledWith("id", ["a", "b", "c"]);
+    const ids = ["a", "b", "c"] as unknown as AvisExpertId[];
+    await supprimerAvisExpert(ids, db.knex);
+    expect(db.whereIn).toHaveBeenCalledWith("id", ids);
   });
 
   it("skips fichier cleanup when avis_expert had no attached fichiers", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: null, avis_fichier: null }])
       .build();
-    // @ts-ignore
-    await supprimerAvisExpert("ae-id", db.knex);
+    await supprimerAvisExpert(aeId, db.knex);
     const tables = new Set(db.table.mock.calls.map(([name]) => name));
     expect(tables).toEqual(new Set(["avis_expert"]));
     expect(supprimer).not.toHaveBeenCalled();
@@ -70,13 +68,10 @@ describe("supprimerAvisExpert", () => {
 
   it("cleans up the saisine + avis fichiers via supprimerFichiersSansAutresRéférences", async () => {
     const db = fakeDatabase()
-      .selectResolvesForTable("avis_expert", [
-        { saisine_fichier: "f-saisine", avis_fichier: "f-avis" },
-      ])
+      .selectResolvesForTable("avis_expert", [{ saisine_fichier: fSaisine, avis_fichier: fAvis }])
       .build();
-    // @ts-ignore
-    await supprimerAvisExpert("ae-id", db.knex);
-    expect(supprimer).toHaveBeenCalledWith(["f-saisine", "f-avis"], db.knex);
+    await supprimerAvisExpert(aeId, db.knex);
+    expect(supprimer).toHaveBeenCalledWith([fSaisine, fAvis], db.knex);
   });
 });
 
