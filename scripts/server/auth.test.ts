@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("./database/dossier.ts", () => ({
+vi.mock(import("./database/dossier.ts"), () => ({
   dossiersAccessibleViaCap: vi.fn(),
 }));
 

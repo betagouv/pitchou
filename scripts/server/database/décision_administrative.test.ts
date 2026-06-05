@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("./fichier.ts", async () => {
-  const actual = await vi.importActual<typeof import("./fichier.ts")>("./fichier.ts");
+vi.mock(import("./fichier.ts"), async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
     stockerNouveauFichier: vi.fn(),

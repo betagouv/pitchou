@@ -1,13 +1,12 @@
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-vi.mock("$server/database/fichier.js", () => ({
-  loadFichierContent: vi.fn(),
-}));
-
 import { loadFichierContent } from "$server/database/fichier.js";
 import { téléchargementFichierResponse } from "./fichier.ts";
 import type { FichierId } from "$types/database/public/Fichier.ts";
+
+vi.mock(import("$server/database/fichier.js"), () => ({
+  loadFichierContent: vi.fn(),
+}));
 
 const load = vi.mocked(loadFichierContent);
 

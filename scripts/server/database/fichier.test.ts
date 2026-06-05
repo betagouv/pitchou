@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../object-storage.ts", () => ({
+vi.mock(import("../object-storage.ts"), () => ({
   fileKey: (id: string) => `files/${id}`,
   putObject: vi.fn(),
   deleteObject: vi.fn(),
   getObject: vi.fn(),
 }));
 
-vi.mock("./file.ts", () => ({
+vi.mock(import("./file.ts"), () => ({
   addFile: vi.fn(),
   getFile: vi.fn(),
   deleteFile: vi.fn(),
