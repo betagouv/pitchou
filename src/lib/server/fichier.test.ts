@@ -1,5 +1,5 @@
 import { Readable } from "node:stream";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("$server/database/fichier.js", () => ({
   loadFichierContent: vi.fn(),
@@ -13,10 +13,6 @@ const load = vi.mocked(loadFichierContent);
 
 beforeEach(() => {
   load.mockReset();
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
 });
 
 const id = "00000000-0000-0000-0000-000000000001" as FichierId;

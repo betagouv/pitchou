@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("./fichier.ts", async () => {
   const actual = await vi.importActual<typeof import("./fichier.ts")>("./fichier.ts");
@@ -35,10 +35,6 @@ const supprimer = vi.mocked(supprimerFichiersSansAutresRéférences);
 beforeEach(() => {
   stocker.mockReset();
   supprimer.mockReset();
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
 });
 
 describe("supprimerAvisExpert", () => {
