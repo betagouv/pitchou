@@ -11,10 +11,10 @@ Quatre niveaux, distingués par l'emplacement et l'extension du fichier :
 
 ## Lancer les tests
 
-Postgres et Garage S3 pour intégration et e2e :
+Postgres et rustfs S3 pour intégration et e2e :
 
 ```sh
-just test-compose-up
+just docker-test-up
 ```
 
 Puis :
