@@ -20,14 +20,14 @@ import type { AvisExpertId } from "../../types/database/public/AvisExpert.ts";
 import type { DossierId } from "../../types/database/public/Dossier.ts";
 import type { FichierId } from "../../types/database/public/Fichier.ts";
 
-const aeId = "ae-1" as unknown as AvisExpertId;
-const dossierId = "d-1" as unknown as DossierId;
-const fSaisine = "f-saisine" as unknown as FichierId;
-const fAvis = "f-avis" as unknown as FichierId;
-const oldSaisine = "old-saisine" as unknown as FichierId;
-const oldAvis = "old-avis" as unknown as FichierId;
-const newSaisine = "new-saisine" as unknown as FichierId;
-const newAvis = "new-avis" as unknown as FichierId;
+const aeId = "ae-1" as AvisExpertId;
+const dossierId = 1 as DossierId;
+const fSaisine = "f-saisine" as FichierId;
+const fAvis = "f-avis" as FichierId;
+const oldSaisine = "old-saisine" as FichierId;
+const oldAvis = "old-avis" as FichierId;
+const newSaisine = "new-saisine" as FichierId;
+const newAvis = "new-avis" as FichierId;
 
 const stocker = vi.mocked(stockerNouveauFichier);
 const supprimer = vi.mocked(supprimerFichiersSansAutresRéférences);
