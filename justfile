@@ -156,6 +156,7 @@ test-component:
 
 # Lance les tests end-to-end avec playwright
 test-e2e:
+    just build
     playwright test --config tests/playwright.config.ts
 
 # Lance les tests d'intégration (endpoints + base réelle)
