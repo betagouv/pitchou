@@ -14,9 +14,7 @@ export default defineConfig({
           environment: "node",
           include: [
             "scripts/**/*.test.ts",
-            "scripts/**/*.test.js",
             "src/**/*.test.ts",
-            "src/**/*.test.js",
           ],
           exclude: ["scripts/**/*.svelte.test.ts"],
         },
