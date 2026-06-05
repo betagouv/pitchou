@@ -34,21 +34,21 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 ### Types
 
 Pour régénérer tous les types :
-`pnpm run build-types`
+`just generate-types`
 
 #### Regénérer les types des tables SQL
 
-exécuter `pnpm run build-types:db`
+exécuter `just generate-types-db`
 Les types sont crées dans le dossier `./scripts/types/database/public`
 
-#### Re-générer les types à partir des 2 schémas DS
+#### Re-générer les types à partir du schéma DS
 
-`pnpm run build-types:ds`
+`just generate-types-ds`
 
-Cette commande télécharge aussi les dernières versions des schémas avant de créer les types.
+Cette commande télécharge aussi la dernière version du schéma avant de créer les types.
 
-Pour éviter le téléchargement et créer les types à partir des fichiers schémas existants dans le repo, ajouter l'option `--skipDownload`, par exemple :
-`node outils/genere-types-schema-DS.js --skipDownload --idSchemaDS derogation-especes-protegees`
+Pour éviter le téléchargement et créer les types à partir du fichier schéma existant dans le repo :
+`just generate-types-ds-local`
 
 ### Pour pgadmin
 
