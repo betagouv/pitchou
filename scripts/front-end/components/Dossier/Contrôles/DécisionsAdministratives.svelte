@@ -210,7 +210,7 @@
 
     <div class="fr-mb-2w">
       {#if fichier_url}
-        <a class="fr-btn fr-btn--secondary fr-btn--sm" href={fichier_url}>
+        <a class="fr-btn fr-btn--secondary fr-btn--sm" href={fichier_url} data-sveltekit-reload>
           Télécharger le fichier de l'arrếté
         </a>
       {:else}

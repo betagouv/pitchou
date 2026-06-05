@@ -152,6 +152,7 @@
           <a
             class="fr-btn fr-btn--secondary fr-btn--sm"
             href={avisExpertInitial.saisine_fichier_url}
+            data-sveltekit-reload
           >
             Télécharger le fichier de la saisine
           </a>
@@ -191,7 +192,11 @@
           >
         </label>
         {#if avisExpertInitial?.avis_fichier_url}
-          <a class="fr-btn fr-btn--secondary fr-btn--sm" href={avisExpertInitial.avis_fichier_url}>
+          <a
+            class="fr-btn fr-btn--secondary fr-btn--sm"
+            href={avisExpertInitial.avis_fichier_url}
+            data-sveltekit-reload
+          >
             Télécharger le fichier de l'avis
           </a>
         {:else}
