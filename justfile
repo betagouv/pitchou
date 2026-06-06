@@ -24,7 +24,7 @@ aws-rm KEY:
 
 # Affiche taille totale et nombre de fichiers du bucket
 aws-usage:
-    aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2
+    @aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2 | awk '/Total Objects/ {print "Fichiers : " $3} /Total Size/ {cmd="numfmt --to=si --format=%.1f --suffix=B " $3; cmd | getline s; close(cmd); print "Taille   : " s}'
 
 # Construit l'application (équivalent du job CI build)
 build:
