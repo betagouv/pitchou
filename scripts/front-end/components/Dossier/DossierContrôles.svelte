@@ -1,8 +1,9 @@
 <script lang="ts">
   import clsx from "clsx";
 
-  import DécisionsAdministratives from "./Contrôles/DécisionsAdministratives.svelte";
-  import FormulaireDécisionAdministrative from "./Contrôles/FormulaireDécisionAdministrative.svelte";
+  import DecisionAdministrative from "./Contrôles/DecisionAdministrative.svelte";
+  import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
+  import CardDecisionAdministrative from "./Contrôles/CardDecisionAdministrative.svelte";
 
   import {
     sauvegardeNouvelleDécisionAdministrative,
@@ -30,16 +31,12 @@
   //$inspect('décisionsAdministratives', décisionsAdministratives)
 
   function créerFonctionSupprimer(décisionAdministrative: FrontEndDécisionAdministrative) {
-    return function () {
-      const index = décisionsAdministratives.indexOf(décisionAdministrative);
-
-      if (index !== undefined && index !== -1) {
-        décisionsAdministratives = décisionsAdministratives.toSpliced(index, 1);
-      }
-
-      refreshDossierComplet(dossier.id);
-
-      return supprimerDécisionAdministrative(décisionAdministrative.id);
+    // Wait for the deletion to complete before refreshing: refreshing first would
+    // reload the décision that is still in database, leaving it visible until a
+    // manual page reload.
+    return async function () {
+      await supprimerDécisionAdministrative(décisionAdministrative.id);
+      await refreshDossierComplet(dossier.id);
     };
   }
 
@@ -66,18 +63,10 @@
     };
   }
 
-  function onValider() {
-    if (!décisionAdministrativeEnCréation) {
-      throw new TypeError(
-        `décisionAdministrativeEnCréation est undefined dans DossierContrôles -> onValider`,
-      );
-    }
-
-    //@ts-ignore
-    décisionsAdministratives.push(décisionAdministrativeEnCréation);
-    // optimist UI change
-    décisionsAdministratives = décisionsAdministratives;
-    sauvegardeNouvelleDécisionAdministrative(décisionAdministrativeEnCréation);
+  async function onValider(decision: DécisionAdministrativePourTransfer) {
+    // On failure, the error propagates to the form, which displays it and keeps
+    // the form open. We only close and refresh once the save succeeds.
+    await sauvegardeNouvelleDécisionAdministrative(decision);
     décisionAdministrativeEnCréation = undefined;
   }
 
@@ -93,28 +82,23 @@
     <p>Il n'y a pas de décisions administrative à contrôler concernant ce dossier</p>
   {:else}
     {#each décisionsAdministratives as décisionAdministrative}
-      <DécisionsAdministratives
+      <DecisionAdministrative
         {décisionAdministrative}
         dossierId={dossier.id}
         supprimerDécisionAdministrative={créerFonctionSupprimer(décisionAdministrative)}
-      ></DécisionsAdministratives>
+      ></DecisionAdministrative>
     {/each}
   {/if}
 
   {#if décisionAdministrativeEnCréation}
-    <FormulaireDécisionAdministrative
-      décisionAdministrative={décisionAdministrativeEnCréation}
-      {onValider}
-    >
-      {#snippet boutonValider()}
-        <button type="submit" class="fr-btn">Sauvegarder</button>
-      {/snippet}
-      {#snippet boutonAnnuler()}
-        <button type="button" class="fr-btn fr-btn--secondary" onclick={annulerCréation}
-          >Annuler</button
-        >
-      {/snippet}
-    </FormulaireDécisionAdministrative>
+    <CardDecisionAdministrative>
+      <h4>Nouvelle décision administrative</h4>
+      <FormDecisionAdministrative
+        décisionAdministrative={décisionAdministrativeEnCréation}
+        {onValider}
+        onAnnuler={annulerCréation}
+      />
+    </CardDecisionAdministrative>
   {:else}
     <button onclick={commencerCréationDécisionAdministrative} class={classes}
       >Rajouter une décision administrative</button
@@ -123,4 +107,8 @@
 </div>
 
 <style lang="scss">
+  h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
 </style>
