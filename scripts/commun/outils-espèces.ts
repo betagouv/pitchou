@@ -15,6 +15,7 @@ import type {
   MoyenDePoursuiteMenaçant,
   ImpactQuantifié,
 } from "../types/especes.d.ts";
+import type { default as EspeceProtegee } from "../types/database/public/EspeceProtegee.ts";
 import type {
   FauneNonOiseauAtteinteOds_V1,
   FichierEspècesImpactéesOds_V1,
@@ -84,6 +85,33 @@ export function espèceProtégéeStringToEspèceProtégée({
     nomsVernaculaires: new Set(nomsVernaculaires.split(",")),
     espèceCNPN: espèceCNPN === "O" ? espèceCNPN : undefined,
     espèceMinistérielle: espèceMinistérielle === "O" ? espèceMinistérielle : undefined,
+  };
+}
+
+/**
+ * Converts a raw `espece_protegee` database row into the domain `EspèceProtégée`.
+ * `text[]` columns become `Set<…>` and booleans become `"O" | undefined`, keeping
+ * the shape consumed by the rest of the app unchanged. Works both server-side (knex
+ * rows) and client-side (rows deserialized from the API as plain JSON).
+ */
+export function dbRowToEspeceProtegee(row: EspeceProtegee): EspèceProtégée {
+  const { classification } = row;
+
+  if (!isClassif(classification)) {
+    throw new TypeError(
+      `Classification d'espèce non reconnue: ${classification}. Les choix sont : ${[...classificationEtreVivants].join(", ")}`,
+    );
+  }
+
+  return {
+    CD_REF: row.cd_ref,
+    classification,
+    nomsScientifiques: new Set(row.noms_scientifiques),
+    nomsVernaculaires: new Set(row.noms_vernaculaires),
+    //@ts-ignore trusting data generation
+    CD_TYPE_STATUTS: new Set(row.cd_type_statuts),
+    espèceMinistérielle: row.espece_ministerielle ? "O" : undefined,
+    espèceCNPN: row.espece_cnpn ? "O" : undefined,
   };
 }
 

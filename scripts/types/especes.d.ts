@@ -74,8 +74,8 @@ export interface ESPÈCES_CNPN_ROW {
 }
 
 /**
- * Lignes du fichier liste-espèces-protégées.csv
- * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes
+ * Espèce protégée telle que stockée dans la table `espece_protegee`
+ * (une entrée par CD_REF, noms et statuts agrégés)
  */
 export interface EspèceProtégée {
   CD_REF: TAXREF_ROW["CD_REF"];
