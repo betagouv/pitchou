@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { readFile } from "node:fs/promises";
 
 import memoize from "just-memoize";
+import type { Knex } from "knex";
 
 import { byteFormat } from "../../commun/typeFormat.ts";
 import { directDatabaseConnection } from "../../server/database.ts";
@@ -31,16 +32,35 @@ const chargerActivitésMéthodesMoyensDePoursuite: () => Promise<
   return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
 });
 
-const chargerListeEspèceParCD_REF: () => Promise<Map<EspèceProtégée["CD_REF"], EspèceProtégée>> =
-  memoize(async function chargerListeEspèceParCD_REF() {
-    const lignes = await getEspecesProtegees();
+type EspèceParCD_REF = Map<EspèceProtégée["CD_REF"], EspèceProtégée>;
 
-    return new Map(
-      lignes.map((ligne) => {
-        return [ligne.cd_ref, dbRowToEspeceProtegee(ligne)];
-      }),
-    );
-  });
+// Cached per connection so the public endpoint does not re-query every espèce on
+// each request, while a different connection gets its own entry.
+const espèceParCD_REFParConnexion = new WeakMap<
+  Knex.Transaction | Knex,
+  Promise<EspèceParCD_REF>
+>();
+
+function chargerListeEspèceParCD_REF(
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<EspèceParCD_REF> {
+  let espèceByCD_REFP = espèceParCD_REFParConnexion.get(databaseConnection);
+
+  if (!espèceByCD_REFP) {
+    espèceByCD_REFP = getEspecesProtegees(databaseConnection)
+      .then(
+        (lignes) => new Map(lignes.map((ligne) => [ligne.cd_ref, dbRowToEspeceProtegee(ligne)])),
+      )
+      .catch((error) => {
+        // Don't keep a rejected promise cached
+        espèceParCD_REFParConnexion.delete(databaseConnection);
+        throw error;
+      });
+    espèceParCD_REFParConnexion.set(databaseConnection, espèceByCD_REFP);
+  }
+
+  return espèceByCD_REFP;
+}
 
 function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
@@ -48,12 +68,13 @@ function formatDate(date: Date | null): string | null {
 
 async function récupérerDossiersParIds(
   idDossiers: Dossier["id"][] | Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierPourGeoMCE[] | undefined> {
   if (!Array.isArray(idDossiers)) {
     idDossiers = [idDossiers];
   }
 
-  const dossiersP = directDatabaseConnection("dossier")
+  const dossiersP = databaseConnection("dossier")
     .select([
       "dossier.*",
       "fichier.contenu as fichier_contenu",
@@ -81,7 +102,7 @@ async function récupérerDossiersParIds(
       });
     });
 
-  const instructeursDossierP = directDatabaseConnection("arête_personne_suit_dossier")
+  const instructeursDossierP = databaseConnection("arête_personne_suit_dossier")
     .select(["personne.email as email", "arête_personne_suit_dossier.dossier as dossier"])
     .join("personne", { "personne.id": "arête_personne_suit_dossier.personne" })
     .whereIn("arête_personne_suit_dossier.dossier", idDossiers);
@@ -105,7 +126,7 @@ async function récupérerDossiersParIds(
     instructeursByDossierId,
     dossiers,
   ] = await Promise.all([
-    chargerListeEspèceParCD_REF(),
+    chargerListeEspèceParCD_REF(databaseConnection),
     chargerActivitésMéthodesMoyensDePoursuite(),
     instructeursByDossierIdP,
     dossiersP,
@@ -171,7 +192,7 @@ async function récupérerDossiersParIds(
   );
 }
 
-function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
+export function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
   return {
     projet: {
       ref: `PITCHOU-${dossierPourGeoMCE.id}`,
@@ -207,8 +228,10 @@ function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMess
   };
 }
 
-async function listerDossiersPourDéclarationGeoMCE(): Promise<Dossier["id"][]> {
-  const dossiers = await directDatabaseConnection("dossier")
+async function listerDossiersPourDéclarationGeoMCE(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<Dossier["id"][]> {
+  const dossiers = await databaseConnection("dossier")
     .select("dossier.id")
     .from("dossier")
     .join("décision_administrative", { "décision_administrative.dossier": "dossier.id" })
@@ -220,12 +243,14 @@ async function listerDossiersPourDéclarationGeoMCE(): Promise<Dossier["id"][]> 
   return dossiers.map(({ id }) => id);
 }
 
-export async function générerDéclarationGeoMCE() {
-  const dossiers = await listerDossiersPourDéclarationGeoMCE();
+export async function générerDéclarationGeoMCE(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+) {
+  const dossiers = await listerDossiersPourDéclarationGeoMCE(databaseConnection);
   console.log(`${dossiers.length} dossiers trouvés\n`);
-  const dossiersPourGeoMCE = ((await récupérerDossiersParIds(dossiers)) || []).filter(
-    (d) => d !== undefined,
-  );
+  const dossiersPourGeoMCE = (
+    (await récupérerDossiersParIds(dossiers, databaseConnection)) || []
+  ).filter((d) => d !== undefined);
 
   const messagesGeoMCE = dossiersPourGeoMCE.map(genererMessagesGeoMCE);
 
