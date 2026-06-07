@@ -139,6 +139,10 @@ generate-types-ds:
 generate-types-ds-local:
     {{ tsx }} outils/genere-types-schema-DS.ts --skipDownload --idSchemaDS derogation-especes-protegees
 
+# Régénère la table espece_protegee à partir des sources INPN (TAXREF, BDC, .ods) présentes dans data/sources_especes
+generate-especes-protegees:
+    {{ tsx }} outils/liste-espèces.ts
+
 # Synchronise les dossiers depuis Démarches Simplifiées (sans argument : dernières heures ; sinon depuis la date passée, ex: just sync-ds 2025-06-01)
 sync-ds lastModified="":
     {{ tsx }} outils/sync-démarche-numérique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}

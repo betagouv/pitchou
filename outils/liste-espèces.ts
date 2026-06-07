@@ -1,11 +1,12 @@
 import { readFile } from "node:fs/promises";
-import { createReadStream, createWriteStream } from "node:fs";
+import { createReadStream } from "node:fs";
 
 import { parse } from "csv-parse";
-import { stringify } from "csv-stringify";
 import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
 
 import { TAXREF_ROWClassification, nomsVernaculaires } from "../scripts/commun/outils-espèces.ts";
+import { replaceEspecesProtegees } from "../src/lib/server/especeProtegee.ts";
+import { closeDatabaseConnection } from "../scripts/server/database.ts";
 
 import type {
   BDC_STATUT_ROW,
@@ -14,6 +15,10 @@ import type {
   ESPÈCES_MINISTÉRIELLES_ROW,
   ESPÈCES_CNPN_ROW,
 } from "../scripts/types/especes.d.ts";
+import type {
+  EspeceProtegeeInitializer,
+  EspeceProtegeeCdRef,
+} from "../scripts/types/database/public/EspeceProtegee.ts";
 
 process.title = `Génération liste espèces`;
 
@@ -165,7 +170,7 @@ const listesEspècesMinistériellesCNPNP: Promise<
  *
  */
 Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP]).then(
-  ([taxref, protectionsEspèces, listesEspècesMinistériellesCNPN]) => {
+  async ([taxref, protectionsEspèces, listesEspècesMinistériellesCNPN]) => {
     const [listeEspècesMinistérielles, listeEspècesCNPN] = listesEspècesMinistériellesCNPN;
 
     const espècesProtégées = new Map<EspèceProtégée["CD_REF"], Partial<EspèceProtégée>>();
@@ -299,39 +304,35 @@ Promise.all([taxrefP, protectionsEspècesP, listesEspècesMinistériellesCNPNP])
       },
     );
 
-    const stringifier = stringify({
-      delimiter: ";",
-      header: true,
-    });
-
-    stringifier.pipe(createWriteStream("data/liste-espèces-protégées.csv"));
-    for (const {
-      CD_REF,
-      classification,
-      nomsScientifiques,
-      nomsVernaculaires,
-      CD_TYPE_STATUTS,
-      espèceMinistérielle,
-      espèceCNPN,
-    } of espècesProtégéesArray) {
-      stringifier.write({
+    const rows: EspeceProtegeeInitializer[] = espècesProtégéesArray.map(
+      ({
         CD_REF,
         classification,
-        nomsScientifiques: [...(nomsScientifiques || [])].join(","),
-        nomsVernaculaires: [...(nomsVernaculaires || [])].join(","),
-        CD_TYPE_STATUTS: [...(CD_TYPE_STATUTS || [])]
-          .toSorted((cd_type_statut_1, cd_type_statut_2) => {
-            return (
-              keptCdTypeStatus.indexOf(cd_type_statut_1) -
-              keptCdTypeStatus.indexOf(cd_type_statut_2)
-            );
-          })
-          .join(","),
+        nomsScientifiques,
+        nomsVernaculaires,
+        CD_TYPE_STATUTS,
         espèceMinistérielle,
         espèceCNPN,
-      });
+      }) => ({
+        cd_ref: CD_REF! as EspeceProtegeeCdRef,
+        classification: classification!,
+        noms_scientifiques: [...(nomsScientifiques || [])],
+        noms_vernaculaires: [...(nomsVernaculaires || [])],
+        cd_type_statuts: [...(CD_TYPE_STATUTS || [])].toSorted(
+          (cd_type_statut_1, cd_type_statut_2) =>
+            keptCdTypeStatus.indexOf(cd_type_statut_1) - keptCdTypeStatus.indexOf(cd_type_statut_2),
+        ),
+        espece_ministerielle: espèceMinistérielle === "O",
+        espece_cnpn: espèceCNPN === "O",
+      }),
+    );
+
+    try {
+      await replaceEspecesProtegees(rows);
+      console.info(`${rows.length} espèces protégées écrites en base`);
+    } finally {
+      await closeDatabaseConnection();
     }
-    stringifier.end();
   },
 );
 
