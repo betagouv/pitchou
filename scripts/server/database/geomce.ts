@@ -1,26 +1,24 @@
 import { join } from "node:path";
 import { readFile } from "node:fs/promises";
 
-import { dsvFormat } from "d3-dsv";
 import memoize from "just-memoize";
 
 import { byteFormat } from "../../commun/typeFormat.ts";
 import { directDatabaseConnection } from "../../server/database.ts";
 import {
   construireActivitésMéthodesMoyensDePoursuite,
-  espèceProtégéeStringToEspèceProtégée,
   importDescriptionMenacesEspècesFromOdsArrayBuffer,
 } from "../../commun/outils-espèces.ts";
+import {
+  getEspecesProtegees,
+  dbRowToEspeceProtegee,
+} from "../../../src/lib/server/especeProtegee.ts";
 
 import type { default as Dossier } from "../../types/database/public/Dossier.ts";
 import type { default as Personne } from "../../types/database/public/Personne.ts";
 import type { GeoMceMessage, DossierPourGeoMCE } from "../../types/geomce.ts";
 import type { PitchouState } from "../../front-end/store.svelte.ts";
-import type {
-  EspèceProtégée,
-  DescriptionMenacesEspèces,
-  EspèceProtégéeStrings,
-} from "../../types/especes.ts";
+import type { EspèceProtégée, DescriptionMenacesEspèces } from "../../types/especes.ts";
 
 const DATA_DIR = join(import.meta.dirname, "../../../data");
 
@@ -33,17 +31,13 @@ const chargerActivitésMéthodesMoyensDePoursuite: () => Promise<
   return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
 });
 
-/**
- * Le premier appel memoize une version parsée de liste-espèces-protégées.csv, donc plusieurs Mo
- */
 const chargerListeEspèceParCD_REF: () => Promise<Map<EspèceProtégée["CD_REF"], EspèceProtégée>> =
   memoize(async function chargerListeEspèceParCD_REF() {
-    const espèceBuffer = await readFile(join(DATA_DIR, "liste-espèces-protégées.csv"));
-    const listeEspèces: EspèceProtégéeStrings[] = dsvFormat(";").parse(espèceBuffer.toString());
+    const lignes = await getEspecesProtegees();
 
     return new Map(
-      listeEspèces.map((espèce) => {
-        return [espèce["CD_REF"], espèceProtégéeStringToEspèceProtégée(espèce)];
+      lignes.map((ligne) => {
+        return [ligne.cd_ref, dbRowToEspeceProtegee(ligne)];
       }),
     );
   });
