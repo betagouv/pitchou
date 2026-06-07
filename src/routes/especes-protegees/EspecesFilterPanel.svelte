@@ -6,15 +6,14 @@
     selectedClassification: ClassificationEtreVivant | "";
     selectedStatut: Statut | "";
     selectedListe: ListeFilter;
-    onChange: () => void;
+    onChange: (updates: {
+      classification?: ClassificationEtreVivant | "";
+      statut?: Statut | "";
+      liste?: ListeFilter;
+    }) => void;
   };
 
-  let {
-    selectedClassification = $bindable(),
-    selectedStatut = $bindable(),
-    selectedListe = $bindable(),
-    onChange,
-  }: Props = $props();
+  let { selectedClassification, selectedStatut, selectedListe, onChange }: Props = $props();
 </script>
 
 <fieldset id="panneau-filtres" class="panel">
@@ -23,8 +22,9 @@
     <div class="filter-row">
       <label class="fr-label filter-label" for="select-classification">Classification</label>
       <select
-        bind:value={selectedClassification}
-        onchange={onChange}
+        value={selectedClassification}
+        onchange={(e) =>
+          onChange({ classification: e.currentTarget.value as ClassificationEtreVivant | "" })}
         aria-label="Classification choisie"
         class="fr-select"
         id="select-classification"
@@ -38,8 +38,8 @@
     <div class="filter-row">
       <label class="fr-label filter-label" for="select-statut">Statut de protection</label>
       <select
-        bind:value={selectedStatut}
-        onchange={onChange}
+        value={selectedStatut}
+        onchange={(e) => onChange({ statut: e.currentTarget.value as Statut | "" })}
         aria-label="Statut de protection choisi"
         class="fr-select"
         id="select-statut"
@@ -53,8 +53,8 @@
     <div class="filter-row">
       <label class="fr-label filter-label" for="select-liste">Liste (ministérielle / CNPN)</label>
       <select
-        bind:value={selectedListe}
-        onchange={onChange}
+        value={selectedListe}
+        onchange={(e) => onChange({ liste: e.currentTarget.value as ListeFilter })}
         aria-label="Liste d'espèces choisie"
         class="fr-select"
         id="select-liste"

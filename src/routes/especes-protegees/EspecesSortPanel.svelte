@@ -1,22 +1,21 @@
 <script lang="ts">
-  import { SORT_OPTIONS, type SortKey } from "./especesList.ts";
+  import { SORT_OPTIONS, type SortKey, type SortOrder } from "./especesList.ts";
 
   type Props = {
     selectedSort: SortKey;
-    sortOrder: "asc" | "desc";
-    onChange: () => void;
+    sortOrder: SortOrder;
+    onChange: (sort: SortKey, order: SortOrder) => void;
   };
 
-  let { selectedSort = $bindable(), sortOrder = $bindable(), onChange }: Props = $props();
+  let { selectedSort, sortOrder, onChange }: Props = $props();
 
   // Select the option, or flip the direction if it is already the active one
   function selectOrToggleSort(key: SortKey) {
     if (selectedSort === key) {
-      sortOrder = sortOrder === "asc" ? "desc" : "asc";
+      onChange(key, sortOrder === "asc" ? "desc" : "asc");
     } else {
-      selectedSort = key;
+      onChange(key, "asc");
     }
-    onChange();
   }
 </script>
 

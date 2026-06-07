@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { EventHandler } from "svelte/elements";
-  import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
@@ -9,12 +7,11 @@
   import Pagination from "$front/components/DSFR/Pagination.svelte";
 
   import {
-    matchesText,
+    parseEspecesQuery,
+    filterEspeces,
     compareEspeces,
-    CLASSIFICATIONS,
-    STATUTS,
-    type FilterKey,
     type SortKey,
+    type SortOrder,
     type Statut,
     type ListeFilter,
   } from "./especesList.ts";
@@ -30,112 +27,92 @@
 
   const ESPECES_PER_PAGE = 20;
 
-  const allFilters = new SvelteMap<FilterKey, (espece: EspèceProtégée) => boolean>();
-
-  let searchText: string | undefined = $state();
-  let selectedClassification: ClassificationEtreVivant | "" = $state("");
-  let selectedStatut: Statut | "" = $state("");
-  let selectedListe: ListeFilter = $state("");
+  // The URL query string is the single source of truth for search, filters, sort and page.
+  const query = $derived(parseEspecesQuery(page.url.searchParams));
 
   let filterPanelOpen = $state(false);
   let sortPanelOpen = $state(false);
-
-  /** Number of active filters excluding the text search (shown on the « Filtrer » button) */
-  const activeFilterCount = $derived([...allFilters.keys()].filter((key) => key !== "text").length);
-
-  let selectedSort: SortKey = $state("nomScientifique");
-  let sortOrder: "asc" | "desc" = $state("asc");
-
-  let currentPage = $state(1);
-  let statusMessage = $state("");
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
-  const filteredEspeces = $derived.by(() => {
-    let result = especes;
-    for (const filter of allFilters.values()) {
-      result = result.filter(filter);
-    }
-    return result;
-  });
-
-  const pageCount = $derived(
-    filteredEspeces.length === 0 ? 1 : Math.ceil(filteredEspeces.length / ESPECES_PER_PAGE),
+  /** Number of active filters excluding the text search (shown on the « Filtrer » button) */
+  const activeFilterCount = $derived(
+    (query.classification ? 1 : 0) + (query.statut ? 1 : 0) + (query.liste ? 1 : 0),
   );
 
-  type PageSelector = () => void;
-  let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(() => {
-    if (filteredEspeces.length >= ESPECES_PER_PAGE + 1) {
-      const selectors: PageSelector[] = Array.from({ length: pageCount }, (_v, i) => () => {
-        currentPage = i + 1;
-        tick().then(() => pageTitleElement?.focus());
-      });
-      return [undefined, ...selectors];
-    }
-    return undefined;
-  });
+  const filteredEspeces = $derived(filterEspeces(especes, query));
+
+  const pageCount = $derived(Math.max(1, Math.ceil(filteredEspeces.length / ESPECES_PER_PAGE)));
+  // Clamp in case the URL points past the last page (e.g. after narrowing the filters)
+  const currentPage = $derived(Math.min(query.page, pageCount));
+
+  const paginated = $derived(filteredEspeces.length > ESPECES_PER_PAGE);
 
   const displayedEspeces = $derived.by(() => {
     const sorted = [...filteredEspeces].sort((a, b) =>
-      compareEspeces(a, b, selectedSort, sortOrder),
+      compareEspeces(a, b, query.sort, query.order),
     );
-    if (!pageSelectors) return sorted;
+    if (!paginated) return sorted;
     return sorted.slice(ESPECES_PER_PAGE * (currentPage - 1), ESPECES_PER_PAGE * currentPage);
   });
 
-  const pageText = $derived.by(() => {
-    if (allFilters.has("text") && searchText && searchText.trim() !== "") {
-      return `Résultats de recherche pour «${searchText}» : Page ${currentPage} sur ${pageCount}`;
-    }
-    return `Page ${currentPage} sur ${pageCount}`;
+  type PageSelector = () => void;
+  const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
+    if (!paginated) return undefined;
+    const selectors = Array.from({ length: pageCount }, (_v, i) => () => goToPage(i + 1));
+    return [undefined, ...selectors];
   });
 
-  function resetPage() {
-    currentPage = 1;
-    statusMessage = `${filteredEspeces.length} espèces affichées sur ${especes.length}`;
-    setTimeout(() => {
-      statusMessage = "";
-    }, 400);
+  const pageText = $derived(
+    query.searchText.trim()
+      ? `Résultats de recherche pour «${query.searchText}» : Page ${currentPage} sur ${pageCount}`
+      : `Page ${currentPage} sur ${pageCount}`,
+  );
+
+  // Write the given param updates to the URL. A `null` or empty value removes the param.
+  // Any change other than pagination drops the page, sending the user back to the first one.
+  function updateQuery(updates: Record<string, string | null>, { resetPage = true } = {}) {
+    const params = new URLSearchParams(page.url.searchParams);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    }
+    if (resetPage) {
+      params.delete("page");
+    }
+
+    const search = params.toString();
+    goto(search ? `?${search}` : page.url.pathname, {
+      replaceState: true,
+      keepFocus: true,
+      noScroll: true,
+    });
   }
 
-  function applyTextSearch() {
-    if (!searchText || searchText.trim() === "") {
-      allFilters.delete("text");
-    } else {
-      const text = searchText;
-      allFilters.set("text", (espece) => matchesText(espece, text));
-    }
-    resetPage();
+  function goToPage(n: number) {
+    updateQuery({ page: n > 1 ? String(n) : null }, { resetPage: false });
+    tick().then(() => pageTitleElement?.focus());
   }
 
-  const submitTextSearch: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
-    e.preventDefault();
-    applyTextSearch();
-  };
+  function onSearchInput(value: string) {
+    updateQuery({ q: value });
+  }
 
-  function applyFilters() {
-    const classification = selectedClassification;
-    if (classification) {
-      allFilters.set("classification", (espece) => espece.classification === classification);
-    } else {
-      allFilters.delete("classification");
-    }
+  function onFilterChange(updates: {
+    classification?: ClassificationEtreVivant | "";
+    statut?: Statut | "";
+    liste?: ListeFilter;
+  }) {
+    updateQuery(updates);
+  }
 
-    const statut = selectedStatut;
-    if (statut) {
-      allFilters.set("statut", (espece) => espece.CD_TYPE_STATUTS.has(statut));
-    } else {
-      allFilters.delete("statut");
-    }
-
-    if (selectedListe === "ministerielle") {
-      allFilters.set("list", (espece) => espece.espèceMinistérielle === "O");
-    } else if (selectedListe === "cnpn") {
-      allFilters.set("list", (espece) => espece.espèceCNPN === "O");
-    } else {
-      allFilters.delete("list");
-    }
-
-    resetPage();
+  function onSortChange(sort: SortKey, order: SortOrder) {
+    updateQuery({
+      tri: sort === "nomScientifique" ? null : sort,
+      ordre: order === "asc" ? null : order,
+    });
   }
 </script>
 
@@ -143,12 +120,12 @@
   <h1>Espèces protégées</h1>
 
   <div class="action-bar">
-    <form onsubmit={submitTextSearch}>
+    <form onsubmit={(e) => e.preventDefault()}>
       <div class="fr-search-bar search-bar" role="search">
         <label class="fr-label" for="recherche-espece">Rechercher une espèce</label>
         <input
-          bind:value={searchText}
-          oninput={applyTextSearch}
+          value={query.searchText}
+          oninput={(e) => onSearchInput(e.currentTarget.value)}
           name="texte-de-recherche"
           class="fr-input"
           placeholder="Nom scientifique ou vernaculaire"
@@ -191,25 +168,21 @@
     </button>
   </div>
 
-  <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
-    {#if statusMessage}{statusMessage}{/if}
-  </div>
-
   {#if filterPanelOpen}
     <EspecesFilterPanel
-      bind:selectedClassification
-      bind:selectedStatut
-      bind:selectedListe
-      onChange={applyFilters}
+      selectedClassification={query.classification}
+      selectedStatut={query.statut}
+      selectedListe={query.liste}
+      onChange={onFilterChange}
     />
   {/if}
 
   {#if sortPanelOpen}
-    <EspecesSortPanel bind:selectedSort bind:sortOrder onChange={resetPage} />
+    <EspecesSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
   {/if}
 
   <div class="count-and-page">
-    <p class="count" data-testid="compteur-especes">
+    <p class="count" data-testid="compteur-especes" aria-live="polite">
       <span class="fr-text--lead">{filteredEspeces.length}</span><span class="fr-text--lg"
         >/{especes.length} espèces</span
       >
