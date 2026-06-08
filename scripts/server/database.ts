@@ -9,6 +9,8 @@ import type {
 } from "../types/capabilities.ts";
 import type { StringValues } from "../types/tools.d.ts";
 
+import { isAdminEmail } from "./admin.ts";
+
 export const directDatabaseConnection = knex({
   client: "pg",
   connection: process.env.DATABASE_URL,
@@ -115,7 +117,9 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
         listerÉvènementsPhaseDossier,
         listerMessages,
         modifierDossier,
-        identité,
+        identité: identité
+          ? { email: identité.email, estAdmin: isAdminEmail(identité.email) }
+          : undefined,
         créerÉvènementMetrique,
         modifierDécisionAdministrativeDansDossier,
         listerNotifications,
