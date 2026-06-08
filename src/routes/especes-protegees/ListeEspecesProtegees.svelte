@@ -18,6 +18,7 @@
   import EspecesFilterPanel from "./EspecesFilterPanel.svelte";
   import EspecesSortPanel from "./EspecesSortPanel.svelte";
   import EspecesTable from "./EspecesTable.svelte";
+  import EspecesGenerationModale from "./EspecesGenerationModale.svelte";
 
   type Props = {
     especes: EspèceProtégée[];
@@ -26,6 +27,8 @@
   let { especes }: Props = $props();
 
   const ESPECES_PER_PAGE = 20;
+
+  const generationModaleId = "modale-generation-especes";
 
   // The URL query string is the single source of truth for search, filters, sort and page.
   const query = $derived(parseEspecesQuery(page.url.searchParams));
@@ -117,7 +120,17 @@
 </script>
 
 <div class="header">
-  <h1>Espèces protégées</h1>
+  <div class="title-row">
+    <h1>Espèces protégées</h1>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
+      aria-controls={generationModaleId}
+      data-fr-opened="false"
+    >
+      Comment cette liste est générée&nbsp;?
+    </button>
+  </div>
 
   <div class="action-bar">
     <form onsubmit={(e) => e.preventDefault()}>
@@ -197,6 +210,8 @@
   <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
 {/if}
 
+<EspecesGenerationModale id={generationModaleId} />
+
 <style lang="scss">
   .header {
     display: flex;
@@ -206,6 +221,15 @@
 
     h1 {
       margin-bottom: 0;
+    }
+
+    .title-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .action-bar {
