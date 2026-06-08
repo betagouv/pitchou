@@ -55,13 +55,15 @@ export async function mettreÀjourNotification(
   }
 
   // Mettre à jour la table notification.
-  // Si la date a changé, alors on écrase la notification existante.
-  // Sinon, on ignore (on ne veut pas mettre à jour le champ "vue" si la modification a déjà été vue).
+  // On n'écrase la notification existante que si la date de modification reçue est
+  // STRICTEMENT plus récente que celle stockée. Une date différente mais plus ancienne
+  // (ré-import, ou date de seed > date réelle du dossier) ne doit pas repasser "vue" à false.
+  // Cas NULL : si la date stockée est NULL, toute date reçue non-NULL est considérée plus récente.
   return laTransactionDeSynchronisationDS("notification")
     .insert(notifications)
     .onConflict(["dossier", "personne"])
     .merge()
     .whereRaw(
-      "notification.date_dernière_mise_à_jour IS DISTINCT FROM EXCLUDED.date_dernière_mise_à_jour",
+      "(notification.date_dernière_mise_à_jour IS NULL OR EXCLUDED.date_dernière_mise_à_jour > notification.date_dernière_mise_à_jour)",
     );
 }
