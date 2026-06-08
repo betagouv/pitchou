@@ -7,6 +7,7 @@ import { initTestS3, type TestS3Credentials } from "./init-test-s3.ts";
 
 export const INTEGRATION_PORT = 32649;
 export const INTEGRATION_BASE_URL = `http://127.0.0.1:${INTEGRATION_PORT}`;
+export const TEST_ADMIN_EMAIL = "admin@pitchou.test";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -68,6 +69,7 @@ async function spawnKit(
       ORIGIN: `http://127.0.0.1:${port}`,
       DATABASE_URL: databaseUrl(dbName),
       NODE_ENV: "production",
+      PITCHOU_ADMIN_EMAILS: TEST_ADMIN_EMAIL,
       DEMARCHE_SIMPLIFIEE_API_TOKEN: process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN ?? "test",
       BREVO_API_KEY: process.env.BREVO_API_KEY ?? "test",
       KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER:
