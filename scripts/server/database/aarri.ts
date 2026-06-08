@@ -1,6 +1,7 @@
 import { eachWeekOfInterval } from "date-fns";
 import { directDatabaseConnection } from "../database.ts";
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
+import { getFirstRetenuWeek } from "./aarri/niveau.ts";
 
 import type { IndicateursAARRI } from "../../types/API_Pitchou.ts";
 import type { ÉvènementMétrique } from "../../types/évènement.d.ts";
@@ -239,7 +240,7 @@ group by personne, semaine;
   const premièreSemaineRetenuParPersonne: Map<PersonneId, Semaine> = new Map();
 
   résultatsParPersonne.forEach((nombreActionsParSemaine, personne) => {
-    const semaineRetenue = getPremièreSemaineRetenue(
+    const semaineRetenue = getFirstRetenuWeek(
       nombreActionsParSemaine,
       nombreSeuilActionsParSemaine,
       nombreSemainesGlissantesÀObserver,
@@ -274,38 +275,6 @@ group by personne, semaine;
   }
 
   return nombreRetenusCumulésParSemaine;
-}
-
-/**
- * Calcule la première semaine à laquelle la personne est considérée comme retenue.
- *
- * Condition de rétention :
- * il existe une période de 8 semaines dans laquelle il y a 5 semaines validées.
- * Une semaine validée est une semaine où la personne a effectué au moins 5 actions de modification ou de consultation.
- */
-function getPremièreSemaineRetenue(
-  nombreActionsParSemaine: Map<Semaine, number>,
-  nombreSeuilActionsParSemaine: number,
-  nombreSemainesGlissantesÀObserver: number,
-  semaines: Semaine[],
-  nombreSeuilSemainesValidées: number,
-): Semaine | null {
-  let semainePersonneRetenue = null;
-
-  for (let i = 0; i <= semaines.length; i++) {
-    const périodeObservée = semaines.slice(i, i + nombreSemainesGlissantesÀObserver);
-    const semainesValidéesSurSemainesÀObserver = périodeObservée.filter((semaine) => {
-      const nombreActions = nombreActionsParSemaine.get(semaine) ?? 0;
-      // Condition pour qu'une semaine soit validée
-      return nombreActions >= nombreSeuilActionsParSemaine;
-    });
-    // Condition pour que la personne soit dite retenue sur cette période de 8 semaines.
-    if (semainesValidéesSurSemainesÀObserver.length >= nombreSeuilSemainesValidées) {
-      return semainesValidéesSurSemainesÀObserver.at(-1) || null;
-    }
-  }
-
-  return semainePersonneRetenue;
 }
 
 export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
