@@ -11,7 +11,7 @@ import { envoyerÉvènement } from "./aarri.ts";
 
 import type { default as RésultatSynchronisationDS88444 } from "../../types/database/public/RésultatSynchronisationDS88444.ts";
 
-const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
+export const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
 export function chargerRelationSuivi() {
   if (store.capabilities?.listerRelationSuivi) {
