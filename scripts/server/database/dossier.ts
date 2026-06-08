@@ -351,8 +351,6 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.id as espèces_impactées_id",
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
-  "fichier_espèces_impactées.contenu as espèces_impactées_contenu",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.nom as espèces_impactées_nom",
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "fichier_espèces_impactées.media_type as espèces_impactées_media_type",
@@ -482,7 +480,7 @@ export async function getDossierComplet(
 
   const dossierP: Promise<
     DossierComplet & {
-      espèces_impactées_contenu?: Buffer | null;
+      espèces_impactées_id?: Fichier["id"] | null;
       espèces_impactées_media_type?: string;
       espèces_impactées_nom?: string;
       demandeur_personne_morale_adresse?: string;
@@ -594,20 +592,20 @@ export async function getDossierComplet(
       );
 
       if (
-        dossier.espèces_impactées_contenu &&
+        dossier.espèces_impactées_id &&
         dossier.espèces_impactées_media_type &&
         dossier.espèces_impactées_nom
       ) {
         dossier.espècesImpactées = {
-          contenu: dossier.espèces_impactées_contenu,
+          url: `/especes-impactees/${dossier.espèces_impactées_id}`,
           media_type: dossier.espèces_impactées_media_type,
           nom: dossier.espèces_impactées_nom,
         };
-
-        delete dossier.espèces_impactées_contenu;
-        delete dossier.espèces_impactées_media_type;
-        delete dossier.espèces_impactées_nom;
       }
+
+      delete dossier.espèces_impactées_id;
+      delete dossier.espèces_impactées_media_type;
+      delete dossier.espèces_impactées_nom;
 
       const contrôlesParPrescriptionId: Map<Prescription["id"], Contrôle[]> = new Map();
       for (const c of contrôles) {

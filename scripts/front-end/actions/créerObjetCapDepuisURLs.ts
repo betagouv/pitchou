@@ -131,15 +131,7 @@ function wrapRecupérerDossierComplet(
       ret.date_dépôt = new Date(ret.date_dépôt);
     }
 
-    // Le contenu du fichier espèces impactées est disponible sous forme de string base64 dans le JSON
-    // le retransformer en ArrayBuffer pour utilisation côté front-end
-    if (ret.espècesImpactées) {
-      // @ts-ignore
-      ret.espècesImpactées.contenu = Uint8Array.from(atob(ret.espècesImpactées.contenu), (c) =>
-        c.charCodeAt(0),
-      ).buffer;
-    }
-
+    // Le fichier espèces impactées est servi à la demande via espècesImpactées.url
     if (ret.espècesImpactées) {
       Object.freeze(ret.espècesImpactées);
     }

@@ -117,7 +117,7 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
 
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
- * notamment le contenu du fichier espèces impactées s'il y en a un
+ * notamment l'URL de téléchargement du fichier espèces impactées s'il y en a un
  */
 export type DossierComplet = Omit<
   Dossier,
@@ -126,7 +126,7 @@ export type DossierComplet = Omit<
   DossierLocalisation &
   DossierPersonnesImpliquéesComplet &
   DossierActivitéPrincipale & {
-    espècesImpactées: Pick<Fichier, "contenu" | "media_type" | "nom"> | undefined;
+    espècesImpactées: (Pick<Fichier, "media_type" | "nom"> & { url: string }) | undefined;
   } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
     décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
   } & { avisExpert: FrontEndAvisExpert[] } & {
