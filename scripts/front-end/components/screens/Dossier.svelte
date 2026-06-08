@@ -46,7 +46,7 @@
   ): ReturnType<typeof espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined {
     const espècesImpactées = dossier.espècesImpactées;
 
-    if (!espècesImpactées || !espècesImpactées.contenu) {
+    if (!espècesImpactées || !espècesImpactées.url) {
       return undefined;
     }
 
@@ -56,8 +56,10 @@
       return Promise.reject(new MediaTypeError({ attendu: EXTENSION_ATTENDUE, obtenu: extension }));
     }
 
-    //@ts-expect-error le mismatch ArrayBuffer/Buffer vient des histoires de génération de type et interactions avec Postgres
-    return espècesImpactéesDepuisFichierOdsArrayBuffer(dossier.espècesImpactées.contenu);
+    // Le contenu du fichier est récupéré à la demande depuis l'Object Storage
+    return fetch(espècesImpactées.url)
+      .then((response) => response.arrayBuffer())
+      .then((arrayBuffer) => espècesImpactéesDepuisFichierOdsArrayBuffer(arrayBuffer));
   }
 
   type Props = {
