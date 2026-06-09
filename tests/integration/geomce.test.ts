@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import { createOdsFile } from "@odfjs/odfjs";
 
 import { db } from "../setup/db.ts";
+import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { createFichier } from "../factories/fichier.ts";
 import { createPersonne } from "../factories/personne.ts";
@@ -20,17 +21,21 @@ async function odsEspecesImpactees(cdRef: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer);
 }
 
-test("générerDéclarationGeoMCE résout les spécimens depuis la table espece_protegee", async () => {
-  // Source of the specimen names for the GeoMCE message
-  await db("espece_protegee").insert({
-    cd_ref: "2437",
-    classification: "oiseau",
-    noms_scientifiques: ["Morus bassanus", "Sula bassana"],
-    noms_vernaculaires: ["Fou de Bassan"],
-    cd_type_statuts: ["PN"],
-    espece_ministerielle: false,
-    espece_cnpn: false,
-  });
+test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_protegee", async () => {
+  // Source of the specimen names for the GeoMCE message. The reference layer holds
+  // the names; the view (read by geomce) exposes them — no flags needed here.
+  await seedEspeceProtegeeReference(
+    [
+      {
+        cd_ref: "2437",
+        classification: "oiseau",
+        noms_scientifiques: ["Morus bassanus", "Sula bassana"],
+        noms_vernaculaires: ["Fou de Bassan"],
+        cd_type_statuts: ["PN"],
+      },
+    ],
+    db,
+  );
 
   const fichier = await createFichier(db, {
     nom: "especes-impactees.ods",
