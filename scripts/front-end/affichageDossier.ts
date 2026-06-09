@@ -1,12 +1,9 @@
 import { differenceInDays, format, formatRelative } from "date-fns";
 import { fr } from "date-fns/locale";
 
-import type {
-  DossierPhase,
-  DossierProchaineActionAttenduePar,
-  DossierRésumé,
-  DossierComplet,
-} from "../types/API_Pitchou.ts";
+import type { DossierRésumé, DossierComplet } from "../types/API_Pitchou.ts";
+
+export { phases, prochaineActionAttenduePar } from "../commun/phases.ts";
 
 export function formatLocalisation({
   communes,
@@ -113,22 +110,3 @@ export function formatDateRelative(date: Date | undefined | null): string {
 
   return formatDateAbsolue(date);
 }
-
-export const phases: Set<DossierPhase> = new Set([
-  "Accompagnement amont",
-  "Étude recevabilité DDEP",
-  "Instruction",
-  "Contrôle",
-  "Classé sans suite",
-  "Obligations terminées",
-]);
-
-export const prochaineActionAttenduePar: Set<DossierProchaineActionAttenduePar> = new Set([
-  "Instructeur",
-  "CNPN/CSRPN",
-  "Pétitionnaire",
-  "Consultation du public",
-  "Autre administration",
-  "Autre",
-  "Personne",
-]);

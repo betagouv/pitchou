@@ -22,7 +22,7 @@ import type {
   FloreAtteinteOds_V1,
   OiseauAtteintOds_V1,
 } from "../types/espècesFichierOds.d.ts";
-import type { PitchouState } from "../front-end/store.svelte.ts";
+import type { PitchouState } from "../types/pitchou-state.ts";
 
 const classificationEtreVivants: Set<"oiseau" | "faune non-oiseau" | "flore"> = new Set([
   "oiseau",
