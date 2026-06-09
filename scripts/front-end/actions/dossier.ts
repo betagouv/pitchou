@@ -5,7 +5,7 @@ import {
   chargerActivitésMéthodesMoyensDePoursuite,
   chargerListeEspècesProtégées,
 } from "./activitésMéthodesMoyensDePoursuite.ts";
-import { isDossierRésuméArray } from "../../types/typeguards.ts";
+import { isDossierRésuméArray } from "../../commun/typeguards.ts";
 import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "./aarri.ts";
 import { chargerRelationSuivi } from "./main.ts";
 

@@ -1,14 +1,14 @@
 // Fichier avec divers prédicats / type guards
 // https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
 
-import { isValidDateString } from "../commun/typeFormat.ts";
+import { isValidDateString } from "./typeFormat.ts";
 
 import type {
   ChampDSPieceJustificative,
   ChampRépétéDSPieceJustificative,
-} from "./démarche-numérique/apiSchema.ts";
-import type { DossierRésumé } from "./API_Pitchou.ts";
-import type { OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte } from "./especes.d.ts";
+} from "../types/démarche-numérique/apiSchema.ts";
+import type { DossierRésumé } from "../types/API_Pitchou.ts";
+import type { OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte } from "../types/especes.d.ts";
 
 export function isDossierRésuméArray(x: any): x is DossierRésumé[] {
   return Array.isArray(x) && x.every(isDossierRésumé);

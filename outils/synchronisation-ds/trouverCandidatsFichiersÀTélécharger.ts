@@ -1,7 +1,7 @@
 import {
   isChampDSPieceJustificative,
   isChampRépétéDSPieceJustificative,
-} from "../../scripts/types/typeguards.ts";
+} from "../../scripts/commun/typeguards.ts";
 
 import type {
   DossierDS88444,
