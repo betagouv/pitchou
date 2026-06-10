@@ -2,9 +2,9 @@ import { randomBytes } from "node:crypto";
 
 import type { Knex } from "knex";
 
-import type { PersonneInitializer } from "../../scripts/types/database/public/Personne.ts";
-import type { GroupeInstructeursInitializer } from "../../scripts/types/database/public/GroupeInstructeurs.ts";
-import type { DossierInitializer } from "../../scripts/types/database/public/Dossier.ts";
+import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
+import type { GroupeInstructeursInitializer } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
+import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 const SEED_GROUP_NAME = "Groupe de démonstration (seed)";

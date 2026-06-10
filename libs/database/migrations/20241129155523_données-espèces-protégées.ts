@@ -8,7 +8,7 @@ import {
   descriptionMenacesEspècesToOdsArrayBuffer,
   espèceProtégéeStringToEspèceProtégée,
   actMetTransArraysToMapBundle,
-} from "../scripts/commun/outils-espèces.ts";
+} from "@pitchou/common/outils-espèces.ts";
 
 /** @import {ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../scripts/types/especes.js' */
 /** @import {PitchouState} from '../scripts/front-end/store.js' */
@@ -34,7 +34,9 @@ export async function up(knex: Knex) {
     readFile("data/liste-espèces-protégées.csv", "utf-8"),
   ]).then((fichiers) => fichiers.map((str) => parse(str)));
 
+  // @ts-ignore migration historique : la forme de retour a évolué (transports -> moyensDePoursuite)
   const { activités, méthodes, transports } = actMetTransArraysToMapBundle(
+    // @ts-ignore migration historique : types d'arguments désormais plus stricts
     activitésBrutes,
     méthodesBrutes,
     transportsBruts,

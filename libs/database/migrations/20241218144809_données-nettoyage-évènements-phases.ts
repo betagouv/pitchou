@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { phases } from "../scripts/front-end/affichageDossier.ts";
+import { phases } from "@pitchou/common/phases.ts";
 
 export async function up(knex: Knex) {
   await knex("évènement_phase_dossier")
@@ -8,6 +8,7 @@ export async function up(knex: Knex) {
     .delete();
 }
 
+// @ts-ignore migration historique : paramètre knex inutilisé
 export async function down(knex: Knex) {
   // rien
 }
