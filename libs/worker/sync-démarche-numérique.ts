@@ -7,23 +7,23 @@ import {
   closeDatabaseConnection,
   créerTransaction,
   addRésultatSynchronisationDS88444,
-} from "../scripts/server/database.ts";
+} from "@pitchou/server/database.ts";
 import {
   dumpDossiers,
   getDossierIdsFromDS_Ids,
   dumpDossierMessages,
   deleteDossierByDSNumber,
   synchroniserDossierDansGroupeInstructeur,
-} from "../scripts/server/database/dossier.ts";
-import { listAllPersonnes, créerPersonnes } from "../scripts/server/database/personne.ts";
-import { synchroniserGroupesInstructeurs } from "../scripts/server/database/groupe_instructeurs.ts";
-import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "../scripts/server/database/espèces_impactées.ts";
+} from "@pitchou/server/database/dossier.ts";
+import { listAllPersonnes, créerPersonnes } from "@pitchou/server/database/personne.ts";
+import { synchroniserGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
+import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "@pitchou/server/database/espèces_impactées.ts";
 
-import { recupérerDossiersRécemmentModifiés } from "../scripts/server/démarche-numérique/recupérerDossiersRécemmentModifiés.ts";
-import { recupérerGroupesInstructeurs } from "../scripts/server/démarche-numérique/recupérerGroupesInstructeurs.ts";
-import récupérerTousLesDossiersSupprimés from "../scripts/server/démarche-numérique/recupérerListeDossiersSupprimés.ts";
+import { recupérerDossiersRécemmentModifiés } from "@pitchou/server/démarche-numérique/recupérerDossiersRécemmentModifiés.ts";
+import { recupérerGroupesInstructeurs } from "@pitchou/server/démarche-numérique/recupérerGroupesInstructeurs.ts";
+import récupérerTousLesDossiersSupprimés from "@pitchou/server/démarche-numérique/recupérerListeDossiersSupprimés.ts";
 
-import { isValidDate } from "../scripts/commun/typeFormat.ts";
+import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
 import { téléchargerNouveauxFichiersMotivation } from "./synchronisation-ds/téléchargerNouveauxFichiersParType.ts";
 import {
@@ -38,37 +38,37 @@ import {
 import { makeColonnesCommunesDossierPourSynchro88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444 } from "../scripts/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.ts";
+import { synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444 } from "@pitchou/server/database/arête_dossier__fichier_pièces_jointes_pétitionnaire.ts";
 import { mettreÀjourNotification } from "./synchronisation-ds/synchronisation-notification.ts";
 
-import type { default as DatabaseDossier } from "../scripts/types/database/public/Dossier.ts";
+import type { default as DatabaseDossier } from "@pitchou/types/database/public/Dossier.ts";
 import type {
   default as Personne,
   PersonneInitializer,
-} from "../scripts/types/database/public/Personne.ts";
-import type { default as Entreprise } from "../scripts/types/database/public/Entreprise.ts";
-import type { default as RésultatSynchronisationDS88444 } from "../scripts/types/database/public/RésultatSynchronisationDS88444.ts";
-import type { default as Fichier } from "../scripts/types/database/public/Fichier.ts";
-import type { Message, DossierDS88444 } from "../scripts/types/démarche-numérique/apiSchema.ts";
+} from "@pitchou/types/database/public/Personne.ts";
+import type { default as Entreprise } from "@pitchou/types/database/public/Entreprise.ts";
+import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
+import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { Message, DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type {
   SchemaDémarcheSimplifiée,
   ChampDescriptor,
-} from "../scripts/types/démarche-numérique/schema.ts";
+} from "@pitchou/types/démarche-numérique/schema.ts";
 import type {
   DossierEntreprisesPersonneInitializersPourInsert,
   DossierEntreprisesPersonneInitializersPourUpdate,
   DossierPourInsert,
   DossierPourUpdate,
-} from "../scripts/types/démarche-numérique/DossierPourSynchronisation.ts";
+} from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 import type {
   DossierDemarcheNumerique88444,
   AnnotationsPriveesDemarcheNumerique88444,
-} from "../scripts/types/démarche-numérique/Démarche88444.ts";
+} from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type {
   GetDonnéesPersonnesEntreprises,
   MakeColonnesCommunesDossierPourSynchro,
 } from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
-import type { ChampFormulaire88444 } from "../scripts/types/API_Pitchou.ts";
+import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 
 // récups les données de DS
 
@@ -88,7 +88,7 @@ const ID_SCHEMA_DS = args.IdSchemaDS;
 
 if (!ID_SCHEMA_DS) {
   const liste_fichiers = await readdir(
-    join(import.meta.dirname, `../data/démarche-numérique/schema-DS`),
+    join(import.meta.dirname, `../../data/démarche-numérique/schema-DS`),
   );
   console.error(`
 Aucun argument --IdSchemaDS n'a été fourni.

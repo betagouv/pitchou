@@ -3,13 +3,9 @@ import memoize from "just-memoize";
 import { normalisationEmail } from "../../commun/manipulationStrings.ts";
 
 import type { GeoAPIDépartement, GeoAPICommune } from "../../types/GeoAPI.ts";
-import type { DossierPourInsertGénérique } from "../../types/démarche-numérique/DossierPourSynchronisation.ts";
-import type { DossierInitializer } from "../../types/database/public/Dossier.ts";
 import type { DossierDemarcheNumerique88444 } from "../../types/démarche-numérique/Démarche88444.ts";
 
-export type DonnéesSupplémentairesPourCréationDossier = Partial<
-  DossierPourInsertGénérique<Omit<DossierInitializer, "numéro_démarche">>
->;
+export type { DonnéesSupplémentairesPourCréationDossier } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 
 /**
  * Type qui définit les messages :

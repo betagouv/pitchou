@@ -1,9 +1,9 @@
 import trouverCandidatsFichiersÀTélécharger from "@pitchou/common/trouverCandidatsFichiersÀTélécharger.ts";
 import téléchargerNouveauxFichiers from "./téléchargerNouveauxFichiers.ts";
 
-import type { DossierDS88444, DSFile } from "../../scripts/types/démarche-numérique/apiSchema.ts";
-import type { default as Fichier } from "../../scripts/types/database/public/Fichier.ts";
-import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
+import type { DossierDS88444, DSFile } from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 import type { Knex } from "knex";
 
 export async function téléchargerNouveauxFichiersFromChampId(

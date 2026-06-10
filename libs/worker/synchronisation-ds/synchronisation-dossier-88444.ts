@@ -3,11 +3,11 @@ import {
   téléchargerNouveauxFichiersEspècesImpactées,
 } from "./téléchargerNouveauxFichiersParType.ts";
 
-import type { DossierDS88444 } from "../../scripts/types/démarche-numérique/apiSchema.ts";
-import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
-import type { default as Fichier } from "../../scripts/types/database/public/Fichier.ts";
+import type { DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
+import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
 import type { Knex } from "knex";
-import type { ChampFormulaire88444 } from "../../scripts/types/API_Pitchou.ts";
+import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 
 /**
  * Télécharge les nouveaux fichiers "Espèces impactées" pour la démarche 88444

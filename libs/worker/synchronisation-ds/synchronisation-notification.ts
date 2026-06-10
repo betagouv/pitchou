@@ -1,8 +1,8 @@
-import type { DossierDS88444 } from "../../scripts/types/démarche-numérique/apiSchema.ts";
+import type { DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type { Knex } from "knex";
-import type { NotificationInitializer } from "../../scripts/types/database/public/Notification.ts";
-import type { PersonneId } from "../../scripts/types/database/public/Personne.ts";
-import type { DossierId } from "../../scripts/types/database/public/Dossier.ts";
+import type { NotificationInitializer } from "@pitchou/types/database/public/Notification.ts";
+import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 export async function mettreÀjourNotification(
   dossiersDN: DossierDS88444[],

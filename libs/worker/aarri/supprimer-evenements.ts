@@ -1,11 +1,11 @@
 import parseArgs from "minimist";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { closeDatabaseConnection } from "../../scripts/server/database.ts";
+import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 import {
   supprimerÉvènementsAvantTelleDate,
   supprimerÉvènementsParEmail,
-} from "../../scripts/server/database/évènements_métriques.ts";
+} from "@pitchou/server/database/évènements_métriques.ts";
 import { subWeeks } from "date-fns";
 
 const args = parseArgs(process.argv);

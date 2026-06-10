@@ -1,8 +1,8 @@
 import parseArgs from "minimist";
-import { getÉvènementsForPersonne } from "../../scripts/server/database/aarri/utils.ts";
+import { getÉvènementsForPersonne } from "@pitchou/server/database/aarri/utils.ts";
 import { createOdsFile } from "@odfjs/odfjs";
-import { formatDateAbsolue } from "../../scripts/front-end/affichageDossier.ts";
-import { closeDatabaseConnection } from "../../scripts/server/database.ts";
+import { formatDateAbsolue } from "@pitchou/common/formatDate.ts";
+import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 const args = parseArgs(process.argv);
 

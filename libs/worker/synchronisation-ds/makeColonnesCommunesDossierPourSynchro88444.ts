@@ -6,16 +6,16 @@ import type {
   ChampDSDépartement,
   ChampScientifiqueIntervenants,
   DossierDS88444,
-} from "../../scripts/types/démarche-numérique/apiSchema.ts";
+} from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type {
   DossierDemarcheNumerique88444,
   AnnotationsPriveesDemarcheNumerique88444,
-} from "../../scripts/types/démarche-numérique/Démarche88444.ts";
+} from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type {
   DossierInitializer,
   DossierMutator,
-} from "../../scripts/types/database/public/Dossier.ts";
-import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
+} from "@pitchou/types/database/public/Dossier.ts";
+import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 
 /**
  * Renvoie le dossier rempli des champs communs aux dossiers DS issus de la Démarche 88444 à initialiser et aux dossiers DS à modifier pour la synchronisation.

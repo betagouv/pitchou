@@ -238,6 +238,98 @@ importers:
         specifier: ^22.3.0
         version: 22.19.19
 
+  libs/worker:
+    dependencies:
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../server
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      byte-size:
+        specifier: ^9.0.1
+        version: 9.0.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.2.1
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
+      ky:
+        specifier: ^1.7.5
+        version: 1.14.3
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
+      p-limit:
+        specifier: ^6.2.0
+        version: 6.2.0
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+    devDependencies:
+      '@types/byte-size':
+        specifier: ^8.1.2
+        version: 8.1.2
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+
+  scripts:
+    dependencies:
+      '@odfjs/odfjs':
+        specifier: github:odfjs/odfjs#v0.30.0
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../libs/common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../libs/server
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../libs/types
+      csv-parse:
+        specifier: ^5.5.6
+        version: 5.6.0
+      csv-stringify:
+        specifier: ^6.5.0
+        version: 6.7.0
+      json-schema-to-typescript:
+        specifier: ^15.0.0
+        version: 15.0.4
+      ky:
+        specifier: ^1.7.5
+        version: 1.14.3
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.56.0
+        version: 1.60.0
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+
 packages:
 
   '@adobe/css-tools@4.5.0':

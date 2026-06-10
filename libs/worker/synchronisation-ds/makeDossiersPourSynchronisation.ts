@@ -1,33 +1,33 @@
 import assert from "node:assert/strict";
-import { déchiffrerDonnéesSupplémentairesDossiers } from "../../scripts/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
+import { déchiffrerDonnéesSupplémentairesDossiers } from "@pitchou/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
 import { isAfter } from "date-fns";
-import { normalisationEmail } from "../../scripts/commun/manipulationStrings.ts";
+import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type {
   DonnéesPersonnesEntreprisesInitializer,
   DossierEntreprisesPersonneInitializersPourInsert,
   DossierEntreprisesPersonneInitializersPourUpdate,
   DossierPourInsert,
-} from "../../scripts/types/démarche-numérique/DossierPourSynchronisation.ts";
-import type { DossierDemarcheNumerique88444 } from "../../scripts/types/démarche-numérique/Démarche88444.ts";
-import type { ChampDescriptor } from "../../scripts/types/démarche-numérique/schema.ts";
+} from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 import type {
   DossierDS88444,
   Traitement,
-} from "../../scripts/types/démarche-numérique/apiSchema.ts";
-import type Dossier from "../../scripts/types/database/public/Dossier.ts";
-import type { FichierId } from "../../scripts/types/database/public/Fichier.ts";
+} from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
 import type {
   default as DécisionAdministrative,
   DCisionAdministrativeInitializer as DécisionAdministrativeInitializer,
-} from "../../scripts/types/database/public/DécisionAdministrative.ts";
-import type { PartialBy } from "../../scripts/types/tools.d.ts";
-import type { TypeDécisionAdministrative, DossierPhase } from "../../scripts/types/API_Pitchou.ts";
-import type { DonnéesSupplémentairesPourCréationDossier } from "../../scripts/front-end/actions/importDossierUtils.ts";
+} from "@pitchou/types/database/public/DécisionAdministrative.ts";
+import type { PartialBy } from "@pitchou/types/tools.d.ts";
+import type { TypeDécisionAdministrative, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
+import type { DonnéesSupplémentairesPourCréationDossier } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 import type {
   DossierInitializer,
   DossierMutator,
-} from "../../scripts/types/database/public/Dossier.ts";
+} from "@pitchou/types/database/public/Dossier.ts";
 
 export type MakeColonnesCommunesDossierPourSynchro = (
   dossierDS: DossierDS88444,

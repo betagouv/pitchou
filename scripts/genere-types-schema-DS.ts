@@ -8,7 +8,7 @@ import type {
   SchemaDémarcheSimplifiée,
   ChampDescriptor,
   ChampDescriptorTypename,
-} from "../scripts/types/démarche-numérique/schema.ts";
+} from "@pitchou/types/démarche-numérique/schema.ts";
 import type { JSONSchema } from "json-schema-to-typescript";
 
 const args = parseArgs(process.argv);
@@ -255,7 +255,7 @@ const imports = [
   `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join("\n");
 
-const outPath = `scripts/types/démarche-numérique/Démarche${schema.number}.ts`;
+const outPath = `libs/types/src/démarche-numérique/Démarche${schema.number}.ts`;
 await Promise.all([dossierDémarcheNumériqueInterfaceP, annotationsDémarcheNumériqueInterfaceP])
   .then(([dossierDémarcheNumériqueInterface, annotationsDémarcheNumériqueInterface]) =>
     [

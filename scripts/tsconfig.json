@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.base.json",
+  // Outils CLI exécutés à la main depuis le terminal. front-end/ (code de l'app) est
+  // exclu : il quitte scripts/ pour apps/instructeur/ lors de l'étape suivante.
+  "include": ["*.ts", "aarri/**/*.ts"]
+}

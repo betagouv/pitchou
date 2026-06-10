@@ -6,12 +6,12 @@ import {
   makeFichierHash,
   stockerNouveauFichier,
   trouverFichiersExistants,
-} from "../../scripts/server/database/fichier.ts";
+} from "@pitchou/server/database/fichier.ts";
 
 import téléchargerFichierDS from "./téléchargerFichierDS.ts";
 
-import type { DossierDS88444, DSFile } from "../../scripts/types/démarche-numérique/apiSchema.ts";
-import type { default as Fichier } from "../../scripts/types/database/public/Fichier.ts";
+import type { DossierDS88444, DSFile } from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
 import type { Knex } from "knex";
 
 type FichierÀTélécharger = Omit<Fichier, "id" | "contenu" | "file_id" | "nom"> & {

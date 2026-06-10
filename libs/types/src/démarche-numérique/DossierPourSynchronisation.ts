@@ -59,3 +59,7 @@ export type DossierPourInsertGénérique<Dossier> = DossierPourSynchronisation<D
 export type DossierPourInsert = DossierPourInsertGénérique<DossierInitializer>;
 
 export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>;
+
+export type DonnéesSupplémentairesPourCréationDossier = Partial<
+  DossierPourInsertGénérique<Omit<DossierInitializer, "numéro_démarche">>
+>;
