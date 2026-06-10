@@ -50,11 +50,6 @@
               <a class="fr-footer__top-link" href="/stats">Statistiques</a>
             </li>
             <li>
-              <a class="fr-footer__top-link" href="/especes-protegees"
-                >Liste des espèces protégées</a
-              >
-            </li>
-            <li>
               <a
                 class="fr-footer__top-link fr-icon-external-link-line fr-link--icon-right"
                 href={BUDGET_URL}
@@ -71,6 +66,22 @@
                 rel="noopener external"
                 title="Code source - nouvelle fenêtre">Code source</a
               >
+            </li>
+          </ul>
+        </div>
+        <div class="fr-col-12 fr-col-sm-4 fr-col-md-3">
+          <h3 class="fr-footer__top-cat">Ressources</h3>
+          <ul class="fr-footer__top-list">
+            <li>
+              <a class="fr-footer__top-link" href="/especes-protegees"
+                >Liste des espèces protégées</a
+              >
+            </li>
+            <li>
+              <a class="fr-footer__top-link" href="/taxref">TAXREF</a>
+            </li>
+            <li>
+              <a class="fr-footer__top-link" href="/bdc-statuts">BDC-Statuts</a>
             </li>
           </ul>
         </div>
