@@ -1,0 +1,132 @@
+<script lang="ts">
+  import { formatDateAbsolue } from "../../../affichageDossier.ts";
+  import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
+
+  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+
+  type Props = {
+    dossierId: DossierComplet["id"];
+    avisExpert: FrontEndAvisExpert;
+    supprimerAvisExpert: (avisExpert: FrontEndAvisExpert) => void;
+  };
+
+  let { dossierId, avisExpert, supprimerAvisExpert }: Props = $props();
+
+  let avisExpertEnModification: boolean = $state(false);
+
+  function fermerLeFormulaire() {
+    avisExpertEnModification = false;
+  }
+
+  function onClickSupprimer(avisExpert: FrontEndAvisExpert) {
+    supprimerAvisExpert(avisExpert);
+    fermerLeFormulaire();
+  }
+</script>
+
+<div class="carte-avis-expert">
+  <div class="titre">
+    <h3 class="fr-h5">
+      {avisExpert.expert ?? "Expert"}
+      -
+      {#if avisExpert.expert === "Ministre" || avisExpert.expert === "CNPN" || avisExpert.expert === "CSRPN"}
+        {avisExpert.avis ?? "Avis en attente"}
+      {:else}
+        {avisExpert.avis_fichier_url ? "Avis rendu" : "Avis en attente"}
+      {/if}
+    </h3>
+    {#if !avisExpertEnModification}
+      <button
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
+        type="button"
+        onclick={() => (avisExpertEnModification = true)}>Modifier</button
+      >
+    {/if}
+  </div>
+  {#if !avisExpertEnModification}
+    <ul>
+      <li>
+        <span
+          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)}
+        </span>
+        {#if avisExpert.saisine_fichier_url}
+          <a
+            class="fr-btn fr-btn--secondary fr-btn--sm"
+            href={avisExpert.saisine_fichier_url}
+            data-sveltekit-reload
+          >
+            Télécharger le fichier saisine
+          </a>
+        {:else}
+          Aucun fichier de saisine n'est lié à ce dossier
+        {/if}
+      </li>
+      {#if avisExpert.avis_fichier_url || avisExpert.date_avis || avisExpert.avis === "Avis favorable tacite"}
+        <li>
+          <span
+            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)}
+          </span>
+          {#if avisExpert.avis_fichier_url}
+            <a
+              class="fr-btn fr-btn--secondary fr-btn--sm"
+              href={avisExpert.avis_fichier_url}
+              data-sveltekit-reload
+            >
+              Télécharger le fichier de l'avis
+            </a>
+          {:else if avisExpert.avis === "Avis favorable tacite"}
+            Avis favorable tacite
+          {:else}
+            Aucun fichier de l'avis n'est lié à ce dossier
+          {/if}
+        </li>
+      {/if}
+    </ul>
+  {:else}
+    <FormulaireAvisExpert {dossierId} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />
+    <button
+      class="fr-btn fr-btn--secondary fr-mt-1w"
+      type="button"
+      onclick={() => onClickSupprimer(avisExpert)}>Supprimer cet avis d'expert</button
+    >
+  {/if}
+</div>
+
+<style lang="scss">
+  .titre {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+  }
+  .carte-avis-expert {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 4px;
+    background-color: var(--background-default-grey);
+
+    ul {
+      list-style: none;
+      padding-inline-start: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+    }
+
+    h3 {
+      margin: 0;
+    }
+  }
+</style>
