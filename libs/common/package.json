@@ -1,0 +1,18 @@
+{
+  "name": "@pitchou/common",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@pitchou/types": "workspace:*",
+    "@odfjs/odfjs": "github:odfjs/odfjs#v0.30.0",
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.7"
+  }
+}

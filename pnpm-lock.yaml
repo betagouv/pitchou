@@ -151,6 +151,68 @@ importers:
         specifier: ^4.1.7
         version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
 
+  libs/common:
+    dependencies:
+      '@odfjs/odfjs':
+        specifier: github:odfjs/odfjs#v0.30.0
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.2.1
+    devDependencies:
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+
+  libs/server:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1054.0
+        version: 3.1054.0
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      d3-dsv:
+        specifier: ^3.0.1
+        version: 3.0.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.2.1
+      just-memoize:
+        specifier: ^2.2.0
+        version: 2.2.0
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
+      ky:
+        specifier: ^1.7.5
+        version: 1.14.3
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+    devDependencies:
+      '@types/d3-dsv':
+        specifier: ^3.0.7
+        version: 3.0.7
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+
+  libs/types:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+
 packages:
 
   '@adobe/css-tools@4.5.0':

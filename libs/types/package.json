@@ -1,0 +1,13 @@
+{
+  "name": "@pitchou/types",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.3.0"
+  }
+}

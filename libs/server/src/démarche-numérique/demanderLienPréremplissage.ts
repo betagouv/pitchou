@@ -1,0 +1,122 @@
+import ky from "ky";
+import {
+  clefAE,
+  schemaToChampLabelToChampId,
+} from "@pitchou/common/préremplissageDémarcheNumérique.ts";
+
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
+
+const communeChampRépété = `champ_Q2hhbXAtNDA0MTQ0Mw`;
+const départementChampRépété = `champ_Q2hhbXAtNDA0MTQ0Nw`;
+
+function créerObjetPréremplissageChamp(
+  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+  schema88444: SchemaDémarcheSimplifiée,
+): Record<string, string | string[] | any[]> {
+  const démarcheDossierLabelToId = schemaToChampLabelToChampId(schema88444);
+
+  const objetPréremplissage: ReturnType<typeof créerObjetPréremplissageChamp> = {};
+
+  for (const champ of démarcheDossierLabelToId.keys()) {
+    if (
+      ![
+        "Commune(s) où se situe le projet",
+        "Département(s) où se situe le projet",
+        "Région(s) où se situe le projet",
+        "À quelle procédure le projet est-il soumis ?",
+        // @ts-ignore
+      ].includes(champ)
+    ) {
+      // @ts-ignore
+      const valeur: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
+        dossierPartiel[champ];
+      if (valeur) {
+        // le `champ_` est une convention pour le pré-remplissage de Démarche Numérique
+        objetPréremplissage[`champ_${démarcheDossierLabelToId.get(champ)}`] = valeur.toString();
+      }
+    }
+  }
+
+  if (
+    Array.isArray(dossierPartiel["À quelle procédure le projet est-il soumis ?"]) &&
+    dossierPartiel["À quelle procédure le projet est-il soumis ?"].length >= 1
+  ) {
+    objetPréremplissage[
+      `champ_${démarcheDossierLabelToId.get("À quelle procédure le projet est-il soumis ?")}`
+    ] = dossierPartiel["À quelle procédure le projet est-il soumis ?"];
+  }
+
+  if (dossierPartiel["Numéro de SIRET"]) {
+    objetPréremplissage[`champ_${démarcheDossierLabelToId.get("Numéro de SIRET")}`] =
+      dossierPartiel["Numéro de SIRET"];
+  }
+
+  if (typeof dossierPartiel[clefAE] === "boolean") {
+    objetPréremplissage[`champ_${démarcheDossierLabelToId.get(clefAE)}`] = dossierPartiel[clefAE]
+      ? "true"
+      : "false";
+  }
+
+  if (dossierPartiel["Dans quel département se localise majoritairement votre projet ?"]) {
+    objetPréremplissage[
+      `champ_${démarcheDossierLabelToId.get("Dans quel département se localise majoritairement votre projet ?")}`
+    ] = dossierPartiel["Dans quel département se localise majoritairement votre projet ?"].code;
+  }
+
+  // recups les départements
+  if (
+    Array.isArray(dossierPartiel["Département(s) où se situe le projet"]) &&
+    dossierPartiel["Département(s) où se situe le projet"].length >= 1
+  ) {
+    objetPréremplissage[`champ_${démarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
+      "d'un ou plusieurs départements";
+
+    objetPréremplissage[
+      `champ_${démarcheDossierLabelToId.get(`Département(s) où se situe le projet`)}`
+    ] = dossierPartiel["Département(s) où se situe le projet"].map(({ code }) => ({
+      [départementChampRépété]: code,
+    }));
+  } else {
+    // recups les communes
+    if (
+      Array.isArray(dossierPartiel["Commune(s) où se situe le projet"]) &&
+      dossierPartiel["Commune(s) où se situe le projet"].length >= 1
+    ) {
+      objetPréremplissage[
+        `champ_${démarcheDossierLabelToId.get("Le projet se situe au niveau…")}`
+      ] = "d'une ou plusieurs communes";
+
+      objetPréremplissage[
+        `champ_${démarcheDossierLabelToId.get(`Commune(s) où se situe le projet`)}`
+      ] = dossierPartiel["Commune(s) où se situe le projet"]
+        .filter((c) => typeof c === "object")
+        .map(({ code: codeInsee, codesPostaux: [codePostal] }) => ({
+          [communeChampRépété]: [codePostal, codeInsee],
+        }));
+    }
+  }
+
+  return objetPréremplissage;
+}
+
+/**
+ * Démarche numérique propose 2 méthodes pour créer des liens de pré-remplissage : via GET ou POST
+ * Cette fonction demande un lien via POST
+ */
+export async function demanderLienPréremplissage(
+  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+  schema88444: SchemaDémarcheSimplifiée,
+): Promise<{ dossier_url: string }> {
+  const préRemplissageURL = `https://demarche.numerique.gouv.fr/api/public/v1/demarches/88444/dossiers`;
+
+  return ky
+    .post(préRemplissageURL, {
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Serveur Pitchou - https://github.com/betagouv/pitchou",
+      },
+      json: créerObjetPréremplissageChamp(dossierPartiel, schema88444),
+    })
+    .then((resp) => resp.json());
+}

@@ -1,4 +1,4 @@
-import trouverCandidatsFichiersÀTélécharger from "./trouverCandidatsFichiersÀTélécharger.ts";
+import trouverCandidatsFichiersÀTélécharger from "@pitchou/common/trouverCandidatsFichiersÀTélécharger.ts";
 import téléchargerNouveauxFichiers from "./téléchargerNouveauxFichiers.ts";
 
 import type { DossierDS88444, DSFile } from "../../scripts/types/démarche-numérique/apiSchema.ts";
