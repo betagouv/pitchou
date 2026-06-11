@@ -29,41 +29,50 @@
               <strong>CD_REF</strong> de TAXREF ; ses noms et ses statuts y sont fusionnés.
             </p>
 
-            <h2 class="fr-h6 fr-mt-3w">TAXREF — le référentiel taxonomique</h2>
+            <h2 class="fr-h6 fr-mt-3w">TAXREF : le référentiel taxonomique</h2>
             <p>
               Fournit, pour chaque espèce, son <strong>nom scientifique de référence</strong> et ses
               synonymes (le « +N » à côté du nom), ses <strong>noms vernaculaires</strong>, et sa
               <strong>classification</strong> : oiseau, faune non-oiseau ou flore.
             </p>
+            <p><a href="/taxref">Consulter les données TAXREF</a>.</p>
 
-            <h2 class="fr-h6 fr-mt-3w">BDC-Statuts — les statuts de protection</h2>
+            <h2 class="fr-h6 fr-mt-3w">BDC-Statuts : les statuts de protection</h2>
             <p>
               La base de connaissance des statuts de l'INPN fournit les statuts de protection. Nous
               n'en conservons que quatre :
             </p>
             <ul>
-              <li><strong>PN</strong> — protection nationale</li>
-              <li><strong>PR</strong> — protection régionale</li>
-              <li><strong>PD</strong> — protection départementale</li>
-              <li><strong>POM</strong> — protection en outre-mer</li>
+              <li><strong>PN</strong> : protection nationale</li>
+              <li><strong>PR</strong> : protection régionale</li>
+              <li><strong>PD</strong> : protection départementale</li>
+              <li><strong>POM</strong> : protection en outre-mer</li>
             </ul>
+            <p><a href="/bdc-statuts">Consulter les données BDC-Statuts</a>.</p>
 
-            <h2 class="fr-h6 fr-mt-3w">Espèces manquantes — complément Pitchou</h2>
+            <h2 class="fr-h6 fr-mt-3w">Compléments et corrections de Pitchou</h2>
             <p>
-              Certaines espèces protégées sont absentes de la BDC-Statuts. Nous les ajoutons
-              manuellement à partir d'une liste maintenue par Pitchou ; elles portent alors le
-              statut <strong>« Protection Pitchou »</strong>.
+              Par-dessus ces sources, l'équipe Pitchou maintient une couche de corrections
+              manuelles. Elle permet de :
             </p>
-
-            <h2 class="fr-h6 fr-mt-3w">Listes ministérielle et CNPN — marquage Pitchou</h2>
-            <p>
-              Deux listes maintenues par Pitchou indiquent les espèces relevant de la liste
-              ministérielle ou de la liste <abbr
-                title="Conseil National de la Protection de la Nature">CNPN</abbr
-              >. Les espèces concernées sont signalées par les badges
-              <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">Ministère</span> et
-              <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</span> à côté de leur nom.
-            </p>
+            <ul>
+              <li>
+                <strong>ajouter</strong> une espèce protégée absente de la BDC-Statuts ; elle porte
+                alors le statut <strong>« Protection Pitchou »</strong> ;
+              </li>
+              <li>
+                <strong>corriger</strong> les noms, la classification ou les statuts d'une espèce ;
+              </li>
+              <li>
+                <strong>signaler</strong> les espèces relevant de la liste ministérielle ou de la
+                liste
+                <abbr title="Conseil National de la Protection de la Nature">CNPN</abbr>, marquées
+                par les badges
+                <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">Ministère</span> et
+                <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</span> à côté du nom ;
+              </li>
+              <li><strong>retirer</strong> une espèce de la liste publique.</li>
+            </ul>
 
             <p class="fr-text--sm fr-mt-3w">
               Les sources INPN évoluant régulièrement, cette liste est régénérée pour les intégrer.
