@@ -52,10 +52,110 @@ export function getEspecesProtegeesModifications(
   return databaseConnection("espece_protegee_modification").select("*");
 }
 
+export type EspeceProtegeeModificationAdmin = EspeceProtegeeModification & {
+  reference_noms_scientifiques: string[] | null;
+  reference_classification: string | null;
+  reference_cd_type_statuts: string[] | null;
+  reference_noms_vernaculaires: string[] | null;
+};
+
 /**
- * Upserts a manual modification for a `cd_ref`. The patch is sparse: only the keys
- * present are written; the others keep their current value (or stay NULL = inherited
- * from the reference). `updated_at` is bumped on every write.
+ * Lists every manual modification with its reference context, most recently
+ * updated first.
+ */
+export function listEspeceProtegeeModifications(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<EspeceProtegeeModificationAdmin[]> {
+  return databaseConnection("espece_protegee_modification as m")
+    .leftJoin("espece_protegee_reference as r", "m.cd_ref", "r.cd_ref")
+    .select(
+      "m.*",
+      databaseConnection.raw("r.noms_scientifiques as reference_noms_scientifiques"),
+      databaseConnection.raw("r.classification as reference_classification"),
+      databaseConnection.raw("r.cd_type_statuts as reference_cd_type_statuts"),
+      databaseConnection.raw("r.noms_vernaculaires as reference_noms_vernaculaires"),
+    )
+    .orderBy("m.updated_at", "desc");
+}
+
+const VALID_CLASSIFICATIONS: ReadonlySet<string> = new Set(["oiseau", "faune non-oiseau", "flore"]);
+
+const VALID_STATUTS: ReadonlySet<string> = new Set(["PN", "PR", "PD", "POM", "Protection Pitchou"]);
+
+export type PatchModification = {
+  classification?: string | null;
+  noms_scientifiques?: string[] | null;
+  noms_vernaculaires?: string[] | null;
+  cd_type_statuts?: string[] | null;
+  espece_ministerielle?: boolean | null;
+  espece_cnpn?: boolean | null;
+  exclu?: boolean;
+};
+
+function isStringArray(x: unknown): x is string[] {
+  return Array.isArray(x) && x.every((e) => typeof e === "string");
+}
+
+/**
+ * Validates a patch received from the client
+ */
+export function validatePatchModification(
+  patch: unknown,
+): { ok: true; value: PatchModification } | { ok: false; message: string } {
+  if (typeof patch !== "object" || patch === null || Array.isArray(patch)) {
+    return { ok: false, message: "Le patch doit être un objet." };
+  }
+  const p = patch as Record<string, unknown>;
+
+  if ("classification" in p && p.classification !== null) {
+    if (typeof p.classification !== "string" || !VALID_CLASSIFICATIONS.has(p.classification)) {
+      return {
+        ok: false,
+        message: `classification invalide : ${JSON.stringify(p.classification)}`,
+      };
+    }
+  }
+
+  if (
+    "noms_scientifiques" in p &&
+    p.noms_scientifiques !== null &&
+    !isStringArray(p.noms_scientifiques)
+  ) {
+    return { ok: false, message: "noms_scientifiques doit être un tableau de chaînes ou null." };
+  }
+
+  if (
+    "noms_vernaculaires" in p &&
+    p.noms_vernaculaires !== null &&
+    !isStringArray(p.noms_vernaculaires)
+  ) {
+    return { ok: false, message: "noms_vernaculaires doit être un tableau de chaînes ou null." };
+  }
+
+  if ("cd_type_statuts" in p && p.cd_type_statuts !== null) {
+    if (
+      !isStringArray(p.cd_type_statuts) ||
+      !p.cd_type_statuts.every((s) => VALID_STATUTS.has(s))
+    ) {
+      return { ok: false, message: "cd_type_statuts contient une valeur invalide." };
+    }
+  }
+
+  for (const field of ["espece_ministerielle", "espece_cnpn"] as const) {
+    if (field in p && p[field] !== null && typeof p[field] !== "boolean") {
+      return { ok: false, message: `${field} doit être un booléen ou null.` };
+    }
+  }
+
+  if ("exclu" in p && typeof p.exclu !== "boolean") {
+    return { ok: false, message: "exclu doit être un booléen." };
+  }
+
+  return { ok: true, value: p as PatchModification };
+}
+
+/**
+ * Only the keys present are written; the others keep their current value
  */
 export async function upsertEspeceProtegeeModification(
   cd_ref: EspeceProtegeeModificationCdRef | string,
