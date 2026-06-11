@@ -85,11 +85,8 @@ async function setup(db: Knex): Promise<SetupResult> {
 }
 
 async function gotoMesDossiers(page: Page): Promise<void> {
+  // Login via ?secret lands on the home page, which is now "Mes dossiers"
   await page.goto(`/?secret=${CODE}`);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Tableau de suivi instruction DDEP",
-  );
-  await page.goto("/mes-dossiers");
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 }
 
