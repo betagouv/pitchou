@@ -6,13 +6,19 @@ import { CLASSIFICATIONS, STATUTS } from "../../especes-protegees/especesList.ts
 
 export { CLASSIFICATIONS, STATUTS };
 
+/** Effective scientific names: the override if set, otherwise the inherited reference ones. */
+export function effectiveNomsScientifiques(modification: ModificationEspeceAdmin): string[] {
+  return modification.noms_scientifiques ?? modification.reference_noms_scientifiques ?? [];
+}
+
+/** Effective vernacular names: the override if set, otherwise the inherited reference ones. */
+export function effectiveNomsVernaculaires(modification: ModificationEspeceAdmin): string[] {
+  return modification.noms_vernaculaires ?? modification.reference_noms_vernaculaires ?? [];
+}
+
 /** The name shown in the list: the manual override, else the reference, else the cd_ref. */
 export function displayedNom(modification: ModificationEspeceAdmin): string {
-  return (
-    modification.noms_scientifiques?.[0] ||
-    modification.reference_noms_scientifiques?.[0] ||
-    modification.cd_ref
-  );
+  return effectiveNomsScientifiques(modification)[0] || modification.cd_ref;
 }
 
 /** Effective classification: the override if set, otherwise the inherited reference one. */
@@ -72,6 +78,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
     modification.cd_ref,
     ...(modification.reference_noms_scientifiques ?? []),
     ...(modification.noms_scientifiques ?? []),
+    ...(modification.reference_noms_vernaculaires ?? []),
     ...(modification.noms_vernaculaires ?? []),
   ].map(normalizeNomEspèce);
 

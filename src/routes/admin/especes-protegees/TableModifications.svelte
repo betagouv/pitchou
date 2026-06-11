@@ -2,7 +2,8 @@
   import type { ModificationEspeceAdmin } from "$front/actions/adminEspeces.ts";
 
   import {
-    displayedNom,
+    effectiveNomsScientifiques,
+    effectiveNomsVernaculaires,
     effectiveClassification,
     effectiveStatuts,
   } from "./adminModificationsList.ts";
@@ -13,37 +14,30 @@
   };
 
   let { rows, onSelect }: Props = $props();
-
-  function formatDate(iso: string): string {
-    const date = new Date(iso);
-    return Number.isNaN(date.getTime()) ? iso : date.toLocaleDateString("fr-FR");
-  }
 </script>
 
 <div class="fr-table fr-table--bordered fr-table--layout-fixed">
   <table>
     <colgroup>
+      <col />
+      <col />
+      <col style="width: 9rem" />
+      <col style="width: 9rem" />
       <col style="width: 6rem" />
-      <col />
-      <col style="width: 9rem" />
-      <col style="width: 9rem" />
-      <col style="width: 9rem" />
-      <col />
-      <col style="width: 7rem" />
     </colgroup>
     <thead>
       <tr>
-        <th scope="col">CD_REF</th>
-        <th scope="col">Nom</th>
+        <th scope="col">Nom scientifique</th>
+        <th scope="col">Nom vernaculaire</th>
         <th scope="col">Classification</th>
         <th scope="col">Statuts</th>
-        <th scope="col">Drapeaux</th>
-        <th scope="col">Modifié par</th>
-        <th scope="col">Mis à jour</th>
+        <th scope="col">CD_REF</th>
       </tr>
     </thead>
     <tbody>
       {#each rows as modification (modification.cd_ref)}
+        {@const nomsScientifiques = effectiveNomsScientifiques(modification)}
+        {@const nomsVernaculaires = effectiveNomsVernaculaires(modification)}
         <tr
           class="clickable"
           role="button"
@@ -57,10 +51,6 @@
             }
           }}
         >
-          <td>{modification.cd_ref}</td>
-          <td><i>{displayedNom(modification)}</i></td>
-          <td>{effectiveClassification(modification) ?? "—"}</td>
-          <td>{effectiveStatuts(modification).join(", ") || "—"}</td>
           <td>
             {#if modification.espece_cnpn}
               <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</p>
@@ -71,9 +61,17 @@
             {#if modification.exclu}
               <p class="fr-badge fr-badge--sm fr-badge--error">Exclue</p>
             {/if}
+            <i>{nomsScientifiques[0] ?? "—"}</i>
+            {#if nomsScientifiques.length > 1}
+              <span class="fr-badge fr-badge--sm" title={nomsScientifiques.slice(1).join(", ")}>
+                +{nomsScientifiques.length - 1}
+              </span>
+            {/if}
           </td>
-          <td>{modification.modifie_par ?? "—"}</td>
-          <td>{formatDate(modification.updated_at)}</td>
+          <td>{nomsVernaculaires[0] ?? "—"}</td>
+          <td>{effectiveClassification(modification) ?? "—"}</td>
+          <td>{effectiveStatuts(modification).join(", ") || "—"}</td>
+          <td>{modification.cd_ref}</td>
         </tr>
       {/each}
     </tbody>
@@ -87,6 +85,7 @@
 
   .fr-table table {
     width: 100%;
+    min-width: 48rem;
   }
 
   tr.clickable {
