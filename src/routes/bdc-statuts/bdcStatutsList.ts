@@ -12,6 +12,7 @@ export type BdcStatutRow = {
   cd_type_statut: string;
   label_statut: string;
   nom_scientifique: string | null;
+  nom_vernaculaire: string | null;
 };
 
 export type BdcStatutPage = {

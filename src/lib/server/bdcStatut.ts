@@ -10,7 +10,7 @@ export const BDC_STATUT_PAGE_SIZE = 20;
 export type BdcStatutRow = Pick<
   EspeceBdcStatut,
   "id" | "cd_nom" | "cd_ref" | "cd_type_statut" | "label_statut"
-> & { nom_scientifique: string | null };
+> & { nom_scientifique: string | null; nom_vernaculaire: string | null };
 
 export type BdcStatutSearch = {
   text: string;
@@ -55,6 +55,7 @@ export async function searchBdcStatut(
       "cd_type_statut",
       "label_statut",
       nomScientifiqueSubquery(databaseConnection),
+      nomVernaculaireSubquery(databaseConnection),
     )
     .limit(BDC_STATUT_PAGE_SIZE)
     .offset((search.page - 1) * BDC_STATUT_PAGE_SIZE);
@@ -94,7 +95,7 @@ function orderedBdcStatut(query: Knex.QueryBuilder, search: BdcStatutSearch): Kn
 
 /**
  * Keeps rows where every search word appears (case-insensitively) in a code, the status
- * label, or the taxon's scientific name.
+ * label, or the taxon's scientific or vernacular name.
  */
 function applyTextSearch(
   databaseConnection: Knex.Transaction | Knex,
@@ -108,7 +109,11 @@ function applyTextSearch(
       for (const column of DIRECT_SEARCHABLE_COLUMNS) builder.orWhereILike(column, pattern);
       builder.orWhereIn(
         "cd_nom",
-        databaseConnection("espece_taxref").select("cd_nom").whereILike("lb_nom", pattern),
+        databaseConnection("espece_taxref")
+          .select("cd_nom")
+          .where((taxref) =>
+            taxref.whereILike("lb_nom", pattern).orWhereILike("nom_vern", pattern),
+          ),
       );
     });
   }
@@ -121,6 +126,15 @@ function nomScientifiqueSubquery(databaseConnection: Knex.Transaction | Knex): K
     .whereRaw("espece_taxref.cd_nom = espece_bdc_statut.cd_nom")
     .limit(1)
     .as("nom_scientifique");
+}
+
+/** Correlated subquery: the vernacular name of the row's taxon, as `nom_vernaculaire`. */
+function nomVernaculaireSubquery(databaseConnection: Knex.Transaction | Knex): Knex.QueryBuilder {
+  return databaseConnection("espece_taxref")
+    .select("nom_vern")
+    .whereRaw("espece_taxref.cd_nom = espece_bdc_statut.cd_nom")
+    .limit(1)
+    .as("nom_vernaculaire");
 }
 
 /** Counts the rows matching a (filtered) query, without paging. */

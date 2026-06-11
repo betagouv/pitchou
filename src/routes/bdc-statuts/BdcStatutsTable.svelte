@@ -12,29 +12,32 @@
   <div class="fr-table fr-table--bordered fr-table--layout-fixed">
     <table>
       <colgroup>
+        <col />
+        <col />
+        <col style="width: 7rem" />
+        <col />
         <col style="width: 100px" />
         <col style="width: 100px" />
-        <col />
-        <col style="width: 120px" />
-        <col />
       </colgroup>
       <thead>
         <tr>
+          <th scope="col">Nom scientifique</th>
+          <th scope="col">Nom vernaculaire</th>
+          <th scope="col">Statuts</th>
+          <th scope="col">Libellé</th>
           <th scope="col">CD_NOM</th>
           <th scope="col">CD_REF</th>
-          <th scope="col">Nom scientifique</th>
-          <th scope="col">Type de statut</th>
-          <th scope="col">Libellé</th>
         </tr>
       </thead>
       <tbody>
         {#each rows as row (row.id)}
           <tr>
-            <td>{row.cd_nom}</td>
-            <td>{row.cd_ref}</td>
             <td><i>{row.nom_scientifique ?? ""}</i></td>
+            <td>{row.nom_vernaculaire ?? ""}</td>
             <td>{row.cd_type_statut}</td>
             <td>{row.label_statut}</td>
+            <td>{row.cd_nom}</td>
+            <td>{row.cd_ref}</td>
           </tr>
         {/each}
       </tbody>
