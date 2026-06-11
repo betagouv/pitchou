@@ -65,6 +65,17 @@ describe("getUtilisateursAARRI", () => {
     expect(emails).toContain("instructeur@dept.gouv.fr");
     expect(emails).not.toContain("petitionnaire@exemple.fr");
   });
+
+  test("excludes the team's own accounts (@beta.gouv.fr)", async () => {
+    await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
+    await createPersonne(db, { email: "membre@beta.gouv.fr" });
+
+    const utilisateurs = await getUtilisateursAARRI(db);
+    const emails = utilisateurs.map((u) => u.email);
+
+    expect(emails).toContain("instructeur@dept.gouv.fr");
+    expect(emails).not.toContain("membre@beta.gouv.fr");
+  });
 });
 
 describe("GET /api/admin/utilisateurs-aarri", () => {

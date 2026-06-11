@@ -82,7 +82,7 @@
       <h3>Cible d'utilisateurices potentiel.les</h3>
       <p>
         Le nombre de personnes qui instruisent et interviennent dans le cadre de la dérogation
-        espèce protégée est fluctuant. On l'estime à 300.
+        espèce protégée est fluctuant. On le mesure ici par le nombre de comptes Pitchou créés.
       </p>
       <h3>Acquisition</h3>
       <p>

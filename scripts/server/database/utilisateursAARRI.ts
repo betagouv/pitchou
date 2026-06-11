@@ -23,7 +23,9 @@ type PersonneEventRow = {
 /**
  * Lists every Pitchou account (a personne with a code d'accès) together with
  * their current AARRI level and a few summary metrics. Personnes without a code
- * d'accès (e.g. imported contacts that never were login accounts) are excluded.
+ * d'accès (e.g. imported contacts that never were login accounts) are excluded,
+ * as are the team's own accounts (@beta.gouv.fr), to stay consistent with the
+ * public stats funnel.
  *
  * One row is fetched per (personne, event) pair via a left join, then grouped
  * and reduced in memory so the level logic stays the single, well-tested
@@ -34,6 +36,7 @@ export async function getUtilisateursAARRI(
 ): Promise<UtilisateurAARRI[]> {
   const rows: PersonneEventRow[] = await databaseConnection("personne")
     .whereNotNull("personne.code_accès")
+    .whereRaw("(personne.email IS NULL OR personne.email NOT ILIKE '%@beta.gouv.fr')")
     .leftJoin("évènement_métrique", "évènement_métrique.personne", "personne.id")
     .select(
       "personne.id as personneId",
