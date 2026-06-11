@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from "svelte";
+
   import type { EspèceProtégée } from "$types/especes.d.ts";
   import { firstName } from "./especesList.ts";
   import EspecesSynonymesModale from "./EspecesSynonymesModale.svelte";
@@ -9,10 +11,17 @@
 
   let { especes }: Props = $props();
 
-  const synonymesModaleId = "modale-synonymes-especes";
+  const detailModaleId = "modale-detail-espece";
 
-  // Espèce whose synonyms are shown in the shared modal, set when a count badge is clicked
-  let especeSynonymes: EspèceProtégée | null = $state(null);
+  // Espèce whose details are shown in the shared modal, set when a row is activated
+  let especeDetail: EspèceProtégée | null = $state(null);
+  let triggerDetail: HTMLButtonElement | undefined = $state();
+
+  async function ouvrirDetail(espece: EspèceProtégée) {
+    especeDetail = espece;
+    await tick();
+    triggerDetail?.click();
+  }
 </script>
 
 {#if especes.length >= 1}
@@ -36,7 +45,19 @@
       </thead>
       <tbody>
         {#each especes as espece (espece.CD_REF)}
-          <tr>
+          <tr
+            class="clickable"
+            role="button"
+            tabindex="0"
+            title="Voir le détail de {firstName(espece.nomsScientifiques)}"
+            onclick={() => ouvrirDetail(espece)}
+            onkeydown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                ouvrirDetail(espece);
+              }
+            }}
+          >
             <td>
               {#if espece.espèceCNPN}
                 <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</p>
@@ -46,16 +67,12 @@
               {/if}
               <i>{firstName(espece.nomsScientifiques)}</i>
               {#if espece.nomsScientifiques.size > 1}
-                <button
-                  type="button"
+                <span
                   class="synonymes-badge fr-badge fr-badge--sm"
-                  aria-controls={synonymesModaleId}
-                  data-fr-opened="false"
-                  title="Voir les {espece.nomsScientifiques.size - 1} autres noms scientifiques"
-                  onclick={() => (especeSynonymes = espece)}
+                  title="{espece.nomsScientifiques.size - 1} autre(s) nom(s) scientifique(s)"
                 >
                   +{espece.nomsScientifiques.size - 1}
-                </button>
+                </span>
               {/if}
             </td>
             <td>{firstName(espece.nomsVernaculaires)}</td>
@@ -68,7 +85,19 @@
     </table>
   </div>
 
-  <EspecesSynonymesModale id={synonymesModaleId} espece={especeSynonymes} />
+  <button
+    bind:this={triggerDetail}
+    type="button"
+    class="fr-sr-only"
+    aria-controls={detailModaleId}
+    data-fr-opened="false"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    Voir le détail
+  </button>
+
+  <EspecesSynonymesModale id={detailModaleId} espece={especeDetail} />
 {:else}
   <p>Aucune espèce protégée n'a été trouvée.</p>
 {/if}
@@ -84,8 +113,20 @@
     min-width: 48rem;
   }
 
+  tr.clickable {
+    cursor: pointer;
+  }
+
+  tr.clickable:hover {
+    background-color: var(--background-contrast-grey);
+  }
+
+  tr.clickable:focus-visible {
+    outline: 2px solid var(--bf500);
+    outline-offset: -2px;
+  }
+
   .synonymes-badge {
     margin-left: 0.5rem;
-    cursor: pointer;
   }
 </style>
