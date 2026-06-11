@@ -30,6 +30,17 @@ export type TaxrefFiltres = {
 export type SortKey = "nomScientifique" | "nomVernaculaire" | "cdnom" | "cdref";
 export type SortOrder = "asc" | "desc";
 
+/**
+ * REGNE/CLASSE → espece protegee classification, or `null` when the taxon cannot be
+ * classified. Mirrors the deduction done at import time (`especeProtegeeReference.ts`).
+ */
+export function classificationFromTaxref(regne: string, classe: string): string | null {
+  if (["Plantae", "Fungi", "Chromista"].includes(regne)) return "flore";
+  if (regne === "Animalia" && classe === "Aves") return "oiseau";
+  if (regne === "Animalia") return "faune non-oiseau";
+  return null;
+}
+
 export const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "nomScientifique", label: "Nom scientifique" },
   { key: "nomVernaculaire", label: "Nom vernaculaire" },

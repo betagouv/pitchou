@@ -4,8 +4,8 @@
   type Props = {
     title: string;
     onClose: () => void;
-    /** "large" widens the dialog (e.g. for the species selector). */
-    size?: "default" | "large";
+    /** Widens the dialog: "large" for forms, "xlarge" for the species/taxon list selectors. */
+    size?: "default" | "large" | "xlarge";
     /** Optional content before the title (e.g. a back button). */
     headerStart?: Snippet;
     /** Pinned footer; omit to hide the footer bar entirely. */
@@ -32,6 +32,7 @@
   <div
     class="dialog"
     class:large={size === "large"}
+    class:xlarge={size === "xlarge"}
     role="dialog"
     aria-modal="true"
     aria-label={title}
@@ -88,6 +89,10 @@
 
     &.large {
       max-width: 48rem;
+    }
+
+    &.xlarge {
+      max-width: 72rem;
     }
   }
 

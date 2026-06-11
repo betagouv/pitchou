@@ -1,10 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   import type { EspèceProtégée, ClassificationEtreVivant } from "$types/especes.d.ts";
-  import Loader from "$front/components/Loader.svelte";
   import Pagination from "$front/components/DSFR/Pagination.svelte";
-  import { chargerEspecesProtegeesAdmin } from "$front/actions/adminEspeces.ts";
 
   import {
     filterEspeces,
@@ -20,18 +16,15 @@
   import EspecesSortPanel from "../../especes-protegees/EspecesSortPanel.svelte";
 
   type Props = {
+    especes: EspèceProtégée[];
     /** CD_REFs already covered by a modification: flagged as "déjà dans la liste". */
     existingCdRefs: Set<string>;
     onSelect: (espece: EspèceProtégée) => void;
   };
 
-  let { existingCdRefs, onSelect }: Props = $props();
+  let { especes, existingCdRefs, onSelect }: Props = $props();
 
   const PAGE_SIZE = 10;
-
-  let especes = $state<EspèceProtégée[]>([]);
-  let loading = $state(true);
-  let loadError = $state<string | null>(null);
 
   let query = $state<EspecesQuery>({
     searchText: "",
@@ -45,16 +38,6 @@
   let filterPanelOpen = $state(false);
   let sortPanelOpen = $state(false);
   let hoveredCdRef = $state<string | null>(null);
-
-  onMount(async () => {
-    try {
-      especes = await chargerEspecesProtegeesAdmin();
-    } catch (e) {
-      loadError = e instanceof Error ? e.message : String(e);
-    } finally {
-      loading = false;
-    }
-  });
 
   const activeFilterCount = $derived(
     (query.classification ? 1 : 0) + (query.statut ? 1 : 0) + (query.liste ? 1 : 0),
@@ -96,154 +79,144 @@
 </script>
 
 <div class="selecteur">
-  {#if loading}
-    <Loader />
-  {:else if loadError}
-    <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
-      <p>{loadError}</p>
-    </div>
-  {:else}
-    <div class="action-bar">
-      <form onsubmit={(e) => e.preventDefault()}>
-        <div class="fr-search-bar search-bar" role="search">
-          <label class="fr-label" for="recherche-espece-existante">Rechercher une espèce</label>
-          <input
-            value={query.searchText}
-            oninput={(e) => onSearchInput(e.currentTarget.value)}
-            class="fr-input"
-            placeholder="Nom scientifique ou vernaculaire"
-            id="recherche-espece-existante"
-            type="search"
-          />
-          <button title="Rechercher une espèce" type="submit" class="fr-btn">Rechercher</button>
-        </div>
-      </form>
-      <button
-        type="button"
-        class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
-        aria-expanded={filterPanelOpen}
-        aria-controls="panneau-filtres"
-        onclick={() => (filterPanelOpen = !filterPanelOpen)}
-      >
-        Filtrer
-        {#if activeFilterCount > 0}
-          <span class="filter-count" aria-label="{activeFilterCount} filtre(s) actif(s)"
-            >{activeFilterCount}</span
-          >
-        {/if}
-        <span
-          class="chevron {filterPanelOpen
-            ? 'fr-icon-arrow-up-s-line'
-            : 'fr-icon-arrow-down-s-line'}"
-          aria-hidden="true"
-        ></span>
-      </button>
-      <button
-        type="button"
-        class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
-        aria-expanded={sortPanelOpen}
-        aria-controls="panneau-tri"
-        onclick={() => (sortPanelOpen = !sortPanelOpen)}
-      >
-        Trier
-        <span
-          class="chevron {sortPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
-          aria-hidden="true"
-        ></span>
-      </button>
-    </div>
+  <div class="action-bar">
+    <form onsubmit={(e) => e.preventDefault()}>
+      <div class="fr-search-bar search-bar" role="search">
+        <label class="fr-label" for="recherche-espece-existante">Rechercher une espèce</label>
+        <input
+          value={query.searchText}
+          oninput={(e) => onSearchInput(e.currentTarget.value)}
+          class="fr-input"
+          placeholder="Nom scientifique ou vernaculaire"
+          id="recherche-espece-existante"
+          type="search"
+        />
+        <button title="Rechercher une espèce" type="submit" class="fr-btn">Rechercher</button>
+      </div>
+    </form>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
+      aria-expanded={filterPanelOpen}
+      aria-controls="panneau-filtres"
+      onclick={() => (filterPanelOpen = !filterPanelOpen)}
+    >
+      Filtrer
+      {#if activeFilterCount > 0}
+        <span class="filter-count" aria-label="{activeFilterCount} filtre(s) actif(s)"
+          >{activeFilterCount}</span
+        >
+      {/if}
+      <span
+        class="chevron {filterPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        aria-hidden="true"
+      ></span>
+    </button>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
+      aria-expanded={sortPanelOpen}
+      aria-controls="panneau-tri"
+      onclick={() => (sortPanelOpen = !sortPanelOpen)}
+    >
+      Trier
+      <span
+        class="chevron {sortPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        aria-hidden="true"
+      ></span>
+    </button>
+  </div>
 
-    {#if filterPanelOpen}
-      <EspecesFilterPanel
-        selectedClassification={query.classification}
-        selectedStatut={query.statut}
-        selectedListe={query.liste}
-        onChange={onFilterChange}
-      />
-    {/if}
+  {#if filterPanelOpen}
+    <EspecesFilterPanel
+      selectedClassification={query.classification}
+      selectedStatut={query.statut}
+      selectedListe={query.liste}
+      onChange={onFilterChange}
+    />
+  {/if}
 
-    {#if sortPanelOpen}
-      <EspecesSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
-    {/if}
+  {#if sortPanelOpen}
+    <EspecesSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
+  {/if}
 
-    <p class="count" aria-live="polite">
-      <span class="fr-text--lead">{filtered.length}</span><span class="fr-text--lg"
-        >/{especes.length} espèces</span
-      >
-    </p>
+  <p class="count" aria-live="polite">
+    <span class="fr-text--lead">{filtered.length}</span><span class="fr-text--lg"
+      >/{especes.length} espèces</span
+    >
+  </p>
 
-    {#if displayed.length >= 1}
-      <div class="fr-table fr-table--bordered fr-table--layout-fixed">
-        <table>
-          <colgroup>
-            <col />
-            <col />
-            <col style="width: 7rem" />
-            <col style="width: 6rem" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th scope="col">Nom scientifique</th>
-              <th scope="col">Nom vernaculaire</th>
-              <th scope="col">Statuts</th>
-              <th scope="col">CD_REF</th>
+  {#if displayed.length >= 1}
+    <div class="fr-table fr-table--bordered fr-table--layout-fixed">
+      <table>
+        <colgroup>
+          <col />
+          <col />
+          <col style="width: 7rem" />
+          <col style="width: 6rem" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Nom scientifique</th>
+            <th scope="col">Nom vernaculaire</th>
+            <th scope="col">Statuts</th>
+            <th scope="col">CD_REF</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each displayed as espece (espece.CD_REF)}
+            {@const alreadyListed = existingCdRefs.has(espece.CD_REF)}
+            <tr
+              class="clickable"
+              class:already-listed={alreadyListed}
+              class:hovered={hoveredCdRef === espece.CD_REF}
+              class:no-bottom-line={alreadyListed}
+              role="button"
+              tabindex="0"
+              title={alreadyListed
+                ? "Déjà dans la liste — cliquer pour la modifier"
+                : "Choisir cette espèce"}
+              onmouseenter={() => (hoveredCdRef = espece.CD_REF)}
+              onmouseleave={() => (hoveredCdRef = null)}
+              onclick={() => onSelect(espece)}
+              onkeydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelect(espece);
+                }
+              }}
+            >
+              <td><i>{firstName(espece.nomsScientifiques)}</i></td>
+              <td>{firstName(espece.nomsVernaculaires)}</td>
+              <td>{[...espece.CD_TYPE_STATUTS].join(", ")}</td>
+              <td>{espece.CD_REF}</td>
             </tr>
-          </thead>
-          <tbody>
-            {#each displayed as espece (espece.CD_REF)}
-              {@const dejaDansListe = existingCdRefs.has(espece.CD_REF)}
+            {#if alreadyListed}
               <tr
-                class="clickable"
-                class:deja-dans-liste={dejaDansListe}
+                class="clickable flagged-row"
                 class:hovered={hoveredCdRef === espece.CD_REF}
-                class:sans-ligne-bas={dejaDansListe}
-                role="button"
-                tabindex="0"
-                title={dejaDansListe
-                  ? "Déjà dans la liste — cliquer pour la modifier"
-                  : "Choisir cette espèce"}
+                aria-hidden="true"
                 onmouseenter={() => (hoveredCdRef = espece.CD_REF)}
                 onmouseleave={() => (hoveredCdRef = null)}
                 onclick={() => onSelect(espece)}
-                onkeydown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onSelect(espece);
-                  }
-                }}
               >
-                <td><i>{firstName(espece.nomsScientifiques)}</i></td>
-                <td>{firstName(espece.nomsVernaculaires)}</td>
-                <td>{[...espece.CD_TYPE_STATUTS].join(", ")}</td>
-                <td>{espece.CD_REF}</td>
+                <td colspan="4">
+                  <span class="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon">
+                    Déjà dans la liste
+                  </span>
+                </td>
               </tr>
-              {#if dejaDansListe}
-                <tr
-                  class="clickable deja-row"
-                  class:hovered={hoveredCdRef === espece.CD_REF}
-                  aria-hidden="true"
-                  onmouseenter={() => (hoveredCdRef = espece.CD_REF)}
-                  onmouseleave={() => (hoveredCdRef = null)}
-                  onclick={() => onSelect(espece)}
-                >
-                  <td colspan="4">
-                    <span class="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon">
-                      Déjà dans la liste
-                    </span>
-                  </td>
-                </tr>
-              {/if}
-            {/each}
-          </tbody>
-        </table>
-      </div>
+            {/if}
+          {/each}
+        </tbody>
+      </table>
+    </div>
 
-      {#if pageSelectors}
-        <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
-      {/if}
-    {:else}
-      <p>Aucune espèce ne correspond à cette recherche.</p>
+    {#if pageSelectors}
+      <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
     {/if}
+  {:else}
+    <p>Aucune espèce ne correspond à cette recherche.</p>
   {/if}
 </div>
 
@@ -323,17 +296,17 @@
     outline-offset: -2px;
   }
 
-  tr.deja-dans-liste i {
+  tr.already-listed i {
     color: var(--text-mention-grey);
   }
 
   // Fuse the data row with its badge sub-row: drop the divider line between them.
-  tr.sans-ligne-bas {
+  tr.no-bottom-line {
     background-image: none;
   }
 
   // The badge sits on its own full-width line, snug under the data row.
-  tr.deja-row td {
+  tr.flagged-row td {
     padding-top: 0;
     padding-bottom: 0.75rem;
   }

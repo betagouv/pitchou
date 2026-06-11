@@ -1,8 +1,10 @@
 <script lang="ts">
   import type { EspèceProtégée } from "$types/especes.d.ts";
   import type { ModificationEspeceAdmin } from "$front/actions/adminEspeces.ts";
+  import { saveModificationEspece } from "$front/actions/adminEspeces.ts";
   import Pagination from "$front/components/DSFR/Pagination.svelte";
 
+  import { classificationFromTaxref, type TaxrefRow } from "../../taxref/taxrefList.ts";
   import {
     defaultQuery,
     filterModifications,
@@ -39,6 +41,7 @@
 
   let ajoutOuvert = $state(false);
   let modal = $state<ModalState | null>(null);
+  let ajoutError = $state<string | null>(null);
 
   const activeFilterCount = $derived(
     (query.classification ? 1 : 0) +
@@ -92,9 +95,36 @@
     query.order = order;
   }
 
-  function onAjoutHorsReferentiel() {
+  // Adding from TAXREF: deduce the classification (as the import does), persist the new
+  // species with its TAXREF names, then open the per-field editor for any refinements.
+  async function onSelectTaxref(row: TaxrefRow) {
+    ajoutError = null;
+    const classification = classificationFromTaxref(row.regne, row.classe);
+    if (!classification) {
+      ajoutError = `Classification indéterminée pour ${row.lb_nom} (règne « ${row.regne} »).`;
+      return;
+    }
+    const noms_scientifiques = row.lb_nom ? [row.lb_nom] : [];
+    const noms_vernaculaires = row.nom_vern
+      .split(",")
+      .map((nom) => nom.trim())
+      .filter(Boolean);
+    try {
+      await saveModificationEspece(row.cd_ref, {
+        classification,
+        noms_scientifiques,
+        noms_vernaculaires,
+      });
+    } catch (e) {
+      ajoutError = e instanceof Error ? e.message : String(e);
+      return;
+    }
+    await onReload();
+    modal = {
+      seed: { ...emptySeed(row.cd_ref), classification, noms_scientifiques, noms_vernaculaires },
+      creation: false,
+    };
     ajoutOuvert = false;
-    modal = { seed: emptySeed(), creation: true };
   }
 
   function onSelectExistante(espece: EspèceProtégée) {
@@ -192,6 +222,12 @@
   </p>
 </div>
 
+{#if ajoutError}
+  <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
+    <p>{ajoutError}</p>
+  </div>
+{/if}
+
 {#if displayed.length >= 1}
   <TableModifications
     rows={displayed}
@@ -210,7 +246,7 @@
     onClose={() => (ajoutOuvert = false)}
     {existingCdRefs}
     {onSelectExistante}
-    {onAjoutHorsReferentiel}
+    {onSelectTaxref}
   />
 {/if}
 

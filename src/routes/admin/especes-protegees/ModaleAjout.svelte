@@ -1,20 +1,58 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   import type { EspèceProtégée } from "$types/especes.d.ts";
+  import type { TaxrefRow } from "../../taxref/taxrefList.ts";
+  import Loader from "$front/components/Loader.svelte";
+  import { chargerEspecesProtegeesAdmin } from "$front/actions/adminEspeces.ts";
 
   import Modale from "./Modale.svelte";
   import SelecteurEspece from "./SelecteurEspece.svelte";
+  import SelecteurTaxref from "./SelecteurTaxref.svelte";
 
   type Props = {
     onClose: () => void;
-    /** CD_REFs already covered by a modification (flagged in the selector). */
+    /** CD_REFs already covered by a modification (flagged in the espece selector). */
     existingCdRefs: Set<string>;
     onSelectExistante: (espece: EspèceProtégée) => void;
-    onAjoutHorsReferentiel: () => void;
+    onSelectTaxref: (row: TaxrefRow) => void;
   };
 
-  let { onClose, existingCdRefs, onSelectExistante, onAjoutHorsReferentiel }: Props = $props();
+  let { onClose, existingCdRefs, onSelectExistante, onSelectTaxref }: Props = $props();
 
-  let step = $state<"choix" | "selecteur">("choix");
+  let step = $state<"choix" | "selecteur" | "taxref">("choix");
+
+  // The protected list is loaded once: it feeds the espece selector (option 1) and the
+  // set of already-protected CD_REFs flagged in the TAXREF selector (option 2).
+  let especes = $state<EspèceProtégée[]>([]);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
+
+  onMount(async () => {
+    try {
+      especes = await chargerEspecesProtegeesAdmin();
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e);
+    } finally {
+      loading = false;
+    }
+  });
+
+  const protectedCdRefs = $derived(new Set(especes.map((espece) => espece.CD_REF)));
+
+  const titre = $derived(
+    step === "selecteur"
+      ? "Modifier une espèce protégée existante"
+      : step === "taxref"
+        ? "Ajouter une nouvelle espèce protégée"
+        : "Ajouter une espèce",
+  );
+
+  const sousTitreExistante = $derived(
+    loading
+      ? "Rechercher une espèce protégée et la modifier"
+      : `Rechercher une espèce parmi les ${especes.length.toLocaleString("fr-FR")} et la modifier`,
+  );
 </script>
 
 {#snippet backButton()}
@@ -28,24 +66,36 @@
 {/snippet}
 
 <Modale
-  title={step === "choix" ? "Ajouter une espèce" : "Choisir une espèce existante"}
-  size={step === "selecteur" ? "large" : "default"}
-  headerStart={step === "selecteur" ? backButton : undefined}
+  title={titre}
+  size={step === "choix" ? "default" : "xlarge"}
+  headerStart={step === "choix" ? undefined : backButton}
   {onClose}
 >
   {#if step === "choix"}
     <div class="choices">
       <button type="button" class="choice" onclick={() => (step = "selecteur")}>
-        <span class="choice-label">Ajouter une espèce existante</span>
-        <span class="choice-desc">Rechercher une espèce du référentiel et la modifier</span>
+        <span class="choice-label">Modifier une espèce protégée existante</span>
+        <span class="choice-desc">{sousTitreExistante}</span>
       </button>
-      <button type="button" class="choice" onclick={onAjoutHorsReferentiel}>
-        <span class="choice-label">Ajouter une espèce hors référentiel</span>
-        <span class="choice-desc">Saisir un nouveau CD_REF (ajout Protection Pitchou)</span>
+      <button type="button" class="choice" onclick={() => (step = "taxref")}>
+        <span class="choice-label">Ajouter une nouvelle espèce protégée</span>
+        <span class="choice-desc">Rechercher une espèce dans le référentiel TAXREF</span>
       </button>
     </div>
+  {:else if step === "selecteur"}
+    {#if loading}
+      <div class="loader-wrap"><Loader /></div>
+    {:else if error}
+      <div class="alert-wrap">
+        <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
+          <p>{error}</p>
+        </div>
+      </div>
+    {:else}
+      <SelecteurEspece {especes} {existingCdRefs} onSelect={onSelectExistante} />
+    {/if}
   {:else}
-    <SelecteurEspece {existingCdRefs} onSelect={onSelectExistante} />
+    <SelecteurTaxref existingCdRefs={protectedCdRefs} onSelect={onSelectTaxref} />
   {/if}
 </Modale>
 
@@ -80,5 +130,10 @@
       color: var(--text-mention-grey);
       font-size: 0.875rem;
     }
+  }
+
+  .loader-wrap,
+  .alert-wrap {
+    padding: 1.5rem;
   }
 </style>
