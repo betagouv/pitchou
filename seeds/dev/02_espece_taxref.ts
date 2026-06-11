@@ -3383,6 +3383,39 @@ const TAXREF: EspeceTaxrefInitializer[] = [
     regne: "Plantae",
     classe: "Equisetopsida",
   },
+  // Non-protected taxa: present in TAXREF but absent from BDC-Statuts
+  {
+    cd_nom: "4503",
+    cd_ref: "4503",
+    lb_nom: "Corvus corone",
+    nom_vern: "Corneille noire",
+    regne: "Animalia",
+    classe: "Aves",
+  },
+  {
+    cd_nom: "60585",
+    cd_ref: "60585",
+    lb_nom: "Vulpes vulpes",
+    nom_vern: "Renard roux, Renard, Goupil",
+    regne: "Animalia",
+    classe: "Mammalia",
+  },
+  {
+    cd_nom: "61057",
+    cd_ref: "61057",
+    lb_nom: "Capreolus capreolus",
+    nom_vern: "Chevreuil européen, Chevreuil, Brocard (mâle), Chevrette (femelle)",
+    regne: "Animalia",
+    classe: "Mammalia",
+  },
+  {
+    cd_nom: "119097",
+    cd_ref: "119097",
+    lb_nom: "Rubus fruticosus",
+    nom_vern: "Ronce ligneuse, Ronce de Bertram, Ronce commune",
+    regne: "Plantae",
+    classe: "Equisetopsida",
+  },
 ];
 
 export async function seed(knex: Knex) {
