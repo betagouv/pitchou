@@ -6,11 +6,13 @@
 
   type Props = {
     onClose: () => void;
+    /** CD_REFs already covered by a modification (flagged in the selector). */
+    existingCdRefs: Set<string>;
     onSelectExistante: (espece: EspèceProtégée) => void;
     onAjoutHorsReferentiel: () => void;
   };
 
-  let { onClose, onSelectExistante, onAjoutHorsReferentiel }: Props = $props();
+  let { onClose, existingCdRefs, onSelectExistante, onAjoutHorsReferentiel }: Props = $props();
 
   let step = $state<"choix" | "selecteur">("choix");
 </script>
@@ -43,7 +45,7 @@
       </button>
     </div>
   {:else}
-    <SelecteurEspece onSelect={onSelectExistante} />
+    <SelecteurEspece {existingCdRefs} onSelect={onSelectExistante} />
   {/if}
 </Modale>
 

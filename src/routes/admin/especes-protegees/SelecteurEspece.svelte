@@ -20,10 +20,12 @@
   import EspecesSortPanel from "../../especes-protegees/EspecesSortPanel.svelte";
 
   type Props = {
+    /** CD_REFs already covered by a modification: flagged as "déjà dans la liste". */
+    existingCdRefs: Set<string>;
     onSelect: (espece: EspèceProtégée) => void;
   };
 
-  let { onSelect }: Props = $props();
+  let { existingCdRefs, onSelect }: Props = $props();
 
   const PAGE_SIZE = 10;
 
@@ -42,6 +44,7 @@
   });
   let filterPanelOpen = $state(false);
   let sortPanelOpen = $state(false);
+  let hoveredCdRef = $state<string | null>(null);
 
   onMount(async () => {
     try {
@@ -188,11 +191,19 @@
           </thead>
           <tbody>
             {#each displayed as espece (espece.CD_REF)}
+              {@const dejaDansListe = existingCdRefs.has(espece.CD_REF)}
               <tr
                 class="clickable"
+                class:deja-dans-liste={dejaDansListe}
+                class:hovered={hoveredCdRef === espece.CD_REF}
+                class:sans-ligne-bas={dejaDansListe}
                 role="button"
                 tabindex="0"
-                title="Choisir cette espèce"
+                title={dejaDansListe
+                  ? "Déjà dans la liste — cliquer pour la modifier"
+                  : "Choisir cette espèce"}
+                onmouseenter={() => (hoveredCdRef = espece.CD_REF)}
+                onmouseleave={() => (hoveredCdRef = null)}
                 onclick={() => onSelect(espece)}
                 onkeydown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -206,6 +217,22 @@
                 <td>{[...espece.CD_TYPE_STATUTS].join(", ")}</td>
                 <td>{espece.CD_REF}</td>
               </tr>
+              {#if dejaDansListe}
+                <tr
+                  class="clickable deja-row"
+                  class:hovered={hoveredCdRef === espece.CD_REF}
+                  aria-hidden="true"
+                  onmouseenter={() => (hoveredCdRef = espece.CD_REF)}
+                  onmouseleave={() => (hoveredCdRef = null)}
+                  onclick={() => onSelect(espece)}
+                >
+                  <td colspan="4">
+                    <span class="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon">
+                      Déjà dans la liste
+                    </span>
+                  </td>
+                </tr>
+              {/if}
             {/each}
           </tbody>
         </table>
@@ -287,15 +314,27 @@
     cursor: pointer;
   }
 
-  /* `background-color` only — the `background` shorthand would wipe DSFR's bottom-border
-     line (drawn as a background-image on the row). A contrast grey stays visible on the
-     zebra (alt-grey) rows too. */
-  tr.clickable:hover {
+  tr.clickable.hovered {
     background-color: var(--background-contrast-grey);
   }
 
   tr.clickable:focus-visible {
     outline: 2px solid var(--bf500);
     outline-offset: -2px;
+  }
+
+  tr.deja-dans-liste i {
+    color: var(--text-mention-grey);
+  }
+
+  // Fuse the data row with its badge sub-row: drop the divider line between them.
+  tr.sans-ligne-bas {
+    background-image: none;
+  }
+
+  // The badge sits on its own full-width line, snug under the data row.
+  tr.deja-row td {
+    padding-top: 0;
+    padding-bottom: 0.75rem;
   }
 </style>

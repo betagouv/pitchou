@@ -49,6 +49,10 @@
 
   const filtered = $derived(filterModifications(modifications, query));
 
+  // CD_REFs already covered by a modification: the selector flags these rows so the
+  // admin updates the existing one instead of trying to add a duplicate.
+  const existingCdRefs = $derived(new Set(modifications.map((m) => m.cd_ref)));
+
   const pageCount = $derived(Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE)));
   const clampedPage = $derived(Math.min(currentPage, pageCount));
   const paginated = $derived(filtered.length > ITEMS_PER_PAGE);
@@ -202,7 +206,12 @@
 {/if}
 
 {#if ajoutOuvert}
-  <ModaleAjout onClose={() => (ajoutOuvert = false)} {onSelectExistante} {onAjoutHorsReferentiel} />
+  <ModaleAjout
+    onClose={() => (ajoutOuvert = false)}
+    {existingCdRefs}
+    {onSelectExistante}
+    {onAjoutHorsReferentiel}
+  />
 {/if}
 
 {#if modal}
