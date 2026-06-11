@@ -140,7 +140,7 @@
           oninput={(e) => onSearchInput(e.currentTarget.value)}
           name="texte-de-recherche"
           class="fr-input"
-          placeholder="Nom scientifique, CD_NOM, CD_REF ou libellé du statut"
+          placeholder="Nom scientifique, vernaculaire, CD_NOM, CD_REF ou libellé du statut"
           id="recherche-bdc"
           type="search"
         />
