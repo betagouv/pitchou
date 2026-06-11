@@ -6,6 +6,7 @@ import {
   filterUtilisateurs,
   matchesText,
   compareUtilisateurs,
+  countByNiveau,
 } from "./utilisateursList.ts";
 
 // Builds a UtilisateurAARRI with sensible defaults; override only what matters.
@@ -149,5 +150,20 @@ describe("compareUtilisateurs", () => {
     const recent = makeUtilisateur({ lastActivityDate: "2026-05-01T00:00:00.000Z" });
     expect(compareUtilisateurs(never, recent, "activite", "asc")).toBeLessThan(0);
     expect(compareUtilisateurs(never, recent, "activite", "desc")).toBeGreaterThan(0);
+  });
+});
+
+describe("countByNiveau", () => {
+  it("counts utilisateurs per level, with zero for absent levels", () => {
+    const counts = countByNiveau([
+      makeUtilisateur({ niveau: "base" }),
+      makeUtilisateur({ niveau: "base" }),
+      makeUtilisateur({ niveau: "actif" }),
+    ]);
+    expect(counts).toEqual({ base: 2, acquis: 0, actif: 1, retenu: 0, impact: 0 });
+  });
+
+  it("returns all zeros for an empty list", () => {
+    expect(countByNiveau([])).toEqual({ base: 0, acquis: 0, actif: 0, retenu: 0, impact: 0 });
   });
 });

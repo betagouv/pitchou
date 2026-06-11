@@ -161,6 +161,7 @@ test-e2e:
 
 # Lance les tests d'intégration (endpoints + base réelle)
 test-integration:
+    just build
     vitest run --config tests/vitest.config.ts --project=integration
 
 # Lance les tests unitaires avec vitest

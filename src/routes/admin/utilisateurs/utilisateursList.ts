@@ -21,14 +21,37 @@ export const NIVEAU_LABELS: Record<NiveauAARRI, string> = {
   impact: "Impact",
 };
 
-export type SortKey = "niveau" | "email" | "nom" | "actions" | "activite";
+/** DSFR colour per level, matching the AARRI funnel chart on the stats page. */
+export const NIVEAU_COLOR_VAR: Record<NiveauAARRI, string> = {
+  base: "var(--artwork-minor-blue-ecume)",
+  acquis: "var(--artwork-minor-brown-caramel)",
+  actif: "var(--artwork-minor-green-menthe)",
+  retenu: "var(--artwork-minor-yellow-moutarde)",
+  impact: "var(--artwork-minor-red-marianne)",
+};
+
+/** Number of utilisateurs at each level. */
+export function countByNiveau(utilisateurs: UtilisateurAARRI[]): Record<NiveauAARRI, number> {
+  const counts: Record<NiveauAARRI, number> = {
+    base: 0,
+    acquis: 0,
+    actif: 0,
+    retenu: 0,
+    impact: 0,
+  };
+  for (const utilisateur of utilisateurs) {
+    counts[utilisateur.niveau]++;
+  }
+  return counts;
+}
+
+export type SortKey = "niveau" | "email" | "actions" | "activite";
 
 export type SortOrder = "asc" | "desc";
 
 export const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "niveau", label: "Niveau AARRI" },
   { key: "email", label: "Email" },
-  { key: "nom", label: "Nom" },
   { key: "actions", label: "Nombre d'actions" },
   { key: "activite", label: "Dernière activité" },
 ];
@@ -114,13 +137,6 @@ export function compareUtilisateurs(
   switch (sortKey) {
     case "email":
       return (a.email ?? "").localeCompare(b.email ?? "", "fr") * direction;
-    case "nom":
-      return (
-        `${a.nom ?? ""} ${a.prenoms ?? ""}`.localeCompare(
-          `${b.nom ?? ""} ${b.prenoms ?? ""}`,
-          "fr",
-        ) * direction
-      );
     case "actions":
       return (a.actionCount - b.actionCount) * direction;
     case "activite":

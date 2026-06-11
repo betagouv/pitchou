@@ -16,11 +16,6 @@
       year: "numeric",
     });
   }
-
-  function formatNom(utilisateur: UtilisateurAARRI): string {
-    const nomComplet = [utilisateur.prenoms, utilisateur.nom].filter(Boolean).join(" ").trim();
-    return nomComplet || "—";
-  }
 </script>
 
 {#if utilisateurs.length >= 1}
@@ -28,7 +23,6 @@
     <table>
       <colgroup>
         <col />
-        <col style="width: 12rem" />
         <col style="width: 9rem" />
         <col style="width: 7rem" />
         <col style="width: 10rem" />
@@ -36,7 +30,6 @@
       <thead>
         <tr>
           <th scope="col">Email</th>
-          <th scope="col">Nom</th>
           <th scope="col">Niveau AARRI</th>
           <th scope="col">Actions</th>
           <th scope="col">Dernière activité</th>
@@ -46,7 +39,6 @@
         {#each utilisateurs as utilisateur (utilisateur.personneId)}
           <tr>
             <td>{utilisateur.email ?? "—"}</td>
-            <td>{formatNom(utilisateur)}</td>
             <td><BadgeNiveauAARRI niveau={utilisateur.niveau} /></td>
             <td>{utilisateur.actionCount}</td>
             <td>{formatDate(utilisateur.lastActivityDate)}</td>

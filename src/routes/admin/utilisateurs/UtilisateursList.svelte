@@ -16,6 +16,8 @@
   import UtilisateursFilterPanel from "./UtilisateursFilterPanel.svelte";
   import UtilisateursSortPanel from "./UtilisateursSortPanel.svelte";
   import UtilisateursTable from "./UtilisateursTable.svelte";
+  import RepartitionNiveaux from "./RepartitionNiveaux.svelte";
+  import NiveauxAARRIModale from "./NiveauxAARRIModale.svelte";
 
   type Props = {
     utilisateurs: UtilisateurAARRI[];
@@ -24,6 +26,8 @@
   let { utilisateurs }: Props = $props();
 
   const UTILISATEURS_PER_PAGE = 20;
+
+  const niveauxModaleId = "modale-niveaux-aarri";
 
   // The URL query string is the single source of truth for search, filter, sort and page.
   const query = $derived(parseUtilisateursQuery(page.url.searchParams));
@@ -114,7 +118,19 @@
 </script>
 
 <div class="header">
-  <h1>Utilisateurices et niveau AARRI</h1>
+  <div class="title-row">
+    <h1>Utilisateurices et niveau AARRI</h1>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
+      aria-controls={niveauxModaleId}
+      data-fr-opened="false"
+    >
+      Comment les niveaux sont calculés&nbsp;?
+    </button>
+  </div>
+
+  <RepartitionNiveaux {utilisateurs} />
 
   <div class="action-bar">
     <form onsubmit={(e) => e.preventDefault()}>
@@ -195,6 +211,8 @@
   <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
 {/if}
 
+<NiveauxAARRIModale id={niveauxModaleId} />
+
 <style lang="scss">
   .header {
     display: flex;
@@ -204,6 +222,15 @@
 
     h1 {
       margin-bottom: 0;
+    }
+
+    .title-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .action-bar {
