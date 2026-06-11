@@ -18,7 +18,7 @@
     PR: "protection régionale",
     PD: "protection départementale",
     POM: "protection en outre-mer",
-    "Protection Pitchou": "ajout maintenu par Pitchou",
+    "Espèce manquante": "espèce absente des listes officielles, ajoutée par Pitchou",
   };
 </script>
 

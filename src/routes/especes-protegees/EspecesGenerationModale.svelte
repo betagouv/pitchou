@@ -58,7 +58,7 @@
             <ul>
               <li>
                 <strong>ajouter</strong> une espèce protégée absente de la BDC-Statuts ; elle porte
-                alors le statut <strong>« Protection Pitchou »</strong> ;
+                alors le statut <strong>« Espèce manquante »</strong> ;
               </li>
               <li>
                 <strong>corriger</strong> les noms, la classification ou les statuts d'une espèce ;

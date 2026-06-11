@@ -11,7 +11,7 @@ import type { ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW } from "../scripts
 // committed .ods files, matched against the already-built reference
 // (`espece_protegee_reference` matview) + `espece_taxref`:
 //   - ministérielle / CNPN flags → sparse patches on matching reference cd_refs;
-//   - « espèces manquantes » → « Protection Pitchou » additions (names from TAXREF).
+//   - « espèces manquantes » → « Espèce manquante » additions (names from TAXREF).
 // Upsert-only (never removes), so it's idempotent and preserves any other rows.
 //
 // Run once at deployment (`just generate-modifications-especes`), and in dev to check it
@@ -182,7 +182,7 @@ async function main() {
         classification: classification(rows),
         noms_scientifiques,
         noms_vernaculaires,
-        cd_type_statuts: ["Protection Pitchou"],
+        cd_type_statuts: ["Espèce manquante"],
         ...(estMin ? { espece_ministerielle: true } : {}),
         ...(estCnpn ? { espece_cnpn: true } : {}),
       },
@@ -194,7 +194,7 @@ async function main() {
   }
 
   console.info(`Drapeaux ministérielle: ${nbMin}, CNPN: ${nbCnpn}`);
-  console.info(`Ajouts « Protection Pitchou »: ${nbAjouts}`);
+  console.info(`Ajouts « Espèce manquante »: ${nbAjouts}`);
   if (introuvables.length) {
     console.warn(`⚠️  Manquantes introuvables dans espece_taxref: ${introuvables.join(", ")}`);
   }

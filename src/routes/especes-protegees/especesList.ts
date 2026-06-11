@@ -3,7 +3,7 @@ import { normalizeNomEspèce, normalizeTexteEspèce } from "$commun/manipulation
 
 export const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
 
-export const STATUTS = ["PN", "PR", "PD", "POM", "Protection Pitchou"] as const;
+export const STATUTS = ["PN", "PR", "PD", "POM", "Espèce manquante"] as const;
 export type Statut = (typeof STATUTS)[number];
 
 /** Membership filter: ministerielle / CNPN list (empty = no filter) */

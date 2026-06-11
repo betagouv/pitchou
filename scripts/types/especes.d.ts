@@ -52,7 +52,7 @@ export interface TAXREF_ROW {
 export interface BDC_STATUT_ROW {
   CD_NOM: TAXREF_ROW["CD_NOM"];
   CD_REF: TAXREF_ROW["CD_REF"];
-  CD_TYPE_STATUT: "POM" | "PD" | "PN" | "PR" | "Protection Pitchou";
+  CD_TYPE_STATUT: "POM" | "PD" | "PN" | "PR" | "Espèce manquante";
   LABEL_STATUT: string;
   // incomplet
 }

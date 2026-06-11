@@ -80,7 +80,7 @@ export function listEspeceProtegeeModifications(
 
 const VALID_CLASSIFICATIONS: ReadonlySet<string> = new Set(["oiseau", "faune non-oiseau", "flore"]);
 
-const VALID_STATUTS: ReadonlySet<string> = new Set(["PN", "PR", "PD", "POM", "Protection Pitchou"]);
+const VALID_STATUTS: ReadonlySet<string> = new Set(["PN", "PR", "PD", "POM", "Espèce manquante"]);
 
 export type PatchModification = {
   classification?: string | null;

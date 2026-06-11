@@ -96,7 +96,7 @@ test("la vue fait apparaître un ajout manuel absent de la référence", async (
       classification: "flore",
       noms_scientifiques: ["Espece ajoutée"],
       noms_vernaculaires: [],
-      cd_type_statuts: ["Protection Pitchou"],
+      cd_type_statuts: ["Espèce manquante"],
     }),
   );
 
@@ -104,7 +104,7 @@ test("la vue fait apparaître un ajout manuel absent de la référence", async (
   const ajout = rows.find((r) => r.cd_ref === "999");
   expect(ajout).toBeDefined();
   expect(ajout!.classification).toBe("flore");
-  expect(ajout!.cd_type_statuts).toEqual(["Protection Pitchou"]);
+  expect(ajout!.cd_type_statuts).toEqual(["Espèce manquante"]);
 });
 
 test("la vue masque une espèce exclue (tombstone)", async () => {
