@@ -4,6 +4,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
+  import type { Snippet } from "svelte";
   import { instructeurSuitDossier, instructeurLaisseDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
@@ -21,6 +22,8 @@
     afficherFiltreSansInstructeurice?: boolean;
     afficherFiltreActionInstructeur?: boolean;
     notificationParDossier: PitchouState["notificationParDossier"];
+    /** Empty state, overriding the default message. Receives whether the whole (unfiltered) list is empty. */
+    messageListeVide?: Snippet<[{ listeComplèteVide: boolean }]>;
   };
 
   let {
@@ -31,6 +34,7 @@
     afficherFiltreSansInstructeurice = false,
     afficherFiltreActionInstructeur = false,
     notificationParDossier,
+    messageListeVide,
   }: Props = $props();
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 10;
@@ -347,6 +351,8 @@
       {/each}
     </ul>
   </div>
+{:else if messageListeVide}
+  {@render messageListeVide({ listeComplèteVide: dossiers.length === 0 })}
 {:else}
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
