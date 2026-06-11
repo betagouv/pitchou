@@ -81,7 +81,7 @@
   {#if décisionsAdministratives.length === 0}
     <p>Il n'y a pas de décisions administrative à contrôler concernant ce dossier</p>
   {:else}
-    {#each décisionsAdministratives as décisionAdministrative}
+    {#each décisionsAdministratives as décisionAdministrative (décisionAdministrative.id)}
       <DecisionAdministrative
         {décisionAdministrative}
         dossierId={dossier.id}
