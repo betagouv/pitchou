@@ -277,25 +277,10 @@ group by personne, semaine;
   return nombreRetenusCumulésParSemaine;
 }
 
-/**
- * Number of Pitchou accounts forming the potential user base: personnes with a
- * code d'accès, excluding the team's own accounts (@beta.gouv.fr) to stay
- * consistent with the rest of the funnel.
- */
-async function countPotentialUserBase(): Promise<number> {
-  const result = await directDatabaseConnection("personne")
-    .whereNotNull("code_accès")
-    .whereRaw("email NOT ILIKE '%@beta.gouv.fr'")
-    .count<{ count: string }[]>("* as count");
-
-  return Number(result[0].count);
-}
-
 export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
   const nbSemainesObservées = 5;
 
   const indicateurs: IndicateursAARRI[] = [];
-  const potentialUserBase = await countPotentialUserBase();
   const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
   const actifs = await calculerIndicateurActif(nbSemainesObservées);
   const retenus = await calculerIndicateurRetenu();
@@ -310,7 +295,7 @@ export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
       nombreUtilisateuriceActif: actifs.get(date) ?? 0,
       nombreUtilisateuriceRetenu: retenus.get(date) ?? 0,
       nombreUtilisateuriceImpact: impacts.get(date) ?? 0,
-      nombreBaseUtilisateuricePotentielle: potentialUserBase,
+      nombreBaseUtilisateuricePotentielle: 300,
     });
   }
 
