@@ -14,7 +14,7 @@ const NIVEAU_RANK: Record<NiveauAARRI, number> = {
 };
 
 export const NIVEAU_LABELS: Record<NiveauAARRI, string> = {
-  base: "Base",
+  base: "Inactif",
   acquis: "Acquis",
   actif: "Actif",
   retenu: "Retenu",
@@ -23,7 +23,7 @@ export const NIVEAU_LABELS: Record<NiveauAARRI, string> = {
 
 /** DSFR colour per level, matching the AARRI funnel chart on the stats page. */
 export const NIVEAU_COLOR_VAR: Record<NiveauAARRI, string> = {
-  base: "var(--artwork-minor-blue-ecume)",
+  base: "var(--text-mention-grey)",
   acquis: "var(--artwork-minor-brown-caramel)",
   actif: "var(--artwork-minor-green-menthe)",
   retenu: "var(--artwork-minor-yellow-moutarde)",
