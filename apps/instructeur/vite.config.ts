@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 
-// L'app tourne avec un CWD = ce dossier (apps/instructeur) ; le .env vit à la racine du repo.
+// The app runs with CWD = this folder (apps/instructeur); the .env lives at the repo root.
 try {
   process.loadEnvFile?.("../../.env");
 } catch {}
@@ -14,5 +14,8 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["lunr", "lunr-languages/lunr.stemmer.support", "lunr-languages/lunr.fr", "remember"],
+  },
+  ssr: {
+    external: ["knex", "pg", "@aws-sdk/client-s3"],
   },
 });

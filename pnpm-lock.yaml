@@ -153,6 +153,9 @@ importers:
 
   apps/instructeur:
     dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1054.0
+        version: 3.1054.0
       '@gouvfr/dsfr':
         specifier: ^1.11.2
         version: 1.14.4
@@ -183,12 +186,18 @@ importers:
       just-memoize:
         specifier: ^2.2.0
         version: 2.2.0
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
       lunr:
         specifier: ^2.3.9
         version: 2.3.9
       lunr-languages:
         specifier: ^1.14.0
         version: 1.20.0
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
       remember:
         specifier: github:DavidBruant/remember#v1.0.2
         version: https://codeload.github.com/DavidBruant/remember/tar.gz/4fad3c861473e9c56c410c18b79e45d4e718548e
