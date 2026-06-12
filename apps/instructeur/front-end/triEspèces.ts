@@ -1,4 +1,8 @@
-import type { OiseauAtteint, FauneNonOiseauAtteinte, FloreAtteinte } from "@pitchou/types/especes.d.ts";
+import type {
+  OiseauAtteint,
+  FauneNonOiseauAtteinte,
+  FloreAtteinte,
+} from "@pitchou/types/especes.d.ts";
 
 export const trierParOrdreAlphabétiqueEspèce = (
   espècesAtteintes: OiseauAtteint[] | FauneNonOiseauAtteinte[] | FloreAtteinte[],

@@ -33,7 +33,10 @@ async function runMigrations(dbName: string): Promise<void> {
   const knexfile = (await import(path.join(repoRoot, "libs", "database", "knexfile.ts"))).default;
   const db = makeKnex(dbName);
   try {
-    await db.migrate.latest({ ...knexfile.production.migrations, directory: path.join(repoRoot, "libs", "database", "migrations") });
+    await db.migrate.latest({
+      ...knexfile.production.migrations,
+      directory: path.join(repoRoot, "libs", "database", "migrations"),
+    });
   } finally {
     await db.destroy();
   }

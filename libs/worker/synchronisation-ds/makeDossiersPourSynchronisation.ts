@@ -11,10 +11,7 @@ import type {
 } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
-import type {
-  DossierDS88444,
-  Traitement,
-} from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type { DossierDS88444, Traitement } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
 import type {
@@ -24,10 +21,7 @@ import type {
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { TypeDécisionAdministrative, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { DonnéesSupplémentairesPourCréationDossier } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
-import type {
-  DossierInitializer,
-  DossierMutator,
-} from "@pitchou/types/database/public/Dossier.ts";
+import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
 export type MakeColonnesCommunesDossierPourSynchro = (
   dossierDS: DossierDS88444,
