@@ -13,12 +13,12 @@
     "ky": "^1.7.5",
     "minimist": "^1.2.8",
     "p-limit": "^6.2.0",
-    "pg": "^8.11.5"
+    "pg": "^8.11.5",
+    "tsx": "^4.22.3"
   },
   "devDependencies": {
     "@types/byte-size": "^8.1.2",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^22.3.0",
-    "tsx": "^4.22.3"
+    "@types/node": "^22.3.0"
   }
 }

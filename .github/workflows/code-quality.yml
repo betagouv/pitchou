@@ -29,6 +29,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -o pipefail
           pnpm exec just check-types 2>&1 \
             | reviewdog -f=tsc -reporter=github-pr-review -level=warning -filter-mode=file -fail-on-error=true
 
@@ -46,11 +47,15 @@ jobs:
         with:
           reviewdog_version: v0.21.0
 
+      - name: Generate SvelteKit types (per app)
+        run: pnpm --filter "./apps/*" exec svelte-kit sync
+
       - name: Run svelte-check and report to reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pnpm exec svelte-check --output machine 2>&1 \
+          set -o pipefail
+          pnpm --filter @pitchou/app-instructeur exec svelte-check --output machine 2>&1 \
             | reviewdog \
                 -efm='%n %tRROR "%f" %l:%c "%m"' \
                 -efm='%n %tARNING "%f" %l:%c "%m"' \
