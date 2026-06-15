@@ -6,7 +6,7 @@
     formatLocalisation,
     formatPorteurDeProjet,
   } from "$lib/dossier/affichageDossier.ts";
-  import BoutonModale from "./DSFR/BoutonModale.svelte";
+  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
   import BadgePhase from "./BadgePhase.svelte";
 
   type Props = {

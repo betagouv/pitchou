@@ -3,7 +3,7 @@
 
   import { store } from "$lib/state/store.svelte.ts";
 
-  import Header from "./Header.svelte";
+  import Header from "$lib/components/Header/Header.svelte";
   import Footer from "./Footer.svelte";
 
   import type { PitchouState } from "$lib/state/store.svelte.ts";

@@ -6,7 +6,7 @@
   import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
   import { instructeurSuitDossier, instructeurLaisseDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
-  import Pagination from "./DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";

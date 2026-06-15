@@ -3,7 +3,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type { ComponentProps } from "svelte";
   import Squelette from "$lib/components/Squelette.svelte";
-  import ListeDossiers from "$lib/components/ListeDossiers.svelte";
+  import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
   import { SvelteMap } from "svelte/reactivity";
 
   type Props = {

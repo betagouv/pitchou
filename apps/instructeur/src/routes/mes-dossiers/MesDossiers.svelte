@@ -4,7 +4,7 @@
   import type { ComponentProps } from "svelte";
 
   import Squelette from "$lib/components/Squelette.svelte";
-  import ListeDossiers from "$lib/components/ListeDossiers.svelte";
+  import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
 
   type Props = {
     email?: string;
