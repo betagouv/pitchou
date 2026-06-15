@@ -2,14 +2,14 @@
   import { onMount } from "svelte";
   import remember from "remember";
 
-  import { store } from "$front/store.svelte.ts";
-  import SuiviInstruction from "$front/components/screens/SuiviInstruction.svelte";
-  import LoginViaEmail from "$front/components/screens/LoginViaEmail.svelte";
-  import SqueletteContenuVide from "$front/components/SqueletteContenuVide.svelte";
+  import { store } from "$lib/store.svelte.ts";
+  import SuiviInstruction from "$lib/components/screens/SuiviInstruction.svelte";
+  import LoginViaEmail from "$lib/components/screens/LoginViaEmail.svelte";
+  import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";
 
-  import { logout } from "$front/actions/main.ts";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
-  import { envoiEmailConnexion } from "$front/serveur.ts";
+  import { logout } from "$lib/actions/main.ts";
+  import { chargerDossiers } from "$lib/actions/dossier.ts";
+  import { envoiEmailConnexion } from "$lib/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 
   import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";

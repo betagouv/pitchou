@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$front/store.svelte.ts";
-  import PreremplissageDerogation from "$front/components/screens/PreremplissageDerogation.svelte";
+  import { store } from "$lib/store.svelte.ts";
+  import PreremplissageDerogation from "$lib/components/screens/PreremplissageDerogation.svelte";
 
   const email = $derived(store.identité?.email);
   const schemaDS88444 = $derived(store.schemaDS88444);

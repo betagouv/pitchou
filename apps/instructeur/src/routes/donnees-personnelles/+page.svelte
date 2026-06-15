@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DonnéesPersonnelles from "$front/components/screens/DonnéesPersonnelles.svelte";
+  import DonnéesPersonnelles from "$lib/components/screens/DonnéesPersonnelles.svelte";
 </script>
 
 <DonnéesPersonnelles />

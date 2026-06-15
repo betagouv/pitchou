@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$front/store.svelte.ts";
-  import ImportDossierCorse from "$front/components/screens/ImportDossierCorse.svelte";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
+  import { store } from "$lib/store.svelte.ts";
+  import ImportDossierCorse from "$lib/components/screens/ImportDossierCorse.svelte";
+  import { chargerDossiers } from "$lib/actions/dossier.ts";
 
   onMount(async () => {
     if (store.capabilities.listerDossiers) {

@@ -5,9 +5,5 @@ export default {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter(),
-    alias: {
-      $front: "front-end",
-      "$front/*": "front-end/*",
-    },
   },
 };

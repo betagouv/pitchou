@@ -6,10 +6,8 @@
     ".svelte-kit/types/**/$types.d.ts",
     "vite.config.ts",
     "src/**/*.ts",
+    "src/**/*.d.ts",
     "src/**/*.svelte",
-    "front-end/**/*.ts",
-    "front-end/**/*.d.ts",
-    "front-end/**/*.svelte",
     "tests/**/*.ts"
   ],
   "exclude": ["node_modules"],

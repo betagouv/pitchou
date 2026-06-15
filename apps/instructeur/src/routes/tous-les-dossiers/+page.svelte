@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$front/store.svelte.ts";
-  import TousLesDossiers from "$front/components/screens/TousLesDossiers.svelte";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
-  import { chargerNotificationParDossierPourInstructeurActuel } from "$front/actions/main.ts";
+  import { store } from "$lib/store.svelte.ts";
+  import TousLesDossiers from "$lib/components/screens/TousLesDossiers.svelte";
+  import { chargerDossiers } from "$lib/actions/dossier.ts";
+  import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/actions/main.ts";
 
   onMount(async () => {
     chargerNotificationParDossierPourInstructeurActuel();

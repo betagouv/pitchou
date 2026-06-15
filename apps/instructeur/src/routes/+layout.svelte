@@ -1,11 +1,11 @@
 <script lang="ts">
   // MUST be the first import
   // cf scripts/front-end/before-ses-lockdown.ts
-  import "$front/before-ses-lockdown.ts";
+  import "$lib/before-ses-lockdown.ts";
 
   import { afterNavigate, goto } from "$app/navigation";
 
-  import BandeauEnvironnement from "$front/components/BandeauEnvironnement.svelte";
+  import BandeauEnvironnement from "$lib/components/BandeauEnvironnement.svelte";
 
   let { children } = $props();
 

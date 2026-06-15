@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { store } from "$front/store.svelte.ts";
-  import Loader from "$front/components/Loader.svelte";
-  import Squelette from "$front/components/Squelette.svelte";
-  import StatsContenu from "$front/components/stats/StatsContenu.svelte";
-  import IndicateursAARRI from "$front/components/stats/IndicateursAARRI.svelte";
-  import { chargerStats } from "$front/actions/stats.ts";
-  import { chargerIndicateursAARRI } from "$front/actions/aarri.ts";
+  import { store } from "$lib/store.svelte.ts";
+  import Loader from "$lib/components/Loader.svelte";
+  import Squelette from "$lib/components/Squelette.svelte";
+  import StatsContenu from "$lib/components/stats/StatsContenu.svelte";
+  import IndicateursAARRI from "$lib/components/stats/IndicateursAARRI.svelte";
+  import { chargerStats } from "$lib/actions/stats.ts";
+  import { chargerIndicateursAARRI } from "$lib/actions/aarri.ts";
 
   const statsP = chargerStats();
   const indicateursParDateP = chargerIndicateursAARRI();

@@ -1,5 +1,5 @@
 import { browser } from "$app/environment";
-import { init, consumeSecretFromURL } from "$front/actions/main.ts";
+import { init, consumeSecretFromURL } from "$lib/actions/main.ts";
 import type { LayoutLoad } from "./$types.js";
 
 export const ssr = false;

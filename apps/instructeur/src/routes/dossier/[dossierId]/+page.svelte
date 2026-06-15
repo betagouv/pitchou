@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { store } from "$front/store.svelte.ts";
-  import Dossier from "$front/components/screens/Dossier.svelte";
-  import SqueletteContenuVide from "$front/components/SqueletteContenuVide.svelte";
+  import { store } from "$lib/store.svelte.ts";
+  import Dossier from "$lib/components/screens/Dossier.svelte";
+  import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";
 
   import type { PageProps } from "./$types";
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$front/store.svelte.ts";
-  import SaisieEspèces from "$front/components/screens/SaisieEspèces.svelte";
+  import { store } from "$lib/store.svelte.ts";
+  import SaisieEspèces from "$lib/components/screens/SaisieEspèces.svelte";
   import {
     importDescriptionMenacesEspècesFromOdsArrayBuffer,
     importDescriptionMenacesEspècesFromURL,
@@ -8,7 +8,7 @@
   import {
     chargerListeEspècesProtégées,
     chargerActivitésMéthodesMoyensDePoursuite,
-  } from "$front/actions/activitésMéthodesMoyensDePoursuite.ts";
+  } from "$lib/actions/activitésMéthodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([
     chargerListeEspècesProtégées(),

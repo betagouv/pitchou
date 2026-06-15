@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$front/store.svelte.ts";
-  import TmpStats from "$front/components/screens/TmpStats.svelte";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
+  import { store } from "$lib/store.svelte.ts";
+  import TmpStats from "$lib/components/screens/TmpStats.svelte";
+  import { chargerDossiers } from "$lib/actions/dossier.ts";
 
   onMount(async () => {
     if (store.dossiersRésumés.size === 0) {

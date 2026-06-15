@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
-  import { getBalisesGénérationDocument } from "../../../front-end/actions/générerDocument.ts";
+  import { getBalisesGénérationDocument } from "../../actions/générerDocument.ts";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
   import { envoyerÉvènement } from "../../actions/aarri.ts";
 
