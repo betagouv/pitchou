@@ -4,7 +4,10 @@
   import DateInput from "../../common/DateInput.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
-  import { résultatsContrôle, typesActionSuiteContrôle } from "../../../actions/contrôle.ts";
+  import {
+    résultatsContrôle,
+    typesActionSuiteContrôle,
+  } from "$lib/components/Dossier/Contrôles/contrôle.ts";
 
   import type { Snippet } from "svelte";
   import type Contrôle from "@pitchou/types/database/public/Contrôle.ts";

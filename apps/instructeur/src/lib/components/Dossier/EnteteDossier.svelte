@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
-  import { afficherString } from "../../affichageValeurs.ts";
+  import { afficherString } from "$lib/components/Dossier/affichageValeurs.ts";
   import TagPhase from "../TagPhase.svelte";
 
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";

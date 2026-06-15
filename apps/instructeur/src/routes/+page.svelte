@@ -9,7 +9,7 @@
 
   import { logout } from "$lib/shared/main.ts";
   import { chargerDossiers } from "$lib/dossier/dossier.ts";
-  import { envoiEmailConnexion } from "$lib/serveur.ts";
+  import { envoiEmailConnexion } from "./serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 
   import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";

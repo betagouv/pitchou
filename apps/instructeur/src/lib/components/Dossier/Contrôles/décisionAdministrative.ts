@@ -5,7 +5,7 @@ import {
 } from "@odfjs/odfjs";
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
-import { ajouterPrescriptionsEtContrôles } from "./prescriptions.ts";
+import { ajouterPrescriptionsEtContrôles } from "$lib/components/Dossier/Contrôles/prescriptions.ts";
 import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";

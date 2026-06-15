@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
   import type { ComponentProps } from "svelte";
-  import type { LigneDossierBFC } from "../../actions/importDossierBFC.ts";
+  import type { LigneDossierBFC } from "$lib/components/screens/importDossierBFC.ts";
   import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 
@@ -12,7 +12,10 @@
   import Squelette from "../Squelette.svelte";
   import Pagination from "../DSFR/Pagination.svelte";
 
-  import { créerDossierDepuisLigne, créerNomPourDossier } from "../../actions/importDossierBFC.js";
+  import {
+    créerDossierDepuisLigne,
+    créerNomPourDossier,
+  } from "$lib/components/screens/importDossierBFC.ts";
   import BoutonModale from "../DSFR/BoutonModale.svelte";
 
   type Props = {

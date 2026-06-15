@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.ts";
+  import { ajouterOuModifierAvisExpert } from "$lib/components/Dossier/avisExpert.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import DateInput from "../common/DateInput.svelte";

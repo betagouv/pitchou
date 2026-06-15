@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fourchettesIndividus } from "../../espèceFieldset.ts";
+  import { fourchettesIndividus } from "$lib/components/SaisieEspèces/espèceFieldset.ts";
 
   import type {
     ParClassification,

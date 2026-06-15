@@ -21,7 +21,7 @@
   import {
     trierDossiersParOrdreAlphabétiqueColonne,
     trierDossiersParPhaseProchaineAction,
-  } from "../../triDossiers.ts";
+  } from "$lib/components/screens/triDossiers.ts";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
   import {

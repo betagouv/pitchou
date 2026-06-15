@@ -8,7 +8,7 @@
   import {
     sauvegardeNouvelleDécisionAdministrative,
     supprimerDécisionAdministrative,
-  } from "../../actions/décisionAdministrative.ts";
+  } from "$lib/components/Dossier/Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 
   import type {

@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { DossierAvecAlertes } from "../../actions/importDossierUtils.ts";
+  import type { DossierAvecAlertes } from "$lib/components/screens/importDossierUtils.ts";
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
   import type { ComponentProps } from "svelte";
-  import type { LigneDossierCorse } from "../../actions/importDossierCorse.ts";
+  import type { LigneDossierCorse } from "$lib/components/screens/importDossierCorse.ts";
   import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 
-  import { extrairePremierMail } from "../../actions/importDossierUtils";
+  import { extrairePremierMail } from "$lib/components/screens/importDossierUtils.ts";
   import DéplierReplier from "../common/DéplierReplier.svelte";
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
@@ -17,7 +17,7 @@
     créerDossierDepuisLigne,
     créerNomPourDossier,
     ligneDossierEnBDD,
-  } from "../../actions/importDossierCorse.js";
+  } from "$lib/components/screens/importDossierCorse.ts";
   import BoutonModale from "../DSFR/BoutonModale.svelte";
 
   const NOM_FEUILLE_TABLEAU_SUIVI = "Instruction";

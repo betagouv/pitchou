@@ -4,14 +4,14 @@ import {
   formaterDépartementDepuisValeur,
   extraireCommunes,
   getCommuneData,
-} from "./importDossierUtils.ts";
+} from "$lib/components/screens/importDossierUtils.ts";
 
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type {
   DonnéesSupplémentairesPourCréationDossier,
   Alerte,
   DossierAvecAlertes,
-} from "./importDossierUtils.ts";
+} from "$lib/components/screens/importDossierUtils.ts";
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
 import type { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "@pitchou/types/database/public/ÉvènementPhaseDossier.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";

@@ -9,7 +9,7 @@
     ajouterContrôle as envoyerContrôle,
     modifierContrôle,
     supprimerContrôle,
-  } from "../../../actions/contrôle.ts";
+  } from "$lib/components/Dossier/Contrôles/contrôle.ts";
   import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
