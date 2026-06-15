@@ -3,8 +3,8 @@
   import remember from "remember";
 
   import { store } from "$lib/state/store.svelte.ts";
-  import SuiviInstruction from "$lib/components/screens/SuiviInstruction.svelte";
-  import LoginViaEmail from "$lib/components/screens/LoginViaEmail.svelte";
+  import SuiviInstruction from "./SuiviInstruction.svelte";
+  import LoginViaEmail from "./LoginViaEmail.svelte";
   import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";
 
   import { logout } from "$lib/shared/main.ts";

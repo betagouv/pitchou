@@ -1,6 +1,6 @@
 <script lang="ts">
   import { store } from "$lib/state/store.svelte.ts";
-  import SaisieEspèces from "$lib/components/screens/SaisieEspèces.svelte";
+  import SaisieEspèces from "./SaisieEspèces.svelte";
   import {
     importDescriptionMenacesEspècesFromOdsArrayBuffer,
     importDescriptionMenacesEspècesFromURL,

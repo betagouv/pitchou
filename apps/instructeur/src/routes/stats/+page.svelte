@@ -2,8 +2,8 @@
   import { store } from "$lib/state/store.svelte.ts";
   import Loader from "$lib/components/Loader.svelte";
   import Squelette from "$lib/components/Squelette.svelte";
-  import StatsContenu from "$lib/components/stats/StatsContenu.svelte";
-  import IndicateursAARRI from "$lib/components/stats/IndicateursAARRI.svelte";
+  import StatsContenu from "./StatsContenu.svelte";
+  import IndicateursAARRI from "./IndicateursAARRI.svelte";
   import { chargerStats } from "$lib/stats/stats.ts";
   import { chargerIndicateursAARRI } from "$lib/shared/aarri.ts";
 

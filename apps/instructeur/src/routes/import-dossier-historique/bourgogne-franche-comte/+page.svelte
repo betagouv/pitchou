@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
-  import ImportDossierBFC from "$lib/components/screens/ImportDossierBFC.svelte";
+  import ImportDossierBFC from "./ImportDossierBFC.svelte";
   import { chargerDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
