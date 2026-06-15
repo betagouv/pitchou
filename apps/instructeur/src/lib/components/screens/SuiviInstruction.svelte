@@ -16,18 +16,18 @@
     formatPorteurDeProjet,
     phases,
     prochaineActionAttenduePar,
-  } from "../../affichageDossier.ts";
-  import { créerFiltreTexte } from "../../filtresTexte.ts";
+  } from "$lib/dossier/affichageDossier.ts";
+  import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
   import {
     trierDossiersParOrdreAlphabétiqueColonne,
     trierDossiersParPhaseProchaineAction,
   } from "../../triDossiers.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
   import {
     envoyerÉvènement,
     envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier,
-  } from "../../actions/aarri.ts";
+  } from "$lib/shared/aarri.ts";
 
   import type { ComponentProps } from "svelte";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDateAbsolue } from "../../../affichageDossier.ts";
+  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
 
   import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";

@@ -1,6 +1,6 @@
 import { buffer } from "d3-fetch";
 import { store } from "$lib/state/store.svelte.ts";
-import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "../dataPaths.ts";
+import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "$lib/shared/dataPaths.ts";
 import {
   dbRowToEspeceProtegee,
   construireActivitésMéthodesMoyensDePoursuite,

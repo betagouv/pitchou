@@ -1,5 +1,5 @@
 import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
-import { trouverDossiersIdCorrespondantsÀTexte } from "./rechercherDansDossier.ts";
+import { trouverDossiersIdCorrespondantsÀTexte } from "$lib/dossier/rechercherDansDossier.ts";
 
 import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
 

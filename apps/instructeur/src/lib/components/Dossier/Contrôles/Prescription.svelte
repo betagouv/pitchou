@@ -4,13 +4,13 @@
   import DéplierReplier from "../../common/DéplierReplier.svelte";
   import TagRésultatContrôle from "../../TagRésultatContrôle.svelte";
 
-  import { formatDateRelative, formatDateAbsolue } from "../../../affichageDossier.ts";
+  import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import {
     ajouterContrôle as envoyerContrôle,
     modifierContrôle,
     supprimerContrôle,
   } from "../../../actions/contrôle.ts";
-  import { envoyerÉvènement } from "../../../actions/aarri.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
   import type Contrôle from "@pitchou/types/database/public/Contrôle.ts";

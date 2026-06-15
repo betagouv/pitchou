@@ -9,7 +9,7 @@
     sauvegardeNouvelleDécisionAdministrative,
     supprimerDécisionAdministrative,
   } from "../../actions/décisionAdministrative.ts";
-  import { refreshDossierComplet } from "../../actions/dossier.ts";
+  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 
   import type {
     DossierComplet,

@@ -9,11 +9,11 @@
   import DossierContrôles from "../Dossier/DossierContrôles.svelte";
   import DossierGénérationDocuments from "../Dossier/DossierGénérationDocuments.svelte";
   import { MediaTypeError } from "@pitchou/common/errors.ts";
-  import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "../../actions/dossier.ts";
-  import { envoyerÉvènement } from "../../actions/aarri.ts";
+  import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
-  import { updateNotificationForDossier } from "../../actions/notification.ts";
+  import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
 
   import type { ComponentProps } from "svelte";
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";

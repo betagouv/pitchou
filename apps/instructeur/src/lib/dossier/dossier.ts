@@ -4,10 +4,10 @@ import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "@pitchou/com
 import {
   chargerActivitésMéthodesMoyensDePoursuite,
   chargerListeEspècesProtégées,
-} from "./activitésMéthodesMoyensDePoursuite.ts";
+} from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
 import { isDossierRésuméArray } from "@pitchou/common/typeguards.ts";
-import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "./aarri.ts";
-import { chargerRelationSuivi } from "./main.ts";
+import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "$lib/shared/aarri.ts";
+import { chargerRelationSuivi } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";

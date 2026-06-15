@@ -8,7 +8,7 @@
   import {
     chargerListeEspècesProtégées,
     chargerActivitésMéthodesMoyensDePoursuite,
-  } from "$lib/actions/activitésMéthodesMoyensDePoursuite.ts";
+  } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([
     chargerListeEspècesProtégées(),

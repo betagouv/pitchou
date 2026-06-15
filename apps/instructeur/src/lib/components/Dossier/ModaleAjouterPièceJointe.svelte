@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ajouterOuModifierAvisExpert } from "../../actions/avisExpert.ts";
-  import { refreshDossierComplet } from "../../actions/dossier.ts";
-  import { formatDateAbsolue } from "../../affichageDossier.ts";
+  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import DateInput from "../common/DateInput.svelte";
 
   import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";

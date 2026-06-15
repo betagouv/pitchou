@@ -1,8 +1,8 @@
 <script lang="ts">
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
   import { getBalisesGénérationDocument } from "../../actions/générerDocument.ts";
-  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
-  import { envoyerÉvènement } from "../../actions/aarri.ts";
+  import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";

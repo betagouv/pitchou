@@ -6,8 +6,8 @@ import {
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { ajouterPrescriptionsEtContrôles } from "./prescriptions.ts";
-import { refreshDossierComplet } from "./dossier.ts";
-import { envoyerÉvènement } from "./aarri.ts";
+import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type {

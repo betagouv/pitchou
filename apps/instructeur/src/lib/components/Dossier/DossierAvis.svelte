@@ -1,7 +1,7 @@
 <script lang="ts">
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
   import { supprimerAvisExpert as supprimerAvisExpertServeur } from "../../actions/avisExpert.ts";
-  import { refreshDossierComplet } from "../../actions/dossier.ts";
+  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";

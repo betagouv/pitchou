@@ -1,4 +1,4 @@
-import { envoyerÉvènement } from "./aarri.ts";
+import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type {

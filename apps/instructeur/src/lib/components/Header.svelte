@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { logout } from "../actions/main.ts";
+  import { logout } from "$lib/shared/main.ts";
 
   import AccountMenu from "./AccountMenu.svelte";
   import Navbar from "./Navbar.svelte";

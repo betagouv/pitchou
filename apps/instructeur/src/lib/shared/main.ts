@@ -4,10 +4,10 @@ import { goto } from "$app/navigation";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
 import { store } from "$lib/state/store.svelte.ts";
-import { SCHEMA_DS_88444 } from "../dataPaths.ts";
+import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 
-import créerObjetCapDepuisURLs from "./créerObjetCapDepuisURLs.ts";
-import { envoyerÉvènement } from "./aarri.ts";
+import créerObjetCapDepuisURLs from "$lib/shared/créerObjetCapDepuisURLs.ts";
+import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
 import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
 

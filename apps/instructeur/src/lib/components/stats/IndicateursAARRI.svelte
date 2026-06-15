@@ -3,7 +3,7 @@
   import { untrack } from "svelte";
   import Loader from "../Loader.svelte";
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
-  import { formatDateAbsolue } from "../../affichageDossier.ts";
+  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { isSameDay } from "date-fns";
 
   type Props = {

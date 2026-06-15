@@ -9,9 +9,9 @@
     formatDateAbsolue,
     phases,
     prochaineActionAttenduePar,
-  } from "../../affichageDossier.ts";
-  import { modifierDossier } from "../../actions/dossier.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "../../actions/suiviDossier.ts";
+  } from "$lib/dossier/affichageDossier.ts";
+  import { modifierDossier } from "$lib/dossier/dossier.ts";
+  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 

@@ -1,6 +1,6 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
-import { envoyerÉvènement } from "./aarri.ts";
+import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";

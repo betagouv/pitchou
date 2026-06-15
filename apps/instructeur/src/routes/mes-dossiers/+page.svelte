@@ -2,9 +2,9 @@
   import { onMount } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
   import MesDossiers from "$lib/components/screens/MesDossiers.svelte";
-  import { chargerDossiers } from "$lib/actions/dossier.ts";
-  import { envoyerÉvènement } from "$lib/actions/aarri.ts";
-  import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/actions/main.ts";
+  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/shared/main.ts";
 
   onMount(async () => {
     chargerNotificationParDossierPourInstructeurActuel();

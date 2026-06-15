@@ -2,7 +2,7 @@
   import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   import { ajouterOuModifierAvisExpert } from "../../../actions/avisExpert.ts";
-  import { refreshDossierComplet } from "../../../actions/dossier.ts";
+  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import DateInput from "../../common/DateInput.svelte";
 
   type Props = {

@@ -7,8 +7,8 @@
   import LoginViaEmail from "$lib/components/screens/LoginViaEmail.svelte";
   import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";
 
-  import { logout } from "$lib/actions/main.ts";
-  import { chargerDossiers } from "$lib/actions/dossier.ts";
+  import { logout } from "$lib/shared/main.ts";
+  import { chargerDossiers } from "$lib/dossier/dossier.ts";
   import { envoiEmailConnexion } from "$lib/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 

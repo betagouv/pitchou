@@ -8,7 +8,7 @@
   import Loader from "../Loader.svelte";
   import TuileSaisieEspèce from "../SaisieEspèces/TuileSaisieEspèce.svelte";
   import { tick } from "svelte";
-  import { chargerActivitésMéthodesMoyensDePoursuite } from "../../actions/activitésMéthodesMoyensDePoursuite.ts";
+  import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
 
   import type {
     ParClassification,

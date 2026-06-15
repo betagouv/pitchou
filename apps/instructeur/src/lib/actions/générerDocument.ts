@@ -1,8 +1,8 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-import { formatLocalisation, formatPorteurDeProjet } from "../affichageDossier.ts";
-import { créerEspècesGroupéesParImpact } from "./créerEspècesGroupéesParImpact.ts";
+import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
+import { créerEspècesGroupéesParImpact } from "$lib/especes/créerEspècesGroupéesParImpact.ts";
 
 import type {
   ActivitéMenançante,
@@ -11,7 +11,7 @@ import type {
 } from "@pitchou/types/especes.d.ts";
 import type { BalisesGénérationDocument } from "@pitchou/types/balisesGénérationDocument.d.ts";
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
-import type { EspècesParActivité } from "./créerEspècesGroupéesParImpact.ts";
+import type { EspècesParActivité } from "$lib/especes/créerEspècesGroupéesParImpact.ts";
 
 /**
  * Liste des balises fournies aux instructeur.i.ces.

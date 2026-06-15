@@ -1,4 +1,4 @@
-import { envoyerÉvènement, envoyerÉvènementModifierPrescription } from "./aarri.ts";
+import { envoyerÉvènement, envoyerÉvènementModifierPrescription } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";

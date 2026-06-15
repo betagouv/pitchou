@@ -4,8 +4,8 @@
   import Squelette from "$lib/components/Squelette.svelte";
   import StatsContenu from "$lib/components/stats/StatsContenu.svelte";
   import IndicateursAARRI from "$lib/components/stats/IndicateursAARRI.svelte";
-  import { chargerStats } from "$lib/actions/stats.ts";
-  import { chargerIndicateursAARRI } from "$lib/actions/aarri.ts";
+  import { chargerStats } from "$lib/stats/stats.ts";
+  import { chargerIndicateursAARRI } from "$lib/shared/aarri.ts";
 
   const statsP = chargerStats();
   const indicateursParDateP = chargerIndicateursAARRI();

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
 
-  import { formatDateRelative, formatDateAbsolue } from "../../affichageDossier.ts";
+  import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
 
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
   import type Message from "@pitchou/types/database/public/Message.ts";

@@ -4,14 +4,14 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
-  import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier";
+  import { instructeurSuitDossier, instructeurLaisseDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "./DSFR/Pagination.svelte";
-  import { créerFiltreTexte } from "../filtresTexte.ts";
+  import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
-  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "../actions/aarri.ts";
-  import { phases as toutesLesPhases } from "../affichageDossier.ts";
+  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "$lib/shared/aarri.ts";
+  import { phases as toutesLesPhases } from "$lib/dossier/affichageDossier.ts";
 
   type Props = {
     titre: string;
