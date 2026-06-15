@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { store } from "$lib/store.svelte.ts";
+  import { store } from "$lib/state/store.svelte.ts";
   import Squelette from "$lib/components/Squelette.svelte";
 
   const email = $derived(store.identité?.email);

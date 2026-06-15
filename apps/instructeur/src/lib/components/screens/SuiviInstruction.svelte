@@ -36,7 +36,7 @@
     DossierPhase,
     DossierProchaineActionAttenduePar,
   } from "@pitchou/types/API_Pitchou.ts";
-  import type { PitchouState } from "../../store.svelte.ts";
+  import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { FiltresLocalStorage, TriTableau } from "@pitchou/types/interfaceUtilisateur.ts";

@@ -1,4 +1,4 @@
-import { store } from "../store.svelte.ts";
+import { store } from "$lib/state/store.svelte.ts";
 
 import type { default as Notification } from "@pitchou/types/database/public/Notification.ts";
 

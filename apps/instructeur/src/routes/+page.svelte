@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import remember from "remember";
 
-  import { store } from "$lib/store.svelte.ts";
+  import { store } from "$lib/state/store.svelte.ts";
   import SuiviInstruction from "$lib/components/screens/SuiviInstruction.svelte";
   import LoginViaEmail from "$lib/components/screens/LoginViaEmail.svelte";
   import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";

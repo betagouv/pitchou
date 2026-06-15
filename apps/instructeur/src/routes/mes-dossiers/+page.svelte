@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$lib/store.svelte.ts";
+  import { store } from "$lib/state/store.svelte.ts";
   import MesDossiers from "$lib/components/screens/MesDossiers.svelte";
   import { chargerDossiers } from "$lib/actions/dossier.ts";
   import { envoyerÉvènement } from "$lib/actions/aarri.ts";

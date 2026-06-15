@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
-  import { store } from "../store.svelte.ts";
+  import { store } from "$lib/state/store.svelte.ts";
 
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
 
-  import type { PitchouState } from "../store.svelte.ts";
+  import type { PitchouState } from "$lib/state/store.svelte.ts";
 
   type Props = {
     nav?: boolean;

@@ -1,6 +1,6 @@
 import { json } from "d3-fetch";
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
-import { store } from "../store.svelte.ts";
+import { store } from "$lib/state/store.svelte.ts";
 import debounce from "just-debounce-it";
 
 import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";

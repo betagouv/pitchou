@@ -1,12 +1,12 @@
 import { buffer } from "d3-fetch";
-import { store } from "../store.svelte.ts";
+import { store } from "$lib/state/store.svelte.ts";
 import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "../dataPaths.ts";
 import {
   dbRowToEspeceProtegee,
   construireActivitésMéthodesMoyensDePoursuite,
 } from "@pitchou/common/outils-espèces.ts";
 
-import type { PitchouState } from "../store.svelte.ts";
+import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
 

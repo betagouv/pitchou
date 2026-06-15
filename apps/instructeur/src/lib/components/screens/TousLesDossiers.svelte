@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
-  import type { PitchouState } from "../../store.svelte.ts";
+  import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type { ComponentProps } from "svelte";
   import Squelette from "../Squelette.svelte";
   import ListeDossiers from "../ListeDossiers.svelte";

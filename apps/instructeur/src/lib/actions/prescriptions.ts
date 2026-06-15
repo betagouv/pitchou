@@ -1,5 +1,5 @@
 import { envoyerÉvènement, envoyerÉvènementModifierPrescription } from "./aarri.ts";
-import { store } from "../store.svelte.ts";
+import { store } from "$lib/state/store.svelte.ts";
 
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";
 import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";

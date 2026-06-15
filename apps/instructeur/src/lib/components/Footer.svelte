@@ -2,7 +2,7 @@
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
 
-  import type { PitchouState } from "../store.svelte.ts";
+  import type { PitchouState } from "$lib/state/store.svelte.ts";
 
   const BUDGET_URL =
     "https://docs.google.com/spreadsheets/d/1E1z_SMXquqVnKvJXy7yKdGk1YPdV58_oaoLxBtf_k7s/edit?gid=0#gid=0";

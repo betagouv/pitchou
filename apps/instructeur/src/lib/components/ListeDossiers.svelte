@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { DossierRésumé, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
   import type { ChangeEventHandler, EventHandler } from "svelte/elements";
-  import type { PitchouState } from "../store.svelte.ts";
+  import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
   import { instructeurSuitDossier, instructeurLaisseDossier } from "../actions/suiviDossier";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { store } from "$lib/store.svelte.ts";
+  import { store } from "$lib/state/store.svelte.ts";
   import Loader from "$lib/components/Loader.svelte";
   import Squelette from "$lib/components/Squelette.svelte";
   import StatsContenu from "$lib/components/stats/StatsContenu.svelte";

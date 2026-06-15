@@ -3,7 +3,7 @@ import remember, { forget } from "remember";
 import { goto } from "$app/navigation";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import { store } from "../store.svelte.ts";
+import { store } from "$lib/state/store.svelte.ts";
 import { SCHEMA_DS_88444 } from "../dataPaths.ts";
 
 import créerObjetCapDepuisURLs from "./créerObjetCapDepuisURLs.ts";

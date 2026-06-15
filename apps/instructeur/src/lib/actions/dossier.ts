@@ -1,4 +1,4 @@
-import { store, setDossierComplet } from "../store.svelte.ts";
+import { store, setDossierComplet } from "$lib/state/store.svelte.ts";
 
 import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "@pitchou/common/outils-espèces.ts";
 import {
@@ -9,7 +9,7 @@ import { isDossierRésuméArray } from "@pitchou/common/typeguards.ts";
 import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "./aarri.ts";
 import { chargerRelationSuivi } from "./main.ts";
 
-import type { PitchouState } from "../store.svelte.ts";
+import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
