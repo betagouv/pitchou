@@ -3,13 +3,13 @@
   import remember from "remember";
 
   import { store } from "$lib/state/store.svelte.ts";
-  import SuiviInstruction from "./SuiviInstruction.svelte";
-  import LoginViaEmail from "./LoginViaEmail.svelte";
+  import SuiviInstruction from "./SuiviInstruction/SuiviInstruction.svelte";
+  import LoginViaEmail from "./LoginViaEmail/LoginViaEmail.svelte";
   import Loader from "$lib/components/Loader.svelte";
 
   import { logout } from "$lib/shared/main.ts";
   import { chargerDossiers } from "$lib/dossier/dossier.ts";
-  import { envoiEmailConnexion } from "./serveur.ts";
+  import { envoiEmailConnexion } from "./LoginViaEmail/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 
   import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";

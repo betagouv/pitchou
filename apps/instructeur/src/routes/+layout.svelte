@@ -1,7 +1,7 @@
 <script lang="ts">
   // MUST be the first import
   // cf scripts/front-end/before-ses-lockdown.ts
-  import "./before-ses-lockdown.ts";
+  import "./Layout/before-ses-lockdown.ts";
 
   import { afterNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
