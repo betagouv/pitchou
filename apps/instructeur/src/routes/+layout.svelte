@@ -8,9 +8,9 @@
 
   import { store } from "$lib/state/store.svelte.ts";
 
-  import BandeauEnvironnement from "$lib/components/BandeauEnvironnement.svelte";
-  import Header from "$lib/components/Header/Header.svelte";
-  import Footer from "$lib/components/Footer.svelte";
+  import BandeauEnvironnement from "./Layout/BandeauEnvironnement.svelte";
+  import Header from "./Layout/Header/Header.svelte";
+  import Footer from "./Layout/Footer.svelte";
 
   let { children } = $props();
 
