@@ -5,7 +5,7 @@
   import { store } from "$lib/state/store.svelte.ts";
   import SuiviInstruction from "./SuiviInstruction.svelte";
   import LoginViaEmail from "./LoginViaEmail.svelte";
-  import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";
+  import Loader from "$lib/components/Loader.svelte";
 
   import { logout } from "$lib/shared/main.ts";
   import { chargerDossiers } from "$lib/dossier/dossier.ts";
@@ -84,8 +84,6 @@
   }
 
   const email = $derived(store.identité?.email);
-  const erreurs = $derived(store.erreurs);
-  const résultatsSynchronisationDS88444 = $derived(store.résultatsSynchronisationDS88444);
   const peutListerDossiers = $derived(!!store.capabilities.listerDossiers);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
   const relationSuivis = $derived(store.relationSuivis);
@@ -100,12 +98,12 @@
 </script>
 
 {#if !chargementDossiersTerminé && peutListerDossiers}
-  <SqueletteContenuVide />
+  <div class="fr-p-2w fr-pb-10w">
+    <Loader />
+  </div>
 {:else if peutListerDossiers && email}
   <SuiviInstruction
     {email}
-    {erreurs}
-    {résultatsSynchronisationDS88444}
     {dossiers}
     {relationSuivis}
     activitésPrincipales={activitésPrincipales ?? []}
@@ -114,5 +112,5 @@
     {rememberTriFiltres}
   />
 {:else}
-  <LoginViaEmail {erreurs} {authorizedEmailDomains} {envoiEmailConnexion} />
+  <LoginViaEmail {authorizedEmailDomains} {envoiEmailConnexion} />
 {/if}

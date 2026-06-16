@@ -12,9 +12,8 @@
     }
   });
 
-  const email = $derived(store.identité?.email);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
   const schema = $derived(store.schemaDS88444);
 </script>
 
-<ImportDossierCorse {email} {dossiers} {schema} />
+<ImportDossierCorse {dossiers} {schema} />

@@ -2,7 +2,6 @@
   import { onMount, untrack } from "svelte";
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
 
-  import Squelette from "$lib/components/Squelette.svelte";
   import FiltreParmiOptions from "./FiltreParmiOptions.svelte";
   import BarreRecherche from "./BarreRecherche.svelte";
   import TrisDeTh from "./TrisDeTh.svelte";
@@ -29,7 +28,6 @@
     envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier,
   } from "$lib/shared/aarri.ts";
 
-  import type { ComponentProps } from "svelte";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
   import type {
     DossierRésumé,
@@ -43,11 +41,7 @@
   import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
 
   type Props = {
-    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
-    erreurs: ComponentProps<typeof Squelette>["erreurs"];
-    résultatsSynchronisationDS88444: ComponentProps<
-      typeof Squelette
-    >["résultatsSynchronisationDS88444"];
+    email: string;
     dossiers?: DossierRésumé[];
     relationSuivis: PitchouState["relationSuivis"];
     activitésPrincipales?: string[] | undefined;
@@ -58,8 +52,6 @@
 
   let {
     email,
-    erreurs,
-    résultatsSynchronisationDS88444,
     dossiers = [],
     relationSuivis,
     activitésPrincipales = [],
@@ -543,298 +535,296 @@
   }
 </script>
 
-<Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Suivi instruction">
-  <div class="fr-grid-row fr-mt-4w fr-grid-row--center">
-    <div class="fr-col">
-      <h1>
-        Tableau de suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées"
-          >DDEP</abbr
-        >
-      </h1>
+<svelte:head>
+  <title>Suivi instruction — Pitchou</title>
+</svelte:head>
 
-      {#if dossiers.length >= 1}
-        <BarreRecherche
-          titre="Rechercher par texte libre"
-          mettreÀJourTexteRecherche={filtrerParTexte}
+<div class="fr-grid-row fr-mt-4w fr-grid-row--center">
+  <div class="fr-col">
+    <h1>
+      Tableau de suivi instruction <abbr title="Demandes de Dérogation Espèces Protégées">DDEP</abbr
+      >
+    </h1>
+
+    {#if dossiers.length >= 1}
+      <BarreRecherche
+        titre="Rechercher par texte libre"
+        mettreÀJourTexteRecherche={filtrerParTexte}
+      />
+
+      <div class="fr-mb-2w">
+        <strong>Filtrer par phase</strong>
+        {#each phaseOptions as phase}
+          <TagPhase
+            {phase}
+            classes={["fr-mr-1w"]}
+            onClick={makeTagPhaseOnClick(phase)}
+            ariaPressed={phasesSélectionnées.has(phase)}
+          ></TagPhase>
+        {/each}
+      </div>
+
+      <div class="filtres">
+        <FiltreParmiOptions
+          titre="Filtrer par activité principale"
+          options={activitésPrincipalesOptions}
+          optionsSélectionnées={activitésPrincipalesSélectionnées}
+          mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
         />
-
-        <div class="fr-mb-2w">
-          <strong>Filtrer par phase</strong>
-          {#each phaseOptions as phase}
-            <TagPhase
-              {phase}
-              classes={["fr-mr-1w"]}
-              onClick={makeTagPhaseOnClick(phase)}
-              ariaPressed={phasesSélectionnées.has(phase)}
-            ></TagPhase>
-          {/each}
-        </div>
-
-        <div class="filtres">
+        <FiltreParmiOptions
+          titre="Filtrer par prochaine action attendue par"
+          options={prochainesActionsAttenduesParOptions}
+          optionsSélectionnées={prochainesActionsAttenduesParSélectionnés}
+          mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
+        />
+        {#if instructeursOptions && instructeursOptions.size >= 2}
           <FiltreParmiOptions
-            titre="Filtrer par activité principale"
-            options={activitésPrincipalesOptions}
-            optionsSélectionnées={activitésPrincipalesSélectionnées}
-            mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
+            titre="Filtrer par instructeur suivant le dossier"
+            options={instructeursOptions}
+            optionsSélectionnées={instructeursSélectionnés}
+            mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
           />
-          <FiltreParmiOptions
-            titre="Filtrer par prochaine action attendue par"
-            options={prochainesActionsAttenduesParOptions}
-            optionsSélectionnées={prochainesActionsAttenduesParSélectionnés}
-            mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
-          />
-          {#if instructeursOptions && instructeursOptions.size >= 2}
-            <FiltreParmiOptions
-              titre="Filtrer par instructeur suivant le dossier"
-              options={instructeursOptions}
-              optionsSélectionnées={instructeursSélectionnés}
-              mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
-            />
+        {/if}
+      </div>
+
+      <section class="filtres-actifs fr-mb-1w">
+        <div class="fr-mb-1w">
+          <span>Dossiers suivis par&nbsp;:</span>
+          {#if instructeursNonSélectionnés.size === 0}
+            <strong>Toustes</strong>
+          {:else if instructeursNonSélectionnés.size === 1 && instructeursNonSélectionnés.has(AUCUN_INSTRUCTEUR)}
+            <strong>Au moins un.e instructeur.rice</strong>
+          {:else if instructeursNonSélectionnés.size <= 2}
+            <strong>Toustes sauf</strong>
+            {#each [...instructeursNonSélectionnés] as instructeur}
+              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                {instructeur}
+                {#if instructeur === email}(moi){/if}
+              </span>
+            {/each}
+          {:else}
+            {#each [...instructeursSélectionnés] as instructeur}
+              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                {instructeur}
+                {#if instructeur === email}(moi){/if}
+              </span>
+            {/each}
+          {/if}
+
+          {#if instructeursSélectionnés.size !== 1 || !instructeursSélectionnés.has(email)}
+            <button
+              class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-todo-line"
+              onclick={filtrerSuivisParMoi}
+            >
+              Suivi par moi
+            </button>
           {/if}
         </div>
 
-        <section class="filtres-actifs fr-mb-1w">
-          <div class="fr-mb-1w">
-            <span>Dossiers suivis par&nbsp;:</span>
-            {#if instructeursNonSélectionnés.size === 0}
-              <strong>Toustes</strong>
-            {:else if instructeursNonSélectionnés.size === 1 && instructeursNonSélectionnés.has(AUCUN_INSTRUCTEUR)}
-              <strong>Au moins un.e instructeur.rice</strong>
-            {:else if instructeursNonSélectionnés.size <= 2}
-              <strong>Toustes sauf</strong>
-              {#each [...instructeursNonSélectionnés] as instructeur}
-                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                  {instructeur}
-                  {#if instructeur === email}(moi){/if}
-                </span>
-              {/each}
-            {:else}
-              {#each [...instructeursSélectionnés] as instructeur}
-                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                  {instructeur}
-                  {#if instructeur === email}(moi){/if}
-                </span>
-              {/each}
-            {/if}
-
-            {#if instructeursSélectionnés.size !== 1 || !instructeursSélectionnés.has(email)}
-              <button
-                class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-todo-line"
-                onclick={filtrerSuivisParMoi}
-              >
-                Suivi par moi
-              </button>
-            {/if}
-          </div>
-
-          <div class="fr-mb-1w">
-            <span>Prochaine action attendue par&nbsp;:</span>
-            {#if prochainesActionsAttenduesParNonSélectionnés.size === 0}
-              <strong>Toutes options</strong>
-            {:else if prochainesActionsAttenduesParNonSélectionnés.size <= 2}
-              <strong>Toutes options sauf</strong>
-              {#each [...prochainesActionsAttenduesParNonSélectionnés] as prochaineActionAttenduePar}
-                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                  {prochaineActionAttenduePar}
-                </span>
-              {/each}
-            {:else}
-              {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
-                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                  {prochaineActionAttenduePar}
-                </span>
-              {/each}
-            {/if}
-          </div>
-
-          <div class="fr-mb-1w">
-            <span>Activités principales&nbsp;:</span>
-            {#if activitésPrincipalesNonSélectionnées.size === 0}
-              <strong>Toutes</strong>
-            {:else if activitésPrincipalesNonSélectionnées.size <= 4}
-              <strong>Toutes sauf</strong>
-              {#each [...activitésPrincipalesNonSélectionnées] as activitéPrincipale}
-                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                  {activitéPrincipale}
-                </span>
-              {/each}
-            {:else}
-              {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
-                <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                  {activitéPrincipale}
-                </span>
-              {/each}
-            {/if}
-          </div>
-
-          {#if texteÀChercher}
-            <div class="fr-mb-1w">
-              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v"
-                >Texte cherché : {texteÀChercher}</span
-              >
-              <button onclick={onSupprimerFiltreTexte}>✖</button>
-            </div>
+        <div class="fr-mb-1w">
+          <span>Prochaine action attendue par&nbsp;:</span>
+          {#if prochainesActionsAttenduesParNonSélectionnés.size === 0}
+            <strong>Toutes options</strong>
+          {:else if prochainesActionsAttenduesParNonSélectionnés.size <= 2}
+            <strong>Toutes options sauf</strong>
+            {#each [...prochainesActionsAttenduesParNonSélectionnés] as prochaineActionAttenduePar}
+              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                {prochaineActionAttenduePar}
+              </span>
+            {/each}
+          {:else}
+            {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
+              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                {prochaineActionAttenduePar}
+              </span>
+            {/each}
           {/if}
-        </section>
+        </div>
 
-        <h2 class="fr-mt-2w">
-          {dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers sélectionnés
-        </h2>
+        <div class="fr-mb-1w">
+          <span>Activités principales&nbsp;:</span>
+          {#if activitésPrincipalesNonSélectionnées.size === 0}
+            <strong>Toutes</strong>
+          {:else if activitésPrincipalesNonSélectionnées.size <= 4}
+            <strong>Toutes sauf</strong>
+            {#each [...activitésPrincipalesNonSélectionnées] as activitéPrincipale}
+              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                {activitéPrincipale}
+              </span>
+            {/each}
+          {:else}
+            {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
+              <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
+                {activitéPrincipale}
+              </span>
+            {/each}
+          {/if}
+        </div>
 
-        <div class="fr-table fr-table--bordered">
-          <table class="fr-mb-2w">
-            <thead>
+        {#if texteÀChercher}
+          <div class="fr-mb-1w">
+            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span
+            >
+            <button onclick={onSupprimerFiltreTexte}>✖</button>
+          </div>
+        {/if}
+      </section>
+
+      <h2 class="fr-mt-2w">
+        {dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers sélectionnés
+      </h2>
+
+      <div class="fr-table fr-table--bordered">
+        <table class="fr-mb-2w">
+          <thead>
+            <tr>
+              <th>Voir le dossier</th>
+              <th>
+                Localisation
+                <TrisDeTh tris={trisLocalisation} bind:triSélectionné />
+              </th>
+              <th>
+                Activité principale
+                <TrisDeTh tris={trisActivitéPrincipale} bind:triSélectionné />
+              </th>
+              <th>
+                Porteur de projet
+                <TrisDeTh tris={trisPorteurDeProjet} bind:triSélectionné />
+              </th>
+              <th>
+                Nom du projet
+                <TrisDeTh tris={trisNomProjet} bind:triSélectionné />
+              </th>
+              <th>Enjeux</th>
+              <th>Rattaché au régime AE</th>
+              <th>
+                Phase<br />
+                <br />
+                Prochaine action attendue de
+                <TrisDeTh tris={triPriorisationPhaseProchaineAction} bind:triSélectionné />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each dossiersAffichés as dossier (dossier)}
+              {@const {
+                id,
+                nom,
+                communes,
+                départements,
+                régions,
+                activité_principale,
+                rattaché_au_régime_ae,
+                enjeu_politique,
+                enjeu_écologique,
+                commentaire_libre,
+                phase,
+                prochaine_action_attendue_par,
+              } = dossier}
               <tr>
-                <th>Voir le dossier</th>
-                <th>
-                  Localisation
-                  <TrisDeTh tris={trisLocalisation} bind:triSélectionné />
-                </th>
-                <th>
-                  Activité principale
-                  <TrisDeTh tris={trisActivitéPrincipale} bind:triSélectionné />
-                </th>
-                <th>
-                  Porteur de projet
-                  <TrisDeTh tris={trisPorteurDeProjet} bind:triSélectionné />
-                </th>
-                <th>
-                  Nom du projet
-                  <TrisDeTh tris={trisNomProjet} bind:triSélectionné />
-                </th>
-                <th>Enjeux</th>
-                <th>Rattaché au régime AE</th>
-                <th>
-                  Phase<br />
-                  <br />
-                  Prochaine action attendue de
-                  <TrisDeTh tris={triPriorisationPhaseProchaineAction} bind:triSélectionné />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each dossiersAffichés as dossier (dossier)}
-                {@const {
-                  id,
-                  nom,
-                  communes,
-                  départements,
-                  régions,
-                  activité_principale,
-                  rattaché_au_régime_ae,
-                  enjeu_politique,
-                  enjeu_écologique,
-                  commentaire_libre,
-                  phase,
-                  prochaine_action_attendue_par,
-                } = dossier}
-                <tr>
-                  <td>
-                    <a
-                      class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
-                      href={`/dossier/${id}`}>Voir le dossier</a
+                <td>
+                  <a
+                    class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
+                    href={`/dossier/${id}`}>Voir le dossier</a
+                  >
+
+                  {#if commentaire_libre && commentaire_libre.trim().length >= 1}
+                    {@const dsfrModaleId = `dsfr-modale-${id}`}
+                    <BoutonModale id={dsfrModaleId}>
+                      {#snippet boutonOuvrir()}
+                        <button
+                          class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line"
+                          data-fr-opened="false"
+                          aria-controls={dsfrModaleId}
+                        >
+                          Commentaire
+                        </button>
+                      {/snippet}
+                      {#snippet contenu()}
+                        <header class="titre-modale">
+                          <h1 class="fr-modal__title">
+                            Commentaire dossier {nom}
+                          </h1>
+                          <h2 class="fr-modal__title">
+                            {formatPorteurDeProjet(dossier)}
+                            &nbsp;-&nbsp;
+                            {formatLocalisation({ communes, départements, régions })}
+                          </h2>
+                        </header>
+
+                        <div class="contenu-modale">
+                          {commentaire_libre}
+                        </div>
+                      {/snippet}
+                    </BoutonModale>
+                  {/if}
+
+                  {#if dossierIdsSuivisParInstructeurActuel.has(id)}
+                    <button
+                      onclick={() => instructeurActuelLaisseDossier(id)}
+                      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
+                      >Ne plus suivre</button
                     >
+                  {:else}
+                    <button
+                      onclick={() => instructeurActuelSuitDossier(id)}
+                      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
+                      >Suivre</button
+                    >
+                  {/if}
+                </td>
+                <td>{formatLocalisation({ communes, départements, régions })}</td>
+                <td>{activité_principale || ""}</td>
+                <td>{formatPorteurDeProjet(dossier)}</td>
+                <td>{nom || ""}</td>
+                <td>
+                  {#if enjeu_politique}
+                    <TagEnjeu enjeu="politique" taille="SM" classes={["fr-mb-1w"]}></TagEnjeu>
+                  {/if}
 
-                    {#if commentaire_libre && commentaire_libre.trim().length >= 1}
-                      {@const dsfrModaleId = `dsfr-modale-${id}`}
-                      <BoutonModale id={dsfrModaleId}>
-                        {#snippet boutonOuvrir()}
-                          <button
-                            class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line"
-                            data-fr-opened="false"
-                            aria-controls={dsfrModaleId}
-                          >
-                            Commentaire
-                          </button>
-                        {/snippet}
-                        {#snippet contenu()}
-                          <header class="titre-modale">
-                            <h1 class="fr-modal__title">
-                              Commentaire dossier {nom}
-                            </h1>
-                            <h2 class="fr-modal__title">
-                              {formatPorteurDeProjet(dossier)}
-                              &nbsp;-&nbsp;
-                              {formatLocalisation({ communes, départements, régions })}
-                            </h2>
-                          </header>
+                  {#if enjeu_écologique}
+                    <TagEnjeu enjeu="écologique" taille="SM" classes={["fr-mb-1w"]}></TagEnjeu>
+                  {/if}
+                </td>
+                <td>
+                  {rattaché_au_régime_ae === null
+                    ? "Non renseigné"
+                    : rattaché_au_régime_ae
+                      ? "oui"
+                      : "non"}
+                </td>
+                <td>
+                  <TagPhase {phase} taille="SM"></TagPhase>
+                  <IndicateurDélaiPhase {dossier}></IndicateurDélaiPhase>
+                  {#if prochaine_action_attendue_par}
+                    <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
+                  {/if}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
 
-                          <div class="contenu-modale">
-                            {commentaire_libre}
-                          </div>
-                        {/snippet}
-                      </BoutonModale>
-                    {/if}
-
-                    {#if dossierIdsSuivisParInstructeurActuel.has(id)}
-                      <button
-                        onclick={() => instructeurActuelLaisseDossier(id)}
-                        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
-                        >Ne plus suivre</button
-                      >
-                    {:else}
-                      <button
-                        onclick={() => instructeurActuelSuitDossier(id)}
-                        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
-                        >Suivre</button
-                      >
-                    {/if}
-                  </td>
-                  <td>{formatLocalisation({ communes, départements, régions })}</td>
-                  <td>{activité_principale || ""}</td>
-                  <td>{formatPorteurDeProjet(dossier)}</td>
-                  <td>{nom || ""}</td>
-                  <td>
-                    {#if enjeu_politique}
-                      <TagEnjeu enjeu="politique" taille="SM" classes={["fr-mb-1w"]}></TagEnjeu>
-                    {/if}
-
-                    {#if enjeu_écologique}
-                      <TagEnjeu enjeu="écologique" taille="SM" classes={["fr-mb-1w"]}></TagEnjeu>
-                    {/if}
-                  </td>
-                  <td>
-                    {rattaché_au_régime_ae === null
-                      ? "Non renseigné"
-                      : rattaché_au_régime_ae
-                        ? "oui"
-                        : "non"}
-                  </td>
-                  <td>
-                    <TagPhase {phase} taille="SM"></TagPhase>
-                    <IndicateurDélaiPhase {dossier}></IndicateurDélaiPhase>
-                    {#if prochaine_action_attendue_par}
-                      <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
-                    {/if}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-
-          {#if selectionneursPage}
-            <Pagination
-              {selectionneursPage}
-              pageActuelle={selectionneursPage[numéroPageSelectionnée]}
-            ></Pagination>
-          {/if}
-        </div>
-      {:else}
-        <div class="fr-mb-5w">
-          Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
-          <br />
-          Vous pouvez
-          <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}
-            >créer des dossiers sur Démarche Numérique</a
-          >. Et répondre un département correspondant à votre département ou région à la question
-          "Dans quel département se localise majoritairement votre projet ?"
-          <br />
-          Le dossier sera alors visible ici après 10-15 minutes d'attente maximum
-        </div>
-      {/if}
-    </div>
+        {#if selectionneursPage}
+          <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
+          ></Pagination>
+        {/if}
+      </div>
+    {:else}
+      <div class="fr-mb-5w">
+        Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
+        <br />
+        Vous pouvez
+        <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}
+          >créer des dossiers sur Démarche Numérique</a
+        >. Et répondre un département correspondant à votre département ou région à la question
+        "Dans quel département se localise majoritairement votre projet ?"
+        <br />
+        Le dossier sera alors visible ici après 10-15 minutes d'attente maximum
+      </div>
+    {/if}
   </div>
-</Squelette>
+</div>
 
 <style lang="scss">
   td,

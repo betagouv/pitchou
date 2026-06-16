@@ -25,18 +25,9 @@
   });
 
   const email = $derived(store.identité?.email);
-  const erreurs = $derived(store.erreurs);
-  const résultatsSynchronisationDS88444 = $derived(store.résultatsSynchronisationDS88444);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
   const relationSuivis = $derived(store.relationSuivis);
   const notificationParDossier = $derived(store.notificationParDossier);
 </script>
 
-<TousLesDossiers
-  {email}
-  {erreurs}
-  {résultatsSynchronisationDS88444}
-  {dossiers}
-  {relationSuivis}
-  {notificationParDossier}
-/>
+<TousLesDossiers {email} {dossiers} {relationSuivis} {notificationParDossier} />

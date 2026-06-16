@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
-  import type { ComponentProps } from "svelte";
   import type { LigneDossierBFC } from "./importDossierBFC.ts";
   import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
@@ -9,19 +8,17 @@
   import { text } from "d3-fetch";
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
 
-  import Squelette from "$lib/components/Squelette.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import { créerDossierDepuisLigne, créerNomPourDossier } from "./importDossierBFC.ts";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
 
   type Props = {
-    email?: ComponentProps<typeof Squelette>["email"];
     dossiers?: DossierRésumé[];
     schema: SchemaDémarcheSimplifiée | undefined;
   };
 
-  let { email = undefined, dossiers = [], schema }: Props = $props();
+  let { dossiers = [], schema }: Props = $props();
 
   // Pré-calcul: ensemble des noms présents en base (lookup O(1))
   const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
@@ -168,135 +165,137 @@
   });
 </script>
 
-<Squelette {email} nav={true} title="Bourgogne-Franche-Comté — Import de dossiers">
-  <h1>Import de dossiers historiques Bourgogne-Franche-Comté</h1>
+<svelte:head>
+  <title>Bourgogne-Franche-Comté — Import de dossiers — Pitchou</title>
+</svelte:head>
 
-  {#if !lignesTableauImport || lignesTableauImport.length === 0}
-    <div class="fr-upload-group fr-mb-4w">
-      <label class="fr-label" for="file-upload">
-        Charger un fichier de suivi
-        <span class="fr-hint-text">Formats supportés : .ods</span>
-      </label>
-      <input
-        class="fr-upload"
-        aria-describedby="file-upload-messages"
-        type="file"
-        id="file-upload"
-        name="file-upload"
-        accept=".ods"
-        onchange={handleFileChange}
-      />
-      <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
-    </div>
-  {/if}
+<h1>Import de dossiers historiques Bourgogne-Franche-Comté</h1>
 
-  {#if lignesTableauImport.length >= 1}
-    <h2>
-      {#if afficherTousLesDossiers}
-        Tous les dossiers du fichier chargé ({lignesTableauImport.length})
-      {:else}
-        Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
-      {/if}
-    </h2>
+{#if !lignesTableauImport || lignesTableauImport.length === 0}
+  <div class="fr-upload-group fr-mb-4w">
+    <label class="fr-label" for="file-upload">
+      Charger un fichier de suivi
+      <span class="fr-hint-text">Formats supportés : .ods</span>
+    </label>
+    <input
+      class="fr-upload"
+      aria-describedby="file-upload-messages"
+      type="file"
+      id="file-upload"
+      name="file-upload"
+      accept=".ods"
+      onchange={handleFileChange}
+    />
+    <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
+  </div>
+{/if}
 
-    <div class="fr-toggle">
-      <input
-        type="checkbox"
-        class="fr-toggle__input"
-        id="toggle"
-        aria-describedby="toggle-messages"
-        bind:checked={afficherTousLesDossiers}
-      />
-      <label
-        class="fr-toggle__label"
-        for="toggle"
-        data-fr-checked-label="Activé"
-        data-fr-unchecked-label="Désactivé"
-      >
-        Afficher tous les dossiers
-      </label>
-      <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
-    </div>
+{#if lignesTableauImport.length >= 1}
+  <h2>
+    {#if afficherTousLesDossiers}
+      Tous les dossiers du fichier chargé ({lignesTableauImport.length})
+    {:else}
+      Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
+    {/if}
+  </h2>
 
-    <div class="progression">
-      <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+  <div class="fr-toggle">
+    <input
+      type="checkbox"
+      class="fr-toggle__input"
+      id="toggle"
+      aria-describedby="toggle-messages"
+      bind:checked={afficherTousLesDossiers}
+    />
+    <label
+      class="fr-toggle__label"
+      for="toggle"
+      data-fr-checked-label="Activé"
+      data-fr-unchecked-label="Désactivé"
+    >
+      Afficher tous les dossiers
+    </label>
+    <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
+  </div>
 
+  <div class="progression">
+    <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+
+    <div
+      class="fr-progress-bar"
+      title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
+    >
       <div
-        class="fr-progress-bar"
-        title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
-      >
-        <div
-          style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
-        ></div>
-      </div>
+        style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+      ></div>
     </div>
+  </div>
 
-    <div class="fr-table">
-      <div class="fr-table__wrapper">
-        <div class="fr-table__container">
-          <div class="fr-table__content">
-            <table class="tableau-dossier-a-creer">
-              <thead>
-                <tr>
-                  <th> Nom du projet (OBJET) </th>
-                  <th> Détails </th>
-                  <th> Actions </th>
+  <div class="fr-table">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table class="tableau-dossier-a-creer">
+            <thead>
+              <tr>
+                <th> Nom du projet (OBJET) </th>
+                <th> Détails </th>
+                <th> Actions </th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each lignesAffichéesTableauImport as LigneDossierBFC, index}
+                <tr data-row-key="1">
+                  <td>{créerNomPourDossier(LigneDossierBFC)}</td>
+                  <td>
+                    <BoutonModale id={`dsfr-modale-${index}`}>
+                      {#snippet boutonOuvrir()}
+                        <button type="button">Voir les détails</button>
+                      {/snippet}
+                      {#snippet contenu()}
+                        <div>{JSON.stringify(LigneDossierBFC)}</div>
+                      {/snippet}
+                    </BoutonModale>
+                  </td>
+                  <td>
+                    {#if ligneDossierEnBDD(LigneDossierBFC)}
+                      <p class="fr-badge fr-badge--success">En base de données</p>
+                      <a
+                        href={`/dossier/${nomToDossierId.get(créerNomPourDossier(LigneDossierBFC))}`}
+                        target="_blank"
+                        class="fr-btn fr-btn--secondary fr-ml-2w"
+                      >
+                        Ouvrir dossier
+                      </a>
+                    {:else if ligneToLienPréremplissage.get(LigneDossierBFC)}
+                      <a
+                        href={ligneToLienPréremplissage.get(LigneDossierBFC)}
+                        target="_blank"
+                        class="fr-btn">Créer dossier</a
+                      >
+                    {:else}
+                      <button
+                        type="button"
+                        class="fr-btn fr-btn--secondary"
+                        onclick={() => handleCréerLienPréRemplissage(LigneDossierBFC)}
+                        >Préparer préremplissage</button
+                      >
+                    {/if}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {#each lignesAffichéesTableauImport as LigneDossierBFC, index}
-                  <tr data-row-key="1">
-                    <td>{créerNomPourDossier(LigneDossierBFC)}</td>
-                    <td>
-                      <BoutonModale id={`dsfr-modale-${index}`}>
-                        {#snippet boutonOuvrir()}
-                          <button type="button">Voir les détails</button>
-                        {/snippet}
-                        {#snippet contenu()}
-                          <div>{JSON.stringify(LigneDossierBFC)}</div>
-                        {/snippet}
-                      </BoutonModale>
-                    </td>
-                    <td>
-                      {#if ligneDossierEnBDD(LigneDossierBFC)}
-                        <p class="fr-badge fr-badge--success">En base de données</p>
-                        <a
-                          href={`/dossier/${nomToDossierId.get(créerNomPourDossier(LigneDossierBFC))}`}
-                          target="_blank"
-                          class="fr-btn fr-btn--secondary fr-ml-2w"
-                        >
-                          Ouvrir dossier
-                        </a>
-                      {:else if ligneToLienPréremplissage.get(LigneDossierBFC)}
-                        <a
-                          href={ligneToLienPréremplissage.get(LigneDossierBFC)}
-                          target="_blank"
-                          class="fr-btn">Créer dossier</a
-                        >
-                      {:else}
-                        <button
-                          type="button"
-                          class="fr-btn fr-btn--secondary"
-                          onclick={() => handleCréerLienPréRemplissage(LigneDossierBFC)}
-                          >Préparer préremplissage</button
-                        >
-                      {/if}
-                    </td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </div>
+              {/each}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+  </div>
 
-    {#if selectionneursPage}
-      <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
-      ></Pagination>
-    {/if}
+  {#if selectionneursPage}
+    <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
+    ></Pagination>
   {/if}
-</Squelette>
+{/if}
 
 <style lang="scss">
   h2 {

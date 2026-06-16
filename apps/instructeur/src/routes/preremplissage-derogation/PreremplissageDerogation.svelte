@@ -5,7 +5,6 @@
     Dossier88444ChampDescriptor,
   } from "@pitchou/types/démarche-numérique/schema.ts";
   import { créerLienGETPréremplissageDémarche } from "@pitchou/common/préremplissageDémarcheNumérique.ts";
-  import Squelette from "$lib/components/Squelette.svelte";
   import CopyButton from "./CopyButton.svelte";
 
   function labelToId(label: string): string {
@@ -14,10 +13,9 @@
 
   type Props = {
     schemaDS88444: SchemaDémarcheSimplifiée;
-    email?: string;
   };
 
-  let { schemaDS88444, email = undefined }: Props = $props();
+  let { schemaDS88444 }: Props = $props();
 
   let nouveauDossierPartiel: Partial<DossierDemarcheNumerique88444> = $state({});
   let lienDePreremplissage = $state("");
@@ -91,80 +89,82 @@
   });
 </script>
 
-<Squelette {email} title="Pré-remplissage dérogation">
-  <div class="fr-grid-row fr-grid-row--center">
-    <div class="fr-col-8">
-      <h1>Pré-remplissage dérogation espèces protégées</h1>
+<svelte:head>
+  <title>Pré-remplissage dérogation — Pitchou</title>
+</svelte:head>
 
-      <form onchange={onSelectChanged}>
-        {#each champsRemplissablesGroupés as groupe}
-          <fieldset class="fr-fieldset">
-            <legend class="fr-fieldset__legend--regular fr-fieldset__legend">
-              <h2>{groupe.nom}</h2>
-            </legend>
-            {#each groupe.champs as champ}
-              <div class="fr-fieldset__element">
-                <div class="fr-select-group">
-                  <label class="fr-label" for={labelToId(champ["label"])}>
-                    {champ["label"]}
-                  </label>
+<div class="fr-grid-row fr-grid-row--center">
+  <div class="fr-col-8">
+    <h1>Pré-remplissage dérogation espèces protégées</h1>
 
-                  <select
-                    bind:value={nouveauDossierPartiel[champ["label"]]}
-                    id={labelToId(champ["label"])}
-                    class="fr-select"
-                  >
-                    <option value="" selected></option>
-                    {#if champ["options"]}
-                      {#each champ["options"] as option}
-                        <option value={option}>{option}</option>
-                      {/each}
-                    {:else}
-                      <option value={true}>Oui</option>
-                      <option value={false}>Non</option>
-                    {/if}
-                  </select>
-                </div>
+    <form onchange={onSelectChanged}>
+      {#each champsRemplissablesGroupés as groupe}
+        <fieldset class="fr-fieldset">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend">
+            <h2>{groupe.nom}</h2>
+          </legend>
+          {#each groupe.champs as champ}
+            <div class="fr-fieldset__element">
+              <div class="fr-select-group">
+                <label class="fr-label" for={labelToId(champ["label"])}>
+                  {champ["label"]}
+                </label>
+
+                <select
+                  bind:value={nouveauDossierPartiel[champ["label"]]}
+                  id={labelToId(champ["label"])}
+                  class="fr-select"
+                >
+                  <option value="" selected></option>
+                  {#if champ["options"]}
+                    {#each champ["options"] as option}
+                      <option value={option}>{option}</option>
+                    {/each}
+                  {:else}
+                    <option value={true}>Oui</option>
+                    <option value={false}>Non</option>
+                  {/if}
+                </select>
               </div>
+            </div>
+          {/each}
+        </fieldset>
+      {/each}
+    </form>
+
+    <div class="fr-callout fr-callout--brown-caramel">
+      <div class="fr-callout__text">
+        {#if champsPreremplis.length > 0}
+          <p class="fr-mt-2w">La liste des éléments que vous avez pré-remplis avec ce lien :</p>
+          <ul>
+            {#each champsPreremplis as champPrerempli}
+              <li>
+                {champPrerempli} :
+                <em>
+                  {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean"}
+                    {nouveauDossierPartiel[champPrerempli] ? "Oui" : "Non"}
+                  {:else}
+                    {nouveauDossierPartiel[champPrerempli]}
+                  {/if}
+                </em>
+              </li>
             {/each}
-          </fieldset>
-        {/each}
-      </form>
+          </ul>
 
-      <div class="fr-callout fr-callout--brown-caramel">
-        <div class="fr-callout__text">
-          {#if champsPreremplis.length > 0}
-            <p class="fr-mt-2w">La liste des éléments que vous avez pré-remplis avec ce lien :</p>
-            <ul>
-              {#each champsPreremplis as champPrerempli}
-                <li>
-                  {champPrerempli} :
-                  <em>
-                    {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean"}
-                      {nouveauDossierPartiel[champPrerempli] ? "Oui" : "Non"}
-                    {:else}
-                      {nouveauDossierPartiel[champPrerempli]}
-                    {/if}
-                  </em>
-                </li>
-              {/each}
-            </ul>
+          <CopyButton
+            classname="fr-btn fr-btn--lg copy-link"
+            textToCopy={() => lienDePreremplissage}
+            initialLabel="Copier le lien de pré-remplissage"
+          />
 
-            <CopyButton
-              classname="fr-btn fr-btn--lg copy-link"
-              textToCopy={() => lienDePreremplissage}
-              initialLabel="Copier le lien de pré-remplissage"
-            />
-
-            <a href={lienDePreremplissage} target="_blank"> Tester le lien de pré-remplissage </a>
-          {:else}
-            <p class="fr-mt-2w">
-              Vous n'avez encore pré-rempli aucun champ de la dérogation. Vous pouvez sélectionner
-              des options ci-dessus afin d'obtenir votre lien de pré-remplissage.
-            </p>
-          {/if}
-        </div>
+          <a href={lienDePreremplissage} target="_blank"> Tester le lien de pré-remplissage </a>
+        {:else}
+          <p class="fr-mt-2w">
+            Vous n'avez encore pré-rempli aucun champ de la dérogation. Vous pouvez sélectionner des
+            options ci-dessus afin d'obtenir votre lien de pré-remplissage.
+          </p>
+        {/if}
       </div>
     </div>
   </div>
-</Squelette>
+</div>

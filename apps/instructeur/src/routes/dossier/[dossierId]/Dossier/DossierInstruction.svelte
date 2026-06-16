@@ -18,13 +18,11 @@
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-  import type { ComponentProps } from "svelte";
-  import type Squelette from "$lib/components/Squelette.svelte";
 
   type Props = {
     dossier: DossierComplet;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
-    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
+    email: string;
     dossierActuelSuiviParInstructeurActuel: boolean | undefined;
   };
 

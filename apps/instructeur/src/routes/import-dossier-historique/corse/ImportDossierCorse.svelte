@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { DossierAvecAlertes } from "../importDossierUtils.ts";
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
-  import type { ComponentProps } from "svelte";
   import type { LigneDossierCorse } from "./importDossierCorse.ts";
   import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
@@ -11,7 +10,6 @@
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
-  import Squelette from "$lib/components/Squelette.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import {
     créerDossierDepuisLigne,
@@ -25,12 +23,11 @@
   const DREAL = "Corse";
 
   type Props = {
-    email?: ComponentProps<typeof Squelette>["email"];
     dossiers?: DossierRésumé[];
     schema: SchemaDémarcheSimplifiée | undefined;
   };
 
-  let { email = undefined, dossiers = [], schema }: Props = $props();
+  let { dossiers = [], schema }: Props = $props();
 
   const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
 
@@ -230,229 +227,228 @@
   });
 </script>
 
-<Squelette {email} nav={true} title={`${DREAL} — Import de dossiers`}>
-  <h1>Import de dossiers historiques {DREAL}</h1>
+<svelte:head>
+  <title>{DREAL} — Import de dossiers — Pitchou</title>
+</svelte:head>
 
-  {#if !lignesTableauImport || lignesTableauImport.length === 0}
-    <div class="fr-upload-group fr-mb-4w">
-      <label class="fr-label" for="file-upload">
-        Charger un fichier de suivi
-        <span class="fr-hint-text">Formats supportés : .ods</span>
-      </label>
-      <input
-        class="fr-upload"
-        aria-describedby="file-upload-messages"
-        type="file"
-        id="file-upload"
-        name="file-upload"
-        accept=".ods"
-        onchange={handleFileChange}
-      />
-      <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
-    </div>
-  {:else}
-    <h2>
-      {#if afficherTousLesDossiers}
-        Tous les dossiers du fichier chargé ({lignesTableauImport.length})
-      {:else}
-        Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
-      {/if}
-    </h2>
-    <p>Nombre de dossiers avec des alertes : {nombreDossiersAvecAlertes}</p>
+<h1>Import de dossiers historiques {DREAL}</h1>
 
-    <div class="fr-toggle">
-      <input
-        type="checkbox"
-        class="fr-toggle__input"
-        id="toggle"
-        aria-describedby="toggle-messages"
-        bind:checked={afficherTousLesDossiers}
-      />
-      <label
-        class="fr-toggle__label"
-        for="toggle"
-        data-fr-checked-label="Activé"
-        data-fr-unchecked-label="Désactivé"
-      >
-        Afficher tous les dossiers
-      </label>
-      <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
-    </div>
+{#if !lignesTableauImport || lignesTableauImport.length === 0}
+  <div class="fr-upload-group fr-mb-4w">
+    <label class="fr-label" for="file-upload">
+      Charger un fichier de suivi
+      <span class="fr-hint-text">Formats supportés : .ods</span>
+    </label>
+    <input
+      class="fr-upload"
+      aria-describedby="file-upload-messages"
+      type="file"
+      id="file-upload"
+      name="file-upload"
+      accept=".ods"
+      onchange={handleFileChange}
+    />
+    <div class="fr-messages-group" id="file-upload-messages" aria-live="polite"></div>
+  </div>
+{:else}
+  <h2>
+    {#if afficherTousLesDossiers}
+      Tous les dossiers du fichier chargé ({lignesTableauImport.length})
+    {:else}
+      Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
+    {/if}
+  </h2>
+  <p>Nombre de dossiers avec des alertes : {nombreDossiersAvecAlertes}</p>
 
-    <div class="progression">
-      <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+  <div class="fr-toggle">
+    <input
+      type="checkbox"
+      class="fr-toggle__input"
+      id="toggle"
+      aria-describedby="toggle-messages"
+      bind:checked={afficherTousLesDossiers}
+    />
+    <label
+      class="fr-toggle__label"
+      for="toggle"
+      data-fr-checked-label="Activé"
+      data-fr-unchecked-label="Désactivé"
+    >
+      Afficher tous les dossiers
+    </label>
+    <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
+  </div>
 
+  <div class="progression">
+    <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+
+    <div
+      class="fr-progress-bar"
+      title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
+    >
       <div
-        class="fr-progress-bar"
-        title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
-      >
-        <div
-          style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
-        ></div>
-      </div>
+        style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+      ></div>
     </div>
-    {#await loadingChargementDuFichier}
-      <p class="fr-mt-4w">Préparation du fichier en cours…</p>
-    {:then}
-      <div class="fr-table">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table class="tableau-dossier-a-creer">
-                <thead>
-                  <tr>
-                    <th> Nom du projet </th>
-                    <th> Détails </th>
-                    <th> Actions </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                    {@const dossierEtAlertes = ligneVersDossierAvecAlertes.get(
-                      ligneAffichéeTableauImport,
-                    )}
-                    {@const alertesDuDossier = dossierEtAlertes?.alertes}
-                    <tr
-                      data-row-key={index}
-                      data-testid={alertesDuDossier && alertesDuDossier.length >= 1
-                        ? undefined
-                        : "dossier-sans-alerte(s)"}
-                    >
-                      <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
-                      <td>
-                        <BoutonModale id={`dsfr-modale-${index}`}>
-                          {#snippet boutonOuvrir()}
-                            {#if alertesDuDossier && alertesDuDossier.length >= 1}
-                              <button
-                                type="button"
-                                class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line"
-                                data-fr-opened="false"
-                                aria-controls={`dsfr-modale-${index}`}
-                              >
-                                {`Voir les alertes (${alertesDuDossier.length})`}
-                              </button>
-                            {:else}
-                              <button
-                                type="button"
-                                class="fr-btn fr-btn--sm fr-btn--secondary"
-                                data-fr-opened="false"
-                                aria-controls={`dsfr-modale-${index}`}
-                              >
-                                {`Voir les détails`}
-                              </button>
-                            {/if}
-                          {/snippet}
-                          {#snippet contenu()}
-                            {#if alertesDuDossier && alertesDuDossier.length >= 1}
-                              <h3 class="fr-mb-2w">Liste des alertes&nbsp;:&nbsp;</h3>
+  </div>
+  {#await loadingChargementDuFichier}
+    <p class="fr-mt-4w">Préparation du fichier en cours…</p>
+  {:then}
+    <div class="fr-table">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table class="tableau-dossier-a-creer">
+              <thead>
+                <tr>
+                  <th> Nom du projet </th>
+                  <th> Détails </th>
+                  <th> Actions </th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
+                  {@const dossierEtAlertes = ligneVersDossierAvecAlertes.get(
+                    ligneAffichéeTableauImport,
+                  )}
+                  {@const alertesDuDossier = dossierEtAlertes?.alertes}
+                  <tr
+                    data-row-key={index}
+                    data-testid={alertesDuDossier && alertesDuDossier.length >= 1
+                      ? undefined
+                      : "dossier-sans-alerte(s)"}
+                  >
+                    <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
+                    <td>
+                      <BoutonModale id={`dsfr-modale-${index}`}>
+                        {#snippet boutonOuvrir()}
+                          {#if alertesDuDossier && alertesDuDossier.length >= 1}
+                            <button
+                              type="button"
+                              class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line"
+                              data-fr-opened="false"
+                              aria-controls={`dsfr-modale-${index}`}
+                            >
+                              {`Voir les alertes (${alertesDuDossier.length})`}
+                            </button>
+                          {:else}
+                            <button
+                              type="button"
+                              class="fr-btn fr-btn--sm fr-btn--secondary"
+                              data-fr-opened="false"
+                              aria-controls={`dsfr-modale-${index}`}
+                            >
+                              {`Voir les détails`}
+                            </button>
+                          {/if}
+                        {/snippet}
+                        {#snippet contenu()}
+                          {#if alertesDuDossier && alertesDuDossier.length >= 1}
+                            <h3 class="fr-mb-2w">Liste des alertes&nbsp;:&nbsp;</h3>
+                            <ul>
+                              {#each alertesDuDossier ?? [] as alerte}
+                                <li>
+                                  <p
+                                    class="fr-badge {alerte.type === 'avertissement'
+                                      ? 'fr-badge--warning'
+                                      : 'fr-badge--error'}"
+                                  >
+                                    {alerte.type}
+                                  </p>
+                                  &nbsp;:&nbsp;{alerte.message}
+                                </li>
+                              {/each}
+                            </ul>
+                          {/if}
+                          <DéplierReplier open={alertesDuDossier && alertesDuDossier.length === 0}>
+                            {#snippet summary()}
+                              <h3>Données du dossier pour le pré-remplissage&nbsp;:</h3>
+                            {/snippet}
+                            {#snippet content()}
                               <ul>
-                                {#each alertesDuDossier ?? [] as alerte}
-                                  <li>
-                                    <p
-                                      class="fr-badge {alerte.type === 'avertissement'
-                                        ? 'fr-badge--warning'
-                                        : 'fr-badge--error'}"
-                                    >
-                                      {alerte.type}
-                                    </p>
-                                    &nbsp;:&nbsp;{alerte.message}
-                                  </li>
+                                {#each Object.entries(dossierEtAlertes ?? {}) as [clefDossierEtAlertes, valeurDossierEtAlertes]}
+                                  {#if clefDossierEtAlertes !== "alertes"}
+                                    {#if clefDossierEtAlertes === "NE PAS MODIFIER - Données techniques associées à votre dossier"}
+                                      {@const donnéesSupplémentaires = Object.entries(
+                                        JSON.parse(valeurDossierEtAlertes as string),
+                                      )}
+                                      {#each donnéesSupplémentaires as [clefDonnéesSupplémentaire, valeurDonnéesSupplémentaire]}
+                                        {#if clefDonnéesSupplémentaire === "dossier"}
+                                          {@const donnéesDossierDesDonnéesSupplémentaires =
+                                            Object.entries(valeurDonnéesSupplémentaire as object)}
+                                          {#each donnéesDossierDesDonnéesSupplémentaires as donnéeDossierDesDonnéesSupplémentaires}
+                                            <li>
+                                              <strong
+                                                >{`${donnéeDossierDesDonnéesSupplémentaires[0]} :`}</strong
+                                              >
+                                              {`${JSON.stringify(donnéeDossierDesDonnéesSupplémentaires[1])}`}
+                                            </li>
+                                          {/each}
+                                        {:else}
+                                          <li>
+                                            <strong>{`${clefDonnéesSupplémentaire} :`}</strong>
+                                            {`${JSON.stringify(valeurDonnéesSupplémentaire)}`}
+                                          </li>
+                                        {/if}
+                                      {/each}
+                                    {:else}
+                                      <li>
+                                        <strong>{`${clefDossierEtAlertes} :`}</strong>
+                                        {`${JSON.stringify(valeurDossierEtAlertes)}`}
+                                      </li>
+                                    {/if}
+                                  {/if}
                                 {/each}
                               </ul>
-                            {/if}
-                            <DéplierReplier
-                              open={alertesDuDossier && alertesDuDossier.length === 0}
-                            >
-                              {#snippet summary()}
-                                <h3>Données du dossier pour le pré-remplissage&nbsp;:</h3>
-                              {/snippet}
-                              {#snippet content()}
-                                <ul>
-                                  {#each Object.entries(dossierEtAlertes ?? {}) as [clefDossierEtAlertes, valeurDossierEtAlertes]}
-                                    {#if clefDossierEtAlertes !== "alertes"}
-                                      {#if clefDossierEtAlertes === "NE PAS MODIFIER - Données techniques associées à votre dossier"}
-                                        {@const donnéesSupplémentaires = Object.entries(
-                                          JSON.parse(valeurDossierEtAlertes as string),
-                                        )}
-                                        {#each donnéesSupplémentaires as [clefDonnéesSupplémentaire, valeurDonnéesSupplémentaire]}
-                                          {#if clefDonnéesSupplémentaire === "dossier"}
-                                            {@const donnéesDossierDesDonnéesSupplémentaires =
-                                              Object.entries(valeurDonnéesSupplémentaire as object)}
-                                            {#each donnéesDossierDesDonnéesSupplémentaires as donnéeDossierDesDonnéesSupplémentaires}
-                                              <li>
-                                                <strong
-                                                  >{`${donnéeDossierDesDonnéesSupplémentaires[0]} :`}</strong
-                                                >
-                                                {`${JSON.stringify(donnéeDossierDesDonnéesSupplémentaires[1])}`}
-                                              </li>
-                                            {/each}
-                                          {:else}
-                                            <li>
-                                              <strong>{`${clefDonnéesSupplémentaire} :`}</strong>
-                                              {`${JSON.stringify(valeurDonnéesSupplémentaire)}`}
-                                            </li>
-                                          {/if}
-                                        {/each}
-                                      {:else}
-                                        <li>
-                                          <strong>{`${clefDossierEtAlertes} :`}</strong>
-                                          {`${JSON.stringify(valeurDossierEtAlertes)}`}
-                                        </li>
-                                      {/if}
-                                    {/if}
-                                  {/each}
-                                </ul>
-                              {/snippet}
-                            </DéplierReplier>
-                          {/snippet}
-                        </BoutonModale>
-                      </td>
-                      <td>
-                        {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
-                          <p class="fr-badge fr-badge--success">En base de données</p>
-                          <a
-                            href={`/dossier/${nomToDossierId.get(créerNomPourDossier(ligneAffichéeTableauImport))}`}
-                            target="_blank"
-                            class="fr-btn fr-btn--secondary fr-ml-2w"
-                          >
-                            Ouvrir dossier
-                          </a>
-                        {:else if ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
-                          <a
-                            href={ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
-                            target="_blank"
-                            class="fr-btn">Créer dossier</a
-                          >
-                        {:else}
-                          <button
-                            type="button"
-                            class="fr-btn fr-btn--secondary"
-                            onclick={() =>
-                              handleCréerLienPréRemplissage(ligneAffichéeTableauImport)}
-                            >Préparer préremplissage</button
-                          >
-                        {/if}
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
+                            {/snippet}
+                          </DéplierReplier>
+                        {/snippet}
+                      </BoutonModale>
+                    </td>
+                    <td>
+                      {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
+                        <p class="fr-badge fr-badge--success">En base de données</p>
+                        <a
+                          href={`/dossier/${nomToDossierId.get(créerNomPourDossier(ligneAffichéeTableauImport))}`}
+                          target="_blank"
+                          class="fr-btn fr-btn--secondary fr-ml-2w"
+                        >
+                          Ouvrir dossier
+                        </a>
+                      {:else if ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
+                        <a
+                          href={ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
+                          target="_blank"
+                          class="fr-btn">Créer dossier</a
+                        >
+                      {:else}
+                        <button
+                          type="button"
+                          class="fr-btn fr-btn--secondary"
+                          onclick={() => handleCréerLienPréRemplissage(ligneAffichéeTableauImport)}
+                          >Préparer préremplissage</button
+                        >
+                      {/if}
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+    </div>
 
-      {#if selectionneursPage}
-        <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
-        ></Pagination>
-      {/if}
-    {:catch erreurChargement}
-      <p class="fr-alert fr-alert--error fr-mt-4w">
-        {`Une erreur est survenue lors de la préparation du fichier : ${erreurChargement instanceof Error ? erreurChargement.message : erreurChargement}`}
-      </p>
-    {/await}
-  {/if}
-</Squelette>
+    {#if selectionneursPage}
+      <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
+      ></Pagination>
+    {/if}
+  {:catch erreurChargement}
+    <p class="fr-alert fr-alert--error fr-mt-4w">
+      {`Une erreur est survenue lors de la préparation du fichier : ${erreurChargement instanceof Error ? erreurChargement.message : erreurChargement}`}
+    </p>
+  {/await}
+{/if}
 
 <style lang="scss">
   ul {

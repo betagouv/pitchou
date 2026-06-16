@@ -8,17 +8,15 @@
 
     */
 
-  import Squelette from "$lib/components/Squelette.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
 
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossiers?: DossierRésumé[];
-    email?: string | undefined;
   };
 
-  let { dossiers = [], email = undefined }: Props = $props();
+  let { dossiers = [] }: Props = $props();
 
   const aujourdhui = new Date();
 
@@ -80,74 +78,72 @@
   );
 </script>
 
-<Squelette nav={false} {email}>
-  <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
-    <article class="fr-col">
-      <header class="fr-mb-2w">
-        <h1>Des stats pour les chefs DREAL N-A</h1>
-      </header>
+<div class="fr-grid-row fr-mt-6w fr-grid-row--center">
+  <article class="fr-col">
+    <header class="fr-mb-2w">
+      <h1>Des stats pour les chefs DREAL N-A</h1>
+    </header>
 
-      <section>
-        <h2 class="fr-mt-2w">Nombre de dossiers&nbsp;: {dossiers.length} dossiers affichés</h2>
-      </section>
+    <section>
+      <h2 class="fr-mt-2w">Nombre de dossiers&nbsp;: {dossiers.length} dossiers affichés</h2>
+    </section>
 
-      <section>
-        <h2>Dossiers avec AP</h2>
-        <ul>
-          <li>
-            <strong>
-              Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> (avec AP)
-            </strong>&nbsp;: {dossierEnPhaseContrôle.length}
-          </li>
-          <li>
-            <strong>
-              Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
-              avec AP pris en {getYear(aujourdhui)}
-            </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
-          </li>
-          <li>
-            <strong>
-              Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
-              avec AP pris en {getYear(annéeDernière)}
-            </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
-          </li>
-        </ul>
-      </section>
+    <section>
+      <h2>Dossiers avec AP</h2>
+      <ul>
+        <li>
+          <strong>
+            Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> (avec AP)
+          </strong>&nbsp;: {dossierEnPhaseContrôle.length}
+        </li>
+        <li>
+          <strong>
+            Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
+            avec AP pris en {getYear(aujourdhui)}
+          </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
+        </li>
+        <li>
+          <strong>
+            Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
+            avec AP pris en {getYear(annéeDernière)}
+          </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
+        </li>
+      </ul>
+    </section>
 
-      <section>
-        <h2>Accompagnement</h2>
-        <ul>
-          <li>
-            <strong>
-              Nombre de dossiers actuellement en phase <TagPhase
-                phase="Accompagnement amont"
-                taille="SM"
-              ></TagPhase>
-            </strong>&nbsp;: {dossiersEnAccompagnement.length}
-          </li>
-          <li>
-            <strong>
-              Nombre de dossiers actuellement en phase <TagPhase
-                phase="Accompagnement amont"
-                taille="SM"
-              ></TagPhase>
-              qui ont moins de 3 ans
-            </strong>&nbsp;: {dossiersEnAccompagnementDeMoinsDe3Ans.length}
-          </li>
-          <li>
-            <strong>
-              Nombre de dossiers non-scientifiques actuellement en phase <TagPhase
-                phase="Accompagnement amont"
-                taille="SM"
-              ></TagPhase>
-              qui ont moins de 3 ans
-            </strong>&nbsp;: {dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans.length}
-          </li>
-        </ul>
-      </section>
-    </article>
-  </div>
-</Squelette>
+    <section>
+      <h2>Accompagnement</h2>
+      <ul>
+        <li>
+          <strong>
+            Nombre de dossiers actuellement en phase <TagPhase
+              phase="Accompagnement amont"
+              taille="SM"
+            ></TagPhase>
+          </strong>&nbsp;: {dossiersEnAccompagnement.length}
+        </li>
+        <li>
+          <strong>
+            Nombre de dossiers actuellement en phase <TagPhase
+              phase="Accompagnement amont"
+              taille="SM"
+            ></TagPhase>
+            qui ont moins de 3 ans
+          </strong>&nbsp;: {dossiersEnAccompagnementDeMoinsDe3Ans.length}
+        </li>
+        <li>
+          <strong>
+            Nombre de dossiers non-scientifiques actuellement en phase <TagPhase
+              phase="Accompagnement amont"
+              taille="SM"
+            ></TagPhase>
+            qui ont moins de 3 ans
+          </strong>&nbsp;: {dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans.length}
+        </li>
+      </ul>
+    </section>
+  </article>
+</div>
 
 <style lang="scss">
 </style>

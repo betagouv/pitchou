@@ -5,15 +5,12 @@
 
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
 
-  import type { ComponentProps } from "svelte";
-  import type Squelette from "$lib/components/Squelette.svelte";
-
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
     dossier: DossierComplet;
-    email: NonNullable<ComponentProps<typeof Squelette>["email"]>;
+    email: string;
     dossierActuelSuiviParInstructeurActuel: boolean | undefined;
   };
 

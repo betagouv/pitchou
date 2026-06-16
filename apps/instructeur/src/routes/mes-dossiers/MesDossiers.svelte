@@ -1,39 +1,28 @@
 <script lang="ts">
   import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
-  import type { ComponentProps } from "svelte";
 
-  import Squelette from "$lib/components/Squelette.svelte";
   import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
 
   type Props = {
     email?: string;
     dossiers: DossierRésumé[];
     relationSuivis?: PitchouState["relationSuivis"];
-    erreurs?: PitchouState["erreurs"];
-    résultatsSynchronisationDS88444: ComponentProps<
-      typeof Squelette
-    >["résultatsSynchronisationDS88444"];
     notificationParDossier: PitchouState["notificationParDossier"];
   };
 
-  let {
-    email = "",
-    dossiers = [],
-    relationSuivis,
-    erreurs = new Set(),
-    résultatsSynchronisationDS88444,
-    notificationParDossier,
-  }: Props = $props();
+  let { email = "", dossiers = [], relationSuivis, notificationParDossier }: Props = $props();
 </script>
 
-<Squelette {email} {erreurs} {résultatsSynchronisationDS88444} title="Mes dossiers">
-  <ListeDossiers
-    titre="Mes dossiers"
-    {email}
-    {dossiers}
-    {relationSuivis}
-    afficherFiltreActionInstructeur
-    {notificationParDossier}
-  />
-</Squelette>
+<svelte:head>
+  <title>Mes dossiers — Pitchou</title>
+</svelte:head>
+
+<ListeDossiers
+  titre="Mes dossiers"
+  {email}
+  {dossiers}
+  {relationSuivis}
+  afficherFiltreActionInstructeur
+  {notificationParDossier}
+/>

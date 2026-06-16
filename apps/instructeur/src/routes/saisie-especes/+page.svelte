@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
   import SaisieEspèces from "./SaisieEspèces.svelte";
   import {
     importDescriptionMenacesEspècesFromOdsArrayBuffer,
@@ -14,8 +13,6 @@
     chargerListeEspècesProtégées(),
     chargerActivitésMéthodesMoyensDePoursuite(),
   ]);
-
-  const email = $derived(store.identité?.email);
 </script>
 
 {#await initP then [espècesData, actMétTrans]}
@@ -33,7 +30,6 @@
     transportsParClassificationEtreVivant,
   )}
   <SaisieEspèces
-    {email}
     {espècesProtégéesParClassification}
     {activitesParClassificationEtreVivant}
     {méthodesParClassificationEtreVivant}

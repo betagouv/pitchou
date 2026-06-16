@@ -10,8 +10,7 @@
     }
   });
 
-  const email = $derived(store.identité?.email);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
 </script>
 
-<TmpStats {email} {dossiers} />
+<TmpStats {dossiers} />

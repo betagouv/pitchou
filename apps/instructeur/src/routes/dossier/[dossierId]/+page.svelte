@@ -1,7 +1,7 @@
 <script lang="ts">
   import { store } from "$lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
-  import SqueletteContenuVide from "$lib/components/SqueletteContenuVide.svelte";
+  import Loader from "$lib/components/Loader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -31,7 +31,6 @@
   const dossier = $derived(store.dossiersComplets.get(id));
   const messages = $derived(store.messagesParDossierId.get(id));
   const email = $derived(store.identité?.email);
-  const résultatsSynchronisationDS88444 = $derived(store.résultatsSynchronisationDS88444);
   const relationSuivis = $derived(store.relationSuivis);
   const notification = $derived(store.notificationParDossier?.get(id));
 
@@ -59,11 +58,12 @@
     {ongletActifInitial}
     {messages}
     {email}
-    {résultatsSynchronisationDS88444}
     {personnesQuiSuiventDossier}
     {dossierActuelSuiviParInstructeurActuel}
     {notification}
   />
 {:else}
-  <SqueletteContenuVide />
+  <div class="fr-p-2w fr-pb-10w">
+    <Loader />
+  </div>
 {/if}
