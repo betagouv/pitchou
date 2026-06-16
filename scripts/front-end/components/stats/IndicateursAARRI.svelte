@@ -2,6 +2,7 @@
   import type { IndicateursAARRI } from "../../../types/API_Pitchou.ts";
   import { untrack } from "svelte";
   import Loader from "../Loader.svelte";
+  import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import { formatDateAbsolue } from "../../affichageDossier.ts";
   import { isSameDay } from "date-fns";
 
@@ -16,13 +17,41 @@
   );
 
   // typage volontairement laxe : la valeur peut être Date (depuis l'option) ou "" (option par défaut)
-  let dateChoisie: any = $state();
+  let dateDébut: any = $state();
+  let dateFin: any = $state();
 
-  untrack(() => indicateursParDateP).then(
-    (indicateursParDate) => (dateChoisie = indicateursParDate[1].date),
-  );
+  // Default comparison: from the earliest snapshot to today (the two extremes).
+  untrack(() => indicateursParDateP).then((indicateursParDate) => {
+    if (indicateursParDate.length > 0) {
+      dateFin = indicateursParDate[0].date;
+      dateDébut = indicateursParDate[indicateursParDate.length - 1].date;
+    }
+  });
 
   const largeurBarreBase = 80;
+
+  function formatEvolution(change: number): string {
+    return change > 0 ? `+${change}` : `${change}`;
+  }
+
+  function evolutionArrow(change: number): string {
+    if (change > 0) return "↗";
+    if (change < 0) return "↘";
+    return "→";
+  }
+
+  function formatPercent(before: number | undefined, change: number): string {
+    // A percentage from a zero (or unknown) baseline is undefined.
+    if (!before) return "—";
+    const percent = Math.round((change / before) * 100);
+    return `${percent > 0 ? "+" : ""}${percent} %`;
+  }
+
+  function changeClass(change: number): string {
+    if (change > 0) return "evolution-positive";
+    if (change < 0) return "evolution-negative";
+    return "evolution-neutral";
+  }
 </script>
 
 <div class="fr-my-6w">
@@ -111,96 +140,117 @@
     {#await indicateursParDateP}
       <Loader></Loader>
     {:then indicateursParDate}
-      {@const dates = indicateursParDate.slice(1).map((indicateurs) => indicateurs.date)}
-      {@const indicateurDateChoisie = indicateursParDate.find((indicateurs) =>
-        isSameDay(indicateurs.date, dateChoisie),
+      {@const toutesLesDates = [...indicateursParDate]
+        .map((indicateurs) => indicateurs.date)
+        .sort((a, b) => +new Date(a) - +new Date(b))}
+      {@const datesDébutPossibles = toutesLesDates.filter(
+        (date) => !dateFin || +new Date(date) <= +new Date(dateFin),
       )}
-      {@const diffIndicateurImpact =
-        indicateursAujourdhui.nombreUtilisateuriceImpact -
-        (indicateurDateChoisie?.nombreUtilisateuriceImpact ?? 0)}
-      {@const diffIndicateurRetenu =
-        indicateursAujourdhui.nombreUtilisateuriceRetenu -
-        (indicateurDateChoisie?.nombreUtilisateuriceRetenu ?? 0)}
-      {@const diffIndicateurActif =
-        indicateursAujourdhui.nombreUtilisateuriceActif -
-        (indicateurDateChoisie?.nombreUtilisateuriceActif ?? 0)}
-      {@const diffIndicateurAcquis =
-        indicateursAujourdhui.nombreUtilisateuriceAcquis -
-        (indicateurDateChoisie?.nombreUtilisateuriceAcquis ?? 0)}
+      {@const datesFinPossibles = toutesLesDates.filter(
+        (date) => !dateDébut || +new Date(date) >= +new Date(dateDébut),
+      )}
+      {@const indicateurDébut = indicateursParDate.find((indicateurs) =>
+        isSameDay(indicateurs.date, dateDébut),
+      )}
+      {@const indicateurFin = indicateursParDate.find((indicateurs) =>
+        isSameDay(indicateurs.date, dateFin),
+      )}
+      {@const evolutionRows = [
+        {
+          phase: "Acquis",
+          color: "var(--artwork-minor-brown-caramel)",
+          before: indicateurDébut?.nombreUtilisateuriceAcquis,
+          after: indicateurFin?.nombreUtilisateuriceAcquis,
+        },
+        {
+          phase: "Actif",
+          color: "var(--artwork-minor-green-menthe)",
+          before: indicateurDébut?.nombreUtilisateuriceActif,
+          after: indicateurFin?.nombreUtilisateuriceActif,
+        },
+        {
+          phase: "Retenu",
+          color: "var(--artwork-minor-yellow-moutarde)",
+          before: indicateurDébut?.nombreUtilisateuriceRetenu,
+          after: indicateurFin?.nombreUtilisateuriceRetenu,
+        },
+        {
+          phase: "Impact",
+          color: "var(--artwork-minor-red-marianne)",
+          before: indicateurDébut?.nombreUtilisateuriceImpact,
+          after: indicateurFin?.nombreUtilisateuriceImpact,
+        },
+      ]}
 
       <section class="fr-mt-4w">
         <h2>Évolution</h2>
-        <div class="fr-select-group">
-          <label class="fr-label" for="select-1"> Liste des dates possibles </label>
-          <select
-            bind:value={dateChoisie}
-            class="fr-select"
-            aria-describedby="select-1-messages"
-            id="select-1"
-            name="select-1"
-          >
-            <option value="" selected disabled>Sélectionnez une date</option>
-            {#each dates as date}
-              <option value={date}>{formatDateAbsolue(date)}</option>
-            {/each}
-          </select>
-          <div class="fr-messages-group" id="select-1-messages" aria-live="polite"></div>
+        <p>
+          Évolution du nombre d'utilisateurices par phase AARRI depuis le premier évènement
+          enregistré.
+        </p>
+
+        <AARRIEvolutionChart indicateurs={indicateursParDate} />
+
+        <h3 class="fr-mt-4w">Évolution du nombre d'utilisateurice par phase entre deux dates</h3>
+
+        <div class="comparaison-dates">
+          <div class="fr-select-group">
+            <label class="fr-label" for="select-debut">De</label>
+            <select bind:value={dateDébut} class="fr-select" id="select-debut" name="select-debut">
+              {#each datesDébutPossibles as date}
+                <option value={date}>{formatDateAbsolue(date)}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="select-fin">à</label>
+            <select bind:value={dateFin} class="fr-select" id="select-fin" name="select-fin">
+              {#each datesFinPossibles as date}
+                <option value={date}>{formatDateAbsolue(date)}</option>
+              {/each}
+            </select>
+          </div>
         </div>
 
-        {#if dateChoisie}
+        {#if indicateurDébut && indicateurFin}
           <div class="fr-table" id="table-0-component">
             <div class="fr-table__wrapper">
               <div class="fr-table__container">
                 <div class="fr-table__content">
                   <table id="table-0">
-                    <caption> Évolution du nombre d'utilisateurice par phase </caption>
+                    <caption class="fr-sr-only">
+                      Évolution du nombre d'utilisateurice par phase entre {formatDateAbsolue(
+                        dateDébut,
+                      )} et {formatDateAbsolue(dateFin)}
+                    </caption>
                     <thead>
                       <tr>
                         <th>Phase</th>
-                        <th> {formatDateAbsolue(dateChoisie)} </th>
-                        <th> Aujourd'hui </th>
-                        <th> Évolution </th>
+                        <th>{formatDateAbsolue(dateDébut)}</th>
+                        <th>{formatDateAbsolue(dateFin)}</th>
+                        <th>Évolution</th>
+                        <th>%</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr id="table-0-row-key-1" data-row-key="1">
-                        <td> Impact </td>
-                        <td> {indicateurDateChoisie?.nombreUtilisateuriceImpact} </td>
-                        <td> {indicateursAujourdhui.nombreUtilisateuriceImpact} </td>
-                        <td>
-                          {`${diffIndicateurImpact > 0 ? "+" : ""} ${diffIndicateurImpact}`}
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr id="table-0-row-key-2" data-row-key="2">
-                        <td> Retenu </td>
-                        <td> {indicateurDateChoisie?.nombreUtilisateuriceRetenu} </td>
-                        <td> {indicateursAujourdhui.nombreUtilisateuriceRetenu} </td>
-                        <td>
-                          {`${diffIndicateurRetenu > 0 ? "+" : ""} ${diffIndicateurRetenu}`}
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr id="table-0-row-key-3" data-row-key="3">
-                        <td> Actif </td>
-                        <td> {indicateurDateChoisie?.nombreUtilisateuriceActif} </td>
-                        <td> {indicateursAujourdhui.nombreUtilisateuriceActif} </td>
-                        <td>
-                          {`${diffIndicateurActif > 0 ? "+" : ""} ${diffIndicateurActif}`}
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr id="table-0-row-key-4" data-row-key="4">
-                        <td> Acquis </td>
-                        <td> {indicateurDateChoisie?.nombreUtilisateuriceAcquis} </td>
-                        <td> {indicateursAujourdhui.nombreUtilisateuriceAcquis} </td>
-                        <td>
-                          {`${diffIndicateurAcquis > 0 ? "+" : ""} ${diffIndicateurAcquis}`}
-                        </td>
-                      </tr>
+                      {#each evolutionRows as row, i}
+                        {@const change = (row.after ?? 0) - (row.before ?? 0)}
+                        <tr id={`table-0-row-key-${i + 1}`} data-row-key={i + 1}>
+                          <td>
+                            <span class="phase-dot" style={`background-color:${row.color}`}></span>
+                            {row.phase}
+                          </td>
+                          <td>{row.before}</td>
+                          <td>{row.after}</td>
+                          <td class={changeClass(change)}>
+                            {evolutionArrow(change)}
+                            {formatEvolution(change)}
+                          </td>
+                          <td class={changeClass(change)}>
+                            {formatPercent(row.before, change)}
+                          </td>
+                        </tr>
+                      {/each}
                     </tbody>
                   </table>
                 </div>
@@ -224,6 +274,48 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+  .phase-dot {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  .comparaison-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+
+    .fr-select-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0;
+    }
+    .fr-label {
+      margin-bottom: 0;
+      white-space: nowrap;
+    }
+    .fr-select {
+      margin-top: 0;
+      width: auto;
+      min-width: 11rem;
+    }
+  }
+  .evolution-positive {
+    color: var(--text-default-success, #18753c);
+    font-weight: 700;
+  }
+  .evolution-negative {
+    color: var(--text-default-error, #ce0500);
+    font-weight: 700;
+  }
+  .evolution-neutral {
+    color: var(--text-mention-grey, #666);
   }
   .barre {
     height: 40px;
