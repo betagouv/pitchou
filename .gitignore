@@ -43,4 +43,4 @@ docs/vendor/
 .direnv/
 .corepack/
 .cache/
-compose.override.yml
+compose.dev.override.yml

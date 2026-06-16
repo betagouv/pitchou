@@ -30,7 +30,7 @@ services:
     stop_grace_period: 2s
 
   # Stockage objet S3-compatible pour le dev local (équivalent local d'Outscale OOS).
-  # Même image que les tests (tests/compose.yml), mais avec un volume persistant.
+  # Même image que les tests (compose.test.yml), mais avec un volume persistant.
   s3:
     image: rustfs/rustfs:1.0.0-beta.6
     container_name: pitchou_s3
