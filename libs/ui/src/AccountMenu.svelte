@@ -1,18 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import { store } from "../store.svelte.ts";
+  import type { AccountMenuProps } from "./index.ts";
 
-  type Props = {
-    email: string;
-    onLogout: () => void;
-    /** Côté d'ouverture du panneau sous le bouton */
-    align?: "start" | "end";
-  };
-
-  let { email, onLogout, align = "end" }: Props = $props();
-
-  const estAdmin = $derived(Boolean(store.identité?.estAdmin));
+  let { email, onLogout, align = "end", adminUrl }: AccountMenuProps = $props();
 
   const panelId = $derived(`account-menu-panel-${align}`);
 
@@ -41,10 +32,10 @@
 
   function deconnecter() {
     close();
-    onLogout();
+    onLogout?.();
   }
 
-  // Thème clair / sombre via le système DSFR (data-fr-scheme piloté, data-fr-theme observé)
+  // Light / dark theme through the DSFR system (data-fr-scheme is set, data-fr-theme is observed).
   let theme = $state<"light" | "dark">("light");
 
   onMount(() => {
@@ -61,7 +52,7 @@
   function toggleTheme() {
     const root = document.documentElement;
     const next = root.getAttribute("data-fr-theme") === "dark" ? "light" : "dark";
-    // DSFR observe data-fr-scheme, applique data-fr-theme et persiste le choix
+    // DSFR observes data-fr-scheme, applies data-fr-theme and persists the choice.
     root.setAttribute("data-fr-scheme", next);
   }
 </script>
@@ -92,21 +83,15 @@
       class:account-menu__panel--start={align === "start"}
       id={panelId}
     >
-      <p class="account-menu__email">{email}</p>
-      {#if estAdmin}
+      {#if email}
+        <p class="account-menu__email">{email}</p>
+      {/if}
+      {#if adminUrl}
         <a
-          href="/admin/utilisateurs"
-          class="fr-btn fr-btn--tertiary fr-icon-team-line fr-btn--icon-left account-menu__action"
-          onclick={close}
+          href={adminUrl}
+          class="fr-btn fr-btn--tertiary fr-icon-arrow-right-line fr-btn--icon-left account-menu__action"
         >
-          Admin - Utilisateurs
-        </a>
-        <a
-          href="/admin/especes-protegees"
-          class="fr-btn fr-btn--tertiary fr-icon-seedling-line fr-btn--icon-left account-menu__action"
-          onclick={close}
-        >
-          Admin - Espèces
+          Administration
         </a>
       {/if}
       <button
@@ -118,13 +103,15 @@
       >
         {theme === "dark" ? "Thème clair" : "Thème sombre"}
       </button>
-      <button
-        type="button"
-        class="fr-btn fr-btn--tertiary fr-icon-logout-box-r-line fr-btn--icon-left account-menu__action"
-        onclick={deconnecter}
-      >
-        Se déconnecter
-      </button>
+      {#if onLogout}
+        <button
+          type="button"
+          class="fr-btn fr-btn--tertiary fr-icon-logout-box-r-line fr-btn--icon-left account-menu__action"
+          onclick={deconnecter}
+        >
+          Se déconnecter
+        </button>
+      {/if}
     </div>
   {/if}
 </div>

@@ -1,8 +1,10 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { env } from "$env/dynamic/public";
   import { logout } from "$lib/shared/main.ts";
+  import UiHeader from "@pitchou/ui/Header.svelte";
+  import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
 
-  import AccountMenu from "./AccountMenu.svelte";
   import Navbar from "./Navbar.svelte";
 
   type Props = {
@@ -12,87 +14,34 @@
 
   let { nav = true, email = undefined }: Props = $props();
 
-  let afficheMenu = $derived(nav || Boolean(email));
+  // Link to the admin app, shown in the account menu. Hidden when unset.
+  const adminUrl = env.PUBLIC_SITE_URL_ADMIN;
 
   function logoutAndRedirect() {
     logout().then(() => goto("/"));
   }
 </script>
 
-<div class="fr-skiplinks">
-  <nav aria-label="Accès rapide" class="fr-container">
-    <ul class="fr-skiplinks__list">
-      <li>
-        <a class="fr-link" href="#main">Contenu</a>
-      </li>
-    </ul>
-  </nav>
-</div>
+<UiHeader
+  serviceTitle="Pitchou"
+  serviceTagline="Demandes de Dérogation Espèces Protégées"
+  tools={email ? tools : undefined}
+  menuLinks={email ? menuLinks : undefined}
+  nav={nav ? navLinks : undefined}
+/>
 
-<header class="fr-header">
-  <div class="fr-header__body">
-    <div class="fr-container">
-      <div class="fr-header__body-row">
-        <div class="fr-header__brand fr-enlarge-link">
-          <div class="fr-header__brand-top">
-            <div class="fr-header__logo">
-              <p class="fr-logo">
-                République
-                <br />Française
-              </p>
-            </div>
-            {#if afficheMenu}
-              <div class="fr-header__navbar">
-                <button
-                  data-fr-opened="false"
-                  aria-controls="modal-header-menu"
-                  title="Menu"
-                  type="button"
-                  id="button-header-menu"
-                  class="fr-btn--menu fr-btn">Menu</button
-                >
-              </div>
-            {/if}
-          </div>
-          <div class="fr-header__service">
-            <a href="/" title="Accueil - Pitchou - DGALN">
-              <p class="fr-header__service-title">Pitchou</p>
-            </a>
-            <p class="fr-header__service-tagline">Demandes de Dérogation Espèces Protégées</p>
-          </div>
-        </div>
-
-        {#if email}
-          <div class="fr-header__tools fr-hidden fr-unhidden-lg">
-            <AccountMenu {email} onLogout={logoutAndRedirect} />
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
-
-  {#if afficheMenu}
-    <div
-      class="fr-header__menu fr-modal"
-      id="modal-header-menu"
-      aria-labelledby="button-header-menu"
-    >
-      <div class="fr-container">
-        <button
-          aria-controls="modal-header-menu"
-          title="Fermer"
-          type="button"
-          class="fr-btn--close fr-btn">Fermer</button
-        >
-        <div class="fr-header__menu-links">
-          {#if email}
-            <AccountMenu {email} onLogout={logoutAndRedirect} align="start" />
-          {/if}
-        </div>
-        {#if nav}
-          <Navbar />
-        {/if}
-      </div>
-    </div>
+{#snippet tools()}
+  {#if email}
+    <AccountMenu {email} onLogout={logoutAndRedirect} {adminUrl} />
   {/if}
-</header>
+{/snippet}
+
+{#snippet menuLinks()}
+  {#if email}
+    <AccountMenu {email} onLogout={logoutAndRedirect} align="start" {adminUrl} />
+  {/if}
+{/snippet}
+
+{#snippet navLinks()}
+  <Navbar />
+{/snippet}

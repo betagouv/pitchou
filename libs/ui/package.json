@@ -1,0 +1,19 @@
+{
+  "name": "@pitchou/ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": {
+      "svelte": "./src/*",
+      "default": "./src/*"
+    }
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "svelte": "^5.46.4"
+  }
+}
