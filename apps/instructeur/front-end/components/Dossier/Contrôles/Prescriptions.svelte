@@ -3,7 +3,7 @@
   import DateInput from "../../common/DateInput.svelte";
   import Prescription from "./Prescription.svelte";
 
-  import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
+  import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
 
   import {
     supprimerPrescription as supprimerPrescriptionBaseDeDonnées,
@@ -16,9 +16,9 @@
   import type {
     FrontEndDécisionAdministrative,
     FrontEndPrescription,
-  } from "../../../../types/API_Pitchou.ts";
-  import type Dossier from "../../../../types/database/public/Dossier.ts";
-  import type PrescriptionType from "../../../../types/database/public/Prescription.ts";
+  } from "@pitchou/types/API_Pitchou.ts";
+  import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+  import type PrescriptionType from "@pitchou/types/database/public/Prescription.ts";
 
   type Props = {
     dossierId: Dossier["id"];

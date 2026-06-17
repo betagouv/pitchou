@@ -11,8 +11,8 @@
   import type {
     DécisionAdministrativePourTransfer,
     FrontEndDécisionAdministrative,
-  } from "../../../../types/API_Pitchou.ts";
-  import type Dossier from "../../../../types/database/public/Dossier.ts";
+  } from "@pitchou/types/API_Pitchou.ts";
+  import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
     dossierId: Dossier["id"];

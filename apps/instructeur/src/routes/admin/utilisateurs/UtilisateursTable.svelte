@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { UtilisateurAARRI } from "$types/API_Pitchou.ts";
+  import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
   import BadgeNiveauAARRI from "./BadgeNiveauAARRI.svelte";
 
   type Props = {

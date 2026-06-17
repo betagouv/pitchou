@@ -2,12 +2,12 @@ import { randomBytes } from "node:crypto";
 
 import type { Knex } from "knex";
 
-import type { PersonneInitializer } from "../../scripts/types/database/public/Personne.ts";
-import type { ÉvènementMétrique } from "../../scripts/types/évènement.d.ts";
+import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
+import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 import {
   ÉVÈNEMENTS_CONSULTATIONS,
   ÉVÈNEMENTS_MODIFICATIONS,
-} from "../../scripts/server/database/aarri/constantes.ts";
+} from "@pitchou/server/database/aarri/constantes.ts";
 
 /**
  * Seed creating demo metric events for the AARRI indicators

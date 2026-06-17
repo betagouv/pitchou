@@ -1,10 +1,10 @@
 <script lang="ts">
   import DateInput from "../../common/DateInput.svelte";
 
-  import toJSONPerserveDate from "../../../../commun/DateToJSON.js";
-  import { typesDécisionAdministrative } from "../../../../commun/décision-administrative.js";
+  import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
+  import { typesDécisionAdministrative } from "@pitchou/common/décision-administrative.js";
 
-  import type { DécisionAdministrativePourTransfer } from "../../../../types/API_Pitchou.js";
+  import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.js";
 
   type Props = {
     décisionAdministrative: DécisionAdministrativePourTransfer;

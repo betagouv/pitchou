@@ -3,8 +3,8 @@ import { computeNiveauAARRI, type LevelEvent } from "./aarri/niveau.ts";
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
 
 import type { Knex } from "knex";
-import type { UtilisateurAARRI } from "../../types/API_Pitchou.ts";
-import type { ÉvènementMétrique } from "../../types/évènement.d.ts";
+import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
+import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 
 const ACTION_TYPES = new Set<ÉvènementMétrique["type"]>([
   ...ÉVÈNEMENTS_CONSULTATIONS,

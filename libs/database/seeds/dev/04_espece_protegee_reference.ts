@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { rebuildEspeceProtegeeReference } from "../../src/lib/server/especeProtegeeReference.ts";
+import { rebuildEspeceProtegeeReference } from "@pitchou/server/especeProtegeeReference.ts";
 
 // Rebuilds the `espece_protegee_reference` table from the source tables seeded just
 // before (espece_taxref + espece_bdc_statut). Exactly as

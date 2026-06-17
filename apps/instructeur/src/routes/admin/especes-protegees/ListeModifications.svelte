@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EspèceProtégée } from "$types/especes.d.ts";
+  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
   import type { ModificationEspeceAdmin } from "$front/actions/adminEspeces.ts";
   import { saveModificationEspece } from "$front/actions/adminEspeces.ts";
   import Pagination from "$front/components/DSFR/Pagination.svelte";

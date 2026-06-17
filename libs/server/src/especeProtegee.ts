@@ -2,19 +2,19 @@ import type { Knex } from "knex";
 
 // Relative imports (not the `$` aliases) so this module also resolves under `tsx`,
 // which runs the CLI generator and the seeds.
-import { directDatabaseConnection } from "../../../scripts/server/database.ts";
+import { directDatabaseConnection } from "./database.ts";
 
-import type { default as EspeceProtegee } from "../../../scripts/types/database/public/EspeceProtegee.ts";
+import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
 import type {
   default as EspeceProtegeeModification,
   EspeceProtegeeModificationInitializer,
   EspeceProtegeeModificationCdRef,
-} from "../../../scripts/types/database/public/EspeceProtegeeModification.ts";
+} from "@pitchou/types/database/public/EspeceProtegeeModification.ts";
 
 // Re-exported so server consumers can convert rows from the same module they fetch
 // them with. The implementation is knex-free and lives in `commun` so the front-end
 // can reuse it on rows received from the API.
-export { dbRowToEspeceProtegee } from "../../../scripts/commun/outils-espèces.ts";
+export { dbRowToEspeceProtegee } from "@pitchou/common/outils-espèces.ts";
 
 /**
  * Reads the merged `espece_protegee` view (reference table + manual layer fused by

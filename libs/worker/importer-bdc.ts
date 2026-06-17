@@ -2,10 +2,10 @@ import { createReadStream } from "node:fs";
 
 import { parse } from "csv-parse";
 
-import { directDatabaseConnection, closeDatabaseConnection } from "../scripts/server/database.ts";
+import { directDatabaseConnection, closeDatabaseConnection } from "@pitchou/server/database.ts";
 
-import type { BDC_STATUT_ROW } from "../scripts/types/especes.d.ts";
-import type { EspeceBdcStatutInitializer } from "../scripts/types/database/public/EspeceBdcStatut.ts";
+import type { BDC_STATUT_ROW } from "@pitchou/types/especes.d.ts";
+import type { EspeceBdcStatutInitializer } from "@pitchou/types/database/public/EspeceBdcStatut.ts";
 
 // Imports BDC-Statuts (INPN file) into the `espece_bdc_statut` table. Full import
 // (all statut types); the PN/PR/PD/POM filtering happens when the

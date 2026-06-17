@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { searchBdcStatut } from "$lib/server/bdcStatut.ts";
+import { searchBdcStatut } from "@pitchou/server/bdcStatut.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
   const page = Number(url.searchParams.get("page"));

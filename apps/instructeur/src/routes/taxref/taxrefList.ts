@@ -1,4 +1,4 @@
-// Client-side counterpart of `$lib/server/taxref.ts`: the row/page shapes returned by
+// Client-side counterpart of `@pitchou/server/taxref.ts`: the row/page shapes returned by
 // the API, plus helpers to read the search state from the URL and fetch one page. The
 // whole TAXREF referential is far too large to load at once, so every search, filter
 // change and page turn is a request that returns only the matching slice.

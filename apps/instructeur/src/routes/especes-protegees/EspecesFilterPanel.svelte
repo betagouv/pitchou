@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ClassificationEtreVivant } from "$types/especes.d.ts";
+  import type { ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
   import { CLASSIFICATIONS, STATUTS, type Statut, type ListeFilter } from "./especesList.ts";
 
   type Props = {

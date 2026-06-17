@@ -3,9 +3,9 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 
 import DecisionAdministrative from "./DecisionAdministrative.svelte";
-import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
-import type { FrontEndDécisionAdministrative } from "../../../../types/API_Pitchou.ts";
-import type Dossier from "../../../../types/database/public/Dossier.ts";
+import { reactive } from "../../../../tests/helpers/reactive.svelte.ts";
+import type { FrontEndDécisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
+import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
 const DOSSIER_ID = 1 as Dossier["id"];
 

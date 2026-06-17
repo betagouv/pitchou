@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import type { EspeceProtegeeModificationInitializer } from "../../scripts/types/database/public/EspeceProtegeeModification.ts";
+import type { EspeceProtegeeModificationInitializer } from "@pitchou/types/database/public/EspeceProtegeeModification.ts";
 
 const FLAGS: EspeceProtegeeModificationInitializer[] = [
   { cd_ref: "212", espece_cnpn: true },

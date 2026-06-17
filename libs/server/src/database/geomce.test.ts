@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { genererMessagesGeoMCE } from "./geomce.ts";
-import type { DossierPourGeoMCE } from "../../types/geomce.ts";
+import type { DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
 
 // Only the fields genererMessagesGeoMCE reads, with plain types (the branded
 // id/siret are simplified here since the result is cast to DossierPourGeoMCE).

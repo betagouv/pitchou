@@ -1,6 +1,6 @@
-import type { EspèceProtégée } from "$types/especes.d.ts";
+import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
 import type { ModificationEspeceAdmin } from "$front/actions/adminEspeces.ts";
-import { normalizeNomEspèce, normalizeTexteEspèce } from "$commun/manipulationStrings.ts";
+import { normalizeNomEspèce, normalizeTexteEspèce } from "@pitchou/common/manipulationStrings.ts";
 
 import { CLASSIFICATIONS, STATUTS } from "../../especes-protegees/especesList.ts";
 

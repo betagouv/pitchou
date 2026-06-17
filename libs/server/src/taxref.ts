@@ -1,9 +1,9 @@
 import type { Knex } from "knex";
 
 // Relative import (not the `$` alias) so this module also resolves under `tsx`.
-import { directDatabaseConnection } from "../../../scripts/server/database.ts";
+import { directDatabaseConnection } from "./database.ts";
 
-import type { default as EspeceTaxref } from "../../../scripts/types/database/public/EspeceTaxref.ts";
+import type { default as EspeceTaxref } from "@pitchou/types/database/public/EspeceTaxref.ts";
 
 export const TAXREF_PAGE_SIZE = 20;
 

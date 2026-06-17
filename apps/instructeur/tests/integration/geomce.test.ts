@@ -7,7 +7,7 @@ import { createDossier } from "../factories/dossier.ts";
 import { createFichier } from "../factories/fichier.ts";
 import { createPersonne } from "../factories/personne.ts";
 
-import { générerDéclarationGeoMCE } from "$server/database/geomce.ts";
+import { générerDéclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
 

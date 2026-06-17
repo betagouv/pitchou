@@ -1,8 +1,8 @@
 import type { Knex } from "knex";
 
-import type { EspeceTaxrefInitializer } from "$types/database/public/EspeceTaxref.ts";
-import type { EspeceBdcStatutInitializer } from "$types/database/public/EspeceBdcStatut.ts";
-import { rebuildEspeceProtegeeReference } from "$lib/server/especeProtegeeReference.ts";
+import type { EspeceTaxrefInitializer } from "@pitchou/types/database/public/EspeceTaxref.ts";
+import type { EspeceBdcStatutInitializer } from "@pitchou/types/database/public/EspeceBdcStatut.ts";
+import { rebuildEspeceProtegeeReference } from "@pitchou/server/especeProtegeeReference.ts";
 
 export type EspeceProtegeeReferenceSample = {
   cd_ref: string;

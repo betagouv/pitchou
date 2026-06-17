@@ -2,10 +2,10 @@ import { readFile } from "node:fs/promises";
 
 import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
 
-import { directDatabaseConnection, closeDatabaseConnection } from "../scripts/server/database.ts";
-import { upsertEspeceProtegeeModification } from "../src/lib/server/especeProtegee.ts";
+import { directDatabaseConnection, closeDatabaseConnection } from "@pitchou/server/database.ts";
+import { upsertEspeceProtegeeModification } from "@pitchou/server/especeProtegee.ts";
 
-import type { ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW } from "../scripts/types/especes.d.ts";
+import type { ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW } from "@pitchou/types/especes.d.ts";
 
 // ONE-OFF production bootstrap. Populates `espece_protegee_modification` from the two
 // committed .ods files, matched against the already-built reference

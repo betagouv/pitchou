@@ -2,7 +2,7 @@ import remember from "remember";
 
 import { PITCHOU_SECRET_STORAGE_KEY } from "./main.ts";
 
-import type { UtilisateurAARRI } from "../../types/API_Pitchou.ts";
+import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 
 /**
  * Loads the AARRI level of every Pitchou user for the admin page. The stored

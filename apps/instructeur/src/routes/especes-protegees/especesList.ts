@@ -1,5 +1,5 @@
-import type { EspèceProtégée, ClassificationEtreVivant } from "$types/especes.d.ts";
-import { normalizeNomEspèce, normalizeTexteEspèce } from "$commun/manipulationStrings.ts";
+import type { EspèceProtégée, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+import { normalizeNomEspèce, normalizeTexteEspèce } from "@pitchou/common/manipulationStrings.ts";
 
 export const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
 

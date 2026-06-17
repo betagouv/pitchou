@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { searchTaxref } from "$lib/server/taxref.ts";
+import { searchTaxref } from "@pitchou/server/taxref.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
   const page = Number(url.searchParams.get("page"));

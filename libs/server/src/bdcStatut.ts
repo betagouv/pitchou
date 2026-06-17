@@ -1,9 +1,9 @@
 import type { Knex } from "knex";
 
 // Relative import (not the `$` alias) so this module also resolves under `tsx`.
-import { directDatabaseConnection } from "../../../scripts/server/database.ts";
+import { directDatabaseConnection } from "./database.ts";
 
-import type { default as EspeceBdcStatut } from "../../../scripts/types/database/public/EspeceBdcStatut.ts";
+import type { default as EspeceBdcStatut } from "@pitchou/types/database/public/EspeceBdcStatut.ts";
 
 export const BDC_STATUT_PAGE_SIZE = 20;
 

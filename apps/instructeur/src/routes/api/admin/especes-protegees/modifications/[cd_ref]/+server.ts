@@ -5,7 +5,7 @@ import {
   upsertEspeceProtegeeModification,
   deleteEspeceProtegeeModification,
   validatePatchModification,
-} from "$lib/server/especeProtegee.ts";
+} from "@pitchou/server/especeProtegee.ts";
 
 export const PUT: RequestHandler = async ({ url, request, params }) => {
   const email = await requireAdmin(url);

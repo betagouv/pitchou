@@ -2,8 +2,8 @@ import { randomBytes } from "node:crypto";
 
 import type { Knex } from "knex";
 
-import type { PersonneInitializer } from "../../scripts/types/database/public/Personne.ts";
-import type { ÉvènementMétrique } from "../../scripts/types/évènement.d.ts";
+import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
+import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 
 /**
  * Seeds a handful of personnes covering every AARRI level (base, acquis, actif,

@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import type { EspeceBdcStatutInitializer } from "../../scripts/types/database/public/EspeceBdcStatut.ts";
+import type { EspeceBdcStatutInitializer } from "@pitchou/types/database/public/EspeceBdcStatut.ts";
 
 const BDC_STATUT: EspeceBdcStatutInitializer[] = [
   { cd_nom: "100", cd_ref: "100", cd_type_statut: "PN", label_statut: "" },

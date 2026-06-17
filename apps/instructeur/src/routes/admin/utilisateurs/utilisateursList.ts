@@ -1,5 +1,5 @@
-import type { NiveauAARRI, UtilisateurAARRI } from "$types/API_Pitchou.ts";
-import { retirerAccents } from "$commun/manipulationStrings.ts";
+import type { NiveauAARRI, UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
+import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
 
 /** AARRI levels in display order: highest funnel stage first. */
 export const NIVEAUX: NiveauAARRI[] = ["impact", "retenu", "actif", "acquis", "base"];

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { NiveauAARRI } from "$types/API_Pitchou.ts";
+  import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { NIVEAU_LABELS, NIVEAU_COLOR_VAR } from "./utilisateursList.ts";
 
   type Props = {

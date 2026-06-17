@@ -2,8 +2,8 @@ import { startOfWeek, eachWeekOfInterval } from "date-fns";
 
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./constantes.ts";
 
-import type { NiveauAARRI } from "../../../types/API_Pitchou.ts";
-import type { ÉvènementMétrique } from "../../../types/évènement.d.ts";
+import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
+import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 
 /**
  * Pure (database-free) logic that computes the AARRI level of a single personne

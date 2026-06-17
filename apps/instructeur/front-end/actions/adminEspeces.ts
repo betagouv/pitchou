@@ -1,10 +1,10 @@
 import remember from "remember";
 
 import { PITCHOU_SECRET_STORAGE_KEY } from "./main.ts";
-import { dbRowToEspeceProtegee } from "../../commun/outils-espèces.ts";
+import { dbRowToEspeceProtegee } from "@pitchou/common/outils-espèces.ts";
 
-import type { EspèceProtégée } from "../../types/especes.d.ts";
-import type { default as EspeceProtegee } from "../../types/database/public/EspeceProtegee.ts";
+import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
 /**
  * Thrown when the user is not connected or not an admin (no secret, or 403).

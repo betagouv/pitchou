@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { dbRowToEspeceProtegee } from "./outils-espèces.ts";
-import type { default as EspeceProtegee } from "../types/database/public/EspeceProtegee.ts";
+import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
 // Builds a raw `espece_protegee` row. cd_ref is a branded string in the generated
 // type, so the literal is cast through `as` for the test.

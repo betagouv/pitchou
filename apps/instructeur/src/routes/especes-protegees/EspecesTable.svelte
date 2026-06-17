@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
 
-  import type { EspèceProtégée } from "$types/especes.d.ts";
+  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
   import { firstName } from "./especesList.ts";
   import EspecesSynonymesModale from "./EspecesSynonymesModale.svelte";
 

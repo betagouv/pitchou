@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
-  import type { NiveauAARRI, UtilisateurAARRI } from "$types/API_Pitchou.ts";
+  import type { NiveauAARRI, UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
   import Pagination from "$front/components/DSFR/Pagination.svelte";
 
   import {

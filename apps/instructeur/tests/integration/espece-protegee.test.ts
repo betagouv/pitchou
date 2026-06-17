@@ -1,13 +1,13 @@
 import { beforeEach, expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
-import { getEspecesProtegees } from "$lib/server/especeProtegee.ts";
-import { rebuildEspeceProtegeeReference } from "$lib/server/especeProtegeeReference.ts";
+import { getEspecesProtegees } from "@pitchou/server/especeProtegee.ts";
+import { rebuildEspeceProtegeeReference } from "@pitchou/server/especeProtegeeReference.ts";
 import {
   seedEspeceProtegeeReference,
   type EspeceProtegeeReferenceSample,
 } from "../factories/especeProtegeeReference.ts";
-import type { EspeceProtegeeModificationInitializer } from "$types/database/public/EspeceProtegeeModification.ts";
+import type { EspeceProtegeeModificationInitializer } from "@pitchou/types/database/public/EspeceProtegeeModification.ts";
 
 function refEspece(
   cd_ref: string,

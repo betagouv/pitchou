@@ -10,10 +10,7 @@ import {
   construireActivitésMéthodesMoyensDePoursuite,
   importDescriptionMenacesEspècesFromOdsArrayBuffer,
 } from "@pitchou/common/outils-espèces.ts";
-import {
-  getEspecesProtegees,
-  dbRowToEspeceProtegee,
-} from "@pitchou/server/especeProtegee.ts";
+import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";

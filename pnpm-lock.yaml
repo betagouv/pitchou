@@ -191,6 +191,9 @@ importers:
       '@pitchou/common':
         specifier: workspace:*
         version: link:../common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../server
       '@pitchou/types':
         specifier: workspace:*
         version: link:../types
@@ -262,6 +265,9 @@ importers:
 
   libs/worker:
     dependencies:
+      '@odfjs/odfjs':
+        specifier: github:odfjs/odfjs#v0.30.0
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
       '@pitchou/common':
         specifier: workspace:*
         version: link:../common
@@ -274,6 +280,9 @@ importers:
       byte-size:
         specifier: ^9.0.1
         version: 9.0.1
+      csv-parse:
+        specifier: ^5.5.6
+        version: 5.6.0
       date-fns:
         specifier: ^4.1.0
         version: 4.2.1

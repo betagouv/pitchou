@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IndicateursAARRI } from "../../../types/API_Pitchou.ts";
+  import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     indicateurs: IndicateursAARRI[];

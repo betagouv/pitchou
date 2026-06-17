@@ -22,8 +22,8 @@ vi.mock(import("../../actions/dossier.ts"), async (importOriginal) => {
 import DossierContrôles from "./DossierContrôles.svelte";
 import { supprimerDécisionAdministrative } from "../../actions/décisionAdministrative.ts";
 import { refreshDossierComplet } from "../../actions/dossier.ts";
-import { reactive } from "../../../../tests/helpers/reactive.svelte.ts";
-import type { DossierComplet, FrontEndDécisionAdministrative } from "../../../types/API_Pitchou.ts";
+import { reactive } from "../../../tests/helpers/reactive.svelte.ts";
+import type { DossierComplet, FrontEndDécisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 
 let dossier: DossierComplet;
 // Minimal "database" shared between the mocks: deletion empties it, refresh

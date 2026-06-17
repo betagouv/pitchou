@@ -2,10 +2,10 @@ import { createReadStream } from "node:fs";
 
 import { parse } from "csv-parse";
 
-import { directDatabaseConnection, closeDatabaseConnection } from "../scripts/server/database.ts";
+import { directDatabaseConnection, closeDatabaseConnection } from "@pitchou/server/database.ts";
 
-import type { TAXREF_ROW } from "../scripts/types/especes.d.ts";
-import type { EspeceTaxrefInitializer } from "../scripts/types/database/public/EspeceTaxref.ts";
+import type { TAXREF_ROW } from "@pitchou/types/especes.d.ts";
+import type { EspeceTaxrefInitializer } from "@pitchou/types/database/public/EspeceTaxref.ts";
 
 // Imports TAXREF (INPN file) into the `espece_taxref` table. Run after a source
 // update, in dev and prod alike (`just generate-taxref`). The table feeds the

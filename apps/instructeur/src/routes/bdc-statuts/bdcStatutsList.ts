@@ -1,4 +1,4 @@
-// Client-side counterpart of `$lib/server/bdcStatut.ts`: the row/page shapes returned
+// Client-side counterpart of `@pitchou/server/bdcStatut.ts`: the row/page shapes returned
 // by the API, plus helpers to read the search state from the URL and fetch one page.
 // BDC-Statuts has one row per species × status, far too many to load at once, so every
 // search, filter change and page turn is a request that returns only the matching slice.

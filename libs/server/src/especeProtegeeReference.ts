@@ -2,9 +2,9 @@ import type { Knex } from "knex";
 
 // Relative imports (not the `$` aliases) so this module also resolves under `tsx`,
 // which runs the import scripts and the seeds.
-import { directDatabaseConnection } from "../../../scripts/server/database.ts";
+import { directDatabaseConnection } from "./database.ts";
 
-import type { EspeceProtegeeReferenceInitializer } from "../../../scripts/types/database/public/EspeceProtegeeReference.ts";
+import type { EspeceProtegeeReferenceInitializer } from "@pitchou/types/database/public/EspeceProtegeeReference.ts";
 
 // `espece_protegee_reference` is a plain table derived from the source tables.
 // `rebuildEspeceProtegeeReference` replaces it from `espece_taxref` +

@@ -3,10 +3,10 @@ import { expect, test, describe } from "vitest";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL, TEST_ADMIN_EMAIL } from "../setup/integration-global.ts";
 import { createPersonne } from "../factories/index.ts";
-import { getUtilisateursAARRI } from "$server/database/utilisateursAARRI.ts";
+import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
 
-import type { ÉvènementMétrique } from "$types/évènement.d.ts";
-import type { UtilisateurAARRI } from "$types/API_Pitchou.ts";
+import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 
 // A fixed Wednesday so several events for one personne land in the same week.
 const WEEK_DAY = new Date("2026-02-04T12:00:00.000Z");

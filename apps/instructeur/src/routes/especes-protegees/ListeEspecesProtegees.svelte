@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
-  import type { EspèceProtégée, ClassificationEtreVivant } from "$types/especes.d.ts";
+  import type { EspèceProtégée, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
   import Pagination from "$front/components/DSFR/Pagination.svelte";
 
   import {

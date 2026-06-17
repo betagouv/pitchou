@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import type { EspeceTaxrefInitializer } from "../../scripts/types/database/public/EspeceTaxref.ts";
+import type { EspeceTaxrefInitializer } from "@pitchou/types/database/public/EspeceTaxref.ts";
 
 const TAXREF: EspeceTaxrefInitializer[] = [
   {

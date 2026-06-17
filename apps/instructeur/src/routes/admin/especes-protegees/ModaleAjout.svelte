@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import type { EspèceProtégée } from "$types/especes.d.ts";
+  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
   import type { TaxrefRow } from "../../taxref/taxrefList.ts";
   import Loader from "$front/components/Loader.svelte";
   import { chargerEspecesProtegeesAdmin } from "$front/actions/adminEspeces.ts";
