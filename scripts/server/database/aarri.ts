@@ -1,4 +1,4 @@
-import { eachWeekOfInterval } from "date-fns";
+import { eachWeekOfInterval, differenceInCalendarWeeks } from "date-fns";
 import { directDatabaseConnection } from "../database.ts";
 import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
 import { getFirstRetenuWeek } from "./aarri/niveau.ts";
@@ -179,7 +179,7 @@ async function calculerIndicateurImpact(nbSemainesObservées: number): Promise<M
  *
  * On décide de regarder le nombre de semaines validées sur une période de 8 semaines pour tenir compte des congés des instructrices (utilisateurices).
  */
-async function calculerIndicateurRetenu(): Promise<Map<Semaine, number>> {
+async function calculerIndicateurRetenu(start: Date): Promise<Map<Semaine, number>> {
   // Paramètres de la condition de rétention
   const évènements = [...ÉVÈNEMENTS_CONSULTATIONS, ...ÉVÈNEMENTS_MODIFICATIONS];
   const nombreSemainesGlissantesÀObserver = 8;
@@ -188,7 +188,7 @@ async function calculerIndicateurRetenu(): Promise<Map<Semaine, number>> {
 
   const semaines: Semaine[] = eachWeekOfInterval(
     {
-      start: new Date("2026-01-01T00:00:00.000Z"),
+      start,
       end: new Date(),
     },
     {
@@ -277,13 +277,30 @@ group by personne, semaine;
   return nombreRetenusCumulésParSemaine;
 }
 
+/**
+ * Returns the Monday of the week of the very first metric event,
+ * or undefined when there is no metric event yet.
+ */
+async function firstEventWeek(): Promise<Date | undefined> {
+  const result = await directDatabaseConnection.raw(
+    `select date_trunc('week', min(date))::date as week from évènement_métrique`,
+  );
+  return result.rows[0]?.week ?? undefined;
+}
+
 export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
-  const nbSemainesObservées = 5;
+  const premièreSemaine = await firstEventWeek();
+
+  // Observe every week since the first event (with a small margin so the
+  // oldest one is not truncated). Defaults to 5 weeks when there is no event.
+  const nbSemainesObservées = premièreSemaine
+    ? differenceInCalendarWeeks(new Date(), premièreSemaine, { weekStartsOn: 1 }) + 2
+    : 5;
 
   const indicateurs: IndicateursAARRI[] = [];
   const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
   const actifs = await calculerIndicateurActif(nbSemainesObservées);
-  const retenus = await calculerIndicateurRetenu();
+  const retenus = await calculerIndicateurRetenu(premièreSemaine ?? new Date());
   const impacts = await calculerIndicateurImpact(nbSemainesObservées);
 
   const dates = acquis.keys();
