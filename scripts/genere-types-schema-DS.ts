@@ -251,8 +251,8 @@ const commentaireInitial = `/**
 */`;
 
 const imports = [
-  `import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`,
-  `import { ChampDSPieceJustificative } from "./apiSchema.ts";`,
+  `import type { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`,
+  `import type { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join("\n");
 
 const outPath = `libs/types/src/démarche-numérique/Démarche${schema.number}.ts`;

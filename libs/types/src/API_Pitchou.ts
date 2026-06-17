@@ -1,11 +1,11 @@
-import Dossier from "./database/public/Dossier.ts";
-import { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
-import Fichier from "./database/public/Fichier.ts";
-import ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
-import DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
-import Prescription from "./database/public/Prescription.ts";
-import Contrôle from "./database/public/Contrôle.ts";
-import AvisExpert from "./database/public/AvisExpert.ts";
+import type Dossier from "./database/public/Dossier.ts";
+import type { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
+import type Fichier from "./database/public/Fichier.ts";
+import type ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
+import type DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
+import type Prescription from "./database/public/Prescription.ts";
+import type Contrôle from "./database/public/Contrôle.ts";
+import type AvisExpert from "./database/public/AvisExpert.ts";
 
 type DossierPersonnesImpliquéesRésumé = {
   déposant_nom: string;

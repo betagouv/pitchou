@@ -1,18 +1,19 @@
-import {
+import type {
   DossierComplet,
   DossierRésumé,
   DécisionAdministrativePourTransfer,
   FrontEndPrescription,
 } from "./API_Pitchou.ts";
-import Dossier from "./database/public/Dossier.ts";
-import Personne from "./database/public/Personne.ts";
-import Message from "./database/public/Message.ts";
-import Notification, { NotificationMutator } from "./database/public/Notification.ts";
-import Prescription from "./database/public/Prescription.ts";
-import Contrôle from "./database/public/Contrôle.ts";
-import DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
-import AvisExpert from "./database/public/AvisExpert.ts";
-import { ÉvènementMétrique } from "./évènement.ts";
+import type Dossier from "./database/public/Dossier.ts";
+import type Personne from "./database/public/Personne.ts";
+import type Message from "./database/public/Message.ts";
+import type Notification from "./database/public/Notification.ts";
+import type { NotificationMutator } from "./database/public/Notification.ts";
+import type Prescription from "./database/public/Prescription.ts";
+import type Contrôle from "./database/public/Contrôle.ts";
+import type DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
+import type AvisExpert from "./database/public/AvisExpert.ts";
+import type { ÉvènementMétrique } from "./évènement.ts";
 
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierRésumé[]>;

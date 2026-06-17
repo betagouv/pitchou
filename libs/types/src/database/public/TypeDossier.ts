@@ -4,4 +4,4 @@
 /** Represents the enum public.TypeDossier */
 type TypeDossier = "Hirondelle" | "Cigogne";
 
-export default TypeDossier;
+export type { TypeDossier as default };

@@ -1,4 +1,4 @@
-import {
+import type {
   GroupeInstructeurs,
   DossierDS88444,
   DeletedDossier,

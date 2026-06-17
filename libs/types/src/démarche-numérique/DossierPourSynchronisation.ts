@@ -1,10 +1,11 @@
-import { DossierInitializer, DossierMutator } from "../database/public/Dossier.ts";
-import Personne, { PersonneInitializer } from "../database/public/Personne.ts";
-import { EntrepriseInitializer } from "../database/public/Entreprise.ts";
-import { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../database/public/ÉvènementPhaseDossier.ts";
-import { PartialBy } from "../tools";
-import { AvisExpertInitializer } from "../database/public/AvisExpert.ts";
-import { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts";
+import type { DossierInitializer, DossierMutator } from "../database/public/Dossier.ts";
+import type Personne from "../database/public/Personne.ts";
+import type { PersonneInitializer } from "../database/public/Personne.ts";
+import type { EntrepriseInitializer } from "../database/public/Entreprise.ts";
+import type { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "../database/public/ÉvènementPhaseDossier.ts";
+import type { PartialBy } from "../tools";
+import type { AvisExpertInitializer } from "../database/public/AvisExpert.ts";
+import type { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts";
 
 export type DonnéesPersonnesEntreprisesInitializer = {
   déposant: PersonneInitializer;
