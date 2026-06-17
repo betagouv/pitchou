@@ -1,10 +1,10 @@
 import { Readable } from "node:stream";
 import { error } from "@sveltejs/kit";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
-import type Fichier from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 
-export async function téléchargementFichierResponse(fichierId: Fichier["id"]): Promise<Response> {
-  const fichier = await loadFichierContent(fichierId);
+export async function téléchargementFichierResponse(fileId: FileId): Promise<Response> {
+  const fichier = await loadFichierContent(fileId);
   if (!fichier) {
     error(404, "Fichier non trouvé");
   }

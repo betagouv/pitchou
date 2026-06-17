@@ -1,6 +1,6 @@
 import type Dossier from "./database/public/Dossier.ts";
 import type { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
-import type Fichier from "./database/public/Fichier.ts";
+import type File from "./database/public/File.ts";
 import type ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
 import type DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
 import type Prescription from "./database/public/Prescription.ts";
@@ -126,11 +126,11 @@ export type DossierComplet = Omit<
   DossierLocalisation &
   DossierPersonnesImpliquéesComplet &
   DossierActivitéPrincipale & {
-    espècesImpactées: (Pick<Fichier, "media_type" | "nom"> & { url: string }) | undefined;
+    espècesImpactées: (Pick<File, "media_type" | "nom"> & { url: string }) | undefined;
   } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
     décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
   } & { avisExpert: FrontEndAvisExpert[] } & {
-    piècesJointesPétitionnaires: (Pick<Fichier, "media_type" | "nom"> & {
+    piècesJointesPétitionnaires: (Pick<File, "media_type" | "nom"> & {
       url: string;
       taille: number;
     })[];
