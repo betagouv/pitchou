@@ -1,14 +1,14 @@
-import { dsv, buffer } from "d3-fetch";
+import { buffer } from "d3-fetch";
 import { store } from "../store.svelte.ts";
-import { ESPECES_DATA, ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "../dataPaths.ts";
+import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "../dataPaths.ts";
 import {
-  espèceProtégéeStringToEspèceProtégée,
-  isClassif,
+  dbRowToEspeceProtegee,
   construireActivitésMéthodesMoyensDePoursuite,
 } from "../../commun/outils-espèces.ts";
 
 import type { PitchouState } from "../store.svelte.ts";
 import type { EspèceProtégée } from "../../types/especes.d.ts";
+import type { default as EspeceProtegee } from "../../types/database/public/EspeceProtegee.ts";
 
 export async function chargerListeEspècesProtégées(): Promise<{
   espècesProtégéesParClassification: NonNullable<PitchouState["espècesProtégéesParClassification"]>;
@@ -20,7 +20,11 @@ export async function chargerListeEspècesProtégées(): Promise<{
     return Promise.resolve({ espècesProtégéesParClassification, espèceByCD_REF });
   }
 
-  const dataEspèces = await dsv(";", ESPECES_DATA);
+  const réponse = await fetch("/api/especes-protegees");
+  if (!réponse.ok) {
+    throw new Error(`Échec du chargement des espèces protégées (${réponse.status})`);
+  }
+  const lignes: EspeceProtegee[] = await réponse.json();
 
   const espècesProtégéesParClassification: NonNullable<
     PitchouState["espècesProtégéesParClassification"]
@@ -31,18 +35,11 @@ export async function chargerListeEspècesProtégées(): Promise<{
   };
   const espèceByCD_REF: NonNullable<PitchouState["espèceByCD_REF"]> = new Map();
 
-  for (const espStr of dataEspèces) {
-    const { classification } = espStr;
-
-    if (!isClassif(classification)) {
-      throw new TypeError(`Classification d'espèce non reconnue : ${classification}.}`);
-    }
+  for (const ligne of lignes) {
+    const espèce: EspèceProtégée = Object.freeze(dbRowToEspeceProtegee(ligne));
+    const { classification } = espèce;
 
     const espèces = espècesProtégéesParClassification[classification] || [];
-
-    // @ts-ignore
-    const espèce: EspèceProtégée = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr));
-
     espèces.push(espèce);
     espèceByCD_REF.set(espèce["CD_REF"], espèce);
 

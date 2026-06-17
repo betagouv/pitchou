@@ -51,4 +51,5 @@ export interface PitchouInstructeurCapabilities {
 
 export interface IdentitéInstructeurPitchou {
   email: string;
+  estAdmin: boolean;
 }

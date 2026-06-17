@@ -228,4 +228,31 @@ export interface IndicateursAARRI {
   date: string;
 }
 
+/**
+ * AARRI level of a single personne, from the lowest to the highest funnel stage:
+ * - base: a Pitchou account exists but has never connected
+ * - acquis: has connected at least once
+ * - actif: made at least 5 modification actions within a single calendar week
+ * - retenu: validated at least 5 weeks (≥5 consultation/modification actions each)
+ *   within an 8-week sliding window
+ * - impact: produced at least one "retour à la conformité"
+ */
+export type NiveauAARRI = "base" | "acquis" | "actif" | "retenu" | "impact";
+
+/**
+ * A Pitchou user with their current AARRI level and a few summary metrics,
+ * for the admin page.
+ */
+export interface UtilisateurAARRI {
+  personneId: number;
+  email: string | null;
+  nom: string | null;
+  prenoms: string | null;
+  niveau: NiveauAARRI;
+  /** Total number of consultation and modification actions */
+  actionCount: number;
+  /** ISO date of the last metric event, or null if there is none */
+  lastActivityDate: string | null;
+}
+
 export type ChampFormulaire88444 = keyof DossierDemarcheNumerique88444;
