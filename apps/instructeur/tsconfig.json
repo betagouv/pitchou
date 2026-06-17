@@ -1,5 +1,5 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": ["./.svelte-kit/tsconfig.json", "../../tsconfig.base.json"],
   "include": [
     ".svelte-kit/ambient.d.ts",
     ".svelte-kit/non-ambient.d.ts",
@@ -10,21 +10,5 @@
     "src/**/*.svelte",
     "tests/**/*.ts"
   ],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "module": "esnext",
-    "strict": true,
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "target": "esnext",
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "downlevelIteration": true,
-    "types": ["node"],
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "verbatimModuleSyntax": false,
-    "isolatedModules": false
-  }
+  "exclude": ["node_modules"]
 }
