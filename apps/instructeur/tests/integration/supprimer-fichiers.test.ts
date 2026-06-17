@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { HeadObjectCommand, S3ServiceException } from "@aws-sdk/client-s3";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
-import { createFichier, createFichierS3 } from "../factories/fichier.ts";
+import { createFichierS3 } from "../factories/fichier.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { supprimerFichiersSansAutresRéférences } from "@pitchou/server/database/fichier.ts";
 
@@ -28,8 +28,7 @@ test("supprime fichier + file + objet S3 quand plus aucune référence n'existe"
   const supprimés = await supprimerFichiersSansAutresRéférences([fichier.id], db);
   expect(supprimés).toEqual([fichier.id]);
 
-  expect(await db("fichier").select("id").where({ id: fichier.id })).toHaveLength(0);
-  expect(await db("file").select("id").where({ id: fichier.fileId })).toHaveLength(0);
+  expect(await db("file").select("id").where({ id: fichier.id })).toHaveLength(0);
   expect(await s3HasKey(fichier.key)).toBe(false);
 });
 
@@ -41,17 +40,8 @@ test("préserve un fichier encore référencé par dossier.espèces_impactées",
 
   const supprimés = await supprimerFichiersSansAutresRéférences([fichier.id], db);
   expect(supprimés).toEqual([]);
-  expect(await db("fichier").select("id").where({ id: fichier.id })).toHaveLength(1);
+  expect(await db("file").select("id").where({ id: fichier.id })).toHaveLength(1);
   expect(await s3HasKey(fichier.key)).toBe(true);
-});
-
-test("nettoie en DB sans appeler S3 pour un fichier legacy bytea", async () => {
-  const fichier = await createFichier(db, { nom: "legacy.pdf" });
-
-  const supprimés = await supprimerFichiersSansAutresRéférences([fichier.id], db);
-  expect(supprimés).toEqual([fichier.id]);
-  expect(await db("fichier").select("id").where({ id: fichier.id })).toHaveLength(0);
-  // pas de file row associée — rien à vérifier côté S3
 });
 
 test("traite un mix de fichiers à supprimer et à conserver", async () => {
@@ -66,8 +56,8 @@ test("traite un mix de fichiers à supprimer et à conserver", async () => {
   );
 
   expect(supprimés).toEqual([fichierÀSupprimer.id]);
-  expect(await db("fichier").select("id").where({ id: fichierÀGarder.id })).toHaveLength(1);
-  expect(await db("fichier").select("id").where({ id: fichierÀSupprimer.id })).toHaveLength(0);
+  expect(await db("file").select("id").where({ id: fichierÀGarder.id })).toHaveLength(1);
+  expect(await db("file").select("id").where({ id: fichierÀSupprimer.id })).toHaveLength(0);
   expect(await s3HasKey(fichierÀGarder.key)).toBe(true);
   expect(await s3HasKey(fichierÀSupprimer.key)).toBe(false);
 });

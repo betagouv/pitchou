@@ -18,13 +18,13 @@ import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { DCisionAdministrativeId } from "@pitchou/types/database/public/DécisionAdministrative.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 const daId = "da-1" as unknown as DCisionAdministrativeId;
 const dossierId = "dossier-1" as unknown as DossierId;
-const newFichierId = "new-fichier" as unknown as FichierId;
-const oldFichierId = "old-fichier" as unknown as FichierId;
-const fId = "f-1" as unknown as FichierId;
+const newFichierId = "new-fichier" as unknown as FileId;
+const oldFichierId = "old-fichier" as unknown as FileId;
+const fId = "f-1" as unknown as FileId;
 
 const stocker = vi.mocked(stockerNouveauFichier);
 const supprimer = vi.mocked(supprimerFichiersSansAutresRéférences);
