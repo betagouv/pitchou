@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@gouvfr/dsfr": "^1.11.2",
     "@pitchou/common": "workspace:*",
-    "@pitchou/types": "workspace:*"
+    "@pitchou/server-utils": "workspace:*",
+    "@pitchou/types": "workspace:*",
+    "@pitchou/ui": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.4",
