@@ -26,7 +26,7 @@ import type {
   DossierPourInsert,
   DossierPourUpdate,
 } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type ArTePersonneSuitDossier from "@pitchou/types/database/public/ArêtePersonneSuitDossier.ts";
 import type {
   DossierComplet,
@@ -105,7 +105,7 @@ async function getDecisionsAdministrativesNotInDB(
 ): Promise<DecisionAdministrativeToInsert[]> {
   const fichiers = decisions
     .map((decision) => decision.fichier)
-    .filter((fichier): fichier is Fichier["id"] => fichier !== undefined && fichier !== null);
+    .filter((fichier): fichier is NonNullable<DécisionAdministrative["fichier"]> => fichier !== undefined && fichier !== null);
 
   if (fichiers.length === 0) {
     return decisions;
@@ -349,11 +349,11 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "justification_motif_dérogation",
 
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
-  "fichier_espèces_impactées.id as espèces_impactées_id",
+  "file_espèces_impactées.id as espèces_impactées_id",
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
-  "fichier_espèces_impactées.nom as espèces_impactées_nom",
+  "file_espèces_impactées.nom as espèces_impactées_nom",
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
-  "fichier_espèces_impactées.media_type as espèces_impactées_media_type",
+  "file_espèces_impactées.media_type as espèces_impactées_media_type",
   "rattaché_au_régime_ae",
   "activité_principale",
 
@@ -440,8 +440,8 @@ export function listAllDossiersComplets(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .leftJoin("fichier as fichier_espèces_impactées", {
-      "fichier_espèces_impactées.id": "dossier.espèces_impactées",
+    .leftJoin("file as file_espèces_impactées", {
+      "file_espèces_impactées.id": "dossier.espèces_impactées",
     })
     .then((dossiers) => {
       for (const dossier of dossiers) {
@@ -480,7 +480,7 @@ export async function getDossierComplet(
 
   const dossierP: Promise<
     DossierComplet & {
-      espèces_impactées_id?: Fichier["id"] | null;
+      espèces_impactées_id?: FileId | null;
       espèces_impactées_media_type?: string;
       espèces_impactées_nom?: string;
       demandeur_personne_morale_adresse?: string;
@@ -501,8 +501,8 @@ export async function getDossierComplet(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .leftJoin("fichier as fichier_espèces_impactées", {
-      "fichier_espèces_impactées.id": "dossier.espèces_impactées",
+    .leftJoin("file as file_espèces_impactées", {
+      "file_espèces_impactées.id": "dossier.espèces_impactées",
     })
     .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap })
     .andWhere({ "dossier.id": dossierId })
@@ -519,7 +519,7 @@ export async function getDossierComplet(
   );
 
   const descriptionsPiècesJointesPétitionnaireP: Promise<
-    (Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]
+    ({ id: FileId; nom: string; media_type: string | null } & { taille: number })[]
   > = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction);
 
   const décisionsAdministrativesP: Promise<DécisionAdministrative[]> = getDécisionAdministratives(
@@ -894,21 +894,20 @@ async function getAvisExpertDossier(
 async function getDescriptionsPiècesJointesPétitionnaire(
   idDossier: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<(Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]> {
+): Promise<({ id: FileId; nom: string; media_type: string | null } & { taille: number })[]> {
   return databaseConnection("dossier")
     .select([
-      "fichier.id as id",
-      "fichier.nom as nom",
-      "fichier.media_type as media_type",
-      databaseConnection.raw("coalesce(length(fichier.contenu), file.taille)::integer as taille"),
+      "file.id as id",
+      "file.nom as nom",
+      "file.media_type as media_type",
+      databaseConnection.raw("file.taille::integer as taille"),
     ])
     .leftJoin("arête_dossier__fichier_pièces_jointes_pétitionnaire", {
       "arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier": "dossier.id",
     })
-    .leftJoin("fichier", {
-      "fichier.id": "arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier",
+    .leftJoin("file", {
+      "file.id": "arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier",
     })
-    .leftJoin("file", { "file.id": "fichier.file_id" })
     .where({ dossier: idDossier });
 }
 

@@ -4,7 +4,7 @@ import trouverCandidatsFichiersÀTélécharger from "@pitchou/common/trouverCand
 import { directDatabaseConnection } from "../database.ts";
 import { supprimerFichiersSansAutresRéférences } from "./fichier.ts";
 
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierDS88444, DSFile } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
@@ -13,7 +13,7 @@ import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-num
 type ChampFormulaire = keyof DossierDemarcheNumerique88444;
 
 export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88444(
-  fichiersPiècesJointesPétitionnaireParNuméroDossier: Map<Dossier["id"], Fichier["id"][]>,
+  fichiersPiècesJointesPétitionnaireParNuméroDossier: Map<Dossier["id"], FileId[]>,
   dossiersDS: DossierDS88444[],
   dossierIdByDS_number: Map<DossierDS88444["number"], Dossier["id"]>,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
@@ -52,7 +52,7 @@ export async function synchroniserFichiersPiècesJointesPétitionnaireDepuisDS88
     "arête_dossier__fichier_pièces_jointes_pétitionnaire as a",
   )
     .select(["a.dossier as dossier", "a.fichier as fichier"])
-    .innerJoin("fichier as f", "f.id", "a.fichier")
+    .innerJoin("file as f", "f.id", "a.fichier")
     .whereIn("a.dossier", [...dossierIds])
     .andWhere("f.DS_checksum", "not in", [...checksumsDS]);
 
