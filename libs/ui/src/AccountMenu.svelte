@@ -3,7 +3,7 @@
 
   import type { AccountMenuProps } from "./index.ts";
 
-  let { email, onLogout, align = "end", adminUrl }: AccountMenuProps = $props();
+  let { email, onLogout, align = "end", links }: AccountMenuProps = $props();
 
   const panelId = $derived(`account-menu-panel-${align}`);
 
@@ -86,14 +86,15 @@
       {#if email}
         <p class="account-menu__email">{email}</p>
       {/if}
-      {#if adminUrl}
+      {#each links ?? [] as link}
         <a
-          href={adminUrl}
-          class="fr-btn fr-btn--tertiary fr-icon-arrow-right-line fr-btn--icon-left account-menu__action"
+          href={link.href}
+          class={`fr-btn fr-btn--tertiary ${link.icon ?? ""} fr-btn--icon-left account-menu__action`}
+          onclick={close}
         >
-          Administration
+          {link.label}
         </a>
-      {/if}
+      {/each}
       <button
         type="button"
         class="fr-btn fr-btn--tertiary fr-btn--icon-left account-menu__action"

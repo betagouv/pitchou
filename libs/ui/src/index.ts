@@ -27,6 +27,14 @@ export type FooterProps = {
   bottomExtra?: Snippet;
 };
 
+/** A link rendered in the account menu panel (e.g. an admin section). */
+export type AccountMenuLink = {
+  href: string;
+  label: string;
+  /** Optional DSFR icon class, e.g. "fr-icon-team-line". */
+  icon?: string;
+};
+
 export type AccountMenuProps = {
   /** Signed-in user email; the menu omits the email line when absent. */
   email?: string;
@@ -34,6 +42,6 @@ export type AccountMenuProps = {
   onLogout?: () => void;
   /** Side the panel opens on, under the button. */
   align?: "start" | "end";
-  /** Link to the admin app; the entry is hidden when not set. */
-  adminUrl?: string;
+  /** App-specific links (e.g. admin sections); none are shown when empty. */
+  links?: AccountMenuLink[];
 };
