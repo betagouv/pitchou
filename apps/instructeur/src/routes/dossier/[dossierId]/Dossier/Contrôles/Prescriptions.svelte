@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
-  import DateInput from "../../common/DateInput.svelte";
+  import DateInput from "../../DateInput.svelte";
   import Prescription from "./Prescription.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
@@ -9,9 +9,9 @@
     supprimerPrescription as supprimerPrescriptionBaseDeDonnées,
     ajouterPrescription as ajouterPrescriptionBaseDeDonnées,
     modifierPrescription,
-  } from "../../../actions/prescriptions.ts";
-  import { créerPrescriptionContrôlesÀPartirDeFichier } from "../../../actions/décisionAdministrative.ts";
-  import { refreshDossierComplet } from "../../../actions/dossier.ts";
+  } from "./prescriptions.ts";
+  import { créerPrescriptionContrôlesÀPartirDeFichier } from "./décisionAdministrative.ts";
+  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 
   import type {
     FrontEndDécisionAdministrative,

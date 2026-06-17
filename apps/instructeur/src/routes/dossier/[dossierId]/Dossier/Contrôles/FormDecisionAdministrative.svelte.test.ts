@@ -4,7 +4,7 @@ import { render, cleanup } from "@testing-library/svelte";
 import { tick } from "svelte";
 
 import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
-import { reactive } from "../../../../tests/helpers/reactive.svelte.ts";
+import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
 import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(cleanup);

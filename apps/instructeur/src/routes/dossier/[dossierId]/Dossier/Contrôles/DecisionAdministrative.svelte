@@ -3,10 +3,10 @@
   import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
   import CardDecisionAdministrative from "./CardDecisionAdministrative.svelte";
 
-  import { formatDateAbsolue } from "../../../affichageDossier.ts";
-  import { refreshDossierComplet } from "../../../actions/dossier.ts";
-  import { envoyerÉvènement } from "../../../actions/aarri.ts";
-  import { store } from "../../../store.svelte.ts";
+  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { store } from "$lib/state/store.svelte.ts";
 
   import type {
     DécisionAdministrativePourTransfer,

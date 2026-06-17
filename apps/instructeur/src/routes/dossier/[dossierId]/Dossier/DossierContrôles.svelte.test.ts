@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 
-vi.mock(import("../../actions/décisionAdministrative.ts"), async (importOriginal) => {
+vi.mock(import("./Contrôles/décisionAdministrative.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -11,7 +11,7 @@ vi.mock(import("../../actions/décisionAdministrative.ts"), async (importOrigina
   };
 });
 
-vi.mock(import("../../actions/dossier.ts"), async (importOriginal) => {
+vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -20,9 +20,9 @@ vi.mock(import("../../actions/dossier.ts"), async (importOriginal) => {
 });
 
 import DossierContrôles from "./DossierContrôles.svelte";
-import { supprimerDécisionAdministrative } from "../../actions/décisionAdministrative.ts";
-import { refreshDossierComplet } from "../../actions/dossier.ts";
-import { reactive } from "../../../tests/helpers/reactive.svelte.ts";
+import { supprimerDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
+import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
 import type { DossierComplet, FrontEndDécisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 
 let dossier: DossierComplet;

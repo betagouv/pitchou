@@ -1,6 +1,6 @@
 import remember from "remember";
 
-import { PITCHOU_SECRET_STORAGE_KEY } from "./main.ts";
+import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
 
 import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 

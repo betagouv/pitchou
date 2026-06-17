@@ -1,6 +1,6 @@
 import remember from "remember";
 
-import { PITCHOU_SECRET_STORAGE_KEY } from "./main.ts";
+import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
 import { dbRowToEspeceProtegee } from "@pitchou/common/outils-espèces.ts";
 
 import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";

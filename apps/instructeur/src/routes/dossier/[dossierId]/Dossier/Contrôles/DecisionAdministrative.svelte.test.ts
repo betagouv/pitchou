@@ -3,7 +3,7 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 
 import DecisionAdministrative from "./DecisionAdministrative.svelte";
-import { reactive } from "../../../../tests/helpers/reactive.svelte.ts";
+import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
 import type { FrontEndDécisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 

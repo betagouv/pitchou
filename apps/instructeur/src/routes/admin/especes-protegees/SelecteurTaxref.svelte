@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Loader from "$front/components/Loader.svelte";
-  import Pagination from "$front/components/DSFR/Pagination.svelte";
+  import Loader from "$lib/components/Loader.svelte";
+  import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import {
     fetchTaxrefPage,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateInput from "../../common/DateInput.svelte";
+  import DateInput from "../../DateInput.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
   import { typesDécisionAdministrative } from "@pitchou/common/décision-administrative.js";
