@@ -95,6 +95,13 @@
       <p class="account-menu__email">{email}</p>
       {#if estAdmin}
         <a
+          href="/admin/utilisateurs"
+          class="fr-btn fr-btn--tertiary fr-icon-team-line fr-btn--icon-left account-menu__action"
+          onclick={close}
+        >
+          Admin - Utilisateurs
+        </a>
+        <a
           href="/admin/especes-protegees"
           class="fr-btn fr-btn--tertiary fr-icon-seedling-line fr-btn--icon-left account-menu__action"
           onclick={close}
