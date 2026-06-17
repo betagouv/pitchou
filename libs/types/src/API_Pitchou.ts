@@ -1,6 +1,6 @@
 import type Dossier from "./database/public/Dossier.ts";
 import type { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
-import type Fichier from "./database/public/Fichier.ts";
+import type File from "./database/public/File.ts";
 import type ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
 import type DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
 import type Prescription from "./database/public/Prescription.ts";
@@ -150,7 +150,7 @@ export type DossierRésumé = Pick<
 
 export type FrontEndPrescription = Prescription & { contrôles: Contrôle[] | undefined };
 
-export type FrontEndFichier = Pick<Fichier, "media_type" | "nom"> & {
+export type FrontEndFichier = Pick<File, "media_type" | "nom"> & {
   url: string;
   taille?: number | null;
 };
@@ -176,7 +176,7 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
 export type FrontEndAttachmentAutre = {
   id: string;
   dossier: Dossier["id"];
-  fichier: Fichier["id"];
+  fichier: File["id"];
   type: string;
   attachment_date: Date | string | null;
   created_at: Date | string;
@@ -196,11 +196,11 @@ export type DossierComplet = Omit<
   DossierPersonnesImpliquéesComplet &
   DossierActivitéPrincipale &
   DossierCartographieProjet & {
-    espècesImpactées: (Pick<Fichier, "media_type" | "nom"> & { url: string }) | undefined;
+    espècesImpactées: (Pick<File, "media_type" | "nom"> & { url: string }) | undefined;
   } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
     décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
   } & { avisExpert: FrontEndAvisExpert[] } & {
-    piècesJointesPétitionnaires: (Pick<Fichier, "DS_createdAt" | "media_type" | "nom"> & {
+    piècesJointesPétitionnaires: (Pick<File, "DS_createdAt" | "media_type" | "nom"> & {
       url: string;
       taille: number;
     })[];
