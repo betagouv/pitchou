@@ -1,12 +1,27 @@
 <script lang="ts">
   import Squelette from "../Squelette.svelte";
 
+  const CONTACT_EMAIL = "pitchou@beta.gouv.fr";
+
   type Props = {
     status?: number;
     message?: string;
   };
 
   let { status = 404, message }: Props = $props();
+
+  let emailCopié = $state(false);
+
+  function copierEmail() {
+    navigator.clipboard
+      .writeText(CONTACT_EMAIL)
+      .then(() => {
+        emailCopié = true;
+      })
+      .catch((error) => {
+        console.error("Une erreur s'est produite lors de la copie : ", error);
+      });
+  }
 
   const isNotFound = $derived(status === 404);
 
@@ -48,12 +63,28 @@
         <li>
           <a
             class="fr-btn fr-btn--secondary"
-            href="mailto:pitchou@beta.gouv.fr?subject=Page%20introuvable%20sur%20Pitchou"
+            href={`mailto:${CONTACT_EMAIL}?subject=Page%20introuvable%20sur%20Pitchou`}
           >
             Contacter l'équipe Pitchou
           </a>
         </li>
       </ul>
+      <p class="fr-text--sm fr-mt-5w fr-mb-1w email-contact__label">
+        Ou écrivez-nous directement :
+      </p>
+      <p class="email-contact fr-mb-0">
+        <span class="email-contact__adresse fr-text--bold">{CONTACT_EMAIL}</span>
+        <button
+          type="button"
+          class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left"
+          class:fr-icon-clipboard-line={!emailCopié}
+          class:fr-icon-check-line={emailCopié}
+          onclick={copierEmail}
+          aria-label={`Copier l'adresse ${CONTACT_EMAIL}`}
+        >
+          {emailCopié ? "Copié !" : "Copier"}
+        </button>
+      </p>
     </div>
     <div class="fr-col-12 fr-col-md-3 fr-col-offset-md-1 fr-px-6w fr-px-md-0 fr-py-0">
       <svg
@@ -64,7 +95,9 @@
       >
         <circle cx="68" cy="68" r="46" class="trait" fill="none" stroke-width="6" />
         <line x1="101" y1="101" x2="140" y2="140" class="trait" stroke-width="8" />
-        <text x="68" y="68" class="code" text-anchor="middle" dominant-baseline="central">{status}</text>
+        <text x="68" y="68" class="code" text-anchor="middle" dominant-baseline="central"
+          >{status}</text
+        >
       </svg>
     </div>
   </div>
@@ -88,5 +121,29 @@
       font-size: 2.5rem;
       font-weight: 700;
     }
+  }
+
+  .email-contact__label {
+    color: var(--text-mention-grey);
+  }
+
+  .email-contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 100%;
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+    border: 1px solid var(--border-default-grey);
+  }
+
+  .email-contact__adresse {
+    overflow-wrap: anywhere;
+    font-weight: 700;
+  }
+
+  .email-contact button {
+    flex: none;
+    border-left: 1px solid var(--border-default-grey);
+    border-radius: 0;
   }
 </style>
