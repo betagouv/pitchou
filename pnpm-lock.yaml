@@ -38,12 +38,21 @@ importers:
 
   apps/admin:
     dependencies:
+      '@gouvfr/dsfr':
+        specifier: ^1.11.2
+        version: 1.14.4
       '@pitchou/common':
         specifier: workspace:*
         version: link:../../libs/common
+      '@pitchou/server-utils':
+        specifier: workspace:*
+        version: link:../../libs/server-utils
       '@pitchou/types':
         specifier: workspace:*
         version: link:../../libs/types
+      '@pitchou/ui':
+        specifier: workspace:*
+        version: link:../../libs/ui
     devDependencies:
       '@sveltejs/adapter-node':
         specifier: ^5.5.4
@@ -87,9 +96,15 @@ importers:
       '@pitchou/server':
         specifier: workspace:*
         version: link:../../libs/server
+      '@pitchou/server-utils':
+        specifier: workspace:*
+        version: link:../../libs/server-utils
       '@pitchou/types':
         specifier: workspace:*
         version: link:../../libs/types
+      '@pitchou/ui':
+        specifier: workspace:*
+        version: link:../../libs/ui
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -260,11 +275,26 @@ importers:
         specifier: ^4.1.7
         version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
 
+  libs/server-utils:
+    devDependencies:
+      '@sveltejs/kit':
+        specifier: ^2.61.0
+        version: 2.61.0(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)))(svelte@5.55.9)(typescript@5.9.3)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+
   libs/types:
     devDependencies:
       '@types/node':
         specifier: ^22.3.0
         version: 22.19.19
+
+  libs/ui:
+    devDependencies:
+      svelte:
+        specifier: ^5.46.4
+        version: 5.55.9
 
   libs/worker:
     dependencies:
