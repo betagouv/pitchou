@@ -9,3 +9,4 @@ Et il y a de la [documentation technique](./technique)
 Et de la documentation d'usage. Par exemple :
 
 - [Comment ajouter un espèces manquante](./ajouter-une-espece-manquante)
+- [Évènements suivis (interactions utilisateurs)](./evenements-suivis)

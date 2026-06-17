@@ -21,9 +21,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
-      - uses: reviewdog/action-setup@v1
+      - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
         with:
-          reviewdog_version: latest
+          reviewdog_version: v0.21.0
 
       - name: Run tsc and report to reviewdog
         env:
@@ -42,9 +42,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
-      - uses: reviewdog/action-setup@v1
+      - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
         with:
-          reviewdog_version: latest
+          reviewdog_version: v0.21.0
 
       - name: Run svelte-check and report to reviewdog
         env:

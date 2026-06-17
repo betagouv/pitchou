@@ -1,32 +1,43 @@
-.vscode
+# Editors
+.vscode/
 .~lock*
 
+# Dependencies
 node_modules/
+.npm/
 
+# Build output
 .svelte-kit/
 build/
 dist/
 .vite/
-backups/*
 
+# Local data
+backups/*
+pgdata/
 data/sources_especes/*
 !data/sources_especes/README.md
+# Sources for the one-off `just generate-modifications-especes` bootstrap
+# Delete (files + these 2 lines) once prod is bootstrapped
+# See outils/importer-modifications-especes.ts
 !data/sources_especes/espèces_manquantes.ods
 !data/sources_especes/espèces_ministérielles_cnpn.ods
 
-pgdata/
-
+# Env
 .env
-.npm
 
-# Jekyll generated files
+# Tests
+test-results/
+# Artefacts générés par les tests de composants (vitest browser)
+.vitest-attachments/
+**/__screenshots__/
+
+# Jekyll (docs/)
 docs/_site/
 docs/.jekyll-cache/
 docs/.bundle/
 docs/Gemfile.lock
 docs/vendor/
-
-test-results/
 
 # Nix / direnv
 .direnv/

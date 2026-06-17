@@ -22,13 +22,6 @@ export const GET: RequestHandler = async ({ params, url }) => {
     error(403, `Aucun dossier trouvé avec id '${dossierId}'`);
   }
 
-  const espèces = dossier.espècesImpactées;
-  if (espèces?.contenu) {
-    // contenu est un Buffer en DB → base64 pour le transport JSON.
-    // @ts-expect-error reshape de Buffer → string
-    espèces.contenu = espèces.contenu.toString("base64");
-  }
-
   return json(dossier);
 };
 

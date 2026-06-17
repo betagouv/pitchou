@@ -51,19 +51,19 @@
     return nombres;
   }
 
-  function makeFileContentBlob() {
+  async function makeFileContentBlob() {
+    const espèces = dossier.espècesImpactées;
+    if (!espèces) {
+      throw new Error("Aucun fichier espèces impactées à télécharger");
+    }
+
     envoyerÉvènement({
       type: "téléchargerListeÉspècesImpactées",
       détails: { dossierId: dossier.id },
     });
 
-    return new Blob(
-      // @ts-ignore
-      [dossier.espècesImpactées && dossier.espècesImpactées.contenu],
-      {
-        type: dossier.espècesImpactées && dossier.espècesImpactées.media_type,
-      },
-    );
+    const response = await fetch(espèces.url);
+    return response.blob();
   }
 
   function makeFilename() {
