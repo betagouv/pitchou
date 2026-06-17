@@ -13,7 +13,7 @@
 <Header serviceTitle="Pitchou" serviceTagline="Administration" {tools} {menuLinks} {nav} />
 
 <main tabindex="-1" id="main">
-  <div class="fr-container">
+  <div class="fr-container fr-py-6w">
     {@render children()}
   </div>
 </main>
