@@ -5,7 +5,7 @@ import {
 
 import type { DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { Knex } from "knex";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 
@@ -16,7 +16,7 @@ export function récupérerFichiersEspècesImpactées88444(
   dossiersDS: DossierDS88444[],
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
-): Promise<Map<DossierDS88444["number"], Fichier["id"]> | undefined> {
+): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
   const fichierEspècesImpactéeChampId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(
     "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
   );
@@ -39,8 +39,8 @@ export async function récupérerPiècesJointesPétitionnaire88444(
   pitchouKeyToChampDS: Map<ChampFormulaire88444, ChampDescriptor["id"]>,
   champsAvecPiècesJointes: ChampFormulaire88444[],
   databaseConnection: Knex.Transaction | Knex,
-): Promise<Map<DossierDS88444["number"], Fichier["id"][]>> {
-  const fichiersP: Map<DossierDS88444["number"], Fichier["id"][]> = new Map();
+): Promise<Map<DossierDS88444["number"], FileId[]>> {
+  const fichiersP: Map<DossierDS88444["number"], FileId[]> = new Map();
 
   for (const champ of champsAvecPiècesJointes) {
     const champId = pitchouKeyToChampDS.get(champ);

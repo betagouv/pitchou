@@ -2,7 +2,7 @@ import trouverCandidatsFichiersÀTélécharger from "@pitchou/common/trouverCand
 import téléchargerNouveauxFichiers from "./téléchargerNouveauxFichiers.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/démarche-numérique/apiSchema.ts";
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 import type { Knex } from "knex";
 
@@ -10,7 +10,7 @@ export async function téléchargerNouveauxFichiersFromChampId(
   dossiers: DossierDS88444[],
   champDescriptorId: ChampDescriptor["id"],
   laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
-): Promise<Map<DossierDS88444["number"], Fichier["id"][]> | undefined> {
+): Promise<Map<DossierDS88444["number"], FileId[]> | undefined> {
   const candidatsFichiers: Map<DossierDS88444["number"], DSFile[]> =
     trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId);
 
@@ -23,7 +23,7 @@ export async function téléchargerNouveauxFichiersEspècesImpactées(
   dossiers: DossierDS88444[],
   champDescriptorId: ChampDescriptor["id"],
   laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
-): Promise<Map<DossierDS88444["number"], Fichier["id"]> | undefined> {
+): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
   const candidatsFichiersEspècesImpactées: Map<DossierDS88444["number"], DSFile[]> =
     trouverCandidatsFichiersÀTélécharger(dossiers, champDescriptorId);
 
@@ -52,7 +52,7 @@ export async function téléchargerNouveauxFichiersEspècesImpactées(
 export async function téléchargerNouveauxFichiersMotivation(
   dossiers: DossierDS88444[],
   laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
-): Promise<Map<DossierDS88444["number"], Fichier["id"]> | undefined> {
+): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
   const candidatsFichiersMotivation: Map<DossierDS88444["number"], DSFile> = new Map(
     dossiers.filter((d) => !!d.motivationAttachment).map((d) => [d.number, d.motivationAttachment]),
   );
