@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 // Resolve the repo root at runtime by walking up from the current working directory
-// until the pnpm workspace marker is found
+// until the pnpm workspace marker is found.
 function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
@@ -13,5 +13,5 @@ function findRepoRoot(start: string): string {
   }
 }
 
-// data/ and docs/ live at the repo root, shared across the app, the worker and the scripts.
+// data/ and docs/ live at the repo root, shared across the apps, the worker and the scripts.
 export const REPO_ROOT = findRepoRoot(process.cwd());
