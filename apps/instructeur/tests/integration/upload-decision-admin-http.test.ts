@@ -55,14 +55,7 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   const décision = décisions[0];
   expect(décision.fichier).not.toBeNull();
 
-  const fichier = await db("fichier")
-    .select("file_id", "contenu")
-    .where({ id: décision.fichier })
-    .first();
-  expect(fichier.contenu).toBeNull();
-  expect(fichier.file_id).not.toBeNull();
-
-  const onS3 = await readKey(`files/${fichier.file_id}`);
+  const onS3 = await readKey(`files/${décision.fichier}`);
   expect(onS3.equals(pdfBytes)).toBe(true);
 });
 
@@ -93,8 +86,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
     .select("*")
     .where({ dossier: dossier.id })
     .first();
-  const fichier1 = await db("fichier").select("file_id").where({ id: décision1.fichier }).first();
-  const v1Key = `files/${fichier1.file_id}`;
+  const v1Key = `files/${décision1.fichier}`;
 
   // modification
   const res2 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
@@ -120,9 +112,8 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
     .select("*")
     .where({ id: décision1.id })
     .first();
-  expect(décision2.fichier).not.toBe(décision1.fichier); // new fichier id
-  const fichier2 = await db("fichier").select("file_id").where({ id: décision2.fichier }).first();
-  const v2Key = `files/${fichier2.file_id}`;
+  expect(décision2.fichier).not.toBe(décision1.fichier);
+  const v2Key = `files/${décision2.fichier}`;
 
   expect((await readKey(v2Key)).equals(v2)).toBe(true);
   // old object should have been swept

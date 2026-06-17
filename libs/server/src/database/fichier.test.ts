@@ -39,12 +39,11 @@ afterEach(() => {
 });
 
 describe("stockerNouveauFichier", () => {
-  it("uploads to S3, then inserts file row, then inserts fichier shim, returning the fichier", async () => {
+  it("uploads to S3, then inserts file row, returning the file", async () => {
     putObject.mockResolvedValue();
-    addFile.mockResolvedValue({});
-    const db = fakeDatabase()
-      .insertResolves([{ id: "fichier-1", nom: "f.pdf" }])
-      .build();
+    // @ts-ignore branded id
+    addFile.mockResolvedValue({ id: "file-1", nom: "f.pdf" });
+    const db = fakeDatabase().build();
     const contenu = Buffer.from("DATA");
 
     // @ts-ignore branded id
@@ -62,7 +61,7 @@ describe("stockerNouveauFichier", () => {
     expect(putObject).toHaveBeenCalledTimes(1);
     expect(addFile).toHaveBeenCalledTimes(1);
     expect(deleteObject).not.toHaveBeenCalled();
-    expect(result).toEqual({ id: "fichier-1", nom: "f.pdf" });
+    expect(result).toEqual({ id: "file-1", nom: "f.pdf" });
 
     const [putKey, putBody, putContentType] = putObject.mock.calls[0];
     expect(putKey).toMatch(/^files\//);
@@ -78,14 +77,8 @@ describe("stockerNouveauFichier", () => {
       taille: String(contenu.byteLength),
     });
 
-    // The fichier insert references the same file_id.
-    expect(db.insert).toHaveBeenCalledWith(
-      expect.objectContaining({ nom: "f.pdf", file_id: fileIdFromKey }),
-    );
-
-    // putObject happens before addFile and the fichier insert.
+    // putObject happens before addFile.
     expect(putObject.mock.invocationCallOrder[0]).toBeLessThan(addFile.mock.invocationCallOrder[0]);
-    expect(addFile.mock.invocationCallOrder[0]).toBeLessThan(db.insert.mock.invocationCallOrder[0]);
   });
 
   it("propagates S3 errors and skips DB inserts", async () => {
@@ -115,31 +108,14 @@ describe("stockerNouveauFichier", () => {
     expect(deleteObject).toHaveBeenCalledTimes(1);
     expect(deleteObject.mock.calls[0][0]).toBe(putObject.mock.calls[0][0]);
   });
-
-  it("deletes the S3 object when the fichier insert rejects", async () => {
-    putObject.mockResolvedValue();
-    addFile.mockResolvedValue({});
-    deleteObject.mockResolvedValue();
-    const db = fakeDatabase().insertRejects(new Error("fichier insert failed")).build();
-
-    await expect(
-      stockerNouveauFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
-    ).rejects.toThrow(/fichier insert failed/);
-
-    expect(deleteObject).toHaveBeenCalledTimes(1);
-  });
 });
 
 describe("loadFichierContent", () => {
-  // The legacy-bytea, S3-stream and not-found branches are covered end-to-end
+  // The S3-stream and not-found branches are covered end-to-end
   // against a real DB + S3 in tests/integration/load-fichier-content.test.ts.
-  // Only the "neither contenu nor file_id" edge case is unit-tested here.
-  it("returns null when fichier has neither contenu nor file_id", async () => {
-    const db = fakeDatabase()
-      .selectResolvesForTable("fichier", [
-        { id: "f-1", nom: "x.pdf", media_type: null, contenu: null, file_id: null },
-      ])
-      .build();
+  // Only the "file not found" edge case is unit-tested here.
+  it("returns null when file not found", async () => {
+    const db = fakeDatabase().selectResolvesForTable("file", []).build();
     // @ts-ignore branded id
     const result = await loadFichierContent("f-1", db.knex);
     expect(result).toBeNull();
@@ -154,57 +130,36 @@ describe("supprimerFichiersSansAutresRéférences", () => {
     expect(db.table).not.toHaveBeenCalled();
   });
 
-  it("deletes file + S3 for fichiers that are not referenced elsewhere", async () => {
-    // No row references the fichiers in any of the FK tables.
-    const db = fakeDatabase()
-      .selectResolvesForTable("fichier", [{ file_id: "file-1" }])
-      .build();
+  it("deletes file + S3 for files that are not referenced elsewhere", async () => {
+    // No row references the file in any of the FK tables (default fakeDatabase returns []).
+    const db = fakeDatabase().build();
     deleteFile.mockResolvedValue(1);
     deleteObject.mockResolvedValue();
 
     // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresRéférences(["fichier-1"], db.knex);
+    const result = await supprimerFichiersSansAutresRéférences(["file-1"], db.knex);
 
-    expect(result).toEqual(["fichier-1"]);
-    expect(db.delete).toHaveBeenCalledTimes(1);
-    expect(db.whereIn).toHaveBeenCalledWith("id", ["fichier-1"]);
+    expect(result).toEqual(["file-1"]);
     expect(deleteFile).toHaveBeenCalledWith("file-1", db.knex);
     expect(deleteObject).toHaveBeenCalledWith("files/file-1");
   });
 
-  it("preserves fichiers still referenced by another table", async () => {
-    // The fichier shows up in avis_expert.saisine_fichier.
+  it("preserves files still referenced by another table", async () => {
+    // The file shows up in avis_expert.saisine_fichier.
     const db = fakeDatabase()
-      .selectResolvesForTable("avis_expert", [{ saisine_fichier: "fichier-1" }])
+      .selectResolvesForTable("avis_expert", [{ saisine_fichier: "file-1" }])
       .build();
 
     // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresRéférences(["fichier-1"], db.knex);
+    const result = await supprimerFichiersSansAutresRéférences(["file-1"], db.knex);
 
     expect(result).toEqual([]);
-    expect(db.delete).not.toHaveBeenCalled();
-    expect(deleteFile).not.toHaveBeenCalled();
-    expect(deleteObject).not.toHaveBeenCalled();
-  });
-
-  it("skips S3 cleanup for legacy bytea fichiers (file_id IS NULL)", async () => {
-    const db = fakeDatabase()
-      .selectResolvesForTable("fichier", [{ file_id: null }])
-      .build();
-
-    // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresRéférences(["fichier-legacy"], db.knex);
-
-    expect(result).toEqual(["fichier-legacy"]);
-    expect(db.delete).toHaveBeenCalledTimes(1);
     expect(deleteFile).not.toHaveBeenCalled();
     expect(deleteObject).not.toHaveBeenCalled();
   });
 
   it("swallows errors from deleteObject (best-effort cleanup)", async () => {
-    const db = fakeDatabase()
-      .selectResolvesForTable("fichier", [{ file_id: "file-1" }])
-      .build();
+    const db = fakeDatabase().build();
     deleteFile.mockResolvedValue(1);
     deleteObject.mockRejectedValue(new Error("S3 down"));
     // Silence the console.error from the source.
@@ -212,8 +167,8 @@ describe("supprimerFichiersSansAutresRéférences", () => {
 
     await expect(
       // @ts-ignore branded id
-      supprimerFichiersSansAutresRéférences(["fichier-1"], db.knex),
-    ).resolves.toEqual(["fichier-1"]);
+      supprimerFichiersSansAutresRéférences(["file-1"], db.knex),
+    ).resolves.toEqual(["file-1"]);
 
     expect(errSpy).toHaveBeenCalled();
   });
