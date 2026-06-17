@@ -171,9 +171,8 @@ const dossierNumberToDossierId = new Map(
 );
 
 /** Télécharger les nouveaux fichiers 'motivation' */
-const fichiersMotivationTéléchargésP: Promise<
-  Map<DossierDS88444["number"], FileId> | undefined
-> = téléchargerNouveauxFichiersMotivation(dossiersDS, laTransactionDeSynchronisationDS);
+const fichiersMotivationTéléchargésP: Promise<Map<DossierDS88444["number"], FileId> | undefined> =
+  téléchargerNouveauxFichiersMotivation(dossiersDS, laTransactionDeSynchronisationDS);
 
 const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP;
 

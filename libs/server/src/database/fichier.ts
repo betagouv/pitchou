@@ -137,7 +137,7 @@ export async function supprimerFichiersSansAutresRéférences(
   for (const fileId of àSupprimer) {
     await deleteFile(fileId, databaseConnection);
     await deleteObject(fileKey(fileId)).catch((err) => {
-        console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err.message);
+      console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err.message);
     });
   }
 

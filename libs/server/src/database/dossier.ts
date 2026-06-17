@@ -105,7 +105,10 @@ async function getDecisionsAdministrativesNotInDB(
 ): Promise<DecisionAdministrativeToInsert[]> {
   const fichiers = decisions
     .map((decision) => decision.fichier)
-    .filter((fichier): fichier is NonNullable<DécisionAdministrative["fichier"]> => fichier !== undefined && fichier !== null);
+    .filter(
+      (fichier): fichier is NonNullable<DécisionAdministrative["fichier"]> =>
+        fichier !== undefined && fichier !== null,
+    );
 
   if (fichiers.length === 0) {
     return decisions;

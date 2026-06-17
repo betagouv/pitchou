@@ -4,13 +4,10 @@ export async function up(knex: Knex) {
   // arête_dossier__fichier_pièces_jointes_pétitionnaire
   // Drop unique + FK, migrate data (FichierId -> FileId), re-add pointing to file
 
-  await knex.schema.alterTable(
-    "arête_dossier__fichier_pièces_jointes_pétitionnaire",
-    (table) => {
-      table.dropUnique(["dossier", "fichier"], "arête_dossier_pj_pétitionnaire_unique");
-      table.dropForeign("fichier");
-    },
-  );
+  await knex.schema.alterTable("arête_dossier__fichier_pièces_jointes_pétitionnaire", (table) => {
+    table.dropUnique(["dossier", "fichier"], "arête_dossier_pj_pétitionnaire_unique");
+    table.dropForeign("fichier");
+  });
 
   await knex.raw(`
     UPDATE "arête_dossier__fichier_pièces_jointes_pétitionnaire" AS pj
@@ -19,13 +16,10 @@ export async function up(knex: Knex) {
     WHERE f.id = pj.fichier
   `);
 
-  await knex.schema.alterTable(
-    "arête_dossier__fichier_pièces_jointes_pétitionnaire",
-    (table) => {
-      table.foreign("fichier").references("id").inTable("file").onDelete("CASCADE");
-      table.unique(["dossier", "fichier"], { indexName: "arête_dossier_pj_pétitionnaire_unique" });
-    },
-  );
+  await knex.schema.alterTable("arête_dossier__fichier_pièces_jointes_pétitionnaire", (table) => {
+    table.foreign("fichier").references("id").inTable("file").onDelete("CASCADE");
+    table.unique(["dossier", "fichier"], { indexName: "arête_dossier_pj_pétitionnaire_unique" });
+  });
 
   // dossier.espèces_impactées
 
@@ -97,7 +91,5 @@ export async function up(knex: Knex) {
 }
 
 export async function down(_knex: Knex) {
-  throw new Error(
-    "Irreversible migration — cannot recreate fichier table data.",
-  );
+  throw new Error("Irreversible migration — cannot recreate fichier table data.");
 }
