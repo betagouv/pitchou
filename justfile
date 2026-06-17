@@ -68,6 +68,10 @@ check-types:
     just sync
     corepack pnpm -r exec tsc
 
+# Fail if any .svelte/.ts file exceeds the max line count (default 300)
+check-file-length MAX="300":
+    {{ tsx }} scripts/check-file-length.ts --max {{ MAX }}
+
 # Run all CI checks (check + build + tests). Use before pushing.
 ci:
     just check
