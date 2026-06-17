@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import { store } from "../store.svelte.ts";
+
   type Props = {
     email: string;
     onLogout: () => void;
@@ -9,6 +11,8 @@
   };
 
   let { email, onLogout, align = "end" }: Props = $props();
+
+  const estAdmin = $derived(Boolean(store.identité?.estAdmin));
 
   const panelId = $derived(`account-menu-panel-${align}`);
 
@@ -89,6 +93,15 @@
       id={panelId}
     >
       <p class="account-menu__email">{email}</p>
+      {#if estAdmin}
+        <a
+          href="/admin/especes-protegees"
+          class="fr-btn fr-btn--tertiary fr-icon-seedling-line fr-btn--icon-left account-menu__action"
+          onclick={close}
+        >
+          Admin - Espèces
+        </a>
+      {/if}
       <button
         type="button"
         class="fr-btn fr-btn--tertiary fr-btn--icon-left account-menu__action"
