@@ -7,10 +7,8 @@ import {
   getDossierIdFromAvisExpert,
 } from "@pitchou/server/database/avis_expert.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
-import type Fichier from "@pitchou/types/database/public/Fichier.ts";
-import type { PickNonNullable } from "@pitchou/types/tools.d.ts";
 
-type FichierUpload = PickNonNullable<Fichier, "nom" | "contenu" | "media_type">;
+type FichierUpload = { nom: string; contenu: Buffer; media_type: string };
 
 async function readFileField(file: File): Promise<FichierUpload> {
   const contenu = Buffer.from(await file.arrayBuffer());
