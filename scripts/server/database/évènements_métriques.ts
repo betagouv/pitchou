@@ -52,6 +52,7 @@ export async function getAllÉvènementsAvecEmail(): Promise<
       "évènement_métrique.évènement",
       "évènement_métrique.détails",
     )
+    .whereNot("personne.email", "like", "%beta.gouv%")
     .orderBy("évènement_métrique.date", "asc");
 }
 
