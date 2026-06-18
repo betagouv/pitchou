@@ -1,11 +1,13 @@
 import { join } from "node:path";
 import { readFile } from "node:fs/promises";
+import { arrayBuffer } from "node:stream/consumers";
 
 import memoize from "just-memoize";
 import type { Knex } from "knex";
 
 import { byteFormat } from "@pitchou/common/typeFormat.ts";
 import { directDatabaseConnection } from "../database.ts";
+import { loadFichierContent } from "./fichier.ts";
 import {
   construireActivitésMéthodesMoyensDePoursuite,
   importDescriptionMenacesEspècesFromOdsArrayBuffer,
@@ -13,6 +15,7 @@ import {
 import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { GeoMceMessage, DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
 import type { PitchouState } from "@pitchou/types/pitchou-state.ts";
@@ -63,6 +66,8 @@ function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
 }
 
+const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
+
 async function récupérerDossiersParIds(
   idDossiers: Dossier["id"][] | Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
@@ -72,14 +77,8 @@ async function récupérerDossiersParIds(
   }
 
   const dossiersP = databaseConnection("dossier")
-    .select([
-      "dossier.*",
-      "fichier.contenu as fichier_contenu",
-      "fichier.media_type as fichier_media_type",
-      "décision_administrative.date_signature",
-    ])
+    .select(["dossier.*", "décision_administrative.date_signature"])
     .leftJoin("décision_administrative", { "décision_administrative.dossier": "dossier.id" })
-    .leftJoin("fichier", { "fichier.id": "dossier.espèces_impactées" })
     .where({ "décision_administrative.type": "Arrêté dérogation" })
     .whereIn("dossier.id", idDossiers)
     .orderBy("décision_administrative.date_signature", "asc")
@@ -137,10 +136,15 @@ async function récupérerDossiersParIds(
         flore: [],
       };
 
-      if (dossier.fichier_media_type === "application/vnd.oasis.opendocument.spreadsheet") {
+      const espècesImpactéesFileId = dossier.espèces_impactées as FileId | null;
+      const espècesImpactéesFile = espècesImpactéesFileId
+        ? await loadFichierContent(espècesImpactéesFileId, databaseConnection)
+        : null;
+
+      if (espècesImpactéesFile?.media_type === ODS_MEDIA_TYPE) {
         try {
           descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
-            dossier.fichier_contenu,
+            await arrayBuffer(espècesImpactéesFile.body),
             espèceParCD_REF,
             activités,
             méthodes,
