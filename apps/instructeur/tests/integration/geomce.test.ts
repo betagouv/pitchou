@@ -2,9 +2,10 @@ import { expect, test } from "vitest";
 import { createOdsFile } from "@odfjs/odfjs";
 
 import { db } from "../setup/db.ts";
+import { getTestS3 } from "../setup/s3.ts";
 import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import { createDossier } from "../factories/dossier.ts";
-import { createFichier } from "../factories/fichier.ts";
+import { createFichierS3 } from "../factories/fichier.ts";
 import { createPersonne } from "../factories/personne.ts";
 
 import { générerDéclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
@@ -37,10 +38,11 @@ test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_pr
     db,
   );
 
-  const fichier = await createFichier(db, {
+  const s3 = await getTestS3();
+  const fichier = await createFichierS3(db, s3, {
     nom: "especes-impactees.ods",
     mediaType: ODS_MEDIA_TYPE,
-    contenu: await odsEspecesImpactees("2437"),
+    bytes: await odsEspecesImpactees("2437"),
   });
 
   const dossier = await createDossier(db, {
