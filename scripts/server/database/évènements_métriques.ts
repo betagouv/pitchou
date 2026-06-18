@@ -36,6 +36,25 @@ export async function supprimerÉvènementsParEmail(
     .delete();
 }
 
+export async function getAllÉvènementsAvecEmail(): Promise<
+  {
+    email: string | null;
+    date: Date;
+    évènement: string;
+    détails: unknown | null;
+  }[]
+> {
+  return directDatabaseConnection("évènement_métrique")
+    .join("personne", { "personne.id": "évènement_métrique.personne" })
+    .select(
+      "personne.email",
+      "évènement_métrique.date",
+      "évènement_métrique.évènement",
+      "évènement_métrique.détails",
+    )
+    .orderBy("évènement_métrique.date", "asc");
+}
+
 export async function supprimerÉvènementsAvantTelleDate(
   date: Date,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,

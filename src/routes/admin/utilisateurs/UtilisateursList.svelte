@@ -13,6 +13,7 @@
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
+  import { downloadÉvènementsCSV } from "$front/actions/admin.ts";
   import UtilisateursFilterPanel from "./UtilisateursFilterPanel.svelte";
   import UtilisateursSortPanel from "./UtilisateursSortPanel.svelte";
   import UtilisateursTable from "./UtilisateursTable.svelte";
@@ -33,6 +34,7 @@
   const query = $derived(parseUtilisateursQuery(page.url.searchParams));
 
   let filterPanelOpen = $state(false);
+  let downloadError: string | null = $state(null);
   let sortPanelOpen = $state(false);
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
@@ -128,7 +130,20 @@
     >
       Comment les niveaux sont calculés&nbsp;?
     </button>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
+      onclick={() => downloadÉvènementsCSV().catch((e) => (downloadError = e.message))}
+    >
+      Télécharger les évènements
+    </button>
   </div>
+
+  {#if downloadError}
+    <div class="fr-alert fr-alert--error fr-mb-2w" role="alert">
+      <p>{downloadError}</p>
+    </div>
+  {/if}
 
   <RepartitionNiveaux {utilisateurs} />
 
