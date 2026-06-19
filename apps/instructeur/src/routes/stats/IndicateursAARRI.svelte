@@ -5,6 +5,7 @@
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { isSameDay } from "date-fns";
+  import MatriceImpact from "./MatriceImpact.svelte";
 
   type Props = {
     indicateursParDateP: Promise<IndicateursAARRI[]>;
@@ -181,7 +182,7 @@
           after: indicateurFin?.nombreUtilisateuriceImpact,
         },
       ]}
-
+      <MatriceImpact />
       <section class="fr-mt-4w">
         <h2>Évolution</h2>
         <p>
