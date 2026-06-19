@@ -52,10 +52,7 @@ function isStatsPubliques(stats: any): stats is StatsPubliques {
     typeof stats.statsImpactBiodiversité.total_prescriptions_conformes === "number" &&
     typeof stats.statsImpactBiodiversité.total_surface_évitée === "number" &&
     typeof stats.statsImpactBiodiversité.total_surface_compensée === "number" &&
-    typeof stats.statsImpactBiodiversité.total_nids_évités === "number" &&
-    typeof stats.statsImpactBiodiversité.total_nids_compensés === "number" &&
-    typeof stats.statsImpactBiodiversité.total_individus_évités === "number" &&
-    typeof stats.statsImpactBiodiversité.total_individus_compensés === "number"
+    typeof stats.statsImpactBiodiversité.total_nids_compensés === "number"
   ) {
     /**
      * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
@@ -79,10 +76,7 @@ function isStatsPubliques(stats: any): stats is StatsPubliques {
         nb_trop_tard: 0,
       },
       statsImpactBiodiversité: {
-        total_individus_compensés: 0,
-        total_individus_évités: 0,
         total_nids_compensés: 0,
-        total_nids_évités: 0,
         total_prescriptions_conformes: 0,
         total_surface_compensée: 0,
         total_surface_évitée: 0,

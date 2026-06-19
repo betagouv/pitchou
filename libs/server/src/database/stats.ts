@@ -33,15 +33,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
 
     /** Les prescriptions qui nous intéressent sont les prescriptions contrôlables, i.e. les prescriptions dont la date d'échéance est dans le passé */
     const prescriptionsP = transaction("prescription")
-      .select([
-        "id",
-        "surface_évitée",
-        "surface_compensée",
-        "nids_évités",
-        "nids_compensés",
-        "individus_évités",
-        "individus_compensés",
-      ])
+      .select(["id", "surface_évitée", "surface_compensée", "nids_compensés"])
       .where("date_échéance", "<=", aujourdhui)
       .as("p");
 
@@ -183,15 +175,7 @@ async function getStatsImpactBiodiversité(
     .join("contrôle", "p.id", "contrôle.prescription")
     .where("contrôle.résultat", "Conforme")
     .distinctOn("p.id")
-    .select(
-      "p.id",
-      "p.surface_évitée",
-      "p.surface_compensée",
-      "p.nids_évités",
-      "p.nids_compensés",
-      "p.individus_évités",
-      "p.individus_compensés",
-    )
+    .select("p.id", "p.surface_évitée", "p.surface_compensée", "p.nids_compensés")
     .orderBy([
       { column: "p.id", order: "asc" },
       { column: "contrôle.date_contrôle", order: "desc" },
@@ -203,10 +187,7 @@ async function getStatsImpactBiodiversité(
       transaction.raw("COUNT(*)::int AS total_prescriptions_conformes"),
       transaction.raw("SUM(COALESCE(surface_évitée, 0))::float AS total_surface_évitée"),
       transaction.raw("SUM(COALESCE(surface_compensée, 0))::float AS total_surface_compensée"),
-      transaction.raw("SUM(COALESCE(nids_évités, 0))::int AS total_nids_évités"),
       transaction.raw("SUM(COALESCE(nids_compensés, 0))::int AS total_nids_compensés"),
-      transaction.raw("SUM(COALESCE(individus_évités, 0))::int AS total_individus_évités"),
-      transaction.raw("SUM(COALESCE(individus_compensés, 0))::int AS total_individus_compensés"),
     ])
     .first();
 
@@ -214,10 +195,7 @@ async function getStatsImpactBiodiversité(
     total_prescriptions_conformes: Number(résultat.total_prescriptions_conformes),
     total_surface_évitée: Number(résultat.total_surface_évitée),
     total_surface_compensée: Number(résultat.total_surface_compensée),
-    total_nids_évités: Number(résultat.total_nids_évités),
     total_nids_compensés: Number(résultat.total_nids_compensés),
-    total_individus_évités: Number(résultat.total_individus_évités),
-    total_individus_compensés: Number(résultat.total_individus_compensés),
   };
 
   return stats;
