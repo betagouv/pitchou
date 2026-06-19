@@ -1,5 +1,5 @@
 function ÉvènementPhaseDossier_phase_typeDossierPhase(output) {
-  const ÉvènementPhaseDossierKey = "scripts/types/database/public/ÉvènementPhaseDossier";
+  const ÉvènementPhaseDossierKey = "libs/types/src/database/public/ÉvènementPhaseDossier";
 
   const { declarations } = output[ÉvènementPhaseDossierKey];
 
@@ -9,7 +9,7 @@ function ÉvènementPhaseDossier_phase_typeDossierPhase(output) {
         prop.typeImports = [
           {
             name: "DossierPhase",
-            path: "scripts/types/API_Pitchou.ts",
+            path: "libs/types/src/API_Pitchou.ts",
             isAbsolute: false,
             isDefault: false,
             importAsType: true,
@@ -51,12 +51,12 @@ function makePreRenderHook(outputKey, propertyName, typeName) {
 }
 
 const Dossier_scientifique_type_demande = makePreRenderHook(
-  "scripts/types/database/public/Dossier",
+  "libs/types/src/database/public/Dossier",
   "scientifique_type_demande",
   "string[]",
 );
 const Dossier_scientifique_mode_capture = makePreRenderHook(
-  "scripts/types/database/public/Dossier",
+  "libs/types/src/database/public/Dossier",
   "scientifique_mode_capture",
   "string[]",
 );

@@ -47,7 +47,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm --filter @pitchou/app-instructeur exec playwright install --with-deps
 
       - name: Build the app
         run: pnpm exec just build

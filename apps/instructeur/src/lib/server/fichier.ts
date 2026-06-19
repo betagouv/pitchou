@@ -1,0 +1,35 @@
+import { Readable } from "node:stream";
+import { error } from "@sveltejs/kit";
+import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
+import type Fichier from "@pitchou/types/database/public/Fichier.ts";
+
+export async function téléchargementFichierResponse(fichierId: Fichier["id"]): Promise<Response> {
+  const fichier = await loadFichierContent(fichierId);
+  if (!fichier) {
+    error(404, "Fichier non trouvé");
+  }
+
+  const nomAscii = fichier.nom
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // strip diacritics
+    .replace(/[^\x00-\x7F]/g, ""); // strip remaining non-ASCII
+
+  const headers = new Headers();
+  headers.set(
+    "content-disposition",
+    `attachment; filename="${nomAscii}"; filename*=UTF-8''${encodeURI(fichier.nom)}`,
+  );
+  if (fichier.media_type) {
+    headers.set("content-type", fichier.media_type);
+  }
+  if (fichier.taille !== undefined) {
+    headers.set("content-length", String(fichier.taille));
+  }
+
+  const body =
+    fichier.body instanceof Readable
+      ? (Readable.toWeb(fichier.body) as ReadableStream)
+      : (fichier.body as unknown as BodyInit);
+
+  return new Response(body, { headers });
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@pitchou/database",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@pitchou/types": "workspace:*",
+    "@pitchou/common": "workspace:*",
+    "@pitchou/server": "workspace:*",
+    "d3-dsv": "^3.0.1",
+    "knex": "^3.1.0",
+    "pg": "^8.11.5",
+    "tsx": "^4.22.3"
+  },
+  "devDependencies": {
+    "@types/d3-dsv": "^3.0.7",
+    "@types/node": "^22.3.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@pitchou/app-admin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@pitchou/common": "workspace:*",
+    "@pitchou/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^5.5.4",
+    "@sveltejs/kit": "^2.61.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@types/node": "^22.3.0",
+    "svelte": "^5.46.4",
+    "svelte-check": "^4.0.0",
+    "vite": "^8.0.14"
+  }
+}

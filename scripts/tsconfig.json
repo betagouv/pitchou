@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.base.json",
+  // Outils CLI exécutés à la main depuis le terminal. front-end/ (code de l'app) est
+  // exclu : il quitte scripts/ pour apps/instructeur/ lors de l'étape suivante.
+  // Ambient declaration for the untyped @odfjs/odfjs package (single source in @pitchou/common).
+  "include": ["*.ts", "aarri/**/*.ts", "../libs/common/src/odfjs.d.ts"]
+}

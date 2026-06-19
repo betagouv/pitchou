@@ -1,5 +1,6 @@
 node_modules
 build
+.svelte-kit
 backups
 pgdata
 data/sources_especes
@@ -11,8 +12,8 @@ docs/_site
 docs/.jekyll-cache
 docs/.bundle
 docs/vendor
-scripts/types/database
-scripts/types/démarche-numérique
+libs/types/src/database
+libs/types/src/démarche-numérique
 package-lock.json
 pnpm-lock.yaml
 *.min.js

@@ -1,155 +1,176 @@
 set dotenv-load
 
-# Exécute un script TypeScript via tsx
+# Run a TypeScript file via tsx (from the repo root)
 tsx := "node --import tsx"
 
-# Lance le CLI knex via tsx pour supporter le knexfile et les migrations/seeds en TypeScript
-knex := tsx + " ./node_modules/knex/bin/cli.js"
+# Run the knex CLI inside the database package (TS knexfile + migrations/seeds, cwd = libs/database)
+knex := "corepack pnpm --filter @pitchou/database exec node --import tsx ./node_modules/knex/bin/cli.js"
 
-# Liste les recettes disponibles
+# Run a binary inside the instructeur app (cwd = apps/instructeur)
+instructeur := "corepack pnpm --filter @pitchou/app-instructeur exec"
+
+# Run a TypeScript file via tsx inside the worker package (cwd = libs/worker)
+worker := "corepack pnpm --filter @pitchou/worker exec tsx"
+
+# List available recipes
 default:
     @just --list
 
-# Liste tous les buckets du compte (vérifie creds + endpoint)
+# List all buckets of the account (checks creds + endpoint)
 aws-buckets:
     aws s3api list-buckets
 
-# Liste récursivement les fichiers du bucket courant ($S3_BUCKET)
+# List the current bucket files recursively ($S3_BUCKET)
 aws-ls:
     aws s3 ls "s3://$S3_BUCKET" --recursive
 
-# Supprime un objet du bucket (ex: just aws-rm test-uploads/abc-123)
+# Remove an object from the bucket (e.g. just aws-rm test-uploads/abc-123)
 aws-rm KEY:
     aws s3 rm "s3://$S3_BUCKET/{{KEY}}"
 
-# Affiche taille totale et nombre de fichiers du bucket
+# Show total size and file count of the bucket
 aws-usage:
     @aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2 | awk '/Total Objects/ {print "Fichiers : " $3} /Total Size/ {cmd="numfmt --to=si --format=%.1f --suffix=B " $3; cmd | getline s; close(cmd); print "Taille   : " s}'
 
-# Construit l'application (équivalent du job CI build)
+# Build the instructeur app (CI build job)
 build:
-    vite build
+    {{ instructeur }} vite build
 
-# Lance les vérifications statiques rapides (format, types, svelte-check)
+# Run the fast static checks (format, types, svelte-check)
 check:
+    just sync
     just check-format
     # just check-lint
     just check-types
     just check-svelte
 
-# Vérifie le formatage sans modifier les fichiers
+# Check formatting without modifying files
 check-format:
     prettier --check .
 
-# Vérifie les composants Svelte (équivalent du job CI svelte-check)
+# Check Svelte components (CI svelte-check job), per app
 check-svelte:
-    svelte-check --fail-on-warnings
+    just sync
+    {{ instructeur }} svelte-check --fail-on-warnings
 
-# Vérifie les types TypeScript / JSDoc (équivalent du job CI tsc)
+# Check TypeScript / JSDoc types across every workspace package
 check-types:
-    tsc
+    just sync
+    corepack pnpm -r exec tsc
 
-# Lance toutes les vérifications de la CI (check + build + tests). À utiliser avant un push.
+# Run all CI checks (check + build + tests). Use before pushing.
 ci:
     just check
     just build
     just test
 
-# Vide toute la BDD (drop + recréation du schéma public, supprime aussi l'historique des migrations)
+# Wipe the whole DB (drop + recreate the public schema, also clears migration history)
 db-clear:
     psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
-# Annule la dernière migration appliquée
+# Roll back the last applied migration
 db-migrate-down:
     {{ knex }} migrate:down --env docker_dev
 
-# Applique toutes les migrations en attente
+# Apply all pending migrations
 db-migrate-latest:
     {{ knex }} migrate:latest --env docker_dev
 
-# Applique les migrations en attente
+# Apply pending migrations
 db-migrate-up:
     {{ knex }} migrate:up --env docker_dev
 
-# Réinitialise la BDD de zéro : vide tout, rejoue les migrations, puis insère les seeds
+# Reset the DB from scratch: wipe everything, replay migrations, then insert seeds
 db-reset:
     just db-clear
     just db-migrate-latest
     just db-seed
 
-# Insère les données de dev en base
+# Insert dev data into the DB
 db-seed:
     {{ knex }} seed:run --env docker_dev
 
-# Affiche la taille des tables
+# Show table sizes
 db-size:
     psql "$DATABASE_URL" -c "SELECT relname, pg_size_pretty(pg_total_relation_size(relid)) AS total FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;"
 
-# Déploie sur l'environnement de staging après toutes les vérifications CI
+# Deploy to staging after all CI checks
 deploy-staging:
     just ci
     git push staging staging:main
 
-# Lance Pitchou en mode dev (vite dev server SvelteKit, http://localhost:5173)
+# Run the instructeur app in dev mode (vite dev server, http://localhost:5173)
 dev:
-    vite dev
+    {{ instructeur }} vite dev
 
-# Arrête les conteneurs Docker
+# Run the admin app in dev mode (http://localhost:5174)
+dev-admin:
+    corepack pnpm --filter @pitchou/app-admin exec vite dev
+
+# Run every app in dev mode in parallel (instructeur :5173 + admin :5174)
+dev-all:
+    corepack pnpm --parallel --filter "./apps/*" exec vite dev
+
+# Stop the Docker containers
 docker-down:
     docker compose down
 
-# Suit les logs Docker en temps réel
+# Follow Docker logs in real time
 docker-logs:
     docker compose logs -f
 
-# Redémarre les conteneurs Docker (utile après un changement de config)
+# Restart the Docker containers (useful after a config change)
 docker-restart:
     docker compose restart
 
-# Arrête les conteneurs de test
+# Stop the test containers
 docker-test-down:
-    docker compose -f tests/compose.yml down
+    docker compose -f apps/instructeur/tests/compose.yml down
 
-# Démarre les conteneurs (Postgres + rustfs S3) pour les tests d'intégration et e2e
+# Start the test containers (Postgres + rustfs S3) for integration and e2e tests
 docker-test-up:
-    docker compose -f tests/compose.yml up -d
+    docker compose -f apps/instructeur/tests/compose.yml up -d
 
-# Lance les conteneurs Docker de support (Postgres + pgadmin + rustfs S3)
+# Run the support Docker containers (Postgres + pgadmin + rustfs S3)
 docker-up:
     docker compose up
 
-# Reformate le code avec prettier
+# Reformat the code with prettier
 format:
     prettier --write . --log-level warn
 
-# Génère tous les types (base de données + Démarche Numérique)
+# Generate SvelteKit types for every app
+sync:
+    corepack pnpm --filter "./apps/*" exec svelte-kit sync
+
+# Generate all types (database + Démarche Numérique)
 generate-types:
     just generate-types-db
     just generate-types-ds
 
-# Génère les types depuis le schéma de la base de données
+# Generate types from the database schema
 generate-types-db:
-    kanel -d "$DATABASE_URL" -o ./scripts/types/database
+    kanel -d "$DATABASE_URL" -o ./libs/types/src/database
 
-# Génère les types des schémas Démarche Numérique (télécharge la dernière version du schéma)
+# Generate Démarche Numérique schema types (downloads the latest schema version)
 generate-types-ds:
-    {{ tsx }} outils/genere-types-schema-DS.ts --idSchemaDS derogation-especes-protegees
+    {{ tsx }} scripts/genere-types-schema-DS.ts --idSchemaDS derogation-especes-protegees
 
-# Génère les types DS à partir du fichier schéma déjà présent dans le repo (sans téléchargement)
+# Generate DS types from the schema file already in the repo (no download)
 generate-types-ds-local:
-    {{ tsx }} outils/genere-types-schema-DS.ts --skipDownload --idSchemaDS derogation-especes-protegees
+    {{ tsx }} scripts/genere-types-schema-DS.ts --skipDownload --idSchemaDS derogation-especes-protegees
 
 # Génère la table espece_taxref depuis TAXREF (data/sources_especes/TAXREFv18.txt). À lancer en dev comme en prod après mise à jour de la source.
 generate-taxref:
-    {{ tsx }} outils/importer-taxref.ts
+    {{ worker }} importer-taxref.ts
 
 # Génère la table espece_bdc_statut depuis BDC-Statuts (data/sources_especes/bdc_18_01.csv, tous statuts). À lancer en dev comme en prod après mise à jour de la source.
 generate-bdc:
-    {{ tsx }} outils/importer-bdc.ts
+    {{ worker }} importer-bdc.ts
 
 # Régénère la table espece_protegee_reference depuis espece_taxref + espece_bdc_statut (à lancer après les sources). La couche manuelle (espece_protegee_modification) n'est pas touchée.
 generate-especes-protegees:
-    {{ tsx }} outils/rafraichir-reference-especes.ts
+    {{ worker }} rafraichir-reference-especes.ts
 
 # Génère les deux tables sources (TAXREF + BDC) puis la référence (raccourci dev/prod).
 generate-especes-sources:
@@ -159,37 +180,37 @@ generate-especes-sources:
 
 # [ONE-OFF prod] Génère espece_protegee_modification depuis les .ods (drapeaux ministérielle/CNPN + ajouts « Protection Pitchou »), en matchant la référence déjà construite. À lancer une fois au déploiement ; ce script et les .ods seront ensuite supprimés.
 generate-modifications-especes:
-    {{ tsx }} outils/importer-modifications-especes.ts
+    {{ worker }} importer-modifications-especes.ts
 
-# Synchronise les dossiers depuis Démarches Simplifiées (sans argument : dernières heures ; sinon depuis la date passée, ex: just sync-ds 2025-06-01)
+# Sync dossiers from Démarches Simplifiées (no arg: last hours; else since the given date, e.g. just sync-ds 2025-06-01)
 sync-ds lastModified="":
-    {{ tsx }} outils/sync-démarche-numérique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
+    {{ worker }} sync-démarche-numérique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
 
-# Lance tous les tests (unitaires + composants + intégration + e2e)
+# Run all tests (unit + component + integration + e2e)
 test:
     just test-unit
     just test-component
     just test-integration
     just test-e2e
 
-# Lance les tests de composants Svelte (vitest browser mode)
+# Run Svelte component tests (vitest browser mode)
 test-component:
-    vitest run --config tests/vitest.config.ts --project=component
+    {{ instructeur }} vitest run --config tests/vitest.config.ts --project=component
 
-# Lance les tests end-to-end avec playwright
+# Run end-to-end tests with playwright
 test-e2e:
     just build
-    playwright test --config tests/playwright.config.ts
+    {{ instructeur }} playwright test --config tests/playwright.config.ts
 
-# Lance les tests d'intégration (endpoints + base réelle)
+# Run integration tests (endpoints + real DB)
 test-integration:
     just build
-    vitest run --config tests/vitest.config.ts --project=integration
+    {{ instructeur }} vitest run --config tests/vitest.config.ts --project=integration
 
-# Lance les tests unitaires avec vitest
+# Run unit tests with vitest
 test-unit:
-    vitest run --config tests/vitest.config.ts --project=unit
+    {{ instructeur }} vitest run --config tests/vitest.config.ts --project=unit
 
-# Lance les tests unitaires en mode watch
+# Run unit tests in watch mode
 test-unit-watch:
-    vitest --config tests/vitest.config.ts --project=unit
+    {{ instructeur }} vitest --config tests/vitest.config.ts --project=unit

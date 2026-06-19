@@ -7,6 +7,67 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      kanel:
+        specifier: ^3.8.8
+        version: 3.16.1(@electric-sql/pglite@0.4.5)
+      prettier:
+        specifier: ^3.3.3
+        version: 3.8.3
+      prettier-plugin-svelte:
+        specifier: ^3.2.6
+        version: 3.5.2(prettier@3.8.3)(svelte@5.55.9)
+      rust-just:
+        specifier: ^1.51.0
+        version: 1.51.0
+      sass:
+        specifier: ^1.58.3
+        version: 1.99.0
+      svelte:
+        specifier: ^5.46.4
+        version: 5.55.9
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  apps/admin:
+    dependencies:
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../../libs/common
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../../libs/types
+    devDependencies:
+      '@sveltejs/adapter-node':
+        specifier: ^5.5.4
+        version: 5.5.4(@sveltejs/kit@2.61.0(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)))(svelte@5.55.9)(typescript@5.9.3)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)))
+      '@sveltejs/kit':
+        specifier: ^2.61.0
+        version: 2.61.0(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)))(svelte@5.55.9)(typescript@5.9.3)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.1.2
+        version: 7.1.2(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      svelte:
+        specifier: ^5.46.4
+        version: 5.55.9
+      svelte-check:
+        specifier: ^4.0.0
+        version: 4.4.8(picomatch@4.0.4)(svelte@5.55.9)(typescript@5.9.3)
+      vite:
+        specifier: ^8.0.14
+        version: 8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)
+
+  apps/instructeur:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.1054.0
@@ -17,24 +78,18 @@ importers:
       '@odfjs/odfjs':
         specifier: github:odfjs/odfjs#v0.30.0
         version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
-      '@types/d3-dsv':
-        specifier: ^3.0.7
-        version: 3.0.7
-      byte-size:
-        specifier: ^9.0.1
-        version: 9.0.1
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../../libs/common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../../libs/server
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../../libs/types
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      csv-parse:
-        specifier: ^5.5.6
-        version: 5.6.0
-      csv-stringify:
-        specifier: ^6.5.0
-        version: 6.7.0
-      d3-dsv:
-        specifier: ^3.0.1
-        version: 3.0.1
       d3-fetch:
         specifier: ^3.0.1
         version: 3.0.1
@@ -50,30 +105,18 @@ importers:
       knex:
         specifier: ^3.1.0
         version: 3.2.10(pg@8.21.0)
-      ky:
-        specifier: ^1.7.5
-        version: 1.14.3
       lunr:
         specifier: ^2.3.9
         version: 2.3.9
       lunr-languages:
         specifier: ^1.14.0
         version: 1.20.0
-      minimist:
-        specifier: ^1.2.8
-        version: 1.2.8
-      p-limit:
-        specifier: ^6.2.0
-        version: 6.2.0
       pg:
         specifier: ^8.11.5
         version: 8.21.0
       remember:
         specifier: github:DavidBruant/remember#v1.0.2
         version: https://codeload.github.com/DavidBruant/remember/tar.gz/4fad3c861473e9c56c410c18b79e45d4e718548e
-      tsx:
-        specifier: ^4.22.3
-        version: 4.22.3
     devDependencies:
       '@playwright/test':
         specifier: ^1.56.0
@@ -93,18 +136,12 @@ importers:
       '@testing-library/svelte':
         specifier: ^5.2.6
         version: 5.3.1(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))(vitest@4.1.7)
-      '@types/byte-size':
-        specifier: ^8.1.2
-        version: 8.1.2
       '@types/d3-fetch':
         specifier: ^3.0.7
         version: 3.0.7
       '@types/lunr':
         specifier: ^2.3.7
         version: 2.3.7
-      '@types/minimist':
-        specifier: ^1.2.5
-        version: 1.2.5
       '@types/node':
         specifier: ^22.3.0
         version: 22.19.19
@@ -114,24 +151,9 @@ importers:
       '@vitest/browser-playwright':
         specifier: ^4.1.7
         version: 4.1.7(playwright@1.60.0)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))(vitest@4.1.7)
-      json-schema-to-typescript:
-        specifier: ^15.0.0
-        version: 15.0.4
-      kanel:
-        specifier: ^3.8.8
-        version: 3.16.1(@electric-sql/pglite@0.4.5)
-      playwright:
-        specifier: ^1.56.0
-        version: 1.60.0
-      prettier:
-        specifier: ^3.3.3
-        version: 3.8.3
       prettier-plugin-svelte:
         specifier: ^3.2.6
         version: 3.5.2(prettier@3.8.3)(svelte@5.55.9)
-      rust-just:
-        specifier: ^1.51.0
-        version: 1.51.0
       sass:
         specifier: ^1.58.3
         version: 1.99.0
@@ -141,15 +163,203 @@ importers:
       svelte-check:
         specifier: ^4.0.0
         version: 4.4.8(picomatch@4.0.4)(svelte@5.55.9)(typescript@5.9.3)
-      typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
       vite:
         specifier: ^8.0.14
         version: 8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)
       vitest:
         specifier: ^4.1.7
         version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+
+  libs/common:
+    dependencies:
+      '@odfjs/odfjs':
+        specifier: github:odfjs/odfjs#v0.30.0
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.2.1
+    devDependencies:
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+
+  libs/database:
+    dependencies:
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../server
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      d3-dsv:
+        specifier: ^3.0.1
+        version: 3.0.1
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+    devDependencies:
+      '@types/d3-dsv':
+        specifier: ^3.0.7
+        version: 3.0.7
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+
+  libs/server:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1054.0
+        version: 3.1054.0
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      d3-dsv:
+        specifier: ^3.0.1
+        version: 3.0.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.2.1
+      just-memoize:
+        specifier: ^2.2.0
+        version: 2.2.0
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
+      ky:
+        specifier: ^1.7.5
+        version: 1.14.3
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+    devDependencies:
+      '@types/d3-dsv':
+        specifier: ^3.0.7
+        version: 3.0.7
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@22.19.19)(@vitest/browser-playwright@4.1.7)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+
+  libs/types:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+
+  libs/worker:
+    dependencies:
+      '@odfjs/odfjs':
+        specifier: github:odfjs/odfjs#v0.30.0
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../server
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      byte-size:
+        specifier: ^9.0.1
+        version: 9.0.1
+      csv-parse:
+        specifier: ^5.5.6
+        version: 5.6.0
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.2.1
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
+      ky:
+        specifier: ^1.7.5
+        version: 1.14.3
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
+      p-limit:
+        specifier: ^6.2.0
+        version: 6.2.0
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+    devDependencies:
+      '@types/byte-size':
+        specifier: ^8.1.2
+        version: 8.1.2
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+
+  scripts:
+    dependencies:
+      '@odfjs/odfjs':
+        specifier: github:odfjs/odfjs#v0.30.0
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../libs/common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../libs/server
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../libs/types
+      csv-parse:
+        specifier: ^5.5.6
+        version: 5.6.0
+      csv-stringify:
+        specifier: ^6.5.0
+        version: 6.7.0
+      json-schema-to-typescript:
+        specifier: ^15.0.0
+        version: 15.0.4
+      ky:
+        specifier: ^1.7.5
+        version: 1.14.3
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.56.0
+        version: 1.60.0
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
+      '@types/node':
+        specifier: ^22.3.0
+        version: 22.19.19
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
 
 packages:
 

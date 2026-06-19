@@ -1,34 +1,13 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
-  "include": [
-    ".svelte-kit/ambient.d.ts",
-    ".svelte-kit/non-ambient.d.ts",
-    ".svelte-kit/types/**/$types.d.ts",
-    "vite.config.ts",
-    "src/**/*.ts",
-    "src/**/*.svelte",
-    "scripts/**/*.ts",
-    "scripts/**/*.d.ts",
-    "scripts/**/*.svelte",
-    "outils/**/*.ts",
-    "tests/**/*.ts",
-    "seeds/**/*.ts"
-  ],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "module": "esnext",
-    "strict": true,
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "target": "esnext",
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "downlevelIteration": true,
-    "types": ["node"],
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "verbatimModuleSyntax": false,
-    "isolatedModules": false
-  }
+  "files": [],
+  "references": [
+    { "path": "./libs/types" },
+    { "path": "./libs/common" },
+    { "path": "./libs/server" },
+    { "path": "./libs/database" },
+    { "path": "./libs/worker" },
+    { "path": "./scripts" },
+    { "path": "./apps/instructeur" },
+    { "path": "./apps/admin" }
+  ]
 }
