@@ -133,7 +133,8 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  await page.getByRole("button", { name: "Nouveauté" }).click();
+  await page.getByRole("button", { name: "Filtrer" }).click();
+  await page.getByLabel("Nouveauté").selectOption("oui");
 
   await expect(page.getByTestId("compteur-dossier")).toContainText("2/4 dossiers");
 
