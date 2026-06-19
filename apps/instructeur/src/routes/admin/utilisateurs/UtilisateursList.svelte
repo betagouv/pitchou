@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
 
   import type { NiveauAARRI, UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
-  import Pagination from "$front/components/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import {
     parseUtilisateursQuery,
@@ -13,7 +13,7 @@
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
-  import { downloadÉvènementsCSV } from "$front/actions/admin.ts";
+  import { downloadÉvènementsCSV } from "$lib/actions/admin.ts";
   import UtilisateursFilterPanel from "./UtilisateursFilterPanel.svelte";
   import UtilisateursSortPanel from "./UtilisateursSortPanel.svelte";
   import UtilisateursTable from "./UtilisateursTable.svelte";
@@ -133,7 +133,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-      onclick={() => downloadÉvènementsCSV().catch((e) => (downloadError = e.message))}
+      onclick={() => downloadÉvènementsCSV().catch((e: Error) => (downloadError = e.message))}
     >
       Télécharger les évènements
     </button>

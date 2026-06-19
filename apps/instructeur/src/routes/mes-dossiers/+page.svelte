@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$front/store.svelte.ts";
-  import MesDossiers from "$front/components/screens/MesDossiers.svelte";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
-  import { envoyerÉvènement } from "$front/actions/aarri.ts";
-  import { chargerNotificationParDossierPourInstructeurActuel } from "$front/actions/main.ts";
+  import { store } from "$lib/state/store.svelte.ts";
+  import MesDossiers from "./MesDossiers.svelte";
+  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/shared/main.ts";
 
   onMount(async () => {
     chargerNotificationParDossierPourInstructeurActuel();
@@ -27,8 +27,6 @@
   });
 
   const email = $derived(store.identité?.email);
-  const erreurs = $derived(store.erreurs);
-  const résultatsSynchronisationDS88444 = $derived(store.résultatsSynchronisationDS88444);
   const relationSuivis = $derived(store.relationSuivis);
   const notificationParDossier = $derived(store.notificationParDossier);
 
@@ -41,11 +39,4 @@
   });
 </script>
 
-<MesDossiers
-  {email}
-  {erreurs}
-  {résultatsSynchronisationDS88444}
-  {dossiers}
-  {relationSuivis}
-  {notificationParDossier}
-/>
+<MesDossiers {email} {dossiers} {relationSuivis} {notificationParDossier} />

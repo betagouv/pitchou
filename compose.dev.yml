@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:15.7
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: especes_pro_3731
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backups:/var/lib/pitchou/backups
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DISABLE_POSTFIX: "1"
+      PGADMIN_CONFIG_SERVER_HEARTBEAT_TIMEOUT: 3600 # secondes = une heure
+    restart: unless-stopped
+    stop_grace_period: 2s
+
+  # Stockage objet S3-compatible pour le dev local (équivalent local d'Outscale OOS).
+  # Même image que les tests (compose.test.yml), mais avec un volume persistant.
+  s3:
+    image: rustfs/rustfs:1.0.0-beta.6
+    container_name: pitchou_s3
+    restart: always
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+    ports:
+      - "9000:9000" # API S3
+      - "9001:9001" # console web (http://localhost:9001)
+    volumes:
+      - s3data:/data
+
+  # Conteneur éphémère qui crée le bucket de dev au démarrage, puis s'arrête.
+  s3-init:
+    image: amazon/aws-cli:latest
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: rustfsadmin
+      AWS_SECRET_ACCESS_KEY: rustfsadmin
+      AWS_REGION: us-east-1
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        until aws --endpoint-url http://s3:9000 s3 mb s3://pitchou-dev \
+          || aws --endpoint-url http://s3:9000 s3 ls s3://pitchou-dev; do
+          echo "en attente de rustfs..."; sleep 1;
+        done
+        echo "bucket pitchou-dev prêt"
+    restart: "no"
+
+volumes:
+  pgdata:
+  s3data:

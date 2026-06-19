@@ -1,5 +1,5 @@
-import { default as Dossier } from "./database/public/Dossier.ts";
-import { default as DécisionAdministrative } from "./database/public/DécisionAdministrative.ts";
+import type { default as Dossier } from "./database/public/Dossier.ts";
+import type { default as DécisionAdministrative } from "./database/public/DécisionAdministrative.ts";
 
 export type DossierPourGeoMCE = Dossier &
   Pick<DécisionAdministrative, "date_signature"> & { instructeurs: GeoMceInstructeur[] } & {

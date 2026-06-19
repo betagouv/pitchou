@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ url }) => {
   }
 
   const codeAcces = await créerPersonneOuMettreÀJourCodeAccès(email);
-  const lienConnexion = `${process.env.SITE_URL_PITCHOU}/?secret=${codeAcces}`;
+  const lienConnexion = `${process.env.PUBLIC_SITE_URL_PITCHOU}/?secret=${codeAcces}`;
   await envoyerEmailConnexion(email, lienConnexion);
 
   return new Response(null, { status: 204 });

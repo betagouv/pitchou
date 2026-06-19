@@ -2,14 +2,14 @@
   import { onMount } from "svelte";
   import remember from "remember";
 
-  import { store } from "$front/store.svelte.ts";
-  import SuiviInstruction from "$front/components/screens/SuiviInstruction.svelte";
-  import LoginViaEmail from "$front/components/screens/LoginViaEmail.svelte";
-  import SqueletteContenuVide from "$front/components/SqueletteContenuVide.svelte";
+  import { store } from "$lib/state/store.svelte.ts";
+  import SuiviInstruction from "./SuiviInstruction/SuiviInstruction.svelte";
+  import LoginViaEmail from "./LoginViaEmail/LoginViaEmail.svelte";
+  import Loader from "$lib/components/Loader.svelte";
 
-  import { logout } from "$front/actions/main.ts";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
-  import { envoiEmailConnexion } from "$front/serveur.ts";
+  import { logout } from "$lib/shared/main.ts";
+  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { envoiEmailConnexion } from "./LoginViaEmail/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 
   import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
@@ -84,8 +84,6 @@
   }
 
   const email = $derived(store.identité?.email);
-  const erreurs = $derived(store.erreurs);
-  const résultatsSynchronisationDS88444 = $derived(store.résultatsSynchronisationDS88444);
   const peutListerDossiers = $derived(!!store.capabilities.listerDossiers);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
   const relationSuivis = $derived(store.relationSuivis);
@@ -100,12 +98,12 @@
 </script>
 
 {#if !chargementDossiersTerminé && peutListerDossiers}
-  <SqueletteContenuVide />
+  <div class="fr-p-2w fr-pb-10w">
+    <Loader />
+  </div>
 {:else if peutListerDossiers && email}
   <SuiviInstruction
     {email}
-    {erreurs}
-    {résultatsSynchronisationDS88444}
     {dossiers}
     {relationSuivis}
     activitésPrincipales={activitésPrincipales ?? []}
@@ -114,5 +112,5 @@
     {rememberTriFiltres}
   />
 {:else}
-  <LoginViaEmail {erreurs} {authorizedEmailDomains} {envoiEmailConnexion} />
+  <LoginViaEmail {authorizedEmailDomains} {envoiEmailConnexion} />
 {/if}

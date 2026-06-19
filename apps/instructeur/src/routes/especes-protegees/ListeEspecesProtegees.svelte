@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
 
   import type { EspèceProtégée, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-  import Pagination from "$front/components/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import {
     parseEspecesQuery,

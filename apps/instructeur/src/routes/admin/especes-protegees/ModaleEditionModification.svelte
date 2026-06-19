@@ -2,8 +2,8 @@
   import type {
     ModificationEspeceAdmin,
     PatchModificationEspece,
-  } from "$front/actions/adminEspeces.ts";
-  import { saveModificationEspece, deleteModificationEspece } from "$front/actions/adminEspeces.ts";
+  } from "$lib/actions/adminEspeces.ts";
+  import { saveModificationEspece, deleteModificationEspece } from "$lib/actions/adminEspeces.ts";
 
   import { CLASSIFICATIONS, displayedNom } from "./adminModificationsList.ts";
   import Modale from "./Modale.svelte";

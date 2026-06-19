@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$front/store.svelte.ts";
-  import TmpStats from "$front/components/screens/TmpStats.svelte";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
+  import { store } from "$lib/state/store.svelte.ts";
+  import TmpStats from "./TmpStats.svelte";
+  import { chargerDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
     if (store.dossiersRésumés.size === 0) {
@@ -10,8 +10,7 @@
     }
   });
 
-  const email = $derived(store.identité?.email);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
 </script>
 
-<TmpStats {email} {dossiers} />
+<TmpStats {dossiers} />

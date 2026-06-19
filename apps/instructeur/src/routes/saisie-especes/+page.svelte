@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { store } from "$front/store.svelte.ts";
-  import SaisieEspèces from "$front/components/screens/SaisieEspèces.svelte";
+  import SaisieEspèces from "./SaisieEspèces.svelte";
   import {
     importDescriptionMenacesEspècesFromOdsArrayBuffer,
     importDescriptionMenacesEspècesFromURL,
@@ -8,14 +7,12 @@
   import {
     chargerListeEspècesProtégées,
     chargerActivitésMéthodesMoyensDePoursuite,
-  } from "$front/actions/activitésMéthodesMoyensDePoursuite.ts";
+  } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([
     chargerListeEspècesProtégées(),
     chargerActivitésMéthodesMoyensDePoursuite(),
   ]);
-
-  const email = $derived(store.identité?.email);
 </script>
 
 {#await initP then [espècesData, actMétTrans]}
@@ -33,7 +30,6 @@
     transportsParClassificationEtreVivant,
   )}
   <SaisieEspèces
-    {email}
     {espècesProtégéesParClassification}
     {activitesParClassificationEtreVivant}
     {méthodesParClassificationEtreVivant}

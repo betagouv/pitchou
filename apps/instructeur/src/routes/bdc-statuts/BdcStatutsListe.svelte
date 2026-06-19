@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
-  import Pagination from "$front/components/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import {
     parseBdcStatutQuery,

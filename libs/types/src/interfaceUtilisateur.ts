@@ -1,6 +1,6 @@
-import { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou";
-import Dossier from "./database/public/Dossier";
-import Personne from "./database/public/Personne";
+import type { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou";
+import type Dossier from "./database/public/Dossier";
+import type Personne from "./database/public/Personne";
 
 export type TriTableau = {
   id: string; // identifiant sérialisable pour identifier le tri sélectionné dans le localStorage

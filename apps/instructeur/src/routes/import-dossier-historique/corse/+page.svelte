@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$front/store.svelte.ts";
-  import ImportDossierCorse from "$front/components/screens/ImportDossierCorse.svelte";
-  import { chargerDossiers } from "$front/actions/dossier.ts";
+  import { store } from "$lib/state/store.svelte.ts";
+  import ImportDossierCorse from "./ImportDossierCorse.svelte";
+  import { chargerDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
     if (store.capabilities.listerDossiers) {
@@ -12,9 +12,8 @@
     }
   });
 
-  const email = $derived(store.identité?.email);
   const dossiers = $derived([...store.dossiersRésumés.values()]);
   const schema = $derived(store.schemaDS88444);
 </script>
 
-<ImportDossierCorse {email} {dossiers} {schema} />
+<ImportDossierCorse {dossiers} {schema} />

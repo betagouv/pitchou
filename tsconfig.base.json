@@ -12,7 +12,7 @@
     "types": ["node"],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "verbatimModuleSyntax": false,
-    "isolatedModules": false
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true
   }
 }

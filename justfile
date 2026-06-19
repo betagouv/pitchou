@@ -12,6 +12,16 @@ instructeur := "corepack pnpm --filter @pitchou/app-instructeur exec"
 # Run a TypeScript file via tsx inside the worker package (cwd = libs/worker)
 worker := "corepack pnpm --filter @pitchou/worker exec tsx"
 
+# Run a binary inside the admin app (cwd = apps/admin)
+admin := "corepack pnpm --filter @pitchou/app-admin exec"
+
+# Run a binary inside every app (cwd = each apps/*, sequentially)
+all := 'corepack pnpm --filter "./apps/*" exec'
+
+# Compose files for the dev stack. The override is local-only (gitignored), so
+# it is added only when present — mirroring docker's default auto-merge.
+compose-dev := if path_exists(justfile_directory() / "compose.dev.override.yml") == "true" { "-f compose.dev.yml -f compose.dev.override.yml" } else { "-f compose.dev.yml" }
+
 # List available recipes
 default:
     @just --list
@@ -32,9 +42,9 @@ aws-rm KEY:
 aws-usage:
     @aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2 | awk '/Total Objects/ {print "Fichiers : " $3} /Total Size/ {cmd="numfmt --to=si --format=%.1f --suffix=B " $3; cmd | getline s; close(cmd); print "Taille   : " s}'
 
-# Build the instructeur app (CI build job)
+# Build every app (CI build job)
 build:
-    {{ instructeur }} vite build
+    {{ all }} vite build
 
 # Run the fast static checks (format, types, svelte-check)
 check:
@@ -51,12 +61,16 @@ check-format:
 # Check Svelte components (CI svelte-check job), per app
 check-svelte:
     just sync
-    {{ instructeur }} svelte-check --fail-on-warnings
+    {{ all }} svelte-check --fail-on-warnings
 
 # Check TypeScript / JSDoc types across every workspace package
 check-types:
     just sync
     corepack pnpm -r exec tsc
+
+# Fail if any .svelte/.ts file exceeds the max line count (default 300)
+check-file-length MAX="300":
+    {{ tsx }} scripts/check-file-length.ts --max {{ MAX }}
 
 # Run all CI checks (check + build + tests). Use before pushing.
 ci:
@@ -99,41 +113,41 @@ deploy-staging:
     just ci
     git push staging staging:main
 
-# Run the instructeur app in dev mode (vite dev server, http://localhost:5173)
+# Run every app in dev mode in parallel (instructeur :5173 + admin :5174)
 dev:
+    corepack pnpm --parallel --filter "./apps/*" exec vite dev
+
+# Run the instructeur app in dev mode (vite dev server, http://localhost:5173)
+dev-instructeur:
     {{ instructeur }} vite dev
 
 # Run the admin app in dev mode (http://localhost:5174)
 dev-admin:
-    corepack pnpm --filter @pitchou/app-admin exec vite dev
-
-# Run every app in dev mode in parallel (instructeur :5173 + admin :5174)
-dev-all:
-    corepack pnpm --parallel --filter "./apps/*" exec vite dev
+    {{ admin }} vite dev
 
 # Stop the Docker containers
 docker-down:
-    docker compose down
+    docker compose {{ compose-dev }} down
 
 # Follow Docker logs in real time
 docker-logs:
-    docker compose logs -f
+    docker compose {{ compose-dev }} logs -f
 
 # Restart the Docker containers (useful after a config change)
 docker-restart:
-    docker compose restart
+    docker compose {{ compose-dev }} restart
 
 # Stop the test containers
 docker-test-down:
-    docker compose -f apps/instructeur/tests/compose.yml down
+    docker compose -f compose.test.yml down
 
 # Start the test containers (Postgres + rustfs S3) for integration and e2e tests
 docker-test-up:
-    docker compose -f apps/instructeur/tests/compose.yml up -d
+    docker compose -f compose.test.yml up -d
 
 # Run the support Docker containers (Postgres + pgadmin + rustfs S3)
 docker-up:
-    docker compose up
+    docker compose {{ compose-dev }} up
 
 # Reformat the code with prettier
 format:
@@ -141,7 +155,7 @@ format:
 
 # Generate SvelteKit types for every app
 sync:
-    corepack pnpm --filter "./apps/*" exec svelte-kit sync
+    {{ all }} svelte-kit sync
 
 # Generate all types (database + Démarche Numérique)
 generate-types:
@@ -207,9 +221,9 @@ test-integration:
     just build
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=integration
 
-# Run unit tests with vitest
+# Run unit tests with vitest (every app)
 test-unit:
-    {{ instructeur }} vitest run --config tests/vitest.config.ts --project=unit
+    {{ all }} vitest run --config tests/vitest.config.ts --project=unit
 
 # Run unit tests in watch mode
 test-unit-watch:

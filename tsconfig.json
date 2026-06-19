@@ -3,6 +3,8 @@
   "references": [
     { "path": "./libs/types" },
     { "path": "./libs/common" },
+    { "path": "./libs/ui" },
+    { "path": "./libs/server-utils" },
     { "path": "./libs/server" },
     { "path": "./libs/database" },
     { "path": "./libs/worker" },

@@ -1,0 +1,17 @@
+{
+  "name": "@pitchou/server-utils",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "peerDependencies": {
+    "@sveltejs/kit": "^2.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "^2.61.0",
+    "@types/node": "^22.3.0"
+  }
+}

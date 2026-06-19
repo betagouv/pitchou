@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Accessibilite from "$front/components/screens/Accessibilite.svelte";
+  import Accessibilite from "./Accessibilite.svelte";
 
   let html = $state("");
 

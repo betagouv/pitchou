@@ -4,8 +4,8 @@ import { miseEnPlaceSecretGeoMCE } from "@pitchou/server/database/capability-geo
 if (!process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN) {
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`);
 }
-if (!process.env.SITE_URL_PITCHOU) {
-  throw new TypeError(`Variable d'environnement SITE_URL_PITCHOU manquante`);
+if (!process.env.PUBLIC_SITE_URL_PITCHOU) {
+  throw new TypeError(`Variable d'environnement PUBLIC_SITE_URL_PITCHOU manquante`);
 }
 
 console.log("NODE_ENV", process.env.NODE_ENV);

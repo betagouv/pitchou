@@ -9,8 +9,8 @@
  * et relancer outils/genere-types-schema-DS.js
  */
 
-import { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
-import { ChampDSPieceJustificative } from "./apiSchema.ts";
+import type { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
+import type { ChampDSPieceJustificative } from "./apiSchema.ts";
 
 export interface DossierDemarcheNumerique88444 {
   /**

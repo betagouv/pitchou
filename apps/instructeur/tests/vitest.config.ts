@@ -4,6 +4,7 @@ import { playwright } from "@vitest/browser-playwright";
 
 // Exécuté depuis apps/instructeur (cwd) ; les globs sont relatifs à ce dossier.
 // Les tests unitaires colocalisés vivent dans les libs (../../libs) et dans l'app (src).
+// Les tests de composants vivent dans src/lib (code client de l'app).
 export default defineConfig({
   plugins: [sveltekit()],
   test: {
@@ -22,7 +23,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "component",
-          include: ["front-end/**/*.svelte.test.ts"],
+          include: ["src/**/*.svelte.test.ts"],
           browser: {
             enabled: true,
             provider: playwright(),

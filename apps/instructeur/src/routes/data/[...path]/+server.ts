@@ -1,7 +1,6 @@
 import { resolve } from "node:path";
 import type { RequestHandler } from "./$types";
-import { serveStaticFile } from "$lib/server/staticFile";
-import { REPO_ROOT } from "$lib/server/repoRoot";
+import { serveStaticFile, REPO_ROOT } from "@pitchou/server-utils";
 
 // /data lives at the repo root (large folder, kept out of the bundle, shared with the worker
 // and scripts).

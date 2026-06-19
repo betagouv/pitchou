@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ModificationEspeceAdmin } from "$front/actions/adminEspeces.ts";
+  import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
 
   import {
     effectiveNomsScientifiques,

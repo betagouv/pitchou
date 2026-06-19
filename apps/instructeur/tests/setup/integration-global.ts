@@ -78,7 +78,7 @@ async function spawnKit(
       KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER:
         process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER ??
         "testtesttesttesttesttesttesttesttesttest",
-      SITE_URL_PITCHOU: `http://127.0.0.1:${port}`,
+      PUBLIC_SITE_URL_PITCHOU: `http://127.0.0.1:${port}`,
       AWS_ENDPOINT_URL_S3: s3.endpoint,
       AWS_REGION: s3.region,
       AWS_ACCESS_KEY_ID: s3.accessKeyId,

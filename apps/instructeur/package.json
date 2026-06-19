@@ -7,6 +7,8 @@
     "@pitchou/types": "workspace:*",
     "@pitchou/common": "workspace:*",
     "@pitchou/server": "workspace:*",
+    "@pitchou/server-utils": "workspace:*",
+    "@pitchou/ui": "workspace:*",
     "@aws-sdk/client-s3": "^3.1054.0",
     "@gouvfr/dsfr": "^1.11.2",
     "knex": "^3.1.0",
