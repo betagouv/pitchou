@@ -1,3 +1,5 @@
+<script lang="ts"></script>
+
 <section class="fr-mt-6w">
   <h2 class="fr-mt-2w">Matrice d'impact</h2>
 
