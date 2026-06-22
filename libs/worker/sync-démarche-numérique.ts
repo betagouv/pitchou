@@ -106,7 +106,7 @@ if (typeof args.lastModified === "string" && isValidDate(new Date(args.lastModif
   lastModified = sub(new Date(), { hours: 12 });
 }
 const schema: SchemaDémarcheSimplifiée = (
-  await import(`../data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`, {
+  await import(`../../data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`, {
     with: { type: "json" },
   })
 ).default;
