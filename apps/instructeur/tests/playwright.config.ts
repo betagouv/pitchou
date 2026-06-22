@@ -20,6 +20,7 @@ export default defineConfig({
       use: {
         ...devices["Desktop Firefox"],
         locale: "fr",
+        timezoneId: "Europe/Paris",
       },
     },
   ],
