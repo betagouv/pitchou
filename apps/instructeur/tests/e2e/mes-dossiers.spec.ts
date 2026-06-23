@@ -16,7 +16,7 @@ type SetupResult = {
   unviewedOld: { id: number; nom: string };
   viewedRecent: { id: number; nom: string };
   noNotificationOld: { id: number; nom: string };
-  };
+};
 
 async function setup(db: Knex): Promise<SetupResult> {
   const { id: personneId, groupeId } = await createInstructeurWithCapToGroup(db, {

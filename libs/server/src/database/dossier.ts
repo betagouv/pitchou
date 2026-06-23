@@ -691,7 +691,7 @@ const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
   // annotations privées
   "enjeu_écologique",
   "enjeu_politique",
-  
+
   "enjeu",
 
   "commentaire_libre",
