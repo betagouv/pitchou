@@ -158,6 +158,9 @@ export default interface Dossier {
 
   /** Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
   mesures_er_suffisantes: boolean | null;
+
+  /** Indique si le dossier présente un enjeu (écologique, politique...). */
+  enjeu: boolean;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -316,6 +319,12 @@ export interface DossierInitializer {
 
   /** Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
   mesures_er_suffisantes?: boolean | null;
+
+  /**
+   * Indique si le dossier présente un enjeu (écologique, politique...).
+   * Default value: false
+   */
+  enjeu?: boolean;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -467,4 +476,7 @@ export interface DossierMutator {
 
   /** Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
   mesures_er_suffisantes?: boolean | null;
+
+  /** Indique si le dossier présente un enjeu (écologique, politique...). */
+  enjeu?: boolean;
 }

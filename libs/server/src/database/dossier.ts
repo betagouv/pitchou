@@ -406,6 +406,7 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
 
   "enjeu_écologique",
   "enjeu_politique",
+  "enjeu",
   "commentaire_libre",
   "historique_identifiant_demande_onagre",
 
@@ -690,6 +691,8 @@ const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
   // annotations privées
   "enjeu_écologique",
   "enjeu_politique",
+
+  "enjeu",
 
   "commentaire_libre",
 

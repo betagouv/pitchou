@@ -211,10 +211,10 @@ test:
 test-component:
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=component
 
-# Run end-to-end tests with playwright
-test-e2e:
+# Run end-to-end tests with playwright (optional flags passed to playwright, e.g. just test-e2e --grep "mon test" --headed)
+test-e2e *flags:
     just build
-    {{ instructeur }} playwright test --config tests/playwright.config.ts
+    {{ instructeur }} playwright test --config tests/playwright.config.ts {{ flags }}
 
 # Run integration tests (endpoints + real DB)
 test-integration:

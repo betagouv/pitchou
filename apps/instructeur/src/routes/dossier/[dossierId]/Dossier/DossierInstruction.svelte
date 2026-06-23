@@ -45,6 +45,7 @@
   let phase = $derived(phaseActuelle);
   let ddep_nécessaire = $state(untrack(() => dossier.ddep_nécessaire));
   let mesures_er_suffisantes = $state(untrack(() => dossier.mesures_er_suffisantes));
+  let enjeu = $state(untrack(() => dossier.enjeu));
   let commentaire_libre = $state(untrack(() => dossier.commentaire_libre));
   let prochaine_action_attendue_par = $state(untrack(() => dossier.prochaine_action_attendue_par));
   let historique_identifiant_demande_onagre = $state(
@@ -132,6 +133,10 @@
       historique_identifiant_demande_onagre?.trim()
     ) {
       modifs.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
+    }
+
+    if (dossier.enjeu !== enjeu) {
+      modifs.enjeu = enjeu;
     }
 
     if (dossier.ddep_nécessaire !== ddep_nécessaire) {
@@ -301,6 +306,17 @@
   </section>
 
   <section>
+    <div class="fr-toggle">
+      <input
+        type="checkbox"
+        class="fr-toggle__input"
+        id="toggle-enjeu"
+        bind:checked={enjeu}
+        onfocus={retirerAlert}
+      />
+      <label class="fr-toggle__label" for="toggle-enjeu"> Dossier à enjeu </label>
+    </div>
+
     <div class="fr-input-group" id="input-group-commentaitre-libre">
       <strong
         ><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong
