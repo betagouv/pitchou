@@ -9,7 +9,7 @@
     "pnpm": "10.27.0"
   },
   "scripts": {
-    "build": "pnpm --filter @pitchou/app-instructeur exec vite build"
+    "build": "pnpm --filter @pitchou/app-$PITCHOU_APP exec vite build"
   },
   "devDependencies": {
     "@types/node": "^22.3.0",
