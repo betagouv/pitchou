@@ -6,6 +6,7 @@ export const authorizedEmailDomains = new Set([
   "aisne.gouv.fr",
   "nord.gouv.fr",
   "loiret.gouv.fr",
+  "loir-et-cher.gouv.fr",
   "mer.gouv.fr",
   "indre-et-loire.gouv.fr",
   "guyane.gouv.fr",
