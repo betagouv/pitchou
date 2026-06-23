@@ -68,24 +68,11 @@
       {afficherString(dossier.prochaine_action_attendue_par)}
     </div>
 
-    <div class="enjeux">
+    {#if dossier.enjeu}
       <div>
-        {#if dossier.enjeu_politique || dossier.enjeu_écologique}
-          {#if dossier.enjeu_politique}
-            <div>
-              <span class="fr-icon-bank-fill" aria-hidden="true"></span>
-              Enjeu politique
-            </div>
-          {/if}
-          {#if dossier.enjeu_écologique}
-            <div>
-              <span class="fr-icon-earth-fill" aria-hidden="true"></span>
-              Enjeu écologique
-            </div>
-          {/if}
-        {/if}
+        <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
       </div>
-    </div>
+    {/if}
 
     {#if dossier.rattaché_au_régime_ae}
       <div>
@@ -133,13 +120,6 @@
 
     section > div {
       margin-bottom: 0.7rem;
-    }
-
-    .enjeux {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
     }
   }
 </style>
