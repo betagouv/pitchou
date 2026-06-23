@@ -27,3 +27,43 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
   await expect(page.getByLabel("Date de début")).toHaveValue("2025-03-10");
   await expect(page.getByLabel("Date de fin")).toHaveValue("2025-04-30");
 });
+
+test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a stakeholder file", async ({
+  page,
+  db,
+  loginAs,
+}) => {
+  const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
+    email: "instr@enjeu-default.fr",
+    dossierNom: "Dossier sans enjeu e2e",
+  });
+
+  await loginAs(codeAcces);
+  await page.goto(`/dossier/${dossier.id}`);
+  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+
+  await expect(page.locator("#toggle-enjeu")).not.toBeChecked();
+});
+
+test("Clicking the'Dossier à enjeu' toggle changes the stake value of the case, and when reloading, this modified value persists.", async ({
+  page,
+  db,
+  loginAs,
+}) => {
+  const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
+    email: "instr@enjeu-click.fr",
+    dossierNom: "Dossier enjeu à modifier e2e",
+  });
+
+  await loginAs(codeAcces);
+  await page.goto(`/dossier/${dossier.id}`);
+  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+
+  await expect(page.locator("#toggle-enjeu")).not.toBeChecked();
+  await page.locator('label[for="toggle-enjeu"]').click();
+  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+  await expect(page.locator("#toggle-enjeu")).toBeChecked();
+});
