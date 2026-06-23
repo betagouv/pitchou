@@ -16,7 +16,7 @@ type SetupResult = {
   unviewedOld: { id: number; nom: string };
   viewedRecent: { id: number; nom: string };
   noNotificationOld: { id: number; nom: string };
-};
+  };
 
 async function setup(db: Knex): Promise<SetupResult> {
   const { id: personneId, groupeId } = await createInstructeurWithCapToGroup(db, {
@@ -49,6 +49,7 @@ async function setup(db: Knex): Promise<SetupResult> {
     nom: "Parc photovoltaïque à Anglet",
     numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
     date_dépôt: d4,
+    enjeu: true,
   });
 
   for (const d of [noNotificationOld, viewedRecent, unviewedOld, unviewedRecent]) {
@@ -163,4 +164,19 @@ test("le badge Nouveauté disparaît après consultation du dossier", async ({ p
 
   await expect(carte).toHaveCount(1);
   await expect(badge).toHaveCount(0);
+});
+
+test("Le badge Dossier à enjeu apparaît lorsque le dossier possède un enjeu", async ({
+  page,
+  db,
+}) => {
+  const fixtures = await setup(db);
+  await gotoMesDossiers(page);
+
+  const titre = page.getByRole("link", { name: fixtures.unviewedRecent.nom });
+  const carte = page.getByTestId("carte-dossier").filter({ has: titre });
+  const badge = carte.locator("p.fr-badge", { hasText: /Dossier à enjeu/i });
+
+  await expect(carte).toHaveCount(1);
+  await expect(badge).toHaveCount(1);
 });

@@ -24,6 +24,8 @@
     instructeurActuelLaisseDossier,
     nouveautéVueParInstructeur,
   }: Props = $props();
+
+  $inspect('dossier', dossier)
 </script>
 
 <div class="carte fr-p-2w" data-testid="carte-dossier">
@@ -100,7 +102,7 @@
         <p class="numéro-dossier fr-text--sm">
           Dossier n°{dossier.id} (DN&nbsp;:&nbsp;{dossier.number_demarches_simplifiées})
         </p>
-        {#if dossier.enjeu_politique || dossier.enjeu_écologique}
+        {#if dossier.enjeu}
           <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
         {/if}
       </div>

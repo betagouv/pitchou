@@ -89,6 +89,7 @@ export type DossierRésumé = Pick<
   | "date_dépôt"
   | "enjeu_politique"
   | "enjeu_écologique"
+  | "enjeu"
   | "rattaché_au_régime_ae"
   | "prochaine_action_attendue_par"
   | "commentaire_libre"
