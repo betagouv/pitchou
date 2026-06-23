@@ -9,7 +9,13 @@ export async function up(knex: Knex) {
 
 export async function down(knex: Knex) {
   await knex.schema.alterTable("dossier", function (table) {
-    table.boolean("enjeu_politique").nullable().comment("Indique si le dossier présente un enjeu politique");
-    table.boolean("enjeu_écologique").nullable().comment("Indique si le dossier présente un enjeu écologique");
+    table
+      .boolean("enjeu_politique")
+      .nullable()
+      .comment("Indique si le dossier présente un enjeu politique");
+    table
+      .boolean("enjeu_écologique")
+      .nullable()
+      .comment("Indique si le dossier présente un enjeu écologique");
   });
 }
