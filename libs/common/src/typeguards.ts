@@ -48,8 +48,6 @@ function isDossierRésumé(x: any): x is DossierRésumé {
     (typeof x.number_demarches_simplifiées === "string" ||
       x.number_demarches_simplifiées === null) &&
     (typeof x.activité_principale === "string" || x.activité_principale === null) &&
-    (typeof x.enjeu_politique === "boolean" || x.enjeu_politique === null) &&
-    (typeof x.enjeu_écologique === "boolean" || x.enjeu_écologique === null) &&
     (typeof x.rattaché_au_régime_ae === "boolean" || x.rattaché_au_régime_ae === null) &&
     (typeof x.historique_identifiant_demande_onagre === "string" ||
       x.historique_identifiant_demande_onagre === null);

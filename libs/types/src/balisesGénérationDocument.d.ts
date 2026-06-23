@@ -101,6 +101,5 @@ export type BalisesGénérationDocument = {
   identifiant_pitchou: number;
 
   commentaire_instruction: string;
-  enjeu_politique: boolean;
-  enjeu_écologique: boolean;
+  enjeu: boolean;
 };

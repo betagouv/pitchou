@@ -127,14 +127,9 @@ Les balises ont des types qui peuvent être :
                             <td> Durée de l'intervention</td>
                         </tr>
                         <tr>
-                            <th scope="row"><code>{enjeu_écologique}</code></th>
+                            <th scope="row"><code>{enjeu}</code></th>
                             <td> booléen</td>
-                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu écologique, sinon <code>false</code></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><code>{enjeu_politique}</code></th>
-                            <td> booléen</td>
-                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu politique, sinon <code>false</code></td>
+                            <td>Ce champ vaut <code>true</code> si le dossier présente un enjeu (écologique, politique...), sinon <code>false</code></td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{identifiant_onagre}</code></th>
