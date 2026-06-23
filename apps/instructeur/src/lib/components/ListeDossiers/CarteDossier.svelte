@@ -24,8 +24,6 @@
     instructeurActuelLaisseDossier,
     nouveautéVueParInstructeur,
   }: Props = $props();
-
-  $inspect("dossier", dossier);
 </script>
 
 <div class="carte fr-p-2w" data-testid="carte-dossier">
