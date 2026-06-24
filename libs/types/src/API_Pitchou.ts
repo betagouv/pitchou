@@ -202,8 +202,17 @@ export interface StatsImpactBiodiversité {
   /** La somme totale des surfaces compensées */
   total_surface_compensée: number;
 
+  /** Le nombre total de nids évités */
+  total_nids_évités: number;
+
   /** Le nombre total de nids compensés */
   total_nids_compensés: number;
+
+  /** Le nombre total d'individus évités */
+  total_individus_évités: number;
+
+  /** Le nombre total d'individus compensés */
+  total_individus_compensés: number;
 }
 
 /**
