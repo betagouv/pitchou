@@ -18,6 +18,17 @@
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
+{#snippet messageListeVide({ listeComplèteVide }: { listeComplèteVide: boolean })}
+  {#if listeComplèteVide}
+    <p>
+      Vous ne suivez aucun dossier pour le moment. Vous pouvez consulter
+      <a class="fr-link" href="/tous-les-dossiers">tous les dossiers</a> pour commencer à en suivre.
+    </p>
+  {:else}
+    <p>Aucun dossier n'a été trouvé.</p>
+  {/if}
+{/snippet}
+
 <ListeDossiers
   titre="Mes dossiers"
   {email}
@@ -25,4 +36,5 @@
   {relationSuivis}
   afficherFiltreActionInstructeur
   {notificationParDossier}
+  {messageListeVide}
 />
