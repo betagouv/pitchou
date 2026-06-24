@@ -13,7 +13,7 @@ import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-num
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 import type { DossierDS88444, Traitement } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type {
   default as DécisionAdministrative,
   DCisionAdministrativeInitializer as DécisionAdministrativeInitializer,
@@ -265,7 +265,7 @@ function makeÉvènementsPhaseDossierFromTraitementsDS(
  */
 function makeDécisionAdministrativeFromTraitementDS(
   dossierDS: DossierDS88444,
-  fichiersMotivationTéléchargés: Map<DossierDS88444["number"], FichierId> | undefined,
+  fichiersMotivationTéléchargés: Map<DossierDS88444["number"], FileId> | undefined,
   idPitchouDuDossier: DécisionAdministrative["dossier"] | null,
 ): PartialBy<DécisionAdministrativeInitializer, "dossier">[] {
   const décisionsAdministratives: PartialBy<DécisionAdministrativeInitializer, "dossier">[] = [];
@@ -307,7 +307,7 @@ export async function makeDossiersPourSynchronisation(
   dossiersDS: DossierDS88444[],
   démarcheNumber: number,
   numberDSDossiersDéjàExistantsEnBDD: Map<Dossier["number_demarches_simplifiées"], Dossier["id"]>,
-  fichiersMotivationTéléchargés: Map<number, FichierId> | undefined,
+  fichiersMotivationTéléchargés: Map<number, FileId> | undefined,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
   getDonnéesPersonnesEntreprises: GetDonnéesPersonnesEntreprises,

@@ -4,8 +4,6 @@ import type {
   AvisExpertMutator,
 } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { Knex } from "knex";
-import type { PickNonNullable } from "@pitchou/types/tools.d.ts";
-import type Fichier from "@pitchou/types/database/public/Fichier.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 
 import { directDatabaseConnection } from "../database.ts";
@@ -19,8 +17,8 @@ function estUnAvisExpertÀModifier(
 
 export async function ajouterOuModifierAvisExpertAvecFichiers(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
-  fichierSaisine?: PickNonNullable<Fichier, "nom" | "contenu" | "media_type">,
-  fichierAvis?: PickNonNullable<Fichier, "nom" | "contenu" | "media_type">,
+  fichierSaisine?: { nom: string; contenu: Buffer; media_type: string },
+  fichierAvis?: { nom: string; contenu: Buffer; media_type: string },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   try {

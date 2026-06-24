@@ -1,7 +1,7 @@
 import type { RequestHandler } from "./$types";
 import { téléchargementFichierResponse } from "$lib/server/fichier";
-import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 export const GET: RequestHandler = ({ params }) => {
-  return téléchargementFichierResponse(params.fichierId as FichierId);
+  return téléchargementFichierResponse(params.fichierId as FileId);
 };
