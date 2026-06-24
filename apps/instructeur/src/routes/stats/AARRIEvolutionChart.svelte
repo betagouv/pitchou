@@ -23,7 +23,7 @@
     },
     {
       key: "nombreUtilisateuriceActif",
-      label: "Actif",
+      label: "Activé",
       color: "var(--artwork-minor-green-menthe)",
     },
     {

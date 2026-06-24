@@ -226,27 +226,36 @@
                 >
                 <span class="stat-label">Surface compensée</span>
               </div>
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_évités}</span>
-                <span class="stat-label">Nids évités</span>
-              </div>
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_compensés}</span
-                >
-                <span class="stat-label">Nids compensés</span>
-              </div>
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_individus_évités}</span
-                >
-                <span class="stat-label">Individus évités</span>
-              </div>
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_individus_compensés}</span
-                >
-                <span class="stat-label">Individus compensés</span>
-              </div>
+              {#if stats.statsImpactBiodiversité.total_nids_évités > 0}
+                <div class="biodiv-chiffre-item">
+                  <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_évités}</span>
+                  <span class="stat-label">Nids évités</span>
+                </div>
+              {/if}
+              {#if stats.statsImpactBiodiversité.total_nids_compensés > 0}
+                <div class="biodiv-chiffre-item">
+                  <span class="stat-number"
+                    >{stats.statsImpactBiodiversité.total_nids_compensés}</span
+                  >
+                  <span class="stat-label">Nids compensés</span>
+                </div>
+              {/if}
+              {#if stats.statsImpactBiodiversité.total_individus_évités > 0}
+                <div class="biodiv-chiffre-item">
+                  <span class="stat-number"
+                    >{stats.statsImpactBiodiversité.total_individus_évités}</span
+                  >
+                  <span class="stat-label">Individus évités</span>
+                </div>
+              {/if}
+              {#if stats.statsImpactBiodiversité.total_individus_compensés > 0}
+                <div class="biodiv-chiffre-item">
+                  <span class="stat-number"
+                    >{stats.statsImpactBiodiversité.total_individus_compensés}</span
+                  >
+                  <span class="stat-label">Individus compensés</span>
+                </div>
+              {/if}
             </div>
             <div class="biodiv-note fr-mt-2w fr-text--xs">
               <em
