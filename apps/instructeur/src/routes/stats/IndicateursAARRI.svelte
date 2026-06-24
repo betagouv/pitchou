@@ -5,6 +5,7 @@
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { isSameDay } from "date-fns";
+  import MatriceImpact from "./MatriceImpact.svelte";
 
   type Props = {
     indicateursParDateP: Promise<IndicateursAARRI[]>;
@@ -63,7 +64,7 @@
     <section class="fr-mt-4w">
       <h2>État des lieux</h2>
       <p>
-        Voici la valeur des nombres d'utilisateurices Pitchou par pour chaque phase AARRI
+        Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI
         aujourd'hui.
       </p>
       <div class="conteneur-barres">
@@ -84,7 +85,7 @@
           <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceRetenu}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
-          <span class="fr-col-1">Actif</span>
+          <span class="fr-col-1">Activé</span>
           <div
             class="barre barre-actif"
             style={`width:${(indicateursAujourdhui.nombreUtilisateuriceActif / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
@@ -163,7 +164,7 @@
           after: indicateurFin?.nombreUtilisateuriceAcquis,
         },
         {
-          phase: "Actif",
+          phase: "Activé",
           color: "var(--artwork-minor-green-menthe)",
           before: indicateurDébut?.nombreUtilisateuriceActif,
           after: indicateurFin?.nombreUtilisateuriceActif,
@@ -181,7 +182,7 @@
           after: indicateurFin?.nombreUtilisateuriceImpact,
         },
       ]}
-
+      <MatriceImpact />
       <section class="fr-mt-4w">
         <h2>Évolution</h2>
         <p>
