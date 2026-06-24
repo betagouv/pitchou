@@ -14,6 +14,7 @@ export type ÉvènementRechercheDossiersDétails = {
     phases?: DossierPhase[];
     prochaineActionAttenduePar?: Array<DossierProchaineActionAttenduePar | "(vide)">;
     activitésPrincipales?: NonNullable<Dossier["activité_principale"]>[];
+    départements?: string[];
     nouveauté?: boolean;
   };
   nombreRésultats: number;

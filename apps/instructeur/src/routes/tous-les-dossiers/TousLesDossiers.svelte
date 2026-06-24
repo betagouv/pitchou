@@ -29,5 +29,4 @@
   {dossiers}
   {relationSuivis}
   {notificationParDossier}
-  afficherFiltreSansInstructeurice
 />

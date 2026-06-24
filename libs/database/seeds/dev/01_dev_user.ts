@@ -11,10 +11,44 @@ const SEED_GROUP_NAME = "Groupe de démonstration (seed)";
 const SEED_DEMARCHE_NUMBER = 999999;
 const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
-const FAKE_DOSSIERS: Pick<DossierInitializer, "nom" | "number_demarches_simplifiées">[] = [
-  { nom: "Parc éolien des Hauteurs (démo)", number_demarches_simplifiées: "999000001" },
-  { nom: "Reconstruction pont sur la Loire (démo)", number_demarches_simplifiées: "999000002" },
-  { nom: "Carrière de granulats du Sud (démo)", number_demarches_simplifiées: "999000003" },
+type Commune = { name: string; code: string; postalCode: string };
+
+type FakeDossier = Pick<DossierInitializer, "nom" | "number_demarches_simplifiées"> & {
+  communes: Commune[];
+  départements: string[];
+};
+
+const commune = (name: string, code: string, postalCode: string): Commune => ({
+  name,
+  code,
+  postalCode,
+});
+
+// Localisations variées pour tester la recherche par commune : nom exact,
+// saisie partielle (« cleyra » → « Cleyrac »), communes composées (avec tiret)
+// et dossiers couvrant plusieurs communes / départements.
+const FAKE_DOSSIERS: FakeDossier[] = [
+  {
+    nom: "Parc éolien des Hauteurs (démo)",
+    number_demarches_simplifiées: "999000001",
+    communes: [commune("Cleyrac", "33138", "33540"), commune("Mauriac", "33279", "33540")],
+    départements: ["33"],
+  },
+  {
+    nom: "Reconstruction pont sur la Loire (démo)",
+    number_demarches_simplifiées: "999000002",
+    communes: [
+      commune("Saint-Florent-le-Vieil", "49301", "49410"),
+      commune("Ancenis-Saint-Géréon", "44003", "44150"),
+    ],
+    départements: ["44", "49"],
+  },
+  {
+    nom: "Carrière de granulats du Sud (démo)",
+    number_demarches_simplifiées: "999000003",
+    communes: [commune("Bordeaux", "33063", "33000"), commune("Pessac", "33318", "33600")],
+    départements: ["33"],
+  },
 ];
 
 export async function seed(knex: Knex) {
@@ -72,15 +106,27 @@ export async function seed(knex: Knex) {
       let dossier = await transaction("dossier")
         .where({ number_demarches_simplifiées: fakeDossier.number_demarches_simplifiées })
         .first();
+      // Les colonnes `communes` / `départements` sont en JSON : on sérialise
+      // explicitement, sinon le driver pg encoderait le tableau JS en tableau
+      // PostgreSQL (`{…}`) au lieu de JSON.
+      const localisation = {
+        communes: JSON.stringify(fakeDossier.communes),
+        départements: JSON.stringify(fakeDossier.départements),
+      };
+
       if (!dossier) {
         const newDossier: DossierInitializer = {
           nom: fakeDossier.nom,
           number_demarches_simplifiées: fakeDossier.number_demarches_simplifiées,
           date_dépôt: new Date(),
           numéro_démarche: SEED_DEMARCHE_NUMBER,
+          ...localisation,
         };
         const [inserted] = await transaction("dossier").insert(newDossier).returning("id");
         dossier = inserted;
+      } else {
+        // Rafraîchit la localisation des dossiers déjà semés lors d'une exécution précédente.
+        await transaction("dossier").where({ id: dossier.id }).update(localisation);
       }
 
       const dossierLink = await transaction("arête_groupe_instructeurs__dossier")

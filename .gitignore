@@ -44,3 +44,7 @@ docs/vendor/
 .corepack/
 .cache/
 compose.dev.override.yml
+
+# Vitest browser artifacts
+.vitest-attachments/
+**/__screenshots__/
