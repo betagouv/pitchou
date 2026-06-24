@@ -64,7 +64,8 @@
     <section class="fr-mt-4w">
       <h2>État des lieux</h2>
       <p>
-        Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI aujourd'hui.
+        Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI
+        aujourd'hui.
       </p>
       <div class="conteneur-barres">
         <div class="fr-grid-row fr-grid-row--middle">
