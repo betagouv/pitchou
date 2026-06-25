@@ -1,11 +1,8 @@
-import { randomBytes } from "node:crypto";
-
 import type { Knex } from "knex";
 
-import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
 import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
 
-import { SEED_GROUP_NAME, SEED_DEMARCHE_NUMBER } from "./06_groupe_instructeurs.ts";
+import { SEED_GROUP_NAME, SEED_DEMARCHE_NUMBER } from "./06_users.ts";
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
@@ -18,47 +15,8 @@ const FAKE_DOSSIERS: Pick<DossierInitializer, "nom" | "number_demarches_simplifi
 
 export async function seed(knex: Knex) {
   await knex.transaction(async (transaction) => {
-    let person = await transaction("personne").where({ email: SEED_EMAIL }).first();
-    if (!person) {
-      const accessCode = randomBytes(16).toString("hex");
-      const newPerson: PersonneInitializer = {
-        email: SEED_EMAIL,
-        nom: "Dev",
-        prénoms: "Local",
-        code_accès: accessCode,
-      };
-      const [inserted] = await transaction("personne")
-        .insert(newPerson)
-        .returning(["id", "code_accès"]);
-      person = inserted;
-    } else if (!person.code_accès) {
-      const accessCode = randomBytes(16).toString("hex");
-      await transaction("personne").where({ id: person.id }).update({ code_accès: accessCode });
-      person.code_accès = accessCode;
-    }
-
-    let capability = await transaction("cap_dossier")
-      .where({ personne_cap: person.code_accès })
-      .first();
-    if (!capability) {
-      const [inserted] = await transaction("cap_dossier")
-        .insert({ personne_cap: person.code_accès })
-        .returning("cap");
-      capability = inserted;
-    }
-
+    const person = await transaction("personne").where({ email: SEED_EMAIL }).first();
     const group = await transaction("groupe_instructeurs").where({ nom: SEED_GROUP_NAME }).first();
-    if (group) {
-      const groupLink = await transaction("arête_cap_dossier__groupe_instructeurs")
-        .where({ cap_dossier: capability.cap, groupe_instructeurs: group.id })
-        .first();
-      if (!groupLink) {
-        await transaction("arête_cap_dossier__groupe_instructeurs").insert({
-          cap_dossier: capability.cap,
-          groupe_instructeurs: group.id,
-        });
-      }
-    }
 
     for (const fakeDossier of FAKE_DOSSIERS) {
       let dossier = await transaction("dossier")
@@ -95,7 +53,9 @@ export async function seed(knex: Knex) {
     console.log("");
     console.log("  Seed OK");
     console.log(`  Email : ${SEED_EMAIL}`);
-    console.log(`  Login : ${ORIGIN}/?secret=${person.code_accès}`);
+    if (person?.code_accès) {
+      console.log(`  Login : ${ORIGIN}/?secret=${person.code_accès}`);
+    }
     console.log("");
   });
 }

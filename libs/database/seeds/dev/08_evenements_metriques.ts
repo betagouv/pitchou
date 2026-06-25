@@ -1,13 +1,12 @@
-import { randomBytes } from "node:crypto";
-
 import type { Knex } from "knex";
 
-import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
 import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 import {
   ÉVÈNEMENTS_CONSULTATIONS,
   ÉVÈNEMENTS_MODIFICATIONS,
 } from "@pitchou/server/database/aarri/constantes.ts";
+
+import { SEED_PERSONNES } from "./06_users.ts";
 
 /**
  * Seed creating demo metric events for the AARRI indicators
@@ -15,43 +14,24 @@ import {
  * It builds a realistic funnel that grows over time:
  *   Acquis (12) >= Actif (8) >= Retenu (5) >= Impact (3)
  *
- * Demo personnes use the `@demo.pitchou.local` domain (so NOT `@beta.gouv.fr`,
- * otherwise they would be excluded from the indicators). The seed is
- * idempotent: existing demo personnes are deleted first (the cascade also
- * removes their metric events).
+ * Activity profiles are mapped to seed personnes by index. Idempotent:
+Å * existing metric events for each personne are deleted before re-inserting.
  */
-
-const DEMO_DOMAIN = "demo.pitchou.local";
 
 type EventType = ÉvènementMétrique["type"];
 
-/** A personne's activity over a single week. */
 type WeekActivity = {
-  /** Number of weeks before today (0 = current week). */
   weeksAgo: number;
-  /** Number of modification actions that week. */
   modifications: number;
-  /** Number of consultation actions that week. */
   consultations: number;
-  /** When true, adds a "retour a la conformite" event (impact). */
   impact?: boolean;
 };
 
-type DemoPersonne = {
-  firstName: string;
-  lastName: string;
-  emailLocal: string;
-  /** Week of the first connection, in weeks before today. */
+type ActivityProfile = {
   acquisitionWeeksAgo: number;
   activity: WeekActivity[];
 };
 
-/**
- * Builds a run of consecutive active weeks.
- * @param start oldest week (in weeks before today)
- * @param count number of consecutive weeks
- * @param impactWeek week (in weeks before today) on which to place an impact
- */
 function activeWeeks(
   start: number,
   count: number,
@@ -72,49 +52,16 @@ function activeWeeks(
   return weeks;
 }
 
-const DEMO_PERSONNES: DemoPersonne[] = [
+const ACTIVITY_PROFILES: ActivityProfile[] = [
   // — Retenu with impact (sustained activity + retour a la conformite) —
-  {
-    firstName: "Camille",
-    lastName: "Roussel",
-    emailLocal: "camille.roussel",
-    acquisitionWeeksAgo: 13,
-    activity: activeWeeks(11, 8, 5, 3, 4),
-  },
-  {
-    firstName: "Aïcha",
-    lastName: "Benali",
-    emailLocal: "aicha.benali",
-    acquisitionWeeksAgo: 12,
-    activity: activeWeeks(10, 8, 5, 3, 3),
-  },
-  {
-    firstName: "Thomas",
-    lastName: "Lefevre",
-    emailLocal: "thomas.lefevre",
-    acquisitionWeeksAgo: 11,
-    activity: activeWeeks(9, 8, 6, 4, 2),
-  },
+  { acquisitionWeeksAgo: 13, activity: activeWeeks(11, 8, 5, 3, 4) },
+  { acquisitionWeeksAgo: 12, activity: activeWeeks(10, 8, 5, 3, 3) },
+  { acquisitionWeeksAgo: 11, activity: activeWeeks(9, 8, 6, 4, 2) },
   // — Retenu without impact —
+  { acquisitionWeeksAgo: 10, activity: activeWeeks(8, 7, 5, 3) },
+  { acquisitionWeeksAgo: 9, activity: activeWeeks(7, 7, 5, 4) },
+  // — Actif but not retenu —
   {
-    firstName: "Marie",
-    lastName: "Dubois",
-    emailLocal: "marie.dubois",
-    acquisitionWeeksAgo: 10,
-    activity: activeWeeks(8, 7, 5, 3),
-  },
-  {
-    firstName: "Lucas",
-    lastName: "Moreau",
-    emailLocal: "lucas.moreau",
-    acquisitionWeeksAgo: 9,
-    activity: activeWeeks(7, 7, 5, 4),
-  },
-  // — Actif but not retenu (a few weeks with >=5 modifications) —
-  {
-    firstName: "Fatou",
-    lastName: "Diallo",
-    emailLocal: "fatou.diallo",
     acquisitionWeeksAgo: 7,
     activity: [
       { weeksAgo: 5, modifications: 6, consultations: 2 },
@@ -122,16 +69,10 @@ const DEMO_PERSONNES: DemoPersonne[] = [
     ],
   },
   {
-    firstName: "Pierre",
-    lastName: "Garnier",
-    emailLocal: "pierre.garnier",
     acquisitionWeeksAgo: 6,
     activity: [{ weeksAgo: 3, modifications: 6, consultations: 2 }],
   },
   {
-    firstName: "Sophie",
-    lastName: "Marchand",
-    emailLocal: "sophie.marchand",
     acquisitionWeeksAgo: 5,
     activity: [
       { weeksAgo: 3, modifications: 5, consultations: 1 },
@@ -139,34 +80,10 @@ const DEMO_PERSONNES: DemoPersonne[] = [
     ],
   },
   // — Acquis only (connection + low activity) —
-  {
-    firstName: "Hugo",
-    lastName: "Bernard",
-    emailLocal: "hugo.bernard",
-    acquisitionWeeksAgo: 8,
-    activity: [{ weeksAgo: 7, modifications: 0, consultations: 2 }],
-  },
-  {
-    firstName: "Léa",
-    lastName: "Fontaine",
-    emailLocal: "lea.fontaine",
-    acquisitionWeeksAgo: 4,
-    activity: [],
-  },
-  {
-    firstName: "Yanis",
-    lastName: "Khelifi",
-    emailLocal: "yanis.khelifi",
-    acquisitionWeeksAgo: 3,
-    activity: [{ weeksAgo: 2, modifications: 1, consultations: 2 }],
-  },
-  {
-    firstName: "Claire",
-    lastName: "Petit",
-    emailLocal: "claire.petit",
-    acquisitionWeeksAgo: 2,
-    activity: [],
-  },
+  { acquisitionWeeksAgo: 8, activity: [{ weeksAgo: 7, modifications: 0, consultations: 2 }] },
+  { acquisitionWeeksAgo: 4, activity: [] },
+  { acquisitionWeeksAgo: 3, activity: [{ weeksAgo: 2, modifications: 1, consultations: 2 }] },
+  { acquisitionWeeksAgo: 2, activity: [] },
 ];
 
 /** Monday (noon) of the week containing `date`. */
@@ -194,7 +111,6 @@ function detailsFor(type: EventType, i: number): Record<string, unknown> | null 
   }
 }
 
-/** One row to insert into the `évènement_métrique` table. */
 type MetricEventRow = {
   personne: number;
   évènement: EventType;
@@ -205,7 +121,6 @@ type MetricEventRow = {
 export async function seed(knex: Knex) {
   const currentMonday = mondayOfWeek(new Date());
 
-  /** A date (offset within the week) `weeksAgo` weeks before the current week. */
   function dateInWeek(weeksAgo: number, dayOffset: number): Date {
     const date = new Date(currentMonday);
     date.setDate(date.getDate() - weeksAgo * 7 + (dayOffset % 5));
@@ -213,65 +128,66 @@ export async function seed(knex: Knex) {
   }
 
   await knex.transaction(async (transaction) => {
-    // Idempotence: start from a clean slate for demo personnes. The
-    // ON DELETE CASCADE constraint also removes their metric events.
-    await transaction("personne").where("email", "ilike", `%@${DEMO_DOMAIN}`).delete();
-
     const rows: MetricEventRow[] = [];
+    let processedCount = 0;
 
-    for (const demo of DEMO_PERSONNES) {
-      const newPersonne: PersonneInitializer = {
-        email: `${demo.emailLocal}@${DEMO_DOMAIN}`,
-        nom: demo.lastName,
-        prénoms: demo.firstName,
-        code_accès: randomBytes(16).toString("hex"),
-      };
-      const [inserted] = await transaction("personne").insert(newPersonne).returning(["id"]);
-      const personneId: number = inserted.id;
+    const count = Math.min(ACTIVITY_PROFILES.length, SEED_PERSONNES.length);
+    for (let i = 0; i < count; i++) {
+      const profile = ACTIVITY_PROFILES[i];
+      const seedPerson = SEED_PERSONNES[i];
 
-      // First connection → "Acquis" indicator
+      const personne = await transaction("personne").where({ email: seedPerson.email }).first();
+      if (!personne) continue;
+
+      // Idempotence: remove existing metric events before re-inserting
+      await transaction("évènement_métrique").where({ personne: personne.id }).delete();
+
       rows.push({
-        personne: personneId,
+        personne: personne.id,
         évènement: "seConnecter",
         détails: null,
-        date: dateInWeek(demo.acquisitionWeeksAgo, 0),
+        date: dateInWeek(profile.acquisitionWeeksAgo, 0),
       });
 
-      for (const week of demo.activity) {
-        for (let i = 0; i < week.modifications; i++) {
-          const type = ÉVÈNEMENTS_MODIFICATIONS[i % ÉVÈNEMENTS_MODIFICATIONS.length];
+      for (const week of profile.activity) {
+        for (let j = 0; j < week.modifications; j++) {
+          const type = ÉVÈNEMENTS_MODIFICATIONS[j % ÉVÈNEMENTS_MODIFICATIONS.length];
           rows.push({
-            personne: personneId,
+            personne: personne.id,
             évènement: type,
-            détails: detailsFor(type, i),
-            date: dateInWeek(week.weeksAgo, i),
+            détails: detailsFor(type, j),
+            date: dateInWeek(week.weeksAgo, j),
           });
         }
-        for (let i = 0; i < week.consultations; i++) {
-          const type = ÉVÈNEMENTS_CONSULTATIONS[i % ÉVÈNEMENTS_CONSULTATIONS.length];
+        for (let j = 0; j < week.consultations; j++) {
+          const type = ÉVÈNEMENTS_CONSULTATIONS[j % ÉVÈNEMENTS_CONSULTATIONS.length];
           rows.push({
-            personne: personneId,
+            personne: personne.id,
             évènement: type,
-            détails: detailsFor(type, i),
-            date: dateInWeek(week.weeksAgo, i + 1),
+            détails: detailsFor(type, j),
+            date: dateInWeek(week.weeksAgo, j + 1),
           });
         }
         if (week.impact) {
           rows.push({
-            personne: personneId,
+            personne: personne.id,
             évènement: "retourÀLaConformité",
             détails: detailsFor("retourÀLaConformité", 0),
             date: dateInWeek(week.weeksAgo, 3),
           });
         }
       }
+
+      processedCount++;
     }
 
-    await transaction("évènement_métrique").insert(rows);
+    if (rows.length > 0) {
+      await transaction("évènement_métrique").insert(rows);
+    }
 
     console.log("");
     console.log("  Metric events seed OK");
-    console.log(`  ${DEMO_PERSONNES.length} demo personnes (@${DEMO_DOMAIN})`);
+    console.log(`  ${processedCount} personnes`);
     console.log(`  ${rows.length} metric events inserted`);
     console.log("");
   });
