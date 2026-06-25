@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { afterNavigate, goto } from "$app/navigation";
   import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
@@ -27,99 +28,177 @@
   function instructeurActuelLaisseDossier(id: Dossier["id"]) {
     return instructeurLaisseDossier(email, id);
   }
+
+  // Track whether we reached this dossier through in-app navigation (`from` is
+  // non-null). If so, the back button returns to the browser's previous page.
+  // Otherwise (direct access to the dossier), redirect to the relevant list.
+  let navigatedFromApp = $state(false);
+
+  afterNavigate(({ from }) => {
+    if (from) navigatedFromApp = true;
+  });
+
+  function retour() {
+    if (navigatedFromApp) {
+      history.back();
+    } else {
+      goto(dossierActuelSuiviParInstructeurActuel ? "/mes-dossiers" : "/tous-les-dossiers");
+    }
+  }
 </script>
 
 <header class="fr-mb-2w">
-  <section>
-    <h1 class="fr-mb-1v">Dossier n°{dossier.id}&nbsp;:&nbsp;{dossier.nom}</h1>
-    <div>
-      <span class="fr-icon-map-pin-2-fill" aria-hidden="true"></span>
-      {formatLocalisation(dossier)}
-    </div>
-    <div>
-      <span class="fr-icon-user-fill" aria-hidden="true"></span>
-      {#if dossier.demandeur_personne_physique_email || dossier.déposant_email}
-        <a href={`mailto:${dossier.demandeur_personne_physique_email || dossier.déposant_email}`}>
+  <div class="entete-titre">
+    <button
+      type="button"
+      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left"
+      onclick={retour}
+    >
+      Retour
+    </button>
+    <h1 class="titre-dossier fr-mb-0">
+      <span class="numero">Dossier n°{dossier.id}&nbsp;:</span>
+      {dossier.nom}
+    </h1>
+  </div>
+
+  <div class="entete-infos">
+    <section>
+      <div>
+        <span class="fr-icon-map-pin-2-fill fr-icon--sm" aria-hidden="true"></span>
+        {formatLocalisation(dossier)}
+      </div>
+      <div>
+        <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+        {#if dossier.demandeur_personne_physique_email || dossier.déposant_email}
+          <a href={`mailto:${dossier.demandeur_personne_physique_email || dossier.déposant_email}`}>
+            {formatPorteurDeProjet(dossier)}
+          </a>
+        {:else}
           {formatPorteurDeProjet(dossier)}
-        </a>
-      {:else}
-        {formatPorteurDeProjet(dossier)}
-      {/if}
-    </div>
-    <div>
-      <span class="fr-icon-briefcase-fill" aria-hidden="true"></span>
-      {dossier.activité_principale}
-    </div>
-    {#if dossier.number_demarches_simplifiées}
-      <div>
-        <span class="fr-icon-folder-2-fill" aria-hidden="true"></span>
-        Numéro dossier Démarche Numérique&nbsp:&nbsp{dossier.number_demarches_simplifiées}
+        {/if}
       </div>
-    {/if}
-  </section>
-
-  <section>
-    <div>
-      <strong>Phase&nbsp;:&nbsp;</strong><TagPhase {phase}></TagPhase>
-    </div>
-
-    <div>
-      <strong>Prochaine action de&nbsp;:&nbsp;</strong>
-      {afficherString(dossier.prochaine_action_attendue_par)}
-    </div>
-
-    {#if dossier.enjeu}
       <div>
-        <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
+        <span class="fr-icon-briefcase-fill fr-icon--sm" aria-hidden="true"></span>
+        {dossier.activité_principale}
       </div>
-    {/if}
-
-    {#if dossier.rattaché_au_régime_ae}
-      <div>
-        <span class="fr-icon-pantone-fill" aria-hidden="true"></span>
-        Autorisation environnementale
-      </div>
-    {/if}
-
-    {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
-      {#if dossierActuelSuiviParInstructeurActuel}
-        <button
-          onclick={() => instructeurActuelLaisseDossier(dossier.id)}
-          class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
-          >Ne plus suivre</button
-        >
-      {:else}
-        <button
-          onclick={() => instructeurActuelSuitDossier(dossier.id)}
-          class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
-          >Suivre</button
-        >
-      {/if}
-    {/if}
-
-    <!--
+      {#if dossier.number_demarches_simplifiées}
         <div>
-            <span class="fr-icon-scales-3-fill" aria-hidden="true"></span>
-            Contentieux
+          <span class="fr-icon-folder-2-fill fr-icon--sm" aria-hidden="true"></span>
+          Numéro dossier Démarche Numérique&nbsp:&nbsp{dossier.number_demarches_simplifiées}
         </div>
-        -->
-  </section>
+      {/if}
+    </section>
+
+    <section>
+      <div>
+        <strong>Phase&nbsp;:&nbsp;</strong><TagPhase {phase}></TagPhase>
+      </div>
+
+      <div>
+        <strong>Prochaine action de&nbsp;:&nbsp;</strong>
+        {afficherString(dossier.prochaine_action_attendue_par)}
+      </div>
+
+      {#if dossier.enjeu}
+        <div>
+          <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
+        </div>
+      {/if}
+
+      {#if dossier.rattaché_au_régime_ae}
+        <div>
+          <span class="fr-icon-pantone-fill fr-icon--sm" aria-hidden="true"></span>
+          Autorisation environnementale
+        </div>
+      {/if}
+
+      {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
+        {#if dossierActuelSuiviParInstructeurActuel}
+          <button
+            onclick={() => instructeurActuelLaisseDossier(dossier.id)}
+            class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left fr-mt-1w"
+            >Ne plus suivre</button
+          >
+        {:else}
+          <button
+            onclick={() => instructeurActuelSuitDossier(dossier.id)}
+            class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left fr-mt-1w"
+            >Suivre</button
+          >
+        {/if}
+      {/if}
+
+      <!--
+          <div>
+              <span class="fr-icon-scales-3-fill" aria-hidden="true"></span>
+              Contentieux
+          </div>
+          -->
+    </section>
+  </div>
 </header>
 
 <style lang="scss">
   header {
     display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .entete-titre {
+    display: flex;
     flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--background-alt-grey);
+    border-bottom: 1px solid var(--border-default-grey);
+  }
+
+  .titre-dossier {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    color: var(--text-title-grey);
+
+    .numero {
+      color: var(--text-mention-grey);
+      font-weight: 400;
+    }
+  }
+
+  .entete-infos {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 1.5rem 1rem;
 
     & > :nth-child(1) {
       flex: 2;
     }
     & > :nth-child(2) {
       flex: 1;
+      padding-left: 2rem;
+      border-left: 1px solid var(--border-default-grey);
     }
 
     section > div {
-      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    section > div:last-child {
+      margin-bottom: 0;
+    }
+
+    // mute and shrink the leading icons of the info rows (not the buttons)
+    section span[class*="fr-icon-"] {
+      color: var(--text-mention-grey);
+      flex: none;
     }
   }
 </style>

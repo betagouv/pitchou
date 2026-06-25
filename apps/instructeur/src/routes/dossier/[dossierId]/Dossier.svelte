@@ -12,7 +12,6 @@
   import { envoyerÉvènement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
-  import { afterNavigate, goto } from "$app/navigation";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
 
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
@@ -83,23 +82,6 @@
 
   $inspect("Dossier complet", dossier);
 
-  // Track whether we reached this dossier through in-app navigation (`from` is
-  // non-null). If so, the back button returns to the browser's previous page.
-  // Otherwise (direct access to the dossier), redirect to the relevant list.
-  let navigatedFromApp = $state(false);
-
-  afterNavigate(({ from }) => {
-    if (from) navigatedFromApp = true;
-  });
-
-  function retour() {
-    if (navigatedFromApp) {
-      history.back();
-    } else {
-      goto(dossierActuelSuiviParInstructeurActuel ? "/mes-dossiers" : "/tous-les-dossiers");
-    }
-  }
-
   const envoyerÉvènementConsulterUnDossier = debounce(
     () => envoyerÉvènement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
     15 * 60 * 1000,
@@ -133,14 +115,6 @@
 
 <div class="fr-grid-row fr-mt-2w">
   <div class="fr-col">
-    <button
-      type="button"
-      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left fr-mb-2w"
-      onclick={retour}
-    >
-      Retour
-    </button>
-
     <EnteteDossier {dossier} {dossierActuelSuiviParInstructeurActuel} {email}></EnteteDossier>
 
     <div class="fr-tabs">
