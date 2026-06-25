@@ -34,7 +34,7 @@ aws-buckets:
 aws-empty-bucket:
     #!/usr/bin/env bash
     set -euo pipefail
-    if [ "${NODE_ENV:-}" = "production" ]; then
+    if [ "${NODE_ENV:-}" = "production" ] && [ -z "${PUBLIC_PITCHOU_ENV:-}" ]; then
         echo "Interdit en production !" >&2
         exit 1
     fi
@@ -140,6 +140,11 @@ dev-instructeur:
 # Run the admin app in dev mode (http://localhost:5174)
 dev-admin:
     {{ admin }} vite dev
+
+# Reset all dev/staging data: empty S3 bucket then wipe + remigrate + reseed the DB. NOT FOR PRODUCTION USE.
+data-reset:
+    aws s3 rm "s3://$S3_BUCKET" --recursive
+    just db-reset
 
 # Stop the Docker containers
 docker-down:
