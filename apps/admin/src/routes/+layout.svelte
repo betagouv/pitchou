@@ -3,14 +3,26 @@
   import Footer from "@pitchou/ui/Footer.svelte";
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
 
-  let { children } = $props();
+  import type { LayoutData } from "./$types";
+
+  let { children, data }: { children: import("svelte").Snippet; data: LayoutData } = $props();
+
+  function logout() {
+    window.location.href = "/auth/logout";
+  }
 </script>
 
 <svelte:head>
   <title>Pitchou — Admin</title>
 </svelte:head>
 
-<Header serviceTitle="Pitchou" serviceTagline="Administration" {tools} {menuLinks} {nav} />
+<Header
+  serviceTitle="Pitchou"
+  serviceTagline="Administration"
+  tools={data.user ? tools : undefined}
+  menuLinks={data.user ? menuLinks : undefined}
+  nav={data.user ? mainNav : undefined}
+/>
 
 <main tabindex="-1" id="main">
   <div class="fr-container fr-py-6w">
@@ -21,14 +33,14 @@
 <Footer description="Administration de Pitchou." />
 
 {#snippet tools()}
-  <AccountMenu />
+  <AccountMenu email={data.user?.email} onLogout={logout} />
 {/snippet}
 
 {#snippet menuLinks()}
-  <AccountMenu align="start" />
+  <AccountMenu align="start" email={data.user?.email} onLogout={logout} />
 {/snippet}
 
-{#snippet nav()}
+{#snippet mainNav()}
   <nav class="fr-nav" aria-label="Menu principal">
     <ul class="fr-nav__list">
       <li class="fr-nav__item">
