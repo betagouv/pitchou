@@ -4,7 +4,6 @@ import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 
 import { SEED_PERSONNES } from "./06_users.ts";
 
-
 type SeedEvent = {
   type: ÉvènementMétrique["type"];
   weeksAgo: number;
