@@ -1,6 +1,20 @@
 import { env as privateEnv } from "$env/dynamic/private";
 import { env as publicEnv } from "$env/dynamic/public";
+import { directDatabaseConnection } from "$lib/server/database.ts";
 import type { PageServerLoad } from "./$types";
+
+// Temporary probe to confirm the admin app can reach the shared database.
+// Remove once admin has real database-backed features.
+async function getDatabaseStatus(): Promise<string> {
+  try {
+    const { rows } = await directDatabaseConnection.raw<{ rows: { count: string }[] }>(
+      "select count(*)::text as count from personne",
+    );
+    return `ok (${rows[0].count} personnes)`;
+  } catch (error) {
+    return `unreachable: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
 
 export type DashboardLink = {
   href: string;
@@ -9,7 +23,9 @@ export type DashboardLink = {
   icon: string;
 };
 
-export const load: PageServerLoad = () => {
+export const load: PageServerLoad = async () => {
+  const databaseStatus = await getDatabaseStatus();
+
   const candidates: { href: string | undefined; title: string; detail: string; icon: string }[] = [
     {
       href: publicEnv.PUBLIC_SITE_URL_PITCHOU,
@@ -53,5 +69,5 @@ export const load: PageServerLoad = () => {
     Boolean(link.href),
   );
 
-  return { links };
+  return { links, databaseStatus };
 };

@@ -6,7 +6,6 @@
   import BarreRecherche from "./BarreRecherche.svelte";
   import TrisDeTh from "./TrisDeTh.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import TagEnjeu from "./TagEnjeu.svelte";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import IndicateurDélaiPhase from "./IndicateurDélaiPhase.svelte";
@@ -715,8 +714,7 @@
                 régions,
                 activité_principale,
                 rattaché_au_régime_ae,
-                enjeu_politique,
-                enjeu_écologique,
+                enjeu,
                 commentaire_libre,
                 phase,
                 prochaine_action_attendue_par,
@@ -778,12 +776,8 @@
                 <td>{formatPorteurDeProjet(dossier)}</td>
                 <td>{nom || ""}</td>
                 <td>
-                  {#if enjeu_politique}
-                    <TagEnjeu enjeu="politique" taille="SM" classes={["fr-mb-1w"]}></TagEnjeu>
-                  {/if}
-
-                  {#if enjeu_écologique}
-                    <TagEnjeu enjeu="écologique" taille="SM" classes={["fr-mb-1w"]}></TagEnjeu>
+                  {#if enjeu}
+                    <p class="fr-badge fr-badge--pink-macaron fr-badge--sm">Dossier à enjeu</p>
                   {/if}
                 </td>
                 <td>

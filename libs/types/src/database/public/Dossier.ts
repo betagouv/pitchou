@@ -46,9 +46,6 @@ export default interface Dossier {
   /** Indique si une demande de dérogation est nécessaire pour ce dossier. */
   ddep_nécessaire: boolean | null;
 
-  /** Indique si le dossier présente un enjeu politique */
-  enjeu_politique: boolean | null;
-
   /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre: string;
 
@@ -60,9 +57,6 @@ export default interface Dossier {
 
   /** Date de la consultation publique */
   date_debut_consultation_public: Date | null;
-
-  /** Indique si le dossier présente un enjeu écologique */
-  enjeu_écologique: boolean | null;
 
   /** Indique si le dossier est rattaché au régime d'Autorisation Environnementale */
   rattaché_au_régime_ae: boolean | null;
@@ -158,6 +152,9 @@ export default interface Dossier {
 
   /** Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
   mesures_er_suffisantes: boolean | null;
+
+  /** Indique si le dossier présente un enjeu (écologique, politique...). */
+  enjeu: boolean;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -198,9 +195,6 @@ export interface DossierInitializer {
   /** Indique si une demande de dérogation est nécessaire pour ce dossier. */
   ddep_nécessaire?: boolean | null;
 
-  /** Indique si le dossier présente un enjeu politique */
-  enjeu_politique?: boolean | null;
-
   /**
    * Commentaires de l'instructeur.rice sur le dossier
    * Default value: ''::text
@@ -218,9 +212,6 @@ export interface DossierInitializer {
 
   /** Date de la consultation publique */
   date_debut_consultation_public?: Date | null;
-
-  /** Indique si le dossier présente un enjeu écologique */
-  enjeu_écologique?: boolean | null;
 
   /** Indique si le dossier est rattaché au régime d'Autorisation Environnementale */
   rattaché_au_régime_ae?: boolean | null;
@@ -316,6 +307,12 @@ export interface DossierInitializer {
 
   /** Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
   mesures_er_suffisantes?: boolean | null;
+
+  /**
+   * Indique si le dossier présente un enjeu (écologique, politique...).
+   * Default value: false
+   */
+  enjeu?: boolean;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -355,9 +352,6 @@ export interface DossierMutator {
   /** Indique si une demande de dérogation est nécessaire pour ce dossier. */
   ddep_nécessaire?: boolean | null;
 
-  /** Indique si le dossier présente un enjeu politique */
-  enjeu_politique?: boolean | null;
-
   /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre?: string;
 
@@ -369,9 +363,6 @@ export interface DossierMutator {
 
   /** Date de la consultation publique */
   date_debut_consultation_public?: Date | null;
-
-  /** Indique si le dossier présente un enjeu écologique */
-  enjeu_écologique?: boolean | null;
 
   /** Indique si le dossier est rattaché au régime d'Autorisation Environnementale */
   rattaché_au_régime_ae?: boolean | null;
@@ -467,4 +458,7 @@ export interface DossierMutator {
 
   /** Appréciation de l'instructrice. Indique si les mesures d'évitement et de réduction (ER) sont suffisantes pour éviter une demande de dérogation. Ce champ est lié au champ ddep_nécessaire. */
   mesures_er_suffisantes?: boolean | null;
+
+  /** Indique si le dossier présente un enjeu (écologique, politique...). */
+  enjeu?: boolean;
 }

@@ -53,6 +53,12 @@ importers:
       '@pitchou/ui':
         specifier: workspace:*
         version: link:../../libs/ui
+      knex:
+        specifier: ^3.1.0
+        version: 3.2.10(pg@8.21.0)
+      pg:
+        specifier: ^8.11.5
+        version: 8.21.0
     devDependencies:
       '@sveltejs/adapter-node':
         specifier: ^5.5.4

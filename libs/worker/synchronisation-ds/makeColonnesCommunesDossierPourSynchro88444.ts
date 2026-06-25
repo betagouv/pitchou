@@ -321,25 +321,12 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     annotationById.set(annotation.id, annotation);
   }
 
-  const enjeu_écologique = annotationById.get(
-    pitchouKeyToAnnotationDS.get("Enjeu écologique"),
-  ).checked;
-  const enjeu_politique = annotationById.get(
-    pitchouKeyToAnnotationDS.get("Enjeu politique"),
-  ).checked;
-
   const historique_date_envoi_dernière_contribution = annotationById.get(
     pitchouKeyToAnnotationDS.get(
       "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP",
     ),
   ).date;
 
-  const date_debut_consultation_public = annotationById.get(
-    pitchouKeyToAnnotationDS.get("Date de début de la consultation du public ou enquête publique"),
-  ).date;
-  const date_fin_consultation_public = annotationById.get(
-    pitchouKeyToAnnotationDS.get("Date de fin de la consultation du public ou enquête publique"),
-  )?.date;
   const champ_nombre_nids_compensés_oiseau_simple = champById.get(
     pitchouKeyToChampDS.get("Indiquer le nombre de nids artificiels posés en compensation"),
   )?.stringValue;
@@ -424,13 +411,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     scientifique_intervenants: JSON.stringify(scientifique_intervenants),
     scientifique_précisions_autres_intervenants,
 
-    enjeu_écologique,
-    enjeu_politique,
-
     historique_date_envoi_dernière_contribution,
-
-    date_debut_consultation_public,
-    date_fin_consultation_public,
 
     nombre_nids_compensés_dossier_oiseau_simple,
     nombre_nids_détruits_dossier_oiseau_simple,

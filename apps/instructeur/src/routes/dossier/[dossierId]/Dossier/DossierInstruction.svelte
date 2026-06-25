@@ -45,10 +45,23 @@
   let phase = $derived(phaseActuelle);
   let ddep_nécessaire = $state(untrack(() => dossier.ddep_nécessaire));
   let mesures_er_suffisantes = $state(untrack(() => dossier.mesures_er_suffisantes));
+  let enjeu = $state(untrack(() => dossier.enjeu));
   let commentaire_libre = $state(untrack(() => dossier.commentaire_libre));
   let prochaine_action_attendue_par = $state(untrack(() => dossier.prochaine_action_attendue_par));
   let historique_identifiant_demande_onagre = $state(
     untrack(() => dossier.historique_identifiant_demande_onagre),
+  );
+
+  function dateToInputValue(date: Date | null | undefined): string {
+    if (!date) return "";
+    return new Date(date).toISOString().slice(0, 10);
+  }
+
+  let date_debut_consultation_public_str = $state(
+    untrack(() => dateToInputValue(dossier.date_debut_consultation_public)),
+  );
+  let date_fin_consultation_public_str = $state(
+    untrack(() => dateToInputValue(dossier.date_fin_consultation_public)),
   );
 
   /**
@@ -122,12 +135,33 @@
       modifs.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
     }
 
+    if (dossier.enjeu !== enjeu) {
+      modifs.enjeu = enjeu;
+    }
+
     if (dossier.ddep_nécessaire !== ddep_nécessaire) {
       modifs.ddep_nécessaire = ddep_nécessaire;
     }
 
     if (dossier.mesures_er_suffisantes !== mesures_er_suffisantes) {
       modifs.mesures_er_suffisantes = mesures_er_suffisantes;
+    }
+
+    if (
+      dateToInputValue(dossier.date_debut_consultation_public) !==
+      date_debut_consultation_public_str
+    ) {
+      modifs.date_debut_consultation_public = date_debut_consultation_public_str
+        ? new Date(date_debut_consultation_public_str)
+        : null;
+    }
+
+    if (
+      dateToInputValue(dossier.date_fin_consultation_public) !== date_fin_consultation_public_str
+    ) {
+      modifs.date_fin_consultation_public = date_fin_consultation_public_str
+        ? new Date(date_fin_consultation_public_str)
+        : null;
     }
 
     // Règle métier : mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
@@ -185,6 +219,17 @@
 
 <section class="row">
   <section>
+    {#if messageErreur}
+      <div class="fr-alert fr-alert--error fr-mb-3w">
+        <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
+        <p>{messageErreur}</p>
+      </div>
+    {/if}
+    {#if afficherMessageSucces}
+      <div class="fr-alert fr-alert--success fr-mb-3w">
+        <p>Le dossier a bien été mis à jour.</p>
+      </div>
+    {/if}
     <h2>Historique</h2>
     <ol>
       {#each dossier.évènementsPhase as { phase, horodatage }}
@@ -234,38 +279,43 @@
     {/if}
 
     <h2 class="fr-mt-3w">Dates de consultation du public ou enquête publique</h2>
-    <ul>
-      <li>
-        <strong>Date de début&nbsp;:&nbsp;</strong>
-        <span title={formatDateAbsolue(dossier.date_debut_consultation_public ?? undefined)}
-          >{dossier.date_debut_consultation_public
-            ? formatDateRelative(dossier.date_debut_consultation_public)
-            : "Non renseignée"}</span
-        >
-      </li>
-      <li>
-        <strong>Date de fin&nbsp;:&nbsp;</strong>
-        <span title={formatDateAbsolue(dossier.date_fin_consultation_public ?? undefined)}
-          >{dossier.date_fin_consultation_public
-            ? formatDateRelative(dossier.date_fin_consultation_public)
-            : "Non renseignée"}</span
-        >
-      </li>
-    </ul>
+    <div class="fr-input-group">
+      <label class="fr-label" for="date_debut_consultation_public">
+        <strong>Date de début</strong>
+      </label>
+      <input
+        onfocus={retirerAlert}
+        class="fr-input"
+        id="date_debut_consultation_public"
+        type="date"
+        bind:value={date_debut_consultation_public_str}
+      />
+    </div>
+    <div class="fr-input-group">
+      <label class="fr-label" for="date_fin_consultation_public">
+        <strong>Date de fin</strong>
+      </label>
+      <input
+        onfocus={retirerAlert}
+        class="fr-input"
+        id="date_fin_consultation_public"
+        type="date"
+        bind:value={date_fin_consultation_public_str}
+      />
+    </div>
   </section>
 
   <section>
-    {#if messageErreur}
-      <div class="fr-alert fr-alert--error fr-mb-3w">
-        <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
-        <p>{messageErreur}</p>
-      </div>
-    {/if}
-    {#if afficherMessageSucces}
-      <div class="fr-alert fr-alert--success fr-mb-3w">
-        <p>Le dossier a bien été mis à jour.</p>
-      </div>
-    {/if}
+    <div class="fr-toggle">
+      <input
+        type="checkbox"
+        class="fr-toggle__input"
+        id="toggle-enjeu"
+        bind:checked={enjeu}
+        onfocus={retirerAlert}
+      />
+      <label class="fr-toggle__label" for="toggle-enjeu"> Dossier à enjeu </label>
+    </div>
 
     <div class="fr-input-group" id="input-group-commentaitre-libre">
       <strong
