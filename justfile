@@ -30,6 +30,22 @@ default:
 aws-buckets:
     aws s3api list-buckets
 
+# Empty ALL objects in the bucket ($S3_BUCKET). NOT FOR PRODUCTION USE.
+aws-empty-bucket:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ "${NODE_ENV:-}" = "production" ]; then
+        echo "Interdit en production !" >&2
+        exit 1
+    fi
+    echo "ATTENTION : tous les objets de s3://$S3_BUCKET vont être supprimés."
+    read -r -p "Saisir le nom du bucket pour confirmer : " confirm
+    if [ "$confirm" != "$S3_BUCKET" ]; then
+        echo "Annulé."
+        exit 1
+    fi
+    aws s3 rm "s3://$S3_BUCKET" --recursive
+
 # List the current bucket files recursively ($S3_BUCKET)
 aws-ls:
     aws s3 ls "s3://$S3_BUCKET" --recursive
