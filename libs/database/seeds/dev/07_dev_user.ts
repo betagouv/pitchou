@@ -3,12 +3,11 @@ import { randomBytes } from "node:crypto";
 import type { Knex } from "knex";
 
 import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
-import type { GroupeInstructeursInitializer } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
 
+import { SEED_GROUP_NAME, SEED_DEMARCHE_NUMBER } from "./06_groupe_instructeurs.ts";
+
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
-const SEED_GROUP_NAME = "Groupe de démonstration (seed)";
-const SEED_DEMARCHE_NUMBER = 999999;
 const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
 const FAKE_DOSSIERS: Pick<DossierInitializer, "nom" | "number_demarches_simplifiées">[] = [
@@ -48,24 +47,17 @@ export async function seed(knex: Knex) {
       capability = inserted;
     }
 
-    let group = await transaction("groupe_instructeurs").where({ nom: SEED_GROUP_NAME }).first();
-    if (!group) {
-      const newGroup: GroupeInstructeursInitializer = {
-        nom: SEED_GROUP_NAME,
-        numéro_démarche: SEED_DEMARCHE_NUMBER,
-      };
-      const [inserted] = await transaction("groupe_instructeurs").insert(newGroup).returning("id");
-      group = inserted;
-    }
-
-    const groupLink = await transaction("arête_cap_dossier__groupe_instructeurs")
-      .where({ cap_dossier: capability.cap, groupe_instructeurs: group.id })
-      .first();
-    if (!groupLink) {
-      await transaction("arête_cap_dossier__groupe_instructeurs").insert({
-        cap_dossier: capability.cap,
-        groupe_instructeurs: group.id,
-      });
+    const group = await transaction("groupe_instructeurs").where({ nom: SEED_GROUP_NAME }).first();
+    if (group) {
+      const groupLink = await transaction("arête_cap_dossier__groupe_instructeurs")
+        .where({ cap_dossier: capability.cap, groupe_instructeurs: group.id })
+        .first();
+      if (!groupLink) {
+        await transaction("arête_cap_dossier__groupe_instructeurs").insert({
+          cap_dossier: capability.cap,
+          groupe_instructeurs: group.id,
+        });
+      }
     }
 
     for (const fakeDossier of FAKE_DOSSIERS) {
@@ -83,18 +75,20 @@ export async function seed(knex: Knex) {
         dossier = inserted;
       }
 
-      const dossierLink = await transaction("arête_groupe_instructeurs__dossier")
-        .where({ dossier: dossier.id })
-        .first();
-      if (!dossierLink) {
-        await transaction("arête_groupe_instructeurs__dossier").insert({
-          dossier: dossier.id,
-          groupe_instructeurs: group.id,
-        });
-      } else if (dossierLink.groupe_instructeurs !== group.id) {
-        await transaction("arête_groupe_instructeurs__dossier")
+      if (group) {
+        const dossierLink = await transaction("arête_groupe_instructeurs__dossier")
           .where({ dossier: dossier.id })
-          .update({ groupe_instructeurs: group.id });
+          .first();
+        if (!dossierLink) {
+          await transaction("arête_groupe_instructeurs__dossier").insert({
+            dossier: dossier.id,
+            groupe_instructeurs: group.id,
+          });
+        } else if (dossierLink.groupe_instructeurs !== group.id) {
+          await transaction("arête_groupe_instructeurs__dossier")
+            .where({ dossier: dossier.id })
+            .update({ groupe_instructeurs: group.id });
+        }
       }
     }
 
