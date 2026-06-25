@@ -1,0 +1,30 @@
+{%- comment -%} Fil d'Ariane construit à partir de page.url. Le libellé de chaque niveau parent est
+récupéré depuis la page index correspondante (titre issu du H1 via jekyll-titles-from-headings),
+avec repli sur le slug humanisé si la page n'est pas trouvée. Masqué sur l'accueil. {%- endcomment
+-%} {%- unless page.url == '/' -%} {%- assign parts = page.url | split: '/' -%} {%- assign acc = ''
+-%}
+<nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+  <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">
+    Voir le fil d’Ariane
+  </button>
+  <div class="fr-collapse" id="breadcrumb-1">
+    <ol class="fr-breadcrumb__list">
+      <li>
+        <a class="fr-breadcrumb__link" href="{{ '/' | relative_url }}">Accueil</a>
+      </li>
+      {%- for part in parts -%} {%- if part != '' -%} {%- assign acc = acc | append: '/' | append:
+      part -%} {%- if forloop.last -%}
+      <li>
+        <a class="fr-breadcrumb__link" aria-current="page">{{ page.title }}</a>
+      </li>
+      {%- else -%} {%- assign dir_url = acc | append: '/' -%} {%- assign ancestor = site.pages |
+      where: 'url', dir_url | first -%} {%- if ancestor -%} {%- assign label = ancestor.title -%}
+      {%- else -%} {%- assign label = part | replace: '-', ' ' | capitalize -%} {%- endif -%}
+      <li>
+        <a class="fr-breadcrumb__link" href="{{ dir_url | relative_url }}">{{ label }}</a>
+      </li>
+      {%- endif -%} {%- endif -%} {%- endfor -%}
+    </ol>
+  </div>
+</nav>
+{%- endunless -%}

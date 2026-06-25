@@ -31,7 +31,7 @@
     {%- include header.html -%}
 
     <main class="fr-mt-2w fr-mb-2w" tabindex="-1">
-      <div class="fr-container">{{ content }}</div>
+      <div class="fr-container">{%- include breadcrumb.html -%} {{ content }}</div>
     </main>
 
     {%- include footer.html -%}
