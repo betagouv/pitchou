@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { SEED_DEMARCHE_NUMBER } from "./06_users.ts";
+import { SEED_DEMARCHE_NUMBER } from "../fixtures/users.ts";
 import {
   SEED_DOSSIERS,
   SEED_AVIS_EXPERTS,

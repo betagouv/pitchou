@@ -6,7 +6,7 @@ import {
   ÉVÈNEMENTS_MODIFICATIONS,
 } from "@pitchou/server/database/aarri/constantes.ts";
 
-import { SEED_PERSONNES } from "./06_users.ts";
+import { SEED_PERSONNES } from "../fixtures/users.ts";
 
 /**
  * Seed creating demo metric events for the AARRI indicators

@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 
-import { SEED_PERSONNES } from "./06_users.ts";
+import { SEED_PERSONNES } from "../fixtures/users.ts";
 
 type SeedEvent = {
   type: ÉvènementMétrique["type"];
