@@ -42,11 +42,10 @@ export async function seed(knex: Knex) {
       // Idempotence : ne pas ré-uploader si cette (dossier, nom) est déjà liée.
       // Sur un `data-reset` frais le bucket et la DB sont vides ; ce garde-fou
       // n'agit que sur un `just data-seed` relancé sans reset.
-      const existing = await trx("arête_dossier__fichier_pièces_jointes_pétitionnaire as a")
+      await trx("arête_dossier__fichier_pièces_jointes_pétitionnaire as a")
         .join("fichier as f", "f.id", "a.fichier")
         .where({ "a.dossier": dossierId, "f.nom": nom })
-        .first();
-      if (existing) continue;
+        .delete();
 
       const { id: fichierId } = await stockerNouveauFichier(
         { nom, contenu: placeholderPdf(nom), media_type },

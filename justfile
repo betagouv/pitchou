@@ -132,7 +132,7 @@ dev-admin:
 # Reset all dev/staging data: empty S3 bucket then wipe + remigrate + reseed the DB. NOT FOR PRODUCTION USE.
 data-reset:
     aws s3 rm "s3://$S3_BUCKET" --recursive
-    just data-reset
+    just data-seed
 
 # Stop the Docker containers
 docker-down:
