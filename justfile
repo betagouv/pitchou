@@ -32,6 +32,7 @@ aws-buckets:
 
 # Empty ALL objects in the bucket ($S3_BUCKET). NOT FOR PRODUCTION USE.
 aws-empty-bucket:
+    if [ "$S3_BUCKET" = "pitchou-production" ]; then echo 'Refusing to empty the production S3 bucket.'; exit 1; fi
     aws s3 rm "s3://$S3_BUCKET" --recursive
 
 # List the current bucket files recursively ($S3_BUCKET)
@@ -98,11 +99,12 @@ db-migrate-latest:
 db-migrate-up:
     {{ knex }} migrate:up --env docker_dev
 
-# Reset the DB from scratch: wipe everything, replay migrations, then insert seeds
-db-reset:
+# Reset the DB and the S3 bucket from scratch: wipe everything, replay migrations, then insert seeds
+data-reset:
+    just aws-empty-bucket
     just db-clear
     just db-migrate-latest
-    just db-seed
+    just data-seed
 
 # Insert dev data into the DB and S3 buckets
 data-seed:
@@ -128,11 +130,6 @@ dev-instructeur:
 # Run the admin app in dev mode (http://localhost:5174)
 dev-admin:
     {{ admin }} vite dev
-
-# Reset all dev/staging data: empty S3 bucket then wipe + remigrate + reseed the DB. NOT FOR PRODUCTION USE.
-data-reset:
-    aws s3 rm "s3://$S3_BUCKET" --recursive
-    just data-seed
 
 # Stop the Docker containers
 docker-down:
