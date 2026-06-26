@@ -1,9 +1,17 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
+  import { enhance } from "$app/forms";
 
-  let { data }: { data: PageData } = $props();
+  import type { PageData, ActionData } from "./$types";
+
+  let { data, form }: { data: PageData; form: ActionData } = $props();
 
   const loginHref = $derived(`/auth/proconnect?redirectTo=${encodeURIComponent(data.redirectTo)}`);
+
+  // The form lives in two steps (enter email, then enter the mailed code); the
+  // server action reports which step to show next.
+  const step = $derived(form?.step ?? "email");
+  const email = $derived(form?.email ?? "");
+  const redirectTo = $derived(form?.redirectTo ?? data.redirectTo);
 </script>
 
 <svelte:head>
@@ -28,6 +36,56 @@
       >
     </p>
   </div>
+
+  <div class="separator fr-my-3w" aria-hidden="true">ou</div>
+
+  {#if form?.error}
+    <p class="fr-error-text">{form.error}</p>
+  {/if}
+
+  {#if step === "code"}
+    <form class="email-form" method="POST" action="?/verifyCode" use:enhance>
+      <input type="hidden" name="email" value={email} />
+      <input type="hidden" name="redirectTo" value={redirectTo} />
+      <p class="fr-mb-1w">Un code de connexion a été envoyé à <strong>{email}</strong>.</p>
+      <div class="fr-input-group">
+        <label class="fr-label" for="code">Code de connexion</label>
+        <input
+          class="fr-input"
+          id="code"
+          name="code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          pattern="[0-9]*"
+          maxlength="6"
+          required
+        />
+      </div>
+      <button class="fr-btn fr-mt-2w" type="submit">Se connecter</button>
+      <p class="fr-mt-2w">
+        <a href="/auth/login?redirectTo={encodeURIComponent(redirectTo)}"
+          >Utiliser une autre adresse</a
+        >
+      </p>
+    </form>
+  {:else}
+    <form class="email-form" method="POST" action="?/requestCode" use:enhance>
+      <input type="hidden" name="redirectTo" value={redirectTo} />
+      <div class="fr-input-group">
+        <label class="fr-label" for="email">Se connecter par email</label>
+        <input
+          class="fr-input"
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          value={email}
+          required
+        />
+      </div>
+      <button class="fr-btn fr-mt-2w" type="submit">Recevoir un code</button>
+    </form>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -39,6 +97,29 @@
     text-align: center;
     // Pull the block toward the vertical middle of the viewport.
     min-height: 60vh;
+  }
+
+  // Plain "or" divider flanked by rules, sized to the login column.
+  .separator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 24rem;
+    color: var(--text-mention-grey);
+
+    &::before,
+    &::after {
+      content: "";
+      flex: 1;
+      border-top: 1px solid var(--border-default-grey);
+    }
+  }
+
+  .email-form {
+    width: 100%;
+    max-width: 24rem;
+    text-align: left;
   }
 
   // Official ProConnect button styling (see ProConnect documentation).
