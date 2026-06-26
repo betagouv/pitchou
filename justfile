@@ -104,8 +104,8 @@ db-reset:
     just db-migrate-latest
     just db-seed
 
-# Insert dev data into the DB
-db-seed:
+# Insert dev data into the DB and S3 buckets
+data-seed:
     {{ knex }} seed:run --env docker_dev
 
 # Show table sizes
@@ -132,7 +132,7 @@ dev-admin:
 # Reset all dev/staging data: empty S3 bucket then wipe + remigrate + reseed the DB. NOT FOR PRODUCTION USE.
 data-reset:
     aws s3 rm "s3://$S3_BUCKET" --recursive
-    just db-reset
+    just data-reset
 
 # Stop the Docker containers
 docker-down:
