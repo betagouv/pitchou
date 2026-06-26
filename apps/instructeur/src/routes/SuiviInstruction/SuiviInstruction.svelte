@@ -7,7 +7,7 @@
   import ThSorts from "./ThSorts.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import PhaseDelayIndicator from "./PhaseDelayIndicator.svelte";
   import {
     formatLocalisation,

@@ -22,7 +22,7 @@
   } from "$lib/dossier/suiviDossier.ts";
   import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
   import CardDossier from "./CardDossier.svelte";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import DossiersToolbar from "./DossiersToolbar.svelte";
   import DossiersFilterModal from "./DossiersFilterModal.svelte";
   import { page } from "$app/state";

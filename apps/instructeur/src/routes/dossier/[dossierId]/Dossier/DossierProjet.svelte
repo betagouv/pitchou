@@ -5,7 +5,7 @@
   import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import { loadUtilisateursAARRI } from "$lib/actions/admin.ts";
 
   import UtilisateursList from "./UtilisateursList.svelte";

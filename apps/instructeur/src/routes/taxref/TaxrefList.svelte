@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import {
     parseTaxrefQuery,
@@ -14,9 +14,9 @@
     type TaxrefFiltres,
     type SortKey,
     type SortOrder,
-  } from "./taxrefList.ts";
-  import TaxrefFilterPanel from "./TaxrefFilterPanel.svelte";
-  import TaxrefSortPanel from "./TaxrefSortPanel.svelte";
+  } from "@pitchou/ui/taxref/taxrefList.ts";
+  import TaxrefFilterPanel from "@pitchou/ui/taxref/TaxrefFilterPanel.svelte";
+  import TaxrefSortPanel from "@pitchou/ui/taxref/TaxrefSortPanel.svelte";
   import TaxrefTable from "./TaxrefTable.svelte";
 
   const query = $derived(parseTaxrefQuery(page.url.searchParams));
