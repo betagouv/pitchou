@@ -90,7 +90,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: true,
     commentaire_libre:
       "Dossier complet déposé en septembre 2022. Avis CSRPN favorable sous conditions rendu en mars 2023. Arrêté préfectoral signé le 12/07/2023. Suivi chiroptères en cours – premier rapport transmis conforme.",
-    historique_date_envoi_dernière_contribution: new Date("2022-11-02"),
     historique_identifiant_demande_onagre: "2022-09-14d-00291",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: true,
@@ -146,7 +145,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: true,
     commentaire_libre:
       "Dossier reçu le 18/03/2024. Demande de compléments transmise le 05/06/2024 concernant le protocole de suivi des reptiles. Réponse reçue le 22/09/2024. Instruction en cours.\n- 18/03/2024 : dépôt du dossier\n- 05/06/2024 : demande de compléments (suivi reptiles)\n- 22/09/2024 : réception des compléments",
-    historique_date_envoi_dernière_contribution: new Date("2024-09-22"),
     historique_identifiant_demande_onagre: "",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: true,
@@ -202,7 +200,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: null,
     commentaire_libre:
       "ERsuf signé le 03/06/2024. Courrier préfectoral transmis le 18/09/2024. Suivi 2025 réalisé – nids artificiels posés conformément.",
-    historique_date_envoi_dernière_contribution: null,
     historique_identifiant_demande_onagre: "",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: false,
@@ -261,7 +258,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: true,
     commentaire_libre:
       "Dossier scientifique complet. En cours d'instruction. Protocole conforme aux recommandations du MNHN.",
-    historique_date_envoi_dernière_contribution: null,
     historique_identifiant_demande_onagre: "2024-11-00291-001-001",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: false,
@@ -336,7 +332,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: false,
     commentaire_libre:
       "Dossier incomplet à réception. Courrier de demande de compléments envoyé le 14/03/2025. En attente de réponse du pétitionnaire.",
-    historique_date_envoi_dernière_contribution: null,
     historique_identifiant_demande_onagre: "",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: false,
@@ -405,7 +400,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: true,
     commentaire_libre:
       "Dossier reçu le 22/05/2023. Rattaché à l'AE instruite par la préfecture de Seine-Maritime.\n- 22/05/2023 : dépôt du dossier\n- 08/09/2023 : demande de compléments (impact zone humide)\n- 14/02/2024 : réception compléments\n- 03/06/2024 : saisine CNPN\n- En attente avis CNPN",
-    historique_date_envoi_dernière_contribution: new Date("2024-02-14"),
     historique_identifiant_demande_onagre: "2023-05-00076-001-002",
     date_debut_consultation_public: new Date("2023-10-16"),
     rattaché_au_régime_ae: true,
@@ -461,7 +455,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: true,
     commentaire_libre:
       "Dossier reçu le 28/11/2023. Demande de compléments envoyée le 15/02/2024 (absence d'inventaire chiroptères hivernal). Relance adressée le 18/06/2024. Sans réponse du pétitionnaire. Dossier classé sans suite le 15/11/2024 pour non-réponse dans le délai imparti.",
-    historique_date_envoi_dernière_contribution: null,
     historique_identifiant_demande_onagre: "",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: false,
@@ -515,7 +508,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: null,
     commentaire_libre:
       "ERsuf signé le 11/09/2023. Arrêté préfectoral signé le 20/01/2024. Plateforme de nidification posée – conforme. Suivi 2024 : couple non revenu sur le site.",
-    historique_date_envoi_dernière_contribution: null,
     historique_identifiant_demande_onagre: "",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: false,
@@ -571,7 +563,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     ddep_nécessaire: true,
     commentaire_libre:
       "Dossier en cours d'instruction. Enjeux importants liés à la présence du Caïman noir et de tortues aquatiques protégées. Demande de compléments en cours de rédaction.",
-    historique_date_envoi_dernière_contribution: new Date("2024-10-15"),
     historique_identifiant_demande_onagre: "",
     date_debut_consultation_public: null,
     rattaché_au_régime_ae: true,
