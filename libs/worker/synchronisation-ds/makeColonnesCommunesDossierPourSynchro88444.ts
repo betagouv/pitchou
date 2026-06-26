@@ -7,10 +7,7 @@ import type {
   ChampScientifiqueIntervenants,
   DossierDS88444,
 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
-import type {
-  DossierDemarcheNumerique88444,
-  AnnotationsPriveesDemarcheNumerique88444,
-} from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 
@@ -20,10 +17,6 @@ import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema
 export function makeColonnesCommunesDossierPourSynchro88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
-  pitchouKeyToAnnotationDS: Map<
-    keyof AnnotationsPriveesDemarcheNumerique88444,
-    ChampDescriptor["id"]
-  >,
 ): DossierInitializer | DossierMutator {
   const { id: id_demarches_simplifiées, number, champs, annotations } = dossierDS;
 
@@ -42,8 +35,10 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     champById.set(champ.id, champ);
   }
 
-  /** @type {DossierDemarcheNumerique88444['Nom du projet']} */
-  const nom = champById.get(pitchouKeyToChampDS.get("Nom du projet"))?.stringValue;
+  /** @type {DossierDemarcheNumerique88444["Nom du projet premettant de l'identifier clairement"]} */
+  const nom = champById.get(
+    pitchouKeyToChampDS.get("Nom du projet premettant de l'identifier clairement"),
+  )?.stringValue;
   /** @type {DossierDemarcheNumerique88444['Description synthétique du projet']} */
   const description = champById.get(
     pitchouKeyToChampDS.get("Description synthétique du projet"),
