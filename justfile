@@ -30,11 +30,6 @@ default:
 aws-buckets:
     aws s3api list-buckets
 
-# Empty ALL objects in the bucket ($S3_BUCKET). NOT FOR PRODUCTION USE.
-aws-empty-bucket:
-    if [ "$S3_BUCKET" = "pitchou-dev" or "S3_BUCKET"="pitchou-staging" ]; then aws s3 rm "s3://$S3_BUCKET" --recursive; exit 1; fi
-    echo 'Refusing to empty other S3 bucket than pitchou-dev or pitchou-staging.'
-
 # List the current bucket files recursively ($S3_BUCKET)
 aws-ls:
     aws s3 ls "s3://$S3_BUCKET" --recursive
@@ -83,9 +78,10 @@ ci:
     just build
     just test
 
-# Wipe the whole DB (drop + recreate the public schema, also clears migration history)
-db-clear:
+# Wipe the whole DB (drop + recreate the public schema, also clears migration history) and the whole S3 bucket
+data-clear:
     psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+    aws s3 rm "s3://$S3_BUCKET" --recursive
 
 # Roll back the last applied migration
 db-migrate-down:
@@ -101,8 +97,7 @@ db-migrate-up:
 
 # Reset the DB and the S3 bucket from scratch: wipe everything, replay migrations, then insert seeds
 data-reset:
-    just aws-empty-bucket
-    just db-clear
+    just data-clear
     just db-migrate-latest
     just data-seed
 
