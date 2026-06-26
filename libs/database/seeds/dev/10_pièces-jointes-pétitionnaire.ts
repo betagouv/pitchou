@@ -39,36 +39,22 @@ function convertStringIntoPDF(titre: string): Buffer {
   return Buffer.from(header + corps + xref + trailer, "latin1");
 }
 
-/**
- * id de seed dossier (9000001…) → number_demarches_simplifiées ("99000001"…),
- * comme dans fixtures/dossiers.ts (préfixe "9").
- */
-function dsNumberFromSeedId(seedId: number): string {
-  return `9${seedId}`;
-}
-
 export async function seed(knex: Knex) {
   await knex.transaction(async (trx) => {
-    // Résout chaque id de seed dossier en id DB via number_demarches_simplifiées.
-    const seedDossierIds = [...new Set(SEED_PIÈCES_JOINTES_PÉTITIONNAIRE.map((pj) => pj.dossier))];
-    const dossierIdMap: Record<number, number> = {};
-    for (const seedId of seedDossierIds) {
-      const dossier = await trx("dossier")
-        .where({ number_demarches_simplifiées: dsNumberFromSeedId(seedId) })
-        .first();
-      if (dossier) {
-        dossierIdMap[seedId] = dossier.id;
-      } else {
-        console.warn(
-          `  ⚠ pièces jointes — dossier de seed ${seedId} (DS ${dsNumberFromSeedId(seedId)}) introuvable, PJ ignorées`,
-        );
-      }
-    }
-
     let count = 0;
-    for (const { dossier: seedDossierId, nom, media_type } of SEED_PIÈCES_JOINTES_PÉTITIONNAIRE) {
-      const dossierId = dossierIdMap[seedDossierId];
-      if (!dossierId) continue;
+    for (const { dossier: dsNumber, nom, media_type } of SEED_PIÈCES_JOINTES_PÉTITIONNAIRE) {
+      const dossier = await trx("dossier")
+        .where({ number_demarches_simplifiées: dsNumber })
+        .first();
+
+      if (!dossier) {
+        console.warn(
+          `  ⚠ pièces jointes — dossier DS ${dsNumber} introuvable, PJ "${nom}" ignorée`,
+        );
+        continue;
+      }
+
+      const dossierId = dossier.id;
 
       // Idempotence : ne pas ré-uploader si cette (dossier, nom) est déjà liée.
       // Sur un `data-reset` frais le bucket et la DB sont vides ; ce garde-fou

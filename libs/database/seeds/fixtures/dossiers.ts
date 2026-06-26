@@ -1,8 +1,7 @@
 /**
  * Synthetic seed data for 9 realistic dossiers and their related entities.
  *
- * Dossier IDs: 9000001–9000009 (dev-only range, must not overlap production)
- * DS numbers:  99000001–99000009
+ * DS numbers: 99000001–99000009
  *
  * Each dossier is assigned to a groupe_instructeur matching its department/region.
  * groupe_instructeur is NOT a column on the dossier table — it is used by the seed
@@ -32,7 +31,6 @@ type SeedDossier = Omit<
   | "demandeur_personne_morale"
   | "espèces_impactées"
 > & {
-  id: number;
   groupe_instructeur: string;
 };
 
@@ -41,14 +39,14 @@ type SeedAvisExpert = Omit<
   "id" | "dossier" | "saisine_fichier" | "avis_fichier"
 > & {
   id: string;
-  dossier: number;
+  dossier: string;
 };
 
 type SeedÉvènementPhaseDossier = Omit<
   VNementPhaseDossierInitializer,
   "dossier" | "cause_personne"
 > & {
-  dossier: number;
+  dossier: string;
 };
 
 type SeedDécisionAdministrative = Omit<
@@ -56,7 +54,7 @@ type SeedDécisionAdministrative = Omit<
   "id" | "dossier" | "fichier"
 > & {
   id: string;
-  dossier: number;
+  dossier: string;
 };
 
 type SeedPrescription = Omit<PrescriptionInitializer, "id" | "décision_administrative"> & {
@@ -79,7 +77,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Contrôle (décision signée, prescriptions en cours)
   // -------------------------------------------------------------------------
   {
-    id: 9000001,
     number_demarches_simplifiées: "99000001",
     groupe_instructeur: "DREAL BRETAGNE",
     date_dépôt: new Date("2022-09-14T08:30:00+00:00"),
@@ -139,7 +136,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Instruction
   // -------------------------------------------------------------------------
   {
-    id: 9000002,
     number_demarches_simplifiées: "99000002",
     groupe_instructeur: "DREAL Occitanie",
     date_dépôt: new Date("2024-03-18T10:15:00+00:00"),
@@ -196,7 +192,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Contrôle
   // -------------------------------------------------------------------------
   {
-    id: 9000003,
     number_demarches_simplifiées: "99000003",
     groupe_instructeur: "DREAL Grand Est",
     date_dépôt: new Date("2024-06-03T07:55:00+00:00"),
@@ -253,7 +248,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Instruction
   // -------------------------------------------------------------------------
   {
-    id: 9000004,
     number_demarches_simplifiées: "99000004",
     groupe_instructeur: "DREAL Auvergne-Rhône-Alpes",
     date_dépôt: new Date("2024-11-07T14:20:00+00:00"),
@@ -332,7 +326,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Accompagnement amont
   // -------------------------------------------------------------------------
   {
-    id: 9000005,
     number_demarches_simplifiées: "99000005",
     groupe_instructeur: "DREAL Pays de la loire",
     date_dépôt: new Date("2025-02-10T09:05:00+00:00"),
@@ -399,7 +392,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Instruction (en attente avis CNPN)
   // -------------------------------------------------------------------------
   {
-    id: 9000006,
     number_demarches_simplifiées: "99000006",
     groupe_instructeur: "DREAL Normandie",
     date_dépôt: new Date("2023-05-22T13:45:00+00:00"),
@@ -459,7 +451,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Classé sans suite
   // -------------------------------------------------------------------------
   {
-    id: 9000007,
     number_demarches_simplifiées: "99000007",
     groupe_instructeur: "DREAL BFC",
     date_dépôt: new Date("2023-11-28T11:10:00+00:00"),
@@ -514,7 +505,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Contrôle
   // -------------------------------------------------------------------------
   {
-    id: 9000008,
     number_demarches_simplifiées: "99000008",
     groupe_instructeur: "DRIAT IDF",
     date_dépôt: new Date("2023-09-11T08:40:00+00:00"),
@@ -571,7 +561,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Instruction
   // -------------------------------------------------------------------------
   {
-    id: 9000009,
     number_demarches_simplifiées: "99000009",
     groupe_instructeur: "DGTM Guyane",
     date_dépôt: new Date("2024-07-30T15:00:00+00:00"),
@@ -632,28 +621,28 @@ export const SEED_DOSSIERS: SeedDossier[] = [
 export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
   // D1 – éolien Bretagne → Contrôle
   {
-    dossier: 9000001,
+    dossier: "99000001",
     phase: "Accompagnement amont",
     horodatage: new Date("2022-09-14T08:30:00+00:00"),
     DS_emailAgentTraitant: "claire.morin@dreal-bretagne.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000001,
+    dossier: "99000001",
     phase: "Étude recevabilité DDEP",
     horodatage: new Date("2023-01-16T09:00:00+00:00"),
     DS_emailAgentTraitant: "claire.morin@dreal-bretagne.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000001,
+    dossier: "99000001",
     phase: "Instruction",
     horodatage: new Date("2023-03-27T10:00:00+00:00"),
     DS_emailAgentTraitant: "claire.morin@dreal-bretagne.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000001,
+    dossier: "99000001",
     phase: "Contrôle",
     horodatage: new Date("2023-07-12T14:30:00+00:00"),
     DS_emailAgentTraitant: "claire.morin@dreal-bretagne.gouv.fr",
@@ -662,14 +651,14 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D2 – photovoltaïque Occitanie → Instruction
   {
-    dossier: 9000002,
+    dossier: "99000002",
     phase: "Étude recevabilité DDEP",
     horodatage: new Date("2024-03-18T10:15:00+00:00"),
     DS_emailAgentTraitant: "jp.moreau@dreal-oc.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000002,
+    dossier: "99000002",
     phase: "Instruction",
     horodatage: new Date("2024-10-07T09:30:00+00:00"),
     DS_emailAgentTraitant: "jp.moreau@dreal-oc.gouv.fr",
@@ -678,14 +667,14 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D3 – hirondelle Grand Est → Contrôle
   {
-    dossier: 9000003,
+    dossier: "99000003",
     phase: "Instruction",
     horodatage: new Date("2024-06-03T07:55:00+00:00"),
     DS_emailAgentTraitant: "isabelle.lefebvre@dreal-ge.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000003,
+    dossier: "99000003",
     phase: "Contrôle",
     horodatage: new Date("2024-09-18T11:00:00+00:00"),
     DS_emailAgentTraitant: "isabelle.lefebvre@dreal-ge.gouv.fr",
@@ -694,7 +683,7 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D4 – chiroptères ARA → Instruction
   {
-    dossier: 9000004,
+    dossier: "99000004",
     phase: "Instruction",
     horodatage: new Date("2024-11-07T14:20:00+00:00"),
     DS_emailAgentTraitant: "thomas.girard@dreal-ara.gouv.fr",
@@ -703,7 +692,7 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D5 – centre soins PDL → Accompagnement amont
   {
-    dossier: 9000005,
+    dossier: "99000005",
     phase: "Accompagnement amont",
     horodatage: new Date("2025-02-10T09:05:00+00:00"),
     DS_emailAgentTraitant: "stephane.richard@dreal-pdl.gouv.fr",
@@ -712,21 +701,21 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D6 – routier Normandie → Instruction
   {
-    dossier: 9000006,
+    dossier: "99000006",
     phase: "Accompagnement amont",
     horodatage: new Date("2023-05-22T13:45:00+00:00"),
     DS_emailAgentTraitant: "elodie.bernard@dreal-normandie.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000006,
+    dossier: "99000006",
     phase: "Étude recevabilité DDEP",
     horodatage: new Date("2023-09-11T10:00:00+00:00"),
     DS_emailAgentTraitant: "elodie.bernard@dreal-normandie.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000006,
+    dossier: "99000006",
     phase: "Instruction",
     horodatage: new Date("2024-03-04T09:00:00+00:00"),
     DS_emailAgentTraitant: "elodie.bernard@dreal-normandie.gouv.fr",
@@ -735,14 +724,14 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D7 – carrière BFC → Classé sans suite
   {
-    dossier: 9000007,
+    dossier: "99000007",
     phase: "Étude recevabilité DDEP",
     horodatage: new Date("2023-11-28T11:10:00+00:00"),
     DS_emailAgentTraitant: "aurelie.simon@dreal-bfc.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000007,
+    dossier: "99000007",
     phase: "Classé sans suite",
     horodatage: new Date("2024-11-15T10:00:00+00:00"),
     DS_emailAgentTraitant: "aurelie.simon@dreal-bfc.gouv.fr",
@@ -751,14 +740,14 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D8 – cigogne IDF → Contrôle
   {
-    dossier: 9000008,
+    dossier: "99000008",
     phase: "Instruction",
     horodatage: new Date("2023-09-11T08:40:00+00:00"),
     DS_emailAgentTraitant: "nicolas.martin@driat-idf.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000008,
+    dossier: "99000008",
     phase: "Contrôle",
     horodatage: new Date("2024-01-22T09:00:00+00:00"),
     DS_emailAgentTraitant: "nicolas.martin@driat-idf.gouv.fr",
@@ -767,14 +756,14 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D9 – hydraulique Guyane → Instruction
   {
-    dossier: 9000009,
+    dossier: "99000009",
     phase: "Étude recevabilité DDEP",
     horodatage: new Date("2024-07-30T15:00:00+00:00"),
     DS_emailAgentTraitant: "audrey.mercier@dgtm-guyane.gouv.fr",
     DS_motivation: null,
   },
   {
-    dossier: 9000009,
+    dossier: "99000009",
     phase: "Instruction",
     horodatage: new Date("2024-11-20T10:30:00+00:00"),
     DS_emailAgentTraitant: "audrey.mercier@dgtm-guyane.gouv.fr",
@@ -791,7 +780,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D1 – éolien Bretagne – CSRPN Bretagne favorable sous conditions
   {
     id: "ae000001-0000-4000-a000-000000000001",
-    dossier: 9000001,
+    dossier: "99000001",
     expert: "CSRPN",
     date_saisine: new Date("2023-01-30"),
     avis: "Favorable sous conditions",
@@ -800,7 +789,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D6 – routier Normandie – CNPN saisi, avis non encore rendu
   {
     id: "ae000002-0000-4000-a000-000000000002",
-    dossier: 9000006,
+    dossier: "99000006",
     expert: "CNPN",
     date_saisine: new Date("2024-06-03"),
     avis: null,
@@ -817,7 +806,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D1 – éolien Bretagne – arrêté dérogation préfectoral
   {
     id: "da000001-0000-4000-a000-000000000001",
-    dossier: 9000001,
+    dossier: "99000001",
     numéro: "29-2023-142",
     type: "Arrêté dérogation",
     date_signature: new Date("2023-07-12"),
@@ -826,7 +815,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D3 – hirondelle Grand Est – courrier préfectoral
   {
     id: "da000002-0000-4000-a000-000000000002",
-    dossier: 9000003,
+    dossier: "99000003",
     numéro: null,
     type: "Courrier",
     date_signature: new Date("2024-09-18"),
@@ -835,7 +824,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D8 – cigogne IDF – arrêté dérogation
   {
     id: "da000003-0000-4000-a000-000000000003",
-    dossier: 9000008,
+    dossier: "99000008",
     numéro: "77-2024-008",
     type: "Arrêté dérogation",
     date_signature: new Date("2024-01-20"),
