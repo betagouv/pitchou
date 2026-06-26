@@ -30,6 +30,11 @@ default:
 aws-buckets:
     aws s3api list-buckets
 
+# Empty ALL objects in the bucket ($S3_BUCKET). NOT FOR PRODUCTION USE.
+aws-empty-bucket:
+    if [ "$S3_BUCKET" = "pitchou-dev" or "S3_BUCKET"="pitchou-staging" ]; then aws s3 rm "s3://$S3_BUCKET" --recursive; exit 1; fi
+    echo 'Refusing to empty other S3 bucket than pitchou-dev or pitchou-staging.'
+
 # List the current bucket files recursively ($S3_BUCKET)
 aws-ls:
     aws s3 ls "s3://$S3_BUCKET" --recursive
@@ -94,14 +99,15 @@ db-migrate-latest:
 db-migrate-up:
     {{ knex }} migrate:up --env docker_dev
 
-# Reset the DB from scratch: wipe everything, replay migrations, then insert seeds
-db-reset:
+# Reset the DB and the S3 bucket from scratch: wipe everything, replay migrations, then insert seeds
+data-reset:
+    just aws-empty-bucket
     just db-clear
     just db-migrate-latest
-    just db-seed
+    just data-seed
 
-# Insert dev data into the DB
-db-seed:
+# Insert dev data into the DB and S3 buckets
+data-seed:
     {{ knex }} seed:run --env docker_dev
 
 # Show table sizes
