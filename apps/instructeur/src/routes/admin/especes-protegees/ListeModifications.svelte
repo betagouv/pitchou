@@ -2,9 +2,9 @@
   import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
   import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
   import { saveModificationEspece } from "$lib/actions/adminEspeces.ts";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
-  import { classificationFromTaxref, type TaxrefRow } from "../../taxref/taxrefList.ts";
+  import { classificationFromTaxref, type TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
   import {
     defaultQuery,
     filterModifications,

@@ -10,7 +10,7 @@
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import {
     créerDossierDepuisLigne,
     créerNomPourDossier,

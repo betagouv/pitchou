@@ -4,7 +4,7 @@
   import { formatDateRelative } from "$lib/dossier/affichageDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
   import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 

@@ -2,7 +2,7 @@
   import { tick } from "svelte";
 
   import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
-  import { firstName } from "./especesList.ts";
+  import { firstName } from "@pitchou/ui/especes/especesList.ts";
   import EspecesSynonymesModale from "./EspecesSynonymesModale.svelte";
 
   type Props = {
