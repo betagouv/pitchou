@@ -32,9 +32,9 @@ aws-buckets:
 
 # Empty ALL objects in the bucket ($S3_BUCKET). NOT FOR PRODUCTION USE.
 aws-empty-bucket:
-    if [ "$S3_BUCKET" = "pitchou-production" ]; then echo 'Refusing to empty the production S3 bucket.'; exit 1; fi
-    aws s3 rm "s3://$S3_BUCKET" --recursive
-
+    if [ "$S3_BUCKET" = "pitchou-dev" or "S3_BUCKET"="pitchou-staging" ]; then aws s3 rm "s3://$S3_BUCKET" --recursive; exit 1; fi
+    echo 'Refusing to empty the production S3 bucket.'
+    
 # List the current bucket files recursively ($S3_BUCKET)
 aws-ls:
     aws s3 ls "s3://$S3_BUCKET" --recursive
