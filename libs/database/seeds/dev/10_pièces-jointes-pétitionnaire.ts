@@ -4,8 +4,39 @@ import { stockerNouveauFichier } from "@pitchou/server/database/fichier.ts";
 
 import { SEED_PIÈCES_JOINTES_PÉTITIONNAIRE } from "../fixtures/pièces-jointes-pétitionnaire.ts";
 
-function placeholderPdf(titre: string): Buffer {
-  return Buffer.from(`%PDF-1.4\n% Seed pièce jointe — ${titre}\n%%EOF\n`, "utf8");
+function convertStringIntoPDF(titre: string): Buffer {
+  const texte = `Piece jointe de seed : ${titre}`
+    .replace(/[^\x20-\x7e]/g, " ")
+    .replace(/\\/g, "\\\\")
+    .replace(/[()]/g, "\\$&");
+
+  const flux = `BT /F1 16 Tf 60 780 Td (${texte}) Tj ET`;
+  const objets = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${flux.length} >>\nstream\n${flux}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+
+  const header = "%PDF-1.4\n";
+  let corps = "";
+  const offsets = objets.map((obj, i) => {
+    const offset = header.length + corps.length;
+    corps += `${i + 1} 0 obj\n${obj}\nendobj\n`;
+    return offset;
+  });
+
+  const startxref = header.length + corps.length;
+  const taille = objets.length + 1;
+  let xref = `xref\n0 ${taille}\n0000000000 65535 f \n`;
+  for (const offset of offsets) {
+    xref += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  }
+  const trailer = `trailer\n<< /Size ${taille} /Root 1 0 R >>\nstartxref\n${startxref}\n%%EOF\n`;
+
+  // latin1 : 1 octet/caractère, donc string.length === byteLength (offsets exacts).
+  return Buffer.from(header + corps + xref + trailer, "latin1");
 }
 
 /**
@@ -48,7 +79,7 @@ export async function seed(knex: Knex) {
         .delete();
 
       const { id: fichierId } = await stockerNouveauFichier(
-        { nom, contenu: placeholderPdf(nom), media_type },
+        { nom, contenu: convertStringIntoPDF(nom), media_type },
         trx,
       );
 
