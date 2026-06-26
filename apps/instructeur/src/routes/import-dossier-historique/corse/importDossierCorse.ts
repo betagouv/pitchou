@@ -643,7 +643,7 @@ export async function créerDossierDepuisLigne(
       ? donnéesDemandeurPersonneMorale["Numéro de SIRET"]
       : undefined,
 
-    "Nom du projet": créerNomPourDossier(ligne),
+    "Nom du projet premettant de l'identifier clairement": créerNomPourDossier(ligne),
     "Activité principale": activitéPrincipale,
     "Transport ferroviaire ou électrique - Votre demande concerne :":
       activitéPrincipale === "Transport énergie électrique" ? "Autre" : undefined,

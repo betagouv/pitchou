@@ -7,7 +7,7 @@
   "declarative": null,
   "dateCreation": "2024-01-30T10:32:06+01:00",
   "datePublication": "2024-04-19T08:38:45+02:00",
-  "dateDerniereModification": "2025-12-29T10:21:36+01:00",
+  "dateDerniereModification": "2026-06-26T15:08:50+02:00",
   "dateDepublication": null,
   "dateFermeture": null,
   "notice": null,
@@ -15,8 +15,8 @@
   "demarcheURL": "https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees",
   "cadreJuridiqueURL": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000006176521/",
   "revision": {
-    "id": "UHJvY2VkdXJlUmV2aXNpb24tMjI5NDY0",
-    "datePublication": "2025-11-19T17:20:51+01:00",
+    "id": "UHJvY2VkdXJlUmV2aXNpb24tMjc1NTk0",
+    "datePublication": "2026-06-26T15:08:50+02:00",
     "champDescriptors": [
       {
         "__typename": "ExplicationChampDescriptor",
@@ -39,7 +39,7 @@
       {
         "__typename": "TextChampDescriptor",
         "id": "Q2hhbXAtNDE0OTExNQ==",
-        "label": "Nom du projet",
+        "label": "Nom du projet premettant de l'identifier clairement",
         "description": "Indiquer le nom <strong> précis </strong> de votre projet",
         "required": true
       },
@@ -356,7 +356,7 @@
         "label": "À quelle procédure le projet est-il soumis ?",
         "description": "",
         "required": true,
-        "options": ["Autorisation ICPE", "Autorisation loi sur l'eau"]
+        "options": ["Autorisation ICPE", "Autorisation loi sur l'eau", "Autre"]
       },
       {
         "__typename": "HeaderSectionChampDescriptor",
@@ -885,188 +885,6 @@
         "required": false
       }
     ],
-    "annotationDescriptors": [
-      {
-        "__typename": "HeaderSectionChampDescriptor",
-        "id": "Q2hhbXAtNDM3NTA2Mg==",
-        "label": "DDEP",
-        "description": "",
-        "required": false,
-        "level": 1
-      },
-      {
-        "__typename": "DropDownListChampDescriptor",
-        "id": "Q2hhbXAtNDM2MTc3Ng==",
-        "label": "DDEP nécessaire ?",
-        "description": "",
-        "required": false,
-        "options": ["Oui", "Non", "A déterminer"],
-        "otherOption": false
-      },
-      {
-        "__typename": "HeaderSectionChampDescriptor",
-        "id": "Q2hhbXAtNDI2MDQ4MQ==",
-        "label": "Enjeux",
-        "description": "",
-        "required": false,
-        "level": 1
-      },
-      {
-        "__typename": "YesNoChampDescriptor",
-        "id": "Q2hhbXAtNDAwMTQ3MQ==",
-        "label": "Enjeu écologique",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "YesNoChampDescriptor",
-        "id": "Q2hhbXAtNDA5ODY5NQ==",
-        "label": "Enjeu politique",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "HeaderSectionChampDescriptor",
-        "id": "Q2hhbXAtNDI2MDQ4Mw==",
-        "label": "Instruction DDEP",
-        "description": "",
-        "required": false,
-        "level": 1
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDE0NzgzMg==",
-        "label": "Date de réception DDEP",
-        "description": "Pour les dossiers historiques en cours de saisie dans DS",
-        "required": false
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDE0NzgzMw==",
-        "label": "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP",
-        "description": "Pour les dossiers historiques en cours de saisie dans DS",
-        "required": false
-      },
-      {
-        "__typename": "PieceJustificativeChampDescriptor",
-        "id": "Q2hhbXAtNDI0ODE4Nw==",
-        "label": "Autres documents relatifs au dossier",
-        "description": "",
-        "required": false,
-        "fileTemplate": null
-      },
-      {
-        "__typename": "HeaderSectionChampDescriptor",
-        "id": "Q2hhbXAtNDI2MDQ4NQ==",
-        "label": "Saisine CNPN/CSRPN/Avis conforme",
-        "description": "",
-        "required": false,
-        "level": 1
-      },
-      {
-        "__typename": "TextChampDescriptor",
-        "id": "Q2hhbXAtNDE0NzgzMQ==",
-        "label": "N° Demande ONAGRE",
-        "description": "Pour les dossiers historiques en cours de saisie dans DS",
-        "required": false
-      },
-      {
-        "__typename": "PieceJustificativeChampDescriptor",
-        "id": "Q2hhbXAtNDI2NDUwMQ==",
-        "label": "Saisine de l'instructeur",
-        "description": "",
-        "required": false,
-        "fileTemplate": null
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDE0ODM2Nw==",
-        "label": "Date saisine CSRPN",
-        "description": "Pour les dossiers historiques en cours de saisie dans DS",
-        "required": false
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDI2MDQ3Ng==",
-        "label": "Date saisine CNPN",
-        "description": "Pour les dossiers historiques en cours de saisie dans DS",
-        "required": false
-      },
-      {
-        "__typename": "EmailChampDescriptor",
-        "id": "Q2hhbXAtNDI2ODExOA==",
-        "label": "Avis CSRPN/CNPN",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDE0ODM2OQ==",
-        "label": "Date avis CSRPN",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDI2MDQ3Nw==",
-        "label": "Date avis CNPN",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "DropDownListChampDescriptor",
-        "id": "Q2hhbXAtNDI0ODQzMA==",
-        "label": "Avis CSRPN/CNPN",
-        "description": "",
-        "required": false,
-        "options": ["Avis favorable", "Avis favorable sous condition", "Avis défavorable"],
-        "otherOption": false
-      },
-      {
-        "__typename": "PieceJustificativeChampDescriptor",
-        "id": "Q2hhbXAtNDE0ODk0NQ==",
-        "label": "Avis CSRPN/CNPN",
-        "description": "Pour les dossiers historiques en cours de saisie dans DS",
-        "required": false,
-        "fileTemplate": null
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDU1MTkxMQ==",
-        "label": "Date avis conforme Ministre",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "PieceJustificativeChampDescriptor",
-        "id": "Q2hhbXAtNDU1MTkxNQ==",
-        "label": "Avis conforme Ministre",
-        "description": "",
-        "required": false,
-        "fileTemplate": null
-      },
-      {
-        "__typename": "HeaderSectionChampDescriptor",
-        "id": "Q2hhbXAtNDI2MDQ4Nw==",
-        "label": "Consultation du public",
-        "description": "",
-        "required": false,
-        "level": 1
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDE0MTM0Mg==",
-        "label": "Date de début de la consultation du public ou enquête publique",
-        "description": "",
-        "required": false
-      },
-      {
-        "__typename": "DateChampDescriptor",
-        "id": "Q2hhbXAtNDYxMDIxNQ==",
-        "label": "Date de fin de la consultation du public ou enquête publique",
-        "description": "",
-        "required": false
-      }
-    ]
+    "annotationDescriptors": []
   }
 }
