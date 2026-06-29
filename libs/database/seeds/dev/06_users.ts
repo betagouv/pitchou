@@ -7,8 +7,8 @@ import type { PersonneInitializer } from "@pitchou/types/database/public/Personn
 import {
   SEED_DEMARCHE_NUMBER,
   SEED_GROUPE_INSTRUCTEURS_NAMES,
-  SEED_PERSONNES,
-} from "../fixtures/users.ts";
+} from "../fixtures/demarche_numerique.ts";
+import { SEED_PERSONNES } from "../fixtures/users.ts";
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 
