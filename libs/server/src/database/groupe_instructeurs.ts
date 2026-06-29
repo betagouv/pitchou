@@ -233,6 +233,7 @@ async function supprimerPersonnesDansGroupeParEmail(
 
 async function créerInstructeurCapsEtCompléterInstructeurIds(
   instructeurEmailToId: Map<API_DS.Instructeur["email"], API_DS.Instructeur["id"]>,
+  demarcheNumber: number,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
   //console.log('instructeurEmailToId', instructeurEmailToId)
@@ -249,12 +250,24 @@ async function créerInstructeurCapsEtCompléterInstructeurIds(
     .whereNotIn("instructeur_id", [...instructeurEmailToId.values()])
     .delete();
 
-  // Supprimer les cap_dossier pour les instructeurs qui n'existent plus
+  // Supprimer les cap_dossier pour les instructeurs qui n'existent plus dans cette démarche
   const deleteAbsentInstructeurCapDossier = personnesAvecCodeP.then((personnesAvecCode) => {
     // @ts-ignore
     const codes: string[] = personnesAvecCode.map(({ code_accès }) => code_accès);
 
-    return databaseConnection("cap_dossier").whereNotIn("personne_cap", codes).delete();
+    const capsDeCetteDémarche = databaseConnection("arête_cap_dossier__groupe_instructeurs")
+      .select("cap_dossier")
+      .whereIn(
+        "groupe_instructeurs",
+        databaseConnection("groupe_instructeurs")
+          .select("id")
+          .where({ numéro_démarche: demarcheNumber }),
+      );
+
+    return databaseConnection("cap_dossier")
+      .whereNotIn("personne_cap", codes)
+      .whereIn("cap", capsDeCetteDémarche)
+      .delete();
   });
 
   // Rajouter les cap_écriture_annotation pour les nouveaux instructeurId s'il y en a
@@ -461,6 +474,7 @@ export async function synchroniserGroupesInstructeurs(
 
   const complétionInstructeurIds = créerInstructeurCapsEtCompléterInstructeurIds(
     instructeurEmailToId,
+    demarcheNumber,
     databaseConnection,
   );
 
