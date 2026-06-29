@@ -19,6 +19,9 @@
             Les données saisies ici ne sont pas envoyées en production et peuvent être effacées à
             tout moment.
           </span>
+          <a class="fr-btn fr-btn--secondary fr-btn--sm bandeau-staging__btn" href="/dev-login">
+            Se connecter en tant que dev
+          </a>
         </p>
       </div>
     </div>
@@ -35,5 +38,8 @@
   .bandeau-staging :global(.fr-notice__desc),
   .bandeau-staging :global(.fr-notice__body::before) {
     color: var(--text-default-warning);
+  }
+  .bandeau-staging__btn {
+    margin-left: 1rem;
   }
 </style>
