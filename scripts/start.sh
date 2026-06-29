@@ -6,5 +6,9 @@ if [ "$PITCHOU_APP" = "admin" ]; then
   exec node apps/admin/build/index.js
 else
   corepack pnpm --filter @pitchou/database exec node --import tsx ./node_modules/knex/bin/cli.js migrate:latest --env production
+  if [ "$PUBLIC_PITCHOU_ENV" = "staging" ]; then
+    echo "Seeding staging data…"
+    corepack pnpm --filter @pitchou/database exec node --import tsx ./node_modules/knex/bin/cli.js seed:run --env staging || echo "⚠ staging seed failed (non-fatal)"
+  fi
   exec node apps/instructeur/build/index.js
 fi
