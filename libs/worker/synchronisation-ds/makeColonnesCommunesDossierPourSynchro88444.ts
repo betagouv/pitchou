@@ -52,9 +52,13 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   const date_début_intervention = champById.get(
     pitchouKeyToChampDS.get("Date de début d’intervention"),
   )?.date;
-  /** @type {DossierDemarcheNumerique88444['Date de fin d’intervention']} */
+  /** @type {DossierDemarcheNumerique88444[‘Date de fin d’intervention’]} */
   const date_fin_intervention = champById.get(
     pitchouKeyToChampDS.get("Date de fin d’intervention"),
+  )?.date;
+  /** @type {DossierDemarcheNumerique88444[‘Date de mise en service’]} */
+  const date_mise_en_service = champById.get(
+    pitchouKeyToChampDS.get("Date de mise en service"),
   )?.date;
   /** @type {DossierDemarcheNumerique88444['Durée de la dérogation']} */
   const durée_intervention = Number(
@@ -361,6 +365,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     activité_principale,
     date_début_intervention,
     date_fin_intervention,
+    date_mise_en_service,
     durée_intervention,
 
     justification_absence_autre_solution_satisfaisante,
