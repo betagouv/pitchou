@@ -1,7 +1,5 @@
 import { error } from "@sveltejs/kit";
 import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
-import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { isAdminEmail } from "@pitchou/server/admin.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 
@@ -19,23 +17,6 @@ export function requireSecret(url: URL): string {
     error(400, "Paramètre 'secret' manquant dans l'URL");
   }
   return secret;
-}
-
-/**
- * Resolves the `secret` (a personne's code d'accès) to their email and ensures
- * it belongs to an admin. Returns the admin email, or throws a 403/400.
- */
-export async function requireAdmin(url: URL): Promise<string> {
-  const secret = requireSecret(url);
-  const personne = await directDatabaseConnection("personne")
-    .select("email")
-    .where({ access_code: secret })
-    .first();
-
-  if (!personne || !isAdminEmail(personne.email)) {
-    error(403, "Accès réservé aux administrateurs");
-  }
-  return personne.email;
 }
 
 export async function requireDossierAccessByCap(
