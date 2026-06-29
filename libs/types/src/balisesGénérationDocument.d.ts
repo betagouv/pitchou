@@ -92,7 +92,6 @@ export type BalisesGénérationDocument = {
 
   date_début_intervention: Date | null;
   date_fin_intervention: Date | null;
-  date_mise_en_service: Date | null;
   durée_intervention: number | null;
 
   date_début_consultation_public: Date | null;
