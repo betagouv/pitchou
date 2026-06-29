@@ -193,6 +193,17 @@
     </p>
 
     <p>
+      <strong>Date de mise en service de l'exploitation&nbsp;:</strong>
+      {#if dossier.date_mise_en_service}
+        <time datetime={new Date(dossier.date_mise_en_service).toISOString()}>
+          {formatDateRelative(dossier.date_mise_en_service)}
+        </time>
+      {:else}
+        Non renseignée
+      {/if}
+    </p>
+
+    <p>
       <strong>Durée de la dérogation&nbsp;:</strong>
       {dossier.durée_intervention ? dossier.durée_intervention + " années" : "Non renseignée"}
     </p>
