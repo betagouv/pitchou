@@ -280,7 +280,6 @@ export async function dumpDossiers(
 
 export async function synchroniserDossierDansGroupeInstructeur(
   dossierDS: any,
-  demarcheNumber: number,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const dossierNumberDSToIdP = databaseConnection("dossier")
@@ -299,7 +298,6 @@ export async function synchroniserDossierDansGroupeInstructeur(
 
   const groupeInstructeursLabelToIdP = databaseConnection("groupe_instructeurs")
     .select(["id", "nom"])
-    .where({ numéro_démarche: demarcheNumber })
     .then((groupesInstructeurs) => {
       const groupeInstructeursLabelToId = new Map();
       for (const { id, nom } of groupesInstructeurs) {

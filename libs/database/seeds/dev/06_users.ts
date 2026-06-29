@@ -20,7 +20,7 @@ export async function seed(knex: Knex) {
         numéro_démarche: SEED_DEMARCHE_NUMBER,
       })),
     )
-    .onConflict(["nom", "numéro_démarche"])
+    .onConflict("nom")
     .ignore();
 
   for (const personne of SEED_PERSONNES) {
@@ -57,7 +57,7 @@ export async function seed(knex: Knex) {
       }
 
       const group = await transaction("groupe_instructeurs")
-        .where({ nom: personne.groupe, numéro_démarche: SEED_DEMARCHE_NUMBER })
+        .where({ nom: personne.groupe })
         .first();
       if (group) {
         const groupLink = await transaction("arête_cap_dossier__groupe_instructeurs")
