@@ -47,7 +47,6 @@ export function getBalisesGénérationDocument(
     historique_identifiant_demande_onagre,
     activité_principale,
     rattaché_au_régime_ae,
-    date_mise_en_service,
     type,
     scientifique_type_demande,
     scientifique_bilan_antérieur,
@@ -105,7 +104,6 @@ export function getBalisesGénérationDocument(
     activité_principale,
     date_début_intervention,
     date_fin_intervention,
-    date_mise_en_service,
     durée_intervention,
     demandeur: {
       adresse: dossier.demandeur_adresse,
