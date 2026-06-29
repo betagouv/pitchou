@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { stockerNouveauFichier } from "@pitchou/server/database/fichier.ts";
 
-import { SEED_PIÈCES_JOINTES_PÉTITIONNAIRE } from "../fixtures/pieces-jointes-petitionnaire.ts";
+import { SEED_PIÈCES_JOINTES_PÉTITIONNAIRE } from "../fixtures/pièces-jointes-pétitionnaire.ts";
 
 function convertStringIntoPDF(titre: string): Buffer {
   const texte = `Piece jointe de seed : ${titre}`
