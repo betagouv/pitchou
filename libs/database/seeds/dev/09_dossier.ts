@@ -73,7 +73,7 @@ export async function seed(knex: Knex) {
         dossierIdMap[dossierData.number_demarches_simplifiées!] = dossier.id;
 
         const group = await transaction("groupe_instructeurs")
-          .where({ nom: groupe_instructeur })
+          .where({ nom: groupe_instructeur, numéro_démarche: SEED_DEMARCHE_NUMBER })
           .first();
 
         if (group) {
