@@ -1,5 +1,4 @@
 import type { RequestHandler } from "./$types";
-import { requireAdmin } from "$lib/server/auth.ts";
 import { getAllÉvènementsAvecEmail } from "@pitchou/server/database/évènements_métriques.ts";
 
 function csvEscape(value: unknown): string {
@@ -11,8 +10,8 @@ function csvEscape(value: unknown): string {
   return s;
 }
 
-export const GET: RequestHandler = async ({ url }) => {
-  await requireAdmin(url);
+// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+export const GET: RequestHandler = async () => {
   const rows = await getAllÉvènementsAvecEmail();
 
   const lines = [

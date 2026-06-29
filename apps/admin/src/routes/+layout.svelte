@@ -46,6 +46,12 @@
       <li class="fr-nav__item">
         <a class="fr-nav__link" href="/">Accueil</a>
       </li>
+      <li class="fr-nav__item">
+        <a class="fr-nav__link" href="/aarri">Utilisateurs</a>
+      </li>
+      <li class="fr-nav__item">
+        <a class="fr-nav__link" href="/especes-protegees">Espèces protégées</a>
+      </li>
     </ul>
   </nav>
 {/snippet}
