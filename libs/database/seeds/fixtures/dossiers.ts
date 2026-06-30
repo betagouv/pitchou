@@ -32,6 +32,8 @@ type SeedDossier = Omit<
   | "espèces_impactées"
 > & {
   groupe_instructeur: string;
+  /** SIRET de l'entreprise demandeuse (personne morale). L'entreprise doit figurer dans SEED_ENTREPRISES. */
+  demandeur_personne_morale?: string;
 };
 
 type SeedAvisExpert = Omit<
@@ -55,6 +57,8 @@ type SeedDécisionAdministrative = Omit<
 > & {
   id: string;
   dossier: string;
+  /** When set, a placeholder PDF is generated and linked as the décision's fichier. */
+  nom_fichier?: string;
 };
 
 type SeedPrescription = Omit<PrescriptionInitializer, "id" | "décision_administrative"> & {
@@ -65,6 +69,42 @@ type SeedPrescription = Omit<PrescriptionInitializer, "id" | "décision_administ
 type SeedContrôle = Omit<ContrLeInitializer, "id" | "prescription"> & {
   id: string;
   prescription: string;
+};
+
+// An "entreprise" (demandeur personne morale). Inserted before the dossiers that reference it.
+type SeedEntreprise = {
+  siret: string;
+  raison_sociale: string;
+  adresse: string | null;
+};
+
+// Personnes who follow a dossier ("personnes qui suivent ce dossier").
+// They are created if missing, then linked through arête_personne_suit_dossier.
+type SeedSuiviDossier = {
+  /** number_demarches_simplifiées of the dossier */
+  dossier: string;
+  suiveurs: { email: string; nom: string; prénoms: string }[];
+};
+
+// One impacted-species line, used to build the "espèces impactées" ODS file.
+type SeedLigneEspèceImpactée = {
+  classification: "oiseau" | "faune non-oiseau" | "flore";
+  /** CD_REF of the espèce; must be resolvable in the espece_protegee view */
+  cd_ref: string;
+  /** "Identifiant Pitchou" of the threatening activité (e.g. "P-4-1", "P-4-2", "P-60") */
+  identifiant_pitchou_activité: string;
+  nombre_individus?: string;
+  nombre_nids?: number;
+  nombre_oeufs?: number;
+  surface_habitat_détruit?: number;
+};
+
+// "Espèces impactées" file spec for a dossier (generated as ODS at seed time).
+type SeedEspècesImpactées = {
+  /** number_demarches_simplifiées of the dossier */
+  dossier: string;
+  nom_fichier: string;
+  lignes: SeedLigneEspèceImpactée[];
 };
 
 // ---------------------------------------------------------------------------
@@ -602,6 +642,125 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     mesures_er_suffisantes: false,
     enjeu: true,
   },
+
+  // -------------------------------------------------------------------------
+  // D10 — Aménagement de lotissement – Dév Pitchou (réplique d'un dossier prod)
+  // Phase actuelle : Accompagnement amont
+  // Demandeur personne morale, espèces impactées, avis CNPN, arrêté + contrôle.
+  // -------------------------------------------------------------------------
+  {
+    number_demarches_simplifiées: "31496628",
+    groupe_instructeur: "Dév Pitchou",
+    demandeur_personne_morale: "88800620200020",
+    date_dépôt: new Date("2026-05-26T08:00:00+00:00"),
+    départements: ["22"],
+    communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
+    régions: ["Bretagne"],
+    nom: "Aménagement de lotissement",
+    ddep_nécessaire: null,
+    commentaire_libre: "",
+    historique_identifiant_demande_onagre: "",
+    date_debut_consultation_public: null,
+    rattaché_au_régime_ae: null,
+    prochaine_action_attendue_par: null,
+    activité_principale: "Aménagements fonciers (AFAF, remembrement)",
+    description: "Aménagement d'un lotissement dans la campagne de ploufragan, ça sera tout calme",
+    date_début_intervention: new Date("2026-11-20"),
+    date_fin_intervention: new Date("2029-11-20"),
+    durée_intervention: 5,
+    scientifique_type_demande: null,
+    scientifique_description_protocole_suivi: null,
+    scientifique_mode_capture: null,
+    scientifique_modalités_source_lumineuses: null,
+    scientifique_modalités_marquage: null,
+    scientifique_modalités_transport: null,
+    scientifique_périmètre_intervention: null,
+    scientifique_intervenants: null,
+    scientifique_précisions_autres_intervenants: null,
+    scientifique_bilan_antérieur: null,
+    scientifique_finalité_demande: null,
+    justification_absence_autre_solution_satisfaisante:
+      "Nous avons besoin de logements à ploufragan c'est important",
+    motif_dérogation:
+      "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l'environnement)",
+    justification_motif_dérogation: "cf rapport du maire et de l'écologue",
+    mesures_erc_prévues: null,
+    nombre_nids_détruits_dossier_oiseau_simple: null,
+    nombre_nids_compensés_dossier_oiseau_simple: null,
+    type: null,
+    numéro_démarche: 88444,
+    etat_des_lieux_ecologique_complet_realise: true,
+    presence_especes_dans_aire_influence: true,
+    risque_malgre_mesures_erc: true,
+    date_fin_consultation_public: null,
+    mesures_er_suffisantes: null,
+    enjeu: true,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Entreprises (demandeurs personne morale)
+// ---------------------------------------------------------------------------
+
+export const SEED_ENTREPRISES: SeedEntreprise[] = [
+  // D10 — Aménagement de lotissement
+  {
+    siret: "88800620200020",
+    raison_sociale: "L'ECHAPPEE BELLE",
+    adresse: null,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Personnes qui suivent un dossier
+// ---------------------------------------------------------------------------
+
+export const SEED_SUIVIS_DOSSIER: SeedSuiviDossier[] = [
+  // D10 — Aménagement de lotissement
+  {
+    dossier: "31496628",
+    suiveurs: [
+      { email: "maiana.lenoir@beta.gouv.fr", nom: "Lenoir", prénoms: "Maiana" },
+      { email: "nicolas.cura.ext@beta.gouv.fr", nom: "Cura", prénoms: "Nicolas" },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Espèces impactées (generated as ODS files at seed time)
+// ---------------------------------------------------------------------------
+
+export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
+  // D10 — Aménagement de lotissement
+  // Hirondelle rousseline (CNPN, oiseau) impacted twice; Grenouille des champs
+  // (ministérielle, faune non-oiseau) impacted once.
+  {
+    dossier: "31496628",
+    nom_fichier: "especes-impactees.ods",
+    lignes: [
+      // Dégradation/destruction d'aires de repos/reproduction (P-4-2)
+      {
+        classification: "oiseau",
+        cd_ref: "459478",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 4000,
+      },
+      // Destruction de nids/oeufs (P-4-1)
+      {
+        classification: "oiseau",
+        cd_ref: "459478",
+        identifiant_pitchou_activité: "P-4-1",
+        nombre_nids: 12,
+      },
+      // Dégradation/destruction d'aires de repos/reproduction, faune non-oiseau (P-60)
+      {
+        classification: "faune non-oiseau",
+        cd_ref: "299",
+        identifiant_pitchou_activité: "P-60",
+        surface_habitat_détruit: 2000,
+      },
+    ],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -786,6 +945,15 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
     avis: null,
     date_avis: null,
   },
+  // D10 – aménagement lotissement – CNPN favorable
+  {
+    id: "ae000003-0000-4000-a000-000000000003",
+    dossier: "31496628",
+    expert: "CNPN",
+    date_saisine: new Date("2026-05-26"),
+    avis: "Favorable",
+    date_avis: new Date("2026-05-26"),
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -820,6 +988,16 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
     type: "Arrêté dérogation",
     date_signature: new Date("2024-01-20"),
     date_fin_obligations: new Date("2027-10-31"),
+  },
+  // D10 – aménagement lotissement – arrêté dérogation
+  {
+    id: "da000004-0000-4000-a000-000000000004",
+    dossier: "31496628",
+    numéro: "987654321",
+    type: "Arrêté dérogation",
+    date_signature: new Date("2026-05-26"),
+    date_fin_obligations: new Date("2076-05-26"),
+    nom_fichier: "arrete-derogation-987654321.pdf",
   },
 ];
 
@@ -976,6 +1154,22 @@ export const SEED_PRESCRIPTIONS: SeedPrescription[] = [
     individus_évités: null,
     individus_compensés: null,
   },
+
+  // --- D10 (da000004) — aménagement lotissement ---
+
+  {
+    id: "a0000011-0000-4000-a000-000000000011",
+    décision_administrative: "da000004-0000-4000-a000-000000000004",
+    date_échéance: new Date("2076-05-26"),
+    numéro_article: "1",
+    description: "refaire des mares",
+    surface_évitée: null,
+    surface_compensée: 1500,
+    nids_évités: null,
+    nids_compensés: null,
+    individus_évités: null,
+    individus_compensés: null,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -1076,5 +1270,18 @@ export const SEED_CONTRÔLES: SeedContrôle[] = [
     type_action_suite_contrôle: "Email",
     date_action_suite_contrôle: new Date("2025-07-14"),
     date_prochaine_échéance: new Date("2025-09-30"),
+  },
+
+  // --- D10 prescription (a0000011) ---
+
+  {
+    id: "c0000009-0000-4000-a000-000000000009",
+    prescription: "a0000011-0000-4000-a000-000000000011",
+    date_contrôle: new Date("2036-05-26T00:00:00+00:00"),
+    résultat: "Non conforme",
+    commentaire: "c'est pas bien il n'y a pas de mare",
+    type_action_suite_contrôle: "rappel qu'il faut en faire une",
+    date_action_suite_contrôle: new Date("2036-11-26"),
+    date_prochaine_échéance: new Date("2045-05-26"),
   },
 ];

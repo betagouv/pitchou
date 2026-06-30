@@ -42,4 +42,17 @@ export const SEED_PIÈCES_JOINTES_PÉTITIONNAIRE: SeedPièceJointe[] = [
     nom: "plan-plateforme-nidification.pdf",
     media_type: "application/pdf",
   },
+
+  // D10 — Aménagement de lotissement (Ploufragan)
+  {
+    dossier: "31496628",
+    nom: "démo - voie verte cyclable rennes-dinan.jpg",
+    media_type: "image/jpeg",
+  },
+  { dossier: "31496628", nom: "Etat des lieux écologique V2.pdf", media_type: "application/pdf" },
+  {
+    dossier: "31496628",
+    nom: "démo - forêt sur le lieu de l'aménagement.jpg",
+    media_type: "image/jpeg",
+  },
 ];
