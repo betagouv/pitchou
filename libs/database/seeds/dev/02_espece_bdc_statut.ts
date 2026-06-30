@@ -134,6 +134,14 @@ const BDC_STATUT: EspeceBdcStatutInitializer[] = [
   { cd_nom: "994", cd_ref: "994", cd_type_statut: "PD", label_statut: "" },
   { cd_nom: "994", cd_ref: "994", cd_type_statut: "PN", label_statut: "" },
   { cd_nom: "994", cd_ref: "994", cd_type_statut: "POM", label_statut: "" },
+  // Species used by the seed dossiers D10 / D11.
+  { cd_nom: "459478", cd_ref: "459478", cd_type_statut: "PN", label_statut: "" },
+  { cd_nom: "4663", cd_ref: "4663", cd_type_statut: "PN", label_statut: "" },
+  { cd_nom: "4669", cd_ref: "4669", cd_type_statut: "PN", label_statut: "" },
+  { cd_nom: "4221", cd_ref: "4221", cd_type_statut: "PN", label_statut: "" },
+  { cd_nom: "351", cd_ref: "351", cd_type_statut: "PN", label_statut: "" },
+  { cd_nom: "77600", cd_ref: "77600", cd_type_statut: "PN", label_statut: "" },
+  { cd_nom: "88560", cd_ref: "88560", cd_type_statut: "PN", label_statut: "" },
 ];
 
 export async function seed(knex: Knex) {

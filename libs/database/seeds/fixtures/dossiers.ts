@@ -32,6 +32,8 @@ type SeedDossier = Omit<
   | "espèces_impactées"
 > & {
   groupe_instructeur: string;
+  /** SIRET de l'entreprise demandeuse (personne morale). L'entreprise doit figurer dans SEED_ENTREPRISES. */
+  demandeur_personne_morale?: string;
 };
 
 type SeedAvisExpert = Omit<
@@ -55,6 +57,8 @@ type SeedDécisionAdministrative = Omit<
 > & {
   id: string;
   dossier: string;
+  /** When set, a placeholder PDF is generated and linked as the décision's fichier. */
+  nom_fichier?: string;
 };
 
 type SeedPrescription = Omit<PrescriptionInitializer, "id" | "décision_administrative"> & {
@@ -65,6 +69,34 @@ type SeedPrescription = Omit<PrescriptionInitializer, "id" | "décision_administ
 type SeedContrôle = Omit<ContrLeInitializer, "id" | "prescription"> & {
   id: string;
   prescription: string;
+};
+
+// An "entreprise" (demandeur personne morale). Inserted before the dossiers that reference it.
+type SeedEntreprise = {
+  siret: string;
+  raison_sociale: string;
+  adresse: string | null;
+};
+
+// One impacted-species line, used to build the "espèces impactées" ODS file.
+type SeedLigneEspèceImpactée = {
+  classification: "oiseau" | "faune non-oiseau" | "flore";
+  /** CD_REF of the espèce; must be resolvable in the espece_protegee view */
+  cd_ref: string;
+  /** "Identifiant Pitchou" of the threatening activité (e.g. "P-4-1", "P-4-2", "P-60") */
+  identifiant_pitchou_activité: string;
+  nombre_individus?: string;
+  nombre_nids?: number;
+  nombre_oeufs?: number;
+  surface_habitat_détruit?: number;
+};
+
+// "Espèces impactées" file spec for a dossier (generated as ODS at seed time).
+type SeedEspècesImpactées = {
+  /** number_demarches_simplifiées of the dossier */
+  dossier: string;
+  nom_fichier: string;
+  lignes: SeedLigneEspèceImpactée[];
 };
 
 // ---------------------------------------------------------------------------
@@ -602,6 +634,235 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     mesures_er_suffisantes: false,
     enjeu: true,
   },
+
+  // -------------------------------------------------------------------------
+  // D10 — Aménagement de lotissement – Dév Pitchou (réplique d'un dossier prod)
+  // Phase actuelle : Accompagnement amont
+  // Demandeur personne morale, espèces impactées, avis CNPN, arrêté + contrôle.
+  // -------------------------------------------------------------------------
+  {
+    number_demarches_simplifiées: "31496628",
+    groupe_instructeur: "Dév Pitchou",
+    demandeur_personne_morale: "88800620200020",
+    date_dépôt: new Date("2026-05-26T08:00:00+00:00"),
+    départements: ["22"],
+    communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
+    régions: ["Bretagne"],
+    nom: "Aménagement de lotissement",
+    ddep_nécessaire: null,
+    commentaire_libre: "",
+    historique_identifiant_demande_onagre: "",
+    date_debut_consultation_public: null,
+    rattaché_au_régime_ae: null,
+    prochaine_action_attendue_par: null,
+    activité_principale: "Aménagements fonciers (AFAF, remembrement)",
+    description: "Aménagement d'un lotissement dans la campagne de ploufragan, ça sera tout calme",
+    date_début_intervention: new Date("2026-11-20"),
+    date_fin_intervention: new Date("2029-11-20"),
+    durée_intervention: 5,
+    scientifique_type_demande: null,
+    scientifique_description_protocole_suivi: null,
+    scientifique_mode_capture: null,
+    scientifique_modalités_source_lumineuses: null,
+    scientifique_modalités_marquage: null,
+    scientifique_modalités_transport: null,
+    scientifique_périmètre_intervention: null,
+    scientifique_intervenants: null,
+    scientifique_précisions_autres_intervenants: null,
+    scientifique_bilan_antérieur: null,
+    scientifique_finalité_demande: null,
+    justification_absence_autre_solution_satisfaisante:
+      "Nous avons besoin de logements à ploufragan c'est important",
+    motif_dérogation:
+      "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l'environnement)",
+    justification_motif_dérogation: "cf rapport du maire et de l'écologue",
+    mesures_erc_prévues: null,
+    nombre_nids_détruits_dossier_oiseau_simple: null,
+    nombre_nids_compensés_dossier_oiseau_simple: null,
+    type: null,
+    numéro_démarche: 88444,
+    etat_des_lieux_ecologique_complet_realise: true,
+    presence_especes_dans_aire_influence: true,
+    risque_malgre_mesures_erc: true,
+    date_fin_consultation_public: null,
+    mesures_er_suffisantes: null,
+    enjeu: true,
+  },
+
+  // -------------------------------------------------------------------------
+  // D11 — Agrandissement pistes cyclables Rennes-Dinan – Dév Pitchou
+  // Phase actuelle : Accompagnement amont (après un aller-retour Instruction/Contrôle)
+  // -------------------------------------------------------------------------
+  {
+    number_demarches_simplifiées: "31113417",
+    groupe_instructeur: "Dév Pitchou",
+    demandeur_personne_morale: "88800620200020",
+    date_dépôt: new Date("2026-05-05T08:00:00+00:00"),
+    départements: ["99", "35", "22"],
+    communes: null,
+    régions: ["Bretagne"],
+    nom: "Agrandissement pistes cyclables Rennes-Dinan",
+    ddep_nécessaire: true,
+    commentaire_libre:
+      'Je fais un test de commentaire qui servira pour tester la recherche, avec le mot "coquelicot"',
+    historique_identifiant_demande_onagre: "",
+    date_debut_consultation_public: null,
+    rattaché_au_régime_ae: null,
+    prochaine_action_attendue_par: "Pétitionnaire",
+    activité_principale: "Infrastructures de transport routières",
+    description:
+      "De plus en plus de bretons souhaitent circuler entre Rennes et Dinan dans des véhicules non mototrisés. Leur nombre est devenu si important que la piste cyclable actuelle est trop petite et dangereuse, les conseils départementaux ont sollicité notre entreprise pour l'élargir. La piste passe par des zones de forêts et d'étangs.",
+    date_début_intervention: new Date("2027-05-11"),
+    date_fin_intervention: new Date("2027-10-22"),
+    durée_intervention: 2,
+    scientifique_type_demande: null,
+    scientifique_description_protocole_suivi: null,
+    scientifique_mode_capture: null,
+    scientifique_modalités_source_lumineuses: null,
+    scientifique_modalités_marquage: null,
+    scientifique_modalités_transport: null,
+    scientifique_périmètre_intervention: null,
+    scientifique_intervenants: null,
+    scientifique_précisions_autres_intervenants: null,
+    scientifique_bilan_antérieur: null,
+    scientifique_finalité_demande: null,
+    justification_absence_autre_solution_satisfaisante:
+      "En partenariats avec des experts de l'aménagement et de la biodiversité nous n'avons pas trouvé d'alternative pour maintenir la sécurité des personnes.",
+    motif_dérogation:
+      "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l'environnement)",
+    justification_motif_dérogation:
+      "- consultation de plusieurs alternatives d'aménagement - consultation d'experts écologue - autre point important",
+    mesures_erc_prévues: null,
+    nombre_nids_détruits_dossier_oiseau_simple: null,
+    nombre_nids_compensés_dossier_oiseau_simple: null,
+    type: null,
+    numéro_démarche: 88444,
+    etat_des_lieux_ecologique_complet_realise: true,
+    presence_especes_dans_aire_influence: true,
+    risque_malgre_mesures_erc: true,
+    date_fin_consultation_public: null,
+    mesures_er_suffisantes: null,
+    enjeu: false,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Entreprises (demandeurs personne morale)
+// ---------------------------------------------------------------------------
+
+export const SEED_ENTREPRISES: SeedEntreprise[] = [
+  // D10 — Aménagement de lotissement
+  {
+    siret: "88800620200020",
+    raison_sociale: "L'ECHAPPEE BELLE",
+    adresse: null,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Dossiers followed by the dev/seed user (number_demarches_simplifiées)
+// ---------------------------------------------------------------------------
+
+export const SEED_DOSSIERS_SUIVIS_PAR_DEV: string[] = [
+  "31496628", // D10 — Aménagement de lotissement
+  "31113417", // D11 — Agrandissement pistes cyclables Rennes-Dinan
+];
+
+// ---------------------------------------------------------------------------
+// Espèces impactées (generated as ODS files at seed time)
+// ---------------------------------------------------------------------------
+
+export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
+  // D10 — Aménagement de lotissement
+  // Hirondelle rousseline (CNPN, oiseau) impacted twice; Grenouille des champs
+  // (ministérielle, faune non-oiseau) impacted once.
+  {
+    dossier: "31496628",
+    nom_fichier: "especes-impactees.ods",
+    lignes: [
+      // Dégradation/destruction d'aires de repos/reproduction (P-4-2)
+      {
+        classification: "oiseau",
+        cd_ref: "459478",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 4000,
+      },
+      // Destruction de nids/oeufs (P-4-1)
+      {
+        classification: "oiseau",
+        cd_ref: "459478",
+        identifiant_pitchou_activité: "P-4-1",
+        nombre_nids: 12,
+      },
+      // Dégradation/destruction d'aires de repos/reproduction, faune non-oiseau (P-60)
+      {
+        classification: "faune non-oiseau",
+        cd_ref: "299",
+        identifiant_pitchou_activité: "P-60",
+        surface_habitat_détruit: 2000,
+      },
+    ],
+  },
+  // D11 — Agrandissement pistes cyclables Rennes-Dinan
+  {
+    dossier: "31113417",
+    nom_fichier: "especes-impactees.ods",
+    lignes: [
+      // Dégradation/destruction d'aires de repos/reproduction, oiseau (P-4-2)
+      {
+        classification: "oiseau",
+        cd_ref: "4663",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 3000,
+      },
+      {
+        classification: "oiseau",
+        cd_ref: "4669",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 3000,
+      },
+      {
+        classification: "oiseau",
+        cd_ref: "2666",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 1200,
+      },
+      {
+        classification: "oiseau",
+        cd_ref: "4221",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 3000,
+      },
+      // Dégradation/destruction d'aires de repos/reproduction, faune non-oiseau (P-60)
+      {
+        classification: "faune non-oiseau",
+        cd_ref: "351",
+        identifiant_pitchou_activité: "P-60",
+        surface_habitat_détruit: 450,
+      },
+      // Capture/relâcher immédiat, faune non-oiseau (P-30)
+      {
+        classification: "faune non-oiseau",
+        cd_ref: "351",
+        identifiant_pitchou_activité: "P-30",
+        nombre_individus: "11-100",
+      },
+      // Peturbation, effarouchement, faune non-oiseau (P-40)
+      {
+        classification: "faune non-oiseau",
+        cd_ref: "77600",
+        identifiant_pitchou_activité: "P-40",
+        nombre_individus: "0-10",
+      },
+      // Cueillette, collecte, coupe, déracinement…, flore (P-80)
+      {
+        classification: "flore",
+        cd_ref: "88560",
+        identifiant_pitchou_activité: "P-80",
+        surface_habitat_détruit: 3500,
+      },
+    ],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -760,6 +1021,29 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
     DS_emailAgentTraitant: "audrey.mercier@dgtm-guyane.gouv.fr",
     DS_motivation: null,
   },
+
+  // D11 – pistes cyclables Rennes-Dinan → Instruction → Contrôle → Accompagnement amont
+  {
+    dossier: "31113417",
+    phase: "Instruction",
+    horodatage: new Date("2026-05-05T10:00:00+00:00"),
+    DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
+    DS_motivation: null,
+  },
+  {
+    dossier: "31113417",
+    phase: "Contrôle",
+    horodatage: new Date("2026-05-05T11:00:00+00:00"),
+    DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
+    DS_motivation: null,
+  },
+  {
+    dossier: "31113417",
+    phase: "Accompagnement amont",
+    horodatage: new Date("2026-05-05T12:00:00+00:00"),
+    DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
+    DS_motivation: null,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -784,6 +1068,24 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
     expert: "CNPN",
     date_saisine: new Date("2024-06-03"),
     avis: null,
+    date_avis: null,
+  },
+  // D10 – aménagement lotissement – CNPN favorable
+  {
+    id: "ae000003-0000-4000-a000-000000000003",
+    dossier: "31496628",
+    expert: "CNPN",
+    date_saisine: new Date("2026-05-26"),
+    avis: "Favorable",
+    date_avis: new Date("2026-05-26"),
+  },
+  // D11 – pistes cyclables Rennes-Dinan – CSRPN favorable, avis non daté
+  {
+    id: "ae000004-0000-4000-a000-000000000004",
+    dossier: "31113417",
+    expert: "CSRPN",
+    date_saisine: new Date("2026-05-05"),
+    avis: "Favorable",
     date_avis: null,
   },
 ];
@@ -820,6 +1122,26 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
     type: "Arrêté dérogation",
     date_signature: new Date("2024-01-20"),
     date_fin_obligations: new Date("2027-10-31"),
+  },
+  // D10 – aménagement lotissement – arrêté dérogation
+  {
+    id: "da000004-0000-4000-a000-000000000004",
+    dossier: "31496628",
+    numéro: "987654321",
+    type: "Arrêté dérogation",
+    date_signature: new Date("2026-05-26"),
+    date_fin_obligations: new Date("2076-05-26"),
+    nom_fichier: "arrete-derogation-987654321.pdf",
+  },
+  // D11 – pistes cyclables Rennes-Dinan – arrêté dérogation (sans prescription)
+  {
+    id: "da000005-0000-4000-a000-000000000005",
+    dossier: "31113417",
+    numéro: "987654",
+    type: "Arrêté dérogation",
+    date_signature: new Date("2026-05-05"),
+    date_fin_obligations: new Date("2028-08-31"),
+    nom_fichier: "arrete-derogation-987654.pdf",
   },
 ];
 
@@ -976,6 +1298,22 @@ export const SEED_PRESCRIPTIONS: SeedPrescription[] = [
     individus_évités: null,
     individus_compensés: null,
   },
+
+  // --- D10 (da000004) — aménagement lotissement ---
+
+  {
+    id: "a0000011-0000-4000-a000-000000000011",
+    décision_administrative: "da000004-0000-4000-a000-000000000004",
+    date_échéance: new Date("2076-05-26"),
+    numéro_article: "1",
+    description: "refaire des mares",
+    surface_évitée: null,
+    surface_compensée: 1500,
+    nids_évités: null,
+    nids_compensés: null,
+    individus_évités: null,
+    individus_compensés: null,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -1076,5 +1414,18 @@ export const SEED_CONTRÔLES: SeedContrôle[] = [
     type_action_suite_contrôle: "Email",
     date_action_suite_contrôle: new Date("2025-07-14"),
     date_prochaine_échéance: new Date("2025-09-30"),
+  },
+
+  // --- D10 prescription (a0000011) ---
+
+  {
+    id: "c0000009-0000-4000-a000-000000000009",
+    prescription: "a0000011-0000-4000-a000-000000000011",
+    date_contrôle: new Date("2036-05-26T00:00:00+00:00"),
+    résultat: "Non conforme",
+    commentaire: "c'est pas bien il n'y a pas de mare",
+    type_action_suite_contrôle: "rappel qu'il faut en faire une",
+    date_action_suite_contrôle: new Date("2036-11-26"),
+    date_prochaine_échéance: new Date("2045-05-26"),
   },
 ];
