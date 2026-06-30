@@ -213,15 +213,6 @@ const AJOUTS: EspeceProtegeeModificationInitializer[] = [
     cd_type_statuts: ["Espèce manquante"],
     espece_cnpn: true,
   },
-  {
-    // CNPN species used by the seed dossier "Aménagement de lotissement" (D10).
-    cd_ref: "459478",
-    classification: "oiseau",
-    noms_scientifiques: ["Cecropis daurica", "Hirundo daurica"],
-    noms_vernaculaires: ["Hirondelle rousseline"],
-    cd_type_statuts: ["Espèce manquante"],
-    espece_cnpn: true,
-  },
 ] as unknown as EspeceProtegeeModificationInitializer[];
 
 // One exclusion example (tombstone): hides a reference species from the view.
