@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
 
   import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
-  import type { TaxrefRow } from "../../taxref/taxrefList.ts";
-  import Loader from "$lib/components/Loader.svelte";
+  import type { TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import { chargerEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
 
   import Modale from "./Modale.svelte";

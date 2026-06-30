@@ -4,7 +4,7 @@
   import ModalePréremplirDepuisTexte from "./SaisieEspèces/ModalePréremplirDepuisTexte.svelte";
   import FormulaireSaisieEspèce from "./SaisieEspèces/FormulaireSaisieEspèce.svelte";
   import { descriptionMenacesEspècesToOdsArrayBuffer } from "@pitchou/common/outils-espèces.ts";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import TuileSaisieEspèce from "./SaisieEspèces/TuileSaisieEspèce.svelte";
   import { tick } from "svelte";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";

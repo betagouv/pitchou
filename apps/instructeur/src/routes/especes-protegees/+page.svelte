@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import { chargerListeEspècesProtégées } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
 
   import ListeEspecesProtegees from "./ListeEspecesProtegees.svelte";

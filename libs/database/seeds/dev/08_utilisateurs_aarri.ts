@@ -114,7 +114,7 @@ export async function seed(knex: Knex) {
     console.log(`  Seed AARRI OK — ${AARRI_PROFILES.length} personnes`);
     console.log("  Niveaux : 2 base, 2 acquis, 2 activé, 1 retenu, 1 impact");
     console.log(
-      "  Pour voir la page /admin/utilisateurs en dev, ajoutez votre email dev à PITCHOU_ADMIN_EMAILS",
+      "  Pour voir la page Utilisateurs (/aarri) de l'app Admin en dev, ajoutez votre email dev à PITCHOU_ADMIN_EMAILS",
     );
     console.log("");
   });

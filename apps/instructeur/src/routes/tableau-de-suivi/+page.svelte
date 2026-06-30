@@ -5,7 +5,7 @@
 
   import { store } from "$lib/state/store.svelte.ts";
   import SuiviInstruction from "../SuiviInstruction/SuiviInstruction.svelte";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
 
   import { logout } from "$lib/shared/main.ts";
   import { chargerDossiers } from "$lib/dossier/dossier.ts";

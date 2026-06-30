@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { untrack } from "svelte";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { isSameDay } from "date-fns";

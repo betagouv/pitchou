@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TaxrefRow } from "./taxrefList.ts";
+  import type { TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
 
   type Props = {
     rows: TaxrefRow[];

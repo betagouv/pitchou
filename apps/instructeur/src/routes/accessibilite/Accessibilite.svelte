@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
 
   let { title = "Accessibilité", html = "" }: { title?: string; html?: string } = $props();
 </script>

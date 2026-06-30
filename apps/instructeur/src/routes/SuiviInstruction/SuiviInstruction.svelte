@@ -7,7 +7,7 @@
   import TrisDeTh from "./TrisDeTh.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import IndicateurDélaiPhase from "./IndicateurDélaiPhase.svelte";
   import {
     formatLocalisation,

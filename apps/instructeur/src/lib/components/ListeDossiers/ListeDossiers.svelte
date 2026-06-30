@@ -8,7 +8,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import { envoyerÉvènementRechercherUnDossier } from "$lib/shared/aarri.ts";
 
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import DossiersToolbar from "./DossiersToolbar.svelte";
   import DossiersResultats from "./DossiersResultats.svelte";
   import {

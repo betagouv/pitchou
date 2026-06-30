@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Loader from "$lib/components/Loader.svelte";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import {
     fetchTaxrefPage,
@@ -11,9 +11,9 @@
     type TaxrefFiltres,
     type SortKey,
     type SortOrder,
-  } from "../../taxref/taxrefList.ts";
-  import TaxrefFilterPanel from "../../taxref/TaxrefFilterPanel.svelte";
-  import TaxrefSortPanel from "../../taxref/TaxrefSortPanel.svelte";
+  } from "@pitchou/ui/taxref/taxrefList.ts";
+  import TaxrefFilterPanel from "@pitchou/ui/taxref/TaxrefFilterPanel.svelte";
+  import TaxrefSortPanel from "@pitchou/ui/taxref/TaxrefSortPanel.svelte";
 
   type Props = {
     /** CD_REFs already protected: flagged "déjà dans la liste" and not selectable. */
