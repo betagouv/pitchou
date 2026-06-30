@@ -3416,6 +3416,63 @@ const TAXREF: EspeceTaxrefInitializer[] = [
     regne: "Plantae",
     classe: "Equisetopsida",
   },
+  // Species used by the seed dossiers D10 / D11.
+  {
+    cd_nom: "459478",
+    cd_ref: "459478",
+    lb_nom: "Cecropis daurica",
+    nom_vern: "Hirondelle rousseline",
+    regne: "Animalia",
+    classe: "Aves",
+  },
+  {
+    cd_nom: "4663",
+    cd_ref: "4663",
+    lb_nom: "Emberiza bruniceps",
+    nom_vern: "Bruant à tête rousse",
+    regne: "Animalia",
+    classe: "Aves",
+  },
+  {
+    cd_nom: "4669",
+    cd_ref: "4669",
+    lb_nom: "Emberiza schoeniclus",
+    nom_vern: "Bruant des roseaux",
+    regne: "Animalia",
+    classe: "Aves",
+  },
+  {
+    cd_nom: "4221",
+    cd_ref: "4221",
+    lb_nom: "Sylvia undata",
+    nom_vern: "Fauvette pitchou",
+    regne: "Animalia",
+    classe: "Aves",
+  },
+  {
+    cd_nom: "351",
+    cd_ref: "351",
+    lb_nom: "Rana temporaria",
+    nom_vern: "Grenouille rousse (La)",
+    regne: "Animalia",
+    classe: "Amphibia",
+  },
+  {
+    cd_nom: "77600",
+    cd_ref: "77600",
+    lb_nom: "Natrix maura",
+    nom_vern: "Couleuvre vipérine (La)",
+    regne: "Animalia",
+    classe: "Reptilia",
+  },
+  {
+    cd_nom: "88560",
+    cd_ref: "88560",
+    lb_nom: "Brassica oleracea subsp. oleracea",
+    nom_vern: "Chou commun",
+    regne: "Plantae",
+    classe: "Equisetopsida",
+  },
 ];
 
 export async function seed(knex: Knex) {

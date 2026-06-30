@@ -29,6 +29,10 @@ const FLAGS: EspeceProtegeeModificationInitializer[] = [
   { cd_ref: "3089", espece_ministerielle: true },
   { cd_ref: "84476", espece_cnpn: true },
   { cd_ref: "103626", espece_cnpn: true },
+  // Species used by the seed dossiers D10 / D11.
+  { cd_ref: "459478", espece_cnpn: true },
+  { cd_ref: "4669", espece_cnpn: true },
+  { cd_ref: "4221", espece_cnpn: true },
 ] as unknown as EspeceProtegeeModificationInitializer[];
 
 export async function seed(knex: Knex) {
