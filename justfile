@@ -78,9 +78,10 @@ ci:
     just build
     just test
 
-# Wipe the whole DB (drop + recreate the public schema, also clears migration history)
-db-clear:
+# Wipe the whole DB (drop + recreate the public schema, also clears migration history) and the whole S3 bucket
+data-clear:
     psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+    aws s3 rm "s3://$S3_BUCKET" --recursive
 
 # Roll back the last applied migration
 db-migrate-down:
@@ -94,14 +95,14 @@ db-migrate-latest:
 db-migrate-up:
     {{ knex }} migrate:up --env docker_dev
 
-# Reset the DB from scratch: wipe everything, replay migrations, then insert seeds
-db-reset:
-    just db-clear
+# Reset the DB and the S3 bucket from scratch: wipe everything, replay migrations, then insert seeds
+data-reset:
+    just data-clear
     just db-migrate-latest
-    just db-seed
+    just data-seed
 
-# Insert dev data into the DB
-db-seed:
+# Insert dev data into the DB and S3 buckets
+data-seed:
     {{ knex }} seed:run --env docker_dev
 
 # Show table sizes

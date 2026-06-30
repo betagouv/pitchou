@@ -280,6 +280,7 @@ export async function dumpDossiers(
 
 export async function synchroniserDossierDansGroupeInstructeur(
   dossierDS: any,
+  demarcheNumber: number,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const dossierNumberDSToIdP = databaseConnection("dossier")
@@ -298,6 +299,7 @@ export async function synchroniserDossierDansGroupeInstructeur(
 
   const groupeInstructeursLabelToIdP = databaseConnection("groupe_instructeurs")
     .select(["id", "nom"])
+    .where({ numéro_démarche: demarcheNumber })
     .then((groupesInstructeurs) => {
       const groupeInstructeursLabelToId = new Map();
       for (const { id, nom } of groupesInstructeurs) {
@@ -422,9 +424,6 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "etat_des_lieux_ecologique_complet_realise",
   "presence_especes_dans_aire_influence",
   "risque_malgre_mesures_erc",
-  /*
-    "historique_date_envoi_dernière_contribution"
-*/
 ];
 
 export function listAllDossiersComplets(

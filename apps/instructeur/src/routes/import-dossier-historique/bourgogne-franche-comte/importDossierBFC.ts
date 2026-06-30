@@ -145,7 +145,7 @@ export async function créerDossierDepuisLigne(
       créerDonnéesSupplémentairesDepuisLigne(ligne),
     ),
 
-    "Nom du projet": créerNomPourDossier(ligne),
+    "Nom du projet premettant de l'identifier clairement": créerNomPourDossier(ligne),
     "Dans quel département se localise majoritairement votre projet ?":
       donnéesLocalisations["Dans quel département se localise majoritairement votre projet ?"],
     "Avez-vous réalisé un état des lieux écologique complet ?": true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.

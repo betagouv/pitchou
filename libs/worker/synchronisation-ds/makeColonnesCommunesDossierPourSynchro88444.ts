@@ -7,10 +7,7 @@ import type {
   ChampScientifiqueIntervenants,
   DossierDS88444,
 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
-import type {
-  DossierDemarcheNumerique88444,
-  AnnotationsPriveesDemarcheNumerique88444,
-} from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 
@@ -20,10 +17,6 @@ import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema
 export function makeColonnesCommunesDossierPourSynchro88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
-  pitchouKeyToAnnotationDS: Map<
-    keyof AnnotationsPriveesDemarcheNumerique88444,
-    ChampDescriptor["id"]
-  >,
 ): DossierInitializer | DossierMutator {
   const { id: id_demarches_simplifiées, number, champs, annotations } = dossierDS;
 
@@ -42,8 +35,10 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     champById.set(champ.id, champ);
   }
 
-  /** @type {DossierDemarcheNumerique88444['Nom du projet']} */
-  const nom = champById.get(pitchouKeyToChampDS.get("Nom du projet"))?.stringValue;
+  /** @type {DossierDemarcheNumerique88444["Nom du projet premettant de l'identifier clairement"]} */
+  const nom = champById.get(
+    pitchouKeyToChampDS.get("Nom du projet premettant de l'identifier clairement"),
+  )?.stringValue;
   /** @type {DossierDemarcheNumerique88444['Description synthétique du projet']} */
   const description = champById.get(
     pitchouKeyToChampDS.get("Description synthétique du projet"),
@@ -321,12 +316,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     annotationById.set(annotation.id, annotation);
   }
 
-  const historique_date_envoi_dernière_contribution = annotationById.get(
-    pitchouKeyToAnnotationDS.get(
-      "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP",
-    ),
-  ).date;
-
   const champ_nombre_nids_compensés_oiseau_simple = champById.get(
     pitchouKeyToChampDS.get("Indiquer le nombre de nids artificiels posés en compensation"),
   )?.stringValue;
@@ -410,8 +399,6 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     scientifique_périmètre_intervention,
     scientifique_intervenants: JSON.stringify(scientifique_intervenants),
     scientifique_précisions_autres_intervenants,
-
-    historique_date_envoi_dernière_contribution,
 
     nombre_nids_compensés_dossier_oiseau_simple,
     nombre_nids_détruits_dossier_oiseau_simple,

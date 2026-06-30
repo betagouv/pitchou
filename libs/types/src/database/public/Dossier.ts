@@ -49,9 +49,6 @@ export default interface Dossier {
   /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre: string;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution: Date | null;
-
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre: string;
 
@@ -155,6 +152,9 @@ export default interface Dossier {
 
   /** Indique si le dossier présente un enjeu (écologique, politique...). */
   enjeu: boolean;
+
+  /** Date d'envoi de la dernière contribution */
+  historique_date_envoi_dernière_contribution: Date | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -200,9 +200,6 @@ export interface DossierInitializer {
    * Default value: ''::text
    */
   commentaire_libre?: string;
-
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution?: Date | null;
 
   /**
    * Identifiant de la demande dans ONAGRE
@@ -313,6 +310,9 @@ export interface DossierInitializer {
    * Default value: false
    */
   enjeu?: boolean;
+
+  /** Date d'envoi de la dernière contribution */
+  historique_date_envoi_dernière_contribution?: Date | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -354,9 +354,6 @@ export interface DossierMutator {
 
   /** Commentaires de l'instructeur.rice sur le dossier */
   commentaire_libre?: string;
-
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution?: Date | null;
 
   /** Identifiant de la demande dans ONAGRE */
   historique_identifiant_demande_onagre?: string;
@@ -461,4 +458,7 @@ export interface DossierMutator {
 
   /** Indique si le dossier présente un enjeu (écologique, politique...). */
   enjeu?: boolean;
+
+  /** Date d'envoi de la dernière contribution */
+  historique_date_envoi_dernière_contribution?: Date | null;
 }

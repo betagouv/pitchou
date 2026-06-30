@@ -490,6 +490,7 @@ if (dossiersDS.length >= 1) {
   /** Synchronisation de l'information de quel dossier appartient à quel groupe_instructeurs */
   synchronisationDossierDansGroupeInstructeur = synchroniserDossierDansGroupeInstructeur(
     dossiersDS,
+    DEMARCHE_NUMBER,
     laTransactionDeSynchronisationDS,
   );
 }

@@ -1,13 +1,13 @@
 /**
- * Ce fichier a été généré automatiquement par outils/genere-types-schema-DS.js
- * en prenant data/démarche-numérique/schema-DS/derogation-especes-protegees.json comme source
- *
- * Ne pas le modifier à la main
- *
- * À la place, mettre à jour data/démarche-numérique/schema-DS/derogation-especes-protegees.json
- * d'après https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
- * et relancer outils/genere-types-schema-DS.js
- */
+* Ce fichier a été généré automatiquement par outils/genere-types-schema-DS.js
+* en prenant data/démarche-numérique/schema-DS/derogation-especes-protegees.json comme source
+* 
+* Ne pas le modifier à la main
+* 
+* À la place, mettre à jour data/démarche-numérique/schema-DS/derogation-especes-protegees.json
+* d'après https://www.demarches-simplifiees.fr/preremplir/derogation-especes-protegees/schema
+* et relancer outils/genere-types-schema-DS.js
+*/
 
 import type { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";
 import type { ChampDSPieceJustificative } from "./apiSchema.ts";
@@ -16,7 +16,7 @@ export interface DossierDemarcheNumerique88444 {
   /**
    * Indiquer le nom <strong> précis </strong> de votre projet
    */
-  "Nom du projet": string;
+  "Nom du projet premettant de l'identifier clairement": string;
   "Dans quel département se localise majoritairement votre projet ?": GeoAPIDépartement;
   /**
    * Indiquez l'activité principale relative à votre projet.
@@ -67,9 +67,7 @@ export interface DossierDemarcheNumerique88444 {
   "Restauration, démolition de bâtiments, ouvrages d'art - Votre demande concerne :":
     | "Destruction de nids d'Hirondelles"
     | "Autre";
-  "Transport ferroviaire ou électrique - Votre demande concerne :":
-    | "Destruction de nids de Cigognes"
-    | "Autre";
+  "Transport ferroviaire ou électrique - Votre demande concerne :": "Destruction de nids de Cigognes" | "Autre";
   "Avez-vous réalisé un état des lieux écologique complet ?": boolean;
   /**
    * L’aire d'influence s’appuie sur les éléments physiques qui peuvent délimiter naturellement le territoire (lisière, cours d’eau, urbanisation, route, barrage...) et permettre d’identifier les corridors écologiques ainsi que la fonctionnalité des habitats d’espèces.
@@ -115,10 +113,7 @@ export interface DossierDemarcheNumerique88444 {
     | "Oui"
     | "Non"
     | "Ne sait pas encore";
-  "À quelle procédure le projet est-il soumis ?": (
-    | "Autorisation ICPE"
-    | "Autorisation loi sur l'eau"
-  )[];
+  "À quelle procédure le projet est-il soumis ?": ("Autorisation ICPE" | "Autorisation loi sur l'eau" | "Autre")[];
   /**
    * Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes
    */
@@ -247,30 +242,5 @@ export interface DossierDemarcheNumerique88444 {
   "NE PAS MODIFIER - Données techniques associées à votre dossier": string;
 }
 
-export interface AnnotationsPriveesDemarcheNumerique88444 {
-  "DDEP nécessaire ?": "Oui" | "Non" | "A déterminer";
-  "Enjeu écologique": boolean;
-  "Enjeu politique": boolean;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Date de réception DDEP": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Date d'envoi de la dernière contribution en lien avec l'instruction DDEP": Date;
-  "Autres documents relatifs au dossier": ChampDSPieceJustificative;
 
-  "Saisine de l'instructeur": ChampDSPieceJustificative;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Date saisine CSRPN": Date;
-  /**
-   * Pour les dossiers historiques en cours de saisie dans DS
-   */
-  "Date saisine CNPN": Date;
-
-  "Date de début de la consultation du public ou enquête publique": Date;
-  "Date de fin de la consultation du public ou enquête publique": Date;
-}
+export interface AnnotationsPriveesDemarcheNumerique88444 {}
