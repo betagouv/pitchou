@@ -47,6 +47,12 @@ export const load: PageServerLoad = async () => {
       detail: "Apprentissages, déploiement et point produit",
       icon: "fr-icon-file-text-line",
     },
+    {
+      href: privateEnv.URL_STAGING,
+      title: "Staging",
+      detail: "L'environnement de test de Pitchou",
+      icon: "fr-icon-test-tube-line",
+    },
   ];
 
   const links: DashboardLink[] = candidates.filter((link): link is DashboardLink =>
