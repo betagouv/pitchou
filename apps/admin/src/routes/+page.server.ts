@@ -18,6 +18,12 @@ export const load: PageServerLoad = async () => {
       icon: "fr-icon-home-4-line",
     },
     {
+      href: privateEnv.URL_STAGING,
+      title: "Pitchou Staging",
+      detail: "L'environnement de test de Pitchou",
+      icon: "fr-icon-test-tube-line",
+    },
+    {
       href: privateEnv.URL_VISIO,
       title: "Visio",
       detail: "Salle de visioconférence de l'équipe",
@@ -46,12 +52,6 @@ export const load: PageServerLoad = async () => {
       title: "Pad rituel",
       detail: "Apprentissages, déploiement et point produit",
       icon: "fr-icon-file-text-line",
-    },
-    {
-      href: privateEnv.URL_STAGING,
-      title: "Staging",
-      detail: "L'environnement de test de Pitchou",
-      icon: "fr-icon-test-tube-line",
     },
   ];
 
