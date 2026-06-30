@@ -1,4 +1,5 @@
 import { fail, redirect } from "@sveltejs/kit";
+import { dev } from "$app/environment";
 
 import { isAdminEmail } from "@pitchou/server/admin.ts";
 import { createLoginCode, verifyLoginCode } from "@pitchou/server/login-code.ts";
@@ -39,7 +40,12 @@ export const actions: Actions = {
     if (isAdminEmail(email)) {
       try {
         const code = await createLoginCode(email);
-        await sendLoginCodeEmail(email, code);
+        if (dev) {
+          // In dev, skip the email and print the code to the terminal instead.
+          console.log(`[dev] login code for ${email}: ${code}`);
+        } else {
+          await sendLoginCodeEmail(email, code);
+        }
       } catch (err) {
         console.error("Failed to send login code", err);
         return fail(502, {
