@@ -22,7 +22,7 @@ import {
   SEED_PRESCRIPTIONS,
   SEED_CONTRÔLES,
   SEED_ENTREPRISES,
-  SEED_SUIVIS_DOSSIER,
+  SEED_DOSSIERS_SUIVIS_PAR_DEV,
   SEED_ESPÈCES_IMPACTÉES,
 } from "../fixtures/dossiers.ts";
 import { generatePlaceholderPdf } from "../fixtures/placeholder-pdf.ts";
@@ -287,25 +287,17 @@ export async function seed(knex: Knex) {
       }
     }
 
-    // Step 7 — personnes following a dossier ("personnes qui suivent ce dossier")
-    for (const { dossier: dsNumber, suiveurs } of SEED_SUIVIS_DOSSIER) {
-      const dossierId = dossierIdMap[dsNumber];
-      if (!dossierId) {
-        console.warn(`  ⚠ suivi dossier — dossier DS ${dsNumber} non résolu`);
-        continue;
-      }
-
-      for (const { email, nom, prénoms } of suiveurs) {
-        let suiveur = await transaction("personne").where({ email }).first();
-        if (!suiveur) {
-          const [inserted] = await transaction("personne")
-            .insert({ email, nom, prénoms })
-            .returning("id");
-          suiveur = inserted;
+    // Step 7 — the dev/seed user follows some dossiers ("personnes qui suivent ce dossier")
+    if (person) {
+      for (const dsNumber of SEED_DOSSIERS_SUIVIS_PAR_DEV) {
+        const dossierId = dossierIdMap[dsNumber];
+        if (!dossierId) {
+          console.warn(`  ⚠ suivi dossier — dossier DS ${dsNumber} non résolu`);
+          continue;
         }
 
         await transaction("arête_personne_suit_dossier")
-          .insert({ personne: suiveur.id, dossier: dossierId })
+          .insert({ personne: person.id, dossier: dossierId })
           .onConflict(["personne", "dossier"])
           .ignore();
       }
