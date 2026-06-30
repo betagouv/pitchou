@@ -12,6 +12,19 @@
   const step = $derived(form?.step ?? "email");
   const email = $derived(form?.email ?? "");
   const redirectTo = $derived(form?.redirectTo ?? data.redirectTo);
+
+  // Track submissions so we can disable the button and show a spinner while the
+  // server processes the request (sending the code can take a few seconds).
+  let requestingCode = $state(false);
+  let verifyingCode = $state(false);
+
+  const submitWhile = (setBusy: (value: boolean) => void) => () => {
+    setBusy(true);
+    return async ({ update }: { update: () => Promise<void> }) => {
+      await update();
+      setBusy(false);
+    };
+  };
 </script>
 
 <svelte:head>
@@ -44,10 +57,19 @@
   {/if}
 
   {#if step === "code"}
-    <form class="email-form" method="POST" action="?/verifyCode" use:enhance>
+    <form
+      class="email-form"
+      method="POST"
+      action="?/verifyCode"
+      use:enhance={submitWhile((value) => (verifyingCode = value))}
+    >
       <input type="hidden" name="email" value={email} />
       <input type="hidden" name="redirectTo" value={redirectTo} />
       <p class="fr-mb-1w">Un code de connexion a été envoyé à <strong>{email}</strong>.</p>
+      <p class="fr-hint-text fr-mb-2w">
+        La réception du code peut prendre quelques minutes. Pensez à vérifier vos courriers
+        indésirables.
+      </p>
       <div class="fr-input-group">
         <label class="fr-label" for="code">Code de connexion</label>
         <input
@@ -61,7 +83,14 @@
           required
         />
       </div>
-      <button class="fr-btn fr-mt-2w" type="submit">Se connecter</button>
+      <button class="fr-btn fr-mt-2w" type="submit" disabled={verifyingCode}>
+        {#if verifyingCode}
+          <span class="spinner" aria-hidden="true"></span>
+          Connexion…
+        {:else}
+          Se connecter
+        {/if}
+      </button>
       <p class="fr-mt-2w">
         <a href="/auth/login?redirectTo={encodeURIComponent(redirectTo)}"
           >Utiliser une autre adresse</a
@@ -69,7 +98,12 @@
       </p>
     </form>
   {:else}
-    <form class="email-form" method="POST" action="?/requestCode" use:enhance>
+    <form
+      class="email-form"
+      method="POST"
+      action="?/requestCode"
+      use:enhance={submitWhile((value) => (requestingCode = value))}
+    >
       <input type="hidden" name="redirectTo" value={redirectTo} />
       <div class="fr-input-group">
         <label class="fr-label" for="email">Se connecter par email</label>
@@ -81,9 +115,17 @@
           autocomplete="email"
           value={email}
           required
+          disabled={requestingCode}
         />
       </div>
-      <button class="fr-btn fr-mt-2w" type="submit">Recevoir un code</button>
+      <button class="fr-btn fr-mt-2w" type="submit" disabled={requestingCode}>
+        {#if requestingCode}
+          <span class="spinner" aria-hidden="true"></span>
+          Envoi en cours…
+        {:else}
+          Recevoir un code
+        {/if}
+      </button>
     </form>
   {/if}
 </div>
@@ -120,6 +162,26 @@
     width: 100%;
     max-width: 24rem;
     text-align: left;
+  }
+
+  // Inline spinner shown inside a submit button while its action is in flight.
+  // `currentColor` keeps it in step with the button's text colour.
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    vertical-align: -0.15em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   // Official ProConnect button styling (see ProConnect documentation).
