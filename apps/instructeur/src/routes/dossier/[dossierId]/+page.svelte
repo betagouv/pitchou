@@ -1,7 +1,7 @@
 <script lang="ts">
   import { store } from "$lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
 
   import type { PageProps } from "./$types";
 

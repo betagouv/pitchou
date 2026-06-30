@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
 
   import type { NiveauAARRI, UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import {
     parseUtilisateursQuery,

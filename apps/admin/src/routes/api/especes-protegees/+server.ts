@@ -1,9 +1,8 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireAdmin } from "$lib/server/auth.ts";
 import { getEspecesProtegees } from "@pitchou/server/especeProtegee.ts";
 
-export const GET: RequestHandler = async ({ url }) => {
-  await requireAdmin(url);
+// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+export const GET: RequestHandler = async () => {
   return json(await getEspecesProtegees());
 };

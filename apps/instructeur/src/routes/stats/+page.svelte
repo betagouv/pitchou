@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import StatsContenu from "./StatsContenu.svelte";
   import IndicateursAARRI from "./IndicateursAARRI.svelte";
   import { chargerStats } from "$lib/stats/stats.ts";

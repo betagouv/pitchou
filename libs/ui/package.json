@@ -10,6 +10,11 @@
       "default": "./src/*"
     }
   },
+  "dependencies": {
+    "@pitchou/common": "workspace:*",
+    "@pitchou/types": "workspace:*",
+    "clsx": "^2.1.1"
+  },
   "peerDependencies": {
     "svelte": "^5.0.0"
   },
