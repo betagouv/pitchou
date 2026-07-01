@@ -29,11 +29,16 @@ type SeedDossier = Omit<
   | "déposant"
   | "demandeur_personne_physique"
   | "demandeur_personne_morale"
+  | "representative"
   | "espèces_impactées"
 > & {
   groupe_instructeur: string;
   /** SIRET de l'entreprise demandeuse (personne morale). L'entreprise doit figurer dans SEED_ENTREPRISES. */
   demandeur_personne_morale?: string;
+  /** Email of the personne physique demandeur. The personne must be listed in SEED_PERSONNES. */
+  demandeur_personne_physique_email?: string;
+  /** Email of the representative (personne morale). The personne must be listed in SEED_PERSONNES. */
+  representative_email?: string;
 };
 
 type SeedAvisExpert = Omit<
@@ -76,6 +81,33 @@ type SeedEntreprise = {
   siret: string;
   raison_sociale: string;
   adresse: string | null;
+  siren?: string | null;
+  legal_form?: string | null;
+  naf_code?: string | null;
+  naf_label?: string | null;
+  /** ISO date string ("YYYY-MM-DD"). */
+  creation_date?: string | null;
+  /** Raw Démarche Numérique value: "Actif" or "Ferme". */
+  admin_status?: string | null;
+  /** Headcount range label, e.g. "50 à 99 salariés". */
+  headcount?: string | null;
+  /** Share capital in euros, as a string. */
+  share_capital?: string | null;
+  insee_code?: string | null;
+  postal_code?: string | null;
+  department?: string | null;
+  region?: string | null;
+};
+
+// A personne used as a demandeur personne physique or as a representative of a personne morale.
+// Resolved by email at seed time. Inserted before the dossiers that reference it.
+type SeedPersonne = {
+  nom: string;
+  prénoms: string;
+  email: string;
+  address?: string | null;
+  phone?: string | null;
+  role?: string | null;
 };
 
 // One impacted-species line, used to build the "espèces impactées" ODS file.
@@ -111,6 +143,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000001",
     groupe_instructeur: "DREAL BRETAGNE",
+    demandeur_personne_physique_email: "yannick.tanguy@example.org",
     date_dépôt: new Date("2022-09-14T08:30:00+00:00"),
     départements: ["29"],
     communes: [
@@ -169,6 +202,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000002",
     groupe_instructeur: "DREAL Occitanie",
+    demandeur_personne_physique_email: "soizic.rieux@example.org",
     date_dépôt: new Date("2024-03-18T10:15:00+00:00"),
     départements: ["34"],
     communes: [{ name: "Montagnac", code: "34163", postalCode: "34530" }],
@@ -641,9 +675,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Demandeur personne morale, espèces impactées, avis CNPN, arrêté + contrôle.
   // -------------------------------------------------------------------------
   {
-    number_demarches_simplifiées: "31496628",
+    number_demarches_simplifiées: "99000010",
     groupe_instructeur: "Dév Pitchou",
     demandeur_personne_morale: "88800620200020",
+    representative_email: "katell.legoff@echappee-belle.example",
     date_dépôt: new Date("2026-05-26T08:00:00+00:00"),
     départements: ["22"],
     communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
@@ -694,9 +729,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Accompagnement amont (après un aller-retour Instruction/Contrôle)
   // -------------------------------------------------------------------------
   {
-    number_demarches_simplifiées: "31113417",
+    number_demarches_simplifiées: "99000011",
     groupe_instructeur: "Dév Pitchou",
     demandeur_personne_morale: "88800620200020",
+    representative_email: "katell.legoff@echappee-belle.example",
     date_dépôt: new Date("2026-05-05T08:00:00+00:00"),
     départements: ["99", "35", "22"],
     communes: null,
@@ -751,11 +787,56 @@ export const SEED_DOSSIERS: SeedDossier[] = [
 // ---------------------------------------------------------------------------
 
 export const SEED_ENTREPRISES: SeedEntreprise[] = [
-  // D10 — Aménagement de lotissement
+  // D10 & D11 — demandeur personne morale
   {
     siret: "88800620200020",
     raison_sociale: "L'ECHAPPEE BELLE",
-    adresse: null,
+    siren: "888006202",
+    legal_form: "SAS, société par actions simplifiée",
+    naf_code: "41.10A",
+    naf_label: "Promotion immobilière de logements",
+    creation_date: "2020-06-15",
+    admin_status: "Actif",
+    headcount: "50 à 99 salariés",
+    share_capital: "50000",
+    adresse: "12 rue des Ajoncs\n22440 Ploufragan",
+    insee_code: "22215",
+    postal_code: "22440",
+    department: "Côtes-d'Armor",
+    region: "Bretagne",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Personnes (demandeurs personne physique & representatives of personne morale)
+// ---------------------------------------------------------------------------
+
+export const SEED_PERSONNES: SeedPersonne[] = [
+  // Representative of L'ECHAPPEE BELLE (D10 & D11)
+  {
+    nom: "Le Goff",
+    prénoms: "Katell",
+    email: "katell.legoff@echappee-belle.example",
+    phone: "02 96 78 12 34",
+    role: "Directrice de projet",
+  },
+  // Personne physique demandeur — D1 (Parc éolien des Monts d'Arrée)
+  {
+    nom: "Tanguy",
+    prénoms: "Yannick",
+    email: "yannick.tanguy@example.org",
+    address: "3 venelle du Menhir\n29190 Brasparts",
+    phone: "06 12 34 56 78",
+    role: "Professeur émérite des universités",
+  },
+  // Personne physique demandeur — D2
+  {
+    nom: "Rieux",
+    prénoms: "Soizic",
+    email: "soizic.rieux@example.org",
+    address: "18 rue de la Fontaine\n35000 Rennes",
+    phone: "06 98 76 54 32",
+    role: "Écologue indépendante",
   },
 ];
 
@@ -764,8 +845,8 @@ export const SEED_ENTREPRISES: SeedEntreprise[] = [
 // ---------------------------------------------------------------------------
 
 export const SEED_DOSSIERS_SUIVIS_PAR_DEV: string[] = [
-  "31496628", // D10 — Aménagement de lotissement
-  "31113417", // D11 — Agrandissement pistes cyclables Rennes-Dinan
+  "99000010", // D10 — Aménagement de lotissement
+  "99000011", // D11 — Agrandissement pistes cyclables Rennes-Dinan
 ];
 
 // ---------------------------------------------------------------------------
@@ -777,7 +858,7 @@ export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
   // Hirondelle rousseline (CNPN, oiseau) impacted twice; Grenouille des champs
   // (ministérielle, faune non-oiseau) impacted once.
   {
-    dossier: "31496628",
+    dossier: "99000010",
     nom_fichier: "especes-impactees.ods",
     lignes: [
       // Dégradation/destruction d'aires de repos/reproduction (P-4-2)
@@ -805,7 +886,7 @@ export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
   },
   // D11 — Agrandissement pistes cyclables Rennes-Dinan
   {
-    dossier: "31113417",
+    dossier: "99000011",
     nom_fichier: "especes-impactees.ods",
     lignes: [
       // Dégradation/destruction d'aires de repos/reproduction, oiseau (P-4-2)
@@ -1024,21 +1105,21 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D11 – pistes cyclables Rennes-Dinan → Instruction → Contrôle → Accompagnement amont
   {
-    dossier: "31113417",
+    dossier: "99000011",
     phase: "Instruction",
     horodatage: new Date("2026-05-05T10:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
     DS_motivation: null,
   },
   {
-    dossier: "31113417",
+    dossier: "99000011",
     phase: "Contrôle",
     horodatage: new Date("2026-05-05T11:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
     DS_motivation: null,
   },
   {
-    dossier: "31113417",
+    dossier: "99000011",
     phase: "Accompagnement amont",
     horodatage: new Date("2026-05-05T12:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
@@ -1073,7 +1154,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D10 – aménagement lotissement – CNPN favorable
   {
     id: "ae000003-0000-4000-a000-000000000003",
-    dossier: "31496628",
+    dossier: "99000010",
     expert: "CNPN",
     date_saisine: new Date("2026-05-26"),
     avis: "Favorable",
@@ -1082,7 +1163,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D11 – pistes cyclables Rennes-Dinan – CSRPN favorable, avis non daté
   {
     id: "ae000004-0000-4000-a000-000000000004",
-    dossier: "31113417",
+    dossier: "99000011",
     expert: "CSRPN",
     date_saisine: new Date("2026-05-05"),
     avis: "Favorable",
@@ -1126,7 +1207,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D10 – aménagement lotissement – arrêté dérogation
   {
     id: "da000004-0000-4000-a000-000000000004",
-    dossier: "31496628",
+    dossier: "99000010",
     numéro: "987654321",
     type: "Arrêté dérogation",
     date_signature: new Date("2026-05-26"),
@@ -1136,7 +1217,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D11 – pistes cyclables Rennes-Dinan – arrêté dérogation (sans prescription)
   {
     id: "da000005-0000-4000-a000-000000000005",
-    dossier: "31113417",
+    dossier: "99000011",
     numéro: "987654",
     type: "Arrêté dérogation",
     date_signature: new Date("2026-05-05"),
