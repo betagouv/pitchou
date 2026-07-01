@@ -9,6 +9,7 @@
  */
 
 import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
+import type { PorteurDeProjet } from "@pitchou/types/PorteurDeProjet.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DCisionAdministrativeInitializer } from "@pitchou/types/database/public/DécisionAdministrative.ts";
 import type { PrescriptionInitializer } from "@pitchou/types/database/public/Prescription.ts";
@@ -29,11 +30,14 @@ type SeedDossier = Omit<
   | "déposant"
   | "demandeur_personne_physique"
   | "demandeur_personne_morale"
+  | "porteur_de_projet"
   | "espèces_impactées"
 > & {
   groupe_instructeur: string;
   /** SIRET de l'entreprise demandeuse (personne morale). L'entreprise doit figurer dans SEED_ENTREPRISES. */
   demandeur_personne_morale?: string;
+  /** Porteur de projet (colonne JSON `porteur_de_projet`) affiché dans l'entête du dossier. */
+  porteur_de_projet?: PorteurDeProjet;
 };
 
 type SeedAvisExpert = Omit<
@@ -111,6 +115,17 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000001",
     groupe_instructeur: "DREAL BRETAGNE",
+    depose_par_un_tiers: true,
+    porteur_de_projet: {
+      type: "personne morale",
+      siret: "88800620200020",
+      adresse: "12 rue des Landes\n29190 Brasparts",
+      nom_representant: "MARTIN",
+      prenom_representant: "Claire",
+      qualite_representant: "Directrice de projet",
+      telephone: "02 98 00 00 01",
+      email: "claire.martin@echappee-belle.fr",
+    },
     date_dépôt: new Date("2022-09-14T08:30:00+00:00"),
     départements: ["29"],
     communes: [
@@ -169,6 +184,17 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000002",
     groupe_instructeur: "DREAL Occitanie",
+    depose_par_un_tiers: false,
+    porteur_de_projet: {
+      type: "personne morale",
+      siret: "39315179400048",
+      adresse: "5 avenue du Soleil\n34530 Montagnac",
+      nom_representant: "DURAND",
+      prenom_representant: "Marc",
+      qualite_representant: "Chef de projet",
+      telephone: "04 67 00 00 02",
+      email: "m.durand@solaire-gardiole.fr",
+    },
     date_dépôt: new Date("2024-03-18T10:15:00+00:00"),
     départements: ["34"],
     communes: [{ name: "Montagnac", code: "34163", postalCode: "34530" }],
@@ -224,6 +250,16 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000003",
     groupe_instructeur: "DREAL Grand Est",
+    depose_par_un_tiers: false,
+    porteur_de_projet: {
+      type: "personne physique",
+      nom: "PETIT",
+      prenom: "Jean",
+      qualification: "Propriétaire de l'immeuble",
+      adresse: "rue de la Paix\n57100 Thionville",
+      telephone: "03 82 00 00 03",
+      email: "jean.petit@example.fr",
+    },
     date_dépôt: new Date("2024-06-03T07:55:00+00:00"),
     départements: ["57"],
     communes: [{ name: "Thionville", code: "57672", postalCode: "57100" }],

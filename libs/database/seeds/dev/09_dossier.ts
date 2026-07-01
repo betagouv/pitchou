@@ -44,6 +44,7 @@ const JSON_COLUMNS = [
   "scientifique_mode_capture",
   "scientifique_intervenants",
   "scientifique_finalité_demande",
+  "porteur_de_projet",
 ] as const;
 
 function logJsonFields(label: string, data: Record<string, unknown>) {
