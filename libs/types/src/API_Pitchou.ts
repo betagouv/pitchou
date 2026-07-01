@@ -1,4 +1,5 @@
 import type Dossier from "./database/public/Dossier.ts";
+import type { PorteurDeProjet } from "./PorteurDeProjet.ts";
 import type { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
 import type Fichier from "./database/public/Fichier.ts";
 import type ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
@@ -120,11 +121,11 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
  */
 export type DossierComplet = Omit<
   Dossier,
-  "communes" | "départements" | "régions" | "activité_principale"
+  "communes" | "départements" | "régions" | "activité_principale" | "porteur_de_projet"
 > &
   DossierLocalisation &
   DossierPersonnesImpliquéesComplet &
-  DossierActivitéPrincipale & {
+  DossierActivitéPrincipale & { porteur_de_projet: PorteurDeProjet | null } & {
     espècesImpactées: (Pick<Fichier, "media_type" | "nom"> & { url: string }) | undefined;
   } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
     décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;

@@ -367,6 +367,10 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   // prochaine action attendue
   "prochaine_action_attendue_par",
 
+  // porteur de projet (« demandeur » DN) et information « déposé par un tiers »
+  "porteur_de_projet",
+  "depose_par_un_tiers",
+
   // déposant
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "déposant.nom as déposant_nom",

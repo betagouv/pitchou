@@ -153,8 +153,11 @@ export default interface Dossier {
   /** Indique si le dossier présente un enjeu (écologique, politique...). */
   enjeu: boolean;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution: Date | null;
+  /** Données du porteur de projet (le « demandeur » dans la nomenclature Démarche Numérique) : personne physique ou morale. */
+  porteur_de_projet: unknown | null;
+
+  /** Indique si le dossier a été déposé par un tiers (mandataire) et non par le demandeur lui-même. */
+  depose_par_un_tiers: boolean | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -311,8 +314,11 @@ export interface DossierInitializer {
    */
   enjeu?: boolean;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution?: Date | null;
+  /** Données du porteur de projet (le « demandeur » dans la nomenclature Démarche Numérique) : personne physique ou morale. */
+  porteur_de_projet?: unknown | null;
+
+  /** Indique si le dossier a été déposé par un tiers (mandataire) et non par le demandeur lui-même. */
+  depose_par_un_tiers?: boolean | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -459,6 +465,9 @@ export interface DossierMutator {
   /** Indique si le dossier présente un enjeu (écologique, politique...). */
   enjeu?: boolean;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution?: Date | null;
+  /** Données du porteur de projet (le « demandeur » dans la nomenclature Démarche Numérique) : personne physique ou morale. */
+  porteur_de_projet?: unknown | null;
+
+  /** Indique si le dossier a été déposé par un tiers (mandataire) et non par le demandeur lui-même. */
+  depose_par_un_tiers?: boolean | null;
 }
