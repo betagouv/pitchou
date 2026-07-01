@@ -1,4 +1,5 @@
 import type { DossierRésumé, DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { PorteurDeProjet } from "@pitchou/types/PorteurDeProjet.ts";
 
 export { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 export { formatDateAbsolue, formatDateRelative } from "@pitchou/common/formatDate.ts";
@@ -42,7 +43,7 @@ export function formatLocalisation({
   );
 }
 
-function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
+export function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
   const INCONNU = "(inconnu)";
 
   let { déposant_nom, déposant_prénoms } = dossier;
@@ -61,6 +62,26 @@ function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
   }
 
   return déposant_nom ? déposant_nom + " " + déposant_prénoms : déposant_prénoms;
+}
+
+export function displayPorteurDeProjet(porteur: PorteurDeProjet | null | undefined): string {
+  const INCONNU = "(inconnu)";
+  if (!porteur) return INCONNU;
+
+  if (porteur.type === "personne morale") {
+    const représentant = [porteur.prenom_representant, porteur.nom_representant]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    if (représentant && porteur.siret) return `${représentant} (SIRET ${porteur.siret})`;
+    if (représentant) return représentant;
+    if (porteur.siret) return `SIRET ${porteur.siret}`;
+    return INCONNU;
+  }
+
+  const nomComplet = [porteur.prenom, porteur.nom].filter(Boolean).join(" ").trim();
+  return nomComplet || porteur.email || INCONNU;
 }
 
 export function formatPorteurDeProjet(dossier: DossierComplet | DossierRésumé): string {

@@ -1,6 +1,10 @@
 <script lang="ts">
   import { afterNavigate, goto } from "$app/navigation";
-  import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
+  import {
+    formatLocalisation,
+    displayPorteurDeProjet,
+    formatDéposant,
+  } from "$lib/dossier/affichageDossier.ts";
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
 
@@ -70,12 +74,24 @@
       </div>
       <div>
         <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
-        {#if dossier.demandeur_personne_physique_email || dossier.déposant_email}
-          <a href={`mailto:${dossier.demandeur_personne_physique_email || dossier.déposant_email}`}>
-            {formatPorteurDeProjet(dossier)}
+        Personne qui porte le projet&nbsp;:&nbsp;
+        {#if dossier.porteur_de_projet?.email}
+          <a href={`mailto:${dossier.porteur_de_projet.email}`}>
+            {displayPorteurDeProjet(dossier.porteur_de_projet)}
           </a>
         {:else}
-          {formatPorteurDeProjet(dossier)}
+          {displayPorteurDeProjet(dossier.porteur_de_projet)}
+        {/if}
+      </div>
+      <div>
+        <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+        Personne qui dépose le dossier&nbsp;:&nbsp;
+        {#if dossier.déposant_email}
+          <a href={`mailto:${dossier.déposant_email}`}>
+            {formatDéposant(dossier)}
+          </a>
+        {:else}
+          {formatDéposant(dossier)}
         {/if}
       </div>
       <div>
