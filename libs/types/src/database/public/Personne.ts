@@ -19,6 +19,12 @@ export default interface Personne {
 
   /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
   code_accès: string | null;
+
+  address: string | null;
+
+  phone: string | null;
+
+  role: string | null;
 }
 
 /** Represents the initializer for the table public.personne */
@@ -37,6 +43,12 @@ export interface PersonneInitializer {
 
   /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
   code_accès?: string | null;
+
+  address?: string | null;
+
+  phone?: string | null;
+
+  role?: string | null;
 }
 
 /** Represents the mutator for the table public.personne */
@@ -54,4 +66,10 @@ export interface PersonneMutator {
 
   /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
   code_accès?: string | null;
+
+  address?: string | null;
+
+  phone?: string | null;
+
+  role?: string | null;
 }

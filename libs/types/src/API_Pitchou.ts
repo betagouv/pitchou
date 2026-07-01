@@ -19,7 +19,30 @@ type DossierPersonnesImpliquéesRésumé = {
 type DossierPersonnesImpliquéesComplet = DossierPersonnesImpliquéesRésumé & {
   demandeur_adresse: string;
   déposant_email: string | null;
+
   demandeur_personne_physique_email: string | null;
+  demandeur_personne_physique_address: string | null;
+  demandeur_personne_physique_phone: string | null;
+  demandeur_personne_physique_role: string | null;
+
+  demandeur_personne_morale_siren: string | null;
+  demandeur_personne_morale_legal_form: string | null;
+  demandeur_personne_morale_naf_code: string | null;
+  demandeur_personne_morale_naf_label: string | null;
+  demandeur_personne_morale_creation_date: string | null;
+  demandeur_personne_morale_admin_status: string | null;
+  demandeur_personne_morale_headcount: string | null;
+  demandeur_personne_morale_share_capital: string | null;
+  demandeur_personne_morale_insee_code: string | null;
+  demandeur_personne_morale_postal_code: string | null;
+  demandeur_personne_morale_department: string | null;
+  demandeur_personne_morale_region: string | null;
+
+  representative_nom: string | null;
+  representative_prénoms: string | null;
+  representative_email: string | null;
+  representative_phone: string | null;
+  representative_role: string | null;
 };
 
 /**
