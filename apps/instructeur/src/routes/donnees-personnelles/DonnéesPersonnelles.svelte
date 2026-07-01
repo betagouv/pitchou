@@ -146,10 +146,14 @@
     vos données personnelles.
   </p>
 
-  <h2>Délégué à la protection des données (DPO)</h2>
+  <h2>Délégué à la protection des données</h2>
+  <p>Philippe Mazenc</p>
+  <p>Fonction du délégué à la protection des données : Directeur général</p>
   <p>
-    Au sein de l'équipe Pitchou, <a href="mailto:david.bruant@beta.gouv.fr">David Bruant</a> joue le rôle
-    de DPO. Vous pouvez le contacter pour toute demande liée aux données personnelles stockées et traitées
-    dans Pitchou.
+    Email :
+    <a href="mailto:dpd.daj.sg@developpement-durable.gouv.fr"
+      >dpd.daj.sg@developpement-durable.gouv.fr</a
+    >
   </p>
+  <p>Téléphone : 01 40 81 21 22</p>
 </div>
