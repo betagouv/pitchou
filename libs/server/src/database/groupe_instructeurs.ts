@@ -231,6 +231,45 @@ async function supprimerPersonnesDansGroupeParEmail(
     .delete();
 }
 
+/**
+ * Enforces the invariant "you can't follow a dossier you don't have access to":
+ * for the given démarche, deletes every follow (arête_personne_suit_dossier) whose
+ * personne no longer has an access path to the dossier through
+ * cap_dossier → groupe_instructeurs → dossier.
+ */
+export async function supprimerSuivisDevenusInaccessibles(
+  demarcheNumber: number,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
+  await databaseConnection("arête_personne_suit_dossier")
+    .whereIn(
+      "dossier",
+      databaseConnection("dossier").select("id").where({ numéro_démarche: demarcheNumber }),
+    )
+    // keep only follows for which the personne has NO remaining access path to the dossier
+    .whereNotExists(function () {
+      this.select("personne.id")
+        .from("personne")
+        .join("cap_dossier", "cap_dossier.personne_cap", "personne.code_accès")
+        .join(
+          "arête_cap_dossier__groupe_instructeurs",
+          "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+          "cap_dossier.cap",
+        )
+        .join(
+          "arête_groupe_instructeurs__dossier",
+          "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+          "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+        )
+        .where("personne.id", databaseConnection.ref("arête_personne_suit_dossier.personne"))
+        .where(
+          "arête_groupe_instructeurs__dossier.dossier",
+          databaseConnection.ref("arête_personne_suit_dossier.dossier"),
+        );
+    })
+    .delete();
+}
+
 async function créerInstructeurCapsEtCompléterInstructeurIds(
   instructeurEmailToId: Map<API_DS.Instructeur["email"], API_DS.Instructeur["id"]>,
   demarcheNumber: number,
@@ -483,10 +522,12 @@ export async function synchroniserGroupesInstructeurs(
   //miseÀJourEmailsDansGroupe.catch(err => console.error("miseÀJourEmailsDansGroupe", err))
   //complétionInstructeurIds.catch(err => console.error("complétionInstructeurIds", err))
 
-  return Promise.all([
+  await Promise.all([
     groupesInstructeursManquantsEnBDDCréés,
     groupesInstructeursEnTropEnBDDSupprimés,
     miseÀJourEmailsDansGroupe,
     complétionInstructeurIds,
   ]);
+
+  return await supprimerSuivisDevenusInaccessibles(demarcheNumber, databaseConnection);
 }
