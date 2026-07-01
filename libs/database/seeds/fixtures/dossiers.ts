@@ -258,6 +258,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000003",
     groupe_instructeur: "DREAL Grand Est",
+    demandeur_personne_physique_email: "herve.klein@example.org",
     date_dépôt: new Date("2024-06-03T07:55:00+00:00"),
     départements: ["57"],
     communes: [{ name: "Thionville", code: "57672", postalCode: "57100" }],
@@ -313,6 +314,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000004",
     groupe_instructeur: "DREAL Auvergne-Rhône-Alpes",
+    demandeur_personne_morale: "42391560100027",
+    representative_email: "thomas.delattre@chauve-souris-auvergne.example",
     date_dépôt: new Date("2024-11-07T14:20:00+00:00"),
     départements: ["63"],
     communes: [
@@ -390,6 +393,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000005",
     groupe_instructeur: "DREAL Pays de la loire",
+    demandeur_personne_morale: "78616022400031",
+    representative_email: "sandrine.bureau@lpo-paysdelaloire.example",
     date_dépôt: new Date("2025-02-10T09:05:00+00:00"),
     départements: ["44", "49", "53", "72", "85"],
     communes: null,
@@ -455,6 +460,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000006",
     groupe_instructeur: "DREAL Normandie",
+    demandeur_personne_morale: "22760540400019",
+    representative_email: "elodie.vasseur@seinemaritime.example",
     date_dépôt: new Date("2023-05-22T13:45:00+00:00"),
     départements: ["76"],
     communes: [
@@ -513,6 +520,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000007",
     groupe_instructeur: "DREAL BFC",
+    demandeur_personne_morale: "39284715600014",
+    representative_email: "bernard.chevallier@carrieres-nuiton.example",
     date_dépôt: new Date("2023-11-28T11:10:00+00:00"),
     départements: ["21"],
     communes: [{ name: "Nuits-Saint-Georges", code: "21458", postalCode: "21700" }],
@@ -566,6 +575,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000008",
     groupe_instructeur: "DRIAT IDF",
+    demandeur_personne_morale: "21770379200013",
+    representative_email: "jeanmarc.aubry@mairie-provins.example",
     date_dépôt: new Date("2023-09-11T08:40:00+00:00"),
     départements: ["77"],
     communes: [{ name: "Provins", code: "77379", postalCode: "77160" }],
@@ -621,6 +632,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000009",
     groupe_instructeur: "DGTM Guyane",
+    demandeur_personne_morale: "21973304600011",
+    representative_email: "ml.adelaide@ville-kourou.example",
     date_dépôt: new Date("2024-07-30T15:00:00+00:00"),
     départements: ["973"],
     communes: [{ name: "Kourou", code: "97304", postalCode: "97310" }],
@@ -805,6 +818,115 @@ export const SEED_ENTREPRISES: SeedEntreprise[] = [
     department: "Côtes-d'Armor",
     region: "Bretagne",
   },
+  // D4 — inventaire chiroptères (association)
+  {
+    siret: "42391560100027",
+    raison_sociale: "CHAUVE-SOURIS AUVERGNE",
+    siren: "423915601",
+    legal_form: "Association déclarée",
+    naf_code: "94.99Z",
+    naf_label: "Autres organisations fonctionnant par adhésion volontaire",
+    creation_date: "1999-03-12",
+    admin_status: "Actif",
+    headcount: "3 à 5 salariés",
+    share_capital: null,
+    adresse: "Maison des associations\n2 bis rue du Clos Perret\n63100 Clermont-Ferrand",
+    insee_code: "63113",
+    postal_code: "63100",
+    department: "Puy-de-Dôme",
+    region: "Auvergne-Rhône-Alpes",
+  },
+  // D5 — centre de soins faune sauvage (association)
+  {
+    siret: "78616022400031",
+    raison_sociale: "LIGUE POUR LA PROTECTION DES OISEAUX PAYS DE LA LOIRE",
+    siren: "786160224",
+    legal_form: "Association déclarée",
+    naf_code: "94.99Z",
+    naf_label: "Autres organisations fonctionnant par adhésion volontaire",
+    creation_date: "1985-09-01",
+    admin_status: "Actif",
+    headcount: "20 à 49 salariés",
+    share_capital: null,
+    adresse: "10 rue de l'Église\n44830 Bouaye",
+    insee_code: "44023",
+    postal_code: "44830",
+    department: "Loire-Atlantique",
+    region: "Pays de la Loire",
+  },
+  // D6 — déviation RD 73 (collectivité)
+  {
+    siret: "22760540400019",
+    raison_sociale: "DEPARTEMENT DE LA SEINE-MARITIME",
+    siren: "227605404",
+    legal_form: "Département",
+    naf_code: "84.11Z",
+    naf_label: "Administration publique générale",
+    creation_date: "1968-01-09",
+    admin_status: "Actif",
+    headcount: "5 000 à 9 999 salariés",
+    share_capital: null,
+    adresse: "Quai Jean Moulin\nCS 56101\n76101 Rouen Cedex",
+    insee_code: "76540",
+    postal_code: "76101",
+    department: "Seine-Maritime",
+    region: "Normandie",
+  },
+  // D7 — extension carrière (SARL)
+  {
+    siret: "39284715600014",
+    raison_sociale: "CARRIERES DU NUITON",
+    siren: "392847156",
+    legal_form: "SARL, société à responsabilité limitée",
+    naf_code: "08.11Z",
+    naf_label:
+      "Extraction de pierres ornementales et de construction, de calcaire industriel, de gypse, de craie et d'ardoise",
+    creation_date: "1994-04-22",
+    admin_status: "Actif",
+    headcount: "10 à 19 salariés",
+    share_capital: "150000",
+    adresse: "Route de Chaux\n21700 Nuits-Saint-Georges",
+    insee_code: "21458",
+    postal_code: "21700",
+    department: "Côte-d'Or",
+    region: "Bourgogne-Franche-Comté",
+  },
+  // D8 — réhabilitation clocher (collectivité)
+  {
+    siret: "21770379200013",
+    raison_sociale: "COMMUNE DE PROVINS",
+    siren: "217703792",
+    legal_form: "Commune et commune nouvelle",
+    naf_code: "84.11Z",
+    naf_label: "Administration publique générale",
+    creation_date: "1976-01-01",
+    admin_status: "Actif",
+    headcount: "250 à 499 salariés",
+    share_capital: null,
+    adresse: "Place du Maréchal Leclerc\n77160 Provins",
+    insee_code: "77379",
+    postal_code: "77160",
+    department: "Seine-et-Marne",
+    region: "Île-de-France",
+  },
+  // D9 — aménagement des berges du Kourou (collectivité)
+  {
+    siret: "21973304600011",
+    raison_sociale: "COMMUNE DE KOUROU",
+    siren: "219733046",
+    legal_form: "Commune et commune nouvelle",
+    naf_code: "84.11Z",
+    naf_label: "Administration publique générale",
+    creation_date: "1969-01-01",
+    admin_status: "Actif",
+    headcount: "500 à 999 salariés",
+    share_capital: null,
+    adresse: "1 avenue de France\n97310 Kourou",
+    insee_code: "97304",
+    postal_code: "97310",
+    department: "Guyane",
+    region: "Guyane",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -837,6 +959,63 @@ export const SEED_PERSONNES: SeedPersonne[] = [
     address: "18 rue de la Fontaine\n35000 Rennes",
     phone: "06 98 76 54 32",
     role: "Écologue indépendante",
+  },
+  // Personne physique demandeur — D3 (rénovation de façade, Thionville)
+  {
+    nom: "Klein",
+    prénoms: "Hervé",
+    email: "herve.klein@example.org",
+    address: "24 rue de la Paix\n57100 Thionville",
+    phone: "06 45 78 90 12",
+    role: "Propriétaire de l'immeuble",
+  },
+  // Representative of CHAUVE-SOURIS AUVERGNE (D4)
+  {
+    nom: "Delattre",
+    prénoms: "Thomas",
+    email: "thomas.delattre@chauve-souris-auvergne.example",
+    phone: "04 73 89 13 46",
+    role: "Coordinateur scientifique",
+  },
+  // Representative of LPO PAYS DE LA LOIRE (D5)
+  {
+    nom: "Bureau",
+    prénoms: "Sandrine",
+    email: "sandrine.bureau@lpo-paysdelaloire.example",
+    phone: "02 51 82 04 90",
+    role: "Directrice du centre de soins",
+  },
+  // Representative of DEPARTEMENT DE LA SEINE-MARITIME (D6)
+  {
+    nom: "Vasseur",
+    prénoms: "Élodie",
+    email: "elodie.vasseur@seinemaritime.example",
+    phone: "02 35 03 55 00",
+    role: "Cheffe du service infrastructures routières",
+  },
+  // Representative of CARRIERES DU NUITON (D7)
+  {
+    nom: "Chevallier",
+    prénoms: "Bernard",
+    email: "bernard.chevallier@carrieres-nuiton.example",
+    phone: "03 80 61 12 34",
+    role: "Gérant",
+  },
+  // Representative of COMMUNE DE PROVINS (D8)
+  {
+    nom: "Aubry",
+    prénoms: "Jean-Marc",
+    email: "jeanmarc.aubry@mairie-provins.example",
+    phone: "01 64 60 20 00",
+    role: "Adjoint au maire délégué au patrimoine",
+  },
+  // Representative of COMMUNE DE KOUROU (D9)
+  {
+    nom: "Adélaïde",
+    prénoms: "Marie-Louise",
+    email: "ml.adelaide@ville-kourou.example",
+    phone: "05 94 22 30 00",
+    role: "Directrice des services techniques",
   },
 ];
 
