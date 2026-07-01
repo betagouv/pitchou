@@ -522,10 +522,12 @@ export async function synchroniserGroupesInstructeurs(
   //miseÀJourEmailsDansGroupe.catch(err => console.error("miseÀJourEmailsDansGroupe", err))
   //complétionInstructeurIds.catch(err => console.error("complétionInstructeurIds", err))
 
-  return Promise.all([
+  await Promise.all([
     groupesInstructeursManquantsEnBDDCréés,
     groupesInstructeursEnTropEnBDDSupprimés,
     miseÀJourEmailsDansGroupe,
     complétionInstructeurIds,
   ]);
+
+  return await supprimerSuivisDevenusInaccessibles(demarcheNumber, databaseConnection);
 }
