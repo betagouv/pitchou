@@ -1,7 +1,6 @@
 export type PorteurDeProjetPersonneMorale = {
   type: "personne morale";
   siret: string | null;
-  raison_sociale: string | null;
   adresse: string | null;
   nom_representant: string | null;
   prenom_representant: string | null;

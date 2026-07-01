@@ -42,7 +42,14 @@ export function getDonnéesPersonnesEntreprises88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
 ): DonnéesPersonnesEntreprisesInitializer {
-  const { demandeur, champs, nomMandataire = "", prenomMandataire = "", usager } = dossierDS;
+  const {
+    demandeur,
+    champs,
+    nomMandataire = "",
+    prenomMandataire = "",
+    usager,
+    deposeParUnTiers,
+  } = dossierDS;
 
   /**
    * Champs
@@ -83,7 +90,7 @@ export function getDonnéesPersonnesEntreprises88444(
     pitchouKeyToChampDS.get("Le demandeur est…"),
   )?.stringValue;
 
-  if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === "une personne physique") {
+  if (deposeParUnTiers) {
     déposant = {
       prénoms: prenomMandataire,
       nom: nomMandataire,
@@ -93,7 +100,9 @@ export function getDonnéesPersonnesEntreprises88444(
     déposant = {
       prénoms: demandeur.prenom,
       nom: demandeur.nom,
-      email: demandeur.email ? normalisationEmail(demandeur.email) : undefined,
+      email: demandeur.email
+        ? normalisationEmail(demandeur.email)
+        : normalisationEmail(usager.email), // usager is the logged user
     };
   }
 

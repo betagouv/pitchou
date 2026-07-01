@@ -11,6 +11,8 @@ import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-num
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
 
+import { getPorteurDeProjet88444 } from "./getPorteurDeProjet88444.ts";
+
 /**
  * Renvoie le dossier rempli des champs communs aux dossiers DS issus de la Démarche 88444 à initialiser et aux dossiers DS à modifier pour la synchronisation.
  */
@@ -372,6 +374,9 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     communes: JSON.stringify(communes),
     départements: JSON.stringify(départements),
     régions: JSON.stringify(régions),
+
+    porteur_de_projet: JSON.stringify(getPorteurDeProjet88444(dossierDS, pitchouKeyToChampDS)),
+    depose_par_un_tiers: dossierDS.deposeParUnTiers,
 
     // régime AE
     rattaché_au_régime_ae,
