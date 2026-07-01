@@ -4,6 +4,7 @@
   import DossierMessagerie from "./Dossier/DossierMessagerie.svelte";
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
   import DossierProjet from "./Dossier/DossierProjet.svelte";
+  import DossierPorteurDeProjet from "./Dossier/DossierPorteurDeProjet.svelte";
   import DossierAvis from "./Dossier/DossierAvis.svelte";
   import DossierContrôles from "./Dossier/DossierContrôles.svelte";
   import DossierGénérationDocuments from "./Dossier/DossierGénérationDocuments.svelte";
@@ -22,6 +23,7 @@
   type Onglet =
     | "instruction"
     | "projet"
+    | "porteur-de-projet"
     | "avis"
     | "controles"
     | "generation-document"
@@ -150,6 +152,22 @@
         <li role="presentation">
           <button
             type="button"
+            id="tabpanel-porteur-de-projet"
+            aria-controls="tabpanel-porteur-de-projet-panel"
+            class="fr-tabs__tab {ongletActif === 'porteur-de-projet'
+              ? 'fr-tabs__tab--selected'
+              : ''}"
+            tabindex={ongletActif === "porteur-de-projet" ? 0 : -1}
+            role="tab"
+            aria-selected={ongletActif === "porteur-de-projet"}
+            onclick={() => handleTabClick("porteur-de-projet")}
+          >
+            Porteur de projet
+          </button>
+        </li>
+        <li role="presentation">
+          <button
+            type="button"
             id="tabpanel-echanges"
             aria-controls="tabpanel-echanges-panel"
             class="fr-tabs__tab {ongletActif === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
@@ -230,6 +248,16 @@
         tabindex="0"
       >
         <DossierProjet {dossier} {espècesImpactées}></DossierProjet>
+      </div>
+      <div
+        id="tabpanel-porteur-de-projet-panel"
+        aria-labelledby="tabpanel-porteur-de-projet"
+        class="fr-tabs__panel"
+        class:fr-tabs__panel--selected={ongletActif === "porteur-de-projet"}
+        role="tabpanel"
+        tabindex="0"
+      >
+        <DossierPorteurDeProjet {dossier}></DossierPorteurDeProjet>
       </div>
       <div
         id="tabpanel-echanges-panel"
