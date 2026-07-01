@@ -11,6 +11,30 @@ export default interface Entreprise {
   raison_sociale: string | null;
 
   adresse: string | null;
+
+  siren: string | null;
+
+  legal_form: string | null;
+
+  naf_code: string | null;
+
+  naf_label: string | null;
+
+  creation_date: string | null;
+
+  admin_status: string | null;
+
+  headcount: string | null;
+
+  share_capital: string | null;
+
+  insee_code: string | null;
+
+  postal_code: string | null;
+
+  department: string | null;
+
+  region: string | null;
 }
 
 /** Represents the initializer for the table public.entreprise */
@@ -20,6 +44,30 @@ export interface EntrepriseInitializer {
   raison_sociale?: string | null;
 
   adresse?: string | null;
+
+  siren?: string | null;
+
+  legal_form?: string | null;
+
+  naf_code?: string | null;
+
+  naf_label?: string | null;
+
+  creation_date?: string | null;
+
+  admin_status?: string | null;
+
+  headcount?: string | null;
+
+  share_capital?: string | null;
+
+  insee_code?: string | null;
+
+  postal_code?: string | null;
+
+  department?: string | null;
+
+  region?: string | null;
 }
 
 /** Represents the mutator for the table public.entreprise */
@@ -29,4 +77,28 @@ export interface EntrepriseMutator {
   raison_sociale?: string | null;
 
   adresse?: string | null;
+
+  siren?: string | null;
+
+  legal_form?: string | null;
+
+  naf_code?: string | null;
+
+  naf_label?: string | null;
+
+  creation_date?: string | null;
+
+  admin_status?: string | null;
+
+  headcount?: string | null;
+
+  share_capital?: string | null;
+
+  insee_code?: string | null;
+
+  postal_code?: string | null;
+
+  department?: string | null;
+
+  region?: string | null;
 }

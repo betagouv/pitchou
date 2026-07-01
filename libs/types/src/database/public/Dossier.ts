@@ -153,8 +153,7 @@ export default interface Dossier {
   /** Indique si le dossier présente un enjeu (écologique, politique...). */
   enjeu: boolean;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution: Date | null;
+  representative: PersonneId | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -311,8 +310,7 @@ export interface DossierInitializer {
    */
   enjeu?: boolean;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution?: Date | null;
+  representative?: PersonneId | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -459,6 +457,5 @@ export interface DossierMutator {
   /** Indique si le dossier présente un enjeu (écologique, politique...). */
   enjeu?: boolean;
 
-  /** Date d'envoi de la dernière contribution */
-  historique_date_envoi_dernière_contribution?: Date | null;
+  representative?: PersonneId | null;
 }

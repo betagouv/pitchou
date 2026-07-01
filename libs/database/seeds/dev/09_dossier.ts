@@ -22,6 +22,7 @@ import {
   SEED_PRESCRIPTIONS,
   SEED_CONTRÔLES,
   SEED_ENTREPRISES,
+  SEED_PERSONNES,
   SEED_DOSSIERS_SUIVIS_PAR_DEV,
   SEED_ESPÈCES_IMPACTÉES,
 } from "../fixtures/dossiers.ts";
@@ -76,8 +77,22 @@ export async function seed(knex: Knex) {
     // Step 0 — entreprises (demandeurs personne morale), referenced by dossiers
 
     for (const entreprise of SEED_ENTREPRISES) {
-      await transaction("entreprise").insert(entreprise).onConflict("siret").ignore();
+      await transaction("entreprise").insert(entreprise).onConflict("siret").merge();
     }
+
+    // Step 0b — personnes (demandeurs personne physique & representatives), resolved by email
+
+    for (const personne of SEED_PERSONNES) {
+      await transaction("personne").insert(personne).onConflict("email").merge();
+    }
+
+    const personneRows = await transaction("personne")
+      .whereIn(
+        "email",
+        SEED_PERSONNES.map((p) => p.email),
+      )
+      .select("id", "email");
+    const personneIdByEmail = new Map<string, number>(personneRows.map((p) => [p.email, p.id]));
 
     // Step 1 — dossiers + groupe junction
 
@@ -85,7 +100,12 @@ export async function seed(knex: Knex) {
     // personneId (as string) → list of seed dossier DB ids they can see, used later for random follow
     const agentVisibleDossiers = new Map<string, number[]>();
 
-    for (const { groupe_instructeur, ...dossierData } of SEED_DOSSIERS) {
+    for (const {
+      groupe_instructeur,
+      demandeur_personne_physique_email,
+      representative_email,
+      ...dossierData
+    } of SEED_DOSSIERS) {
       const label = `dossier "${dossierData.nom}" (${dossierData.number_demarches_simplifiées})`;
       try {
         let dossier = await transaction("dossier")
@@ -94,7 +114,18 @@ export async function seed(knex: Knex) {
 
         if (!dossier) {
           const [inserted] = await transaction("dossier")
-            .insert(serializeJsonColumns({ ...dossierData, numéro_démarche: SEED_DEMARCHE_NUMBER }))
+            .insert(
+              serializeJsonColumns({
+                ...dossierData,
+                numéro_démarche: SEED_DEMARCHE_NUMBER,
+                demandeur_personne_physique: demandeur_personne_physique_email
+                  ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
+                  : null,
+                representative: representative_email
+                  ? (personneIdByEmail.get(representative_email) ?? null)
+                  : null,
+              }),
+            )
             .returning("id");
           dossier = inserted;
         }
