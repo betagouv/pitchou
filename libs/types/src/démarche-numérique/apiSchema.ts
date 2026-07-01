@@ -134,6 +134,8 @@ export interface DossierDS<Champs, Annotations> {
   // Prénom et nom de la personne qui dépose le dossier sur DS au nom du demandeur DS
   prenomMandataire: string;
   nomMandataire: string;
+  // Indique si le dossier a été déposé par un tiers (mandataire) et non par le demandeur lui-même
+  deposeParUnTiers: boolean;
   // Personne qui formule la demande dans DS
   demandeur: DemandeurDS;
   groupeInstructeur: GroupeInstructeurs;
