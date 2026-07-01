@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { déchiffrerDonnéesSupplémentairesDossiers } from "@pitchou/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
 import { isAfter } from "date-fns";
 import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+import { inseeHeadcountRangeLabel } from "./inseeHeadcountRange.ts";
 
 import type {
   DonnéesPersonnesEntreprisesInitializer,
@@ -11,7 +12,11 @@ import type {
 } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
-import type { DossierDS88444, Traitement } from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type {
+  DossierDS88444,
+  Traitement,
+  DémarchesSimpliféesAddress,
+} from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
 import type {
@@ -37,6 +42,18 @@ export type GetDonnéesPersonnesEntreprises = (
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
 ) => DonnéesPersonnesEntreprisesInitializer;
+
+/** Builds a two-line postal address string ("street\npostalCode city") from a structured DS address. */
+function formatPostalAddress(
+  address: DémarchesSimpliféesAddress | null | undefined,
+): string | undefined {
+  if (!address) {
+    return undefined;
+  }
+  const { streetAddress, postalCode, cityName } = address;
+  const secondLine = [postalCode, cityName].filter(Boolean).join(" ");
+  return [streetAddress, secondLine].filter(Boolean).join("\n") || undefined;
+}
 
 export function getDonnéesPersonnesEntreprises88444(
   dossierDS: DossierDS88444,
@@ -77,10 +94,24 @@ export function getDonnéesPersonnesEntreprises88444(
   let demandeur_personne_physique = undefined;
   /** @type {Entreprise | undefined} */
   let demandeur_personne_morale = undefined;
+  /*
+    Representative
+    Person in charge of the project within the legal entity (personne morale).
+    */
+  /** @type {PersonneInitializer | undefined} */
+  let representative = undefined;
 
   /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
   const personneMoraleOuPhysique = champById.get(
     pitchouKeyToChampDS.get("Le demandeur est…"),
+  )?.stringValue;
+
+  // Contact information, shared by the physical person and the legal entity's representative.
+  const phoneContact = champById.get(
+    pitchouKeyToChampDS.get("Numéro de téléphone de contact"),
+  )?.stringValue;
+  const emailContact = champById.get(
+    pitchouKeyToChampDS.get("Adresse mail de contact"),
   )?.stringValue;
 
   if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === "une personne physique") {
@@ -100,17 +131,19 @@ export function getDonnéesPersonnesEntreprises88444(
   if (personneMoraleOuPhysique === "une personne physique") {
     const { prenom, nom } = demandeur;
 
-    /** @type {DossierDemarcheNumerique88444['Adresse mail de contact'] | undefined} */
-    const adresseEmailDeContact = champById.get(
-      pitchouKeyToChampDS.get("Adresse mail de contact"),
-    )?.stringValue;
+    const email = emailContact || demandeur.email || déposant.email;
 
-    let email = adresseEmailDeContact || demandeur.email || déposant.email;
+    // "Adresse" is a BAN address champ: it carries a structured `address` sub-object.
+    const adresseChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
+    const role = champById.get(pitchouKeyToChampDS.get("Qualification"))?.stringValue;
 
     demandeur_personne_physique = {
       prénoms: prenom,
       nom,
       email: email ? normalisationEmail(email) : undefined,
+      address: formatPostalAddress(adresseChamp?.address),
+      phone: phoneContact || undefined,
+      role: role || undefined,
     };
   }
 
@@ -118,14 +151,51 @@ export function getDonnéesPersonnesEntreprises88444(
   if (SIRETChamp) {
     const etablissement = SIRETChamp.etablissement;
     if (etablissement) {
-      const { siret, address = {}, entreprise } = etablissement;
-      const { streetAddress, postalCode, cityName } = address;
-      const { raisonSociale } = entreprise ?? {};
+      const { siret, address, entreprise, libelleNaf, naf } = etablissement;
+      const {
+        raisonSociale,
+        siren,
+        formeJuridique,
+        dateCreation,
+        etatAdministratif,
+        capitalSocial,
+        codeEffectifEntreprise,
+      } = entreprise ?? {};
 
       demandeur_personne_morale = {
         siret,
         raison_sociale: raisonSociale,
-        adresse: `${streetAddress}\n${postalCode} ${cityName}`,
+        adresse: formatPostalAddress(address),
+        siren: siren || undefined,
+        legal_form: formeJuridique || undefined,
+        naf_code: naf || undefined,
+        naf_label: libelleNaf || undefined,
+        creation_date: dateCreation || undefined,
+        admin_status: etatAdministratif || undefined,
+        headcount: inseeHeadcountRangeLabel(codeEffectifEntreprise),
+        // capitalSocial is "-1" when unknown.
+        share_capital: capitalSocial && capitalSocial !== "-1" ? capitalSocial : undefined,
+        insee_code: address?.cityCode || undefined,
+        postal_code: address?.postalCode || undefined,
+        department: address?.departmentName || undefined,
+        region: address?.regionName || undefined,
+      };
+    }
+  }
+
+  // The representative is the contact person within the legal entity (personne morale).
+  if (personneMoraleOuPhysique === "une personne morale") {
+    const nom = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
+    const prénoms = champById.get(pitchouKeyToChampDS.get("Prénom du représentant"))?.stringValue;
+    const role = champById.get(pitchouKeyToChampDS.get("Qualité du représentant"))?.stringValue;
+
+    if (nom || prénoms || role || emailContact || phoneContact) {
+      representative = {
+        prénoms: prénoms || undefined,
+        nom: nom || undefined,
+        email: emailContact ? normalisationEmail(emailContact) : undefined,
+        phone: phoneContact || undefined,
+        role: role || undefined,
       };
     }
   }
@@ -134,6 +204,7 @@ export function getDonnéesPersonnesEntreprises88444(
     déposant,
     demandeur_personne_morale,
     demandeur_personne_physique,
+    representative,
   };
 }
 

@@ -382,6 +382,12 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_physique.email as demandeur_personne_physique_email",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_physique.address as demandeur_personne_physique_address",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_physique.phone as demandeur_personne_physique_phone",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_physique.role as demandeur_personne_physique_role",
 
   // demandeur_personne_morale
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
@@ -390,6 +396,42 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
   //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
   "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.siren as demandeur_personne_morale_siren",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.legal_form as demandeur_personne_morale_legal_form",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.naf_code as demandeur_personne_morale_naf_code",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.naf_label as demandeur_personne_morale_naf_label",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.creation_date as demandeur_personne_morale_creation_date",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.admin_status as demandeur_personne_morale_admin_status",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.headcount as demandeur_personne_morale_headcount",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.share_capital as demandeur_personne_morale_share_capital",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.insee_code as demandeur_personne_morale_insee_code",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.postal_code as demandeur_personne_morale_postal_code",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.department as demandeur_personne_morale_department",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "demandeur_personne_morale.region as demandeur_personne_morale_region",
+
+  // representative (personne en charge du projet au sein de la personne morale)
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "representative.nom as representative_nom",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "representative.prénoms as representative_prénoms",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "representative.email as representative_email",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "representative.phone as representative_phone",
+  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  "representative.role as representative_role",
 
   // annotations privées
   "ddep_nécessaire",
@@ -434,6 +476,9 @@ export function listAllDossiersComplets(
     .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
     .leftJoin("personne as demandeur_personne_physique", {
       "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
+    })
+    .leftJoin("personne as representative", {
+      "representative.id": "dossier.representative",
     })
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
@@ -495,6 +540,9 @@ export async function getDossierComplet(
     .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
     .leftJoin("personne as demandeur_personne_physique", {
       "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
+    })
+    .leftJoin("personne as representative", {
+      "representative.id": "dossier.representative",
     })
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
@@ -565,7 +613,10 @@ export async function getDossierComplet(
       prescriptions,
       contrôles,
     ]) => {
-      dossier.demandeur_adresse = dossier.demandeur_personne_morale_adresse || "";
+      dossier.demandeur_adresse =
+        dossier.demandeur_personne_morale_adresse ||
+        dossier.demandeur_personne_physique_address ||
+        "";
       delete dossier.demandeur_personne_morale_adresse;
 
       dossier.évènementsPhase = évènementsPhaseDossier;

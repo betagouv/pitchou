@@ -423,6 +423,8 @@ fragment ChampFragment on Champ {
 
 fragment PersonneMoraleFragment on PersonneMorale {
   siret
+  libelleNaf
+  naf
   address {
     ...AddressFragment
   }
@@ -431,6 +433,11 @@ fragment PersonneMoraleFragment on PersonneMorale {
     nomCommercial
     raisonSociale
     siretSiegeSocial
+    formeJuridique
+    dateCreation
+    etatAdministratif
+    capitalSocial
+    codeEffectifEntreprise
   }
   association {
     rna
@@ -469,6 +476,8 @@ fragment AddressFragment on Address {
   cityName
   cityCode
   departmentCode
+  departmentName
+  regionName
 }
 
 fragment RegionFragment on Region {
