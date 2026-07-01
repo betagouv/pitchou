@@ -227,30 +227,23 @@ const dossiersPourSynchronisation: readonly (
 const personnesInDossiersAvecEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
 const personnesInDossiersSansEmail = new Map<string, PersonneInitializer>();
 
-for (const {
-  dossier: { déposant, demandeur_personne_physique },
-} of dossiersPourSynchronisation) {
-  if (déposant) {
-    if (déposant.email) {
-      personnesInDossiersAvecEmail.set(déposant.email, déposant);
-    } else {
-      personnesInDossiersSansEmail.set(`${déposant.prénoms}|${déposant.nom}`, déposant);
-    }
+function collectPersonne(personne: PersonneInitializer | undefined) {
+  if (!personne) {
+    return;
   }
+  if (personne.email) {
+    personnesInDossiersAvecEmail.set(personne.email, personne);
+  } else {
+    personnesInDossiersSansEmail.set(`${personne.prénoms}|${personne.nom}`, personne);
+  }
+}
 
-  if (demandeur_personne_physique) {
-    if (demandeur_personne_physique.email) {
-      personnesInDossiersAvecEmail.set(
-        demandeur_personne_physique.email,
-        demandeur_personne_physique,
-      );
-    } else {
-      personnesInDossiersSansEmail.set(
-        `${demandeur_personne_physique.prénoms}|${demandeur_personne_physique.nom}`,
-        demandeur_personne_physique,
-      );
-    }
-  }
+for (const {
+  dossier: { déposant, demandeur_personne_physique, representative },
+} of dossiersPourSynchronisation) {
+  collectPersonne(déposant);
+  collectPersonne(demandeur_personne_physique);
+  collectPersonne(representative);
 }
 
 function getPersonneId(
@@ -340,6 +333,7 @@ function _remplacerPersonneEntreprise(
       déposant,
       demandeur_personne_physique,
       demandeur_personne_morale,
+      representative,
       ...autresPropriétésDossiers
     },
     ...autresDonnéesTables
@@ -351,6 +345,7 @@ function _remplacerPersonneEntreprise(
       demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
       demandeur_personne_morale:
         (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
+      representative: getPersonneId(representative) || null,
       ...autresPropriétésDossiers,
     },
     ...autresDonnéesTables,
