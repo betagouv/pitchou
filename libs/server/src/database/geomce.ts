@@ -129,6 +129,12 @@ async function récupérerDossiersParIds(
     dossiersP,
   ]);
 
+  // .ods (Pitchou template) and .xlsx are both parsed as impacted-espece files.
+  const mediaTypesEspèces = new Set([
+    "application/vnd.oasis.opendocument.spreadsheet",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ]);
+
   return await Promise.all(
     dossiers.map(async (dossier) => {
       let descriptionEspèces: DescriptionMenacesEspèces = {
@@ -137,7 +143,7 @@ async function récupérerDossiersParIds(
         flore: [],
       };
 
-      if (dossier.fichier_media_type === "application/vnd.oasis.opendocument.spreadsheet") {
+      if (mediaTypesEspèces.has(dossier.fichier_media_type)) {
         try {
           descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
             dossier.fichier_contenu,

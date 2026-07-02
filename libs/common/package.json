@@ -8,9 +8,10 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "@pitchou/types": "workspace:*",
     "@odfjs/odfjs": "github:odfjs/odfjs#v0.30.0",
-    "date-fns": "^4.1.0"
+    "@pitchou/types": "workspace:*",
+    "date-fns": "^4.1.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "vitest": "^4.1.7"

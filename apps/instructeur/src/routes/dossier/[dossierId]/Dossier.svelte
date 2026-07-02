@@ -37,7 +37,9 @@
     changerOnglet(onglet);
   }
 
-  const EXTENSION_ATTENDUE = ".ods";
+  // Petitionnaires may upload the impacted-espece file as .ods (Pitchou's
+  // template) or as .xlsx; both are parsed by espècesImpactéesDepuisFichierOdsArrayBuffer.
+  const EXTENSIONS_ATTENDUES = [".ods", ".xlsx"];
 
   function getEspècesImpactés(
     dossier: DossierComplet,
@@ -50,8 +52,10 @@
 
     const extension = "." + espècesImpactées.nom?.split(".").pop();
 
-    if (extension !== EXTENSION_ATTENDUE) {
-      return Promise.reject(new MediaTypeError({ attendu: EXTENSION_ATTENDUE, obtenu: extension }));
+    if (!EXTENSIONS_ATTENDUES.includes(extension)) {
+      return Promise.reject(
+        new MediaTypeError({ attendu: EXTENSIONS_ATTENDUES.join(", "), obtenu: extension }),
+      );
     }
 
     // Le contenu du fichier est récupéré à la demande depuis l'Object Storage
