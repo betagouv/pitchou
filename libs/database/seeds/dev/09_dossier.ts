@@ -104,6 +104,7 @@ export async function seed(knex: Knex) {
       groupe_instructeur,
       demandeur_personne_physique_email,
       representative_email,
+      déposant_email,
       ...dossierData
     } of SEED_DOSSIERS) {
       const label = `dossier "${dossierData.nom}" (${dossierData.number_demarches_simplifiées})`;
@@ -124,6 +125,7 @@ export async function seed(knex: Knex) {
                 representative: representative_email
                   ? (personneIdByEmail.get(representative_email) ?? null)
                   : null,
+                déposant: déposant_email ? (personneIdByEmail.get(déposant_email) ?? null) : null,
               }),
             )
             .returning("id");

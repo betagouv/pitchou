@@ -39,6 +39,8 @@ type SeedDossier = Omit<
   demandeur_personne_physique_email?: string;
   /** Email of the representative (personne morale). The personne must be listed in SEED_PERSONNES. */
   representative_email?: string;
+  /** Email of the deposant (the person who filed the dossier, e.g. a mandataire distinct from the demandeur). The personne must be listed in SEED_PERSONNES. */
+  déposant_email?: string;
 };
 
 type SeedAvisExpert = Omit<
@@ -144,6 +146,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     number_demarches_simplifiées: "99000001",
     groupe_instructeur: "DREAL BRETAGNE",
     demandeur_personne_physique_email: "yannick.tanguy@example.org",
+    // The dossier was filed by a mandataire (an engineering firm), distinct from the demandeur.
+    déposant_email: "claire.morvan@biotope-ouest.example",
     date_dépôt: new Date("2022-09-14T08:30:00+00:00"),
     départements: ["29"],
     communes: [
@@ -522,6 +526,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     groupe_instructeur: "DREAL BFC",
     demandeur_personne_morale: "39284715600014",
     representative_email: "bernard.chevallier@carrieres-nuiton.example",
+    // Personne morale porteur, but the dossier was filed by a mandataire (a bureau d'étude).
+    déposant_email: "sophie.leduc@gerea-etudes.example",
     date_dépôt: new Date("2023-11-28T11:10:00+00:00"),
     départements: ["21"],
     communes: [{ name: "Nuits-Saint-Georges", code: "21458", postalCode: "21700" }],
@@ -951,6 +957,14 @@ export const SEED_PERSONNES: SeedPersonne[] = [
     phone: "06 12 34 56 78",
     role: "Professeur émérite des universités",
   },
+  // Deposant (mandataire) — D1: engineering firm that filed the dossier for Yannick Tanguy
+  {
+    nom: "Morvan",
+    prénoms: "Claire",
+    email: "claire.morvan@biotope-ouest.example",
+    phone: "02 98 45 67 89",
+    role: "Chargée d'études faune-flore",
+  },
   // Personne physique demandeur — D2
   {
     nom: "Rieux",
@@ -1000,6 +1014,14 @@ export const SEED_PERSONNES: SeedPersonne[] = [
     email: "bernard.chevallier@carrieres-nuiton.example",
     phone: "03 80 61 12 34",
     role: "Gérant",
+  },
+  // Deposant (mandataire) — D7: bureau d'étude that filed the dossier for CARRIERES DU NUITON
+  {
+    nom: "Leduc",
+    prénoms: "Sophie",
+    email: "sophie.leduc@gerea-etudes.example",
+    phone: "05 56 12 34 56",
+    role: "Chargée d'études réglementaires",
   },
   // Representative of COMMUNE DE PROVINS (D8)
   {
