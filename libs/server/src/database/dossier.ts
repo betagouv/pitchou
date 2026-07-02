@@ -424,6 +424,7 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "etat_des_lieux_ecologique_complet_realise",
   "presence_especes_dans_aire_influence",
   "risque_malgre_mesures_erc",
+  "date_mise_en_service",
 ];
 
 export function listAllDossiersComplets(
