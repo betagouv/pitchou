@@ -41,6 +41,7 @@ const JSON_COLUMNS = [
   "communes",
   "départements",
   "régions",
+  "cartographie_projet",
   "scientifique_type_demande",
   "scientifique_mode_capture",
   "scientifique_intervenants",
