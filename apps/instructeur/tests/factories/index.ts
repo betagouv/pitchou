@@ -8,6 +8,7 @@ import {
   type CreatedDossier,
 } from "./dossier.ts";
 import { attachCapToGroupe, createCapDossier } from "./cap.ts";
+import type { PorteurDeProjet } from "@pitchou/types/PorteurDeProjet.js";
 
 export { createPersonne } from "./personne.ts";
 export type { CreatedPersonne } from "./personne.ts";
@@ -66,6 +67,7 @@ export async function createInstructeurWithDossier(
     nomGroupe?: string;
     dossierNom?: string;
     numéroDémarche?: number;
+    porteurDeProjet?: PorteurDeProjet;
   } = {},
 ): Promise<InstructeurWithDossier> {
   const numéroDémarche = overrides.numéroDémarche ?? DEFAULT_NUMERO_DEMARCHE;
@@ -78,6 +80,7 @@ export async function createInstructeurWithDossier(
   const dossier = await createDossier(db, {
     nom: overrides.dossierNom ?? "Dossier de test",
     numéro_démarche: numéroDémarche,
+    porteur_de_projet: overrides.porteurDeProjet,
   });
   await attachDossierToGroupe(db, dossier.id, base.groupeId);
   return { ...base, dossier };

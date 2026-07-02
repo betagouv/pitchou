@@ -18,7 +18,10 @@ export async function createDossier(
     numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
     date_dépôt: new Date(),
   };
-  const insert = { ...defaults, ...overrides };
+  const insert: Record<string, unknown> = { ...defaults, ...overrides };
+  if (insert.porteur_de_projet && typeof insert.porteur_de_projet === "object") {
+    insert.porteur_de_projet = JSON.stringify(insert.porteur_de_projet);
+  }
   const [row] = await db("dossier").insert(insert).returning(["id", "nom", "numéro_démarche"]);
   return {
     id: row.id,
