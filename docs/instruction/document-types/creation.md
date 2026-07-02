@@ -97,6 +97,11 @@ Les balises ont des types qui peuvent être :
                             <td> Date de fin de l'intervention. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{date_mise_en_service}</code></th>
+                            <td> date</td>
+                            <td> Date de mise en service (début d'exploitation). Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{demandeur}</code></th>
                             <td> texte</td>
                             <td> Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale</td>
