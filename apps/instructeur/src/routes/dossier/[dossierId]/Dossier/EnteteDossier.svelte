@@ -1,6 +1,10 @@
 <script lang="ts">
   import { afterNavigate, goto } from "$app/navigation";
-  import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
+  import {
+    formatLocalisation,
+    formatPorteurDeProjet,
+    formatDéposant,
+  } from "$lib/dossier/affichageDossier.ts";
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
 
@@ -19,6 +23,24 @@
 
   let phase = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
+  );
+
+  // Email of the project holder (demandeur): the legal representative's email for a
+  // personne morale, otherwise the personne physique's email. We intentionally do not
+  // fall back to the deposant's email: the deposant is a distinct person who now has
+  // their own line in the header.
+  let porteurEmail = $derived(
+    dossier.demandeur_personne_morale_siret
+      ? dossier.representative_email
+      : dossier.demandeur_personne_physique_email,
+  );
+
+  // Only show the deposant line when the deposant is a different person from the
+  // project holder (e.g. a mandataire such as an engineering firm).
+  let showDeposant = $derived(
+    Boolean(dossier.déposant_nom || dossier.déposant_prénoms || dossier.déposant_email) &&
+      (dossier.déposant_email !== porteurEmail ||
+        formatDéposant(dossier) !== formatPorteurDeProjet(dossier)),
   );
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -70,14 +92,28 @@
       </div>
       <div>
         <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
-        {#if dossier.demandeur_personne_physique_email || dossier.déposant_email}
-          <a href={`mailto:${dossier.demandeur_personne_physique_email || dossier.déposant_email}`}>
+        <span>
+          Personne qui porte le projet&nbsp;:&nbsp;
+          {#if porteurEmail}
+            <a href={`mailto:${porteurEmail}`}>{formatPorteurDeProjet(dossier)}</a>
+          {:else}
             {formatPorteurDeProjet(dossier)}
-          </a>
-        {:else}
-          {formatPorteurDeProjet(dossier)}
-        {/if}
+          {/if}
+        </span>
       </div>
+      {#if showDeposant}
+        <div>
+          <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+          <span>
+            Personne qui a déposé le dossier&nbsp;:&nbsp;
+            {#if dossier.déposant_email}
+              <a href={`mailto:${dossier.déposant_email}`}>{formatDéposant(dossier)}</a>
+            {:else}
+              {formatDéposant(dossier)}
+            {/if}
+          </span>
+        </div>
+      {/if}
       <div>
         <span class="fr-icon-briefcase-fill fr-icon--sm" aria-hidden="true"></span>
         {dossier.activité_principale}

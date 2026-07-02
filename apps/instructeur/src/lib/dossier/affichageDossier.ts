@@ -42,7 +42,7 @@ export function formatLocalisation({
   );
 }
 
-function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
+export function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
   const INCONNU = "(inconnu)";
 
   let { déposant_nom, déposant_prénoms } = dossier;
