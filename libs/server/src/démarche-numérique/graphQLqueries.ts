@@ -419,6 +419,14 @@ fragment ChampFragment on Champ {
       ...DepartementFragment
     }
   }
+  ... on CarteChamp {
+    geoAreas {
+      id
+      source
+      description
+      geometry
+    }
+  }
 }
 
 fragment PersonneMoraleFragment on PersonneMorale {

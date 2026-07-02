@@ -4,6 +4,7 @@ import type {
   ChampDSDépartements,
   ChampDSRégions,
   ChampDSDépartement,
+  ChampDSCarte,
   ChampScientifiqueIntervenants,
   DossierDS88444,
 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
@@ -339,6 +340,27 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     pitchouKeyToChampDS.get("Transport ferroviaire ou électrique - Votre demande concerne :"),
   )?.stringValue;
 
+  /**
+   * cartographie_projet (CarteChamp)
+   *
+   * Identify the map champ(s) robustly (independently of the label) via the presence of
+   * `geoAreas`, and build a GeoJSON FeatureCollection that is directly downloadable and
+   * loadable as a MapLibre source.
+   */
+  const carteChamps = champs.filter((c): c is ChampDSCarte =>
+    Array.isArray((c as ChampDSCarte).geoAreas),
+  );
+  const features = carteChamps.flatMap((c) =>
+    c.geoAreas.map((a) => ({
+      type: "Feature",
+      geometry: a.geometry,
+      properties: { source: a.source, description: a.description ?? null },
+    })),
+  );
+  const cartographie_projet = features.length
+    ? JSON.stringify({ type: "FeatureCollection", features })
+    : null;
+
   /** @type {TypeDossier | null} */
   const type = champ_nombre_nids_détruits_oiseau_simple_hirondelle
     ? "Hirondelle"
@@ -377,6 +399,8 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     communes: JSON.stringify(communes),
     départements: JSON.stringify(départements),
     régions: JSON.stringify(régions),
+    // GeoJSON FeatureCollection stringified for the jsonb column (or null if no map champ)
+    cartographie_projet,
 
     // régime AE
     rattaché_au_régime_ae,

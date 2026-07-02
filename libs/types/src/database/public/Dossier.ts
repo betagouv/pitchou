@@ -157,6 +157,8 @@ export default interface Dossier {
   date_mise_en_service: Date | null;
 
   representative: PersonneId | null;
+
+  cartographie_projet: unknown | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -317,6 +319,8 @@ export interface DossierInitializer {
   date_mise_en_service?: Date | null;
 
   representative?: PersonneId | null;
+
+  cartographie_projet?: unknown | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -467,4 +471,6 @@ export interface DossierMutator {
   date_mise_en_service?: Date | null;
 
   representative?: PersonneId | null;
+
+  cartographie_projet?: unknown | null;
 }
