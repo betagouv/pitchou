@@ -1,5 +1,6 @@
 <script lang="ts">
   import DownloadButton from "$lib/components/DownloadButton.svelte";
+  import CartographieProjet from "$lib/components/CartographieProjet.svelte";
   import EspècesProtégéesGroupéesParImpact from "$lib/components/EspècesProtégéesGroupéesParImpact.svelte";
   import { formatDateRelative } from "$lib/dossier/affichageDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
@@ -68,6 +69,26 @@
 
   function makeFilename() {
     return dossier.espècesImpactées?.nom || "fichier";
+  }
+
+  const cartographieProjet = $derived(dossier.cartographie_projet);
+
+  function makeCartographieBlob() {
+    const fc = dossier.cartographie_projet;
+    if (!fc) {
+      throw new Error("Aucune cartographie du projet à télécharger");
+    }
+
+    envoyerÉvènement({
+      type: "téléchargerCartographieProjet",
+      détails: { dossierId: dossier.id },
+    });
+
+    return new Blob([JSON.stringify(fc)], { type: "application/geo+json" });
+  }
+
+  function makeCartographieFilename() {
+    return `cartographie-${dossier.id}.geojson`;
   }
 
   const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
@@ -246,6 +267,25 @@
       <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
     {/if}
 
+    {#if cartographieProjet && cartographieProjet.features.length >= 1}
+      <div class="container-titre-cartographie">
+        <h2>Cartographie du projet</h2>
+        <!-- Style inline car un composant enfant n'accède pas aux classes du parent -->
+        <DownloadButton
+          makeFileContentBlob={makeCartographieBlob}
+          makeFilename={makeCartographieFilename}
+          style="width: 15rem;"
+          classname="fr-btn fr-btn--secondary"
+          label="Télécharger la cartographie (.geojson)"
+        />
+      </div>
+      <p>
+        Cartographie du projet&nbsp;: {cartographieProjet.features.length}
+        {cartographieProjet.features.length > 1 ? "zones tracées" : "zone tracée"}
+      </p>
+      <CartographieProjet featureCollection={cartographieProjet} />
+    {/if}
+
     {#if dossier.scientifique_type_demande}
       <h2>Données scientifiques</h2>
       <h3>Type de demande</h3>
@@ -387,6 +427,19 @@
   }
 
   .container-titre-espèces-impactées h2 {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .container-titre-cartographie {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 3rem;
+  }
+
+  .container-titre-cartographie h2 {
     margin: 0;
     white-space: nowrap;
   }
