@@ -43,6 +43,7 @@ export function getBalisesGénérationDocument(
     justification_motif_dérogation,
     date_début_intervention,
     date_fin_intervention,
+    date_mise_en_service,
     durée_intervention,
     historique_identifiant_demande_onagre,
     activité_principale,
@@ -104,6 +105,7 @@ export function getBalisesGénérationDocument(
     activité_principale,
     date_début_intervention,
     date_fin_intervention,
+    date_mise_en_service,
     durée_intervention,
     demandeur: {
       adresse: dossier.demandeur_adresse,
