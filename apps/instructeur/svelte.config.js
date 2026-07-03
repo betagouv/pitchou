@@ -5,5 +5,9 @@ export default {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter(),
+    experimental: {
+      instrumentation: { server: true },
+      tracing: { server: true },
+    },
   },
 };

@@ -1,4 +1,6 @@
 import type { Handle } from "@sveltejs/kit";
+import { sequence } from "@sveltejs/kit/hooks";
+import * as Sentry from "@sentry/sveltekit";
 import { miseEnPlaceSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
 
 if (!process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN) {
@@ -15,9 +17,12 @@ miseEnPlaceSecretGeoMCE().catch((err) => {
   console.error("miseEnPlaceSecretGeoMCE failed:", err);
 });
 
+// Captures errors thrown during server-side rendering and in load functions.
+export const handleError = Sentry.handleErrorWithSentry();
+
 const STATIC_PREFIXES = ["/_app/", "/docs/", "/data/"];
 
-export const handle: Handle = async ({ event, resolve }) => {
+const requestLogging: Handle = async ({ event, resolve }) => {
   const start = Date.now();
   const response = await resolve(event);
   const path = event.url.pathname;
@@ -27,3 +32,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
   return response;
 };
+
+// sentryHandle() must run first so it creates the root span for each request.
+export const handle = sequence(Sentry.sentryHandle(), requestLogging);
