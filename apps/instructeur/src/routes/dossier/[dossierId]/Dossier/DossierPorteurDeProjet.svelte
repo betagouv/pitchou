@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import CopyIconButton from "./CopyIconButton.svelte";
 
   type Props = {
     dossier: DossierComplet;
@@ -25,18 +26,6 @@
     }
   });
 
-  const capitalSocialFormaté = $derived.by(() => {
-    const capital = dossier.demandeur_personne_morale_share_capital;
-    if (!capital) {
-      return null;
-    }
-    const montant = Number(capital);
-    if (Number.isNaN(montant)) {
-      return capital;
-    }
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(montant);
-  });
-
   const dateCréationFormatée = $derived.by(() => {
     const date = dossier.demandeur_personne_morale_creation_date;
     if (!date) {
@@ -51,6 +40,18 @@
   <div class="champ" class:champ--large={large}>
     <dt>{label}</dt>
     <dd class:adresse={large}>{value || NON_RENSEIGNÉ}</dd>
+  </div>
+{/snippet}
+
+{#snippet champAdresse(value: string | null | undefined)}
+  <div class="champ champ--large">
+    <div class="champ-entete">
+      <dt>Adresse</dt>
+      {#if value}
+        <CopyIconButton textToCopy={value} label="Copier" />
+      {/if}
+    </div>
+    <dd class="adresse">{value || NON_RENSEIGNÉ}</dd>
   </div>
 {/snippet}
 
@@ -81,11 +82,8 @@
         {@render champ("Dénomination", dossier.demandeur_personne_morale_raison_sociale)}
         {@render champ("Forme juridique", dossier.demandeur_personne_morale_legal_form)}
         {@render champ("Libellé NAF", dossier.demandeur_personne_morale_naf_label)}
-        {@render champ("Code NAF", dossier.demandeur_personne_morale_naf_code)}
         {@render champ("État administratif", statutAdministratif)}
         {@render champ("Date de création", dateCréationFormatée)}
-        {@render champ("Effectif", dossier.demandeur_personne_morale_headcount)}
-        {@render champ("Capital social", capitalSocialFormaté)}
       </dl>
     </section>
 
@@ -94,8 +92,7 @@
         <section class="carte">
           <h3>Adresse</h3>
           <dl class="grille grille--étroite">
-            {@render champ("Adresse", dossier.demandeur_adresse, true)}
-            {@render champ("Code INSEE", dossier.demandeur_personne_morale_insee_code)}
+            {@render champAdresse(dossier.demandeur_adresse)}
             {@render champ("Code postal", dossier.demandeur_personne_morale_postal_code)}
             {@render champ("Département", dossier.demandeur_personne_morale_department)}
             {@render champ("Région", dossier.demandeur_personne_morale_region)}
@@ -133,7 +130,7 @@
             {@render champ("Nom", dossier.demandeur_personne_physique_nom)}
             {@render champ("Prénoms", dossier.demandeur_personne_physique_prénoms)}
             {@render champ("Qualification", dossier.demandeur_personne_physique_role)}
-            {@render champ("Adresse", dossier.demandeur_personne_physique_address, true)}
+            {@render champAdresse(dossier.demandeur_personne_physique_address)}
           </dl>
         </section>
       </div>
@@ -206,6 +203,17 @@
       color: var(--text-mention-grey);
       font-size: 0.875rem;
       margin-bottom: 0.25rem;
+    }
+
+    .champ-entete {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+
+      dt {
+        margin-bottom: 0;
+      }
     }
 
     dd {
