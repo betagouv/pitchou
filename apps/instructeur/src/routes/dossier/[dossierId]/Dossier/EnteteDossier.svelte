@@ -93,9 +93,11 @@
       <div>
         <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
         <span>
-          Personne qui porte le projet&nbsp;:&nbsp;
+          Porteur de projet&nbsp;:&nbsp;
           {#if porteurEmail}
-            <a href={`mailto:${porteurEmail}`}>{formatPorteurDeProjet(dossier)}</a>
+            <a href={`mailto:${porteurEmail}`} target="_blank" rel="noopener noreferrer"
+              >{formatPorteurDeProjet(dossier)}</a
+            >
           {:else}
             {formatPorteurDeProjet(dossier)}
           {/if}
@@ -105,9 +107,11 @@
         <div>
           <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
           <span>
-            Personne qui a déposé le dossier&nbsp;:&nbsp;
+            Personne qui dépose le dossier&nbsp;:&nbsp;
             {#if dossier.déposant_email}
-              <a href={`mailto:${dossier.déposant_email}`}>{formatDéposant(dossier)}</a>
+              <a href={`mailto:${dossier.déposant_email}`} target="_blank" rel="noopener noreferrer"
+                >{formatDéposant(dossier)}</a
+              >
             {:else}
               {formatDéposant(dossier)}
             {/if}
