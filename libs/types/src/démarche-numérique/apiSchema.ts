@@ -131,6 +131,22 @@ export interface ChampDSPieceJustificative extends BaseChampDS {
   files: DSFile[];
 }
 
+/**
+ * A geographic area drawn by the usager in a "Carte" champ (CarteChamp).
+ * @see {@link https://www.demarches-simplifiees.fr/graphql/schema/types/GeoArea}
+ */
+export interface ChampDSGeoArea {
+  id: string;
+  source: string; // GeoAreaSource: "selection_utilisateur", "cadastre", "rpg"…
+  description: string | null;
+  geometry: unknown; // GeoJSON scalar, returned as an already-parsed geometry object
+}
+
+/** "Cartographie du projet" champ (CarteChamp): areas drawn on a base map. */
+export interface ChampDSCarte extends BaseChampDS {
+  geoAreas: ChampDSGeoArea[];
+}
+
 export type ChampRépétéDSPieceJustificative = BaseRepetitionChampsDS<ChampDSPieceJustificative>;
 
 export type DeletedDossier = any; // PPP
@@ -169,7 +185,8 @@ export type Champs88444 =
   | ChampDSRégions
   | ChampDSPieceJustificative
   | ChampDSAddress
-  | ChampDSSiret;
+  | ChampDSSiret
+  | ChampDSCarte;
 export type Annotations88444 = BaseChampDS | ChampDSCheckbox | ChampDSDate;
 
 /**

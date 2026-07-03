@@ -70,6 +70,8 @@ export type ÉvènementMétrique =
   | { type: "consulterUnDossier"; détails: { dossierId: number } }
   // Télécharger la liste des éspèces impactées d’un dossier
   | { type: "téléchargerListeÉspècesImpactées"; détails: { dossierId: number } }
+  // Télécharger la cartographie du projet d’un dossier
+  | { type: "téléchargerCartographieProjet"; détails: { dossierId: number } }
 
   // Pour l'impact
   | { type: "retourÀLaConformité"; détails: { prescription: Prescription["id"] } };

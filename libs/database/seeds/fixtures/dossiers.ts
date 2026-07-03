@@ -9,6 +9,7 @@
  */
 
 import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
+import type { GeoJSONFeatureCollection } from "@pitchou/types/API_Pitchou.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DCisionAdministrativeInitializer } from "@pitchou/types/database/public/DécisionAdministrative.ts";
 import type { PrescriptionInitializer } from "@pitchou/types/database/public/Prescription.ts";
@@ -134,6 +135,51 @@ type SeedEspècesImpactées = {
 };
 
 // ---------------------------------------------------------------------------
+// "Cartographie du projet" helpers
+//
+// The map data is a GeoJSON FeatureCollection, exactly as synced from Démarche
+// Numérique. These helpers build plausible zones near each dossier's location so
+// the feature is visible in local/staging demos.
+// ---------------------------------------------------------------------------
+
+/** A square Polygon zone of side ~`size`° centered on [lng, lat]. */
+function zoneCarrée(lng: number, lat: number, size: number, description: string) {
+  const h = size / 2;
+  return {
+    type: "Feature" as const,
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [lng - h, lat - h],
+          [lng + h, lat - h],
+          [lng + h, lat + h],
+          [lng - h, lat + h],
+          [lng - h, lat - h],
+        ],
+      ],
+    },
+    properties: { source: "selection_utilisateur", description },
+  };
+}
+
+/** A LineString feature following the given [lng, lat] points (e.g. a linear project). */
+function ligne(points: [number, number][], description: string) {
+  return {
+    type: "Feature" as const,
+    geometry: { type: "LineString", coordinates: points },
+    properties: { source: "selection_utilisateur", description },
+  };
+}
+
+/** Wrap features into a GeoJSON FeatureCollection. */
+function cartographie(
+  ...features: ReturnType<typeof zoneCarrée | typeof ligne>[]
+): GeoJSONFeatureCollection {
+  return { type: "FeatureCollection", features };
+}
+
+// ---------------------------------------------------------------------------
 // Dossiers
 // ---------------------------------------------------------------------------
 
@@ -155,6 +201,11 @@ export const SEED_DOSSIERS: SeedDossier[] = [
       { name: "Saint-Rivoal", code: "29263", postalCode: "29190" },
     ],
     régions: ["Bretagne"],
+    // Zones drawn on the map in Démarche Numérique (Monts d'Arrée, Brasparts).
+    cartographie_projet: cartographie(
+      zoneCarrée(-3.9615, 48.3035, 0.007, "Emprise du parc éolien"),
+      zoneCarrée(-3.9495, 48.2995, 0.005, "Zone de survol"),
+    ),
     nom: "Parc éolien des Monts d'Arrée – Brasparts et Saint-Rivoal (29)",
     ddep_nécessaire: true,
     commentaire_libre:
@@ -211,6 +262,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["34"],
     communes: [{ name: "Montagnac", code: "34163", postalCode: "34530" }],
     régions: ["Occitanie"],
+    // Centrale photovoltaïque au sol, garrigue près de Montagnac (34).
+    cartographie_projet: cartographie(
+      zoneCarrée(3.4805, 43.4805, 0.012, "Emprise clôturée de la centrale"),
+    ),
     nom: "Centrale photovoltaïque au sol La Gardiole – Montagnac (34)",
     ddep_nécessaire: true,
     commentaire_libre:
@@ -267,6 +322,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["57"],
     communes: [{ name: "Thionville", code: "57672", postalCode: "57100" }],
     régions: ["Grand Est"],
+    // Façade d'un immeuble en centre-ville de Thionville (57).
+    cartographie_projet: cartographie(
+      zoneCarrée(6.168, 49.358, 0.0015, "Façade concernée par le ravalement"),
+    ),
     nom: "Rénovation de façade – nids d'hirondelles – Thionville (57)",
     ddep_nécessaire: null,
     commentaire_libre:
@@ -327,6 +386,11 @@ export const SEED_DOSSIERS: SeedDossier[] = [
       { name: "Vic-le-Comte", code: "63458", postalCode: "63270" },
     ],
     régions: ["Auvergne-Rhône-Alpes"],
+    // Réseau de grottes entre Issoire et Vic-le-Comte (63).
+    cartographie_projet: cartographie(
+      zoneCarrée(3.249, 45.545, 0.006, "Grottes secteur Issoire"),
+      zoneCarrée(3.216, 45.646, 0.006, "Grottes secteur Vic-le-Comte"),
+    ),
     nom: "Inventaire chiroptères cavernicoles – réseau de grottes du Puy-de-Dôme",
     ddep_nécessaire: true,
     commentaire_libre:
@@ -403,6 +467,12 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["44", "49", "53", "72", "85"],
     communes: null,
     régions: ["Pays-de-la-Loire"],
+    // Sites de relâcher autour du centre de soins LPO (Nantes / Loire-Atlantique).
+    cartographie_projet: cartographie(
+      zoneCarrée(-1.554, 47.218, 0.004, "Centre de soins"),
+      zoneCarrée(-1.62, 47.28, 0.004, "Site de relâcher nord"),
+      zoneCarrée(-1.48, 47.16, 0.004, "Site de relâcher sud"),
+    ),
     nom: "Transport et relâcher d'espèces protégées – Centre de soins LPO Pays de la Loire",
     ddep_nécessaire: false,
     commentaire_libre:
@@ -473,6 +543,18 @@ export const SEED_DOSSIERS: SeedDossier[] = [
       { name: "Valliquerville", code: "76726", postalCode: "76190" },
     ],
     régions: ["Normandie"],
+    // Tracé de la déviation routière entre Yvetot et Valliquerville (76).
+    cartographie_projet: cartographie(
+      ligne(
+        [
+          [0.756, 49.617],
+          [0.74, 49.622],
+          [0.72, 49.628],
+          [0.7, 49.63],
+        ],
+        "Tracé de la déviation RD 73",
+      ),
+    ),
     nom: "Déviation de la RD 73 – Yvetot / Valliquerville (76)",
     ddep_nécessaire: true,
     commentaire_libre:
@@ -532,6 +614,11 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["21"],
     communes: [{ name: "Nuits-Saint-Georges", code: "21458", postalCode: "21700" }],
     régions: ["Bourgogne-Franche-Comté"],
+    // Carrière de calcaire et son extension près de Nuits-Saint-Georges (21).
+    cartographie_projet: cartographie(
+      zoneCarrée(4.949, 47.135, 0.01, "Carrière existante"),
+      zoneCarrée(4.962, 47.14, 0.008, "Périmètre d'extension"),
+    ),
     nom: "Extension de la carrière de calcaire de Chaux – Nuits-Saint-Georges (21)",
     ddep_nécessaire: true,
     commentaire_libre:
@@ -587,6 +674,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["77"],
     communes: [{ name: "Provins", code: "77379", postalCode: "77160" }],
     régions: ["Île-de-France"],
+    // Clocher de l'église Saint-Quiriace, centre historique de Provins (77).
+    cartographie_projet: cartographie(
+      zoneCarrée(3.2985, 48.5595, 0.0012, "Clocher accueillant le nid"),
+    ),
     nom: "Réhabilitation du clocher de l'église Saint-Quiriace – nid de cigognes – Provins (77)",
     ddep_nécessaire: null,
     commentaire_libre:
@@ -644,6 +735,18 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["973"],
     communes: [{ name: "Kourou", code: "97304", postalCode: "97310" }],
     régions: ["Guyane"],
+    // Berges du fleuve Kourou en Guyane (973).
+    cartographie_projet: cartographie(
+      ligne(
+        [
+          [-52.655, 5.155],
+          [-52.65, 5.16],
+          [-52.646, 5.166],
+        ],
+        "Berges à aménager",
+      ),
+      zoneCarrée(-52.648, 5.162, 0.004, "Zone de renaturation"),
+    ),
     nom: "Aménagement des berges du Kourou – protection contre les crues – Kourou (973)",
     ddep_nécessaire: true,
     commentaire_libre:
@@ -702,6 +805,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["22"],
     communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
     régions: ["Bretagne"],
+    // Emprise du futur lotissement à Ploufragan (22).
+    cartographie_projet: cartographie(zoneCarrée(-2.783, 48.5, 0.008, "Emprise du lotissement")),
     nom: "Aménagement de lotissement",
     ddep_nécessaire: null,
     commentaire_libre: "",
@@ -756,6 +861,18 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     départements: ["99", "35", "22"],
     communes: null,
     régions: ["Bretagne"],
+    // Tracé linéaire de la piste cyclable entre Rennes et Dinan (35 / 22).
+    cartographie_projet: cartographie(
+      ligne(
+        [
+          [-1.68, 48.11],
+          [-1.78, 48.2],
+          [-1.9, 48.32],
+          [-2.05, 48.455],
+        ],
+        "Tracé de la piste cyclable Rennes-Dinan",
+      ),
+    ),
     nom: "Agrandissement pistes cyclables Rennes-Dinan",
     ddep_nécessaire: true,
     commentaire_libre:

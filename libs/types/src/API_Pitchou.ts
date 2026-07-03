@@ -93,6 +93,34 @@ type DossierActivitéPrincipale = {
   activité_principale: DossierDemarcheNumerique88444["Activité principale"] | null;
 };
 
+/**
+ * Permissive GeoJSON type for the "Cartographie du projet".
+ *
+ * Areas drawn by the usager in Démarche Numérique can be Polygon, MultiPolygon, Point…
+ * so the geometry is kept deliberately loose (unlike the strict types in `geomce.ts`),
+ * so it can be downloaded as-is and loaded directly as a MapLibre source.
+ */
+export type GeoJSONGeometry = {
+  type: string;
+  coordinates?: unknown;
+  geometries?: unknown;
+};
+
+export type GeoJSONFeature = {
+  type: "Feature";
+  geometry: GeoJSONGeometry;
+  properties: Record<string, unknown> | null;
+};
+
+export type GeoJSONFeatureCollection = {
+  type: "FeatureCollection";
+  features: GeoJSONFeature[];
+};
+
+type DossierCartographieProjet = {
+  cartographie_projet: GeoJSONFeatureCollection | null;
+};
+
 type DonnéesDossierPourStats = {
   décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
 };
@@ -143,11 +171,12 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
  */
 export type DossierComplet = Omit<
   Dossier,
-  "communes" | "départements" | "régions" | "activité_principale"
+  "communes" | "départements" | "régions" | "activité_principale" | "cartographie_projet"
 > &
   DossierLocalisation &
   DossierPersonnesImpliquéesComplet &
-  DossierActivitéPrincipale & {
+  DossierActivitéPrincipale &
+  DossierCartographieProjet & {
     espècesImpactées: (Pick<Fichier, "media_type" | "nom"> & { url: string }) | undefined;
   } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
     décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;

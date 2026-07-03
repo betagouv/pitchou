@@ -363,6 +363,7 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "départements",
   "communes",
   "régions",
+  "cartographie_projet",
 
   // prochaine action attendue
   "prochaine_action_attendue_par",
