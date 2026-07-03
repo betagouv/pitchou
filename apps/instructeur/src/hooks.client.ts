@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/public";
 
 Sentry.init({
-  dsn: env.PUBLIC_SENTRY_DSN_ADMIN,
+  dsn: env.PUBLIC_SENTRY_DSN_INSTRUCTEUR,
   environment: env.PUBLIC_PITCHOU_ENV,
 
   // In the Beta Sentry instance, the rate limiting system is implemented at the Nginx level, and the rule applies per project.

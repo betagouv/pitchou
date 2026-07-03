@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/sveltekit";
 // auto-instrumentation (HTTP, pg, etc.) can hook in. The SDK is a no-op when
 // the DSN is empty, so it is safe to ship this without Sentry configured.
 Sentry.init({
-  dsn: process.env.SENTRY_DSN_ADMIN,
+  dsn: process.env.SENTRY_DSN_INSTRUCTEUR,
   environment: process.env.PUBLIC_PITCHOU_ENV,
 
   // In the Beta Sentry instance, the rate limiting system is implemented at the Nginx level, and the rule applies per project.
