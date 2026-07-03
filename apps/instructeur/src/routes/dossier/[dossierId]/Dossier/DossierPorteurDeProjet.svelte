@@ -68,6 +68,17 @@
   </div>
 {/snippet}
 
+{#snippet carteDéposant()}
+  <section class="carte">
+    <h3>Personne ayant déposé le dossier</h3>
+    <dl class="grille grille--étroite">
+      {@render champ("Nom", dossier.déposant_nom)}
+      {@render champ("Prénom", dossier.déposant_prénoms)}
+      {@render champMail("Adresse mail", dossier.déposant_email)}
+    </dl>
+  </section>
+{/snippet}
+
 <section class="porteur-de-projet">
   <div class="entete">
     <h2>Porteur de projet</h2>
@@ -107,23 +118,19 @@
             {@render champ("Nom", dossier.representative_nom)}
             {@render champ("Prénom", dossier.representative_prénoms)}
             {@render champ("Qualité", dossier.representative_role)}
-          </dl>
-        </section>
-      </div>
-
-      <div class="fr-col-12 fr-col-md-4">
-        <section class="carte">
-          <h3>Contact</h3>
-          <dl class="grille grille--étroite">
             {@render champ("Téléphone", dossier.representative_phone)}
             {@render champMail("Adresse mail", dossier.representative_email)}
           </dl>
         </section>
       </div>
+
+      <div class="fr-col-12 fr-col-md-4">
+        {@render carteDéposant()}
+      </div>
     </div>
   {:else}
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-md-6">
+      <div class="fr-col-12 fr-col-md-4">
         <section class="carte">
           <h3>Identité du demandeur</h3>
           <dl class="grille grille--étroite">
@@ -135,7 +142,7 @@
         </section>
       </div>
 
-      <div class="fr-col-12 fr-col-md-6">
+      <div class="fr-col-12 fr-col-md-4">
         <section class="carte">
           <h3>Contact</h3>
           <dl class="grille grille--étroite">
@@ -143,6 +150,10 @@
             {@render champMail("Adresse mail", dossier.demandeur_personne_physique_email)}
           </dl>
         </section>
+      </div>
+
+      <div class="fr-col-12 fr-col-md-4">
+        {@render carteDéposant()}
       </div>
     </div>
   {/if}
