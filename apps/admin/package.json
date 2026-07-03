@@ -9,6 +9,7 @@
     "@pitchou/server-utils": "workspace:*",
     "@pitchou/types": "workspace:*",
     "@pitchou/ui": "workspace:*",
+    "@sentry/sveltekit": "^10.63.0",
     "knex": "^3.1.0",
     "pg": "^8.11.5"
   },

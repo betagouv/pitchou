@@ -12,6 +12,7 @@
     "@pitchou/server-utils": "workspace:*",
     "@pitchou/types": "workspace:*",
     "@pitchou/ui": "workspace:*",
+    "@sentry/sveltekit": "^10.63.0",
     "clsx": "^2.1.1",
     "d3-fetch": "^3.0.1",
     "date-fns": "^4.1.0",
