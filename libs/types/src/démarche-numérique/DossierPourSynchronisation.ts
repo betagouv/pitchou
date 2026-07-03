@@ -11,10 +11,14 @@ export type DonnéesPersonnesEntreprisesInitializer = {
   déposant: PersonneInitializer;
   demandeur_personne_physique: PersonneInitializer | undefined;
   demandeur_personne_morale: EntrepriseInitializer | undefined;
+  representative: PersonneInitializer | undefined;
 };
 
 type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | DossierInitializer> =
-  Omit<T, "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale"> &
+  Omit<
+    T,
+    "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "representative"
+  > &
     DonnéesPersonnesEntreprisesInitializer;
 
 /**

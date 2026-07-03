@@ -155,6 +155,8 @@ export default interface Dossier {
 
   /** Date de début d'exploitation (mise en service de l'exploitation) */
   date_mise_en_service: Date | null;
+
+  representative: PersonneId | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -313,6 +315,8 @@ export interface DossierInitializer {
 
   /** Date de début d'exploitation (mise en service de l'exploitation) */
   date_mise_en_service?: Date | null;
+
+  representative?: PersonneId | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -461,4 +465,6 @@ export interface DossierMutator {
 
   /** Date de début d'exploitation (mise en service de l'exploitation) */
   date_mise_en_service?: Date | null;
+
+  representative?: PersonneId | null;
 }

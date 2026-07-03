@@ -29,11 +29,16 @@ type SeedDossier = Omit<
   | "déposant"
   | "demandeur_personne_physique"
   | "demandeur_personne_morale"
+  | "representative"
   | "espèces_impactées"
 > & {
   groupe_instructeur: string;
   /** SIRET de l'entreprise demandeuse (personne morale). L'entreprise doit figurer dans SEED_ENTREPRISES. */
   demandeur_personne_morale?: string;
+  /** Email of the personne physique demandeur. The personne must be listed in SEED_PERSONNES. */
+  demandeur_personne_physique_email?: string;
+  /** Email of the representative (personne morale). The personne must be listed in SEED_PERSONNES. */
+  representative_email?: string;
 };
 
 type SeedAvisExpert = Omit<
@@ -76,6 +81,33 @@ type SeedEntreprise = {
   siret: string;
   raison_sociale: string;
   adresse: string | null;
+  siren?: string | null;
+  legal_form?: string | null;
+  naf_code?: string | null;
+  naf_label?: string | null;
+  /** ISO date string ("YYYY-MM-DD"). */
+  creation_date?: string | null;
+  /** Raw Démarche Numérique value: "Actif" or "Ferme". */
+  admin_status?: string | null;
+  /** Headcount range label, e.g. "50 à 99 salariés". */
+  headcount?: string | null;
+  /** Share capital in euros, as a string. */
+  share_capital?: string | null;
+  insee_code?: string | null;
+  postal_code?: string | null;
+  department?: string | null;
+  region?: string | null;
+};
+
+// A personne used as a demandeur personne physique or as a representative of a personne morale.
+// Resolved by email at seed time. Inserted before the dossiers that reference it.
+type SeedPersonne = {
+  nom: string;
+  prénoms: string;
+  email: string;
+  address?: string | null;
+  phone?: string | null;
+  role?: string | null;
 };
 
 // One impacted-species line, used to build the "espèces impactées" ODS file.
@@ -111,6 +143,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000001",
     groupe_instructeur: "DREAL BRETAGNE",
+    demandeur_personne_physique_email: "yannick.tanguy@example.org",
     date_dépôt: new Date("2022-09-14T08:30:00+00:00"),
     départements: ["29"],
     communes: [
@@ -169,6 +202,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000002",
     groupe_instructeur: "DREAL Occitanie",
+    demandeur_personne_physique_email: "soizic.rieux@example.org",
     date_dépôt: new Date("2024-03-18T10:15:00+00:00"),
     départements: ["34"],
     communes: [{ name: "Montagnac", code: "34163", postalCode: "34530" }],
@@ -224,6 +258,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000003",
     groupe_instructeur: "DREAL Grand Est",
+    demandeur_personne_physique_email: "herve.klein@example.org",
     date_dépôt: new Date("2024-06-03T07:55:00+00:00"),
     départements: ["57"],
     communes: [{ name: "Thionville", code: "57672", postalCode: "57100" }],
@@ -279,6 +314,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000004",
     groupe_instructeur: "DREAL Auvergne-Rhône-Alpes",
+    demandeur_personne_morale: "42391560100027",
+    representative_email: "thomas.delattre@chauve-souris-auvergne.example",
     date_dépôt: new Date("2024-11-07T14:20:00+00:00"),
     départements: ["63"],
     communes: [
@@ -356,6 +393,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000005",
     groupe_instructeur: "DREAL Pays de la loire",
+    demandeur_personne_morale: "78616022400031",
+    representative_email: "sandrine.bureau@lpo-paysdelaloire.example",
     date_dépôt: new Date("2025-02-10T09:05:00+00:00"),
     départements: ["44", "49", "53", "72", "85"],
     communes: null,
@@ -421,6 +460,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000006",
     groupe_instructeur: "DREAL Normandie",
+    demandeur_personne_morale: "22760540400019",
+    representative_email: "elodie.vasseur@seinemaritime.example",
     date_dépôt: new Date("2023-05-22T13:45:00+00:00"),
     départements: ["76"],
     communes: [
@@ -479,6 +520,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000007",
     groupe_instructeur: "DREAL BFC",
+    demandeur_personne_morale: "39284715600014",
+    representative_email: "bernard.chevallier@carrieres-nuiton.example",
     date_dépôt: new Date("2023-11-28T11:10:00+00:00"),
     départements: ["21"],
     communes: [{ name: "Nuits-Saint-Georges", code: "21458", postalCode: "21700" }],
@@ -532,6 +575,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000008",
     groupe_instructeur: "DRIAT IDF",
+    demandeur_personne_morale: "21770379200013",
+    representative_email: "jeanmarc.aubry@mairie-provins.example",
     date_dépôt: new Date("2023-09-11T08:40:00+00:00"),
     départements: ["77"],
     communes: [{ name: "Provins", code: "77379", postalCode: "77160" }],
@@ -587,6 +632,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     number_demarches_simplifiées: "99000009",
     groupe_instructeur: "DGTM Guyane",
+    demandeur_personne_morale: "21973304600011",
+    representative_email: "ml.adelaide@ville-kourou.example",
     date_dépôt: new Date("2024-07-30T15:00:00+00:00"),
     départements: ["973"],
     communes: [{ name: "Kourou", code: "97304", postalCode: "97310" }],
@@ -641,9 +688,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Demandeur personne morale, espèces impactées, avis CNPN, arrêté + contrôle.
   // -------------------------------------------------------------------------
   {
-    number_demarches_simplifiées: "31496628",
+    number_demarches_simplifiées: "99000010",
     groupe_instructeur: "Dév Pitchou",
     demandeur_personne_morale: "88800620200020",
+    representative_email: "katell.legoff@echappee-belle.example",
     date_dépôt: new Date("2026-05-26T08:00:00+00:00"),
     départements: ["22"],
     communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
@@ -694,9 +742,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // Phase actuelle : Accompagnement amont (après un aller-retour Instruction/Contrôle)
   // -------------------------------------------------------------------------
   {
-    number_demarches_simplifiées: "31113417",
+    number_demarches_simplifiées: "99000011",
     groupe_instructeur: "Dév Pitchou",
     demandeur_personne_morale: "88800620200020",
+    representative_email: "katell.legoff@echappee-belle.example",
     date_dépôt: new Date("2026-05-05T08:00:00+00:00"),
     départements: ["99", "35", "22"],
     communes: null,
@@ -751,11 +800,222 @@ export const SEED_DOSSIERS: SeedDossier[] = [
 // ---------------------------------------------------------------------------
 
 export const SEED_ENTREPRISES: SeedEntreprise[] = [
-  // D10 — Aménagement de lotissement
+  // D10 & D11 — demandeur personne morale
   {
     siret: "88800620200020",
     raison_sociale: "L'ECHAPPEE BELLE",
-    adresse: null,
+    siren: "888006202",
+    legal_form: "SAS, société par actions simplifiée",
+    naf_code: "41.10A",
+    naf_label: "Promotion immobilière de logements",
+    creation_date: "2020-06-15",
+    admin_status: "Actif",
+    headcount: "50 à 99 salariés",
+    share_capital: "50000",
+    adresse: "12 rue des Ajoncs\n22440 Ploufragan",
+    insee_code: "22215",
+    postal_code: "22440",
+    department: "Côtes-d'Armor",
+    region: "Bretagne",
+  },
+  // D4 — inventaire chiroptères (association)
+  {
+    siret: "42391560100027",
+    raison_sociale: "CHAUVE-SOURIS AUVERGNE",
+    siren: "423915601",
+    legal_form: "Association déclarée",
+    naf_code: "94.99Z",
+    naf_label: "Autres organisations fonctionnant par adhésion volontaire",
+    creation_date: "1999-03-12",
+    admin_status: "Actif",
+    headcount: "3 à 5 salariés",
+    share_capital: null,
+    adresse: "Maison des associations\n2 bis rue du Clos Perret\n63100 Clermont-Ferrand",
+    insee_code: "63113",
+    postal_code: "63100",
+    department: "Puy-de-Dôme",
+    region: "Auvergne-Rhône-Alpes",
+  },
+  // D5 — centre de soins faune sauvage (association)
+  {
+    siret: "78616022400031",
+    raison_sociale: "LIGUE POUR LA PROTECTION DES OISEAUX PAYS DE LA LOIRE",
+    siren: "786160224",
+    legal_form: "Association déclarée",
+    naf_code: "94.99Z",
+    naf_label: "Autres organisations fonctionnant par adhésion volontaire",
+    creation_date: "1985-09-01",
+    admin_status: "Actif",
+    headcount: "20 à 49 salariés",
+    share_capital: null,
+    adresse: "10 rue de l'Église\n44830 Bouaye",
+    insee_code: "44023",
+    postal_code: "44830",
+    department: "Loire-Atlantique",
+    region: "Pays de la Loire",
+  },
+  // D6 — déviation RD 73 (collectivité)
+  {
+    siret: "22760540400019",
+    raison_sociale: "DEPARTEMENT DE LA SEINE-MARITIME",
+    siren: "227605404",
+    legal_form: "Département",
+    naf_code: "84.11Z",
+    naf_label: "Administration publique générale",
+    creation_date: "1968-01-09",
+    admin_status: "Actif",
+    headcount: "5 000 à 9 999 salariés",
+    share_capital: null,
+    adresse: "Quai Jean Moulin\nCS 56101\n76101 Rouen Cedex",
+    insee_code: "76540",
+    postal_code: "76101",
+    department: "Seine-Maritime",
+    region: "Normandie",
+  },
+  // D7 — extension carrière (SARL)
+  {
+    siret: "39284715600014",
+    raison_sociale: "CARRIERES DU NUITON",
+    siren: "392847156",
+    legal_form: "SARL, société à responsabilité limitée",
+    naf_code: "08.11Z",
+    naf_label:
+      "Extraction de pierres ornementales et de construction, de calcaire industriel, de gypse, de craie et d'ardoise",
+    creation_date: "1994-04-22",
+    admin_status: "Actif",
+    headcount: "10 à 19 salariés",
+    share_capital: "150000",
+    adresse: "Route de Chaux\n21700 Nuits-Saint-Georges",
+    insee_code: "21458",
+    postal_code: "21700",
+    department: "Côte-d'Or",
+    region: "Bourgogne-Franche-Comté",
+  },
+  // D8 — réhabilitation clocher (collectivité)
+  {
+    siret: "21770379200013",
+    raison_sociale: "COMMUNE DE PROVINS",
+    siren: "217703792",
+    legal_form: "Commune et commune nouvelle",
+    naf_code: "84.11Z",
+    naf_label: "Administration publique générale",
+    creation_date: "1976-01-01",
+    admin_status: "Actif",
+    headcount: "250 à 499 salariés",
+    share_capital: null,
+    adresse: "Place du Maréchal Leclerc\n77160 Provins",
+    insee_code: "77379",
+    postal_code: "77160",
+    department: "Seine-et-Marne",
+    region: "Île-de-France",
+  },
+  // D9 — aménagement des berges du Kourou (collectivité)
+  {
+    siret: "21973304600011",
+    raison_sociale: "COMMUNE DE KOUROU",
+    siren: "219733046",
+    legal_form: "Commune et commune nouvelle",
+    naf_code: "84.11Z",
+    naf_label: "Administration publique générale",
+    creation_date: "1969-01-01",
+    admin_status: "Actif",
+    headcount: "500 à 999 salariés",
+    share_capital: null,
+    adresse: "1 avenue de France\n97310 Kourou",
+    insee_code: "97304",
+    postal_code: "97310",
+    department: "Guyane",
+    region: "Guyane",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Personnes (demandeurs personne physique & representatives of personne morale)
+// ---------------------------------------------------------------------------
+
+export const SEED_PERSONNES: SeedPersonne[] = [
+  // Representative of L'ECHAPPEE BELLE (D10 & D11)
+  {
+    nom: "Le Goff",
+    prénoms: "Katell",
+    email: "katell.legoff@echappee-belle.example",
+    phone: "02 96 78 12 34",
+    role: "Directrice de projet",
+  },
+  // Personne physique demandeur — D1 (Parc éolien des Monts d'Arrée)
+  {
+    nom: "Tanguy",
+    prénoms: "Yannick",
+    email: "yannick.tanguy@example.org",
+    address: "3 venelle du Menhir\n29190 Brasparts",
+    phone: "06 12 34 56 78",
+    role: "Professeur émérite des universités",
+  },
+  // Personne physique demandeur — D2
+  {
+    nom: "Rieux",
+    prénoms: "Soizic",
+    email: "soizic.rieux@example.org",
+    address: "18 rue de la Fontaine\n35000 Rennes",
+    phone: "06 98 76 54 32",
+    role: "Écologue indépendante",
+  },
+  // Personne physique demandeur — D3 (rénovation de façade, Thionville)
+  {
+    nom: "Klein",
+    prénoms: "Hervé",
+    email: "herve.klein@example.org",
+    address: "24 rue de la Paix\n57100 Thionville",
+    phone: "06 45 78 90 12",
+    role: "Propriétaire de l'immeuble",
+  },
+  // Representative of CHAUVE-SOURIS AUVERGNE (D4)
+  {
+    nom: "Delattre",
+    prénoms: "Thomas",
+    email: "thomas.delattre@chauve-souris-auvergne.example",
+    phone: "04 73 89 13 46",
+    role: "Coordinateur scientifique",
+  },
+  // Representative of LPO PAYS DE LA LOIRE (D5)
+  {
+    nom: "Bureau",
+    prénoms: "Sandrine",
+    email: "sandrine.bureau@lpo-paysdelaloire.example",
+    phone: "02 51 82 04 90",
+    role: "Directrice du centre de soins",
+  },
+  // Representative of DEPARTEMENT DE LA SEINE-MARITIME (D6)
+  {
+    nom: "Vasseur",
+    prénoms: "Élodie",
+    email: "elodie.vasseur@seinemaritime.example",
+    phone: "02 35 03 55 00",
+    role: "Cheffe du service infrastructures routières",
+  },
+  // Representative of CARRIERES DU NUITON (D7)
+  {
+    nom: "Chevallier",
+    prénoms: "Bernard",
+    email: "bernard.chevallier@carrieres-nuiton.example",
+    phone: "03 80 61 12 34",
+    role: "Gérant",
+  },
+  // Representative of COMMUNE DE PROVINS (D8)
+  {
+    nom: "Aubry",
+    prénoms: "Jean-Marc",
+    email: "jeanmarc.aubry@mairie-provins.example",
+    phone: "01 64 60 20 00",
+    role: "Adjoint au maire délégué au patrimoine",
+  },
+  // Representative of COMMUNE DE KOUROU (D9)
+  {
+    nom: "Adélaïde",
+    prénoms: "Marie-Louise",
+    email: "ml.adelaide@ville-kourou.example",
+    phone: "05 94 22 30 00",
+    role: "Directrice des services techniques",
   },
 ];
 
@@ -764,8 +1024,8 @@ export const SEED_ENTREPRISES: SeedEntreprise[] = [
 // ---------------------------------------------------------------------------
 
 export const SEED_DOSSIERS_SUIVIS_PAR_DEV: string[] = [
-  "31496628", // D10 — Aménagement de lotissement
-  "31113417", // D11 — Agrandissement pistes cyclables Rennes-Dinan
+  "99000010", // D10 — Aménagement de lotissement
+  "99000011", // D11 — Agrandissement pistes cyclables Rennes-Dinan
 ];
 
 // ---------------------------------------------------------------------------
@@ -777,7 +1037,7 @@ export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
   // Hirondelle rousseline (CNPN, oiseau) impacted twice; Grenouille des champs
   // (ministérielle, faune non-oiseau) impacted once.
   {
-    dossier: "31496628",
+    dossier: "99000010",
     nom_fichier: "especes-impactees.ods",
     lignes: [
       // Dégradation/destruction d'aires de repos/reproduction (P-4-2)
@@ -805,7 +1065,7 @@ export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
   },
   // D11 — Agrandissement pistes cyclables Rennes-Dinan
   {
-    dossier: "31113417",
+    dossier: "99000011",
     nom_fichier: "especes-impactees.ods",
     lignes: [
       // Dégradation/destruction d'aires de repos/reproduction, oiseau (P-4-2)
@@ -1024,21 +1284,21 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
 
   // D11 – pistes cyclables Rennes-Dinan → Instruction → Contrôle → Accompagnement amont
   {
-    dossier: "31113417",
+    dossier: "99000011",
     phase: "Instruction",
     horodatage: new Date("2026-05-05T10:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
     DS_motivation: null,
   },
   {
-    dossier: "31113417",
+    dossier: "99000011",
     phase: "Contrôle",
     horodatage: new Date("2026-05-05T11:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
     DS_motivation: null,
   },
   {
-    dossier: "31113417",
+    dossier: "99000011",
     phase: "Accompagnement amont",
     horodatage: new Date("2026-05-05T12:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
@@ -1073,7 +1333,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D10 – aménagement lotissement – CNPN favorable
   {
     id: "ae000003-0000-4000-a000-000000000003",
-    dossier: "31496628",
+    dossier: "99000010",
     expert: "CNPN",
     date_saisine: new Date("2026-05-26"),
     avis: "Favorable",
@@ -1082,7 +1342,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D11 – pistes cyclables Rennes-Dinan – CSRPN favorable, avis non daté
   {
     id: "ae000004-0000-4000-a000-000000000004",
-    dossier: "31113417",
+    dossier: "99000011",
     expert: "CSRPN",
     date_saisine: new Date("2026-05-05"),
     avis: "Favorable",
@@ -1126,7 +1386,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D10 – aménagement lotissement – arrêté dérogation
   {
     id: "da000004-0000-4000-a000-000000000004",
-    dossier: "31496628",
+    dossier: "99000010",
     numéro: "987654321",
     type: "Arrêté dérogation",
     date_signature: new Date("2026-05-26"),
@@ -1136,7 +1396,7 @@ export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
   // D11 – pistes cyclables Rennes-Dinan – arrêté dérogation (sans prescription)
   {
     id: "da000005-0000-4000-a000-000000000005",
-    dossier: "31113417",
+    dossier: "99000011",
     numéro: "987654",
     type: "Arrêté dérogation",
     date_signature: new Date("2026-05-05"),

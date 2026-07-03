@@ -8,6 +8,7 @@
   type Onglet =
     | "instruction"
     | "projet"
+    | "porteur-de-projet"
     | "avis"
     | "controles"
     | "generation-document"
@@ -17,6 +18,7 @@
     return [
       "instruction",
       "projet",
+      "porteur-de-projet",
       "echanges",
       "avis",
       "controles",

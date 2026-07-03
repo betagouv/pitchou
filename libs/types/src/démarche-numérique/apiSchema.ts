@@ -63,6 +63,60 @@ export type ChampDSRégions = BaseRepetitionChampsDS<ChampDSRégion>;
 
 export type ChampScientifiqueIntervenants = BaseRepetitionChampsDS<BaseChampDS>;
 
+/**
+ * @see {@link https://www.demarches-simplifiees.fr/graphql/schema/types/Address}
+ */
+export interface DémarchesSimpliféesAddress {
+  label: string;
+  streetAddress: string | null;
+  postalCode: string;
+  cityName: string;
+  cityCode: string;
+  departmentCode: string | null;
+  departmentName: string | null;
+  regionCode: string | null;
+  regionName: string | null;
+}
+
+/** "Adresse" champ backed by the Base Adresse Nationale (BAN). */
+export interface ChampDSAddress extends BaseChampDS {
+  address: DémarchesSimpliféesAddress | null;
+  commune: DémarchesSimpliféesCommune | null;
+  departement: DémarchesSimpliféesDépartement | null;
+}
+
+/**
+ * @see {@link https://www.demarches-simplifiees.fr/graphql/schema/types/Entreprise}
+ */
+export interface DémarchesSimpliféesEntreprise {
+  siren: string;
+  raisonSociale: string;
+  nomCommercial: string;
+  siretSiegeSocial: string;
+  formeJuridique: string | null;
+  dateCreation: string | null; // ISO8601Date
+  etatAdministratif: "Actif" | "Ferme" | null;
+  capitalSocial: string | null; // BigInt, "-1" when unknown
+  codeEffectifEntreprise: string | null; // INSEE "tranche d'effectif salarié" code
+}
+
+/**
+ * The establishment (personne morale) returned by a SIRET champ.
+ * @see {@link https://www.demarches-simplifiees.fr/graphql/schema/types/PersonneMorale}
+ */
+export interface DémarchesSimpliféesEtablissement {
+  siret: string;
+  address: DémarchesSimpliféesAddress | null;
+  libelleNaf: string | null;
+  naf: string | null;
+  entreprise: DémarchesSimpliféesEntreprise | null;
+}
+
+/** "Numéro de SIRET" champ. */
+export interface ChampDSSiret extends BaseChampDS {
+  etablissement: DémarchesSimpliféesEtablissement | null;
+}
+
 export interface DSFile {
   filename: string;
   url: string;
@@ -113,7 +167,9 @@ export type Champs88444 =
   | ChampDSCommune
   | ChampDSDépartement
   | ChampDSRégions
-  | ChampDSPieceJustificative;
+  | ChampDSPieceJustificative
+  | ChampDSAddress
+  | ChampDSSiret;
 export type Annotations88444 = BaseChampDS | ChampDSCheckbox | ChampDSDate;
 
 /**
