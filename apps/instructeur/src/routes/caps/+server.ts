@@ -52,6 +52,7 @@ export const GET: RequestHandler = async ({ url }) => {
     ret.addOrUpdateControle = `/controle?cap=${cap}`;
     ret.deleteControle = `/controle/:controleId?cap=${cap}`;
     ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
+    ret.addAttachmentAutre = `/attachment-autre?cap=${cap}`;
     ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
   }
   if (capBundle.créerÉvènementMetrique) {

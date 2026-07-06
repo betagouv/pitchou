@@ -9,7 +9,7 @@
     FrontEndFichier,
   } from "@pitchou/types/API_Pitchou.ts";
 
-  type OngletLie = "projet" | "avis" | "controles";
+  type OngletLie = "instruction" | "projet" | "avis" | "controles";
 
   type Props = {
     dossier: DossierComplet;
@@ -128,6 +128,16 @@
         },
       ];
     }),
+  );
+
+  const piecesJointesAutres: PieceJointeSimple[] = $derived(
+    dossier.attachmentAutres.map((attachment) => ({
+      label: attachment.type,
+      description: attachment.fichier_description,
+      date: attachment.attachment_date,
+      labelDate: "Date de la pièce jointe",
+      url: attachment.fichier_url ?? "",
+    })),
   );
 </script>
 
@@ -249,15 +259,47 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <h3>Autres</h3>
-    <p>Cette section sera complétée ultérieurement.</p>
+    <div class="entete-section-pieces-jointes">
+      <h3>Autres</h3>
+      <button
+        type="button"
+        class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
+        onclick={() => ouvrirOnglet("instruction")}
+      >
+        Voir dans l'onglet Instruction
+      </button>
+    </div>
+    {#if piecesJointesAutres.length === 0}
+      <p>Aucune autre pièce jointe n'est associée à ce dossier.</p>
+    {:else}
+      <ul class="liste-cartes-pieces-jointes">
+        {#each piecesJointesAutres as pieceJointe}
+          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
+          <li class="carte-piece-jointe">
+            <div class="piece-jointe-fichier">
+              <a
+                class="fr-link fr-link--download"
+                href={pieceJointe.url}
+                title={nomPieceJointe(pieceJointe)}
+                data-sveltekit-reload
+              >
+                {raccourcirNomFichier(nomPieceJointe(pieceJointe))}
+                {#if details}
+                  <span class="fr-link__detail">{details}</span>
+                {/if}
+              </a>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    {/if}
   </section>
 </section>
 
 <ModaleAjouterPièceJointe
   id={idModaleAjouterPieceJointe}
   {dossier}
-  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative"]}
+  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
 />
 
 <style lang="scss">

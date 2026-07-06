@@ -196,7 +196,7 @@
 <ModaleAjouterPièceJointe
   id={idModaleAjouterPieceJointe}
   {dossier}
-  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative"]}
+  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
 />
 
 <style lang="scss">

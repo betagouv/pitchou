@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { addAttachmentAutre } from "./attachmentAutre.ts";
   import { ajouterOuModifierAvisExpert } from "./avisExpert.ts";
   import { sauvegardeNouvelleDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
@@ -12,7 +13,7 @@
     DécisionAdministrativePourTransfer,
   } from "@pitchou/types/API_Pitchou.ts";
 
-  type TypePièceJointe = "Décision administrative" | "Avis expert" | "Saisine expert";
+  type TypePièceJointe = "Décision administrative" | "Avis expert" | "Saisine expert" | "Autre";
 
   type Props = {
     id: string;
@@ -52,6 +53,10 @@
   let dateSaisine: FrontEndAvisExpert["date_saisine"] | undefined = $state();
 
   let dateAvis: FrontEndAvisExpert["date_avis"] | undefined = $state();
+
+  let otherAttachmentType = $state("");
+
+  let otherAttachmentDate: Date | undefined | null = $state();
 
   let avisExpertSélectionné: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
 
@@ -106,7 +111,9 @@
       fileListPièceJointe.length > 0 &&
       typePièceJointe !== null &&
       typePièceJointe !== undefined &&
-      (formulaireValidePourSaisineExpert || formulaireValidePourAvisExpert),
+      (formulaireValidePourSaisineExpert ||
+        formulaireValidePourAvisExpert ||
+        (typePièceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
 
   async function ajouterPièceJointe() {
@@ -179,6 +186,15 @@
               .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
           }
         }
+      } else if (typePièceJointe === "Autre") {
+        ajouterUneNouvellePièceJointeP = addAttachmentAutre(
+          dossier.id,
+          otherAttachmentType,
+          otherAttachmentDate,
+          fileListPièceJointe,
+        )
+          .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+          .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       }
     } catch (e) {
       // @ts-ignore
@@ -203,6 +219,8 @@
     avisExpertSélectionné = null;
     messageErreur = null;
     dateAvis = null;
+    otherAttachmentType = "";
+    otherAttachmentDate = null;
   }
 
   function fermerModale() {
@@ -505,6 +523,31 @@
                         >Date de l'avis</label
                       >
                       <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
+                    </div>
+                  {/if}
+
+                  {#if typePièceJointe === "Autre"}
+                    <div class="fr-input-group fr-mt-3w">
+                      <label class="fr-label" for="other-attachment-type-{id}">
+                        Autre : Précisez le type de pièce jointe
+                        <span class="obligatoire-asterisque">*</span>
+                      </label>
+                      <input
+                        required
+                        class="fr-input"
+                        type="text"
+                        id="other-attachment-type-{id}"
+                        bind:value={otherAttachmentType}
+                      />
+                    </div>
+                    <div class="fr-mt-3w">
+                      <label class="fr-input-group fr-label" for="other-attachment-date-{id}"
+                        >Date de la pièce jointe</label
+                      >
+                      <DateInput
+                        id={`other-attachment-date-${id}`}
+                        bind:date={otherAttachmentDate}
+                      />
                     </div>
                   {/if}
 

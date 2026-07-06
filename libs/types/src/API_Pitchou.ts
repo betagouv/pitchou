@@ -173,6 +173,17 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
   saisine_fichier_description?: FrontEndFichier;
 };
 
+export type FrontEndAttachmentAutre = {
+  id: string;
+  dossier: Dossier["id"];
+  fichier: Fichier["id"];
+  type: string;
+  attachment_date: Date | string | null;
+  created_at: Date | string;
+  fichier_url: string | undefined;
+  fichier_description?: FrontEndFichier;
+};
+
 /**
  * Le type DossierComplet contient toutes les informations relatives à un dossier
  * notamment l'URL de téléchargement du fichier espèces impactées s'il y en a un
@@ -193,7 +204,7 @@ export type DossierComplet = Omit<
       url: string;
       taille: number;
     })[];
-  };
+  } & { attachmentAutres: FrontEndAttachmentAutre[] };
 
 export type TypeDécisionAdministrative =
   | "Arrêté dérogation"

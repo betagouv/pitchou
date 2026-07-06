@@ -178,6 +178,19 @@ function wrapRecupérerDossierComplet(
       });
     }
 
+    if (ret.attachmentAutres) {
+      ret.attachmentAutres = ret.attachmentAutres.map((attachment) => {
+        if (attachment.attachment_date) {
+          attachment.attachment_date = new Date(attachment.attachment_date);
+        }
+        if (attachment.created_at) {
+          attachment.created_at = new Date(attachment.created_at);
+        }
+
+        return attachment;
+      });
+    }
+
     Object.freeze(ret);
 
     return ret;
@@ -254,6 +267,7 @@ export default function (
     addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
     deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),
     addOrUpdateAvisExpert: wrapPOSTMultipart(capURLs.addOrUpdateAvisExpert),
+    addAttachmentAutre: wrapPOSTMultipart(capURLs.addAttachmentAutre),
     deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
     créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
     identité: capURLs.identité,

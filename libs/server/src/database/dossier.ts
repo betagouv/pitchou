@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { getAttachmentAutresForDossier } from "./attachmentAutre.ts";
 import { getDécisionsAdministratives } from "./décision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getContrôles } from "./controle.ts";
@@ -33,6 +34,7 @@ import type {
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PartialBy, PickNonNullable } from "@pitchou/types/tools.d.ts";
+import type { AttachmentAutreWithFileDescription } from "./attachmentAutre.ts";
 
 /**
  * Récupérer les id Pitchou à partir des id DS (pas les numéro)
@@ -602,6 +604,8 @@ export async function getDossierComplet(
 
   const décisionsAdministrativesP: Promise<DécisionAdministrativeAvecDescriptionFichier[]> =
     getDécisionAdministrativesDossier(dossierId, transaction);
+  const attachmentAutresPromise: Promise<AttachmentAutreWithFileDescription[]> =
+    getAttachmentAutresForDossier(dossierId, transaction);
   const decisionIds = (await décisionsAdministrativesP).map((d) => d.id);
 
   const prescriptionsP: Promise<Prescription[]> = getPrescriptions(decisionIds, transaction);
@@ -618,6 +622,7 @@ export async function getDossierComplet(
       tousLesAvisExpertDossierP,
       descriptionsPiècesJointesPétitionnaireP,
       décisionsAdministrativesP,
+      attachmentAutresPromise,
       prescriptionsP,
       contrôlesP,
     ])
@@ -631,6 +636,7 @@ export async function getDossierComplet(
     tousLesAvisExpertDossierP,
     descriptionsPiècesJointesPétitionnaireP,
     décisionsAdministrativesP,
+    attachmentAutresPromise,
     prescriptionsP,
     contrôlesP,
   ]).then(
@@ -640,6 +646,7 @@ export async function getDossierComplet(
       tousLesAvisExpertDossier,
       descriptionsPiècesJointesPétitionnaire,
       décisionsAdministratives,
+      attachmentAutres,
       prescriptions,
       contrôles,
     ]) => {
@@ -773,6 +780,25 @@ export async function getDossierComplet(
           },
         );
       }
+
+      dossier.attachmentAutres = attachmentAutres.map(
+        ({ fichier, fichier_nom, fichier_media_type, fichier_taille, ...attachment }) => {
+          const fileDescription = décrireFichier(
+            fichier,
+            fichier_nom,
+            fichier_media_type,
+            fichier_taille,
+            "/attachment-autre/fichier",
+          );
+
+          return {
+            ...attachment,
+            fichier,
+            fichier_url: fileDescription?.url,
+            fichier_description: fileDescription,
+          };
+        },
+      );
 
       return dossier;
     },

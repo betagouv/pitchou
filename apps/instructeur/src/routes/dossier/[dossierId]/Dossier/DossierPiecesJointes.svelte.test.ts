@@ -48,6 +48,19 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
         },
       },
     ],
+    attachmentAutres: [
+      {
+        type: "Note interne",
+        attachment_date: new Date("2026-03-04"),
+        fichier_url: "/attachment-autre/fichier/1",
+        fichier_description: {
+          url: "/attachment-autre/fichier/1",
+          nom: "note-interne.pdf",
+          media_type: "application/pdf",
+          taille: 512,
+        },
+      },
+    ],
   } as unknown as DossierComplet;
 
   render(DossierPiecesJointes, { dossier, ouvrirOnglet });
@@ -60,10 +73,12 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
   await expect.element(page.getByText(/Date de dépôt : 1 janvier 2026/)).toBeVisible();
   await expect.element(page.getByRole("link", { name: /saisine-cnpn\.pdf/ })).toBeVisible();
   await expect.element(page.getByRole("link", { name: /arrete-ap-123\.pdf/ })).toBeVisible();
+  await expect.element(page.getByRole("link", { name: /note-interne\.pdf/ })).toBeVisible();
   await expect.element(page.getByText(/application\/pdf - 1KB - Date de saisine/)).toBeVisible();
   await expect
     .element(page.getByText(/application\/pdf - 4\.1KB - Date de signature/))
     .toBeVisible();
+  await expect.element(page.getByText(/Note interne - application\/pdf/)).toBeVisible();
   await expect.element(page.getByText(/Saisine - CNPN - application\/pdf/)).toBeVisible();
   await expect.element(page.getByText(/Arrêté dérogation AP-123 - application\/pdf/)).toBeVisible();
   await expect.element(page.getByRole("heading", { name: "Autres" })).toBeVisible();
@@ -77,4 +92,7 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
 
   await page.getByRole("button", { name: "Voir dans l'onglet Contrôles" }).click();
   expect(ouvrirOnglet).toHaveBeenCalledWith("controles");
+
+  await page.getByRole("button", { name: "Voir dans l'onglet Instruction" }).click();
+  expect(ouvrirOnglet).toHaveBeenCalledWith("instruction");
 });

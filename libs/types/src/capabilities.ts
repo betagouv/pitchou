@@ -44,6 +44,7 @@ export interface PitchouInstructeurCapabilities {
   addOrUpdateControle: (contrôle: Partial<Contrôle>) => Promise<Contrôle["id"] | undefined>;
   deleteControle: (id: Contrôle["id"]) => Promise<unknown>;
   addOrUpdateAvisExpert: (form: FormData) => Promise<string>;
+  addAttachmentAutre: (form: FormData) => Promise<string>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;
   créerÉvènementMetrique: (évènement: ÉvènementMétrique) => Promise<void>;
   listerNotifications: () => Promise<Notification[]>;
