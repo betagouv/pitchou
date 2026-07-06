@@ -16,7 +16,7 @@ const NIVEAU_RANK: Record<NiveauAARRI, number> = {
 export const NIVEAU_LABELS: Record<NiveauAARRI, string> = {
   base: "Inactif",
   acquis: "Acquis",
-  actif: "Actif",
+  actif: "Activé",
   retenu: "Retenu",
   impact: "Impact",
 };
@@ -93,6 +93,7 @@ const SORT_KEYS: readonly string[] = SORT_OPTIONS.map((option) => option.key);
 export type UtilisateursQuery = {
   searchText: string;
   niveau: NiveauAARRI | "";
+  groupe: string;
   sort: SortKey;
   order: SortOrder;
   page: number;
@@ -110,10 +111,22 @@ export function parseUtilisateursQuery(params: URLSearchParams): UtilisateursQue
   return {
     searchText: params.get("q") ?? "",
     niveau: (NIVEAUX as readonly string[]).includes(niveau) ? (niveau as NiveauAARRI) : "",
+    groupe: params.get("groupe") ?? "",
     sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : "niveau",
     order: params.get("ordre") === "asc" ? "asc" : "desc",
     page: Number.isInteger(page) && page >= 1 ? page : 1,
   };
+}
+
+/** Sorted, distinct list of every groupe instructeur present in the list, for the filter. */
+export function listeGroupesInstructeurs(utilisateurs: UtilisateurAARRI[]): string[] {
+  const groupes = new Set<string>();
+  for (const utilisateur of utilisateurs) {
+    for (const groupe of utilisateur.groupesInstructeurs) {
+      groupes.add(groupe);
+    }
+  }
+  return [...groupes].sort((a, b) => a.localeCompare(b, "fr"));
 }
 
 function normalize(value: string | null): string {
@@ -144,6 +157,12 @@ export function filterUtilisateurs(
 
   if (query.niveau) {
     result = result.filter((utilisateur) => utilisateur.niveau === query.niveau);
+  }
+
+  if (query.groupe) {
+    result = result.filter((utilisateur) =>
+      utilisateur.groupesInstructeurs.includes(query.groupe),
+    );
   }
 
   const text = query.searchText.trim();

@@ -11,6 +11,7 @@
     filterUtilisateurs,
     compareUtilisateurs,
     utilisateursToCSV,
+    listeGroupesInstructeurs,
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
@@ -40,7 +41,9 @@
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
   /** Number of active filters (shown on the « Filtrer » button) */
-  const activeFilterCount = $derived(query.niveau ? 1 : 0);
+  const activeFilterCount = $derived((query.niveau ? 1 : 0) + (query.groupe ? 1 : 0));
+
+  const groupesInstructeurs = $derived(listeGroupesInstructeurs(utilisateurs));
 
   const filteredUtilisateurs = $derived(filterUtilisateurs(utilisateurs, query));
 
@@ -108,7 +111,7 @@
     updateQuery({ q: value });
   }
 
-  function onFilterChange(updates: { niveau?: NiveauAARRI | "" }) {
+  function onFilterChange(updates: { niveau?: NiveauAARRI | ""; groupe?: string }) {
     updateQuery(updates);
   }
 
@@ -221,7 +224,12 @@
   </div>
 
   {#if filterPanelOpen}
-    <UtilisateursFilterPanel selectedNiveau={query.niveau} onChange={onFilterChange} />
+    <UtilisateursFilterPanel
+      selectedNiveau={query.niveau}
+      selectedGroupe={query.groupe}
+      groupes={groupesInstructeurs}
+      onChange={onFilterChange}
+    />
   {/if}
 
   {#if sortPanelOpen}

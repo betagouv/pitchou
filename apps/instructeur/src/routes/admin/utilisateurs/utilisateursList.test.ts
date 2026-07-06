@@ -8,6 +8,7 @@ import {
   compareUtilisateurs,
   countByNiveau,
   utilisateursToCSV,
+  listeGroupesInstructeurs,
 } from "./utilisateursList.ts";
 
 // Builds a UtilisateurAARRI with sensible defaults; override only what matters.
@@ -34,6 +35,7 @@ describe("parseUtilisateursQuery", () => {
     expect(parseUtilisateursQuery(params())).toEqual({
       searchText: "",
       niveau: "",
+      groupe: "",
       sort: "niveau",
       order: "desc",
       page: 1,
@@ -43,11 +45,19 @@ describe("parseUtilisateursQuery", () => {
   it("reads valid values straight from the URL", () => {
     expect(
       parseUtilisateursQuery(
-        params({ q: "durand", niveau: "actif", tri: "email", ordre: "asc", page: "2" }),
+        params({
+          q: "durand",
+          niveau: "actif",
+          groupe: "DDT 33",
+          tri: "email",
+          ordre: "asc",
+          page: "2",
+        }),
       ),
     ).toEqual({
       searchText: "durand",
       niveau: "actif",
+      groupe: "DDT 33",
       sort: "email",
       order: "asc",
       page: 2,
@@ -125,6 +135,28 @@ describe("filterUtilisateurs", () => {
       filterUtilisateurs(utilisateurs, { ...emptyQuery, niveau: "actif", searchText: "base" }),
     ).toEqual([]);
   });
+
+  it("filters by groupe instructeur, keeping members of that groupe", () => {
+    const alpha = makeUtilisateur({ personneId: 1, groupesInstructeurs: ["Alpha", "Beta"] });
+    const beta = makeUtilisateur({ personneId: 2, groupesInstructeurs: ["Beta"] });
+    const sansGroupe = makeUtilisateur({ personneId: 3, groupesInstructeurs: [] });
+    const result = filterUtilisateurs([alpha, beta, sansGroupe], {
+      ...emptyQuery,
+      groupe: "Alpha",
+    });
+    expect(result).toEqual([alpha]);
+  });
+});
+
+describe("listeGroupesInstructeurs", () => {
+  it("returns the distinct groupe names, sorted", () => {
+    const groupes = listeGroupesInstructeurs([
+      makeUtilisateur({ groupesInstructeurs: ["Beta", "Alpha"] }),
+      makeUtilisateur({ groupesInstructeurs: ["Beta"] }),
+      makeUtilisateur({ groupesInstructeurs: [] }),
+    ]);
+    expect(groupes).toEqual(["Alpha", "Beta"]);
+  });
 });
 
 describe("compareUtilisateurs", () => {
@@ -168,7 +200,7 @@ describe("utilisateursToCSV", () => {
     ]);
     const [header, line] = csv.split("\n");
     expect(header).toBe("Email,Groupes instructeurs,Niveau AARRI,Nombre d'actions,Dernière activité");
-    expect(line).toBe("camille@dept.gouv.fr,Alpha ; Beta,Actif,7,2026-05-01");
+    expect(line).toBe("camille@dept.gouv.fr,Alpha ; Beta,Activé,7,2026-05-01");
   });
 
   it("leaves email and date empty when absent", () => {
