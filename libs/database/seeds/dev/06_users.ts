@@ -56,6 +56,11 @@ export async function seed(knex: Knex) {
         capability = inserted;
       }
 
+      await transaction("cap_évènement_métrique")
+        .insert({ personne_cap: person.code_accès })
+        .onConflict("personne_cap")
+        .ignore();
+
       const group = await transaction("groupe_instructeurs")
         .where({ nom: personne.groupe, numéro_démarche: SEED_DEMARCHE_NUMBER })
         .first();
