@@ -2,7 +2,12 @@ import { expect, test, describe } from "vitest";
 
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL, TEST_ADMIN_EMAIL } from "../setup/integration-global.ts";
-import { createPersonne } from "../factories/index.ts";
+import {
+  createPersonne,
+  createInstructeurWithCapToGroup,
+  createGroupeInstructeurs,
+  attachCapToGroupe,
+} from "../factories/index.ts";
 import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
 
 import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
@@ -52,6 +57,25 @@ describe("getUtilisateursAARRI", () => {
     // Modification actions are counted, and the last activity date is filled.
     expect(byEmail.get("actif@dept.gouv.fr")?.actionCount).toBe(5);
     expect(byEmail.get("actif@dept.gouv.fr")?.lastActivityDate).not.toBeNull();
+  });
+
+  test("lists the groupes instructeurs of each personne, sorted", async () => {
+    // In two groupes, "Beta" and "Alpha", to check the list comes back sorted.
+    const { cap } = await createInstructeurWithCapToGroup(db, {
+      email: "deux-groupes@dept.gouv.fr",
+      nomGroupe: "Beta",
+    });
+    const autreGroupe = await createGroupeInstructeurs(db, { nom: "Alpha" });
+    await attachCapToGroupe(db, cap, autreGroupe.id);
+
+    // Belongs to no groupe.
+    await createPersonne(db, { email: "sans-groupe@dept.gouv.fr" });
+
+    const utilisateurs = await getUtilisateursAARRI(db);
+    const byEmail = new Map(utilisateurs.map((u) => [u.email, u]));
+
+    expect(byEmail.get("deux-groupes@dept.gouv.fr")?.groupesInstructeurs).toEqual(["Alpha", "Beta"]);
+    expect(byEmail.get("sans-groupe@dept.gouv.fr")?.groupesInstructeurs).toEqual([]);
   });
 
   test("excludes personnes that are not Pitchou accounts (no code d'accès)", async () => {

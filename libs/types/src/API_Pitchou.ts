@@ -300,6 +300,8 @@ export interface UtilisateurAARRI {
   nom: string | null;
   prenoms: string | null;
   niveau: NiveauAARRI;
+  /** Names of the groupes instructeurs the personne belongs to (may be empty) */
+  groupesInstructeurs: string[];
   /** Total number of consultation and modification actions */
   actionCount: number;
   /** ISO date of the last metric event, or null if there is none */

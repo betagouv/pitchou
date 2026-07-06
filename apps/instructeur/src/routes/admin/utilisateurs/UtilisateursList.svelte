@@ -10,6 +10,8 @@
     parseUtilisateursQuery,
     filterUtilisateurs,
     compareUtilisateurs,
+    utilisateursToCSV,
+    listeGroupesInstructeurs,
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
@@ -39,7 +41,9 @@
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
   /** Number of active filters (shown on the « Filtrer » button) */
-  const activeFilterCount = $derived(query.niveau ? 1 : 0);
+  const activeFilterCount = $derived((query.niveau ? 1 : 0) + (query.groupe ? 1 : 0));
+
+  const groupesInstructeurs = $derived(listeGroupesInstructeurs(utilisateurs));
 
   const filteredUtilisateurs = $derived(filterUtilisateurs(utilisateurs, query));
 
@@ -107,7 +111,7 @@
     updateQuery({ q: value });
   }
 
-  function onFilterChange(updates: { niveau?: NiveauAARRI | "" }) {
+  function onFilterChange(updates: { niveau?: NiveauAARRI | ""; groupe?: string }) {
     updateQuery(updates);
   }
 
@@ -116,6 +120,20 @@
       tri: sort === "niveau" ? null : sort,
       ordre: order === "desc" ? null : "asc",
     });
+  }
+
+  function downloadListeUtilisateurs() {
+    const csv = utilisateursToCSV(utilisateurs);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const today = new Date().toISOString().slice(0, 10);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `instructrices_aarri_${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 </script>
 
@@ -129,6 +147,13 @@
       data-fr-opened="false"
     >
       Comment les niveaux sont calculés&nbsp;?
+    </button>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
+      onclick={downloadListeUtilisateurs}
+    >
+      Télécharger la liste des utilisateurices
     </button>
     <button
       type="button"
@@ -199,7 +224,12 @@
   </div>
 
   {#if filterPanelOpen}
-    <UtilisateursFilterPanel selectedNiveau={query.niveau} onChange={onFilterChange} />
+    <UtilisateursFilterPanel
+      selectedNiveau={query.niveau}
+      selectedGroupe={query.groupe}
+      groupes={groupesInstructeurs}
+      onChange={onFilterChange}
+    />
   {/if}
 
   {#if sortPanelOpen}

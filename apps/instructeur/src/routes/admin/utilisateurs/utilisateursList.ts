@@ -16,7 +16,7 @@ const NIVEAU_RANK: Record<NiveauAARRI, number> = {
 export const NIVEAU_LABELS: Record<NiveauAARRI, string> = {
   base: "Inactif",
   acquis: "Acquis",
-  actif: "Actif",
+  actif: "Activé",
   retenu: "Retenu",
   impact: "Impact",
 };
@@ -45,6 +45,37 @@ export function countByNiveau(utilisateurs: UtilisateurAARRI[]): Record<NiveauAA
   return counts;
 }
 
+function csvEscape(value: string | number | null): string {
+  if (value === null || value === undefined) return "";
+  const s = String(value);
+  if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+export function utilisateursToCSV(utilisateurs: UtilisateurAARRI[]): string {
+  const header = [
+    "Email",
+    "Groupes instructeurs",
+    "Niveau AARRI",
+    "Nombre d'actions",
+    "Dernière activité",
+  ].join(",");
+
+  const lines = utilisateurs.map((utilisateur) =>
+    [
+      csvEscape(utilisateur.email),
+      csvEscape(utilisateur.groupesInstructeurs.join(" ; ")),
+      csvEscape(NIVEAU_LABELS[utilisateur.niveau]),
+      csvEscape(utilisateur.actionCount),
+      csvEscape(utilisateur.lastActivityDate ? utilisateur.lastActivityDate.slice(0, 10) : ""),
+    ].join(","),
+  );
+
+  return [header, ...lines].join("\n");
+}
+
 export type SortKey = "niveau" | "email" | "actions" | "activite";
 
 export type SortOrder = "asc" | "desc";
@@ -62,6 +93,7 @@ const SORT_KEYS: readonly string[] = SORT_OPTIONS.map((option) => option.key);
 export type UtilisateursQuery = {
   searchText: string;
   niveau: NiveauAARRI | "";
+  groupe: string;
   sort: SortKey;
   order: SortOrder;
   page: number;
@@ -79,10 +111,22 @@ export function parseUtilisateursQuery(params: URLSearchParams): UtilisateursQue
   return {
     searchText: params.get("q") ?? "",
     niveau: (NIVEAUX as readonly string[]).includes(niveau) ? (niveau as NiveauAARRI) : "",
+    groupe: params.get("groupe") ?? "",
     sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : "niveau",
     order: params.get("ordre") === "asc" ? "asc" : "desc",
     page: Number.isInteger(page) && page >= 1 ? page : 1,
   };
+}
+
+/** Sorted, distinct list of every groupe instructeur present in the list, for the filter. */
+export function listeGroupesInstructeurs(utilisateurs: UtilisateurAARRI[]): string[] {
+  const groupes = new Set<string>();
+  for (const utilisateur of utilisateurs) {
+    for (const groupe of utilisateur.groupesInstructeurs) {
+      groupes.add(groupe);
+    }
+  }
+  return [...groupes].sort((a, b) => a.localeCompare(b, "fr"));
 }
 
 function normalize(value: string | null): string {
@@ -113,6 +157,12 @@ export function filterUtilisateurs(
 
   if (query.niveau) {
     result = result.filter((utilisateur) => utilisateur.niveau === query.niveau);
+  }
+
+  if (query.groupe) {
+    result = result.filter((utilisateur) =>
+      utilisateur.groupesInstructeurs.includes(query.groupe),
+    );
   }
 
   const text = query.searchText.trim();

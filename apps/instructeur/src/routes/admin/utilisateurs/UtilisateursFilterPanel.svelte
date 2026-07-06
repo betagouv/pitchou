@@ -4,10 +4,12 @@
 
   type Props = {
     selectedNiveau: NiveauAARRI | "";
-    onChange: (updates: { niveau?: NiveauAARRI | "" }) => void;
+    selectedGroupe: string;
+    groupes: string[];
+    onChange: (updates: { niveau?: NiveauAARRI | ""; groupe?: string }) => void;
   };
 
-  let { selectedNiveau, onChange }: Props = $props();
+  let { selectedNiveau, selectedGroupe, groupes, onChange }: Props = $props();
 </script>
 
 <fieldset id="panneau-filtres" class="panel">
@@ -25,6 +27,21 @@
         <option value="" selected>Tous les niveaux</option>
         {#each NIVEAUX as niveau}
           <option value={niveau}>{NIVEAU_LABELS[niveau]}</option>
+        {/each}
+      </select>
+    </div>
+    <div class="filter-row">
+      <label class="fr-label filter-label" for="select-groupe">Groupe instructeur</label>
+      <select
+        value={selectedGroupe}
+        onchange={(e) => onChange({ groupe: e.currentTarget.value })}
+        aria-label="Groupe instructeur choisi"
+        class="fr-select"
+        id="select-groupe"
+      >
+        <option value="" selected>Tous les groupes</option>
+        {#each groupes as groupe}
+          <option value={groupe}>{groupe}</option>
         {/each}
       </select>
     </div>
