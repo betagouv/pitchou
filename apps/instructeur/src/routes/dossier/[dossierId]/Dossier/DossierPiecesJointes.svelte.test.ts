@@ -11,12 +11,14 @@ afterEach(cleanup);
 test("affiche les pièces jointes du projet, des avis et des arrêtés", async () => {
   const ouvrirOnglet = vi.fn();
   const dossier = {
+    id: "dossier-1",
     piècesJointesPétitionnaires: [
       {
         url: "/piece-jointe-petitionnaire/fichier/1",
         nom: "etude-impact.pdf",
         media_type: "application/pdf",
         taille: 2048,
+        DS_createdAt: new Date("2026-01-01"),
       },
     ],
     avisExpert: [
@@ -50,8 +52,12 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
 
   render(DossierPiecesJointes, { dossier, ouvrirOnglet });
 
+  await expect
+    .element(page.getByRole("button", { name: "Ajouter une pièce jointe" }))
+    .toBeVisible();
   await expect.element(page.getByRole("heading", { name: "Projet" })).toBeVisible();
   await expect.element(page.getByRole("link", { name: /etude-impact\.pdf/ })).toBeVisible();
+  await expect.element(page.getByText(/Date de dépôt : 1 janvier 2026/)).toBeVisible();
   await expect.element(page.getByRole("link", { name: /saisine-cnpn\.pdf/ })).toBeVisible();
   await expect.element(page.getByRole("link", { name: /arrete-ap-123\.pdf/ })).toBeVisible();
   await expect.element(page.getByText(/application\/pdf - 1KB - Date de saisine/)).toBeVisible();

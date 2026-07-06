@@ -189,7 +189,7 @@ export type DossierComplet = Omit<
   } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
     décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
   } & { avisExpert: FrontEndAvisExpert[] } & {
-    piècesJointesPétitionnaires: (Pick<Fichier, "media_type" | "nom"> & {
+    piècesJointesPétitionnaires: (Pick<Fichier, "DS_createdAt" | "media_type" | "nom"> & {
       url: string;
       taille: number;
     })[];

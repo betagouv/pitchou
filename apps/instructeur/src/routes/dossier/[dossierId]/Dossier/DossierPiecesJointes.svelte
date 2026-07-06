@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
+  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
   import type {
     DossierComplet,
@@ -16,6 +17,8 @@
   };
 
   let { dossier, ouvrirOnglet }: Props = $props();
+
+  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
 
   type PieceJointeSimple = {
     label: string;
@@ -129,6 +132,15 @@
 </script>
 
 <section class="pieces-jointes">
+  <button
+    type="button"
+    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line bouton-ajouter-piece-jointe"
+    aria-controls={idModaleAjouterPieceJointe}
+    data-fr-opened="false"
+  >
+    Ajouter une pièce jointe
+  </button>
+
   <section class="section-pieces-jointes">
     <div class="entete-section-pieces-jointes">
       <h3>Projet</h3>
@@ -144,13 +156,15 @@
       <p>Aucune pièce jointe n'a été déposée par le pétitionnaire.</p>
     {:else}
       <ul class="liste-cartes-pieces-jointes">
-        {#each dossier.piècesJointesPétitionnaires as { url, nom, media_type, taille }}
+        {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
           <li class="carte-piece-jointe">
             <div class="piece-jointe-fichier">
               <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
                 {raccourcirNomFichier(nom)}
                 <span class="fr-link__detail">
-                  {media_type} - {byteFormat.format(taille)}
+                  {media_type} - {byteFormat.format(taille)}{DS_createdAt
+                    ? ` - Date de dépôt : ${formatDateAbsolue(DS_createdAt)}`
+                    : ""}
                 </span>
               </a>
             </div>
@@ -199,7 +213,7 @@
 
   <section class="section-pieces-jointes">
     <div class="entete-section-pieces-jointes">
-      <h3>Arrêtés et décisions administratives</h3>
+      <h3>Décisions administratives</h3>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
@@ -240,11 +254,21 @@
   </section>
 </section>
 
+<ModaleAjouterPièceJointe
+  id={idModaleAjouterPieceJointe}
+  {dossier}
+  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative"]}
+/>
+
 <style lang="scss">
   .pieces-jointes {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+  }
+
+  .bouton-ajouter-piece-jointe {
+    align-self: flex-start;
   }
 
   .section-pieces-jointes {

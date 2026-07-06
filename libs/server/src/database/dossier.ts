@@ -597,7 +597,7 @@ export async function getDossierComplet(
     getAvisExpertDossier(dossierId, transaction);
 
   const descriptionsPiècesJointesPétitionnaireP: Promise<
-    (Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]
+    (Pick<Fichier, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]
   > = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction);
 
   const décisionsAdministrativesP: Promise<DécisionAdministrativeAvecDescriptionFichier[]> =
@@ -689,8 +689,9 @@ export async function getDossierComplet(
       );
 
       dossier.piècesJointesPétitionnaires = descriptionsPiècesJointesPétitionnaire.map(
-        ({ id, nom, media_type, taille }) => ({
+        ({ id, DS_createdAt, nom, media_type, taille }) => ({
           url: `/piece-jointe-petitionnaire/fichier/${id}`,
+          DS_createdAt,
           nom,
           media_type,
           taille,
@@ -1060,10 +1061,11 @@ async function getDécisionAdministrativesDossier(
 async function getDescriptionsPiècesJointesPétitionnaire(
   idDossier: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<(Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]> {
+): Promise<(Pick<Fichier, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]> {
   return databaseConnection("dossier")
     .select([
       "fichier.id as id",
+      "fichier.DS_createdAt as DS_createdAt",
       "fichier.nom as nom",
       "fichier.media_type as media_type",
       databaseConnection.raw("coalesce(length(fichier.contenu), file.taille)::integer as taille"),

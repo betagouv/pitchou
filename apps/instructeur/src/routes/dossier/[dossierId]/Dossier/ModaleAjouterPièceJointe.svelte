@@ -1,19 +1,34 @@
 <script lang="ts">
   import { ajouterOuModifierAvisExpert } from "./avisExpert.ts";
+  import { sauvegardeNouvelleDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import DateInput from "../DateInput.svelte";
+  import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
 
-  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type {
+    DossierComplet,
+    FrontEndAvisExpert,
+    DécisionAdministrativePourTransfer,
+  } from "@pitchou/types/API_Pitchou.ts";
+
+  type TypePièceJointe = "Décision administrative" | "Avis expert" | "Saisine expert";
 
   type Props = {
     id: string;
     dossier: Pick<DossierComplet, "id" | "avisExpert">;
+    typesPiècesJointes?: TypePièceJointe[];
+    afficherChoixType?: boolean;
+    typePièceJointeInitial?: TypePièceJointe;
   };
 
-  let { id, dossier }: Props = $props();
-
-  type TypePièceJointe = "Arrêté préfectoral" | "Avis expert" | "Saisine expert" | "Autre";
+  let {
+    id,
+    dossier,
+    typesPiècesJointes = ["Saisine expert", "Avis expert"],
+    afficherChoixType = true,
+    typePièceJointeInitial,
+  }: Props = $props();
 
   const idTitreH2 = $derived(`${id}-title`);
 
@@ -21,7 +36,11 @@
 
   let fileListPièceJointe: FileList | undefined = $state();
 
-  let typePièceJointe: TypePièceJointe | null = $state(null);
+  function typePièceJointeParDéfaut() {
+    return typePièceJointeInitial ?? (!afficherChoixType ? (typesPiècesJointes[0] ?? null) : null);
+  }
+
+  let typePièceJointe: TypePièceJointe | null = $state(typePièceJointeParDéfaut());
 
   let serviceOuPersonneExperte: string | null = $state(null);
 
@@ -50,6 +69,8 @@
         ae.date_avis === null,
     ),
   );
+
+  let afficherChampTypePièceJointe = $derived(afficherChoixType && typesPiècesJointes.length > 1);
 
   let ajouterUneNouvellePièceJointeP: Promise<void> = $state(Promise.resolve());
 
@@ -165,6 +186,11 @@
     }
   }
 
+  async function ajouterDécisionAdministrative(decision: DécisionAdministrativePourTransfer) {
+    await sauvegardeNouvelleDécisionAdministrative(decision);
+    fermerModale();
+  }
+
   function réinitialiserLeFormulaireSaufTypePièceJointe() {
     fileListPièceJointe = undefined;
     if (fileInput) {
@@ -182,7 +208,7 @@
   function fermerModale() {
     // Réinitialiser les états
     réinitialiserLeFormulaireSaufTypePièceJointe();
-    typePièceJointe = null;
+    typePièceJointe = typePièceJointeParDéfaut();
 
     if (modale) {
       //@ts-ignore
@@ -207,16 +233,11 @@
           </div>
           <div class="fr-modal__content">
             <h2 id={idTitreH2} class="fr-modal__title">Ajouter une pièce jointe</h2>
-            <form
-              onsubmit={(e) => {
-                e.preventDefault();
-                ajouterPièceJointe();
-              }}
-            >
-              <p class="fr-text--sm fr-mb-2w">
-                <span class="obligatoire-asterisque">*</span>
-                Champs obligatoires
-              </p>
+            <p class="fr-text--sm fr-mb-2w">
+              <span class="obligatoire-asterisque">*</span>
+              Champs obligatoires
+            </p>
+            {#if afficherChampTypePièceJointe}
               <div class="fr-fieldset fr-mt-3w" id="champ-type-piece-jointe-group">
                 <legend
                   class="fr-fieldset__legend--regular fr-fieldset__legend"
@@ -226,7 +247,7 @@
                   <span class="obligatoire-asterisque">*</span>
                 </legend>
                 <div class="conteneur-boutons-radios">
-                  {#each ["Saisine expert", "Avis expert"] as type}
+                  {#each typesPiècesJointes as type}
                     {@const idRadio = `type-piece-jointe-${type.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                     <div class="fr-fieldset__element">
                       <div class="fr-radio-group">
@@ -247,7 +268,20 @@
                   {/each}
                 </div>
               </div>
-              {#if typePièceJointe}
+            {/if}
+            {#if typePièceJointe === "Décision administrative"}
+              <FormDecisionAdministrative
+                décisionAdministrative={{ dossier: dossier.id }}
+                onValider={ajouterDécisionAdministrative}
+                onAnnuler={fermerModale}
+              />
+            {:else if typePièceJointe}
+              <form
+                onsubmit={(e) => {
+                  e.preventDefault();
+                  ajouterPièceJointe();
+                }}
+              >
                 <div class="fr-upload-group fr-mt-3w">
                   <label class="fr-label" for="upload-piece-jointe">
                     {#if typePièceJointe === "Avis expert" || typePièceJointe === "Saisine expert"}
@@ -280,114 +314,8 @@
                     aria-live="polite"
                   ></div>
                 </div>
-              {/if}
-              {#if fileListPièceJointe && fileListPièceJointe.length > 0}
-                {#if typePièceJointe === "Saisine expert"}
-                  <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
-                    <legend
-                      class="fr-fieldset__legend--regular fr-fieldset__legend"
-                      id="champ-service-expert-group"
-                    >
-                      Service ou personne experte
-                      <span class="obligatoire-asterisque">*</span>
-                    </legend>
-                    <div class="conteneur-boutons-radios">
-                      {#each OPTIONS_SERVICE_EXPERT as service}
-                        {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${id}`}
-                        <div class="fr-fieldset__element">
-                          <div class="fr-radio-group">
-                            <input
-                              required
-                              type="radio"
-                              id={idRadio}
-                              name="service-expert-{id}"
-                              value={service}
-                              bind:group={serviceOuPersonneExperte}
-                              onchange={() => {
-                                if (service !== "Autre expert") autreExpertTexte = null;
-                              }}
-                            />
-                            <label class="fr-label" for={idRadio}>
-                              {service}
-                            </label>
-                          </div>
-                        </div>
-                      {/each}
-                    </div>
-                  </div>
-                  <div class="fr-mt-3w">
-                    <label class="fr-input-group fr-label" for="modale-date-saisine-{id}"
-                      >Date de la saisine</label
-                    >
-                    <DateInput id={`modale-date-saisine-${id}`} bind:date={dateSaisine} />
-                  </div>
-                  {#if serviceOuPersonneExperte === "Autre expert"}
-                    <div class="fr-input-group fr-mt-3w">
-                      <label class="fr-label" for="autre-expert-texte-{id}">Précisez l'expert</label
-                      >
-                      <input
-                        class="fr-input"
-                        type="text"
-                        id="autre-expert-texte-{id}"
-                        bind:value={autreExpertTexte}
-                        placeholder="Nom de l'expert"
-                      />
-                    </div>
-                  {/if}
-                {/if}
-
-                {#if typePièceJointe === "Avis expert"}
-                  {@const idRadioNouvel = `avis-expert-selection-nouvel-${id}`}
-                  <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-selection-group">
-                    <legend
-                      class="fr-fieldset__legend--regular fr-fieldset__legend"
-                      id="champ-avis-expert-selection-group"
-                    >
-                      Sélectionner la saisine correspondante
-                    </legend>
-                    <div class="conteneur-boutons-radios-vertical">
-                      {#if saisinesSansAvis.length > 0}
-                        {#each saisinesSansAvis as saisine}
-                          {@const idRadio = `avis-expert-selection-${saisine.id}-${id}`}
-                          <div class="fr-fieldset__element">
-                            <div class="fr-radio-group">
-                              <input
-                                type="radio"
-                                id={idRadio}
-                                name="avis-expert-selection-{id}"
-                                value={saisine.id}
-                                bind:group={avisExpertSélectionné}
-                                onchange={() => (serviceOuPersonneExperte = saisine.expert)}
-                              />
-                              <label class="fr-label" for={idRadio}>
-                                Saisine {saisine.expert || "Expert"}{saisine.date_saisine
-                                  ? ` - ${formatDateAbsolue(saisine.date_saisine)}`
-                                  : ""}
-                              </label>
-                            </div>
-                          </div>
-                        {/each}
-                      {/if}
-                      <div class="fr-fieldset__element">
-                        <div class="fr-radio-group">
-                          <input
-                            type="radio"
-                            id={idRadioNouvel}
-                            name="avis-expert-selection-{id}"
-                            value="nouvel-avis-expert"
-                            bind:group={avisExpertSélectionné}
-                            onchange={() => {
-                              avis = null;
-                              serviceOuPersonneExperte = null;
-                            }}
-                          />
-                          <label class="fr-label" for={idRadioNouvel}> Nouvel avis expert </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {#if avisExpertSélectionné === "nouvel-avis-expert"}
+                {#if fileListPièceJointe && fileListPièceJointe.length > 0}
+                  {#if typePièceJointe === "Saisine expert"}
                     <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
                       <legend
                         class="fr-fieldset__legend--regular fr-fieldset__legend"
@@ -420,87 +348,195 @@
                         {/each}
                       </div>
                     </div>
+                    <div class="fr-mt-3w">
+                      <label class="fr-input-group fr-label" for="modale-date-saisine-{id}"
+                        >Date de la saisine</label
+                      >
+                      <DateInput id={`modale-date-saisine-${id}`} bind:date={dateSaisine} />
+                    </div>
                     {#if serviceOuPersonneExperte === "Autre expert"}
                       <div class="fr-input-group fr-mt-3w">
-                        <label class="fr-label" for="autre-expert-texte-avis-{id}"
+                        <label class="fr-label" for="autre-expert-texte-{id}"
                           >Précisez l'expert</label
                         >
                         <input
                           class="fr-input"
                           type="text"
-                          id="autre-expert-texte-avis-{id}"
+                          id="autre-expert-texte-{id}"
                           bind:value={autreExpertTexte}
                           placeholder="Nom de l'expert"
                         />
                       </div>
                     {/if}
                   {/if}
-                  {#if serviceOuPersonneExperte === "Ministre" || serviceOuPersonneExperte === "CNPN" || serviceOuPersonneExperte === "CSRPN"}
-                    <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
+
+                  {#if typePièceJointe === "Avis expert"}
+                    {@const idRadioNouvel = `avis-expert-selection-nouvel-${id}`}
+                    <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-selection-group">
                       <legend
                         class="fr-fieldset__legend--regular fr-fieldset__legend"
-                        id="champ-avis-expert-group"
+                        id="champ-avis-expert-selection-group"
                       >
-                        Avis de l'expert
-                        <span class="obligatoire-asterisque">*</span>
+                        Sélectionner la saisine correspondante
                       </legend>
-                      <div class="">
-                        {#each ["Avis favorable", "Avis favorable sous condition", "Avis défavorable"] as avisOption}
-                          {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, "-").toLowerCase()}-${id}`}
-                          <div class="fr-fieldset__element">
-                            <div class="fr-radio-group">
-                              <input
-                                required
-                                type="radio"
-                                id={idRadio}
-                                name="avis-expert-{id}"
-                                value={avisOption}
-                                bind:group={avis}
-                              />
-                              <label class="fr-label" for={idRadio}>
-                                {avisOption}
-                              </label>
+                      <div class="conteneur-boutons-radios-vertical">
+                        {#if saisinesSansAvis.length > 0}
+                          {#each saisinesSansAvis as saisine}
+                            {@const idRadio = `avis-expert-selection-${saisine.id}-${id}`}
+                            <div class="fr-fieldset__element">
+                              <div class="fr-radio-group">
+                                <input
+                                  type="radio"
+                                  id={idRadio}
+                                  name="avis-expert-selection-{id}"
+                                  value={saisine.id}
+                                  bind:group={avisExpertSélectionné}
+                                  onchange={() => (serviceOuPersonneExperte = saisine.expert)}
+                                />
+                                <label class="fr-label" for={idRadio}>
+                                  Saisine {saisine.expert || "Expert"}{saisine.date_saisine
+                                    ? ` - ${formatDateAbsolue(saisine.date_saisine)}`
+                                    : ""}
+                                </label>
+                              </div>
                             </div>
+                          {/each}
+                        {/if}
+                        <div class="fr-fieldset__element">
+                          <div class="fr-radio-group">
+                            <input
+                              type="radio"
+                              id={idRadioNouvel}
+                              name="avis-expert-selection-{id}"
+                              value="nouvel-avis-expert"
+                              bind:group={avisExpertSélectionné}
+                              onchange={() => {
+                                avis = null;
+                                serviceOuPersonneExperte = null;
+                              }}
+                            />
+                            <label class="fr-label" for={idRadioNouvel}> Nouvel avis expert </label>
                           </div>
-                        {/each}
+                        </div>
                       </div>
                     </div>
-                  {/if}
-                  <div class="fr-mt-3w">
-                    <label class="fr-input-group fr-label" for="modale-date-avis-{id}"
-                      >Date de l'avis</label
-                    >
-                    <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
-                  </div>
-                {/if}
 
-                {#if formulaireValide}
-                  <div class="fr-messages-group" aria-live="polite">
-                    {#if messageErreur}
+                    {#if avisExpertSélectionné === "nouvel-avis-expert"}
+                      <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
+                        <legend
+                          class="fr-fieldset__legend--regular fr-fieldset__legend"
+                          id="champ-service-expert-group"
+                        >
+                          Service ou personne experte
+                          <span class="obligatoire-asterisque">*</span>
+                        </legend>
+                        <div class="conteneur-boutons-radios">
+                          {#each OPTIONS_SERVICE_EXPERT as service}
+                            {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${id}`}
+                            <div class="fr-fieldset__element">
+                              <div class="fr-radio-group">
+                                <input
+                                  required
+                                  type="radio"
+                                  id={idRadio}
+                                  name="service-expert-{id}"
+                                  value={service}
+                                  bind:group={serviceOuPersonneExperte}
+                                  onchange={() => {
+                                    if (service !== "Autre expert") autreExpertTexte = null;
+                                  }}
+                                />
+                                <label class="fr-label" for={idRadio}>
+                                  {service}
+                                </label>
+                              </div>
+                            </div>
+                          {/each}
+                        </div>
+                      </div>
+                      {#if serviceOuPersonneExperte === "Autre expert"}
+                        <div class="fr-input-group fr-mt-3w">
+                          <label class="fr-label" for="autre-expert-texte-avis-{id}"
+                            >Précisez l'expert</label
+                          >
+                          <input
+                            class="fr-input"
+                            type="text"
+                            id="autre-expert-texte-avis-{id}"
+                            bind:value={autreExpertTexte}
+                            placeholder="Nom de l'expert"
+                          />
+                        </div>
+                      {/if}
+                    {/if}
+                    {#if serviceOuPersonneExperte === "Ministre" || serviceOuPersonneExperte === "CNPN" || serviceOuPersonneExperte === "CSRPN"}
+                      <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-group">
+                        <legend
+                          class="fr-fieldset__legend--regular fr-fieldset__legend"
+                          id="champ-avis-expert-group"
+                        >
+                          Avis de l'expert
+                          <span class="obligatoire-asterisque">*</span>
+                        </legend>
+                        <div class="">
+                          {#each ["Avis favorable", "Avis favorable sous condition", "Avis défavorable"] as avisOption}
+                            {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, "-").toLowerCase()}-${id}`}
+                            <div class="fr-fieldset__element">
+                              <div class="fr-radio-group">
+                                <input
+                                  required
+                                  type="radio"
+                                  id={idRadio}
+                                  name="avis-expert-{id}"
+                                  value={avisOption}
+                                  bind:group={avis}
+                                />
+                                <label class="fr-label" for={idRadio}>
+                                  {avisOption}
+                                </label>
+                              </div>
+                            </div>
+                          {/each}
+                        </div>
+                      </div>
+                    {/if}
+                    <div class="fr-mt-3w">
+                      <label class="fr-input-group fr-label" for="modale-date-avis-{id}"
+                        >Date de l'avis</label
+                      >
+                      <DateInput id={`modale-date-avis-${id}`} bind:date={dateAvis} />
+                    </div>
+                  {/if}
+
+                  {#if formulaireValide}
+                    <div class="fr-messages-group" aria-live="polite">
+                      {#if messageErreur}
+                        <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+                          <p>{messageErreur}</p>
+                        </div>
+                      {/if}
+                    </div>
+                    <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-2w">
+                      <li>
+                        {#await ajouterUneNouvellePièceJointeP}
+                          <button type="submit" class="fr-btn" disabled
+                            >Sauvegarde en cours...</button
+                          >
+                        {:then}
+                          <button type="submit" class="fr-btn">Valider</button>
+                        {/await}
+                      </li>
+                    </ul>
+                  {:else if messageErreur}
+                    <div class="fr-messages-group" aria-live="polite">
                       <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
                         <p>{messageErreur}</p>
                       </div>
-                    {/if}
-                  </div>
-                  <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-2w">
-                    <li>
-                      {#await ajouterUneNouvellePièceJointeP}
-                        <button type="submit" class="fr-btn" disabled>Sauvegarde en cours...</button
-                        >
-                      {:then}
-                        <button type="submit" class="fr-btn">Valider</button>
-                      {/await}
-                    </li>
-                  </ul>
-                {:else if messageErreur}
-                  <div class="fr-messages-group" aria-live="polite">
-                    <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
-                      <p>{messageErreur}</p>
                     </div>
-                  </div>
+                  {/if}
                 {/if}
-              {/if}
-            </form>
+              </form>
+            {/if}
           </div>
         </div>
       </div>
