@@ -139,7 +139,7 @@ export interface ChampDSGeoArea {
   id: string;
   source: string; // GeoAreaSource: "selection_utilisateur", "cadastre", "rpg"…
   description: string | null;
-  geometry: unknown; // GeoJSON scalar, returned as an already-parsed geometry object
+  geometry: { type: string; coordinates: unknown }; // GeoJSON object type (queried as `geometry { type coordinates }`)
 }
 
 /** "Cartographie du projet" champ (CarteChamp): areas drawn on a base map. */

@@ -424,7 +424,10 @@ fragment ChampFragment on Champ {
       id
       source
       description
-      geometry
+      geometry {
+        type
+        coordinates
+      }
     }
   }
 }
