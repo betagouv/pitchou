@@ -17,6 +17,7 @@ function makeUtilisateur(overrides: Partial<UtilisateurAARRI> = {}): Utilisateur
     nom: "Durand",
     prenoms: "Camille",
     niveau: "acquis",
+    groupesInstructeurs: [],
     actionCount: 0,
     lastActivityDate: null,
     ...overrides,
