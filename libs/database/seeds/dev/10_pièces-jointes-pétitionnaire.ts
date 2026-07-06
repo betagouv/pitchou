@@ -8,7 +8,12 @@ import { generatePlaceholderPdf } from "../fixtures/placeholder-pdf.ts";
 export async function seed(knex: Knex) {
   await knex.transaction(async (trx) => {
     let count = 0;
-    for (const { dossier: dsNumber, nom, media_type } of SEED_PIÈCES_JOINTES_PÉTITIONNAIRE) {
+    for (const {
+      dossier: dsNumber,
+      nom,
+      media_type,
+      DS_createdAt,
+    } of SEED_PIÈCES_JOINTES_PÉTITIONNAIRE) {
       const dossier = await trx("dossier")
         .where({ number_demarches_simplifiées: dsNumber })
         .first();
@@ -31,7 +36,7 @@ export async function seed(knex: Knex) {
         .delete();
 
       const { id: fichierId } = await stockerNouveauFichier(
-        { nom, contenu: generatePlaceholderPdf(nom), media_type },
+        { nom, contenu: generatePlaceholderPdf(nom), media_type, DS_createdAt },
         trx,
       );
 
