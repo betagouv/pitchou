@@ -1,6 +1,7 @@
 <script lang="ts">
   import { supprimerAvisExpert as supprimerAvisExpertServeur } from "./avisExpert.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
@@ -51,12 +52,17 @@
       : 'fr-btn--secondary'} fr-btn--icon-left fr-icon-attachment-line"
     aria-controls={idModaleAjouterPieceJointeAvis}
     data-fr-opened="false"
+    onclick={() =>
+      envoyerÉvènement({
+        type: "ouvrirModaleAjouterPieceJointe",
+        détails: { dossierId: dossier.id, source: "ongletAvis" },
+      })}
   >
     Ajouter un avis ou une saisine
   </button>
 </div>
 
-<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointeAvis} {dossier} />
+<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointeAvis} {dossier} source="ongletAvis" />
 
 <style lang="scss">
   .section-liste-avis-expert {

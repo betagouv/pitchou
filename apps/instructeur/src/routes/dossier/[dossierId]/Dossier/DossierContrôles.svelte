@@ -6,6 +6,7 @@
 
   import { supprimerDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
   import type {
     DossierComplet,
@@ -73,6 +74,11 @@
     class={classes}
     aria-controls={idModaleAjouterDecisionAdministrative}
     data-fr-opened="false"
+    onclick={() =>
+      envoyerÉvènement({
+        type: "ouvrirModaleAjouterPieceJointe",
+        détails: { dossierId: dossier.id, source: "ongletControles" },
+      })}
   >
     Rajouter une décision administrative
   </button>
@@ -84,4 +90,5 @@
   typesPiècesJointes={["Décision administrative"]}
   typePièceJointeInitial="Décision administrative"
   afficherChoixType={false}
+  source="ongletControles"
 />

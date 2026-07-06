@@ -4,6 +4,7 @@
   import { sauvegardeNouvelleDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
   import DateInput from "../DateInput.svelte";
   import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
 
@@ -12,6 +13,7 @@
     FrontEndAvisExpert,
     DécisionAdministrativePourTransfer,
   } from "@pitchou/types/API_Pitchou.ts";
+  import type { ÉvènementPieceJointeSource } from "@pitchou/types/évènement.d.ts";
 
   type TypePièceJointe = "Décision administrative" | "Avis expert" | "Saisine expert" | "Autre";
 
@@ -21,6 +23,7 @@
     typesPiècesJointes?: TypePièceJointe[];
     afficherChoixType?: boolean;
     typePièceJointeInitial?: TypePièceJointe;
+    source: ÉvènementPieceJointeSource;
   };
 
   let {
@@ -29,6 +32,7 @@
     typesPiècesJointes = ["Saisine expert", "Avis expert"],
     afficherChoixType = true,
     typePièceJointeInitial,
+    source,
   }: Props = $props();
 
   const idTitreH2 = $derived(`${id}-title`);
@@ -116,6 +120,21 @@
         (typePièceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
 
+  function envoyerÉvènementAjouterPièceJointe(
+    typePieceJointe: TypePièceJointe,
+    nombreFichiers: number,
+  ) {
+    envoyerÉvènement({
+      type: "ajouterPieceJointe",
+      détails: {
+        dossierId: dossier.id,
+        source,
+        typePieceJointe,
+        nombreFichiers,
+      },
+    });
+  }
+
   async function ajouterPièceJointe() {
     if (!fileListPièceJointe || fileListPièceJointe.length === 0) {
       return;
@@ -139,7 +158,10 @@
           fichierSaisine,
           undefined,
         )
-          .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+          .then(() => {
+            envoyerÉvènementAjouterPièceJointe("Saisine expert", 1);
+            return refreshDossierComplet(dossier.id).then(() => fermerModale());
+          })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       } else if (typePièceJointe === "Avis expert") {
         // Soit modifier une saisine existante en ajoutant l'avis, soit créer un nouveau
@@ -164,7 +186,10 @@
             undefined,
             fichierAvis,
           )
-            .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+            .then(() => {
+              envoyerÉvènementAjouterPièceJointe("Avis expert", 1);
+              return refreshDossierComplet(dossier.id).then(() => fermerModale());
+            })
             .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
         } else if (avisExpertSélectionné) {
           // Ajouter l'avis à une saisine existante
@@ -182,7 +207,10 @@
               undefined,
               fichierAvis,
             )
-              .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+              .then(() => {
+                envoyerÉvènementAjouterPièceJointe("Avis expert", 1);
+                return refreshDossierComplet(dossier.id).then(() => fermerModale());
+              })
               .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
           }
         }
@@ -193,7 +221,10 @@
           otherAttachmentDate,
           fileListPièceJointe,
         )
-          .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+          .then(() => {
+            envoyerÉvènementAjouterPièceJointe("Autre", fileListPièceJointe.length);
+            return refreshDossierComplet(dossier.id).then(() => fermerModale());
+          })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       }
     } catch (e) {
@@ -204,6 +235,9 @@
 
   async function ajouterDécisionAdministrative(decision: DécisionAdministrativePourTransfer) {
     await sauvegardeNouvelleDécisionAdministrative(decision);
+    if (decision.fichier_base64) {
+      envoyerÉvènementAjouterPièceJointe("Décision administrative", 1);
+    }
     fermerModale();
   }
 

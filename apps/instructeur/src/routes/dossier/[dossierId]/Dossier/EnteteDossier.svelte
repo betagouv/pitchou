@@ -8,6 +8,7 @@
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
 
@@ -178,6 +179,11 @@
           class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-attachment-line"
           aria-controls={idModaleAjouterPieceJointe}
           data-fr-opened="false"
+          onclick={() =>
+            envoyerÉvènement({
+              type: "ouvrirModaleAjouterPieceJointe",
+              détails: { dossierId: dossier.id, source: "enteteDossier" },
+            })}
         >
           Ajouter une pièce jointe
         </button>
@@ -197,6 +203,7 @@
   id={idModaleAjouterPieceJointe}
   {dossier}
   typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+  source="enteteDossier"
 />
 
 <style lang="scss">

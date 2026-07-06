@@ -1,5 +1,6 @@
 <script lang="ts">
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
@@ -147,6 +148,11 @@
     class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line bouton-ajouter-piece-jointe"
     aria-controls={idModaleAjouterPieceJointe}
     data-fr-opened="false"
+    onclick={() =>
+      envoyerÉvènement({
+        type: "ouvrirModaleAjouterPieceJointe",
+        détails: { dossierId: dossier.id, source: "ongletPiecesJointes" },
+      })}
   >
     Ajouter une pièce jointe
   </button>
@@ -300,6 +306,7 @@
   id={idModaleAjouterPieceJointe}
   {dossier}
   typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+  source="ongletPiecesJointes"
 />
 
 <style lang="scss">

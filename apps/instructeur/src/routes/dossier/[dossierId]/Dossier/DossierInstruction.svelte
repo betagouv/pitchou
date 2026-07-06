@@ -451,6 +451,7 @@
   id={idModaleAjouterPieceJointe}
   {dossier}
   typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+  source="ongletInstruction"
 />
 
 <style lang="scss">

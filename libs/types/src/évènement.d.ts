@@ -19,6 +19,31 @@ export type ÉvènementRechercheDossiersDétails = {
   nombreRésultats: number;
 };
 
+export type ÉvènementPieceJointeSource =
+  | "enteteDossier"
+  | "ongletPiecesJointes"
+  | "ongletAvis"
+  | "ongletControles"
+  | "ongletInstruction";
+
+export type ÉvènementPieceJointeType =
+  | "Décision administrative"
+  | "Avis expert"
+  | "Saisine expert"
+  | "Autre";
+
+export type ÉvènementOuvrirModaleAjouterPieceJointeDétails = {
+  dossierId: number;
+  source: ÉvènementPieceJointeSource;
+};
+
+export type ÉvènementAjouterPieceJointeDétails = {
+  dossierId: number;
+  source: ÉvènementPieceJointeSource;
+  typePieceJointe: ÉvènementPieceJointeType;
+  nombreFichiers: number;
+};
+
 export type ÉvènementMétrique =
   | {
       // On considère qu'une connexion correspond au chargement de Pitchou et la récupération réussie des URLs de caps
@@ -58,6 +83,16 @@ export type ÉvènementMétrique =
   | { type: "modifierAvisExpert" }
   // Supprimer un avis expert
   | { type: "supprimerAvisExpert" }
+  // Ouvrir une modale d'ajout de pièce jointe
+  | {
+      type: "ouvrirModaleAjouterPieceJointe";
+      détails: ÉvènementOuvrirModaleAjouterPieceJointeDétails;
+    }
+  // Ajouter une pièce jointe depuis une modale
+  | {
+      type: "ajouterPieceJointe";
+      détails: ÉvènementAjouterPieceJointeDétails;
+    }
   // Générer un document
   | { type: "générerUnDocument" }
 
