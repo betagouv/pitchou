@@ -215,6 +215,7 @@
           }
         }
       } else if (typePièceJointe === "Autre") {
+        const nombreFichiers = fileListPièceJointe.length;
         ajouterUneNouvellePièceJointeP = addAttachmentAutre(
           dossier.id,
           otherAttachmentType,
@@ -222,7 +223,7 @@
           fileListPièceJointe,
         )
           .then(() => {
-            envoyerÉvènementAjouterPièceJointe("Autre", fileListPièceJointe.length);
+            envoyerÉvènementAjouterPièceJointe("Autre", nombreFichiers);
             return refreshDossierComplet(dossier.id).then(() => fermerModale());
           })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
