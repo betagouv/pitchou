@@ -2,7 +2,7 @@
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
   import EspècesProtégéesGroupéesParImpact from "$lib/components/EspècesProtégéesGroupéesParImpact.svelte";
-  import { formatDateRelative } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolue, formatDateRelative } from "$lib/dossier/affichageDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
   import Loader from "$lib/components/Loader.svelte";
@@ -369,7 +369,7 @@
       (aucune pièce jointe n'a été déposée par le pétitionnaire)
     {:else}
       <ul class="pièces-jointes-pétitionnaire">
-        {#each dossier.piècesJointesPétitionnaires as { url, nom, media_type, taille }}
+        {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
           <li>
             <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
               <!--
@@ -378,7 +378,9 @@
                         -->
               {raccourcirNomFichier(nom)}
               <span class="fr-link__detail">
-                {media_type} - {byteFormat.format(taille)}
+                {media_type} - {byteFormat.format(taille)}{DS_createdAt
+                  ? ` - Date de dépôt : ${formatDateAbsolue(DS_createdAt)}`
+                  : ""}
               </span>
             </a>
           </li>
