@@ -7,6 +7,7 @@
   } from "$lib/dossier/affichageDossier.ts";
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
+  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
 
@@ -20,6 +21,8 @@
   };
 
   let { dossier, email, dossierActuelSuiviParInstructeurActuel }: Props = $props();
+
+  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let phase = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
@@ -153,21 +156,32 @@
         </div>
       {/if}
 
-      {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
-        {#if dossierActuelSuiviParInstructeurActuel}
-          <button
-            onclick={() => instructeurActuelLaisseDossier(dossier.id)}
-            class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left fr-mt-1w"
-            >Ne plus suivre</button
-          >
-        {:else}
-          <button
-            onclick={() => instructeurActuelSuitDossier(dossier.id)}
-            class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left fr-mt-1w"
-            >Suivre</button
-          >
+      <div class="entete-actions">
+        {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
+          {#if dossierActuelSuiviParInstructeurActuel}
+            <button
+              onclick={() => instructeurActuelLaisseDossier(dossier.id)}
+              class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
+              >Ne plus suivre</button
+            >
+          {:else}
+            <button
+              onclick={() => instructeurActuelSuitDossier(dossier.id)}
+              class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
+              >Suivre</button
+            >
+          {/if}
         {/if}
-      {/if}
+
+        <button
+          type="button"
+          class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-attachment-line"
+          aria-controls={idModaleAjouterPieceJointe}
+          data-fr-opened="false"
+        >
+          Ajouter une pièce jointe
+        </button>
+      </div>
 
       <!--
           <div>
@@ -178,6 +192,12 @@
     </section>
   </div>
 </header>
+
+<ModaleAjouterPièceJointe
+  id={idModaleAjouterPieceJointe}
+  {dossier}
+  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative"]}
+/>
 
 <style lang="scss">
   header {
@@ -233,6 +253,12 @@
 
     section > div:last-child {
       margin-bottom: 0;
+    }
+
+    .entete-actions {
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 1rem;
     }
 
     // mute and shrink the leading icons of the info rows (not the buttons)
