@@ -50,6 +50,10 @@ type SeedAvisExpert = Omit<
 > & {
   id: string;
   dossier: string;
+  /** When set, a placeholder PDF is generated and linked as the saisine file. */
+  nom_fichier_saisine?: string;
+  /** When set, a placeholder PDF is generated and linked as the avis file. */
+  nom_fichier_avis?: string;
 };
 
 type SeedÉvènementPhaseDossier = Omit<
@@ -1477,6 +1481,8 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
     date_saisine: new Date("2026-05-26"),
     avis: "Favorable",
     date_avis: new Date("2026-05-26"),
+    nom_fichier_saisine: "saisine-cnpn-lotissement-ploufragan.pdf",
+    nom_fichier_avis: "avis-cnpn-lotissement-ploufragan.pdf",
   },
   // D11 – pistes cyclables Rennes-Dinan – CSRPN favorable, avis non daté
   {
@@ -1486,6 +1492,8 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
     date_saisine: new Date("2026-05-05"),
     avis: "Favorable",
     date_avis: null,
+    nom_fichier_saisine: "saisine-csrpn-pistes-cyclables-rennes-dinan.pdf",
+    nom_fichier_avis: "avis-csrpn-pistes-cyclables-rennes-dinan.pdf",
   },
 ];
 
