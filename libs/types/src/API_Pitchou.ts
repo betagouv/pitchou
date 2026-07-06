@@ -150,8 +150,14 @@ export type DossierRésumé = Pick<
 
 export type FrontEndPrescription = Prescription & { contrôles: Contrôle[] | undefined };
 
+export type FrontEndFichier = Pick<Fichier, "media_type" | "nom"> & {
+  url: string;
+  taille?: number | null;
+};
+
 export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, "fichier"> & {
   fichier_url: string | undefined;
+  fichier_description?: FrontEndFichier;
 } & { prescriptions: FrontEndPrescription[] | undefined };
 
 export type DécisionAdministrativePourTransfer = Partial<
@@ -163,6 +169,8 @@ export type DécisionAdministrativePourTransfer = Partial<
 export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fichier"> & {
   avis_fichier_url: string | undefined;
   saisine_fichier_url: string | undefined;
+  avis_fichier_description?: FrontEndFichier;
+  saisine_fichier_description?: FrontEndFichier;
 };
 
 /**

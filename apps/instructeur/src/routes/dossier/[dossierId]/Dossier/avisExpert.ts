@@ -26,6 +26,8 @@ export function ajouterOuModifierAvisExpert(
 
   delete copyFrontEndAvisExpert.avis_fichier_url;
   delete copyFrontEndAvisExpert.saisine_fichier_url;
+  delete copyFrontEndAvisExpert.avis_fichier_description;
+  delete copyFrontEndAvisExpert.saisine_fichier_description;
 
   const avisExpert: Pick<AvisExpert, "dossier"> & AvisExpertInitializer = {
     ...copyFrontEndAvisExpert,

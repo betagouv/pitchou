@@ -1,10 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import {
-  getDécisionAdministratives,
-  getDécisionsAdministratives,
-} from "./décision_administrative.ts";
+import { getDécisionsAdministratives } from "./décision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getContrôles } from "./controle.ts";
 import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
@@ -32,6 +29,7 @@ import type {
   DossierComplet,
   DossierRésumé,
   FrontEndDécisionAdministrative,
+  FrontEndFichier,
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PartialBy, PickNonNullable } from "@pitchou/types/tools.d.ts";
@@ -499,6 +497,40 @@ export function listAllDossiersComplets(
     });
 }
 
+type AvisExpertAvecDescriptionsFichiers = AvisExpert & {
+  avis_fichier_nom: Fichier["nom"];
+  avis_fichier_media_type: Fichier["media_type"];
+  avis_fichier_taille: number | null;
+  saisine_fichier_nom: Fichier["nom"];
+  saisine_fichier_media_type: Fichier["media_type"];
+  saisine_fichier_taille: number | null;
+};
+
+type DécisionAdministrativeAvecDescriptionFichier = DécisionAdministrative & {
+  fichier_nom: Fichier["nom"];
+  fichier_media_type: Fichier["media_type"];
+  fichier_taille: number | null;
+};
+
+function décrireFichier(
+  id: Fichier["id"] | null | undefined,
+  nom: Fichier["nom"],
+  media_type: Fichier["media_type"],
+  taille: number | null,
+  route: string,
+): FrontEndFichier | undefined {
+  if (!id) {
+    return undefined;
+  }
+
+  return {
+    url: `${route}/${id}`,
+    nom,
+    media_type,
+    taille,
+  };
+}
+
 export async function getDossierComplet(
   dossierId: DossierComplet["id"],
   cap: CapDossier["cap"],
@@ -561,19 +593,15 @@ export async function getDossierComplet(
     transaction,
   );
 
-  const tousLesAvisExpertDossierP: Promise<AvisExpert[]> = getAvisExpertDossier(
-    dossierId,
-    transaction,
-  );
+  const tousLesAvisExpertDossierP: Promise<AvisExpertAvecDescriptionsFichiers[]> =
+    getAvisExpertDossier(dossierId, transaction);
 
   const descriptionsPiècesJointesPétitionnaireP: Promise<
     (Pick<Fichier, "id" | "nom" | "media_type"> & { taille: number })[]
   > = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction);
 
-  const décisionsAdministrativesP: Promise<DécisionAdministrative[]> = getDécisionAdministratives(
-    dossierId,
-    transaction,
-  );
+  const décisionsAdministrativesP: Promise<DécisionAdministrativeAvecDescriptionFichier[]> =
+    getDécisionAdministrativesDossier(dossierId, transaction);
   const decisionIds = (await décisionsAdministrativesP).map((d) => d.id);
 
   const prescriptionsP: Promise<Prescription[]> = getPrescriptions(decisionIds, transaction);
@@ -624,13 +652,40 @@ export async function getDossierComplet(
       dossier.évènementsPhase = évènementsPhaseDossier;
 
       dossier.avisExpert = tousLesAvisExpertDossier.map(
-        ({ avis_fichier, saisine_fichier, ...avisExpert }) => ({
-          ...avisExpert,
-          avis_fichier_url: avis_fichier ? `/avis-expert/fichier/${avis_fichier}` : undefined,
-          saisine_fichier_url: saisine_fichier
-            ? `/avis-expert/fichier/${saisine_fichier}`
-            : undefined,
-        }),
+        ({
+          avis_fichier,
+          avis_fichier_nom,
+          avis_fichier_media_type,
+          avis_fichier_taille,
+          saisine_fichier,
+          saisine_fichier_nom,
+          saisine_fichier_media_type,
+          saisine_fichier_taille,
+          ...avisExpert
+        }) => {
+          const avisFichierDescription = décrireFichier(
+            avis_fichier,
+            avis_fichier_nom,
+            avis_fichier_media_type,
+            avis_fichier_taille,
+            "/avis-expert/fichier",
+          );
+          const saisineFichierDescription = décrireFichier(
+            saisine_fichier,
+            saisine_fichier_nom,
+            saisine_fichier_media_type,
+            saisine_fichier_taille,
+            "/avis-expert/fichier",
+          );
+
+          return {
+            ...avisExpert,
+            avis_fichier_url: avisFichierDescription?.url,
+            saisine_fichier_url: saisineFichierDescription?.url,
+            avis_fichier_description: avisFichierDescription,
+            saisine_fichier_description: saisineFichierDescription,
+          };
+        },
       );
 
       dossier.piècesJointesPétitionnaires = descriptionsPiècesJointesPétitionnaire.map(
@@ -683,16 +738,38 @@ export async function getDossierComplet(
 
       if (décisionsAdministratives.length >= 1) {
         dossier.décisionsAdministratives = décisionsAdministratives.map(
-          ({ id, numéro, type, date_signature, date_fin_obligations, fichier, dossier }) => ({
+          ({
             id,
             numéro,
             type,
             date_signature,
             date_fin_obligations,
-            prescriptions: prescriptionsParDécisionId.get(id),
-            fichier_url: fichier ? `/decision-administrative/fichier/${fichier}` : undefined,
+            fichier,
+            fichier_nom,
+            fichier_media_type,
+            fichier_taille,
             dossier,
-          }),
+          }) => {
+            const fichierDescription = décrireFichier(
+              fichier,
+              fichier_nom,
+              fichier_media_type,
+              fichier_taille,
+              "/decision-administrative/fichier",
+            );
+
+            return {
+              id,
+              numéro,
+              type,
+              date_signature,
+              date_fin_obligations,
+              prescriptions: prescriptionsParDécisionId.get(id),
+              fichier_url: fichierDescription?.url,
+              fichier_description: fichierDescription,
+              dossier,
+            };
+          },
         );
       }
 
@@ -936,8 +1013,48 @@ async function getÉvènementsPhaseDossier(
 async function getAvisExpertDossier(
   idDossier: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<AvisExpert[]> {
-  return databaseConnection("avis_expert").select("*").where({ dossier: idDossier });
+): Promise<AvisExpertAvecDescriptionsFichiers[]> {
+  return databaseConnection("avis_expert")
+    .select([
+      "avis_expert.*",
+      "fichier_avis.nom as avis_fichier_nom",
+      "fichier_avis.media_type as avis_fichier_media_type",
+      databaseConnection.raw(
+        "coalesce(length(fichier_avis.contenu), file_avis.taille)::integer as avis_fichier_taille",
+      ),
+      "fichier_saisine.nom as saisine_fichier_nom",
+      "fichier_saisine.media_type as saisine_fichier_media_type",
+      databaseConnection.raw(
+        "coalesce(length(fichier_saisine.contenu), file_saisine.taille)::integer as saisine_fichier_taille",
+      ),
+    ])
+    .leftJoin("fichier as fichier_avis", { "fichier_avis.id": "avis_expert.avis_fichier" })
+    .leftJoin("file as file_avis", { "file_avis.id": "fichier_avis.file_id" })
+    .leftJoin("fichier as fichier_saisine", {
+      "fichier_saisine.id": "avis_expert.saisine_fichier",
+    })
+    .leftJoin("file as file_saisine", { "file_saisine.id": "fichier_saisine.file_id" })
+    .where({ dossier: idDossier });
+}
+
+async function getDécisionAdministrativesDossier(
+  idDossier: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<DécisionAdministrativeAvecDescriptionFichier[]> {
+  return databaseConnection("décision_administrative")
+    .select([
+      "décision_administrative.*",
+      "fichier_decision.nom as fichier_nom",
+      "fichier_decision.media_type as fichier_media_type",
+      databaseConnection.raw(
+        "coalesce(length(fichier_decision.contenu), file_decision.taille)::integer as fichier_taille",
+      ),
+    ])
+    .leftJoin("fichier as fichier_decision", {
+      "fichier_decision.id": "décision_administrative.fichier",
+    })
+    .leftJoin("file as file_decision", { "file_decision.id": "fichier_decision.file_id" })
+    .where({ dossier: idDossier });
 }
 
 async function getDescriptionsPiècesJointesPétitionnaire(

@@ -11,6 +11,7 @@
     | "porteur-de-projet"
     | "avis"
     | "controles"
+    | "pieces-jointes"
     | "generation-document"
     | "echanges";
 
@@ -22,6 +23,7 @@
       "echanges",
       "avis",
       "controles",
+      "pieces-jointes",
       "generation-document",
     ].includes(onglet);
   }
