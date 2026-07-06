@@ -45,6 +45,37 @@ export function countByNiveau(utilisateurs: UtilisateurAARRI[]): Record<NiveauAA
   return counts;
 }
 
+function csvEscape(value: string | number | null): string {
+  if (value === null || value === undefined) return "";
+  const s = String(value);
+  if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+export function utilisateursToCSV(utilisateurs: UtilisateurAARRI[]): string {
+  const header = [
+    "Email",
+    "Groupes instructeurs",
+    "Niveau AARRI",
+    "Nombre d'actions",
+    "Dernière activité",
+  ].join(",");
+
+  const lines = utilisateurs.map((utilisateur) =>
+    [
+      csvEscape(utilisateur.email),
+      csvEscape(utilisateur.groupesInstructeurs.join(" ; ")),
+      csvEscape(NIVEAU_LABELS[utilisateur.niveau]),
+      csvEscape(utilisateur.actionCount),
+      csvEscape(utilisateur.lastActivityDate ? utilisateur.lastActivityDate.slice(0, 10) : ""),
+    ].join(","),
+  );
+
+  return [header, ...lines].join("\n");
+}
+
 export type SortKey = "niveau" | "email" | "actions" | "activite";
 
 export type SortOrder = "asc" | "desc";

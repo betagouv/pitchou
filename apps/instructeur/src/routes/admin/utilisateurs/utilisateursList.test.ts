@@ -7,6 +7,7 @@ import {
   matchesText,
   compareUtilisateurs,
   countByNiveau,
+  utilisateursToCSV,
 } from "./utilisateursList.ts";
 
 // Builds a UtilisateurAARRI with sensible defaults; override only what matters.
@@ -151,6 +152,38 @@ describe("compareUtilisateurs", () => {
     const recent = makeUtilisateur({ lastActivityDate: "2026-05-01T00:00:00.000Z" });
     expect(compareUtilisateurs(never, recent, "activite", "asc")).toBeLessThan(0);
     expect(compareUtilisateurs(never, recent, "activite", "desc")).toBeGreaterThan(0);
+  });
+});
+
+describe("utilisateursToCSV", () => {
+  it("writes a header and one line per utilisateurice", () => {
+    const csv = utilisateursToCSV([
+      makeUtilisateur({
+        email: "camille@dept.gouv.fr",
+        niveau: "actif",
+        groupesInstructeurs: ["Alpha", "Beta"],
+        actionCount: 7,
+        lastActivityDate: "2026-05-01T09:30:00.000Z",
+      }),
+    ]);
+    const [header, line] = csv.split("\n");
+    expect(header).toBe("Email,Groupes instructeurs,Niveau AARRI,Nombre d'actions,Dernière activité");
+    expect(line).toBe("camille@dept.gouv.fr,Alpha ; Beta,Actif,7,2026-05-01");
+  });
+
+  it("leaves email and date empty when absent", () => {
+    const csv = utilisateursToCSV([
+      makeUtilisateur({ email: null, groupesInstructeurs: [], lastActivityDate: null }),
+    ]);
+    const line = csv.split("\n")[1];
+    expect(line).toBe(",,Acquis,0,");
+  });
+
+  it("quotes fields that contain a comma", () => {
+    const csv = utilisateursToCSV([
+      makeUtilisateur({ groupesInstructeurs: ["Nord, Sud"], email: "x@y.fr" }),
+    ]);
+    expect(csv).toContain('"Nord, Sud"');
   });
 });
 

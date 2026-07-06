@@ -10,6 +10,7 @@
     parseUtilisateursQuery,
     filterUtilisateurs,
     compareUtilisateurs,
+    utilisateursToCSV,
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
@@ -117,6 +118,20 @@
       ordre: order === "desc" ? null : "asc",
     });
   }
+
+  function downloadListeUtilisateurs() {
+    const csv = utilisateursToCSV(utilisateurs);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const today = new Date().toISOString().slice(0, 10);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `instructrices_aarri_${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <div class="header">
@@ -129,6 +144,13 @@
       data-fr-opened="false"
     >
       Comment les niveaux sont calculés&nbsp;?
+    </button>
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
+      onclick={downloadListeUtilisateurs}
+    >
+      Télécharger la liste des utilisateurices
     </button>
     <button
       type="button"
