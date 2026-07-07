@@ -12,7 +12,6 @@
   } from "$lib/dossier/affichageDossier.ts";
   import { modifierDossier } from "$lib/dossier/dossier.ts";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
-  import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
@@ -36,8 +35,6 @@
 
   const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe";
 
-  const numdos = $derived(dossier.number_demarches_simplifiées);
-  const numéro_démarche = $derived(dossier.numéro_démarche);
   const otherAttachments = $derived(dossier.attachmentAutres);
 
   let phaseActuelle = $derived(
@@ -438,12 +435,6 @@
         bind:value={historique_identifiant_demande_onagre}
       />
     </div>
-
-    <a
-      target="_blank"
-      href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/annotations-privees`}
-      >Annotations privées sur Démarche Numérique</a
-    >
   </section>
 </section>
 
