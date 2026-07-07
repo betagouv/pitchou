@@ -67,6 +67,52 @@ test("la référence agrège noms et statuts depuis les tables sources", async (
   expect(espece.cd_type_statuts).toEqual(["PN", "PD"]);
 });
 
+test("les liens des documents BDC sont exposés par statut de protection", async () => {
+  await seedEspeceProtegeeReference(
+    [
+      refEspece("12", {
+        cd_type_statuts: ["PN", "PR"],
+      }),
+    ],
+    db,
+  );
+  await db("espece_bdc_statut").where({ cd_ref: "12", cd_type_statut: "PN" }).update({
+    cd_doc: "713",
+    full_citation: "Arrêté protégeant les oiseaux sur l'ensemble du territoire",
+    doc_url: "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000021384277",
+  });
+  await db("espece_bdc_statut").where({ cd_ref: "12", cd_type_statut: "PR" }).update({
+    cd_doc: "735",
+    full_citation: "Arrêté protégeant la flore en Île-de-France",
+    doc_url: "https://www.legifrance.gouv.fr/loda/id/LEGITEXT000006059591/",
+  });
+
+  const [espece] = await getEspecesProtegees(db);
+
+  expect(espece.statuts_protection).toEqual([
+    {
+      cd_type_statut: "PN",
+      documents: [
+        {
+          cd_doc: "713",
+          full_citation: "Arrêté protégeant les oiseaux sur l'ensemble du territoire",
+          doc_url: "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000021384277",
+        },
+      ],
+    },
+    {
+      cd_type_statut: "PR",
+      documents: [
+        {
+          cd_doc: "735",
+          full_citation: "Arrêté protégeant la flore en Île-de-France",
+          doc_url: "https://www.legifrance.gouv.fr/loda/id/LEGITEXT000006059591/",
+        },
+      ],
+    },
+  ]);
+});
+
 test("la vue n'expose pas les drapeaux quand il n'y a aucune modification", async () => {
   await seedEspeceProtegeeReference([refEspece("20")], db);
 

@@ -85,6 +85,7 @@ export function espèceProtégéeStringToEspèceProtégée({
     classification,
     nomsScientifiques: new Set(nomsScientifiques.split(",")),
     nomsVernaculaires: new Set(nomsVernaculaires.split(",")),
+    statutsProtection: [],
     espèceCNPN: espèceCNPN === "O" ? espèceCNPN : undefined,
     espèceMinistérielle: espèceMinistérielle === "O" ? espèceMinistérielle : undefined,
   };
@@ -96,7 +97,18 @@ export function espèceProtégéeStringToEspèceProtégée({
  * the shape consumed by the rest of the app unchanged. Works both server-side (knex
  * rows) and client-side (rows deserialized from the API as plain JSON).
  */
-export function dbRowToEspeceProtegee(row: EspeceProtegee): EspèceProtégée {
+export function dbRowToEspeceProtegee(
+  row: EspeceProtegee & Pick<EspèceProtégée, "statutsProtection"> & { statuts_protection?: never },
+): EspèceProtégée;
+export function dbRowToEspeceProtegee(
+  row: EspeceProtegee & { statuts_protection?: EspèceProtégée["statutsProtection"] },
+): EspèceProtégée;
+export function dbRowToEspeceProtegee(
+  row: EspeceProtegee & {
+    statutsProtection?: EspèceProtégée["statutsProtection"];
+    statuts_protection?: EspèceProtégée["statutsProtection"];
+  },
+): EspèceProtégée {
   const { classification } = row;
 
   if (!isClassif(classification)) {
@@ -112,6 +124,7 @@ export function dbRowToEspeceProtegee(row: EspeceProtegee): EspèceProtégée {
     nomsVernaculaires: new Set(row.noms_vernaculaires),
     //@ts-ignore trusting data generation
     CD_TYPE_STATUTS: new Set(row.cd_type_statuts),
+    statutsProtection: row.statutsProtection ?? row.statuts_protection ?? [],
     espèceMinistérielle: row.espece_ministerielle ? "O" : undefined,
     espèceCNPN: row.espece_cnpn ? "O" : undefined,
   };
