@@ -15,6 +15,12 @@ export default interface EspeceBdcStatut {
   cd_type_statut: string;
 
   label_statut: string;
+
+  cd_doc: string;
+
+  full_citation: string;
+
+  doc_url: string;
 }
 
 /** Represents the initializer for the table public.espece_bdc_statut */
@@ -30,6 +36,15 @@ export interface EspeceBdcStatutInitializer {
 
   /** Default value: ''::text */
   label_statut?: string;
+
+  /** Default value: ''::text */
+  cd_doc?: string;
+
+  /** Default value: ''::text */
+  full_citation?: string;
+
+  /** Default value: ''::text */
+  doc_url?: string;
 }
 
 /** Represents the mutator for the table public.espece_bdc_statut */
@@ -43,4 +58,10 @@ export interface EspeceBdcStatutMutator {
   cd_type_statut?: string;
 
   label_statut?: string;
+
+  cd_doc?: string;
+
+  full_citation?: string;
+
+  doc_url?: string;
 }

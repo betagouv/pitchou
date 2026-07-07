@@ -54,7 +54,21 @@ export interface BDC_STATUT_ROW {
   CD_REF: TAXREF_ROW["CD_REF"];
   CD_TYPE_STATUT: "POM" | "PD" | "PN" | "PR" | "Espèce manquante";
   LABEL_STATUT: string;
+  CD_DOC: string;
+  FULL_CITATION: string;
+  DOC_URL: string;
   // incomplet
+}
+
+export interface ProtectionDocument {
+  cd_doc: string;
+  full_citation: string;
+  doc_url: string;
+}
+
+export interface StatutProtection {
+  cd_type_statut: BDC_STATUT_ROW["CD_TYPE_STATUT"];
+  documents: ProtectionDocument[];
 }
 
 /**
@@ -86,6 +100,8 @@ export interface EspèceProtégée {
   classification: ClassificationEtreVivant;
   // types de protection associées à cette espèce
   CD_TYPE_STATUTS: Set<BDC_STATUT_ROW["CD_TYPE_STATUT"]>;
+  // liens vers les documents sources par statut de protection
+  statutsProtection?: StatutProtection[];
   // Espèce ministérielle
   espèceMinistérielle: undefined | "O";
   // Espèce CNPN

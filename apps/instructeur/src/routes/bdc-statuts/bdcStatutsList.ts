@@ -11,6 +11,9 @@ export type BdcStatutRow = {
   cd_ref: string;
   cd_type_statut: string;
   label_statut: string;
+  cd_doc: string;
+  full_citation: string;
+  doc_url: string;
   nom_scientifique: string | null;
   nom_vernaculaire: string | null;
 };

@@ -16,6 +16,7 @@
         <col />
         <col style="width: 7rem" />
         <col />
+        <col style="width: 11rem" />
         <col style="width: 100px" />
         <col style="width: 100px" />
       </colgroup>
@@ -25,6 +26,7 @@
           <th scope="col">Nom vernaculaire</th>
           <th scope="col">Statuts</th>
           <th scope="col">Libellé</th>
+          <th scope="col">Document</th>
           <th scope="col">CD_NOM</th>
           <th scope="col">CD_REF</th>
         </tr>
@@ -36,6 +38,18 @@
             <td>{row.nom_vernaculaire ?? ""}</td>
             <td>{row.cd_type_statut}</td>
             <td>{row.label_statut}</td>
+            <td>
+              {#if row.doc_url}
+                <a
+                  href={row.doc_url}
+                  target="_blank"
+                  rel="noopener external"
+                  title={`${row.full_citation} – nouvelle fenêtre`}>Consulter</a
+                >
+              {:else}
+                {row.full_citation}
+              {/if}
+            </td>
             <td>{row.cd_nom}</td>
             <td>{row.cd_ref}</td>
           </tr>
@@ -55,6 +69,6 @@
 
   .fr-table table {
     width: 100%;
-    min-width: 52rem;
+    min-width: 62rem;
   }
 </style>

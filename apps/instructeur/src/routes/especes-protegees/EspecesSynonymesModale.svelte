@@ -11,7 +11,17 @@
   const titreId = $derived(`${id}-title`);
   const nomsScientifiques = $derived(espece ? [...espece.nomsScientifiques] : []);
   const nomsVernaculaires = $derived(espece ? [...espece.nomsVernaculaires] : []);
-  const statuts = $derived(espece ? [...espece.CD_TYPE_STATUTS] : []);
+  const statutsProtection = $derived(
+    espece
+      ? [...espece.CD_TYPE_STATUTS].map((statut) => ({
+          statut,
+          documents:
+            espece.statutsProtection?.find((statutProtection) => {
+              return statutProtection.cd_type_statut === statut;
+            })?.documents ?? [],
+        }))
+      : [],
+  );
 
   const STATUT_LABELS: Record<string, string> = {
     PN: "protection nationale",
@@ -53,10 +63,26 @@
               </ul>
 
               <h2 class="fr-h6 fr-mt-2w">Statuts de protection</h2>
-              {#if statuts.length >= 1}
+              {#if statutsProtection.length >= 1}
                 <ul>
-                  {#each statuts as statut}
-                    <li><strong>{statut}</strong> : {STATUT_LABELS[statut] ?? statut}</li>
+                  {#each statutsProtection as statutProtection}
+                    <li>
+                      <strong>{statutProtection.statut}</strong> : {STATUT_LABELS[
+                        statutProtection.statut
+                      ] ?? statutProtection.statut}
+                      {#if statutProtection.documents.length >= 1}
+                        <span class="documents">
+                          {#each statutProtection.documents as document}
+                            <a
+                              href={document.doc_url}
+                              target="_blank"
+                              rel="noopener external"
+                              title={`${document.full_citation} – nouvelle fenêtre`}>Consulter</a
+                            >
+                          {/each}
+                        </span>
+                      {/if}
+                    </li>
                   {/each}
                 </ul>
               {:else}
@@ -100,5 +126,12 @@
     list-style: none;
     padding: 0;
     margin: 0;
+  }
+
+  .documents {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
   }
 </style>

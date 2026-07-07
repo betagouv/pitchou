@@ -2,6 +2,23 @@ import type { Knex } from "knex";
 
 import type { EspeceBdcStatutInitializer } from "@pitchou/types/database/public/EspeceBdcStatut.ts";
 
+const PN_DOCUMENT = {
+  label_statut:
+    "Liste des oiseaux protégés sur l'ensemble du territoire et les modalités de leur protection : Article 3",
+  cd_doc: "713",
+  full_citation:
+    "Arrêté interministériel du 29 octobre 2009 fixant la liste des oiseaux protégés sur l’ensemble du territoire et les modalités de leur protection (JORF 5 décembre 2009, p. 21056)",
+  doc_url: "http://legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000021384277",
+};
+
+const PR_DOCUMENT = {
+  label_statut: "Liste des espèces végétales protégées en région Île-de-France : Article 1",
+  cd_doc: "735",
+  full_citation:
+    "Arrêté interministériel du 11 mars 1991 relatif à la liste des espèces végétales protégées en région Île-de-France complétant la liste nationale",
+  doc_url: "https://www.legifrance.gouv.fr/loda/id/LEGITEXT000006059591/",
+};
+
 const BDC_STATUT: EspeceBdcStatutInitializer[] = [
   { cd_nom: "100", cd_ref: "100", cd_type_statut: "PN", label_statut: "" },
   { cd_nom: "1005", cd_ref: "1005", cd_type_statut: "PD", label_statut: "" },
@@ -144,9 +161,15 @@ const BDC_STATUT: EspeceBdcStatutInitializer[] = [
   { cd_nom: "88560", cd_ref: "88560", cd_type_statut: "PN", label_statut: "" },
 ];
 
+function enrichDocument(row: EspeceBdcStatutInitializer): EspeceBdcStatutInitializer {
+  if (row.cd_type_statut === "PN") return { ...row, ...PN_DOCUMENT };
+  if (row.cd_type_statut === "PR") return { ...row, ...PR_DOCUMENT };
+  return row;
+}
+
 export async function seed(knex: Knex) {
   await knex("espece_bdc_statut").truncate();
-  await knex.batchInsert("espece_bdc_statut", BDC_STATUT, 1000);
+  await knex.batchInsert("espece_bdc_statut", BDC_STATUT.map(enrichDocument), 1000);
 
   console.log(`  Seed espece_bdc_statut OK (${BDC_STATUT.length} lignes)`);
 }
