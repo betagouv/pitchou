@@ -29,28 +29,6 @@
     url: string;
   };
 
-  function raccourcirNomFichier(filename: string | null, maxLength = 43, ellipsis = "(...)") {
-    if (!filename) {
-      return "(fichier sans nom)";
-    }
-
-    if (filename.length <= maxLength) {
-      return filename;
-    }
-
-    const lastDotIndex = filename.lastIndexOf(".");
-
-    if (lastDotIndex <= 0) {
-      return filename.substring(0, maxLength - ellipsis.length) + ellipsis;
-    }
-
-    const extension = filename.substring(lastDotIndex);
-    const nameWithoutExt = filename.substring(0, lastDotIndex);
-    const availableLength = maxLength - extension.length - ellipsis.length;
-
-    return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
-  }
-
   function labelAvisExpert(avisExpert: FrontEndAvisExpert) {
     return avisExpert.expert ?? "Expert";
   }
@@ -176,7 +154,7 @@
           <li class="carte-piece-jointe">
             <div class="piece-jointe-fichier">
               <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
-                {raccourcirNomFichier(nom)}
+                {nom || "(fichier sans nom)"}
                 <span class="fr-link__detail">
                   {media_type} - {byteFormat.format(taille)}{DS_createdAt
                     ? ` - Date de dépôt : ${formatDateAbsolue(DS_createdAt)}`
@@ -215,7 +193,7 @@
                 title={nomPieceJointe(pieceJointe)}
                 data-sveltekit-reload
               >
-                {raccourcirNomFichier(nomPieceJointe(pieceJointe))}
+                {nomPieceJointe(pieceJointe)}
                 {#if details}
                   <span class="fr-link__detail">{details}</span>
                 {/if}
@@ -252,7 +230,7 @@
                 title={nomPieceJointe(pieceJointe)}
                 data-sveltekit-reload
               >
-                {raccourcirNomFichier(nomPieceJointe(pieceJointe))}
+                {nomPieceJointe(pieceJointe)}
                 {#if details}
                   <span class="fr-link__detail">{details}</span>
                 {/if}
@@ -289,7 +267,7 @@
                 title={nomPieceJointe(pieceJointe)}
                 data-sveltekit-reload
               >
-                {raccourcirNomFichier(nomPieceJointe(pieceJointe))}
+                {nomPieceJointe(pieceJointe)}
                 {#if details}
                   <span class="fr-link__detail">{details}</span>
                 {/if}

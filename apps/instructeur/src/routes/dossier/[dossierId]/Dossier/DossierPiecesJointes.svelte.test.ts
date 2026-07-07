@@ -28,7 +28,7 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
         saisine_fichier_url: "/avis/saisine-1",
         saisine_fichier_description: {
           url: "/avis/saisine-1",
-          nom: "saisine-cnpn.pdf",
+          nom: "saisine-csrpn-pistes-cyclables-rennes-metropole.pdf",
           media_type: "application/pdf",
           taille: 1024,
         },
@@ -71,7 +71,14 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
   await expect.element(page.getByRole("heading", { name: "Projet" })).toBeVisible();
   await expect.element(page.getByRole("link", { name: /etude-impact\.pdf/ })).toBeVisible();
   await expect.element(page.getByText(/Date de dépôt : 1 janvier 2026/)).toBeVisible();
-  await expect.element(page.getByRole("link", { name: /saisine-cnpn\.pdf/ })).toBeVisible();
+  await expect
+    .element(
+      page.getByRole("link", {
+        name: /saisine-csrpn-pistes-cyclables-rennes-metropole\.pdf/,
+      }),
+    )
+    .toBeVisible();
+  await expect.element(page.getByText(/\(\.\.\.\)/)).not.toBeInTheDocument();
   await expect.element(page.getByRole("link", { name: /arrete-ap-123\.pdf/ })).toBeVisible();
   await expect.element(page.getByRole("link", { name: /note-interne\.pdf/ })).toBeVisible();
   await expect.element(page.getByText(/application\/pdf - 1KB - Date de saisine/)).toBeVisible();
