@@ -9,7 +9,14 @@ export const BDC_STATUT_PAGE_SIZE = 20;
 
 export type BdcStatutRow = Pick<
   EspeceBdcStatut,
-  "id" | "cd_nom" | "cd_ref" | "cd_type_statut" | "label_statut"
+  | "id"
+  | "cd_nom"
+  | "cd_ref"
+  | "cd_type_statut"
+  | "label_statut"
+  | "cd_doc"
+  | "full_citation"
+  | "doc_url"
 > & { nom_scientifique: string | null; nom_vernaculaire: string | null };
 
 export type BdcStatutSearch = {
@@ -27,7 +34,7 @@ export type BdcStatutPage = {
   pageSize: number;
 };
 
-const DIRECT_SEARCHABLE_COLUMNS = ["cd_nom", "cd_ref", "label_statut"];
+const DIRECT_SEARCHABLE_COLUMNS = ["cd_nom", "cd_ref", "label_statut", "full_citation"];
 
 // Sort key (the `tri` URL param) → column to order by, and whether it is a numeric code
 // (so "10" sorts after "9").
@@ -54,6 +61,9 @@ export async function searchBdcStatut(
       "cd_ref",
       "cd_type_statut",
       "label_statut",
+      "cd_doc",
+      "full_citation",
+      "doc_url",
       nomScientifiqueSubquery(databaseConnection),
       nomVernaculaireSubquery(databaseConnection),
     )

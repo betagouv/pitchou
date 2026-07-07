@@ -37,18 +37,38 @@ async function main() {
   };
 
   for await (const record of parser as AsyncIterable<BDC_STATUT_ROW>) {
-    const { CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT } = record;
+    const { CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT, CD_DOC, FULL_CITATION, DOC_URL } = record;
     batch.push({
       cd_nom: CD_NOM,
       cd_ref: CD_REF,
       cd_type_statut: CD_TYPE_STATUT,
       label_statut: LABEL_STATUT ?? "",
+      cd_doc: CD_DOC ?? "",
+      full_citation: cleanHtmlText(FULL_CITATION ?? ""),
+      doc_url: DOC_URL ?? "",
     });
     if (batch.length >= BATCH_SIZE) await flush();
   }
   await flush();
 
   console.info(`BDC-Statuts importé : ${total} lignes dans espece_bdc_statut`);
+}
+
+function cleanHtmlText(value: string): string {
+  return decodeHtmlEntities(value.replace(/<[^>]*>/g, "")).trim();
+}
+
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_, code: string) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
 }
 
 main().finally(() => closeDatabaseConnection());
