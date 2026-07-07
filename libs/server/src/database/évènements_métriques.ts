@@ -39,15 +39,38 @@ export async function supprimerÉvènementsParEmail(
 export async function getAllÉvènementsAvecEmail(): Promise<
   {
     email: string | null;
+    groupesInstructeurs: string[] | null;
     date: Date;
     évènement: string;
     détails: unknown | null;
   }[]
 > {
+  const groupesParPersonne = directDatabaseConnection("cap_dossier")
+    .join(
+      "arête_cap_dossier__groupe_instructeurs",
+      "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+      "cap_dossier.cap",
+    )
+    .join(
+      "groupe_instructeurs",
+      "groupe_instructeurs.id",
+      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    )
+    .select("cap_dossier.personne_cap")
+    .select(
+      directDatabaseConnection.raw(
+        "array_agg(DISTINCT groupe_instructeurs.nom ORDER BY groupe_instructeurs.nom) as groupes",
+      ),
+    )
+    .groupBy("cap_dossier.personne_cap")
+    .as("groupes_par_personne");
+
   return directDatabaseConnection("évènement_métrique")
     .join("personne", { "personne.id": "évènement_métrique.personne" })
+    .leftJoin(groupesParPersonne, "groupes_par_personne.personne_cap", "personne.code_accès")
     .select(
       "personne.email",
+      "groupes_par_personne.groupes as groupesInstructeurs",
       "évènement_métrique.date",
       "évènement_métrique.évènement",
       "évènement_métrique.détails",

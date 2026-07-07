@@ -160,9 +160,7 @@ export function filterUtilisateurs(
   }
 
   if (query.groupe) {
-    result = result.filter((utilisateur) =>
-      utilisateur.groupesInstructeurs.includes(query.groupe),
-    );
+    result = result.filter((utilisateur) => utilisateur.groupesInstructeurs.includes(query.groupe));
   }
 
   const text = query.searchText.trim();

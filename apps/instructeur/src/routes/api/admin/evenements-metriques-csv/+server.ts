@@ -16,10 +16,11 @@ export const GET: RequestHandler = async ({ url }) => {
   const rows = await getAllÉvènementsAvecEmail();
 
   const lines = [
-    "email,date,évènement,détails",
+    "email,groupes instructeurs,date,évènement,détails",
     ...rows.map((row) =>
       [
         csvEscape(row.email),
+        csvEscape((row.groupesInstructeurs ?? []).join(" ; ")),
         (row.date instanceof Date ? row.date : new Date(row.date)).toISOString().slice(0, 10),
         csvEscape(row.évènement),
         csvEscape(row.détails),
