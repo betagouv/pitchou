@@ -74,7 +74,10 @@ describe("getUtilisateursAARRI", () => {
     const utilisateurs = await getUtilisateursAARRI(db);
     const byEmail = new Map(utilisateurs.map((u) => [u.email, u]));
 
-    expect(byEmail.get("deux-groupes@dept.gouv.fr")?.groupesInstructeurs).toEqual(["Alpha", "Beta"]);
+    expect(byEmail.get("deux-groupes@dept.gouv.fr")?.groupesInstructeurs).toEqual([
+      "Alpha",
+      "Beta",
+    ]);
     expect(byEmail.get("sans-groupe@dept.gouv.fr")?.groupesInstructeurs).toEqual([]);
   });
 

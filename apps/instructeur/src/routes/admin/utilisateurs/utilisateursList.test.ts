@@ -199,7 +199,9 @@ describe("utilisateursToCSV", () => {
       }),
     ]);
     const [header, line] = csv.split("\n");
-    expect(header).toBe("Email,Groupes instructeurs,Niveau AARRI,Nombre d'actions,Dernière activité");
+    expect(header).toBe(
+      "Email,Groupes instructeurs,Niveau AARRI,Nombre d'actions,Dernière activité",
+    );
     expect(line).toBe("camille@dept.gouv.fr,Alpha ; Beta,Activé,7,2026-05-01");
   });
 
