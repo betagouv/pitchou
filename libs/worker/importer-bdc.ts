@@ -14,7 +14,7 @@ import type { EspeceBdcStatutInitializer } from "@pitchou/types/database/public/
 
 process.title = `Import BDC-Statuts`;
 
-const BDC_PATH = "data/sources_especes/bdc_18_01.csv";
+const BDC_PATH = new URL("../../data/sources_especes/bdc_18_01.csv", import.meta.url);
 const BATCH_SIZE = 5000;
 
 async function main() {

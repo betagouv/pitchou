@@ -14,7 +14,7 @@ import type { EspeceTaxrefInitializer } from "@pitchou/types/database/public/Esp
 
 process.title = `Import TAXREF`;
 
-const TAXREF_PATH = "data/sources_especes/TAXREFv18.txt";
+const TAXREF_PATH = new URL("../../data/sources_especes/TAXREFv18.txt", import.meta.url);
 const BATCH_SIZE = 5000;
 
 async function main() {
