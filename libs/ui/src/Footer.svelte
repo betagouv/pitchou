@@ -86,6 +86,9 @@
           <a href="/donnees-personnelles" class="fr-footer__bottom-link"> Données personnelles </a>
         </li>
         <li class="fr-footer__bottom-item">
+          <a href="/mentions-legales" class="fr-footer__bottom-link"> Mentions légales </a>
+        </li>
+        <li class="fr-footer__bottom-item">
           <button
             class="fr-footer__bottom-link fr-icon-theme-fill fr-link--icon-left"
             onclick={toggleTheme}
