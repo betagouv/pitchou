@@ -15,6 +15,12 @@ export const authorizedEmailDomains = new Set([
   "mer.gouv.fr",
   "indre-et-loire.gouv.fr",
   "guyane.gouv.fr",
+  "alpes-de-haute-provence.gouv.fr",
+  "hautes-alpes.gouv.fr",
+  "alpes-maritimes.gouv.fr",
+  "bouches-du-rhone.gouv.fr",
+  "var.gouv.fr",
+  "vaucluse.gouv.fr",
 ]);
 
 export const mailtoJeNetrouvePasUneEspèce =
