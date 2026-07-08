@@ -147,8 +147,8 @@
   </p>
 
   <h2>Délégué à la protection des données</h2>
-  <p>Philippe Mazenc</p>
-  <p>Fonction du délégué à la protection des données : Directeur général</p>
+  <p>M. Olivier FUCHS</p>
+  <p>Fonction du délégué à la protection des données : Directeur des affaires juridiques</p>
   <p>
     Email :
     <a href="mailto:dpd.daj.sg@developpement-durable.gouv.fr"
