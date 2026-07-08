@@ -147,6 +147,8 @@ export function getBalisesGénérationDocument(
       intervenants: scientifique_intervenants,
       précisions_autres_intervenants: scientifique_précisions_autres_intervenants,
     },
+    numéro_dossier: dossier.number_demarches_simplifiées,
+    // deprecated
     identifiant_pitchou: dossier.id,
     //Fonctions
     afficher_nombre,

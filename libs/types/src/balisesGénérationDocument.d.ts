@@ -99,6 +99,8 @@ export type BalisesGénérationDocument = {
   date_fin_consultation_public: Date | null;
 
   identifiant_onagre: string | null;
+  numéro_dossier: string | null;
+  /** @deprecated Use {numéro_dossier} from Démarche Numérique */
   identifiant_pitchou: number;
 
   commentaire_instruction: string;

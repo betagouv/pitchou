@@ -142,9 +142,14 @@ Les balises ont des types qui peuvent être :
                             <td> Identifiant Onagre du dossier si présent</td>
                         </tr>
                         <tr>
+                            <th scope="row"> <code>{numéro_dossier}</code></th>
+                            <td> texte</td>
+                            <td> Numéro du dossier (de Démarche Numérique)</td>
+                        </tr>
+                        <tr>
                             <th scope="row"> <code>{identifiant_pitchou}</code></th>
                             <td> texte</td>
-                            <td> Identifiant du Dossier Pitchou</td>
+                            <td> <strong>(Déprécié)</strong> Identifiant interne du dossier Pitchou. Utilisez plutôt <code>{numéro_dossier}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{justification_absence_autre_solution_satisfaisante}</code></th>
