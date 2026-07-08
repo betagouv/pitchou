@@ -5,7 +5,7 @@ dérogations espèces protégées !
 
 Vous y trouverez :
 - Les [premiers pas dans Pitchou](./premiers-pas)
-- Les instructions pour [ajouter un nouveau membre à un groupe](./ajouter-membre-groupe-instructeur)
+- Les instructions pour [ajouter un nouveau membre à un groupe](./ajouter-membre-groupe-instructeurs)
 - La procédure à suivre [pour saisir le CNPN](./saisine-cnpn)
 - Une [description vue du ciel de Pitchou et de ses différentes parties](./description-pitchou)
 - Une [explication de comment un service instructeur peut intégrer Pitchou](./embarquement-nouveau-service-instructeur)
