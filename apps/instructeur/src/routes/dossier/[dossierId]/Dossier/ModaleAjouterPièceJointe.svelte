@@ -1,19 +1,40 @@
 <script lang="ts">
+  import { addAttachmentAutre } from "./attachmentAutre.ts";
   import { ajouterOuModifierAvisExpert } from "./avisExpert.ts";
+  import { sauvegardeNouvelleDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../DateInput.svelte";
+  import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
 
-  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type {
+    DossierComplet,
+    FrontEndAvisExpert,
+    DécisionAdministrativePourTransfer,
+  } from "@pitchou/types/API_Pitchou.ts";
+  import type { ÉvènementPieceJointeSource } from "@pitchou/types/évènement.d.ts";
+
+  type TypePièceJointe = "Décision administrative" | "Avis expert" | "Saisine expert" | "Autre";
 
   type Props = {
     id: string;
     dossier: Pick<DossierComplet, "id" | "avisExpert">;
+    typesPiècesJointes?: TypePièceJointe[];
+    afficherChoixType?: boolean;
+    typePièceJointeInitial?: TypePièceJointe;
+    source: ÉvènementPieceJointeSource;
   };
 
-  let { id, dossier }: Props = $props();
-
-  type TypePièceJointe = "Arrêté préfectoral" | "Avis expert" | "Saisine expert" | "Autre";
+  let {
+    id,
+    dossier,
+    typesPiècesJointes = ["Saisine expert", "Avis expert"],
+    afficherChoixType = true,
+    typePièceJointeInitial,
+    source,
+  }: Props = $props();
 
   const idTitreH2 = $derived(`${id}-title`);
 
@@ -21,7 +42,23 @@
 
   let fileListPièceJointe: FileList | undefined = $state();
 
-  let typePièceJointe: TypePièceJointe | null = $state(null);
+  function typePièceJointeParDéfaut() {
+    return typePièceJointeInitial ?? (!afficherChoixType ? (typesPiècesJointes[0] ?? null) : null);
+  }
+
+  // User-facing radio labels; the TypePièceJointe values stay unchanged.
+  function pieceJointeTypeLabel(type: TypePièceJointe): string {
+    switch (type) {
+      case "Saisine expert":
+        return "Saisine CNPN / CSRPN";
+      case "Avis expert":
+        return "Avis (CNPN, CSRPN, CBN, PNA, etc.)";
+      default:
+        return type;
+    }
+  }
+
+  let typePièceJointe: TypePièceJointe | null = $state(typePièceJointeParDéfaut());
 
   let serviceOuPersonneExperte: string | null = $state(null);
 
@@ -33,6 +70,10 @@
   let dateSaisine: FrontEndAvisExpert["date_saisine"] | undefined = $state();
 
   let dateAvis: FrontEndAvisExpert["date_avis"] | undefined = $state();
+
+  let otherAttachmentType = $state("");
+
+  let otherAttachmentDate: Date | undefined | null = $state();
 
   let avisExpertSélectionné: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
 
@@ -50,6 +91,8 @@
         ae.date_avis === null,
     ),
   );
+
+  let afficherChampTypePièceJointe = $derived(afficherChoixType && typesPiècesJointes.length > 1);
 
   let ajouterUneNouvellePièceJointeP: Promise<void> = $state(Promise.resolve());
 
@@ -85,16 +128,40 @@
       fileListPièceJointe.length > 0 &&
       typePièceJointe !== null &&
       typePièceJointe !== undefined &&
-      (formulaireValidePourSaisineExpert || formulaireValidePourAvisExpert),
+      (formulaireValidePourSaisineExpert ||
+        formulaireValidePourAvisExpert ||
+        (typePièceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
+
+  function envoyerÉvènementAjouterPièceJointe(
+    typePieceJointe: TypePièceJointe,
+    nombreFichiers: number,
+  ) {
+    envoyerÉvènement({
+      type: "ajouterPieceJointe",
+      détails: {
+        dossierId: dossier.id,
+        source,
+        typePieceJointe,
+        nombreFichiers,
+      },
+    });
+  }
 
   async function ajouterPièceJointe() {
     if (!fileListPièceJointe || fileListPièceJointe.length === 0) {
       return;
     }
 
+    messageErreur = null;
+
+    const erreurTaille = uploadSizeError(fileListPièceJointe);
+    if (erreurTaille) {
+      messageErreur = erreurTaille;
+      return;
+    }
+
     try {
-      messageErreur = null;
       if (typePièceJointe === "Saisine expert") {
         // Créer un nouvel avis expert avec la saisine
         const fichierSaisine = fileListPièceJointe[0];
@@ -111,7 +178,10 @@
           fichierSaisine,
           undefined,
         )
-          .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+          .then(() => {
+            envoyerÉvènementAjouterPièceJointe("Saisine expert", 1);
+            return refreshDossierComplet(dossier.id).then(() => fermerModale());
+          })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       } else if (typePièceJointe === "Avis expert") {
         // Soit modifier une saisine existante en ajoutant l'avis, soit créer un nouveau
@@ -136,7 +206,10 @@
             undefined,
             fichierAvis,
           )
-            .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+            .then(() => {
+              envoyerÉvènementAjouterPièceJointe("Avis expert", 1);
+              return refreshDossierComplet(dossier.id).then(() => fermerModale());
+            })
             .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
         } else if (avisExpertSélectionné) {
           // Ajouter l'avis à une saisine existante
@@ -154,15 +227,39 @@
               undefined,
               fichierAvis,
             )
-              .then(() => refreshDossierComplet(dossier.id).then(() => fermerModale()))
+              .then(() => {
+                envoyerÉvènementAjouterPièceJointe("Avis expert", 1);
+                return refreshDossierComplet(dossier.id).then(() => fermerModale());
+              })
               .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
           }
         }
+      } else if (typePièceJointe === "Autre") {
+        const nombreFichiers = fileListPièceJointe.length;
+        ajouterUneNouvellePièceJointeP = addAttachmentAutre(
+          dossier.id,
+          otherAttachmentType,
+          otherAttachmentDate,
+          fileListPièceJointe,
+        )
+          .then(() => {
+            envoyerÉvènementAjouterPièceJointe("Autre", nombreFichiers);
+            return refreshDossierComplet(dossier.id).then(() => fermerModale());
+          })
+          .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       }
     } catch (e) {
       // @ts-ignore
       messageErreur = e.message || "Une erreur est survenue";
     }
+  }
+
+  async function ajouterDécisionAdministrative(decision: DécisionAdministrativePourTransfer) {
+    await sauvegardeNouvelleDécisionAdministrative(decision);
+    if (decision.fichier_base64) {
+      envoyerÉvènementAjouterPièceJointe("Décision administrative", 1);
+    }
+    fermerModale();
   }
 
   function réinitialiserLeFormulaireSaufTypePièceJointe() {
@@ -177,12 +274,14 @@
     avisExpertSélectionné = null;
     messageErreur = null;
     dateAvis = null;
+    otherAttachmentType = "";
+    otherAttachmentDate = null;
   }
 
   function fermerModale() {
     // Réinitialiser les états
     réinitialiserLeFormulaireSaufTypePièceJointe();
-    typePièceJointe = null;
+    typePièceJointe = typePièceJointeParDéfaut();
 
     if (modale) {
       //@ts-ignore
@@ -207,16 +306,11 @@
           </div>
           <div class="fr-modal__content">
             <h2 id={idTitreH2} class="fr-modal__title">Ajouter une pièce jointe</h2>
-            <form
-              onsubmit={(e) => {
-                e.preventDefault();
-                ajouterPièceJointe();
-              }}
-            >
-              <p class="fr-text--sm fr-mb-2w">
-                <span class="obligatoire-asterisque">*</span>
-                Champs obligatoires
-              </p>
+            <p class="fr-text--sm fr-mb-2w">
+              <span class="obligatoire-asterisque">*</span>
+              Champs obligatoires
+            </p>
+            {#if afficherChampTypePièceJointe}
               <div class="fr-fieldset fr-mt-3w" id="champ-type-piece-jointe-group">
                 <legend
                   class="fr-fieldset__legend--regular fr-fieldset__legend"
@@ -226,7 +320,7 @@
                   <span class="obligatoire-asterisque">*</span>
                 </legend>
                 <div class="conteneur-boutons-radios">
-                  {#each ["Saisine expert", "Avis expert"] as type}
+                  {#each typesPiècesJointes as type}
                     {@const idRadio = `type-piece-jointe-${type.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                     <div class="fr-fieldset__element">
                       <div class="fr-radio-group">
@@ -240,14 +334,27 @@
                           bind:group={typePièceJointe}
                         />
                         <label class="fr-label" for={idRadio}>
-                          {type}
+                          {pieceJointeTypeLabel(type)}
                         </label>
                       </div>
                     </div>
                   {/each}
                 </div>
               </div>
-              {#if typePièceJointe}
+            {/if}
+            {#if typePièceJointe === "Décision administrative"}
+              <FormDecisionAdministrative
+                décisionAdministrative={{ dossier: dossier.id }}
+                onValider={ajouterDécisionAdministrative}
+                onAnnuler={fermerModale}
+              />
+            {:else if typePièceJointe}
+              <form
+                onsubmit={(e) => {
+                  e.preventDefault();
+                  ajouterPièceJointe();
+                }}
+              >
                 <div class="fr-upload-group fr-mt-3w">
                   <label class="fr-label" for="upload-piece-jointe">
                     {#if typePièceJointe === "Avis expert" || typePièceJointe === "Saisine expert"}
@@ -256,10 +363,9 @@
                       Choisir un ou plusieurs fichiers
                     {/if}
                     <span class="obligatoire-asterisque">*</span>
-                    <span class="fr-hint-text">
-                      Indication : taille maximale&nbsp;: 500 Mo. Formats supportés&nbsp;: xls, ods,
-                      pdf, odt. Plusieurs fichiers possibles.
-                    </span>
+                    <span class="fr-hint-text"
+                      >{uploadSizeHint()} Formats supportés&nbsp;: xls, ods, pdf, odt.</span
+                    >
                   </label>
                   <input
                     required
@@ -280,8 +386,6 @@
                     aria-live="polite"
                   ></div>
                 </div>
-              {/if}
-              {#if fileListPièceJointe && fileListPièceJointe.length > 0}
                 {#if typePièceJointe === "Saisine expert"}
                   <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
                     <legend
@@ -474,10 +578,32 @@
                   </div>
                 {/if}
 
+                {#if typePièceJointe === "Autre"}
+                  <div class="fr-input-group fr-mt-3w">
+                    <label class="fr-label" for="other-attachment-type-{id}">
+                      Autre : Précisez le type de pièce jointe
+                      <span class="obligatoire-asterisque">*</span>
+                    </label>
+                    <input
+                      required
+                      class="fr-input"
+                      type="text"
+                      id="other-attachment-type-{id}"
+                      bind:value={otherAttachmentType}
+                    />
+                  </div>
+                  <div class="fr-mt-3w">
+                    <label class="fr-input-group fr-label" for="other-attachment-date-{id}"
+                      >Date de la pièce jointe</label
+                    >
+                    <DateInput id={`other-attachment-date-${id}`} bind:date={otherAttachmentDate} />
+                  </div>
+                {/if}
+
                 {#if formulaireValide}
                   <div class="fr-messages-group" aria-live="polite">
                     {#if messageErreur}
-                      <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+                      <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-3w fr-mb-2w">
                         <p>{messageErreur}</p>
                       </div>
                     {/if}
@@ -494,13 +620,13 @@
                   </ul>
                 {:else if messageErreur}
                   <div class="fr-messages-group" aria-live="polite">
-                    <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+                    <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-3w fr-mb-2w">
                       <p>{messageErreur}</p>
                     </div>
                   </div>
                 {/if}
-              {/if}
-            </form>
+              </form>
+            {/if}
           </div>
         </div>
       </div>

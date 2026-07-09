@@ -13,6 +13,7 @@
   import { modifierDossier } from "$lib/dossier/dossier.ts";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
+  import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
   import type Personne from "@pitchou/types/database/public/Personne.ts";
@@ -37,6 +38,7 @@
 
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
+  const otherAttachments = $derived(dossier.attachmentAutres);
 
   let phaseActuelle = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
@@ -59,6 +61,23 @@
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  }
+
+  function attachmentDetails(attachment: DossierComplet["attachmentAutres"][number]) {
+    const details = [];
+    const fileDescription = attachment.fichier_description;
+
+    if (fileDescription?.media_type) {
+      details.push(fileDescription.media_type);
+    }
+    if (typeof fileDescription?.taille === "number") {
+      details.push(byteFormat.format(fileDescription.taille));
+    }
+    if (attachment.attachment_date) {
+      details.push(`Date de la pièce jointe : ${formatDateAbsolue(attachment.attachment_date)}`);
+    }
+
+    return details.join(" - ");
   }
 
   let date_debut_consultation_public_str = $state(
@@ -307,6 +326,30 @@
         bind:value={date_fin_consultation_public_str}
       />
     </div>
+
+    <h2 class="fr-mt-3w">Autres pièces jointes</h2>
+    {#if otherAttachments.length === 0}
+      <p>Aucune autre pièce jointe n'est associée à ce dossier.</p>
+    {:else}
+      <ul class="other-attachments">
+        {#each otherAttachments as attachment}
+          {@const details = attachmentDetails(attachment)}
+          <li>
+            <a
+              class="fr-link fr-link--download"
+              href={attachment.fichier_url}
+              title={attachment.fichier_description?.nom ?? attachment.type}
+              data-sveltekit-reload
+            >
+              {attachment.fichier_description?.nom ?? attachment.type}
+              {#if details}
+                <span class="fr-link__detail">{attachment.type} - {details}</span>
+              {/if}
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {/if}
   </section>
 
   <section>
@@ -404,7 +447,12 @@
   </section>
 </section>
 
-<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointe} {dossier} />
+<ModaleAjouterPièceJointe
+  id={idModaleAjouterPieceJointe}
+  {dossier}
+  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+  source="ongletInstruction"
+/>
 
 <style lang="scss">
   .row {
@@ -445,5 +493,11 @@
   .col {
     display: flex;
     flex-direction: column;
+  }
+
+  .other-attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 </style>

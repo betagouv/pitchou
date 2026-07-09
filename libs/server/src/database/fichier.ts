@@ -155,6 +155,7 @@ const FICHIER_REFERENCES = [
   { table: "décision_administrative", column: "fichier" },
   { table: "avis_expert", column: "saisine_fichier" },
   { table: "avis_expert", column: "avis_fichier" },
+  { table: "attachment_autre", column: "fichier" },
 ];
 
 /**

@@ -4,6 +4,7 @@
   import Prescription from "./Prescription.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
+  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
 
   import {
     supprimerPrescription as supprimerPrescriptionBaseDeDonnées,
@@ -155,7 +156,7 @@
             href="/data/modèles/modèle ajout prescriptions.ods">modèle est disponible</a
           >. Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles
           sont toutes optionnelles)
-          <span class="fr-hint-text">Taille maximale : 100 Mo. Formats supportés : .ods</span>
+          <span class="fr-hint-text">{uploadSizeHint()} Formats supportés : .ods</span>
         </label>
         <input
           oninput={onFileInput}

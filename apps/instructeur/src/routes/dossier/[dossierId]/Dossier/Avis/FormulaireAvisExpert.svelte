@@ -3,6 +3,7 @@
 
   import { ajouterOuModifierAvisExpert } from "../avisExpert.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../../DateInput.svelte";
 
   type Props = {
@@ -145,7 +146,7 @@
         <label class="fr-label" for="upload-fichier-saisine"
           >Fichier de la saisine
           <span class="fr-hint-text"
-            >Indication : Taille maximale&nbsp;: 20 Mo. Formats supportés&nbsp;: pdf</span
+            >Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span
           >
         </label>
         {#if avisExpertInitial?.saisine_fichier_url}
@@ -188,7 +189,7 @@
         <label class="fr-label" for="upload-fichier-avis"
           >Fichier de l'avis de l'expert
           <span class="fr-hint-text"
-            >Indication : Taille maximale&nbsp;: 20 Mo. Formats supportés&nbsp;: pdf</span
+            >Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span
           >
         </label>
         {#if avisExpertInitial?.avis_fichier_url}

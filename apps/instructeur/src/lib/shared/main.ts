@@ -10,6 +10,11 @@ import créerObjetCapDepuisURLs from "$lib/shared/créerObjetCapDepuisURLs.ts";
 import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
 import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
+import type {
+  PitchouInstructeurCapabilities,
+  IdentitéInstructeurPitchou,
+} from "@pitchou/types/capabilities.ts";
+import type { StringValues } from "@pitchou/types/tools.d.ts";
 
 export const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
@@ -108,21 +113,28 @@ export async function logoutEtRedirigerVersAccueil(erreur?: { message: string })
   return logout().then(() => goto("/"));
 }
 
+type CapsResponse = StringValues<PitchouInstructeurCapabilities> & {
+  identité: IdentitéInstructeurPitchou;
+  maxUploadSizeBytes?: number;
+};
+
 function initCapabilities(secret: string) {
-  return json(`/caps?secret=${secret}`).then((capsURLs) => {
-    if (capsURLs && typeof capsURLs === "object") {
-      //@ts-ignore
+  return json(`/caps?secret=${secret}`).then((response) => {
+    if (response && typeof response === "object") {
+      const capsURLs = response as CapsResponse;
       store.capabilities = créerObjetCapDepuisURLs(capsURLs);
 
-      // @ts-ignore
       if (capsURLs.identité) {
-        // @ts-ignore
         store.identité = capsURLs.identité;
+      }
+
+      if (typeof capsURLs.maxUploadSizeBytes === "number") {
+        store.maxUploadSizeBytes = capsURLs.maxUploadSizeBytes;
       }
 
       envoyerÉvènement({ type: "seConnecter" });
     } else {
-      throw new TypeError(`capsURLs non-reconnu (${typeof capsURLs} - ${capsURLs})`);
+      throw new TypeError(`capsURLs non-reconnu (${typeof response} - ${response})`);
     }
   });
 }

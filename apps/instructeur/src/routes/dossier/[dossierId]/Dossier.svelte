@@ -7,6 +7,7 @@
   import DossierPorteurDeProjet from "./Dossier/DossierPorteurDeProjet.svelte";
   import DossierAvis from "./Dossier/DossierAvis.svelte";
   import DossierContrôles from "./Dossier/DossierContrôles.svelte";
+  import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
   import DossierGénérationDocuments from "./Dossier/DossierGénérationDocuments.svelte";
   import { MediaTypeError } from "@pitchou/common/errors.ts";
   import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
@@ -26,6 +27,7 @@
     | "porteur-de-projet"
     | "avis"
     | "controles"
+    | "pieces-jointes"
     | "generation-document"
     | "echanges";
 
@@ -214,6 +216,20 @@
         <li role="presentation">
           <button
             type="button"
+            id="tabpanel-pieces-jointes"
+            aria-controls="tabpanel-pieces-jointes-panel"
+            class="fr-tabs__tab {ongletActif === 'pieces-jointes' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={ongletActif === "pieces-jointes" ? 0 : -1}
+            role="tab"
+            aria-selected={ongletActif === "pieces-jointes"}
+            onclick={() => handleTabClick("pieces-jointes")}
+          >
+            Pièces jointes
+          </button>
+        </li>
+        <li role="presentation">
+          <button
+            type="button"
             id="tabpanel-generation-document"
             aria-controls="tabpanel-generation-document-panel"
             class="fr-tabs__tab {ongletActif === 'generation-document'
@@ -292,6 +308,16 @@
         tabindex="0"
       >
         <DossierContrôles {dossier}></DossierContrôles>
+      </div>
+      <div
+        id="tabpanel-pieces-jointes-panel"
+        aria-labelledby="tabpanel-pieces-jointes"
+        class="fr-tabs__panel"
+        class:fr-tabs__panel--selected={ongletActif === "pieces-jointes"}
+        role="tabpanel"
+        tabindex="0"
+      >
+        <DossierPiecesJointes {dossier} ouvrirOnglet={changerOnglet}></DossierPiecesJointes>
       </div>
       <div
         id="tabpanel-generation-document-panel"

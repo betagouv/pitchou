@@ -1,41 +1,32 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { format, parse } from "date-fns";
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
+  import DatePicker from "$lib/components/DatePicker.svelte";
 
   type Props = {
     YYYYMMDD?: string;
     date?: Date | null | undefined;
     id?: string;
+    label?: string;
   };
 
-  let { YYYYMMDD = "yyyy-MM-dd", date = $bindable(undefined), id }: Props = $props();
+  let {
+    YYYYMMDD = "yyyy-MM-dd",
+    date = $bindable(undefined),
+    id,
+    label = "Date",
+  }: Props = $props();
 
-  let internal: string | null | undefined = $state();
+  const fallbackId = $props.id();
+  const inputId = $derived(id ?? fallbackId);
+  const internal = $derived(date ? format(date, YYYYMMDD) : "");
 
-  const input = (x: Date | null | undefined) => (internal = x && format(x, YYYYMMDD));
-  const output = (x: string | null | undefined) => {
-    date = typeof x === "string" ? parse(x, YYYYMMDD, new Date()) : undefined;
+  function setDate(value: string | null) {
+    date = typeof value === "string" ? parse(value, YYYYMMDD, new Date()) : undefined;
     if (date) {
       Object.defineProperty(date, "toJSON", { value: toJSONPerserveDate });
     }
-    return date;
-  };
-
-  run(() => {
-    input(date);
-  });
-  run(() => {
-    output(internal);
-  });
+  }
 </script>
 
-<input {id} type="date" class="fr-input" bind:value={internal} />
-
-<style lang="scss">
-  input {
-    padding-right: 0.4rem;
-    padding-left: 0.5rem;
-  }
-</style>
+<DatePicker id={inputId} {label} value={internal} onChange={setDate} />

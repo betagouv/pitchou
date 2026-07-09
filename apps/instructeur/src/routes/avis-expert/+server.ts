@@ -10,15 +10,9 @@ import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts"
 import type Fichier from "@pitchou/types/database/public/Fichier.ts";
 import type { PickNonNullable } from "@pitchou/types/tools.d.ts";
 
-const ONE_MB = 1_048_576;
-const MAX_UPLOAD_FILE_SIZE = 20 * ONE_MB;
-
 type FichierUpload = PickNonNullable<Fichier, "nom" | "contenu" | "media_type">;
 
 async function readFileField(file: File): Promise<FichierUpload> {
-  if (file.size > MAX_UPLOAD_FILE_SIZE) {
-    error(413, `Fichier '${file.name}' trop volumineux (max ${MAX_UPLOAD_FILE_SIZE} octets)`);
-  }
   const contenu = Buffer.from(await file.arrayBuffer());
   return { nom: file.name, media_type: file.type, contenu };
 }

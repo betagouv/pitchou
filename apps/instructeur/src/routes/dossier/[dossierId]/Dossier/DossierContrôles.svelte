@@ -2,19 +2,15 @@
   import clsx from "clsx";
 
   import DecisionAdministrative from "./Contrôles/DecisionAdministrative.svelte";
-  import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
-  import CardDecisionAdministrative from "./Contrôles/CardDecisionAdministrative.svelte";
+  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
 
-  import {
-    sauvegardeNouvelleDécisionAdministrative,
-    supprimerDécisionAdministrative,
-  } from "./Contrôles/décisionAdministrative.ts";
+  import { supprimerDécisionAdministrative } from "./Contrôles/décisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
 
   import type {
     DossierComplet,
     FrontEndDécisionAdministrative,
-    DécisionAdministrativePourTransfer,
   } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
@@ -22,6 +18,8 @@
   };
 
   let { dossier }: Props = $props();
+
+  const idModaleAjouterDecisionAdministrative = "modale-ajouter-decision-administrative";
 
   let décisionsAdministratives: FrontEndDécisionAdministrative[] = $derived(
     dossier.décisionsAdministratives || [],
@@ -54,25 +52,6 @@
         : undefined,
     ]),
   );
-
-  let décisionAdministrativeEnCréation: DécisionAdministrativePourTransfer | undefined = $state();
-
-  function commencerCréationDécisionAdministrative() {
-    décisionAdministrativeEnCréation = {
-      dossier: dossier.id,
-    };
-  }
-
-  async function onValider(decision: DécisionAdministrativePourTransfer) {
-    // On failure, the error propagates to the form, which displays it and keeps
-    // the form open. We only close and refresh once the save succeeds.
-    await sauvegardeNouvelleDécisionAdministrative(decision);
-    décisionAdministrativeEnCréation = undefined;
-  }
-
-  function annulerCréation() {
-    décisionAdministrativeEnCréation = undefined;
-  }
 </script>
 
 <div class="row">
@@ -90,25 +69,26 @@
     {/each}
   {/if}
 
-  {#if décisionAdministrativeEnCréation}
-    <CardDecisionAdministrative>
-      <h4>Nouvelle décision administrative</h4>
-      <FormDecisionAdministrative
-        décisionAdministrative={décisionAdministrativeEnCréation}
-        {onValider}
-        onAnnuler={annulerCréation}
-      />
-    </CardDecisionAdministrative>
-  {:else}
-    <button onclick={commencerCréationDécisionAdministrative} class={classes}
-      >Rajouter une décision administrative</button
-    >
-  {/if}
+  <button
+    type="button"
+    class={classes}
+    aria-controls={idModaleAjouterDecisionAdministrative}
+    data-fr-opened="false"
+    onclick={() =>
+      envoyerÉvènement({
+        type: "ouvrirModaleAjouterPieceJointe",
+        détails: { dossierId: dossier.id, source: "ongletControles" },
+      })}
+  >
+    Rajouter une décision administrative
+  </button>
 </div>
 
-<style lang="scss">
-  h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-</style>
+<ModaleAjouterPièceJointe
+  id={idModaleAjouterDecisionAdministrative}
+  {dossier}
+  typesPiècesJointes={["Décision administrative"]}
+  typePièceJointeInitial="Décision administrative"
+  afficherChoixType={false}
+  source="ongletControles"
+/>

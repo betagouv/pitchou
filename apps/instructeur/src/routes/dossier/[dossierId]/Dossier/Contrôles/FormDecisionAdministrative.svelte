@@ -2,7 +2,11 @@
   import DateInput from "../../DateInput.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
-  import { typesDécisionAdministrative } from "@pitchou/common/décision-administrative.js";
+  import {
+    typesDécisionAdministrative,
+    labelForDecisionAdministrativeType,
+  } from "@pitchou/common/décision-administrative.js";
+  import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
 
   import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.js";
 
@@ -25,8 +29,6 @@
   let fichiers: FileList | undefined = $state();
 
   const FORMATS_ACCEPTÉS = [".pdf"];
-  const TAILLE_MAX_MO = 15;
-  const TAILLE_MAX_OCTETS = TAILLE_MAX_MO * 1024 * 1024;
 
   // File-related error, shown under the upload field
   let messageErreurFichier: string | null = $state(null);
@@ -36,15 +38,11 @@
   let messageErreur: string | null = $state(null);
   let enCours = $state(false);
 
-  function formatTaille(octets: number): string {
-    return `${(octets / (1024 * 1024)).toFixed(1)} Mo`;
-  }
-
   function messageErreurLisible(erreur: unknown): string {
     const message = erreur instanceof Error ? erreur.message : String(erreur);
     // d3-fetch rejects with a message like "413 Payload Too Large"
     if (/^413\b/.test(message)) {
-      return `Le fichier est trop volumineux pour être envoyé (taille maximale : ${TAILLE_MAX_MO} Mo).`;
+      return `Le fichier est trop volumineux pour être envoyé.`;
     }
     return `L'enregistrement de la décision administrative a échoué : ${message}`;
   }
@@ -86,8 +84,9 @@
         return;
       }
 
-      if (fichier.size > TAILLE_MAX_OCTETS) {
-        messageErreurFichier = `Le fichier est trop volumineux (${formatTaille(fichier.size)}). Taille maximale : ${TAILLE_MAX_MO} Mo.`;
+      const erreurTaille = uploadSizeError(fichiers);
+      if (erreurTaille) {
+        messageErreurFichier = erreurTaille;
         return;
       }
 
@@ -141,9 +140,7 @@
   <div class="fr-upload-group">
     <label class="fr-label" for="upload-fichier-décision"
       >Fichier de la décision administrative
-      <span class="fr-hint-text"
-        >Indication : Taille maximale&nbsp;: 15 Mo. Formats supportés&nbsp;: pdf</span
-      >
+      <span class="fr-hint-text">Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span>
     </label>
     <input
       accept=".pdf"
@@ -184,7 +181,7 @@
     >
       <option value="" selected disabled>Sélectionnez une option</option>
       {#each typesDécisionAdministrative as type}
-        <option value={type}>{type}</option>
+        <option value={type}>{labelForDecisionAdministrativeType(type)}</option>
       {/each}
     </select>
     <div class="fr-messages-group" id="select-type-messages" aria-live="polite">

@@ -68,6 +68,19 @@ function serializeJsonColumns(data: Record<string, unknown>): Record<string, unk
   return result;
 }
 
+async function stockerPlaceholderPdf(nom: string, transaction: Knex.Transaction) {
+  const stored = await stockerNouveauFichier(
+    {
+      nom,
+      contenu: generatePlaceholderPdf(nom),
+      media_type: "application/pdf",
+    },
+    transaction,
+  );
+
+  return stored.id ?? null;
+}
+
 export async function seed(knex: Knex) {
   await knex.transaction(async (transaction) => {
     const person = await transaction("personne").where({ email: SEED_EMAIL }).first();
@@ -230,7 +243,12 @@ export async function seed(knex: Knex) {
     }
 
     // Step 3 — avis experts
-    for (const { dossier: dsNumber, ...avisData } of SEED_AVIS_EXPERTS) {
+    for (const {
+      dossier: dsNumber,
+      nom_fichier_saisine,
+      nom_fichier_avis,
+      ...avisData
+    } of SEED_AVIS_EXPERTS) {
       const dossierId = dossierIdMap[dsNumber];
       if (!dossierId) {
         console.warn(`  ⚠ avis_expert ${avisData.id} — dossier DS ${dsNumber} non résolu`);
@@ -240,7 +258,39 @@ export async function seed(knex: Knex) {
       try {
         const existing = await transaction("avis_expert").where({ id: avisData.id }).first();
         if (!existing) {
-          await transaction("avis_expert").insert({ ...avisData, dossier: dossierId });
+          await transaction("avis_expert").insert({
+            ...avisData,
+            dossier: dossierId,
+            saisine_fichier: nom_fichier_saisine
+              ? await stockerPlaceholderPdf(nom_fichier_saisine, transaction)
+              : null,
+            avis_fichier: nom_fichier_avis
+              ? await stockerPlaceholderPdf(nom_fichier_avis, transaction)
+              : null,
+          });
+        } else {
+          const fichiersÀAjouter: {
+            saisine_fichier?: FichierId | null;
+            avis_fichier?: FichierId | null;
+          } = {};
+
+          if (nom_fichier_saisine && !existing.saisine_fichier) {
+            fichiersÀAjouter.saisine_fichier = await stockerPlaceholderPdf(
+              nom_fichier_saisine,
+              transaction,
+            );
+          }
+
+          if (nom_fichier_avis && !existing.avis_fichier) {
+            fichiersÀAjouter.avis_fichier = await stockerPlaceholderPdf(
+              nom_fichier_avis,
+              transaction,
+            );
+          }
+
+          if (Object.keys(fichiersÀAjouter).length >= 1) {
+            await transaction("avis_expert").where({ id: avisData.id }).update(fichiersÀAjouter);
+          }
         }
       } catch (err) {
         console.error(
@@ -267,15 +317,7 @@ export async function seed(knex: Knex) {
         if (!existing) {
           let fichier: FichierId | null = null;
           if (nom_fichier) {
-            const stored = await stockerNouveauFichier(
-              {
-                nom: nom_fichier,
-                contenu: generatePlaceholderPdf(nom_fichier),
-                media_type: "application/pdf",
-              },
-              transaction,
-            );
-            fichier = stored.id ?? null;
+            fichier = await stockerPlaceholderPdf(nom_fichier, transaction);
           }
           await transaction("décision_administrative").insert({
             ...daData,
