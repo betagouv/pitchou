@@ -46,6 +46,18 @@
     return typePièceJointeInitial ?? (!afficherChoixType ? (typesPiècesJointes[0] ?? null) : null);
   }
 
+  // User-facing radio labels; the TypePièceJointe values stay unchanged.
+  function pieceJointeTypeLabel(type: TypePièceJointe): string {
+    switch (type) {
+      case "Saisine expert":
+        return "Saisine CNPN / CSRPN";
+      case "Avis expert":
+        return "Avis expert (CNPN, CSRPN, CBN, PNA, etc.)";
+      default:
+        return type;
+    }
+  }
+
   let typePièceJointe: TypePièceJointe | null = $state(typePièceJointeParDéfaut());
 
   let serviceOuPersonneExperte: string | null = $state(null);
@@ -315,7 +327,7 @@
                           bind:group={typePièceJointe}
                         />
                         <label class="fr-label" for={idRadio}>
-                          {type}
+                          {pieceJointeTypeLabel(type)}
                         </label>
                       </div>
                     </div>

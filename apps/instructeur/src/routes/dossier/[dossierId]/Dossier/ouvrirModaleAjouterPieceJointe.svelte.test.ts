@@ -184,3 +184,22 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
     }),
   );
 });
+
+test("affiche des libellés experts détaillés pour la saisine et l'avis", async () => {
+  const { container } = render(ModaleAjouterPièceJointe, {
+    id: "modale-test-libelles",
+    dossier: dossier(),
+    typesPiècesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
+    source: "ongletPiecesJointes",
+  });
+
+  const libellés = Array.from(container.querySelectorAll("label")).map((label) =>
+    label.textContent?.trim(),
+  );
+
+  expect(libellés).toContain("Saisine CNPN / CSRPN");
+  expect(libellés).toContain("Avis expert (CNPN, CSRPN, CBN, PNA, etc.)");
+  // Les libellés génériques ne sont plus affichés tels quels.
+  expect(libellés).not.toContain("Saisine expert");
+  expect(libellés).not.toContain("Avis expert");
+});
