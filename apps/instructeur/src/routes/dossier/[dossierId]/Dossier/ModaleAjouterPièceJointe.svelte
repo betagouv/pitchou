@@ -52,7 +52,7 @@
       case "Saisine expert":
         return "Saisine CNPN / CSRPN";
       case "Avis expert":
-        return "Avis expert (CNPN, CSRPN, CBN, PNA, etc.)";
+        return "Avis (CNPN, CSRPN, CBN, PNA, etc.)";
       default:
         return type;
     }

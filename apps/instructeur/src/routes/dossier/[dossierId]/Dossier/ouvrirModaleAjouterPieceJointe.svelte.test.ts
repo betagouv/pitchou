@@ -198,7 +198,7 @@ test("affiche des libellés experts détaillés pour la saisine et l'avis", asyn
   );
 
   expect(libellés).toContain("Saisine CNPN / CSRPN");
-  expect(libellés).toContain("Avis expert (CNPN, CSRPN, CBN, PNA, etc.)");
+  expect(libellés).toContain("Avis (CNPN, CSRPN, CBN, PNA, etc.)");
   // Les libellés génériques ne sont plus affichés tels quels.
   expect(libellés).not.toContain("Saisine expert");
   expect(libellés).not.toContain("Avis expert");
