@@ -7,6 +7,7 @@
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { envoyerÉvènement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
+  import { labelForDecisionAdministrativeType } from "@pitchou/common/décision-administrative.js";
 
   import type {
     DécisionAdministrativePourTransfer,
@@ -91,7 +92,7 @@
     />
   {:else}
     <h4>
-      {type || "Décision de type inconnu"}
+      {type ? labelForDecisionAdministrativeType(type) : "Décision de type inconnu"}
       {numéro || ""} du {formatDateAbsolue(date_signature)}
       <button
         class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"

@@ -2,7 +2,10 @@
   import DateInput from "../../DateInput.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
-  import { typesDécisionAdministrative } from "@pitchou/common/décision-administrative.js";
+  import {
+    typesDécisionAdministrative,
+    labelForDecisionAdministrativeType,
+  } from "@pitchou/common/décision-administrative.js";
 
   import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.js";
 
@@ -171,7 +174,7 @@
     >
       <option value="" selected disabled>Sélectionnez une option</option>
       {#each typesDécisionAdministrative as type}
-        <option value={type}>{type}</option>
+        <option value={type}>{labelForDecisionAdministrativeType(type)}</option>
       {/each}
     </select>
     <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
