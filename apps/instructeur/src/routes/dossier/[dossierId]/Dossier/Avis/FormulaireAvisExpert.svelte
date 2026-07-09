@@ -144,9 +144,7 @@
       <div class="fr-upload-fichier-saisine-group">
         <label class="fr-label" for="upload-fichier-saisine"
           >Fichier de la saisine
-          <span class="fr-hint-text"
-            >Indication : Taille maximale&nbsp;: 20 Mo. Formats supportés&nbsp;: pdf</span
-          >
+          <span class="fr-hint-text">Indication : Formats supportés&nbsp;: pdf</span>
         </label>
         {#if avisExpertInitial?.saisine_fichier_url}
           <a
@@ -187,9 +185,7 @@
       <div class="fr-upload-fichier-avis-group">
         <label class="fr-label" for="upload-fichier-avis"
           >Fichier de l'avis de l'expert
-          <span class="fr-hint-text"
-            >Indication : Taille maximale&nbsp;: 20 Mo. Formats supportés&nbsp;: pdf</span
-          >
+          <span class="fr-hint-text">Indication : Formats supportés&nbsp;: pdf</span>
         </label>
         {#if avisExpertInitial?.avis_fichier_url}
           <a

@@ -25,8 +25,6 @@
   let fichiers: FileList | undefined = $state();
 
   const FORMATS_ACCEPTÉS = [".pdf"];
-  const TAILLE_MAX_MO = 15;
-  const TAILLE_MAX_OCTETS = TAILLE_MAX_MO * 1024 * 1024;
 
   // File-related error, shown under the upload field
   let messageErreurFichier: string | null = $state(null);
@@ -36,15 +34,11 @@
   let messageErreur: string | null = $state(null);
   let enCours = $state(false);
 
-  function formatTaille(octets: number): string {
-    return `${(octets / (1024 * 1024)).toFixed(1)} Mo`;
-  }
-
   function messageErreurLisible(erreur: unknown): string {
     const message = erreur instanceof Error ? erreur.message : String(erreur);
     // d3-fetch rejects with a message like "413 Payload Too Large"
     if (/^413\b/.test(message)) {
-      return `Le fichier est trop volumineux pour être envoyé (taille maximale : ${TAILLE_MAX_MO} Mo).`;
+      return `Le fichier est trop volumineux pour être envoyé.`;
     }
     return `L'enregistrement de la décision administrative a échoué : ${message}`;
   }
@@ -83,11 +77,6 @@
       );
       if (!formatValide) {
         messageErreurFichier = `Format de fichier non supporté. Formats acceptés : ${FORMATS_ACCEPTÉS.join(", ")}.`;
-        return;
-      }
-
-      if (fichier.size > TAILLE_MAX_OCTETS) {
-        messageErreurFichier = `Le fichier est trop volumineux (${formatTaille(fichier.size)}). Taille maximale : ${TAILLE_MAX_MO} Mo.`;
         return;
       }
 
@@ -141,9 +130,7 @@
   <div class="fr-upload-group">
     <label class="fr-label" for="upload-fichier-décision"
       >Fichier de la décision administrative
-      <span class="fr-hint-text"
-        >Indication : Taille maximale&nbsp;: 15 Mo. Formats supportés&nbsp;: pdf</span
-      >
+      <span class="fr-hint-text">Indication : Formats supportés&nbsp;: pdf</span>
     </label>
     <input
       accept=".pdf"

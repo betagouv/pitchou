@@ -56,20 +56,6 @@ test("refuse une décision sans type et n'appelle pas onValider", async () => {
   expect(onValider).not.toHaveBeenCalled();
 });
 
-test("refuse un fichier trop volumineux et n'appelle pas onValider", async () => {
-  const onValider = vi.fn();
-  const { container } = render(FormDecisionAdministrative, {
-    décisionAdministrative: decision({ type: TYPE_VALIDE }),
-    onValider,
-  });
-
-  await choisirFichier(container, fichierDeTaille("gros.pdf", "application/pdf", 16 * 1024 * 1024));
-  await cliquerSauvegarder();
-
-  await expect.element(page.getByText(/trop volumineux/i)).toBeVisible();
-  expect(onValider).not.toHaveBeenCalled();
-});
-
 test("refuse un format non supporté et n'appelle pas onValider", async () => {
   const onValider = vi.fn();
   const { container } = render(FormDecisionAdministrative, {

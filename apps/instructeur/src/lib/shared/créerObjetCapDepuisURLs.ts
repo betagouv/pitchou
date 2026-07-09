@@ -219,7 +219,15 @@ function wrapPOSTMultipart(
 ): ((form: FormData) => Promise<string>) | undefined {
   if (!url) return undefined;
 
-  return (form: FormData) => text(url, { method: "POST", body: form });
+  return async (form: FormData) => {
+    const response = await fetch(url, { method: "POST", body: form });
+    if (!response.ok) {
+      // Surface the server's message (d3-fetch would only expose the status code).
+      const body = (await response.text().catch(() => "")).trim();
+      throw new Error(body || `Une erreur est survenue (${response.status})`);
+    }
+    return response.text();
+  };
 }
 
 function wrapModifierRelationSuivi(

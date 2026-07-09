@@ -308,9 +308,7 @@
                       class:fr-upload-group--error={messageErreurPréRemplirAvecDocumentOds}
                     >
                       <label class="fr-label" for="file-upload">
-                        <span class="fr-hint-text"
-                          >Taille maximale : 100 Mo. Formats supportés : ods</span
-                        >
+                        <span class="fr-hint-text">Formats supportés : ods</span>
                       </label>
                       <input
                         bind:this={inputFileUpload}

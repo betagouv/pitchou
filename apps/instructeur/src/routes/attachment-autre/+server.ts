@@ -6,14 +6,7 @@ import { addAttachmentAutre } from "@pitchou/server/database/attachmentAutre.ts"
 import type { RequestHandler } from "./$types";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
-const ONE_MB = 1_048_576;
-const MAX_UPLOAD_FILE_SIZE = 500 * ONE_MB;
-
 async function readFileField(file: File) {
-  if (file.size > MAX_UPLOAD_FILE_SIZE) {
-    error(413, `Fichier '${file.name}' trop volumineux (max ${MAX_UPLOAD_FILE_SIZE} octets)`);
-  }
-
   return {
     nom: file.name,
     media_type: file.type || null,
