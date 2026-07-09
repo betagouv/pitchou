@@ -38,6 +38,8 @@ export type PitchouState = {
     Pick<Notification, "vue" | "date_dernière_mise_à_jour">
   >;
   identité?: IdentitéInstructeurPitchou;
+  /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
+  maxUploadSizeBytes?: number;
   schemaDS88444?: SchemaDémarcheSimplifiée;
   espècesProtégéesParClassification?: ParClassification<EspèceProtégée[]>;
   espèceByCD_REF?: Map<EspèceProtégée["CD_REF"], EspèceProtégée>;

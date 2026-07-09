@@ -6,6 +6,7 @@
     typesDécisionAdministrative,
     labelForDecisionAdministrativeType,
   } from "@pitchou/common/décision-administrative.js";
+  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
 
   import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.js";
 
@@ -133,7 +134,7 @@
   <div class="fr-upload-group">
     <label class="fr-label" for="upload-fichier-décision"
       >Fichier de la décision administrative
-      <span class="fr-hint-text">Indication : Formats supportés&nbsp;: pdf</span>
+      <span class="fr-hint-text">Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span>
     </label>
     <input
       accept=".pdf"

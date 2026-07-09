@@ -1,6 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
+import { getMaxUploadSizeBytes } from "$lib/server/uploadLimit";
 import { getInstructeurCapBundleByPersonneCodeAccès } from "@pitchou/server/database.ts";
 import type {
   IdentitéInstructeurPitchou,
@@ -10,6 +11,7 @@ import type { StringValues } from "@pitchou/types/tools.d.ts";
 
 type CapURLs = StringValues<PitchouInstructeurCapabilities> & {
   identité: IdentitéInstructeurPitchou;
+  maxUploadSizeBytes: number;
 };
 
 export const GET: RequestHandler = async ({ url }) => {
@@ -71,6 +73,8 @@ export const GET: RequestHandler = async ({ url }) => {
   if (Object.keys(ret).length === 0) {
     error(403, "Code d'accès non valide.");
   }
+
+  ret.maxUploadSizeBytes = getMaxUploadSizeBytes();
 
   return json(ret);
 };

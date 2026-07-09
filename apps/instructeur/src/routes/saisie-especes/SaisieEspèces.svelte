@@ -8,6 +8,7 @@
   import TuileSaisieEspèce from "./SaisieEspèces/TuileSaisieEspèce.svelte";
   import { tick } from "svelte";
   import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
+  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
 
   import type {
     ParClassification,
@@ -308,7 +309,7 @@
                       class:fr-upload-group--error={messageErreurPréRemplirAvecDocumentOds}
                     >
                       <label class="fr-label" for="file-upload">
-                        <span class="fr-hint-text">Formats supportés : ods</span>
+                        <span class="fr-hint-text">{uploadSizeHint()} Formats supportés : ods</span>
                       </label>
                       <input
                         bind:this={inputFileUpload}

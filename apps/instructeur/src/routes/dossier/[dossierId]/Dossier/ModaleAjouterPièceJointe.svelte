@@ -5,6 +5,7 @@
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../DateInput.svelte";
   import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
 
@@ -343,7 +344,9 @@
                       Choisir un ou plusieurs fichiers
                     {/if}
                     <span class="obligatoire-asterisque">*</span>
-                    <span class="fr-hint-text"> Formats supportés&nbsp;: xls, ods, pdf, odt. </span>
+                    <span class="fr-hint-text"
+                      >{uploadSizeHint()} Formats supportés&nbsp;: xls, ods, pdf, odt.</span
+                    >
                   </label>
                   <input
                     required
