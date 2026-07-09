@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 # Request body size limit for uploads. adapter-node defaults to 512 KB, which is
-# too small for attachments. We can't go unlimited either: uploads are buffered
-# fully in memory (a few copies), so a large file would OOM the 1 GB container.
-# 200 MB leaves headroom for the copies and concurrent requests. Overridable via
-# the deployment environment.
-export BODY_SIZE_LIMIT="${BODY_SIZE_LIMIT:-200M}"
+# too small for attachments. The real ceiling is Scalingo's router: it rejects
+# any request body over 75 MB with a 413 before it reaches this app, and that
+# limit is not configurable. We stay just under it so the app enforces the same
+# bound (and the UI hint, which reads this value, stays truthful). Overridable
+# via the deployment environment.
+export BODY_SIZE_LIMIT="${BODY_SIZE_LIMIT:-70M}"
 
 # Single repo, two deployed apps. PITCHOU_APP selects which one this container runs.
 # Only instructeur runs the database migrations; admin shares the same database.

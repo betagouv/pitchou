@@ -5,7 +5,7 @@
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { envoyerÉvènement } from "$lib/shared/aarri.ts";
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../DateInput.svelte";
   import FormDecisionAdministrative from "./Contrôles/FormDecisionAdministrative.svelte";
 
@@ -153,8 +153,15 @@
       return;
     }
 
+    messageErreur = null;
+
+    const erreurTaille = uploadSizeError(fileListPièceJointe);
+    if (erreurTaille) {
+      messageErreur = erreurTaille;
+      return;
+    }
+
     try {
-      messageErreur = null;
       if (typePièceJointe === "Saisine expert") {
         // Créer un nouvel avis expert avec la saisine
         const fichierSaisine = fileListPièceJointe[0];

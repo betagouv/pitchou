@@ -15,3 +15,17 @@ export function uploadSizeHint(): string {
   const mo = maxUploadSizeMo();
   return mo === null ? "" : `Taille maximale\u00A0: ${mo} Mo.`;
 }
+
+/**
+ * French error message when a file in the list exceeds the upload size limit,
+ * or null when everything fits (or the limit is unknown/unlimited). Lets the UI
+ * reject an oversized file up front, instead of the raw 413 the platform proxy
+ * returns once the request is too big to reach the app.
+ */
+export function uploadSizeError(files: FileList | File[]): string | null {
+  const maxBytes = store.maxUploadSizeBytes;
+  if (maxBytes === undefined || !Number.isFinite(maxBytes)) return null;
+  const tooLarge = Array.from(files).some((file) => file.size > maxBytes);
+  if (!tooLarge) return null;
+  return `Fichier trop volumineux. ${uploadSizeHint()}`;
+}

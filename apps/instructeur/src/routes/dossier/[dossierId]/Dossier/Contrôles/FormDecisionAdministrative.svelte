@@ -6,7 +6,7 @@
     typesDécisionAdministrative,
     labelForDecisionAdministrativeType,
   } from "@pitchou/common/décision-administrative.js";
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
 
   import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.js";
 
@@ -81,6 +81,12 @@
       );
       if (!formatValide) {
         messageErreurFichier = `Format de fichier non supporté. Formats acceptés : ${FORMATS_ACCEPTÉS.join(", ")}.`;
+        return;
+      }
+
+      const erreurTaille = uploadSizeError(fichiers);
+      if (erreurTaille) {
+        messageErreurFichier = erreurTaille;
         return;
       }
 
