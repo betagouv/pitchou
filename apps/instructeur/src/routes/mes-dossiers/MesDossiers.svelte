@@ -18,11 +18,4 @@
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
-<ListeDossiers
-  titre="Mes dossiers"
-  {email}
-  {dossiers}
-  {relationSuivis}
-  afficherFiltreActionInstructeur
-  {notificationParDossier}
-/>
+<ListeDossiers titre="Mes dossiers" {email} {dossiers} {relationSuivis} {notificationParDossier} />

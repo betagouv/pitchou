@@ -1,25 +1,35 @@
 <script lang="ts">
-  import type { DossierRésumé, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
-  import type { ChangeEventHandler, EventHandler } from "svelte/elements";
+  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-  import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
+  import type { DossiersQuery, SortKey, SortOrder } from "./dossiersList.ts";
+  import {
+    WITHOUT_INSTRUCTEUR,
+    buildDossiersSearchParams,
+    buildSearchEvent,
+    compareDossiers,
+    countActiveFilters,
+    filterDossiers,
+    listAvailableInstructeurs,
+    readDossiersQuery,
+  } from "./dossiersList.ts";
   import { instructeurSuitDossier, instructeurLaisseDossier } from "$lib/dossier/suiviDossier.ts";
+  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "$lib/shared/aarri.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
-  import { SvelteMap } from "svelte/reactivity";
+  import DossiersToolbar from "./DossiersToolbar.svelte";
+  import DossiersFilterModal from "./DossiersFilterModal.svelte";
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation";
   import { tick } from "svelte";
-  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "$lib/shared/aarri.ts";
-  import { phases as toutesLesPhases } from "$lib/dossier/affichageDossier.ts";
 
   type Props = {
     titre: string;
     email?: string;
     dossiers: DossierRésumé[];
     relationSuivis?: PitchouState["relationSuivis"];
-    afficherFiltreSansInstructeurice?: boolean;
-    afficherFiltreActionInstructeur?: boolean;
+    /** Show the instructeur·ice filter (quick button + modal section) — irrelevant on « mes dossiers » */
+    afficherFiltreInstructeurice?: boolean;
     notificationParDossier: PitchouState["notificationParDossier"];
   };
 
@@ -28,309 +38,177 @@
     email = "",
     dossiers,
     relationSuivis,
-    afficherFiltreSansInstructeurice = false,
-    afficherFiltreActionInstructeur = false,
+    afficherFiltreInstructeurice = false,
     notificationParDossier,
   }: Props = $props();
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 10;
 
-  type CléFiltre = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
-  const tousLesFiltres = new SvelteMap<CléFiltre, (d: DossierRésumé) => boolean>();
+  // The applied query lives entirely in the URL: search, filters, sort and page are all
+  // reflected as query params, so the view is shareable and survives a reload.
+  const query = $derived(readDossiersQuery(page.url.searchParams));
 
-  const dossiersFiltrés = $derived.by(() => {
-    let resultat = [...dossiers];
-
-    for (const filtre of tousLesFiltres.values()) {
-      resultat = resultat.filter(filtre);
-    }
-
-    return resultat;
-  });
-
-  function envoyerÉvènementRechercherUnDossier() {
-    const filtres: ÉvènementRechercheDossiersDétails["filtres"] = {
-      sansInstructeurice: tousLesFiltres.has("sansInstructeurice"),
-      nouveauté: tousLesFiltres.has("nouveauté"),
-    };
-
-    if (texteÀChercher) {
-      filtres.texte = texteÀChercher;
-    }
-
-    if (tousLesFiltres.has("phase") && phaseSélectionnée) {
-      filtres.phases = [phaseSélectionnée];
-    }
-
-    if (tousLesFiltres.has("actionInstructeur")) {
-      filtres.prochaineActionAttenduePar = ["Instructeur"];
-    }
-
-    _envoyerÉvènementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltrés.length });
-  }
-
-  let numéroDeLaPageSélectionnée = $state(1);
+  // The draft edited inside the filters modal, applied on « Rechercher ».
+  let brouillon = $state<DossiersQuery>(readDossiersQuery(new URLSearchParams()));
+  let modalOuverte = $state(false);
 
   let statusMessage = $state("");
-
   let titrePageElement: HTMLHeadingElement | undefined = $state();
 
-  /** Nombre total de pages */
-  const nombreDePages = $derived.by(() => {
-    if (dossiersFiltrés.length === 0) return 1;
-    return Math.ceil(dossiersFiltrés.length / NOMBRE_DOSSIERS_PAR_PAGE);
-  });
+  const ctx = $derived({ notificationParDossier, relationSuivis });
+  const dossiersFiltrés = $derived(filterDossiers(dossiers, query, ctx));
+  const dossiersTriés = $derived(
+    [...dossiersFiltrés].sort((a, b) =>
+      compareDossiers(a, b, query.sort, query.order, notificationParDossier),
+    ),
+  );
 
-  /** Texte à afficher pour la page */
-  const textePage = $derived.by(() => {
-    if (tousLesFiltres.has("texte") && texteÀChercher && texteÀChercher.trim() !== "") {
-      return `Résultats de recherche pour «${texteÀChercher}» : Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`;
-    }
-    return `Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`;
-  });
-
-  /**
-   * Met à jour le message aria-live avec le nombre de dossiers filtrés
-   */
-  function mettreÀJourMessageFiltres() {
-    const nombreFiltrés = dossiersFiltrés.length;
-    const nombreTotal = dossiers.length;
-
-    statusMessage = `${nombreFiltrés} dossiers affichés sur ${nombreTotal}`;
-    setTimeout(() => {
-      statusMessage = "";
-    }, 400);
-  }
-
-  let texteÀChercher: string | undefined = $state();
-
-  let phaseSélectionnée: DossierPhase | undefined = $state();
-
-  const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set());
+  const nombreDePages = $derived(
+    Math.max(1, Math.ceil(dossiersTriés.length / NOMBRE_DOSSIERS_PAR_PAGE)),
+  );
+  const pageActuelle = $derived(Math.min(Math.max(1, query.page), nombreDePages));
+  const dossiersAffichés = $derived(
+    dossiersTriés.slice(
+      NOMBRE_DOSSIERS_PAR_PAGE * (pageActuelle - 1),
+      NOMBRE_DOSSIERS_PAR_PAGE * pageActuelle,
+    ),
+  );
 
   type SelectionneurPage = () => void;
-  let selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(
+  const selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(
     () => {
-      if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
-        const sélectionneurs: SelectionneurPage[] = [
-          ...Array.from({ length: nombreDePages }, (_v, i) => () => {
-            numéroDeLaPageSélectionnée = i + 1;
-            tick().then(() => titrePageElement?.focus());
-          }),
-        ];
-
-        return [undefined, ...sélectionneurs];
-      } else {
-        return undefined;
-      }
+      if (dossiersTriés.length <= NOMBRE_DOSSIERS_PAR_PAGE) return undefined;
+      const sélectionneurs = Array.from(
+        { length: nombreDePages },
+        (_v, i) => () => allerÀLaPage(i + 1),
+      );
+      return [undefined, ...sélectionneurs];
     },
   );
 
-  let dossiersAffichés: typeof dossiers = $derived.by(() => {
-    // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
-    // puis par date de dépôt
-    const dossiersTriés = [...dossiersFiltrés].sort((a, b) => {
-      const notificationA = notificationParDossier.get(a.id);
-      const notificationB = notificationParDossier.get(b.id);
+  const textePage = $derived(
+    query.text.trim()
+      ? `Résultats de recherche pour «${query.text}» : Page ${pageActuelle} sur ${nombreDePages}`
+      : `Page ${pageActuelle} sur ${nombreDePages}`,
+  );
 
-      const dateNotificationNonVueA =
-        notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
-      const dateNotificationNonVueB =
-        notificationB?.vue === false ? notificationB.date_dernière_mise_à_jour : undefined;
+  const activeFilterCount = $derived(countActiveFilters(query));
+  const instructeurCount = $derived(listAvailableInstructeurs(relationSuivis).length);
 
-      if (dateNotificationNonVueA && dateNotificationNonVueB) {
-        return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1;
-      } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
-        return -1;
-      } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
-        return 1;
-      }
+  const dossierIdsSuivisParInstructeurActuel = $derived(
+    relationSuivis?.get(email) ?? new Set<Dossier["id"]>(),
+  );
 
-      return a.date_dépôt > b.date_dépôt ? -1 : 1;
+  /** Copies a query, cloning its arrays so the modal draft never mutates the applied query */
+  function copierQuery(q: DossiersQuery): DossiersQuery {
+    return {
+      ...q,
+      phase: [...q.phase],
+      activite: [...q.activite],
+      prochaineAction: [...q.prochaineAction],
+      departement: [...q.departement],
+      instructeur: [...q.instructeur],
+    };
+  }
+
+  /** Reflects the given query into the URL, which is the single source of truth */
+  function naviguer(next: DossiersQuery) {
+    const search = buildDossiersSearchParams(next).toString();
+    goto(search ? `?${search}` : page.url.pathname, {
+      replaceState: true,
+      keepFocus: true,
+      noScroll: true,
     });
-
-    if (!selectionneursPage) return dossiersTriés;
-    else {
-      return dossiersTriés.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numéroDeLaPageSélectionnée - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numéroDeLaPageSélectionnée,
-      );
-    }
-  });
-
-  const soumettreTextePourRecherche: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
-    e.preventDefault();
-    if (!texteÀChercher || texteÀChercher.trim() === "") {
-      tousLesFiltres.delete("texte");
-    } else {
-      tousLesFiltres.set("texte", créerFiltreTexte(texteÀChercher, dossiers));
-    }
-    envoyerÉvènementRechercherUnDossier();
-  };
-
-  /**
-   * Vérifie si un dossier est suivi par au moins une personne
-   */
-  function dossierEstSuivi(dossierId: Dossier["id"]): boolean {
-    if (!relationSuivis) return false;
-    for (const dossiersSuivis of relationSuivis.values()) {
-      if (dossiersSuivis.has(dossierId)) {
-        return true;
-      }
-    }
-    return false;
   }
 
-  /**
-   * Réinitialise la page à 1 quand on change un filtre
-   */
-  function réinitialiserPage() {
-    numéroDeLaPageSélectionnée = 1;
-    mettreÀJourMessageFiltres();
+  /** Applies a filter/search change: updates the URL, sends analytics and announces the count */
+  function appliquerRecherche(next: DossiersQuery) {
+    naviguer(next);
+    const count = filterDossiers(dossiers, next, ctx).length;
+    _envoyerÉvènementRechercherUnDossier(
+      buildSearchEvent(next, count, { instructeurCount, email }),
+    );
+    statusMessage = `${count} dossiers affichés sur ${dossiers.length}`;
+    setTimeout(() => (statusMessage = ""), 400);
   }
 
-  function toggleFiltreSansInstructeurice() {
-    if (!tousLesFiltres.has("sansInstructeurice")) {
-      tousLesFiltres.set("sansInstructeurice", (dossier) => !dossierEstSuivi(dossier.id));
-    } else {
-      tousLesFiltres.delete("sansInstructeurice");
-    }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+  function onSearch(text: string) {
+    appliquerRecherche({ ...copierQuery(query), text, page: 1 });
   }
 
-  function toggleFiltreActionInstructeur() {
-    if (!tousLesFiltres.has("actionInstructeur")) {
-      tousLesFiltres.set(
-        "actionInstructeur",
-        (dossier) => dossier.prochaine_action_attendue_par === "Instructeur",
-      );
-    } else {
-      tousLesFiltres.delete("actionInstructeur");
-    }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+  function onToggleSansInstructeurice() {
+    const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
+      ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
+      : [...query.instructeur, WITHOUT_INSTRUCTEUR];
+    appliquerRecherche({ ...copierQuery(query), instructeur, page: 1 });
   }
 
-  function toggleFiltreNouveauté() {
-    if (!tousLesFiltres.has("nouveauté")) {
-      tousLesFiltres.set(
-        "nouveauté",
-        (dossier) => notificationParDossier.get(dossier.id)?.vue === false,
-      );
-    } else {
-      tousLesFiltres.delete("nouveauté");
-    }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+  function onToggleEnjeu() {
+    appliquerRecherche({ ...copierQuery(query), enjeu: !query.enjeu, page: 1 });
   }
 
-  const sélectionnerPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    e.preventDefault();
-    const phase = e.currentTarget.value;
-    if (phase === "") {
-      tousLesFiltres.delete("phase");
-    } else {
-      // Sélectionner la phase
-      tousLesFiltres.set("phase", (dossier) => dossier.phase === phase);
-    }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
-  };
+  function onSort(key: SortKey, order: SortOrder) {
+    naviguer({ ...copierQuery(query), sort: key, order });
+  }
+
+  function allerÀLaPage(numéro: number) {
+    naviguer({ ...copierQuery(query), page: numéro });
+    tick().then(() => titrePageElement?.focus());
+  }
+
+  function ouvrirFiltres() {
+    brouillon = copierQuery(query);
+    modalOuverte = true;
+  }
+
+  function appliquerFiltres() {
+    modalOuverte = false;
+    appliquerRecherche({ ...copierQuery(brouillon), page: 1 });
+  }
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
     return instructeurSuitDossier(email, id);
   }
-
   function instructeurActuelLaisseDossier(id: Dossier["id"]) {
     return instructeurLaisseDossier(email, id);
   }
 </script>
 
 <div class="en-tête">
-  <div class="titre-et-barre-de-recherche">
-    <h1>{titre}</h1>
-    <form onsubmit={soumettreTextePourRecherche}>
-      <div class="fr-search-bar barre-de-recherche" role="search">
-        <label class="fr-label" for="search-input">Rechercher un dossier</label>
-        <input
-          bind:value={texteÀChercher}
-          name="texte-de-recherche"
-          class="fr-input"
-          aria-describedby="search-input-messages"
-          placeholder="Rechercher"
-          id="search-input"
-          type="search"
-        />
-        <button title="Rechercher un dossier" type="submit" class="fr-btn"
-          >Rechercher un dossier</button
-        >
-      </div>
-    </form>
-  </div>
+  <DossiersToolbar
+    {titre}
+    searchText={query.text}
+    {afficherFiltreInstructeurice}
+    sansInstructeuriceActif={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
+    enjeuActif={query.enjeu}
+    {activeFilterCount}
+    nombreFiltrés={dossiersFiltrés.length}
+    sortKey={query.sort}
+    sortOrder={query.order}
+    {onSearch}
+    {onToggleSansInstructeurice}
+    {onToggleEnjeu}
+    onOpenFiltres={ouvrirFiltres}
+    {onSort}
+  />
+
   <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
-    {#if statusMessage}
-      {statusMessage}
-    {/if}
+    {#if statusMessage}{statusMessage}{/if}
   </div>
-  <fieldset>
-    <legend class="fr-sr-only">Filtrer…</legend>
-    <div class="filtres-et-compteur-dossiers">
-      <div class="filtres">
-        <div class="fr-select-group filtre-par-phase">
-          <label class="fr-label" for="select-phase"> Filtrer par phase </label>
-          <select
-            bind:value={phaseSélectionnée}
-            onchange={sélectionnerPhase}
-            aria-label="Phase choisie"
-            class="fr-select select-phase"
-            id="select-phase"
-            name="select-phase"
-          >
-            <option value="" selected>Toutes les phases</option>
-            {#each toutesLesPhases as phase}
-              <option value={phase}>{phase}</option>
-            {/each}
-          </select>
-        </div>
-        {#if afficherFiltreSansInstructeurice}
-          <button
-            type="button"
-            class="fr-tag"
-            onclick={toggleFiltreSansInstructeurice}
-            aria-pressed={tousLesFiltres.has("sansInstructeurice")}
-          >
-            Dossier sans instructeur·ice
-          </button>
-        {/if}
-        {#if afficherFiltreActionInstructeur}
-          <button
-            type="button"
-            class="fr-tag"
-            onclick={toggleFiltreActionInstructeur}
-            aria-pressed={tousLesFiltres.has("actionInstructeur")}
-          >
-            Action : Instructeur·ice
-          </button>
-        {/if}
-        <button
-          type="button"
-          class="fr-tag"
-          onclick={toggleFiltreNouveauté}
-          aria-pressed={tousLesFiltres.has("nouveauté")}
-        >
-          Nouveauté
-        </button>
-      </div>
-      <p class="compteur" data-testid={"compteur-dossier"}>
-        <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg"
-          >/{dossiers.length} dossiers</span
-        >
-      </p>
-    </div>
-  </fieldset>
+
   <h2 bind:this={titrePageElement} tabindex="-1" class="titre-page">{textePage}</h2>
 </div>
+
+<DossiersFilterModal
+  open={modalOuverte}
+  bind:draft={brouillon}
+  {dossiers}
+  {relationSuivis}
+  {afficherFiltreInstructeurice}
+  onApply={appliquerFiltres}
+  onClose={() => (modalOuverte = false)}
+/>
+
 {#if dossiersAffichés.length >= 1}
   <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
     <ul>
@@ -350,24 +228,14 @@
 {:else}
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
+
 {#if selectionneursPage}
-  <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroDeLaPageSélectionnée]}
-  ></Pagination>
+  <Pagination {selectionneursPage} pageActuelle={selectionneursPage[pageActuelle]} />
 {/if}
 
 <style>
   .liste-des-dossiers {
     background: var(--background-contrast-grey);
-  }
-
-  fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  h2 {
-    margin-left: auto;
   }
 
   ul {
@@ -379,76 +247,18 @@
   li:not(:last-child) {
     margin-bottom: 1rem;
   }
+
   .en-tête {
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
-
-    .titre-et-barre-de-recherche {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      @media (max-width: 768px) {
-        flex-direction: column;
-        justify-content: stretch;
-        align-items: start;
-        form {
-          width: 100%;
-          margin-bottom: 2rem;
-        }
-      }
-    }
-
-    .compteur {
-      margin-bottom: 0.25rem;
-    }
-
-    .filtre-par-phase {
-      margin-bottom: 0;
-      @media (max-width: 768px) {
-        margin-bottom: 1rem;
-      }
-    }
-
-    .filtres-et-compteur-dossiers {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: end;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .filtres {
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-        align-items: end;
-
-        @media (max-width: 768px) {
-          flex-direction: column;
-          gap: 0.5rem;
-          align-items: start;
-        }
-      }
-    }
-  }
-
-  .barre-de-recherche {
-    min-width: 28rem;
-    @media (max-width: 768px) {
-      min-width: unset;
-    }
   }
 
   .titre-page {
     font-size: 1rem;
     font-weight: normal;
     margin-bottom: 0;
+    margin-left: auto;
   }
 
   .titre-page:focus {

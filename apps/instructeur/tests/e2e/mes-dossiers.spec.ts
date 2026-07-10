@@ -94,14 +94,11 @@ async function gotoMesDossiers(page: Page): Promise<void> {
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 }
 
-test("dossiers triés : notifications non vues (récentes d'abord) puis date_dépôt décroissante", async ({
-  page,
-  db,
-}) => {
+test("dossiers triés par date de dépôt décroissante par défaut", async ({ page, db }) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  await expect(page.getByTestId("compteur-dossier")).toContainText("4/4 dossiers");
+  await expect(page.getByTestId("compteur-dossier")).toContainText("4 dossiers dans votre service");
 
   const cartes = await page.getByTestId("carte-dossier").all();
   const ordreAttendu = [
@@ -134,9 +131,14 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  await page.getByRole("button", { name: "Nouveauté" }).click();
+  await page.getByRole("button", { name: "Filtres" }).click();
+  const modale = page.getByRole("dialog", { name: "Tous les filtres" });
+  await modale.locator('label[for="nouvelles-modifications"]').click();
+  await modale.getByRole("button", { name: "Rechercher" }).click();
 
-  await expect(page.getByTestId("compteur-dossier")).toContainText("2/4 dossiers");
+  // The active filter is reflected in the URL.
+  await expect(page).toHaveURL(/nouveaute=oui/);
+  await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
 
   const cartes = await page.getByTestId("carte-dossier").all();
   const ordreAttendu = [fixtures.unviewedRecent.nom, fixtures.unviewedOld.nom];
