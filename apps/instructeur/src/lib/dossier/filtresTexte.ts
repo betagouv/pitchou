@@ -37,13 +37,17 @@ export function créerFiltreTexte(
       );
     };
   } else {
-    // Sinon, utiliser lunr pour la recherche textuelle
-    const texteSansAccents = retirerAccents(texteÀChercher);
-    // Pour chercher les communes qui contiennent des tirets avec lunr,
-    // on a besoin de passer la chaîne de caractères entre "".
-    const aRechercher = texteSansAccents.match(/(\w-)+/)
-      ? `"${texteSansAccents}"`
-      : texteSansAccents;
+    // Sinon, utiliser lunr pour la recherche textuelle.
+    // On découpe le texte en mots (les tirets séparent les communes composées)
+    // puis, pour chaque mot, on cherche à la fois le terme exact — passé par le
+    // stemmer français — et son préfixe (`mot*`). La saisie partielle trouve ainsi
+    // la commune avant la fin de la frappe (« cleyra » → « Cleyrac »), tout en
+    // gardant les correspondances de mots racinisés que le préfixe seul manquerait
+    // (« bordeaux » est indexé « bordeau », donc `bordeaux*` ne matcherait pas).
+    const mots = retirerAccents(texteÀChercher)
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean);
+    const aRechercher = mots.map((mot) => `${mot} ${mot}*`).join(" ");
     const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(
       aRechercher,
       dossiers,
