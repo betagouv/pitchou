@@ -98,7 +98,7 @@
       </div>
       <div>
         <p class="numéro-dossier fr-text--sm">
-          Dossier n°{dossier.id} (DN&nbsp;:&nbsp;{dossier.number_demarches_simplifiées})
+          Dossier n°{dossier.number_demarches_simplifiées}
         </p>
         {#if dossier.enjeu}
           <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>

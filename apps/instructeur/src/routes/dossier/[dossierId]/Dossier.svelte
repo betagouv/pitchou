@@ -118,7 +118,9 @@
 </script>
 
 <svelte:head>
-  <title>{`${dossier.nom} — Dossier n°${dossier.id} — Pitchou`}</title>
+  <title
+    >{`${dossier.nom} — Dossier n°${dossier.number_demarches_simplifiées ?? "non renseigné"} — Pitchou`}</title
+  >
 </svelte:head>
 
 <div class="fr-grid-row fr-mt-2w">

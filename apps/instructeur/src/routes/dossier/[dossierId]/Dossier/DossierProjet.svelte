@@ -126,8 +126,8 @@
   <section class="column">
     <h2>Informations du projet</h2>
     <p>
-      <strong>Identifiant Pitchou&nbsp;:</strong>
-      {dossier.id}
+      <strong>Dossier n°&nbsp;:</strong>
+      {dossier.number_demarches_simplifiées ?? "non renseigné"}
     </p>
     <p>
       <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>

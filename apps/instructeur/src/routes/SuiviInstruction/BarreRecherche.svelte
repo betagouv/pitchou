@@ -31,7 +31,7 @@
 
   <p class="fr-hint-text">
     Vous pouvez rechercher par départements, communes, nom de projet, porteur de projet, numéro de
-    dossier DS, identifiant Pitchou, numéro Onagre.
+    dossier, numéro Onagre.
   </p>
 </form>
 

@@ -83,7 +83,9 @@
       Retour
     </button>
     <h1 class="titre-dossier fr-mb-0">
-      <span class="numero">Dossier n°{dossier.id}&nbsp;:</span>
+      <span class="numero"
+        >Dossier n°{dossier.number_demarches_simplifiées ?? "non renseigné"}&nbsp;:</span
+      >
       {dossier.nom}
     </h1>
   </div>
@@ -126,12 +128,6 @@
         <span class="fr-icon-briefcase-fill fr-icon--sm" aria-hidden="true"></span>
         {dossier.activité_principale}
       </div>
-      {#if dossier.number_demarches_simplifiées}
-        <div>
-          <span class="fr-icon-folder-2-fill fr-icon--sm" aria-hidden="true"></span>
-          Numéro dossier Démarche Numérique&nbsp:&nbsp{dossier.number_demarches_simplifiées}
-        </div>
-      {/if}
     </section>
 
     <section>
