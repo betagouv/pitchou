@@ -5,6 +5,7 @@ import type {
 } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { Knex } from "knex";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
+import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
 import { directDatabaseConnection } from "../database.ts";
 import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "./fichier.ts";
@@ -149,6 +150,33 @@ export async function supprimerAvisExpert(
   }
 
   return result;
+}
+
+/**
+ * For every avis expert of the dossiers accessible through `cap_dossier`,
+ * returns which dossier it belongs to and whether its saisine and avis files
+ * are present. Used to filter dossiers missing a saisine or avis file.
+ */
+export function getPresenceFichiersAvisExpertByCap(
+  cap_dossier: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<
+  { dossier: Dossier["id"]; saisineFichierPresent: boolean; avisFichierPresent: boolean }[]
+> {
+  return databaseConnection("avis_expert")
+    .select("avis_expert.dossier as dossier")
+    .select(
+      databaseConnection.raw('avis_expert.saisine_fichier is not null as "saisineFichierPresent"'),
+    )
+    .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "avisFichierPresent"'))
+    .join("arête_groupe_instructeurs__dossier", {
+      "arête_groupe_instructeurs__dossier.dossier": "avis_expert.dossier",
+    })
+    .join("arête_cap_dossier__groupe_instructeurs", {
+      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    })
+    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier });
 }
 
 export function getFichiersAvisSaisineAvisExpert(

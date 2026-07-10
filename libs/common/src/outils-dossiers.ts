@@ -30,6 +30,9 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
     // Prochaine action
     prochaine_action_attendue_par,
 
+    // Avis d'expert (pour la présence des fichiers)
+    avisExpert,
+
     // Évènements pour extraire la phase
     évènementsPhase,
   } = dossierComplet;
@@ -52,6 +55,10 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
     rattaché_au_régime_ae,
     historique_identifiant_demande_onagre,
     décisionsAdministratives,
+    avisExperts: avisExpert.map((ae) => ({
+      saisineFichierPresent: ae.saisine_fichier_url !== undefined,
+      avisFichierPresent: ae.avis_fichier_url !== undefined,
+    })),
 
     // Statistiques
     date_dépôt,

@@ -126,6 +126,15 @@ type DonnéesDossierPourStats = {
 };
 
 /**
+ * Presence of the saisine and avis files for each avis expert of a dossier.
+ * Lets the front filter dossiers that are missing a saisine or avis file,
+ * without transferring the files themselves.
+ */
+type DossierAvisExpertResume = {
+  avisExperts: { saisineFichierPresent: boolean; avisFichierPresent: boolean }[];
+};
+
+/**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
  * et pouvoir effectuer des recherches dans le tableau de suivi
  * ou le cartouche résumé commun aux onglets des écrans montrant un unique dossier
@@ -146,7 +155,8 @@ export type DossierRésumé = Pick<
 > & { phase: DossierPhase; date_début_phase: Date } & DossierLocalisation &
   DossierPersonnesImpliquéesRésumé &
   DossierActivitéPrincipale &
-  DonnéesDossierPourStats;
+  DonnéesDossierPourStats &
+  DossierAvisExpertResume;
 
 export type FrontEndPrescription = Prescription & { contrôles: Contrôle[] | undefined };
 

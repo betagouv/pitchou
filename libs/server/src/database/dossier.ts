@@ -3,6 +3,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
 import { getAttachmentAutresForDossier } from "./attachmentAutre.ts";
 import { getDécisionsAdministratives } from "./décision_administrative.ts";
+import { getPresenceFichiersAvisExpertByCap } from "./avis_expert.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getContrôles } from "./controle.ts";
 import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
@@ -888,8 +889,15 @@ export async function getDossiersRésumésByCap(
 
   const décisionsAdministrativesP = getDécisionsAdministratives(cap, transaction);
 
-  const result = Promise.all([dossiersP, évènementsPhaseDossierP, décisionsAdministrativesP]).then(
-    ([dossiers, évènementsPhaseDossier, décisionsAdministratives]) => {
+  const presenceFichiersAvisExpertP = getPresenceFichiersAvisExpertByCap(cap, transaction);
+
+  const result = Promise.all([
+    dossiersP,
+    évènementsPhaseDossierP,
+    décisionsAdministrativesP,
+    presenceFichiersAvisExpertP,
+  ]).then(
+    ([dossiers, évènementsPhaseDossier, décisionsAdministratives, presenceFichiersAvisExpert]) => {
       const évènementsPhaseDossierById: Map<Dossier["id"], ÉvènementPhaseDossier> = new Map();
 
       for (const évènementPhaseDossier of évènementsPhaseDossier) {
@@ -929,6 +937,21 @@ export async function getDossiersRésumésByCap(
         }
       }
 
+      const avisExpertsById = new Map<Dossier["id"], DossierRésumé["avisExperts"]>();
+      for (const {
+        dossier,
+        saisineFichierPresent,
+        avisFichierPresent,
+      } of presenceFichiersAvisExpert) {
+        const avisExperts = avisExpertsById.get(dossier) ?? [];
+        avisExperts.push({ saisineFichierPresent, avisFichierPresent });
+        avisExpertsById.set(dossier, avisExperts);
+      }
+
+      for (const dossier of dossiers) {
+        dossier.avisExperts = avisExpertsById.get(dossier.id) ?? [];
+      }
+
       return dossiers;
     },
   );
@@ -936,7 +959,12 @@ export async function getDossiersRésumésByCap(
   if (!databaseConnection.isTransaction) {
     // transaction locale à cette fonction
     // nous la refermons donc manuellement
-    Promise.all([dossiersP, évènementsPhaseDossierP])
+    Promise.all([
+      dossiersP,
+      évènementsPhaseDossierP,
+      décisionsAdministrativesP,
+      presenceFichiersAvisExpertP,
+    ])
       .then(transaction.commit)
       .catch(transaction.rollback);
   }
