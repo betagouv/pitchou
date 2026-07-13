@@ -2,7 +2,9 @@ import type { Page } from "@playwright/test";
 import { test, expect } from "../fixtures/playwright.ts";
 import {
   attachDossierToGroupe,
+  createCapEvenementMetrique,
   createDossier,
+  createDossierSearch,
   createInstructeurWithCapToGroup,
   DEFAULT_NUMERO_DEMARCHE,
 } from "../factories/index.ts";
@@ -256,4 +258,61 @@ test("la recherche filtre la liste au fil de la frappe, sans valider", async ({ 
   // En vidant la barre, on retrouve tous les dossiers.
   await recherche.fill("");
   await expect(cartes).toHaveCount(3);
+});
+
+test("la barre de recherche suggère les 3 dernières recherches distinctes", async ({
+  page,
+  db,
+}) => {
+  const {
+    id: personneId,
+    codeAcces,
+    groupeId,
+  } = await createInstructeurWithCapToGroup(db, {
+    email: "jane@doe.fr",
+    codeAcces: CODE,
+  });
+  await createCapEvenementMetrique(db, codeAcces);
+
+  const photovoltaique = await createDossier(db, {
+    nom: "Parc photovoltaïque à Anglet",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+  });
+  const carriere = await createDossier(db, {
+    nom: "Carrière de calcaire",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+  });
+  for (const d of [photovoltaique, carriere]) {
+    await attachDossierToGroupe(db, d.id, groupeId);
+    await attachPersonneSuitDossier(db, personneId, d.id);
+  }
+
+  // Seeding directly avoids waiting on the 10s analytics debounce. « carrière » appears
+  // twice: only its most recent occurrence counts, and distinct texts cap the list at 3.
+  await createDossierSearch(db, { personneId, text: "carrière", date: new Date("2024-05-01") });
+  await createDossierSearch(db, { personneId, text: "éolien", date: new Date("2024-05-02") });
+  await createDossierSearch(db, { personneId, text: "carrière", date: new Date("2024-05-03") });
+  await createDossierSearch(db, { personneId, text: "méthaniseur", date: new Date("2024-05-04") });
+  await createDossierSearch(db, {
+    personneId,
+    text: "photovoltaïque",
+    date: new Date("2024-05-05"),
+  });
+
+  await gotoMesDossiers(page);
+
+  await page.getByLabel("Rechercher un dossier").focus();
+  const suggestions = page.getByRole("listbox", { name: "Recherches récentes" });
+  await expect(suggestions).toBeVisible();
+
+  // The 3 most recent distinct searches, most recent first — « éolien » fell off.
+  const options = suggestions.getByRole("option");
+  await expect(options).toHaveText(["photovoltaïque", "méthaniseur", "carrière"]);
+
+  // Clicking a suggestion re-runs that search: URL and list update.
+  await options.nth(0).click();
+  await expect(page).toHaveURL(/[?&]q=photovolta/);
+  const cartes = page.getByTestId("carte-dossier");
+  await expect(cartes).toHaveCount(1);
+  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
 });
