@@ -22,6 +22,8 @@
     dossiers: DossierRésumé[];
     relationSuivis?: PitchouState["relationSuivis"];
     afficherFiltreInstructeurice: boolean;
+    /** Live count of dossiers matching the current draft, shown on the footer button */
+    nombreResultats: number;
     onApply: () => void;
     onClose: () => void;
   };
@@ -32,9 +34,14 @@
     dossiers,
     relationSuivis,
     afficherFiltreInstructeurice,
+    nombreResultats,
     onApply,
     onClose,
   }: Props = $props();
+
+  const libelléResultats = $derived(
+    `Voir ${nombreResultats} résultat${nombreResultats > 1 ? "s" : ""}`,
+  );
 
   let dialogElement: HTMLDialogElement | undefined = $state();
 
@@ -243,6 +250,7 @@
             label="au"
             value={draft.dateEnd}
             min={draft.dateStart || undefined}
+            align="right"
             onChange={(value) => (draft.dateEnd = value ?? "")}
           />
         </div>

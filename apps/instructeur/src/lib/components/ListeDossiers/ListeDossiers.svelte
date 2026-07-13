@@ -21,7 +21,7 @@
   import DossiersFilterModal from "./DossiersFilterModal.svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
-  import { tick } from "svelte";
+  import { tick, untrack } from "svelte";
 
   type Props = {
     titre: string;
@@ -48,9 +48,13 @@
   // reflected as query params, so the view is shareable and survives a reload.
   const query = $derived(readDossiersQuery(page.url.searchParams));
 
-  // The draft edited inside the filters modal, applied on « Rechercher ».
+  // The draft edited inside the filters modal. It is mirrored to the URL live (see the
+  // effect below), so the background list re-filters as each filter is toggled.
   let brouillon = $state<DossiersQuery>(readDossiersQuery(new URLSearchParams()));
   let modalOuverte = $state(false);
+  // Applied filters (page excluded) captured when the modal opens, to tell an untouched
+  // draft (keep the current page) apart from an edited one (reset to the first page).
+  let paramsFiltresÀLOuverture = "";
 
   let statusMessage = $state("");
   let titrePageElement: HTMLHeadingElement | undefined = $state();
@@ -158,11 +162,27 @@
 
   function ouvrirFiltres() {
     brouillon = copierQuery(query);
+    paramsFiltresÀLOuverture = buildDossiersSearchParams({ ...query, page: 1 }).toString();
     modalOuverte = true;
   }
 
+  // While the modal is open, reflect its draft into the URL on every change so the list
+  // updates live. The page is reset to the first one only once the filters actually differ
+  // from those applied when the modal opened (so merely opening it does not jump the page).
+  $effect(() => {
+    if (!modalOuverte) return;
+    const filtresInchangés =
+      buildDossiersSearchParams({ ...brouillon, page: 1 }).toString() === paramsFiltresÀLOuverture;
+    const cible = filtresInchangés ? { ...brouillon } : { ...brouillon, page: 1 };
+    // `naviguer` reads `page.url`; untrack it so the effect depends only on the draft and the
+    // open state, and writing the URL does not re-trigger the effect.
+    untrack(() => naviguer(cible));
+  });
+
   function appliquerFiltres() {
     modalOuverte = false;
+    // The URL already reflects the draft (applied live); this records the search analytics
+    // and announces the final count once.
     appliquerRecherche({ ...copierQuery(brouillon), page: 1 });
   }
 
@@ -205,6 +225,7 @@
   {dossiers}
   {relationSuivis}
   {afficherFiltreInstructeurice}
+  nombreResultats={dossiersFiltrés.length}
   onApply={appliquerFiltres}
   onClose={() => (modalOuverte = false)}
 />

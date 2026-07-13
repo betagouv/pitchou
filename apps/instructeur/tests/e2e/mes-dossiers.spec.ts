@@ -134,9 +134,17 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await page.getByRole("button", { name: "Filtres" }).click();
   const modale = page.getByRole("dialog", { name: "Tous les filtres" });
   await modale.locator('label[for="nouvelles-modifications"]').click();
-  await modale.getByRole("button", { name: "Rechercher" }).click();
 
-  // The active filter is reflected in the URL.
+  // Filters apply live: the URL and the background list update as soon as the box is ticked,
+  // before « Rechercher » is pressed.
+  await expect(page).toHaveURL(/nouveaute=oui/);
+  await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
+
+  // The footer button reflects the live result count.
+  await expect(modale.getByRole("button", { name: "Voir 2 résultats" })).toBeVisible();
+  await modale.getByRole("button", { name: "Voir 2 résultats" }).click();
+
+  // Closing the panel keeps the applied filter.
   await expect(page).toHaveURL(/nouveaute=oui/);
   await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
 
