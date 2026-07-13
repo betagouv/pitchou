@@ -54,4 +54,6 @@ export interface PitchouInstructeurCapabilities {
 export interface IdentitéInstructeurPitchou {
   email: string;
   estAdmin: boolean;
+  /** Names of the groupes instructeurs (services) the instructeur belongs to (may be empty) */
+  groupesInstructeurs: string[];
 }

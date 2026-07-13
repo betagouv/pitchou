@@ -54,6 +54,22 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
 
   const identitéP = databaseConnection("personne").select("email").where({ code_accès }).first();
 
+  const groupesInstructeursP = databaseConnection("cap_dossier")
+    .join(
+      "arête_cap_dossier__groupe_instructeurs",
+      "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+      "cap_dossier.cap",
+    )
+    .join(
+      "groupe_instructeurs",
+      "groupe_instructeurs.id",
+      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    )
+    .where("cap_dossier.personne_cap", code_accès)
+    .distinct("groupe_instructeurs.nom")
+    .orderBy("groupe_instructeurs.nom")
+    .then((rows) => rows.map((row) => row.nom));
+
   const listerDossiersP = databaseConnection("cap_dossier")
     .select("cap")
     .where({ personne_cap: code_accès })
@@ -90,6 +106,7 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
     modifierDécisionAdministrativeDansDossierP,
     créerÉvènementMetriqueP,
     identitéP,
+    groupesInstructeursP,
     listerNotificationsP,
     updateNotificationP,
   ]).then(
@@ -105,6 +122,7 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
       modifierDécisionAdministrativeDansDossier,
       créerÉvènementMetrique,
       identité,
+      groupesInstructeurs,
       listerNotifications,
       updateNotificationForDossier,
     ]) => {
@@ -118,7 +136,11 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
         listerMessages,
         modifierDossier,
         identité: identité
-          ? { email: identité.email, estAdmin: isAdminEmail(identité.email) }
+          ? {
+              email: identité.email,
+              estAdmin: isAdminEmail(identité.email),
+              groupesInstructeurs,
+            }
           : undefined,
         créerÉvènementMetrique,
         modifierDécisionAdministrativeDansDossier,

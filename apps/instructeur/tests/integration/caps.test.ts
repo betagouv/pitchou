@@ -12,7 +12,11 @@ test("GET /caps?secret=<codeAcces> renvoie les capabilities de l'instructeur", a
 
   expect(res.status).toBe(200);
   const body = await res.json();
-  expect(body.identité).toEqual({ email, estAdmin: false });
+  expect(body.identité).toEqual({
+    email,
+    estAdmin: false,
+    groupesInstructeurs: ["Groupe de test"],
+  });
   expect(body).toHaveProperty("listerDossiers");
 });
 
