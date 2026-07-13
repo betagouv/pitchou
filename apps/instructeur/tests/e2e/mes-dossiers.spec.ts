@@ -153,6 +153,16 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   for (let i = 0; i < cartes.length; i++) {
     await expect(cartes[i]).toContainText(ordreAttendu[i]);
   }
+
+  // The active filter shows as a removable tag; clicking it clears the filter.
+  const tags = page.getByTestId("filtres-actifs");
+  const tagNouveaute = tags.getByRole("button", { name: /Nouvelles modifications/ });
+  await expect(tagNouveaute).toBeVisible();
+  await tagNouveaute.click();
+
+  await expect(page).not.toHaveURL(/nouveaute=oui/);
+  await expect(page.getByTestId("compteur-dossier")).toContainText("4 dossiers dans votre service");
+  await expect(tags).toHaveCount(0);
 });
 
 test("le badge Nouveauté disparaît après consultation du dossier", async ({ page, db }) => {
