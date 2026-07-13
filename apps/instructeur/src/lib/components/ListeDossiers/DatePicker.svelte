@@ -28,10 +28,12 @@
     min?: string;
     /** Latest selectable day (yyyy-MM-dd), inclusive */
     max?: string;
+    /** Edge the popover is anchored to: « right » makes it open leftwards, to stay inside the drawer */
+    align?: "left" | "right";
     onChange: (value: string | null) => void;
   };
 
-  let { id, label, value, min, max, onChange }: Props = $props();
+  let { id, label, value, min, max, align = "left", onChange }: Props = $props();
 
   const ISO = "yyyy-MM-dd";
   const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
@@ -95,7 +97,13 @@
   </button>
 
   {#if open}
-    <div class="datepicker-panel" id="{id}-panel" role="dialog" aria-label={label}>
+    <div
+      class="datepicker-panel"
+      class:align-right={align === "right"}
+      id="{id}-panel"
+      role="dialog"
+      aria-label={label}
+    >
       <div class="datepicker-header">
         <button
           type="button"
@@ -183,6 +191,12 @@
     border: 1px solid var(--border-default-grey);
     border-radius: 0.25rem;
     box-shadow: var(--overlap-shadow, 0 2px 6px rgba(0, 0, 0, 0.16));
+
+    // Anchored to the right edge of the trigger, so it opens leftwards and stays in the drawer.
+    &.align-right {
+      left: auto;
+      right: 0;
+    }
   }
 
   .datepicker-header {

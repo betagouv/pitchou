@@ -322,7 +322,7 @@
       <button type="button" class="fr-btn fr-btn--secondary" onclick={toutEffacer}>
         Tout effacer
       </button>
-      <button type="button" class="fr-btn" onclick={onApply}>Rechercher</button>
+      <button type="button" class="fr-btn" onclick={onApply}>{libelléResultats}</button>
     </footer>
   </div>
 </dialog>
