@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { sentrySvelteKit } from "@sentry/sveltekit";
 
 // The app runs with CWD = this folder (apps/instructeur); the .env lives at the repo root.
 try {
@@ -7,7 +8,16 @@ try {
 } catch {}
 
 export default defineConfig({
-  plugins: [sveltekit()],
+  plugins: [
+    sentrySvelteKit({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT_INSTRUCTEUR,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      adapter: "node",
+    }),
+    ,
+    sveltekit(),
+  ],
   server: {
     port: 5173,
     strictPort: true,
