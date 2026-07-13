@@ -74,11 +74,14 @@ export const envoyerÉvènementModifierCommentaire = debounce(
   true,
 );
 
+// Trailing edge: the search bar filters as the user types, so we wait until they stop
+// typing before recording the event. This groups a whole search session into a single
+// event carrying the final query, instead of the first keystroke.
 export const envoyerÉvènementRechercherUnDossier = debounce(
   (détails: ÉvènementRechercheDossiersDétails) =>
     envoyerÉvènement({ type: "rechercherDesDossiers", détails }),
   10 * 1000,
-  true,
+  false,
 );
 
 export const envoyerÉvènementModifierPrescription = debounce(
