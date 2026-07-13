@@ -316,3 +316,46 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   await expect(cartes).toHaveCount(1);
   await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
 });
+
+test("le filtre « Moi en charge de la prochaine action » remplace « à enjeux »", async ({
+  page,
+  db,
+}) => {
+  const { id: personneId, groupeId } = await createInstructeurWithCapToGroup(db, {
+    email: "jane@doe.fr",
+    codeAcces: CODE,
+  });
+
+  const aMoi = await createDossier(db, {
+    nom: "Parc photovoltaïque à Anglet",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    prochaine_action_attendue_par: "Instructeur",
+  });
+  const auPetitionnaire = await createDossier(db, {
+    nom: "Carrière de calcaire",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    prochaine_action_attendue_par: "Pétitionnaire",
+  });
+  for (const d of [aMoi, auPetitionnaire]) {
+    await attachDossierToGroupe(db, d.id, groupeId);
+    await attachPersonneSuitDossier(db, personneId, d.id);
+  }
+
+  await gotoMesDossiers(page);
+
+  // « à enjeux » is hidden on this page, replaced by the prochaine-action quick filter.
+  await expect(page.getByRole("button", { name: "Dossiers à enjeux" })).toHaveCount(0);
+  const bouton = page.getByRole("button", { name: "Moi en charge de la prochaine action" });
+  await expect(bouton).toBeVisible();
+
+  await bouton.click();
+  await expect(page).toHaveURL(/actionInstructeur=1/);
+  const cartes = page.getByTestId("carte-dossier");
+  await expect(cartes).toHaveCount(1);
+  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+
+  // Toggling it off restores the full list.
+  await bouton.click();
+  await expect(page).not.toHaveURL(/actionInstructeur=1/);
+  await expect(cartes).toHaveCount(2);
+});
