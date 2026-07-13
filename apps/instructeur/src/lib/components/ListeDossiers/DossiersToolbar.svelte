@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SortKey, SortOrder } from "./dossiersList.ts";
+  import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./dossiersList.ts";
 
   type Props = {
     titre: string;
@@ -9,12 +9,15 @@
     enjeuActif: boolean;
     activeFilterCount: number;
     nombreFiltrés: number;
+    /** Active filters shown as removable tags */
+    chips: FilterChip[];
     sortKey: SortKey;
     sortOrder: SortOrder;
     onSearch: (text: string) => void;
     onToggleSansInstructeurice: () => void;
     onToggleEnjeu: () => void;
     onOpenFiltres: () => void;
+    onRemoveFiltre: (next: DossiersQuery) => void;
     onSort: (key: SortKey, order: SortOrder) => void;
   };
 
@@ -26,12 +29,14 @@
     enjeuActif,
     activeFilterCount,
     nombreFiltrés,
+    chips,
     sortKey,
     sortOrder,
     onSearch,
     onToggleSansInstructeurice,
     onToggleEnjeu,
     onOpenFiltres,
+    onRemoveFiltre,
     onSort,
   }: Props = $props();
 
@@ -164,6 +169,23 @@
     </div>
   </div>
 
+  {#if chips.length > 0}
+    <ul class="fr-tags-group fr-tags-group--sm toolbar__chips" data-testid="filtres-actifs">
+      {#each chips as chip (chip.key)}
+        <li>
+          <button
+            type="button"
+            class="fr-tag fr-tag--dismiss"
+            aria-label="Retirer le filtre {chip.label}"
+            onclick={() => onRemoveFiltre(chip.next)}
+          >
+            {chip.label}
+          </button>
+        </li>
+      {/each}
+    </ul>
+  {/if}
+
   <p class="compteur" data-testid="compteur-dossier">
     <span class="fr-text--lead">{nombreFiltrés}</span>
     <span class="fr-text--lg">dossiers dans votre service</span>
@@ -264,6 +286,10 @@
     &.actif {
       font-weight: 700;
     }
+  }
+
+  .toolbar__chips {
+    margin: 0;
   }
 
   .compteur {

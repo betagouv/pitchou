@@ -5,6 +5,7 @@
   import type { DossiersQuery, SortKey, SortOrder } from "./dossiersList.ts";
   import {
     WITHOUT_INSTRUCTEUR,
+    buildActiveFilterChips,
     buildDossiersSearchParams,
     buildSearchEvent,
     compareDossiers,
@@ -97,6 +98,7 @@
   );
 
   const activeFilterCount = $derived(countActiveFilters(query));
+  const chipsFiltres = $derived(buildActiveFilterChips(query));
   const instructeurCount = $derived(listAvailableInstructeurs(relationSuivis).length);
 
   const dossierIdsSuivisParInstructeurActuel = $derived(
@@ -203,12 +205,14 @@
     enjeuActif={query.enjeu}
     {activeFilterCount}
     nombreFiltrés={dossiersFiltrés.length}
+    chips={chipsFiltres}
     sortKey={query.sort}
     sortOrder={query.order}
     {onSearch}
     {onToggleSansInstructeurice}
     {onToggleEnjeu}
     onOpenFiltres={ouvrirFiltres}
+    onRemoveFiltre={appliquerRecherche}
     {onSort}
   />
 

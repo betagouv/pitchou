@@ -1,12 +1,10 @@
 <script lang="ts">
-  import type {
-    DossierRésumé,
-    DossierProchaineActionAttenduePar,
-  } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type { DossiersQuery } from "./dossiersList.ts";
   import {
     WITHOUT_INSTRUCTEUR,
+    PROCHAINE_ACTION_OPTIONS,
     clearFilters,
     listAvailableActivites,
     listAvailableDepartements,
@@ -51,16 +49,6 @@
     if (open && !dialogElement.open) dialogElement.showModal();
     if (!open && dialogElement.open) dialogElement.close();
   });
-
-  /** Entités matching the « prochaine action attendue » values, in the wireframe order */
-  const ENTITE_OPTIONS: { value: DossierProchaineActionAttenduePar; label: string }[] = [
-    { value: "Instructeur", label: "Instructeur·ice" },
-    { value: "CNPN/CSRPN", label: "CNPN/CSRPN" },
-    { value: "Pétitionnaire", label: "Pétitionnaire" },
-    { value: "Consultation du public", label: "Public consulté" },
-    { value: "Autre administration", label: "Autre administration" },
-    { value: "Autre", label: "Autre entité" },
-  ];
 
   const activiteOptions = $derived(
     listAvailableActivites(dossiers).map((activite) => ({ value: activite, label: activite })),
@@ -169,7 +157,7 @@
           <span class="fr-icon-bank-line fr-icon--sm" aria-hidden="true"></span>
           Entité en charge de la prochaine action
         </legend>
-        {#each ENTITE_OPTIONS as entite (entite.value)}
+        {#each PROCHAINE_ACTION_OPTIONS as entite (entite.value)}
           <div class="fr-checkbox-group fr-checkbox-group--sm">
             <input
               type="checkbox"
