@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./dossiersList.ts";
+  import { serviceLabel } from "./dossiersList.ts";
+  import DossiersSortMenu from "./DossiersSortMenu.svelte";
 
   type Props = {
     titre: string;
@@ -9,6 +11,8 @@
     enjeuActif: boolean;
     activeFilterCount: number;
     nombreFiltrés: number;
+    /** Names of the instructeur's services (groupes instructeurs) */
+    services: string[];
     /** Active filters shown as removable tags */
     chips: FilterChip[];
     sortKey: SortKey;
@@ -29,6 +33,7 @@
     enjeuActif,
     activeFilterCount,
     nombreFiltrés,
+    services,
     chips,
     sortKey,
     sortOrder,
@@ -39,43 +44,7 @@
     onRemoveFiltre,
     onSort,
   }: Props = $props();
-
-  const TRI_OPTIONS: { key: SortKey; order: SortOrder; label: string }[] = [
-    { key: "depositDate", order: "desc", label: "Date de dépôt : les plus récentes" },
-    { key: "depositDate", order: "asc", label: "Date de dépôt : les plus anciennes" },
-    {
-      key: "lastModified",
-      order: "desc",
-      label: "Date de dernière modification : les plus récentes",
-    },
-    {
-      key: "lastModified",
-      order: "asc",
-      label: "Date de dernière modification : les plus anciennes",
-    },
-    { key: "name", order: "asc", label: "Nom du dossier : ordre alphabétique" },
-    { key: "name", order: "desc", label: "Nom du dossier : ordre anti-alphabétique" },
-  ];
-
-  const triLabel = $derived(
-    TRI_OPTIONS.find((option) => option.key === sortKey && option.order === sortOrder)?.label ??
-      TRI_OPTIONS[0].label,
-  );
-
-  let triOuvert = $state(false);
-  let triRoot: HTMLElement | undefined = $state();
-
-  function onBodyClick(event: MouseEvent) {
-    if (triOuvert && triRoot && !triRoot.contains(event.target as Node)) triOuvert = false;
-  }
-
-  function choisirTri(key: SortKey, order: SortOrder) {
-    triOuvert = false;
-    onSort(key, order);
-  }
 </script>
-
-<svelte:body onclick={onBodyClick} />
 
 <div class="toolbar">
   <div class="toolbar__entete">
@@ -138,35 +107,7 @@
         >{/if}
     </button>
 
-    <div class="tri" bind:this={triRoot}>
-      <button
-        type="button"
-        class="fr-btn fr-btn--tertiary"
-        aria-haspopup="true"
-        aria-expanded={triOuvert}
-        onclick={() => (triOuvert = !triOuvert)}
-      >
-        Tri : {triLabel}
-      </button>
-      {#if triOuvert}
-        <ul class="tri__menu" role="menu">
-          {#each TRI_OPTIONS as option (option.key + option.order)}
-            <li role="none">
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={option.key === sortKey && option.order === sortOrder}
-                class="tri__option"
-                class:actif={option.key === sortKey && option.order === sortOrder}
-                onclick={() => choisirTri(option.key, option.order)}
-              >
-                {option.label}
-              </button>
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    </div>
+    <DossiersSortMenu {sortKey} {sortOrder} {onSort} />
   </div>
 
   {#if chips.length > 0}
@@ -188,7 +129,7 @@
 
   <p class="compteur" data-testid="compteur-dossier">
     <span class="fr-text--lead">{nombreFiltrés}</span>
-    <span class="fr-text--lg">dossiers dans votre service</span>
+    <span class="fr-text--lg">{serviceLabel(services)}</span>
   </p>
 </div>
 
@@ -249,43 +190,6 @@
     color: var(--text-action-high-blue-france, #000091);
     font-size: 0.75rem;
     line-height: 1;
-  }
-
-  .tri {
-    position: relative;
-  }
-
-  .tri__menu {
-    position: absolute;
-    z-index: 10;
-    top: calc(100% + 0.25rem);
-    right: 0;
-    min-width: 16rem;
-    margin: 0;
-    padding: 0.25rem 0;
-    list-style: none;
-    background: var(--background-default-grey);
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    box-shadow: var(--overlap-shadow, 0 2px 6px rgba(0, 0, 0, 0.16));
-  }
-
-  .tri__option {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.5rem 1rem;
-    background: none;
-    border: 0;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--background-contrast-grey);
-    }
-
-    &.actif {
-      font-weight: 700;
-    }
   }
 
   .toolbar__chips {
