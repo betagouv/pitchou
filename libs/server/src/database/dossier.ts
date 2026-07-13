@@ -869,6 +869,10 @@ export async function getDossiersRésumésByCap(
 
   const dossiersP: Promise<DossierRésumé[]> = transaction("dossier")
     .select(colonnesDossierRésumé)
+    // Presence of the especes impactees file, without transferring the file itself.
+    .select(
+      transaction.raw('dossier."espèces_impactées" is not null as "especesImpacteesRenseignees"'),
+    )
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
     })

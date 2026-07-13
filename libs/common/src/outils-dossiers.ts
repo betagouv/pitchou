@@ -33,6 +33,9 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
     // Avis d'expert (pour la présence des fichiers)
     avisExpert,
 
+    // especes impactees file, for presence
+    espècesImpactées,
+
     // Évènements pour extraire la phase
     évènementsPhase,
   } = dossierComplet;
@@ -59,6 +62,7 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
       saisineFichierPresent: ae.saisine_fichier_url !== undefined,
       avisFichierPresent: ae.avis_fichier_url !== undefined,
     })),
+    especesImpacteesRenseignees: espècesImpactées !== undefined,
 
     // Statistiques
     date_dépôt,

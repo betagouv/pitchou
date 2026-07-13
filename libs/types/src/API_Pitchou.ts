@@ -135,6 +135,14 @@ type DossierAvisExpertResume = {
 };
 
 /**
+ * Whether the pétitionnaire provided the impacted-species file. Lets the front filter
+ * dossiers whose impacted-species list is « non-renseignée », without transferring the file.
+ */
+type DossierEspecesImpacteesResume = {
+  especesImpacteesRenseignees: boolean;
+};
+
+/**
  * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
  * et pouvoir effectuer des recherches dans le tableau de suivi
  * ou le cartouche résumé commun aux onglets des écrans montrant un unique dossier
@@ -156,7 +164,8 @@ export type DossierRésumé = Pick<
   DossierPersonnesImpliquéesRésumé &
   DossierActivitéPrincipale &
   DonnéesDossierPourStats &
-  DossierAvisExpertResume;
+  DossierAvisExpertResume &
+  DossierEspecesImpacteesResume;
 
 export type FrontEndPrescription = Prescription & { contrôles: Contrôle[] | undefined };
 
