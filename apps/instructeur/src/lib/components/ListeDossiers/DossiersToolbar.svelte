@@ -73,9 +73,9 @@
 <svelte:body onclick={onBodyClick} />
 
 <div class="toolbar">
-  <h1>{titre}</h1>
+  <div class="toolbar__entete">
+    <h1>{titre}</h1>
 
-  <div class="toolbar__actions">
     <form
       class="fr-search-bar barre-de-recherche"
       role="search"
@@ -98,7 +98,9 @@
         >Rechercher un dossier</button
       >
     </form>
+  </div>
 
+  <div class="toolbar__actions">
     {#if afficherFiltreInstructeurice}
       <button
         type="button"
@@ -174,6 +176,15 @@
     flex-direction: column;
     gap: 1rem;
     margin-top: 1rem;
+  }
+
+  // Title on the left, search bar pushed to the right on the same row.
+  .toolbar__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 
     h1 {
       margin: 0;
@@ -189,12 +200,13 @@
 
   .barre-de-recherche {
     min-width: 20rem;
-    flex: 1 1 20rem;
-    max-width: 32rem;
+    flex: 0 1 32rem;
+    margin-left: auto;
 
     @media (max-width: 768px) {
       min-width: unset;
       flex-basis: 100%;
+      margin-left: 0;
     }
   }
 
