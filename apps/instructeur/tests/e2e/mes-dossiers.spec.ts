@@ -203,3 +203,57 @@ test("Le badge Dossier à enjeu apparaît lorsque le dossier possède un enjeu",
   await expect(carte).toHaveCount(1);
   await expect(badge).toHaveCount(1);
 });
+
+test("la recherche filtre la liste au fil de la frappe, sans valider", async ({ page, db }) => {
+  const { id: personneId, groupeId } = await createInstructeurWithCapToGroup(db, {
+    email: "jane@doe.fr",
+    codeAcces: CODE,
+  });
+
+  const photovoltaique = await createDossier(db, {
+    nom: "Parc photovoltaïque à Anglet",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    number_demarches_simplifiées: "29803745",
+  });
+  const coquelicots = await createDossier(db, {
+    nom: "Recherche scientifique",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    commentaire_libre: "Présence de coquelicots sur la zone",
+  });
+  const methaniseur = await createDossier(db, {
+    nom: "Méthaniseur",
+    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    number_demarches_simplifiées: "12345678",
+  });
+
+  for (const d of [photovoltaique, coquelicots, methaniseur]) {
+    await attachDossierToGroupe(db, d.id, groupeId);
+    await attachPersonneSuitDossier(db, personneId, d.id);
+  }
+
+  await gotoMesDossiers(page);
+  const cartes = page.getByTestId("carte-dossier");
+  await expect(cartes).toHaveCount(3);
+
+  const recherche = page.getByLabel("Rechercher un dossier");
+
+  // Saisie partielle sur le nom : la liste et l'URL se mettent à jour sans valider.
+  await recherche.fill("photovolta");
+  await expect(page).toHaveURL(/[?&]q=photovolta/);
+  await expect(cartes).toHaveCount(1);
+  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+
+  // Nouveau champ couvert : le commentaire libre.
+  await recherche.fill("coquelicot");
+  await expect(cartes).toHaveCount(1);
+  await expect(cartes).toContainText("Recherche scientifique");
+
+  // Recherche partielle sur le n° DN (avant, il fallait le saisir en entier).
+  await recherche.fill("298037");
+  await expect(cartes).toHaveCount(1);
+  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+
+  // En vidant la barre, on retrouve tous les dossiers.
+  await recherche.fill("");
+  await expect(cartes).toHaveCount(3);
+});

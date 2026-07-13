@@ -8,3 +8,4 @@ export * from "./dossiersSort.ts";
 export * from "./dossiersFilterChips.ts";
 export * from "./dossiersSearchEvent.ts";
 export * from "./dossiersServices.ts";
+export * from "./dossiersSearch.ts";

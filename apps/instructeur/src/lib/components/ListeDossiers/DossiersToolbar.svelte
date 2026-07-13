@@ -67,6 +67,7 @@
         name="texte-de-recherche"
         placeholder="Rechercher"
         type="search"
+        oninput={(e) => onSearch(e.currentTarget.value)}
       />
       <button title="Rechercher un dossier" type="submit" class="fr-btn"
         >Rechercher un dossier</button

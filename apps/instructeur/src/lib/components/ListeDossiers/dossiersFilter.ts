@@ -1,6 +1,6 @@
 import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
-import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
 import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
+import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
 import {
   départements as allDepartements,
   nomParCodeDépartement as nomByCodeDepartement,
@@ -53,8 +53,8 @@ export function filterDossiers(
   let result = dossiers;
 
   if (query.text.trim()) {
-    const filtreTexte = créerFiltreTexte(query.text, dossiers);
-    result = result.filter(filtreTexte);
+    const terms = searchTerms(query.text);
+    result = result.filter((dossier) => dossierMatchesSearch(dossier, terms, ctx));
   }
   if (query.phase.length) {
     result = result.filter((dossier) => query.phase.includes(dossier.phase));
