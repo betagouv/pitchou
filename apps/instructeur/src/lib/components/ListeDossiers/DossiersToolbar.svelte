@@ -10,8 +10,11 @@
     /** Recent searches offered as suggestions when the search bar is focused */
     recentSearches: string[];
     afficherFiltreInstructeurice: boolean;
+    afficherFiltreEnjeu: boolean;
+    afficherFiltreActionInstructeur: boolean;
     sansInstructeuriceActif: boolean;
     enjeuActif: boolean;
+    actionInstructeurActif: boolean;
     activeFilterCount: number;
     nombreFiltrés: number;
     /** Names of the instructeur's services (groupes instructeurs) */
@@ -23,6 +26,7 @@
     onSearch: (text: string) => void;
     onToggleSansInstructeurice: () => void;
     onToggleEnjeu: () => void;
+    onToggleActionInstructeur: () => void;
     onOpenFiltres: () => void;
     onRemoveFiltre: (next: DossiersQuery) => void;
     onSort: (key: SortKey, order: SortOrder) => void;
@@ -33,8 +37,11 @@
     searchText,
     recentSearches,
     afficherFiltreInstructeurice,
+    afficherFiltreEnjeu,
+    afficherFiltreActionInstructeur,
     sansInstructeuriceActif,
     enjeuActif,
+    actionInstructeurActif,
     activeFilterCount,
     nombreFiltrés,
     services,
@@ -44,6 +51,7 @@
     onSearch,
     onToggleSansInstructeurice,
     onToggleEnjeu,
+    onToggleActionInstructeur,
     onOpenFiltres,
     onRemoveFiltre,
     onSort,
@@ -70,15 +78,29 @@
       </button>
     {/if}
 
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary"
-      aria-pressed={enjeuActif}
-      class:actif={enjeuActif}
-      onclick={onToggleEnjeu}
-    >
-      Dossiers à enjeux
-    </button>
+    {#if afficherFiltreEnjeu}
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary"
+        aria-pressed={enjeuActif}
+        class:actif={enjeuActif}
+        onclick={onToggleEnjeu}
+      >
+        Dossiers à enjeux
+      </button>
+    {/if}
+
+    {#if afficherFiltreActionInstructeur}
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary"
+        aria-pressed={actionInstructeurActif}
+        class:actif={actionInstructeurActif}
+        onclick={onToggleActionInstructeur}
+      >
+        Moi en charge de la prochaine action
+      </button>
+    {/if}
 
     <button
       type="button"

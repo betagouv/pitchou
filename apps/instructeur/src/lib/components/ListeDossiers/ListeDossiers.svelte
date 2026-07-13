@@ -9,6 +9,7 @@
     buildDossiersSearchParams,
     buildSearchEvent,
     compareDossiers,
+    copyDossiersQuery,
     countActiveFilters,
     filterDossiers,
     listAvailableInstructeurs,
@@ -34,6 +35,9 @@
     recentSearches?: string[];
     /** Show the instructeur·ice filter (quick button + modal section) — irrelevant on « mes dossiers » */
     afficherFiltreInstructeurice?: boolean;
+    afficherFiltreEnjeu?: boolean;
+    /** Show the « prochaine action à moi » quick filter — for « mes dossiers » */
+    afficherFiltreActionInstructeur?: boolean;
     notificationParDossier: PitchouState["notificationParDossier"];
   };
 
@@ -45,6 +49,8 @@
     services = [],
     recentSearches = [],
     afficherFiltreInstructeurice = false,
+    afficherFiltreEnjeu = true,
+    afficherFiltreActionInstructeur = false,
     notificationParDossier,
   }: Props = $props();
 
@@ -110,18 +116,6 @@
     relationSuivis?.get(email) ?? new Set<Dossier["id"]>(),
   );
 
-  /** Copies a query, cloning its arrays so the modal draft never mutates the applied query */
-  function copierQuery(q: DossiersQuery): DossiersQuery {
-    return {
-      ...q,
-      phase: [...q.phase],
-      activite: [...q.activite],
-      prochaineAction: [...q.prochaineAction],
-      departement: [...q.departement],
-      instructeur: [...q.instructeur],
-    };
-  }
-
   /** Reflects the given query into the URL, which is the single source of truth */
   function naviguer(next: DossiersQuery) {
     const search = buildDossiersSearchParams(next).toString();
@@ -144,31 +138,32 @@
   }
 
   function onSearch(text: string) {
-    appliquerRecherche({ ...copierQuery(query), text, page: 1 });
+    appliquerRecherche({ ...copyDossiersQuery(query), text, page: 1 });
   }
 
   function onToggleSansInstructeurice() {
     const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
       ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
       : [...query.instructeur, WITHOUT_INSTRUCTEUR];
-    appliquerRecherche({ ...copierQuery(query), instructeur, page: 1 });
+    appliquerRecherche({ ...copyDossiersQuery(query), instructeur, page: 1 });
   }
 
-  function onToggleEnjeu() {
-    appliquerRecherche({ ...copierQuery(query), enjeu: !query.enjeu, page: 1 });
+  /** Toggles one of the boolean quick filters and reapplies the search */
+  function toggleFiltre(key: "enjeu" | "actionInstructeur") {
+    appliquerRecherche({ ...copyDossiersQuery(query), [key]: !query[key], page: 1 });
   }
 
   function onSort(key: SortKey, order: SortOrder) {
-    naviguer({ ...copierQuery(query), sort: key, order });
+    naviguer({ ...copyDossiersQuery(query), sort: key, order });
   }
 
   function allerÀLaPage(numéro: number) {
-    naviguer({ ...copierQuery(query), page: numéro });
+    naviguer({ ...copyDossiersQuery(query), page: numéro });
     tick().then(() => titrePageElement?.focus());
   }
 
   function ouvrirFiltres() {
-    brouillon = copierQuery(query);
+    brouillon = copyDossiersQuery(query);
     paramsFiltresÀLOuverture = buildDossiersSearchParams({ ...query, page: 1 }).toString();
     modalOuverte = true;
   }
@@ -190,7 +185,7 @@
     modalOuverte = false;
     // The URL already reflects the draft (applied live); this records the search analytics
     // and announces the final count once.
-    appliquerRecherche({ ...copierQuery(brouillon), page: 1 });
+    appliquerRecherche({ ...copyDossiersQuery(brouillon), page: 1 });
   }
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -207,8 +202,11 @@
     searchText={query.text}
     {recentSearches}
     {afficherFiltreInstructeurice}
+    {afficherFiltreEnjeu}
+    {afficherFiltreActionInstructeur}
     sansInstructeuriceActif={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
     enjeuActif={query.enjeu}
+    actionInstructeurActif={query.actionInstructeur}
     {activeFilterCount}
     nombreFiltrés={dossiersFiltrés.length}
     {services}
@@ -217,7 +215,8 @@
     sortOrder={query.order}
     {onSearch}
     {onToggleSansInstructeurice}
-    {onToggleEnjeu}
+    onToggleEnjeu={() => toggleFiltre("enjeu")}
+    onToggleActionInstructeur={() => toggleFiltre("actionInstructeur")}
     onOpenFiltres={ouvrirFiltres}
     onRemoveFiltre={appliquerRecherche}
     {onSort}

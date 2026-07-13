@@ -27,6 +27,8 @@
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
+<!-- « à enjeux » is replaced by the « prochaine action à moi » quick filter: on this page
+     every dossier is followed by the instructeur, so their own next action matters more -->
 <ListeDossiers
   titre="Mes dossiers"
   {email}
@@ -35,4 +37,6 @@
   {services}
   {recentSearches}
   {notificationParDossier}
+  afficherFiltreEnjeu={false}
+  afficherFiltreActionInstructeur
 />

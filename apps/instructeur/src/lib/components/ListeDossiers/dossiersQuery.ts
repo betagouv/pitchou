@@ -180,3 +180,15 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
 export function defaultDossiersQuery(): DossiersQuery {
   return parseDossiersQuery(new URLSearchParams());
 }
+
+/** Copies a query, cloning its arrays so a draft never mutates the original */
+export function copyDossiersQuery(query: DossiersQuery): DossiersQuery {
+  return {
+    ...query,
+    phase: [...query.phase],
+    activite: [...query.activite],
+    prochaineAction: [...query.prochaineAction],
+    departement: [...query.departement],
+    instructeur: [...query.instructeur],
+  };
+}
