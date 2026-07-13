@@ -3,7 +3,7 @@
 
 import type { PersonneId } from "./Personne";
 import type { EntrepriseSiret } from "./Entreprise";
-import type { FichierId } from "./Fichier";
+import type { FileId } from "./File";
 import type { default as TypeDossier } from "./TypeDossier";
 
 /** Identifier type for public.dossier */
@@ -65,7 +65,7 @@ export default interface Dossier {
   activité_principale: string | null;
 
   /** Référence vers le fichier des espèces impactées */
-  espèces_impactées: FichierId | null;
+  espèces_impactées: FileId | null;
 
   /** Description synthétique du projet */
   description: string | null;
@@ -224,7 +224,7 @@ export interface DossierInitializer {
   activité_principale?: string | null;
 
   /** Référence vers le fichier des espèces impactées */
-  espèces_impactées?: FichierId | null;
+  espèces_impactées?: FileId | null;
 
   /** Description synthétique du projet */
   description?: string | null;
@@ -379,7 +379,7 @@ export interface DossierMutator {
   activité_principale?: string | null;
 
   /** Référence vers le fichier des espèces impactées */
-  espèces_impactées?: FichierId | null;
+  espèces_impactées?: FileId | null;
 
   /** Description synthétique du projet */
   description?: string | null;

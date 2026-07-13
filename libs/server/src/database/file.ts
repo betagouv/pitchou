@@ -16,8 +16,8 @@ export function addFile(
 export function getFile(
   id: File["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Pick<File, "taille"> | undefined> {
-  return databaseConnection("file").select("taille").where("id", id).first();
+): Promise<File | undefined> {
+  return databaseConnection("file").select("*").where("id", id).first();
 }
 
 export function deleteFile(

@@ -10,7 +10,7 @@ import {
   descriptionMenacesEspècesToOdsArrayBuffer,
 } from "@pitchou/common/outils-espèces.ts";
 import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
-import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
+
 import type { DescriptionMenacesEspèces, EspèceProtégée } from "@pitchou/types/especes.d.ts";
 
 import { SEED_DEMARCHE_NUMBER } from "../fixtures/demarche_numerique.ts";
@@ -27,6 +27,7 @@ import {
   SEED_ESPÈCES_IMPACTÉES,
 } from "../fixtures/dossiers.ts";
 import { generatePlaceholderPdf } from "../fixtures/placeholder-pdf.ts";
+import type { FileId } from "@pitchou/types/database/public/File.js";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
 const ACTIVITÉS_ODS_PATH = join(
@@ -270,8 +271,8 @@ export async function seed(knex: Knex) {
           });
         } else {
           const fichiersÀAjouter: {
-            saisine_fichier?: FichierId | null;
-            avis_fichier?: FichierId | null;
+            saisine_fichier?: FileId | null;
+            avis_fichier?: FileId | null;
           } = {};
 
           if (nom_fichier_saisine && !existing.saisine_fichier) {
@@ -315,7 +316,7 @@ export async function seed(knex: Knex) {
           .where({ id: daData.id })
           .first();
         if (!existing) {
-          let fichier: FichierId | null = null;
+          let fichier: FileId | null = null;
           if (nom_fichier) {
             fichier = await stockerPlaceholderPdf(nom_fichier, transaction);
           }

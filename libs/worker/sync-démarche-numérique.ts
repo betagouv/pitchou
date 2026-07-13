@@ -48,7 +48,7 @@ import type {
 } from "@pitchou/types/database/public/Personne.ts";
 import type { default as Entreprise } from "@pitchou/types/database/public/Entreprise.ts";
 import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { Message, DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 import type {
   SchemaDémarcheSimplifiée,
@@ -171,9 +171,8 @@ const dossierNumberToDossierId = new Map(
 );
 
 /** Télécharger les nouveaux fichiers 'motivation' */
-const fichiersMotivationTéléchargésP: Promise<
-  Map<DossierDS88444["number"], Fichier["id"]> | undefined
-> = téléchargerNouveauxFichiersMotivation(dossiersDS, laTransactionDeSynchronisationDS);
+const fichiersMotivationTéléchargésP: Promise<Map<DossierDS88444["number"], FileId> | undefined> =
+  téléchargerNouveauxFichiersMotivation(dossiersDS, laTransactionDeSynchronisationDS);
 
 const fichiersMotivationTéléchargés = await fichiersMotivationTéléchargésP;
 
@@ -369,7 +368,7 @@ const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPourUpdate);
 
 /** Télécharger les nouveaux fichiers espèces impactées */
 const fichiersEspècesImpactéesTéléchargésP: Promise<
-  Map<DossierDS88444["number"], Fichier["id"]> | undefined
+  Map<DossierDS88444["number"], FileId> | undefined
 > = (async () => {
   if (DEMARCHE_NUMBER === 88444) {
     return récupérerFichiersEspècesImpactées88444(

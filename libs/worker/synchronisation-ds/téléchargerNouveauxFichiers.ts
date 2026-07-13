@@ -11,12 +11,15 @@ import {
 import téléchargerFichierDS from "./téléchargerFichierDS.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/démarche-numérique/apiSchema.ts";
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { Knex } from "knex";
 
-type FichierÀTélécharger = Omit<Fichier, "id" | "contenu" | "file_id" | "nom"> & {
-  url: string;
+type FichierÀTélécharger = {
   nom: string;
+  url: string;
+  media_type: string | null;
+  DS_checksum: string | null;
+  DS_createdAt: Date | null;
 };
 
 const openDocumentTypes = new Map([
@@ -61,7 +64,7 @@ function DScontentTypeToActualMediaType({
 export default async function téléchargerNouveauxFichiers(
   candidatsFichiers: Map<DossierDS88444["number"], DSFile[]>,
   transaction?: Knex.Transaction | Knex,
-): Promise<Map<DossierDS88444["number"], Fichier["id"][]>> {
+): Promise<Map<DossierDS88444["number"], FileId[]>> {
   const candidatsFichiersBDD: Map<DossierDS88444["number"], FichierÀTélécharger[]> = new Map(
     [...candidatsFichiers].map(([number, fichiers]) => {
       return [
@@ -104,7 +107,7 @@ export default async function téléchargerNouveauxFichiers(
 
   //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
 
-  type ReturnMapEntryData = [DossierDS88444["number"], Fichier["id"][]];
+  type ReturnMapEntryData = [DossierDS88444["number"], FileId[]];
 
   // Télécharger les fichiers et les mettre directement en base de données
   // @ts-ignore
@@ -185,11 +188,11 @@ export default async function téléchargerNouveauxFichiers(
   // Pour chaque dossier, on retourne les ids de tous les fichiers qui le concernent — qu'ils
   // viennent d'être téléchargés ou qu'ils étaient déjà en BDD (matchés par hash). Le consommateur
   // peut ainsi créer les arêtes de jointure dans les deux cas.
-  const fichiersParDossier = new Map<DossierDS88444["number"], Fichier["id"][]>();
+  const fichiersParDossier = new Map<DossierDS88444["number"], FileId[]>();
   for (const [numéroDossier, candidats] of candidatsFichiersBDD) {
     const idsFichiersDéjàEnBDD = candidats
       .map((c) => fichierIdParHashDéjàEnBDD.get(makeFichierHash(c)))
-      .filter((id): id is Fichier["id"] => id !== undefined);
+      .filter((id): id is FileId => id !== undefined);
 
     const idsFichiersNouveaux = nouveauxFichiersParDossier.get(numéroDossier) ?? [];
 

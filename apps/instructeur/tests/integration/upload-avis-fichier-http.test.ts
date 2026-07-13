@@ -46,23 +46,13 @@ test("POST /avis-expert avec saisine + avis envoie les deux fichiers sur S3 et l
   expect(ae.saisine_fichier).not.toBeNull();
   expect(ae.avis_fichier).not.toBeNull();
 
-  // each fichier shim has contenu=NULL and a file_id
-  const fichiers = await db("fichier")
-    .select("id", "contenu", "file_id")
-    .whereIn("id", [ae.saisine_fichier, ae.avis_fichier]);
-  expect(fichiers).toHaveLength(2);
-  for (const f of fichiers) {
-    expect(f.contenu).toBeNull();
-    expect(f.file_id).not.toBeNull();
-  }
-
   // the bytes on S3 must match what was uploaded
-  const fichierIdToBytes = new Map([
+  const fileIdToBytes = new Map([
     [ae.saisine_fichier, saisineBytes],
     [ae.avis_fichier, avisBytes],
   ]);
-  for (const f of fichiers) {
-    const onS3 = await readKey(`files/${f.file_id}`);
-    expect(onS3.equals(fichierIdToBytes.get(f.id)!)).toBe(true);
+  for (const [fileId, expectedBytes] of fileIdToBytes) {
+    const onS3 = await readKey(`files/${fileId}`);
+    expect(onS3.equals(expectedBytes)).toBe(true);
   }
 });

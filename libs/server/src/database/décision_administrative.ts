@@ -4,7 +4,7 @@ import { directDatabaseConnection } from "../database.ts";
 
 import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "./fichier.ts";
 
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 import type { default as DécisionAdministrative } from "@pitchou/types/database/public/DécisionAdministrative.ts";
@@ -16,7 +16,7 @@ import type {
 export async function ajouterDécisionAdministrativeAvecFichier(
   décision: DécisionAdministrativePourTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Fichier["id"]> {
+): Promise<DécisionAdministrative["id"]> {
   const { id, numéro, type, date_signature, date_fin_obligations, dossier } = décision;
 
   const décisionAdministrativeBDD: Partial<DécisionAdministrative> = {
@@ -48,7 +48,7 @@ export async function ajouterDécisionAdministrativeAvecFichier(
 export function ajouterDécisionsAdministratives(
   décisions: Omit<DécisionAdministrative, "id"> | Omit<DécisionAdministrative, "id">[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Map<Dossier["id"], Fichier["id"][]>> {
+): Promise<any> {
   if (!Array.isArray(décisions)) {
     décisions = [décisions];
   }
@@ -106,7 +106,7 @@ export async function modifierDécisionAdministrative(
 
   let décisionAdministrativePrêteP: Promise<any> = Promise.resolve();
 
-  let fichierIdPrécédentP: Promise<Fichier["id"] | undefined> = Promise.resolve(undefined);
+  let fichierIdPrécédentP: Promise<FileId | undefined> = Promise.resolve(undefined);
 
   if (décisionAdministrative.fichier_base64) {
     const { nom, media_type, contenuBase64 } = décisionAdministrative.fichier_base64;

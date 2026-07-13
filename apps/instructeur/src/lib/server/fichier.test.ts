@@ -2,7 +2,7 @@ import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
 import { téléchargementFichierResponse } from "./fichier.ts";
-import type { FichierId } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 vi.mock(import("@pitchou/server/database/fichier.ts"), () => ({
   loadFichierContent: vi.fn(),
@@ -14,7 +14,7 @@ beforeEach(() => {
   load.mockReset();
 });
 
-const id = "00000000-0000-0000-0000-000000000001" as FichierId;
+const id = "00000000-0000-0000-0000-000000000001" as FileId;
 
 describe("téléchargementFichierResponse", () => {
   it("throws a 404 SvelteKit error when the fichier is not found", async () => {
@@ -22,22 +22,23 @@ describe("téléchargementFichierResponse", () => {
     await expect(téléchargementFichierResponse(id)).rejects.toMatchObject({ status: 404 });
   });
 
-  it("returns the buffer body and content-length for legacy bytea fichiers", async () => {
-    const body = Buffer.from("hello world");
+  it("returns body and content-length for S3 files", async () => {
+    const bytes = Buffer.from("hello world");
+    const body = Readable.from([bytes]);
     load.mockResolvedValue({
       nom: "doc.pdf",
       media_type: "application/pdf",
       body,
-      taille: body.byteLength,
+      taille: bytes.byteLength,
     });
 
     const res = await téléchargementFichierResponse(id);
 
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("application/pdf");
-    expect(res.headers.get("content-length")).toBe(String(body.byteLength));
+    expect(res.headers.get("content-length")).toBe(String(bytes.byteLength));
     const buf = Buffer.from(await res.arrayBuffer());
-    expect(buf.equals(body)).toBe(true);
+    expect(buf.equals(bytes)).toBe(true);
   });
 
   it("streams Readable bodies via Readable.toWeb", async () => {
@@ -61,7 +62,7 @@ describe("téléchargementFichierResponse", () => {
     load.mockResolvedValue({
       nom: "été 2025.pdf",
       media_type: "application/pdf",
-      body: Buffer.from("x"),
+      body: Readable.from([Buffer.from("x")]),
       taille: 1,
     });
     const res = await téléchargementFichierResponse(id);

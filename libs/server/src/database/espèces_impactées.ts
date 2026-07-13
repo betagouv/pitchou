@@ -3,11 +3,11 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
 import { supprimerFichiersSansAutresRéférences } from "./fichier.ts";
 
-import type { default as Fichier } from "@pitchou/types/database/public/Fichier.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
 
 export async function synchroniserFichiersEspècesImpactéesDepuisDS88444(
-  espècesImpactéesParNuméroDossier: Map<DossierDS88444["number"], Fichier["id"]>,
+  espècesImpactéesParNuméroDossier: Map<DossierDS88444["number"], FileId>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
   // Trouver les fichiers déjà en place (pour les supprimer plus bas)
