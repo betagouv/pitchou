@@ -122,6 +122,13 @@ export function buildActiveFilterChips(query: DossiersQuery): FilterChip[] {
       next: sans({ avisExpertManquant: false }),
     });
   }
+  if (query.especesImpacteesAbsente) {
+    chips.push({
+      key: "especesAbsente",
+      label: "Espèces impactées non-renseignées",
+      next: sans({ especesImpacteesAbsente: false }),
+    });
+  }
   if (query.dateStart || query.dateEnd) {
     chips.push({
       key: "date",
@@ -150,6 +157,7 @@ export function countActiveFilters(query: DossiersQuery): number {
     (query.enjeu ? 1 : 0) +
     (query.decisionText.trim() ? 1 : 0) +
     (query.decisionAbsente ? 1 : 0) +
-    (query.avisExpertManquant ? 1 : 0)
+    (query.avisExpertManquant ? 1 : 0) +
+    (query.especesImpacteesAbsente ? 1 : 0)
   );
 }

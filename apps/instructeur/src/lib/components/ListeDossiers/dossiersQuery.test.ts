@@ -118,6 +118,7 @@ describe("buildDossiersSearchParams", () => {
       decisionText: "AP-2024-042",
       decisionAbsente: true,
       avisExpertManquant: true,
+      especesImpacteesAbsente: true,
       dateField: "phaseStart",
       dateStart: "2024-01-01",
       dateEnd: "2024-02-01",

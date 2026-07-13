@@ -83,6 +83,8 @@ export type DossiersQuery = {
   decisionAbsente: boolean;
   /** Keep only dossiers missing a saisine or avis expert file */
   avisExpertManquant: boolean;
+  /** Keep only dossiers whose especes impactees list is « non-renseignée » */
+  especesImpacteesAbsente: boolean;
   dateField: DateField;
   dateStart: string;
   dateEnd: string;
@@ -127,6 +129,7 @@ export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams
   if (query.decisionText.trim()) params.set("decision", query.decisionText.trim());
   if (query.decisionAbsente) params.set("decisionAbsente", "1");
   if (query.avisExpertManquant) params.set("avisManquant", "1");
+  if (query.especesImpacteesAbsente) params.set("especesAbsente", "1");
   if (query.dateStart) params.set("from", query.dateStart);
   if (query.dateEnd) params.set("to", query.dateEnd);
   if ((query.dateStart || query.dateEnd) && query.dateField !== "deposit") {
@@ -161,6 +164,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
     decisionText: params.get("decision") ?? "",
     decisionAbsente: params.get("decisionAbsente") === "1",
     avisExpertManquant: params.get("avisManquant") === "1",
+    especesImpacteesAbsente: params.get("especesAbsente") === "1",
     dateField: (DATE_FIELDS as readonly string[]).includes(dateField)
       ? (dateField as DateField)
       : "deposit",

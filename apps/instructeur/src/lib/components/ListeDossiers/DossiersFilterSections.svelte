@@ -252,6 +252,17 @@
   />
 </div>
 
+<!-- Espèce impactée -->
+<div class="section">
+  <h3 class="section-titre">
+    <span class="fr-icon-leaf-line fr-icon--sm" aria-hidden="true"></span> Espèce impactée
+  </h3>
+  <div class="fr-checkbox-group fr-checkbox-group--sm">
+    <input type="checkbox" id="especes-absente" bind:checked={draft.especesImpacteesAbsente} />
+    <label class="fr-label" for="especes-absente">Liste des espèces impactées non-renseignée</label>
+  </div>
+</div>
+
 <style lang="scss">
   .section {
     border: 0;

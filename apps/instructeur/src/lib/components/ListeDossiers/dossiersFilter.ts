@@ -119,6 +119,9 @@ export function filterDossiers(
       ),
     );
   }
+  if (query.especesImpacteesAbsente) {
+    result = result.filter((dossier) => !dossier.especesImpacteesRenseignees);
+  }
   if (query.dateStart || query.dateEnd) {
     const start = query.dateStart ? new Date(`${query.dateStart}T00:00:00`) : undefined;
     const end = query.dateEnd ? new Date(`${query.dateEnd}T23:59:59.999`) : undefined;
@@ -189,6 +192,7 @@ const FILTER_PARAM_KEYS = [
   "decision",
   "decisionAbsente",
   "avisManquant",
+  "especesAbsente",
   "dateField",
   "from",
   "to",

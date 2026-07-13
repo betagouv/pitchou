@@ -78,12 +78,18 @@ describe("buildActiveFilterChips", () => {
 
   test("covers the boolean filters", () => {
     const chips = buildActiveFilterChips(
-      makeQuery({ enjeu: true, decisionAbsente: true, avisExpertManquant: true }),
+      makeQuery({
+        enjeu: true,
+        decisionAbsente: true,
+        avisExpertManquant: true,
+        especesImpacteesAbsente: true,
+      }),
     );
     expect(chips.map((c) => c.label)).toEqual([
       "À enjeu",
       "Décision non-renseignée",
       "Saisine ou avis d'expert manquant",
+      "Espèces impactées non-renseignées",
     ]);
     const enjeuChip = chips.find((c) => c.key === "enjeu");
     expect(enjeuChip?.next.enjeu).toBe(false);
