@@ -29,6 +29,8 @@
     email?: string;
     dossiers: DossierRésumé[];
     relationSuivis?: PitchouState["relationSuivis"];
+    /** Names of the instructeur's services (groupes instructeurs) */
+    services?: string[];
     /** Show the instructeur·ice filter (quick button + modal section) — irrelevant on « mes dossiers » */
     afficherFiltreInstructeurice?: boolean;
     notificationParDossier: PitchouState["notificationParDossier"];
@@ -39,6 +41,7 @@
     email = "",
     dossiers,
     relationSuivis,
+    services = [],
     afficherFiltreInstructeurice = false,
     notificationParDossier,
   }: Props = $props();
@@ -205,6 +208,7 @@
     enjeuActif={query.enjeu}
     {activeFilterCount}
     nombreFiltrés={dossiersFiltrés.length}
+    {services}
     chips={chipsFiltres}
     sortKey={query.sort}
     sortOrder={query.order}

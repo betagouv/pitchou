@@ -8,14 +8,28 @@
     email?: string;
     dossiers: DossierRésumé[];
     relationSuivis?: PitchouState["relationSuivis"];
+    services?: string[];
     notificationParDossier: PitchouState["notificationParDossier"];
   };
 
-  let { email = "", dossiers = [], relationSuivis, notificationParDossier }: Props = $props();
+  let {
+    email = "",
+    dossiers = [],
+    relationSuivis,
+    services = [],
+    notificationParDossier,
+  }: Props = $props();
 </script>
 
 <svelte:head>
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
-<ListeDossiers titre="Mes dossiers" {email} {dossiers} {relationSuivis} {notificationParDossier} />
+<ListeDossiers
+  titre="Mes dossiers"
+  {email}
+  {dossiers}
+  {relationSuivis}
+  {services}
+  {notificationParDossier}
+/>

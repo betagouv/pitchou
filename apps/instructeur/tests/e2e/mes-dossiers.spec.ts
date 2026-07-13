@@ -98,7 +98,10 @@ test("dossiers triés par date de dépôt décroissante par défaut", async ({ p
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  await expect(page.getByTestId("compteur-dossier")).toContainText("4 dossiers dans votre service");
+  // The counter names the instructeur's single service.
+  await expect(page.getByTestId("compteur-dossier")).toContainText(
+    "4 dossiers dans votre service : Groupe de test",
+  );
 
   const cartes = await page.getByTestId("carte-dossier").all();
   const ordreAttendu = [
