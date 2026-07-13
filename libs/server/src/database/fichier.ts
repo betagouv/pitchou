@@ -4,7 +4,7 @@ import type { Readable } from "node:stream";
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { addFile, deleteFile } from "./file.ts";
+import { addFile, deleteFile, getFile } from "./file.ts";
 import { deleteObject, fileKey, getObject, putObject } from "../object-storage.ts";
 
 import type File from "@pitchou/types/database/public/File.ts";
@@ -87,10 +87,7 @@ export async function loadFichierContent(
   body: Readable;
   taille?: number;
 } | null> {
-  const f = await databaseConnection("file")
-    .select(["nom", "media_type", "taille"])
-    .where("id", fileId)
-    .first();
+  const f = await getFile(fileId, databaseConnection);
   if (!f) return null;
 
   const s3 = await getObject(fileKey(fileId));
