@@ -31,6 +31,7 @@
     relationSuivis?: PitchouState["relationSuivis"];
     /** Names of the instructeur's services (groupes instructeurs) */
     services?: string[];
+    recentSearches?: string[];
     /** Show the instructeur·ice filter (quick button + modal section) — irrelevant on « mes dossiers » */
     afficherFiltreInstructeurice?: boolean;
     notificationParDossier: PitchouState["notificationParDossier"];
@@ -42,6 +43,7 @@
     dossiers,
     relationSuivis,
     services = [],
+    recentSearches = [],
     afficherFiltreInstructeurice = false,
     notificationParDossier,
   }: Props = $props();
@@ -203,6 +205,7 @@
   <DossiersToolbar
     {titre}
     searchText={query.text}
+    {recentSearches}
     {afficherFiltreInstructeurice}
     sansInstructeuriceActif={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
     enjeuActif={query.enjeu}

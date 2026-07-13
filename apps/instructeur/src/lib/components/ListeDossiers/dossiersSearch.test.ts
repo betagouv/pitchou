@@ -2,6 +2,7 @@ import { expect, test, describe } from "vitest";
 
 import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
 import {
+  addRecentSearch,
   filterDossiers,
   searchTerms,
   searchableText,
@@ -19,6 +20,27 @@ function rechercher(
     .map((d) => d.id)
     .sort((a, b) => a - b);
 }
+
+describe("addRecentSearch", () => {
+  test("prepends the trimmed search", () => {
+    expect(addRecentSearch(["ancien"], "  photovoltaïque  ")).toEqual(["photovoltaïque", "ancien"]);
+  });
+
+  test("ignores a blank search", () => {
+    expect(addRecentSearch(["ancien"], "   ")).toEqual(["ancien"]);
+  });
+
+  test("moves an existing term to the top without duplicating, case-insensitively", () => {
+    expect(addRecentSearch(["carrière", "Photovoltaïque"], "photovoltaïque")).toEqual([
+      "photovoltaïque",
+      "carrière",
+    ]);
+  });
+
+  test("caps the list at 3", () => {
+    expect(addRecentSearch(["a", "b", "c"], "d")).toEqual(["d", "a", "b"]);
+  });
+});
 
 describe("searchTerms", () => {
   test("splits on whitespace, strips accents and lowercases", () => {
@@ -94,7 +116,10 @@ describe("filterDossiers — recherche multi-champs (critères Trello)", () => {
 
   test("« infrastructu » trouve les dossiers dont l'activité comporte « infrastructure »", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), activité_principale: "Infrastructures de transport routières" }),
+      makeDossier({
+        id: dossierId(1),
+        activité_principale: "Infrastructures de transport routières",
+      }),
       makeDossier({ id: dossierId(2), activité_principale: "Carrières" }),
     ];
     expect(rechercher("infrastructu", dossiers)).toEqual([1]);

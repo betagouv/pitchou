@@ -18,6 +18,19 @@ export function searchTerms(text: string): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Prepends a search to the recent list: trims, moves an existing duplicate to the top
+ * (case-insensitive), caps at `max`.
+ */
+export function addRecentSearch(searches: string[], text: string, max = 3): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return searches;
+  return [trimmed, ...searches.filter((s) => s.toLowerCase() !== trimmed.toLowerCase())].slice(
+    0,
+    max,
+  );
+}
+
 /** Emails of the instructeurs following the given dossier. */
 function instructeurEmailsForDossier(
   dossierId: DossierRésumé["id"],

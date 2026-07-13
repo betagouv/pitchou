@@ -1,11 +1,14 @@
 <script lang="ts">
   import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./dossiersList.ts";
   import { serviceLabel } from "./dossiersList.ts";
+  import DossiersSearchBar from "./DossiersSearchBar.svelte";
   import DossiersSortMenu from "./DossiersSortMenu.svelte";
 
   type Props = {
     titre: string;
     searchText: string;
+    /** Recent searches offered as suggestions when the search bar is focused */
+    recentSearches: string[];
     afficherFiltreInstructeurice: boolean;
     sansInstructeuriceActif: boolean;
     enjeuActif: boolean;
@@ -28,6 +31,7 @@
   let {
     titre,
     searchText,
+    recentSearches,
     afficherFiltreInstructeurice,
     sansInstructeuriceActif,
     enjeuActif,
@@ -50,29 +54,7 @@
   <div class="toolbar__entete">
     <h1>{titre}</h1>
 
-    <form
-      class="fr-search-bar barre-de-recherche"
-      role="search"
-      onsubmit={(e) => {
-        e.preventDefault();
-        const data = new FormData(e.currentTarget);
-        onSearch(String(data.get("texte-de-recherche") ?? ""));
-      }}
-    >
-      <label class="fr-label" for="recherche-dossier">Rechercher un dossier</label>
-      <input
-        value={searchText}
-        class="fr-input"
-        id="recherche-dossier"
-        name="texte-de-recherche"
-        placeholder="Rechercher"
-        type="search"
-        oninput={(e) => onSearch(e.currentTarget.value)}
-      />
-      <button title="Rechercher un dossier" type="submit" class="fr-btn"
-        >Rechercher un dossier</button
-      >
-    </form>
+    <DossiersSearchBar {searchText} suggestions={recentSearches} {onSearch} />
   </div>
 
   <div class="toolbar__actions">
@@ -160,18 +142,6 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
-  }
-
-  .barre-de-recherche {
-    min-width: 20rem;
-    flex: 0 1 32rem;
-    margin-left: auto;
-
-    @media (max-width: 768px) {
-      min-width: unset;
-      flex-basis: 100%;
-      margin-left: 0;
-    }
   }
 
   // Pressed quick-filter buttons read as active.

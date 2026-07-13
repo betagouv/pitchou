@@ -9,6 +9,7 @@
     dossiers: DossierRésumé[];
     relationSuivis?: PitchouState["relationSuivis"];
     services?: string[];
+    recentSearches?: string[];
     notificationParDossier: PitchouState["notificationParDossier"];
   };
 
@@ -17,6 +18,7 @@
     dossiers = [],
     relationSuivis,
     services = [],
+    recentSearches = [],
     notificationParDossier,
   }: Props = $props();
 </script>
@@ -31,5 +33,6 @@
   {dossiers}
   {relationSuivis}
   {services}
+  {recentSearches}
   {notificationParDossier}
 />

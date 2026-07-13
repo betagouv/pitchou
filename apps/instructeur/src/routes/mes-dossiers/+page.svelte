@@ -29,6 +29,7 @@
   const email = $derived(store.identité?.email);
   const relationSuivis = $derived(store.relationSuivis);
   const services = $derived(store.identité?.groupesInstructeurs ?? []);
+  const recentSearches = $derived(store.recentSearches ?? []);
   const notificationParDossier = $derived(store.notificationParDossier);
 
   const dossiers = $derived.by(() => {
@@ -40,4 +41,11 @@
   });
 </script>
 
-<MesDossiers {email} {dossiers} {relationSuivis} {services} {notificationParDossier} />
+<MesDossiers
+  {email}
+  {dossiers}
+  {relationSuivis}
+  {services}
+  {recentSearches}
+  {notificationParDossier}
+/>
