@@ -1,6 +1,7 @@
 import { json } from "d3-fetch";
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { store } from "$lib/state/store.svelte.ts";
+import { addRecentSearch } from "$lib/components/ListeDossiers/dossiersSearch.ts";
 import debounce from "just-debounce-it";
 
 import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
@@ -78,11 +79,31 @@ export const envoyerÉvènementModifierCommentaire = debounce(
 // typing before recording the event. This groups a whole search session into a single
 // event carrying the final query, instead of the first keystroke.
 export const envoyerÉvènementRechercherUnDossier = debounce(
-  (détails: ÉvènementRechercheDossiersDétails) =>
-    envoyerÉvènement({ type: "rechercherDesDossiers", détails }),
+  (détails: ÉvènementRechercheDossiersDétails) => {
+    envoyerÉvènement({ type: "rechercherDesDossiers", détails });
+
+    // The server records the search alongside the event; mirror it locally so the
+    // suggestions stay fresh without a refetch
+    const texte = détails.filtres.texte?.trim();
+    if (texte) {
+      store.recentSearches = addRecentSearch(store.recentSearches ?? [], texte);
+    }
+  },
   10 * 1000,
   false,
 );
+
+// Last chance to record a pending search before the page dies (tab closed, reload,
+// mobile browser backgrounded): send it as soon as the page becomes hidden. The metric
+// POST uses keepalive so the request survives the page teardown. Only this trailing-edge
+// debounce is flushed — flushing the leading-edge ones would send their event twice.
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      envoyerÉvènementRechercherUnDossier.flush();
+    }
+  });
+}
 
 export const envoyerÉvènementModifierPrescription = debounce(
   () => envoyerÉvènement({ type: "modifierPrescription" }),

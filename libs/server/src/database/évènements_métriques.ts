@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { addDossierSearch } from "./dossier_search.ts";
 
 import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
@@ -24,6 +25,14 @@ export async function ajouterÉvènementDepuisCap(cap: string, évènement: Év�
     détails: "détails" in évènement ? évènement.détails : null,
     personne: personne.id,
   });
+
+  // Text searches also feed the recent-searches suggestions of the search bar
+  if (évènement.type === "rechercherDesDossiers") {
+    const texte = évènement.détails.filtres.texte?.trim();
+    if (texte) {
+      await addDossierSearch(personne.id, texte);
+    }
+  }
 }
 
 export async function supprimerÉvènementsParEmail(

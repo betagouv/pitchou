@@ -47,6 +47,8 @@ export interface PitchouInstructeurCapabilities {
   addAttachmentAutre: (form: FormData) => Promise<string>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;
   créerÉvènementMetrique: (évènement: ÉvènementMétrique) => Promise<void>;
+  /** The instructeur's last 3 distinct search-bar texts, most recent first */
+  listRecentSearches: () => Promise<string[]>;
   listerNotifications: () => Promise<Notification[]>;
   updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>;
 }

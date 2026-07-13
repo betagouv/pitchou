@@ -44,6 +44,8 @@ export type PitchouState = {
   espècesProtégéesParClassification?: ParClassification<EspèceProtégée[]>;
   espèceByCD_REF?: Map<EspèceProtégée["CD_REF"], EspèceProtégée>;
   ActivitésMéthodesMoyensDePoursuite?: ActivitésMéthodesMoyensDePoursuiteBundle;
+  /** Last searches typed in the dossiers search bar, most recent first */
+  recentSearches?: string[];
   erreurs: Set<{ message: string }>;
   résultatsSynchronisationDS88444?: RésultatSynchronisationDS88444[];
 };

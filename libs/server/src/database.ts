@@ -143,6 +143,8 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
             }
           : undefined,
         créerÉvènementMetrique,
+        // Reading recent searches shares the metric cap value
+        listRecentSearches: créerÉvènementMetrique,
         modifierDécisionAdministrativeDansDossier,
         listerNotifications,
         updateNotificationForDossier,
