@@ -1048,23 +1048,15 @@ async function getAvisExpertDossier(
   return databaseConnection("avis_expert")
     .select([
       "avis_expert.*",
-      "fichier_avis.nom as avis_fichier_nom",
-      "fichier_avis.media_type as avis_fichier_media_type",
-      databaseConnection.raw(
-        "coalesce(length(fichier_avis.contenu), file_avis.taille)::integer as avis_fichier_taille",
-      ),
-      "fichier_saisine.nom as saisine_fichier_nom",
-      "fichier_saisine.media_type as saisine_fichier_media_type",
-      databaseConnection.raw(
-        "coalesce(length(fichier_saisine.contenu), file_saisine.taille)::integer as saisine_fichier_taille",
-      ),
+      "file_avis.nom as avis_fichier_nom",
+      "file_avis.media_type as avis_fichier_media_type",
+      databaseConnection.raw("file_avis.taille::integer as avis_fichier_taille"),
+      "file_saisine.nom as saisine_fichier_nom",
+      "file_saisine.media_type as saisine_fichier_media_type",
+      databaseConnection.raw("file_saisine.taille::integer as saisine_fichier_taille"),
     ])
-    .leftJoin("fichier as fichier_avis", { "fichier_avis.id": "avis_expert.avis_fichier" })
-    .leftJoin("file as file_avis", { "file_avis.id": "fichier_avis.file_id" })
-    .leftJoin("fichier as fichier_saisine", {
-      "fichier_saisine.id": "avis_expert.saisine_fichier",
-    })
-    .leftJoin("file as file_saisine", { "file_saisine.id": "fichier_saisine.file_id" })
+    .leftJoin("file as file_avis", { "file_avis.id": "avis_expert.avis_fichier" })
+    .leftJoin("file as file_saisine", { "file_saisine.id": "avis_expert.saisine_fichier" })
     .where({ dossier: idDossier });
 }
 
@@ -1075,16 +1067,11 @@ async function getDécisionAdministrativesDossier(
   return databaseConnection("décision_administrative")
     .select([
       "décision_administrative.*",
-      "fichier_decision.nom as fichier_nom",
-      "fichier_decision.media_type as fichier_media_type",
-      databaseConnection.raw(
-        "coalesce(length(fichier_decision.contenu), file_decision.taille)::integer as fichier_taille",
-      ),
+      "file_decision.nom as fichier_nom",
+      "file_decision.media_type as fichier_media_type",
+      databaseConnection.raw("file_decision.taille::integer as fichier_taille"),
     ])
-    .leftJoin("fichier as fichier_decision", {
-      "fichier_decision.id": "décision_administrative.fichier",
-    })
-    .leftJoin("file as file_decision", { "file_decision.id": "fichier_decision.file_id" })
+    .leftJoin("file as file_decision", { "file_decision.id": "décision_administrative.fichier" })
     .where({ dossier: idDossier });
 }
 
@@ -1094,11 +1081,11 @@ async function getDescriptionsPiècesJointesPétitionnaire(
 ): Promise<(Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]> {
   return databaseConnection("dossier")
     .select([
-      "fichier.id as id",
-      "fichier.DS_createdAt as DS_createdAt",
-      "fichier.nom as nom",
-      "fichier.media_type as media_type",
-      databaseConnection.raw("coalesce(length(fichier.contenu), file.taille)::integer as taille"),
+      "file.id as id",
+      "file.DS_createdAt as DS_createdAt",
+      "file.nom as nom",
+      "file.media_type as media_type",
+      databaseConnection.raw("file.taille::integer as taille"),
     ])
     .leftJoin("arête_dossier__fichier_pièces_jointes_pétitionnaire", {
       "arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier": "dossier.id",

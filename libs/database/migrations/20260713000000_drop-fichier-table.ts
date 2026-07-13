@@ -85,6 +85,23 @@ export async function up(knex: Knex) {
     table.foreign("avis_fichier").references("id").inTable("file");
   });
 
+  // attachmentAutre
+
+  await knex.schema.alterTable("attachment_autre", (table) => {
+    table.dropForeign("fichier");
+  });
+
+  await knex.raw(`
+    UPDATE "attachment_autre" AS pj
+    SET "fichier" = f.file_id
+    FROM fichier f
+    WHERE f.id = pj.fichier
+  `);
+
+  await knex.schema.alterTable("attachment_autre", (table) => {
+    table.foreign("fichier").references("id").inTable("file").onDelete("CASCADE");
+  });
+
   // Drop fichier table — all FKs pointing to it are now gone
 
   await knex.schema.dropTable("fichier");

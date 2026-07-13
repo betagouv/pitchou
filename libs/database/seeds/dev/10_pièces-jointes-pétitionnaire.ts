@@ -31,7 +31,7 @@ export async function seed(knex: Knex) {
       // Sur un `data-reset` frais le bucket et la DB sont vides ; ce garde-fou
       // n'agit que sur un `just data-seed` relancé sans reset.
       await trx("arête_dossier__fichier_pièces_jointes_pétitionnaire as a")
-        .join("fichier as f", "f.id", "a.fichier")
+        .join("file as f", "f.id", "a.fichier")
         .where({ "a.dossier": dossierId, "f.nom": nom })
         .delete();
 

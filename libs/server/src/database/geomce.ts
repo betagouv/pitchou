@@ -66,8 +66,6 @@ function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
 }
 
-const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
-
 async function récupérerDossiersParIds(
   idDossiers: Dossier["id"][] | Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
