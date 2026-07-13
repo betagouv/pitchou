@@ -7,13 +7,19 @@ import {
   readDossiersQuery,
   buildDossiersSearchParams,
   filterDossiers,
+  compareDossiers,
   countActiveFilters,
   buildClearFiltersUpdates,
+  clearFilters,
   buildSearchEvent,
+  listAvailableActivites,
+  listAvailableDepartements,
+  listAvailableInstructeurs,
   WITHOUT_INSTRUCTEUR,
   type DossiersQuery,
   type DossiersContext,
 } from "./dossiersList.ts";
+import { départements as officialDepartements } from "@pitchou/common/départements.ts";
 
 /** Brands a raw number as a DossierId for the test fixtures */
 const dossierId = (n: number) => n as DossierRésumé["id"];
@@ -357,6 +363,263 @@ describe("filterDossiers", () => {
     ];
     const result = filterDossiers(dossiers, makeQuery({ avisExpertManquant: true }), makeContext());
     expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
+  test("routes the text search through the filter (digit query matches a département code)", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), départements: ["64"] }),
+      makeDossier({ id: dossierId(2), départements: ["33"] }),
+    ];
+    const result = filterDossiers(dossiers, makeQuery({ text: "64" }), makeContext());
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
+  test("keeps only the chosen activité, dropping dossiers with none", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), activité_principale: "Carrières" }),
+      makeDossier({ id: dossierId(2), activité_principale: "Conservation des espèces" }),
+      makeDossier({ id: dossierId(3), activité_principale: null }),
+    ];
+    const result = filterDossiers(dossiers, makeQuery({ activite: ["Carrières"] }), makeContext());
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
+  test("« actionInstructeur » keeps dossiers awaiting the instructeur", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), prochaine_action_attendue_par: "Instructeur" }),
+      makeDossier({ id: dossierId(2), prochaine_action_attendue_par: "Pétitionnaire" }),
+    ];
+    const result = filterDossiers(dossiers, makeQuery({ actionInstructeur: true }), makeContext());
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
+  test("keeps dossiers matching any selected prochaine action (OR)", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), prochaine_action_attendue_par: "Instructeur" }),
+      makeDossier({ id: dossierId(2), prochaine_action_attendue_par: "Pétitionnaire" }),
+      makeDossier({ id: dossierId(3), prochaine_action_attendue_par: null }),
+    ];
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ prochaineAction: ["Instructeur", "Pétitionnaire"] }),
+      makeContext(),
+    );
+    expect(result.map((d) => d.id)).toEqual([1, 2]);
+  });
+
+  test("« nouveaute non » keeps dossiers without an unseen notification", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1) }),
+      makeDossier({ id: dossierId(2) }),
+      makeDossier({ id: dossierId(3) }),
+    ];
+    const notificationParDossier = new Map<DossierRésumé["id"], Notification>([
+      [dossierId(1), { vue: false, date_dernière_mise_à_jour: new Date("2024-05-01") }],
+      [dossierId(2), { vue: true, date_dernière_mise_à_jour: new Date("2024-05-02") }],
+    ]);
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ nouveaute: "non" }),
+      makeContext({ notificationParDossier }),
+    );
+    // 2 is seen, 3 has no notification at all → both kept; 1 is unseen → dropped
+    expect(result.map((d) => d.id)).toEqual([2, 3]);
+  });
+
+  test("combines active filters with AND", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), phase: "Instruction", enjeu: true }),
+      makeDossier({ id: dossierId(2), phase: "Instruction", enjeu: false }),
+      makeDossier({ id: dossierId(3), phase: "Contrôle", enjeu: true }),
+    ];
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ phase: ["Instruction"], enjeu: true }),
+      makeContext(),
+    );
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+});
+
+describe("filterDossiers — date range", () => {
+  // Dates are built with an explicit local time so the assertions stay independent
+  // of the runner's timezone (the filter also builds its bounds in local time).
+  test("keeps dossiers whose deposit date falls inside the inclusive range", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), date_dépôt: new Date("2024-01-15T12:00:00") }),
+      makeDossier({ id: dossierId(2), date_dépôt: new Date("2024-02-01T09:00:00") }),
+      makeDossier({ id: dossierId(3), date_dépôt: new Date("2024-02-28T15:00:00") }),
+      makeDossier({ id: dossierId(4), date_dépôt: new Date("2024-03-10T12:00:00") }),
+    ];
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ dateField: "deposit", dateStart: "2024-02-01", dateEnd: "2024-02-28" }),
+      makeContext(),
+    );
+    // Both bounds are inclusive: the 1st (start of day) and the 28th (end of day) are kept.
+    expect(result.map((d) => d.id)).toEqual([2, 3]);
+  });
+
+  test("filters on the phase start date when that field is chosen", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), date_début_phase: new Date("2024-06-15T12:00:00") }),
+      makeDossier({ id: dossierId(2), date_début_phase: new Date("2024-09-15T12:00:00") }),
+    ];
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ dateField: "phaseStart", dateStart: "2024-06-01", dateEnd: "2024-06-30" }),
+      makeContext(),
+    );
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
+  test("filters on the last modification date when that field is chosen", () => {
+    const dossiers = [makeDossier({ id: dossierId(1) }), makeDossier({ id: dossierId(2) })];
+    const notificationParDossier = new Map<DossierRésumé["id"], Notification>([
+      [dossierId(1), { vue: true, date_dernière_mise_à_jour: new Date("2024-06-15T12:00:00") }],
+      [dossierId(2), { vue: true, date_dernière_mise_à_jour: new Date("2024-09-15T12:00:00") }],
+    ]);
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ dateField: "lastModified", dateStart: "2024-06-01", dateEnd: "2024-06-30" }),
+      makeContext({ notificationParDossier }),
+    );
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
+  test("excludes dossiers that lack the chosen date", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), date_début_phase: new Date("2024-06-15T12:00:00") }),
+      makeDossier({ id: dossierId(2), date_début_phase: undefined }),
+    ];
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ dateField: "phaseStart", dateStart: "2024-01-01" }),
+      makeContext(),
+    );
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+});
+
+describe("compareDossiers", () => {
+  const noNotifications = new Map<DossierRésumé["id"], Notification>();
+
+  function sortIds(
+    dossiers: DossierRésumé[],
+    ...[sort, order, notifs]: [
+      Parameters<typeof compareDossiers>[2],
+      Parameters<typeof compareDossiers>[3],
+      Parameters<typeof compareDossiers>[4]?,
+    ]
+  ): number[] {
+    return [...dossiers]
+      .sort((a, b) => compareDossiers(a, b, sort, order, notifs ?? noNotifications))
+      .map((d) => d.id as number);
+  }
+
+  test("sorts by name with French collation and honours the order", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), nom: "Zèbre" }),
+      makeDossier({ id: dossierId(2), nom: "Abricot" }),
+      makeDossier({ id: dossierId(3), nom: "Éléphant" }),
+    ];
+    expect(sortIds(dossiers, "name", "asc")).toEqual([2, 3, 1]);
+    expect(sortIds(dossiers, "name", "desc")).toEqual([1, 3, 2]);
+  });
+
+  test("sorts by deposit date, newest first when descending", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), date_dépôt: new Date("2024-01-01") }),
+      makeDossier({ id: dossierId(2), date_dépôt: new Date("2024-03-01") }),
+      makeDossier({ id: dossierId(3), date_dépôt: new Date("2024-02-01") }),
+    ];
+    expect(sortIds(dossiers, "depositDate", "desc")).toEqual([2, 3, 1]);
+    expect(sortIds(dossiers, "depositDate", "asc")).toEqual([1, 3, 2]);
+  });
+
+  test("sorts by last modification date, placing unknown dates last in both directions", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1) }),
+      makeDossier({ id: dossierId(2) }),
+      makeDossier({ id: dossierId(3) }),
+    ];
+    const notificationParDossier = new Map<DossierRésumé["id"], Notification>([
+      [dossierId(1), { vue: true, date_dernière_mise_à_jour: new Date("2024-05-01") }],
+      [dossierId(2), { vue: true, date_dernière_mise_à_jour: new Date("2024-05-10") }],
+      // 3 has no notification → unknown date
+    ]);
+    expect(sortIds(dossiers, "lastModified", "desc", notificationParDossier)).toEqual([2, 1, 3]);
+    expect(sortIds(dossiers, "lastModified", "asc", notificationParDossier)).toEqual([1, 2, 3]);
+  });
+
+  test("« nouveaute » puts unseen notifications first, most recent first", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), date_dépôt: new Date("2024-01-01") }),
+      makeDossier({ id: dossierId(2), date_dépôt: new Date("2024-01-02") }),
+      makeDossier({ id: dossierId(3), date_dépôt: new Date("2024-01-03") }),
+    ];
+    const notificationParDossier = new Map<DossierRésumé["id"], Notification>([
+      [dossierId(1), { vue: false, date_dernière_mise_à_jour: new Date("2024-05-01") }],
+      [dossierId(2), { vue: false, date_dernière_mise_à_jour: new Date("2024-05-03") }],
+      [dossierId(3), { vue: true, date_dernière_mise_à_jour: new Date("2024-05-02") }],
+    ]);
+    // Unseen (2 then 1, by update date) come before the seen dossier 3.
+    expect(sortIds(dossiers, "nouveaute", "desc", notificationParDossier)).toEqual([2, 1, 3]);
+  });
+});
+
+describe("list available options", () => {
+  test("listAvailableActivites dedupes, drops null and sorts alphabetically", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), activité_principale: "Conservation des espèces" }),
+      makeDossier({ id: dossierId(2), activité_principale: "Carrières" }),
+      makeDossier({ id: dossierId(3), activité_principale: "Conservation des espèces" }),
+      makeDossier({ id: dossierId(4), activité_principale: null }),
+    ];
+    expect(listAvailableActivites(dossiers)).toEqual(["Carrières", "Conservation des espèces"]);
+  });
+
+  test("listAvailableDepartements keeps the official list and appends unknown codes", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), départements: ["64"] }),
+      makeDossier({ id: dossierId(2), départements: ["999"] }),
+    ];
+    const result = listAvailableDepartements(dossiers);
+
+    expect(result).toHaveLength(officialDepartements.length + 1);
+    expect(result.find((d) => d.code === "64")?.nom).toBe("Pyrénées-Atlantiques");
+    // An unknown code is surfaced with the code itself as label so it stays filterable.
+    expect(result.some((d) => d.code === "999" && d.nom === "999")).toBe(true);
+  });
+
+  test("listAvailableInstructeurs keeps only those following a dossier, sorted", () => {
+    const relationSuivis = new Map<string, Set<DossierRésumé["id"]>>([
+      ["zoe@doe.fr", new Set([dossierId(1)])],
+      ["amir@doe.fr", new Set([dossierId(2)])],
+      ["personne@doe.fr", new Set()],
+    ]);
+    expect(listAvailableInstructeurs(relationSuivis)).toEqual(["amir@doe.fr", "zoe@doe.fr"]);
+  });
+});
+
+describe("clearFilters", () => {
+  test("resets every filter and the page but keeps the text search and the sort", () => {
+    const query = makeQuery({
+      text: "photovoltaïque",
+      phase: ["Instruction"],
+      enjeu: true,
+      avisExpertManquant: true,
+      sort: "name",
+      order: "asc",
+      page: 3,
+    });
+    const cleared = clearFilters(query);
+
+    expect(countActiveFilters(cleared)).toBe(0);
+    expect(cleared.text).toBe("photovoltaïque");
+    expect(cleared.sort).toBe("name");
+    expect(cleared.order).toBe("asc");
+    expect(cleared.page).toBe(1);
   });
 });
 
