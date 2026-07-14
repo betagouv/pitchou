@@ -12,7 +12,7 @@
   import type {
     DossierComplet,
     FrontEndAvisExpert,
-    DecisionAdministrativePourTransfer,
+    DecisionAdministrativeForTransfer,
   } from "@pitchou/types/API_Pitchou.ts";
   import type { EvenementPieceJointeSource } from "@pitchou/types/evenement.d.ts";
 
@@ -254,7 +254,7 @@
     }
   }
 
-  async function ajouterDecisionAdministrative(decision: DecisionAdministrativePourTransfer) {
+  async function ajouterDecisionAdministrative(decision: DecisionAdministrativeForTransfer) {
     await saveNewDecisionAdministrative(decision);
     if (decision.fichier_base64) {
       envoyerEvenementAjouterPieceJointe("Décision administrative", 1);

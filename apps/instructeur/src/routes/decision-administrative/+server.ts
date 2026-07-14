@@ -7,11 +7,11 @@ import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
 } from "@pitchou/server/database/decision_administrative.ts";
-import type { DecisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.ts";
+import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
-  const decisionData = (await request.json()) as DecisionAdministrativePourTransfer;
+  const decisionData = (await request.json()) as DecisionAdministrativeForTransfer;
 
   if (!decisionData.dossier) {
     error(400, `Le 'dossier' est absent des données de décision administrative`);

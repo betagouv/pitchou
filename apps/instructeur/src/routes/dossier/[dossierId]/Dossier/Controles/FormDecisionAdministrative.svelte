@@ -8,11 +8,11 @@
   } from "@pitchou/common/decision-administrative.js";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
 
-  import type { DecisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.js";
+  import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.js";
 
   type Props = {
-    décisionAdministrative: DecisionAdministrativePourTransfer;
-    onValider: (decision: DecisionAdministrativePourTransfer) => any;
+    décisionAdministrative: DecisionAdministrativeForTransfer;
+    onValider: (decision: DecisionAdministrativeForTransfer) => any;
     onAnnuler?: () => void;
     /** If provided, a button to delete the décision is displayed */
     onSupprimer?: () => void;

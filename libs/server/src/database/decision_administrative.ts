@@ -9,12 +9,12 @@ import type { default as Dossier } from "@pitchou/types/database/public/Dossier.
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 import type { default as DecisionAdministrative } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type {
-  DecisionAdministrativePourTransfer,
+  DecisionAdministrativeForTransfer,
   FrontEndDecisionAdministrative,
 } from "@pitchou/types/API_Pitchou.ts";
 
 export async function addDecisionAdministrativeWithFichier(
-  decision: DecisionAdministrativePourTransfer,
+  decision: DecisionAdministrativeForTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DecisionAdministrative["id"]> {
   const { id, numéro, type, date_signature, date_fin_obligations, dossier } = decision;
@@ -83,7 +83,7 @@ export function getDecisionsAdministratives(
 }
 
 export async function updateDecisionAdministrative(
-  decisionAdministrative: DecisionAdministrativePourTransfer,
+  decisionAdministrative: DecisionAdministrativeForTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
   const { id, numéro, type, date_signature, date_fin_obligations, dossier } =

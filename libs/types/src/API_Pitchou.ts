@@ -121,7 +121,7 @@ type DossierCartographieProjet = {
   cartographie_projet: GeoJSONFeatureCollection | null;
 };
 
-type DonneesDossierPourStats = {
+type DossierDataForStats = {
   décisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
 };
 
@@ -146,7 +146,7 @@ export type DossierResume = Pick<
 > & { phase: DossierPhase; date_début_phase: Date } & DossierLocalisation &
   DossierPersonnesImpliqueesResume &
   DossierActivitePrincipale &
-  DonneesDossierPourStats;
+  DossierDataForStats;
 
 export type FrontEndPrescription = Prescription & { contrôles: Controle[] | undefined };
 
@@ -160,7 +160,7 @@ export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichi
   fichier_description?: FrontEndFichier;
 } & { prescriptions: FrontEndPrescription[] | undefined };
 
-export type DecisionAdministrativePourTransfer = Partial<
+export type DecisionAdministrativeForTransfer = Partial<
   Omit<DecisionAdministrative, "fichier"> & {
     fichier_base64: { contenuBase64: string; nom: string; media_type: string };
   }

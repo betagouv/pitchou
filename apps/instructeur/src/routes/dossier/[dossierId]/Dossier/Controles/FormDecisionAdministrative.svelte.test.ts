@@ -5,19 +5,19 @@ import { tick } from "svelte";
 
 import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
 import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
-import type { DecisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.ts";
+import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(cleanup);
 
 const TYPE_VALIDE = "Arrêté dérogation";
 
 function decision(
-  overrides: Partial<DecisionAdministrativePourTransfer> = {},
-): DecisionAdministrativePourTransfer {
+  overrides: Partial<DecisionAdministrativeForTransfer> = {},
+): DecisionAdministrativeForTransfer {
   return reactive({
     dossier: "dossier-test",
     ...overrides,
-  } as unknown as DecisionAdministrativePourTransfer);
+  } as unknown as DecisionAdministrativeForTransfer);
 }
 
 /** Crée un File dont on force la taille, sans avoir à allouer le contenu réel. */
@@ -115,7 +115,7 @@ test("appelle onValider avec le fichier encodé en base64 quand tout est valide"
 
   await vi.waitFor(() => expect(onValider).toHaveBeenCalledTimes(1));
 
-  const decisionTransmise = onValider.mock.calls[0][0] as DecisionAdministrativePourTransfer;
+  const decisionTransmise = onValider.mock.calls[0][0] as DecisionAdministrativeForTransfer;
   expect(decisionTransmise.fichier_base64).toMatchObject({
     nom: "arrete.pdf",
     media_type: "application/pdf",

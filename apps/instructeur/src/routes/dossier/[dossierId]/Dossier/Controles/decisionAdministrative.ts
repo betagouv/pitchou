@@ -15,7 +15,7 @@ import type {
   FrontEndDecisionAdministrative,
   ResultatControle,
   TypesActionSuiteControle,
-  DecisionAdministrativePourTransfer,
+  DecisionAdministrativeForTransfer,
 } from "@pitchou/types/API_Pitchou.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
@@ -162,7 +162,7 @@ export function deleteDecisionAdministrative(
 }
 
 export async function saveNewDecisionAdministrative(
-  newDecisionAdministrative: DecisionAdministrativePourTransfer,
+  newDecisionAdministrative: DecisionAdministrativeForTransfer,
 ) {
   const modifierDecisionAdministrativeDansDossier =
     store.capabilities.modifierDecisionAdministrativeDansDossier;

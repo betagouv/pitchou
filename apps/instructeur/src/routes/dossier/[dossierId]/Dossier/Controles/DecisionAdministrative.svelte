@@ -10,7 +10,7 @@
   import { labelForDecisionAdministrativeType } from "@pitchou/common/decision-administrative.js";
 
   import type {
-    DecisionAdministrativePourTransfer,
+    DecisionAdministrativeForTransfer,
     FrontEndDecisionAdministrative,
   } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -32,7 +32,7 @@
 
   const NOT_PROVIDED = "(non renseigné)";
 
-  let editedDecision: DecisionAdministrativePourTransfer | undefined = $state();
+  let editedDecision: DecisionAdministrativeForTransfer | undefined = $state();
 
   // Deletion is irreversible, so we ask for confirmation before calling it.
   let showDeleteConfirmation = $state(false);
@@ -60,7 +60,7 @@
     };
   }
 
-  async function saveModification(decision: DecisionAdministrativePourTransfer) {
+  async function saveModification(decision: DecisionAdministrativeForTransfer) {
     const modifierDecisionAdministrativeDansDossier =
       store.capabilities.modifierDecisionAdministrativeDansDossier;
 

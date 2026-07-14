@@ -1,7 +1,7 @@
 import type {
   DossierComplet,
   DossierResume,
-  DecisionAdministrativePourTransfer,
+  DecisionAdministrativeForTransfer,
   FrontEndPrescription,
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
@@ -31,7 +31,7 @@ export interface PitchouInstructeurCapabilities {
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierComplet>) => Promise<void>;
   remplirAnnotations: (annotations: any) => Promise<void>;
   modifierDecisionAdministrativeDansDossier: (
-    decisionAdministrative: DecisionAdministrativePourTransfer,
+    decisionAdministrative: DecisionAdministrativeForTransfer,
   ) => Promise<void>;
   deleteDecisionAdministrative: (id: DecisionAdministrative["id"]) => Promise<unknown>;
   addOrUpdatePrescription: (
