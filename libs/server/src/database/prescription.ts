@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 
-import { ajouterControles } from "./controle.ts";
+import { addControles } from "./controle.ts";
 import { getDossierIdFromDecisionAdministrative } from "./decision_administrative.ts";
 
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";
@@ -20,7 +20,7 @@ export function getPrescriptions(
     .orderBy("date_échéance", "asc");
 }
 
-export function ajouterPrescription(
+export function addPrescription(
   prescription: Partial<Prescription>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ prescriptionId: Prescription["id"] }> {
@@ -30,33 +30,33 @@ export function ajouterPrescription(
     .then((prescriptions) => ({ prescriptionId: prescriptions[0].id }));
 }
 
-export function ajouterPrescriptionsEtControles(prescriptions: Omit<FrontEndPrescription, "id">[]) {
+export function addPrescriptionsEtControles(prescriptions: Omit<FrontEndPrescription, "id">[]) {
   return Promise.allSettled(
     prescriptions.map((prescription) => {
       const controles = prescription.contrôles;
       delete prescription.contrôles;
 
-      return ajouterPrescription(prescription).then(({ prescriptionId }) => {
+      return addPrescription(prescription).then(({ prescriptionId }) => {
         if (controles && controles.length >= 1) {
           for (const contrôle of controles) {
             contrôle.prescription = prescriptionId;
           }
 
-          return ajouterControles(controles);
+          return addControles(controles);
         }
       });
     }),
   );
 }
 
-export function modifierPrescription(
+export function updatePrescription(
   prescription: Partial<Prescription>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
   return databaseConnection("prescription").update(prescription).where({ id: prescription.id });
 }
 
-export function supprimerPrescription(
+export function deletePrescription(
   id: Prescription["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {

@@ -6,8 +6,8 @@ vi.mock(import("./Controles/decisionAdministrative.ts"), async (importOriginal) 
   const actual = await importOriginal();
   return {
     ...actual,
-    supprimerDecisionAdministrative: vi.fn(),
-    sauvegardeNouvelleDecisionAdministrative: vi.fn(),
+    deleteDecisionAdministrative: vi.fn(),
+    saveNewDecisionAdministrative: vi.fn(),
   };
 });
 
@@ -20,7 +20,7 @@ vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => {
 });
 
 import DossierControles from "./DossierControles.svelte";
-import { supprimerDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
+import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
 import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
 import type { DossierComplet, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
@@ -47,8 +47,8 @@ beforeEach(() => {
     évènementsPhase: [],
   } as unknown as DossierComplet);
 
-  vi.mocked(supprimerDecisionAdministrative).mockReset();
-  vi.mocked(supprimerDecisionAdministrative).mockImplementation(async (id) => {
+  vi.mocked(deleteDecisionAdministrative).mockReset();
+  vi.mocked(deleteDecisionAdministrative).mockImplementation(async (id) => {
     fakeDB = fakeDB.filter((d) => d.id !== id);
   });
 
@@ -77,5 +77,5 @@ test("la décision disparaît de la liste après suppression, sans recharger la 
     .element(page.getByText(/pas de décisions administrative à contrôler/i))
     .toBeVisible();
 
-  expect(supprimerDecisionAdministrative).toHaveBeenCalledTimes(1);
+  expect(deleteDecisionAdministrative).toHaveBeenCalledTimes(1);
 });

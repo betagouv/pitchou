@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { supprimerControle, getDossierIdFromControle } from "@pitchou/server/database/controle.ts";
+import { deleteControle, getDossierIdFromControle } from "@pitchou/server/database/controle.ts";
 import type { ControleId } from "@pitchou/types/database/public/Controle.ts";
 
 export const DELETE: RequestHandler = async ({ url, params }) => {
@@ -10,6 +10,6 @@ export const DELETE: RequestHandler = async ({ url, params }) => {
   const dossierId = await getDossierIdFromControle(controleId);
   await requireDossierAccessByCap(dossierId, cap);
 
-  await supprimerControle(controleId);
+  await deleteControle(controleId);
   return new Response(null, { status: 204 });
 };

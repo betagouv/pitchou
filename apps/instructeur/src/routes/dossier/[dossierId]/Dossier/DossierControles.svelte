@@ -4,7 +4,7 @@
   import DecisionAdministrative from "./Controles/DecisionAdministrative.svelte";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
-  import { supprimerDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
+  import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
@@ -33,7 +33,7 @@
     // reload the décision that is still in database, leaving it visible until a
     // manual page reload.
     return async function () {
-      await supprimerDecisionAdministrative(decisionAdministrative.id);
+      await deleteDecisionAdministrative(decisionAdministrative.id);
       await refreshDossierComplet(dossier.id);
     };
   }

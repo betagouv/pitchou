@@ -1,7 +1,7 @@
 <script lang="ts">
   import { addAttachmentAutre } from "./attachmentAutre.ts";
   import { ajouterOuModifierAvisExpert } from "./avisExpert.ts";
-  import { sauvegardeNouvelleDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
+  import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
@@ -255,7 +255,7 @@
   }
 
   async function ajouterDecisionAdministrative(decision: DecisionAdministrativePourTransfer) {
-    await sauvegardeNouvelleDecisionAdministrative(decision);
+    await saveNewDecisionAdministrative(decision);
     if (decision.fichier_base64) {
       envoyerEvenementAjouterPieceJointe("Décision administrative", 1);
     }

@@ -2,8 +2,8 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
-  ajouterControles,
-  modifierControle,
+  addControles,
+  updateControle,
   getDossierIdFromControle,
 } from "@pitchou/server/database/controle.ts";
 import { getDossierIdFromPrescription } from "@pitchou/server/database/prescription.ts";
@@ -23,8 +23,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
   try {
     const controleId = controleData.id
-      ? await modifierControle(controleData)
-      : await ajouterControles(controleData);
+      ? await updateControle(controleData)
+      : await addControles(controleData);
     return json(controleId);
   } catch (err) {
     error(500, `Erreur lors de l'ajout/modification de contrôle. ${err}`);

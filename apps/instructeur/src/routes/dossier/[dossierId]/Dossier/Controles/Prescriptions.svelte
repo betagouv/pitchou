@@ -7,11 +7,11 @@
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
 
   import {
-    supprimerPrescription as supprimerPrescriptionBaseDeDonnees,
-    ajouterPrescription as ajouterPrescriptionBaseDeDonnees,
-    modifierPrescription,
+    deletePrescription as deletePrescriptionDatabase,
+    addPrescription as addPrescriptionDatabase,
+    updatePrescription,
   } from "./prescriptions.ts";
-  import { creerPrescriptionControlesAPartirDeFichier } from "./decisionAdministrative.ts";
+  import { createPrescriptionControlesFromFichier } from "./decisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 
   import type {
@@ -37,7 +37,7 @@
       : new SvelteSet(),
   );
 
-  let vuePrescription: "consulter" | "modifier" = $state("consulter");
+  let viewPrescription: "view" | "edit" = $state("view");
 
   // Numeric columns of the edit table: all displayed and edited the same way
   const NUMERIC_COLUMNS = [
@@ -49,8 +49,8 @@
     { key: "nids_évités", label: "Nids évités" },
   ] as const satisfies readonly { key: keyof FrontEndPrescription; label: string }[];
 
-  function ajouterPrescription() {
-    const nouvellePrescription: Partial<PrescriptionType> = {
+  function addPrescription() {
+    const newPrescription: Partial<PrescriptionType> = {
       décision_administrative: decisionAdministrative.id,
       date_échéance: undefined,
       numéro_article: "",
@@ -63,9 +63,9 @@
       surface_évitée: undefined,
     };
 
-    prescriptions.add(nouvellePrescription);
+    prescriptions.add(newPrescription);
 
-    vuePrescription = "modifier";
+    viewPrescription = "edit";
   }
 
   const prescriptionToPendingIdAndLatestData = new SvelteMap<
@@ -85,14 +85,14 @@
       // "contrôles" is a property of the FrontEndPrescription type, not a property of the Prescription type
       // which causes a problem when inserting/updating the prescription in the database
       const { contrôles: controles, ...prescriptionSansControles } = prescription;
-      modifierPrescription(prescriptionSansControles);
+      updatePrescription(prescriptionSansControles);
     } else {
       const pendingPrescriptionIdEntry = prescriptionToPendingIdAndLatestData.get(prescription);
       if (pendingPrescriptionIdEntry) {
         pendingPrescriptionIdEntry.updateAfterRecievingId = true;
       } else {
         const prescriptionIdP: Promise<PrescriptionType["id"] | undefined> =
-          ajouterPrescriptionBaseDeDonnees(prescription);
+          addPrescriptionDatabase(prescription);
 
         const newPendingPrescriptionIdEntry = {
           prescriptionIdP,
@@ -109,14 +109,14 @@
 
         prescriptionToPendingIdAndLatestData.delete(prescription);
 
-        if (updateAfterRecievingId) modifierPrescription(prescription);
+        if (updateAfterRecievingId) updatePrescription(prescription);
       }
     }
   }
 
-  function supprimerPrescription(prescription: Partial<PrescriptionType>) {
+  function deletePrescription(prescription: Partial<PrescriptionType>) {
     if (prescription.id) {
-      supprimerPrescriptionBaseDeDonnees(prescription.id);
+      deletePrescriptionDatabase(prescription.id);
     }
 
     prescriptions.delete(prescription);
@@ -127,12 +127,12 @@
     if (!file) return;
 
     const importPrescriptionFileAB = await file.arrayBuffer();
-    const nouvellesPrescriptions = await creerPrescriptionControlesAPartirDeFichier(
+    const newPrescriptions = await createPrescriptionControlesFromFichier(
       importPrescriptionFileAB,
       decisionAdministrative,
     );
 
-    prescriptions = new Set(nouvellesPrescriptions);
+    prescriptions = new Set(newPrescriptions);
     refreshDossierComplet(dossierId);
   }
 </script>
@@ -143,7 +143,7 @@
     <section class="fr-mb-3w">
       <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-      <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterPrescription}>
+      <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={addPrescription}>
         Ajouter une prescription
       </button>
     </section>
@@ -171,7 +171,7 @@
   {:else}
     <h5>{prescriptions.size} prescriptions</h5>
 
-    {#if vuePrescription === "consulter"}
+    {#if viewPrescription === "view"}
       {#each prescriptions as prescription}
         <Prescription {prescription} refreshDossierComplet={() => refreshDossierComplet(dossierId)}
         ></Prescription>
@@ -179,7 +179,7 @@
 
       <button
         class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line"
-        onclick={() => (vuePrescription = "modifier")}
+        onclick={() => (viewPrescription = "edit")}
       >
         Modifier les prescriptions
       </button>
@@ -202,7 +202,7 @@
               class="prescription"
               onfocusout={(e) => {
                 //@ts-ignore
-                if (!e.target?.classList.contains("bouton-supprimer")) {
+                if (!e.target?.classList.contains("button-delete")) {
                   savePrescription(prescription);
                 }
               }}
@@ -224,8 +224,8 @@
 
               <td>
                 <button
-                  class="bouton-supprimer fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary"
-                  onclick={() => supprimerPrescription(prescription)}>Supprimer</button
+                  class="button-delete fr-btn fr-btn--sm fr-icon-delete-line fr-btn--icon-left fr-btn--secondary"
+                  onclick={() => deletePrescription(prescription)}>Supprimer</button
                 >
               </td>
             </tr>
@@ -234,7 +234,7 @@
             <td colspan={NUMERIC_COLUMNS.length + 4} class="fr-pt-1w">
               <button
                 class="fr-btn fr-btn--icon-left fr-icon-add-line"
-                onclick={ajouterPrescription}
+                onclick={addPrescription}
               >
                 Ajouter une prescription
               </button>
@@ -245,7 +245,7 @@
 
       <button
         class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line fr-mt-3w"
-        onclick={() => (vuePrescription = "consulter")}
+        onclick={() => (viewPrescription = "view")}
       >
         Modifications terminées
       </button>

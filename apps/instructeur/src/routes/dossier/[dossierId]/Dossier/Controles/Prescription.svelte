@@ -6,9 +6,9 @@
 
   import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import {
-    ajouterControle as envoyerControle,
-    modifierControle,
-    supprimerControle,
+    addControle as sendControle,
+    updateControle,
+    deleteControle,
   } from "./controle.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
@@ -41,19 +41,19 @@
 
   // $inspect('contrôles', contrôles)
 
-  const NON_RENSEIGNE = "(non renseigné)";
+  const NOT_PROVIDED = "(non renseigné)";
 
-  let controlesTries = $derived(
+  let sortedControles = $derived(
     [...controles].toSorted(
       ({ date_contrôle: dc1 }, { date_contrôle: dc2 }) =>
         (dc2?.getTime() || 0) - (dc1?.getTime() || 0),
     ),
   );
 
-  let controleEnCours: Partial<Controle> | undefined = $state();
+  let newControle: Partial<Controle> | undefined = $state();
 
-  function ajouterControle() {
-    controleEnCours = {
+  function addControle() {
+    newControle = {
       prescription: id,
       date_contrôle: new Date(),
       résultat: null,
@@ -64,14 +64,14 @@
     };
   }
 
-  async function creerControle() {
-    if (controleEnCours) {
-      controles.add(controleEnCours);
+  async function createControle() {
+    if (newControle) {
+      controles.add(newControle);
 
-      const controleId = await envoyerControle(controleEnCours);
+      const controleId = await sendControle(newControle);
 
       if (
-        controleEnCours.résultat === "Conforme" && // which is compliant
+        newControle.résultat === "Conforme" && // which is compliant
         // while at least one previous contrôle was not compliant
         prescription.contrôles &&
         prescription.contrôles.length >= 2 &&
@@ -85,12 +85,12 @@
       }
 
       if (!controleId) {
-        throw new Error(`contrôleId absent de la valeur de retour de 'envoyerControle'`);
+        throw new Error(`contrôleId absent de la valeur de retour de 'sendControle'`);
       }
 
-      controleEnCours.id = controleId;
+      newControle.id = controleId;
 
-      controleEnCours = undefined;
+      newControle = undefined;
 
       envoyerEvenement({ type: "ajouterControle" });
     }
@@ -98,44 +98,44 @@
 
   // do not create a proxy so that === comparisons can be made
   // https://svelte.dev/docs/svelte/runtime-warnings#Client-warnings-state_proxy_equality_mismatch
-  let controleEnModification: Partial<Controle> | undefined = $state.raw();
+  let editedControle: Partial<Controle> | undefined = $state.raw();
 
-  function passerControleEnModification(controle: Partial<Controle>) {
-    controleEnModification = controle;
+  function editControle(controle: Partial<Controle>) {
+    editedControle = controle;
   }
 
-  async function validerModificationsControle(controleValide: Partial<Controle>) {
-    if (!controleEnModification) throw new TypeError(`pas de contrôle en modificaion`);
+  async function validateControleModifications(controleValide: Partial<Controle>) {
+    if (!editedControle) throw new TypeError(`pas de contrôle en modificaion`);
 
     // replace contrôleEnModification with contrôleValidé in the array of contrôles
     // @ts-ignore
-    const index = prescription.contrôles?.indexOf(controleEnModification) || -1;
+    const index = prescription.contrôles?.indexOf(editedControle) || -1;
     if (index !== -1) {
       prescription.contrôles?.splice(index, 1);
     }
-    controleEnModification = undefined;
+    editedControle = undefined;
 
     // @ts-ignore
     prescription.contrôles?.push(controleValide);
 
-    await modifierControle(controleValide);
+    await updateControle(controleValide);
 
     envoyerEvenement({ type: "modifierControle" });
   }
 
-  async function supprimerControleEnModification() {
-    if (!controleEnModification) throw new TypeError(`pas de contrôle en modificaion`);
+  async function deleteEditedControle() {
+    if (!editedControle) throw new TypeError(`pas de contrôle en modificaion`);
 
-    controles.delete(controleEnModification);
+    controles.delete(editedControle);
 
-    const id = controleEnModification.id;
-    controleEnModification = undefined;
+    const id = editedControle.id;
+    editedControle = undefined;
 
     if (!id) {
       throw new TypeError(`il manque un id au contrôle en modificaion`);
     }
 
-    await supprimerControle(id);
+    await deleteControle(id);
 
     refreshDossierComplet();
 
@@ -143,12 +143,12 @@
   }
 </script>
 
-<section class="prescription-consultée">
+<section class="prescription-viewed">
   <DeplierReplier>
     {#snippet summary()}
-      {@const dernierControle = controlesTries[0]}
+      {@const lastControle = sortedControles[0]}
       <h6>
-        <TagResultatControle résultatControle={dernierControle?.résultat || NON_RENSEIGNE}
+        <TagResultatControle résultatControle={lastControle?.résultat || NOT_PROVIDED}
         ></TagResultatControle>
         {#if description}
           {description}
@@ -169,12 +169,12 @@
           {#if date_échéance}
             <time datetime={date_échéance?.toISOString()}>{formatDateRelative(date_échéance)}</time>
           {:else}
-            {NON_RENSEIGNE}
+            {NOT_PROVIDED}
           {/if}
         </p>
 
         {#if surface_évitée || surface_compensée || individus_évités || surface_compensée || nids_évités || nids_compensés}
-          <p class="impacts-quantifiés">
+          <p class="impacts-quantified">
             {#if surface_évitée}<span
                 ><strong>Surface évitée&nbsp;:</strong> {surface_évitée}m²</span
               >{/if}
@@ -199,12 +199,12 @@
             {/if}
           </h6>
 
-          <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={ajouterControle}>
+          <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={addControle}>
             Ajouter un contrôle
           </button>
 
-          {#if controleEnCours}
-            <FormulaireControle contrôle={controleEnCours} onValider={creerControle}>
+          {#if newControle}
+            <FormulaireControle contrôle={newControle} onValider={createControle}>
               {#snippet boutonValider()}
                 <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
                   Finir le contrôle
@@ -214,7 +214,7 @@
                 <button
                   type="button"
                   class="fr-btn fr-btn--secondary"
-                  onclick={() => (controleEnCours = undefined)}
+                  onclick={() => (newControle = undefined)}
                 >
                   Fermer le contrôle sans sauvegarder
                 </button>
@@ -222,29 +222,29 @@
             </FormulaireControle>
           {/if}
 
-          {#each controlesTries as contrôle}
-            {#if contrôle === controleEnModification}
+          {#each sortedControles as contrôle}
+            {#if contrôle === editedControle}
               <h6>Modification du contrôle</h6>
 
               <FormulaireControle
-                contrôle={controleEnModification}
-                onValider={validerModificationsControle}
+                contrôle={editedControle}
+                onValider={validateControleModifications}
               >
                 {#snippet boutonAnnuler()}
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary"
-                    onclick={() => (controleEnModification = undefined)}
+                    onclick={() => (editedControle = undefined)}
                   >
                     Annuler
                   </button>
                 {/snippet}
                 {#snippet boutonSupprimer()}
-                  <div class="bouton-supprimer">
+                  <div class="button-delete">
                     <button
                       type="button"
                       class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
-                      onclick={supprimerControleEnModification}
+                      onclick={deleteEditedControle}
                     >
                       Supprimer
                     </button>
@@ -257,11 +257,11 @@
                   Controle du <time datetime={contrôle.date_contrôle?.toISOString()}
                     >{formatDateAbsolue(contrôle.date_contrôle)}</time
                   >
-                  <TagResultatControle résultatControle={contrôle.résultat || NON_RENSEIGNE}
+                  <TagResultatControle résultatControle={contrôle.résultat || NOT_PROVIDED}
                   ></TagResultatControle>
                   <button
                     class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
-                    onclick={() => passerControleEnModification(contrôle)}
+                    onclick={() => editControle(contrôle)}
                   >
                     Modifier
                   </button>
@@ -290,7 +290,7 @@
 </section>
 
 <style lang="scss">
-  .prescription-consultée {
+  .prescription-viewed {
     --prescription-padding-top: 0.5rem;
 
     padding: var(--prescription-padding-top);
@@ -306,7 +306,7 @@
       margin-bottom: 0.4rem;
     }
 
-    .impacts-quantifiés {
+    .impacts-quantified {
       span {
         display: inline-block;
         white-space: wrap;
@@ -333,7 +333,7 @@
         margin-bottom: 0.5rem;
       }
 
-      .bouton-supprimer {
+      .button-delete {
         margin-top: 2rem;
       }
     }

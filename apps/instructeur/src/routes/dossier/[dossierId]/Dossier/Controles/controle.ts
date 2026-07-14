@@ -17,7 +17,7 @@ export const typesActionSuiteControle: Set<TypesActionSuiteControle> = new Set([
   "Courrier recommandé avec accusé de réception",
 ]);
 
-export function ajouterControle(contrôle: Partial<Controle>): Promise<Controle["id"]> {
+export function addControle(contrôle: Partial<Controle>): Promise<Controle["id"]> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
@@ -27,7 +27,7 @@ export function ajouterControle(contrôle: Partial<Controle>): Promise<Controle[
   return addOrUpdateControle(contrôle).then((ids) => ids[0]);
 }
 
-export function modifierControle(contrôle: Partial<Controle>): Promise<Controle["id"] | undefined> {
+export function updateControle(contrôle: Partial<Controle>): Promise<Controle["id"] | undefined> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour modifier un contrôle`);
@@ -35,7 +35,7 @@ export function modifierControle(contrôle: Partial<Controle>): Promise<Controle
   return addOrUpdateControle(contrôle);
 }
 
-export function supprimerControle(id: Controle["id"]): Promise<unknown> {
+export function deleteControle(id: Controle["id"]): Promise<unknown> {
   const deleteControle = store.capabilities.deleteControle;
   if (!deleteControle) {
     throw new Error(`Pas les droits suffisants pour supprimer un contrôle`);

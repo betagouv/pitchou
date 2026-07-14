@@ -5,7 +5,7 @@ import {
 } from "@odfjs/odfjs";
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
-import { ajouterPrescriptionsEtControles } from "./prescriptions.ts";
+import { addPrescriptionsEtControles } from "./prescriptions.ts";
 import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 import { envoyerEvenement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
@@ -23,23 +23,23 @@ import type DecisionAdministrative from "@pitchou/types/database/public/Decision
 /**
  * Finds the data and synchronizes it in the database
  */
-export async function creerPrescriptionControlesAPartirDeFichier(
+export async function createPrescriptionControlesFromFichier(
   fichierPrescriptionControleAB: ArrayBuffer,
   decisionAdministrative: FrontEndDecisionAdministrative,
 ): Promise<FrontEndPrescription[]> {
   const rawData = await getODSTableRawContent(fichierPrescriptionControleAB);
   const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0];
 
-  const numeroDecision = decisionAdministrative.numéro;
+  const decisionNumber = decisionAdministrative.numéro;
 
-  const candidatsPrescriptions: Omit<FrontEndPrescription, "id">[] = cleanData
+  const candidatePrescriptions: Omit<FrontEndPrescription, "id">[] = cleanData
     // @ts-ignore
     .filter((row) => {
       const prescriptionNumDec =
         row["Numéro décision administrative"] && row["Numéro décision administrative"].trim();
       // Keep the candidate prescription if it has no decision number or if it matches the one of the decision under consideration
       return (
-        !prescriptionNumDec || prescriptionNumDec === (numeroDecision && numeroDecision.trim())
+        !prescriptionNumDec || prescriptionNumDec === (decisionNumber && decisionNumber.trim())
       );
     })
     // @ts-ignore
@@ -74,15 +74,15 @@ export async function creerPrescriptionControlesAPartirDeFichier(
 
       let controles: Omit<Controle, "id" | "prescription">[] = [];
 
-      let numeroControle = 1;
+      let controleNumber = 1;
 
       while (true) {
-        const date_controleProp = `${numeroControle} Date contrôle`;
-        const resultatProp = `${numeroControle} Résultat contrôle`;
-        const commentaireProp = `${numeroControle} Commentaire`;
-        const type_action_suite_controleProp = `${numeroControle} Type de Suite`;
-        const date_action_suite_controleProp = `${numeroControle} Date de la suite`;
-        const date_prochaine_echeanceProp = `${numeroControle} Date Echéance`;
+        const date_controleProp = `${controleNumber} Date contrôle`;
+        const resultatProp = `${controleNumber} Résultat contrôle`;
+        const commentaireProp = `${controleNumber} Commentaire`;
+        const type_action_suite_controleProp = `${controleNumber} Type de Suite`;
+        const date_action_suite_controleProp = `${controleNumber} Date de la suite`;
+        const date_prochaine_echeanceProp = `${controleNumber} Date Echéance`;
 
         const date_contrôle = row[date_controleProp];
         let résultat: ResultatControle = row[resultatProp];
@@ -128,7 +128,7 @@ export async function creerPrescriptionControlesAPartirDeFichier(
               : null,
           });
 
-          numeroControle = numeroControle + 1;
+          controleNumber = controleNumber + 1;
         } else {
           break;
         }
@@ -142,13 +142,13 @@ export async function creerPrescriptionControlesAPartirDeFichier(
       return prescription;
     });
 
-  //console.log('candidatsPrescriptions', candidatsPrescriptions)
+  //console.log('candidatePrescriptions', candidatePrescriptions)
 
   // @ts-ignore
-  return ajouterPrescriptionsEtControles(candidatsPrescriptions).then(() => candidatsPrescriptions);
+  return addPrescriptionsEtControles(candidatePrescriptions).then(() => candidatePrescriptions);
 }
 
-export function supprimerDecisionAdministrative(
+export function deleteDecisionAdministrative(
   decisionAdministrativeId: DecisionAdministrative["id"],
 ): Promise<unknown> {
   const deleteDecisionAdministrative = store.capabilities.deleteDecisionAdministrative;
@@ -161,8 +161,8 @@ export function supprimerDecisionAdministrative(
   return deleteDecisionAdministrative(decisionAdministrativeId);
 }
 
-export async function sauvegardeNouvelleDecisionAdministrative(
-  decisionAdministrativeEnCreation: DecisionAdministrativePourTransfer,
+export async function saveNewDecisionAdministrative(
+  newDecisionAdministrative: DecisionAdministrativePourTransfer,
 ) {
   const modifierDecisionAdministrativeDansDossier =
     store.capabilities.modifierDecisionAdministrativeDansDossier;
@@ -171,15 +171,15 @@ export async function sauvegardeNouvelleDecisionAdministrative(
     throw new Error(`Pas les droits suffisants pour créer une décision administrative`);
   }
 
-  if (!decisionAdministrativeEnCreation.dossier) {
+  if (!newDecisionAdministrative.dossier) {
     throw new TypeError(
-      `décisionAdministrativeEnCréation.dossier manquant dans sauvegardeNouvelleDecisionAdministrative`,
+      `décisionAdministrativeEnCréation.dossier manquant dans saveNewDecisionAdministrative`,
     );
   }
 
   envoyerEvenement({ type: "ajouterDecisionAdministrative" });
 
-  await modifierDecisionAdministrativeDansDossier(decisionAdministrativeEnCreation);
+  await modifierDecisionAdministrativeDansDossier(newDecisionAdministrative);
 
-  refreshDossierComplet(decisionAdministrativeEnCreation.dossier);
+  refreshDossierComplet(newDecisionAdministrative.dossier);
 }

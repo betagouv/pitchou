@@ -15,7 +15,7 @@ export function getControles(
   return databaseConnection("contrôle").select("*").whereIn("prescription", prescriptionIds);
 }
 
-export function ajouterControles(
+export function addControles(
   controles: Partial<Controle> | Partial<Controle>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
@@ -25,14 +25,14 @@ export function ajouterControles(
     .then((controles) => controles.map((c) => c.id));
 }
 
-export function modifierControle(
+export function updateControle(
   contrôle: Partial<Controle>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
   return databaseConnection("contrôle").update(contrôle).where({ id: contrôle.id });
 }
 
-export function supprimerControle(
+export function deleteControle(
   id: Controle["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getDossierIdFromPrescription, supprimerPrescription } from "./prescription.js";
+import { getDossierIdFromPrescription, deletePrescription } from "./prescription.js";
 import { fakeDatabase } from "./fakeDatabase.js";
 
 describe("getDossierIdFromPrescription", () => {
@@ -42,11 +42,11 @@ describe("getDossierIdFromPrescription", () => {
   });
 });
 
-describe("supprimerPrescription", () => {
+describe("deletePrescription", () => {
   it("only touches the prescription table", async () => {
     const db = fakeDatabase().build();
     // @ts-ignore
-    await supprimerPrescription("p-id", db.knex);
+    await deletePrescription("p-id", db.knex);
     const tables = new Set(db.table.mock.calls.map(([name]) => name));
     expect(tables).toEqual(new Set(["prescription"]));
   });
@@ -54,7 +54,7 @@ describe("supprimerPrescription", () => {
   it("filters the delete by the given id", async () => {
     const db = fakeDatabase().build();
     // @ts-ignore
-    await supprimerPrescription("p-id", db.knex);
+    await deletePrescription("p-id", db.knex);
     expect(db.where).toHaveBeenCalledWith({ id: "p-id" });
     expect(db.delete).toHaveBeenCalledTimes(1);
   });
