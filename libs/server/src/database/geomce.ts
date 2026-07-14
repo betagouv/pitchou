@@ -17,7 +17,7 @@ import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/espe
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
-import type { GeoMceMessage, DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
+import type { GeoMceMessage, DossierForGeoMCE } from "@pitchou/types/geomce.ts";
 import type { PitchouState } from "@pitchou/types/pitchou-state.ts";
 import type { EspeceProtegee, DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
@@ -69,7 +69,7 @@ function formatDate(date: Date | null): string | null {
 async function getDossiersByIds(
   dossierIds: Dossier["id"][] | Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierPourGeoMCE[] | undefined> {
+): Promise<DossierForGeoMCE[] | undefined> {
   if (!Array.isArray(dossierIds)) {
     dossierIds = [dossierIds];
   }
@@ -202,36 +202,36 @@ async function getDossiersByIds(
   );
 }
 
-export function generateMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
+export function generateMessagesGeoMCE(dossierForGeoMCE: DossierForGeoMCE): GeoMceMessage {
   return {
     projet: {
-      ref: `PITCHOU-${dossierPourGeoMCE.id}`,
-      nom: dossierPourGeoMCE.nom || `Dossier Pitchou #${dossierPourGeoMCE.id}`,
-      description: dossierPourGeoMCE.description || "",
+      ref: `PITCHOU-${dossierForGeoMCE.id}`,
+      nom: dossierForGeoMCE.nom || `Dossier Pitchou #${dossierForGeoMCE.id}`,
+      description: dossierForGeoMCE.description || "",
       // @ts-expect-error
-      localisations: dossierPourGeoMCE.communes?.map(({ code }) => code),
+      localisations: dossierForGeoMCE.communes?.map(({ code }) => code),
       avancement: "Autorisé",
       typologies: null,
       maitrise_ouvrage:
-        dossierPourGeoMCE.demandeur_personne_morale !== null
+        dossierForGeoMCE.demandeur_personne_morale !== null
           ? [
               {
-                siret: dossierPourGeoMCE.demandeur_personne_morale,
+                siret: dossierForGeoMCE.demandeur_personne_morale,
               },
             ]
           : null,
       emprises: null,
     },
     procedure: {
-      num_dossier: `PITCHOU-${dossierPourGeoMCE.id}`,
+      num_dossier: `PITCHOU-${dossierForGeoMCE.id}`,
       type: "En Attente de GeoMCE Dérogation Espèces Protégées",
-      description: dossierPourGeoMCE.description || "",
-      references: [`PITCHOU-${dossierPourGeoMCE.id}`],
-      date_decision: formatDate(dossierPourGeoMCE.date_signature),
-      instructeurs: dossierPourGeoMCE.instructeurs,
+      description: dossierForGeoMCE.description || "",
+      references: [`PITCHOU-${dossierForGeoMCE.id}`],
+      date_decision: formatDate(dossierForGeoMCE.date_signature),
+      instructeurs: dossierForGeoMCE.instructeurs,
       autorite_decisionnaire: null,
-      specimens_faunes: dossierPourGeoMCE.specimens_faunes,
-      specimens_flores: dossierPourGeoMCE.specimens_flores,
+      specimens_faunes: dossierForGeoMCE.specimens_faunes,
+      specimens_flores: dossierForGeoMCE.specimens_flores,
       emprises: null,
     },
     mesures: [],
@@ -258,11 +258,11 @@ export async function generateDeclarationGeoMCE(
 ) {
   const dossiers = await listDossiersForDeclarationGeoMCE(databaseConnection);
   console.log(`${dossiers.length} dossiers trouvés\n`);
-  const dossiersPourGeoMCE = (
+  const dossiersForGeoMCE = (
     (await getDossiersByIds(dossiers, databaseConnection)) || []
   ).filter((d) => d !== undefined);
 
-  const messagesGeoMCE = dossiersPourGeoMCE.map(generateMessagesGeoMCE);
+  const messagesGeoMCE = dossiersForGeoMCE.map(generateMessagesGeoMCE);
 
   console.log("messagesGeoMCE", messagesGeoMCE.length);
   console.log("taille en JSON", byteFormat.format(JSON.stringify(messagesGeoMCE).length));

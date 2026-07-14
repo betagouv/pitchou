@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { generateMessagesGeoMCE } from "./geomce.ts";
-import type { DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
+import type { DossierForGeoMCE } from "@pitchou/types/geomce.ts";
 
 // Only the fields generateMessagesGeoMCE reads, with plain types (the branded
-// id/siret are simplified here since the result is cast to DossierPourGeoMCE).
+// id/siret are simplified here since the result is cast to DossierForGeoMCE).
 type DossierOverrides = {
   id?: number;
   nom?: string | null;
@@ -11,13 +11,13 @@ type DossierOverrides = {
   communes?: { code: string }[];
   demandeur_personne_morale?: string | null;
   date_signature?: Date | null;
-  instructeurs?: DossierPourGeoMCE["instructeurs"];
-  specimens_faunes?: DossierPourGeoMCE["specimens_faunes"];
-  specimens_flores?: DossierPourGeoMCE["specimens_flores"];
+  instructeurs?: DossierForGeoMCE["instructeurs"];
+  specimens_faunes?: DossierForGeoMCE["specimens_faunes"];
+  specimens_flores?: DossierForGeoMCE["specimens_flores"];
 };
 
-// Builds a DossierPourGeoMCE with only the fields generateMessagesGeoMCE reads.
-function makeDossier(overrides: DossierOverrides = {}): DossierPourGeoMCE {
+// Builds a DossierForGeoMCE with only the fields generateMessagesGeoMCE reads.
+function makeDossier(overrides: DossierOverrides = {}): DossierForGeoMCE {
   return {
     id: 42,
     nom: "Parc éolien du Test",
@@ -29,7 +29,7 @@ function makeDossier(overrides: DossierOverrides = {}): DossierPourGeoMCE {
     specimens_faunes: [{ nom_scientifique: "Morus bassanus" }],
     specimens_flores: [{ nom_scientifique: "Narcissus tazetta" }],
     ...overrides,
-  } as unknown as DossierPourGeoMCE;
+  } as unknown as DossierForGeoMCE;
 }
 
 describe("generateMessagesGeoMCE", () => {
