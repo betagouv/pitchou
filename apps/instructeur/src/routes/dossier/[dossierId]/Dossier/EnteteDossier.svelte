@@ -10,7 +10,7 @@
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
+  import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
 
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -48,11 +48,11 @@
   );
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
-    return instructeurSuitDossier(email, id);
+    return instructeurFollowsDossier(email, id);
   }
 
   function instructeurActuelLaisseDossier(id: Dossier["id"]) {
-    return instructeurLaisseDossier(email, id);
+    return instructeurLeavesDossier(email, id);
   }
 
   // Track whether we reached this dossier through in-app navigation (`from` is

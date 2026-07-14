@@ -5,11 +5,11 @@ import { envoyerEvenement } from "$lib/shared/aarri.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 
-export function instructeurSuitDossier(
+export function instructeurFollowsDossier(
   instructeurEmail: NonNullable<Personne["email"]>,
   dossierId: Dossier["id"],
 ) {
-  console.log("instructeurSuitDossier", dossierId);
+  console.log("instructeurFollowsDossier", dossierId);
 
   const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
 
@@ -28,7 +28,7 @@ export function instructeurSuitDossier(
   return modifierRelationSuivi("suivre", instructeurEmail, dossierId);
 }
 
-export function instructeurLaisseDossier(
+export function instructeurLeavesDossier(
   instructeurEmail: NonNullable<Personne["email"]>,
   dossierId: Dossier["id"],
 ) {

@@ -20,7 +20,7 @@
     trierDossiersParOrdreAlphabetiqueColonne,
     trierDossiersParPhaseProchaineAction,
   } from "./triDossiers.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
+  import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
   import {
     envoyerEvenement,
@@ -526,11 +526,11 @@
   });
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
-    return instructeurSuitDossier(email, id);
+    return instructeurFollowsDossier(email, id);
   }
 
   function instructeurActuelLaisseDossier(id: Dossier["id"]) {
-    return instructeurLaisseDossier(email, id);
+    return instructeurLeavesDossier(email, id);
   }
 </script>
 

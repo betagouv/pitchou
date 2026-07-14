@@ -11,7 +11,7 @@
     prochaineActionAttenduePar,
   } from "$lib/dossier/affichageDossier.ts";
   import { modifierDossier } from "$lib/dossier/dossier.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
+  import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
@@ -207,11 +207,11 @@
   };
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
-    return instructeurSuitDossier(email, id);
+    return instructeurFollowsDossier(email, id);
   }
 
   function instructeurActuelLaisseDossier(id: Dossier["id"]) {
-    return instructeurLaisseDossier(email, id);
+    return instructeurLeavesDossier(email, id);
   }
 
   /**

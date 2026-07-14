@@ -23,40 +23,40 @@ import type { EspeceProtegee, DescriptionMenacesEspeces } from "@pitchou/types/e
 
 const DATA_DIR = join(import.meta.dirname, "../../../../data");
 
-const chargerActivitesMethodesMoyensDePoursuite: () => Promise<
+const loadActivitesMethodesMoyensDePoursuite: () => Promise<
   NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
-> = memoize(async function chargerActivitesMethodesMoyensDePoursuite() {
+> = memoize(async function loadActivitesMethodesMoyensDePoursuite() {
   const activitesBuffer = await readFile(
     join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
   );
   return await construireActivitesMethodesMoyensDePoursuite(activitesBuffer);
 });
 
-type EspeceParCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
+type EspeceByCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
 
 // Cached per connection so the public endpoint does not re-query every espèce on
 // each request, while a different connection gets its own entry.
-const especeParCD_REFParConnexion = new WeakMap<
+const especeByCD_REFByConnexion = new WeakMap<
   Knex.Transaction | Knex,
-  Promise<EspeceParCD_REF>
+  Promise<EspeceByCD_REF>
 >();
 
-function chargerListeEspeceParCD_REF(
+function loadEspeceListByCD_REF(
   databaseConnection: Knex.Transaction | Knex,
-): Promise<EspeceParCD_REF> {
-  let especeByCD_REFP = especeParCD_REFParConnexion.get(databaseConnection);
+): Promise<EspeceByCD_REF> {
+  let especeByCD_REFP = especeByCD_REFByConnexion.get(databaseConnection);
 
   if (!especeByCD_REFP) {
     especeByCD_REFP = getEspecesProtegees(databaseConnection)
       .then(
-        (lignes) => new Map(lignes.map((ligne) => [ligne.cd_ref, dbRowToEspeceProtegee(ligne)])),
+        (rows) => new Map(rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)])),
       )
       .catch((error) => {
         // Don't keep a rejected promise cached
-        especeParCD_REFParConnexion.delete(databaseConnection);
+        especeByCD_REFByConnexion.delete(databaseConnection);
         throw error;
       });
-    especeParCD_REFParConnexion.set(databaseConnection, especeByCD_REFP);
+    especeByCD_REFByConnexion.set(databaseConnection, especeByCD_REFP);
   }
 
   return especeByCD_REFP;
@@ -66,31 +66,31 @@ function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
 }
 
-async function recupererDossiersParIds(
-  idDossiers: Dossier["id"][] | Dossier["id"],
+async function getDossiersByIds(
+  dossierIds: Dossier["id"][] | Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierPourGeoMCE[] | undefined> {
-  if (!Array.isArray(idDossiers)) {
-    idDossiers = [idDossiers];
+  if (!Array.isArray(dossierIds)) {
+    dossierIds = [dossierIds];
   }
 
   const dossiersP = databaseConnection("dossier")
     .select(["dossier.*", "décision_administrative.date_signature"])
     .leftJoin("décision_administrative", { "décision_administrative.dossier": "dossier.id" })
     .where({ "décision_administrative.type": "Arrêté dérogation" })
-    .whereIn("dossier.id", idDossiers)
+    .whereIn("dossier.id", dossierIds)
     .orderBy("décision_administrative.date_signature", "asc")
     .then((dossiers) => {
       // This query returns several rows per dossier if there are several décision_administrative
       // The current function filters to keep only a single row
-      const idDejaVus = new Set();
+      const seenIds = new Set();
 
       return dossiers.filter((d) => {
         const id = d.id;
-        if (idDejaVus.has(id)) {
+        if (seenIds.has(id)) {
           return false;
         } else {
-          idDejaVus.add(id);
+          seenIds.add(id);
           return true;
         }
       });
@@ -99,7 +99,7 @@ async function recupererDossiersParIds(
   const instructeursDossierP = databaseConnection("arête_personne_suit_dossier")
     .select(["personne.email as email", "arête_personne_suit_dossier.dossier as dossier"])
     .join("personne", { "personne.id": "arête_personne_suit_dossier.personne" })
-    .whereIn("arête_personne_suit_dossier.dossier", idDossiers);
+    .whereIn("arête_personne_suit_dossier.dossier", dossierIds);
 
   const instructeursByDossierIdP: Promise<Map<Dossier["id"], Personne["email"][]>> =
     instructeursDossierP.then((instructeursDossiers) => {
@@ -115,13 +115,13 @@ async function recupererDossiersParIds(
     });
 
   const [
-    especeParCD_REF,
+    especeByCD_REF,
     { activités: activites, méthodes: methodes, moyensDePoursuite },
     instructeursByDossierId,
     dossiers,
   ] = await Promise.all([
-    chargerListeEspeceParCD_REF(databaseConnection),
-    chargerActivitesMethodesMoyensDePoursuite(),
+    loadEspeceListByCD_REF(databaseConnection),
+    loadActivitesMethodesMoyensDePoursuite(),
     instructeursByDossierIdP,
     dossiersP,
   ]);
@@ -152,7 +152,7 @@ async function recupererDossiersParIds(
         try {
           descriptionEspeces = await importDescriptionMenacesEspecesFromOdsArrayBuffer(
             await arrayBuffer(especesImpacteesFile.body),
-            especeParCD_REF,
+            especeByCD_REF,
             activites,
             methodes,
             moyensDePoursuite,
@@ -162,7 +162,7 @@ async function recupererDossiersParIds(
           if (e.cause === "format incorrect") {
             // ignore
           } else {
-            console.error("Erreur lors de la génération du message GeoMCE. Dossier", idDossiers);
+            console.error("Erreur lors de la génération du message GeoMCE. Dossier", dossierIds);
             console.error("Dossier", dossier);
             console.error(e);
             process.exit();
@@ -202,7 +202,7 @@ async function recupererDossiersParIds(
   );
 }
 
-export function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
+export function generateMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
   return {
     projet: {
       ref: `PITCHOU-${dossierPourGeoMCE.id}`,
@@ -238,7 +238,7 @@ export function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): Geo
   };
 }
 
-async function listerDossiersPourDeclarationGeoMCE(
+async function listDossiersForDeclarationGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Dossier["id"][]> {
   const dossiers = await databaseConnection("dossier")
@@ -253,16 +253,16 @@ async function listerDossiersPourDeclarationGeoMCE(
   return dossiers.map(({ id }) => id);
 }
 
-export async function genererDeclarationGeoMCE(
+export async function generateDeclarationGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  const dossiers = await listerDossiersPourDeclarationGeoMCE(databaseConnection);
+  const dossiers = await listDossiersForDeclarationGeoMCE(databaseConnection);
   console.log(`${dossiers.length} dossiers trouvés\n`);
   const dossiersPourGeoMCE = (
-    (await recupererDossiersParIds(dossiers, databaseConnection)) || []
+    (await getDossiersByIds(dossiers, databaseConnection)) || []
   ).filter((d) => d !== undefined);
 
-  const messagesGeoMCE = dossiersPourGeoMCE.map(genererMessagesGeoMCE);
+  const messagesGeoMCE = dossiersPourGeoMCE.map(generateMessagesGeoMCE);
 
   console.log("messagesGeoMCE", messagesGeoMCE.length);
   console.log("taille en JSON", byteFormat.format(JSON.stringify(messagesGeoMCE).length));

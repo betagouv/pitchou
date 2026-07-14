@@ -3,9 +3,9 @@ import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
 import { getRelationSuivis, creerTransaction } from "@pitchou/server/database.ts";
 import {
-  trouverRelationPersonneDepuisCap,
-  instructeurSuitDossier,
-  instructeurLaisseDossier,
+  findRelationPersonneFromCap,
+  instructeurFollowsDossier,
+  instructeurLeavesDossier,
 } from "@pitchou/server/database/relation_suivi.ts";
 import { getPersonneByEmail } from "@pitchou/server/database/personne.ts";
 import type { PitchouInstructeurCapabilities } from "@pitchou/types/capabilities.ts";
@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
   const transaction = await creerTransaction();
 
   try {
-    const relationsSuiviViaCap = await trouverRelationPersonneDepuisCap(
+    const relationsSuiviViaCap = await findRelationPersonneFromCap(
       cap,
       personneEmail,
       dossierId,
@@ -55,9 +55,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
     }
 
     if (direction === "suivre") {
-      await instructeurSuitDossier(personne.id, dossierId, transaction);
+      await instructeurFollowsDossier(personne.id, dossierId, transaction);
     } else if (direction === "laisser") {
-      await instructeurLaisseDossier(personne.id, dossierId, transaction);
+      await instructeurLeavesDossier(personne.id, dossierId, transaction);
     } else {
       await transaction.rollback();
       error(500, `Direction ${direction} non reconnue.`);

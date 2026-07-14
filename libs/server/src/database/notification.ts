@@ -12,7 +12,7 @@ import type { default as CapDossier } from "@pitchou/types/database/public/CapDo
 /**
  * Fetches the notifications of a given personne
  */
-export async function getNotificationsPourPersonneDepuisCap(
+export async function getNotificationsForPersonneFromCap(
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Notification[]> {
@@ -39,9 +39,9 @@ export async function updateNotificationDossierFromCap(
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
   }
 
-  const notificationAUpdate = { vue: notification.vue };
+  const notificationToUpdate = { vue: notification.vue };
 
-  return await databaseConnection("notification").update(notificationAUpdate).where({
+  return await databaseConnection("notification").update(notificationToUpdate).where({
     dossier: notification.dossier,
     personne: personne.id,
   });

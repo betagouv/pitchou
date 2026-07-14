@@ -4,7 +4,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
-  import { instructeurSuitDossier, instructeurLaisseDossier } from "$lib/dossier/suiviDossier.ts";
+  import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import { creerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
@@ -239,11 +239,11 @@
   };
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
-    return instructeurSuitDossier(email, id);
+    return instructeurFollowsDossier(email, id);
   }
 
   function instructeurActuelLaisseDossier(id: Dossier["id"]) {
-    return instructeurLaisseDossier(email, id);
+    return instructeurLeavesDossier(email, id);
   }
 </script>
 
