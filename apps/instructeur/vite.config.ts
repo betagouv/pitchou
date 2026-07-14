@@ -17,13 +17,6 @@ export default defineConfig({
     }),
     sveltekit(),
   ],
-  // @sentry/sveltekit pulls @opentelemetry/api into the graph, which forks
-  // @sveltejs/kit into two physical installs. Deduping keeps a single copy so
-  // `error()`'s HttpError stays `instanceof HttpError` — otherwise expected 404s
-  // are mis-handled as fatal 500s and reported to Sentry.
-  resolve: {
-    dedupe: ["@sveltejs/kit"],
-  },
   server: {
     port: 5173,
     strictPort: true,
