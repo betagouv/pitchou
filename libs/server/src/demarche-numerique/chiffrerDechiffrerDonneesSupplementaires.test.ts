@@ -8,72 +8,72 @@ const TEST_KEY = vi.hoisted(() => {
 });
 
 import {
-  chiffrerDonneesSupplementairesDossiers,
-  dechiffrerDonneesSupplementairesDossiers,
+  encryptDossiersAdditionalData,
+  decryptDossiersAdditionalData,
 } from "./chiffrerDechiffrerDonneesSupplementaires.ts";
 
 describe("encrypt then decrypt", () => {
   it("recovers a plain ASCII string", async () => {
     const plain = "hello world";
-    const cipher = await chiffrerDonneesSupplementairesDossiers(plain);
-    expect(await dechiffrerDonneesSupplementairesDossiers(cipher)).toBe(plain);
+    const cipher = await encryptDossiersAdditionalData(plain);
+    expect(await decryptDossiersAdditionalData(cipher)).toBe(plain);
   });
 
   it("recovers a string with French accented characters", async () => {
     const plain = "Données supplémentaires : éàùç";
-    const cipher = await chiffrerDonneesSupplementairesDossiers(plain);
-    expect(await dechiffrerDonneesSupplementairesDossiers(cipher)).toBe(plain);
+    const cipher = await encryptDossiersAdditionalData(plain);
+    expect(await decryptDossiersAdditionalData(cipher)).toBe(plain);
   });
 
   it("recovers the empty string", async () => {
-    const cipher = await chiffrerDonneesSupplementairesDossiers("");
-    expect(await dechiffrerDonneesSupplementairesDossiers(cipher)).toBe("");
+    const cipher = await encryptDossiersAdditionalData("");
+    expect(await decryptDossiersAdditionalData(cipher)).toBe("");
   });
 
   it("recovers a long string (10k characters)", async () => {
     const plain = "a".repeat(10_000);
-    const cipher = await chiffrerDonneesSupplementairesDossiers(plain);
-    expect(await dechiffrerDonneesSupplementairesDossiers(cipher)).toBe(plain);
+    const cipher = await encryptDossiersAdditionalData(plain);
+    expect(await decryptDossiersAdditionalData(cipher)).toBe(plain);
   });
 
   it("recovers a JSON payload", async () => {
     const plain = JSON.stringify({ dossier: 42, espèces: ["loup", "ours"] });
-    const cipher = await chiffrerDonneesSupplementairesDossiers(plain);
-    expect(await dechiffrerDonneesSupplementairesDossiers(cipher)).toBe(plain);
+    const cipher = await encryptDossiersAdditionalData(plain);
+    expect(await decryptDossiersAdditionalData(cipher)).toBe(plain);
   });
 });
 
 describe("chiffrerDonnéesSupplémentairesDossiers", () => {
   it("returns a base64 string (chosen to fit in a DS text field)", async () => {
-    const cipher = await chiffrerDonneesSupplementairesDossiers("hello");
+    const cipher = await encryptDossiersAdditionalData("hello");
     expect(cipher).toMatch(/^[A-Za-z0-9+/]+=*$/);
   });
 
   it("produces a different ciphertext on each call for the same plaintext (random IV)", async () => {
-    const a = await chiffrerDonneesSupplementairesDossiers("hello");
-    const b = await chiffrerDonneesSupplementairesDossiers("hello");
+    const a = await encryptDossiersAdditionalData("hello");
+    const b = await encryptDossiersAdditionalData("hello");
     expect(a).not.toBe(b);
   });
 
   it("produces different ciphertexts for different plaintexts", async () => {
-    const a = await chiffrerDonneesSupplementairesDossiers("hello");
-    const b = await chiffrerDonneesSupplementairesDossiers("world");
+    const a = await encryptDossiersAdditionalData("hello");
+    const b = await encryptDossiersAdditionalData("world");
     expect(a).not.toBe(b);
   });
 });
 
 describe("déchiffrerDonnéesSupplémentairesDossiers", () => {
   it("rejects ciphertext that is not valid base64-decoded GCM data", async () => {
-    await expect(dechiffrerDonneesSupplementairesDossiers("not-real-ciphertext")).rejects.toThrow();
+    await expect(decryptDossiersAdditionalData("not-real-ciphertext")).rejects.toThrow();
   });
 
   // AES-GCM authenticates its ciphertext; flipping a byte must make decryption fail rather than silently returning garbage
   it("rejects tampered ciphertext", async () => {
-    const cipher = await chiffrerDonneesSupplementairesDossiers("hello");
+    const cipher = await encryptDossiersAdditionalData("hello");
     const bytes = Buffer.from(cipher, "base64");
     bytes[0] ^= 0x01;
     const tampered = bytes.toString("base64");
-    await expect(dechiffrerDonneesSupplementairesDossiers(tampered)).rejects.toThrow();
+    await expect(decryptDossiersAdditionalData(tampered)).rejects.toThrow();
   });
 });
 
@@ -98,12 +98,12 @@ describe("backward compatibility with the legacy fixed-IV format", () => {
 
   it("decrypts data encrypted with the legacy fixed-IV format", async () => {
     const legacyCipher = await encryptWithLegacyFixedIv("hello");
-    expect(await dechiffrerDonneesSupplementairesDossiers(legacyCipher)).toBe("hello");
+    expect(await decryptDossiersAdditionalData(legacyCipher)).toBe("hello");
   });
 
   it("decrypts legacy data containing French accented characters", async () => {
     const plain = "Données supplémentaires : éàùç";
     const legacyCipher = await encryptWithLegacyFixedIv(plain);
-    expect(await dechiffrerDonneesSupplementairesDossiers(legacyCipher)).toBe(plain);
+    expect(await decryptDossiersAdditionalData(legacyCipher)).toBe(plain);
   });
 });

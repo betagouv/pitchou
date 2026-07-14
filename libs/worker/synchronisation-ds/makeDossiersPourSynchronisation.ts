@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { dechiffrerDonneesSupplementairesDossiers } from "@pitchou/server/demarche-numerique/chiffrerDechiffrerDonneesSupplementaires.ts";
+import { decryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/chiffrerDechiffrerDonneesSupplementaires.ts";
 import { isAfter } from "date-fns";
 import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 import { inseeHeadcountRangeLabel } from "./inseeHeadcountRange.ts";
@@ -257,7 +257,7 @@ async function makeChampsDossierPourInitialisation(
   try {
     donnees_supplementaires = donnees_supplementaires_a_dechiffrer
       ? JSON.parse(
-          await dechiffrerDonneesSupplementairesDossiers(donnees_supplementaires_a_dechiffrer),
+          await decryptDossiersAdditionalData(donnees_supplementaires_a_dechiffrer),
         )
       : undefined;
 

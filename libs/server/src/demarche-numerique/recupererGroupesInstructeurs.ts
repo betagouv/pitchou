@@ -5,7 +5,7 @@ import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type { GroupeInstructeurs } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 
-export async function recupererGroupesInstructeurs(
+export async function getGroupesInstructeurs(
   token: string,
   demarcheNumber: number,
 ): Promise<GroupeInstructeurs[]> {

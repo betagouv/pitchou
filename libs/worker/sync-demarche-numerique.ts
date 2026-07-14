@@ -19,9 +19,9 @@ import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/pers
 import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspecesImpacteesDepuisDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 
-import { recupererDossiersRecemmentModifies } from "@pitchou/server/demarche-numerique/recupererDossiersRecemmentModifies.ts";
-import { recupererGroupesInstructeurs } from "@pitchou/server/demarche-numerique/recupererGroupesInstructeurs.ts";
-import recupererTousLesDossiersSupprimes from "@pitchou/server/demarche-numerique/recupererListeDossiersSupprimes.ts";
+import { getRecentlyUpdatedDossiers } from "@pitchou/server/demarche-numerique/recupererDossiersRecemmentModifies.ts";
+import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/recupererGroupesInstructeurs.ts";
+import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/recupererListeDossiersSupprimes.ts";
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
@@ -123,9 +123,9 @@ console.info(
 
 const laTransactionDeSynchronisationDS = await createTransaction();
 
-const dossSuppP = recupererTousLesDossiersSupprimes(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER);
+const dossSuppP = getAllDeletedDossiers(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER);
 
-const groupesInstructeursSynchronises = recupererGroupesInstructeurs(
+const groupesInstructeursSynchronises = getGroupesInstructeurs(
   DEMARCHE_SIMPLIFIEE_API_TOKEN,
   DEMARCHE_NUMBER,
 ).then((groupesInstructeurs) =>
@@ -136,7 +136,7 @@ const groupesInstructeursSynchronises = recupererGroupesInstructeurs(
   ),
 );
 
-const dossiersDS: DossierDS88444[] = await recupererDossiersRecemmentModifies(
+const dossiersDS: DossierDS88444[] = await getRecentlyUpdatedDossiers(
   DEMARCHE_SIMPLIFIEE_API_TOKEN,
   DEMARCHE_NUMBER,
   lastModified,

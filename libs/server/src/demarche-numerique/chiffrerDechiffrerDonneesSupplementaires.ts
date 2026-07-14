@@ -28,27 +28,27 @@ function getKey() {
   return keyPromise;
 }
 
-export async function chiffrerDonneesSupplementairesDossiers(
-  donneesSupplementaires: string,
+export async function encryptDossiersAdditionalData(
+  additionalData: string,
 ): Promise<string> {
   const iv = randomBytes(IV_LENGTH);
-  const donneesChiffrees = await subtle.encrypt(
+  const encryptedData = await subtle.encrypt(
     { name: ALGORITHM_NAME, iv },
     await getKey(),
-    Buffer.from(donneesSupplementaires, ENCODING),
+    Buffer.from(additionalData, ENCODING),
   );
 
-  const ciphertextAndTag = Buffer.from(donneesChiffrees);
+  const ciphertextAndTag = Buffer.from(encryptedData);
   // Prepend the IV so decrypt can recover it: [IV (12 bytes) || ciphertext || tag (16 bytes)]
   const output = Buffer.concat([iv, ciphertextAndTag]);
   // Base64 keeps the payload within the charset DS text fields accept
   return output.toString("base64");
 }
 
-export async function dechiffrerDonneesSupplementairesDossiers(
-  donneesSupplementairesChiffrees: string,
+export async function decryptDossiersAdditionalData(
+  encryptedAdditionalData: string,
 ): Promise<string> {
-  const raw = Buffer.from(donneesSupplementairesChiffrees, "base64");
+  const raw = Buffer.from(encryptedAdditionalData, "base64");
 
   const key = await getKey();
   try {

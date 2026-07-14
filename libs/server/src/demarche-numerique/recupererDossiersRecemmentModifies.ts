@@ -5,7 +5,7 @@ import { formatISO } from "date-fns";
 import queryGraphQL from "./queryGraphQL.ts";
 import { dossiersQuery } from "./graphQLqueries.ts";
 
-function recupererPageDossiersRecemmentModifies(
+function getRecentlyUpdatedDossiersPage(
   token: string,
   demarcheNumber: number,
   updatedSince: Date,
@@ -20,7 +20,7 @@ function recupererPageDossiersRecemmentModifies(
   });
 }
 
-export async function recupererDossiersRecemmentModifies(
+export async function getRecentlyUpdatedDossiers(
   token: string,
   demarcheNumber: number,
   updatedSince: Date,
@@ -30,22 +30,22 @@ export async function recupererDossiersRecemmentModifies(
   let startCursor = undefined;
 
   while (hasPreviousPage) {
-    const debutRequetePage = Date.now();
-    const page = await recupererPageDossiersRecemmentModifies(
+    const pageQueryStart = Date.now();
+    const page = await getRecentlyUpdatedDossiersPage(
       token,
       demarcheNumber,
       updatedSince,
       startCursor,
     );
-    const finRequetePage = Date.now();
+    const pageQueryEnd = Date.now();
 
     const pageDossiers = page.demarche.dossiers.nodes;
 
     dossiers = pageDossiers.concat(dossiers);
 
     if (dossiers.length >= 100) {
-      const delai = (finRequetePage - debutRequetePage) / 1000;
-      console.log("dossiers récupérés jusque-là", dossiers.length, `(${delai.toFixed(1)}secs)`);
+      const duration = (pageQueryEnd - pageQueryStart) / 1000;
+      console.log("dossiers récupérés jusque-là", dossiers.length, `(${duration.toFixed(1)}secs)`);
     }
 
     const pageInfo = page.demarche.dossiers.pageInfo;

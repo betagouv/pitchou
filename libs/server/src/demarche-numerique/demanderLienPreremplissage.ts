@@ -10,13 +10,13 @@ import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique
 const communeChampRepete = `champ_Q2hhbXAtNDA0MTQ0Mw`;
 const departementChampRepete = `champ_Q2hhbXAtNDA0MTQ0Nw`;
 
-function creerObjetPreremplissageChamp(
-  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+function createChampPrefillingObject(
+  partialDossier: Partial<DossierDemarcheNumerique88444>,
   schema88444: SchemaDemarcheSimplifiee,
 ): Record<string, string | string[] | any[]> {
   const demarcheDossierLabelToId = schemaToChampLabelToChampId(schema88444);
 
-  const objetPreremplissage: ReturnType<typeof creerObjetPreremplissageChamp> = {};
+  const prefillingObject: ReturnType<typeof createChampPrefillingObject> = {};
 
   for (const champ of demarcheDossierLabelToId.keys()) {
     if (
@@ -29,67 +29,67 @@ function creerObjetPreremplissageChamp(
       ].includes(champ)
     ) {
       // @ts-ignore
-      const valeur: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
-        dossierPartiel[champ];
-      if (valeur) {
+      const value: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
+        partialDossier[champ];
+      if (value) {
         // the `champ_` is a convention for the pre-filling of Démarche Numérique
-        objetPreremplissage[`champ_${demarcheDossierLabelToId.get(champ)}`] = valeur.toString();
+        prefillingObject[`champ_${demarcheDossierLabelToId.get(champ)}`] = value.toString();
       }
     }
   }
 
   if (
-    Array.isArray(dossierPartiel["À quelle procédure le projet est-il soumis ?"]) &&
-    dossierPartiel["À quelle procédure le projet est-il soumis ?"].length >= 1
+    Array.isArray(partialDossier["À quelle procédure le projet est-il soumis ?"]) &&
+    partialDossier["À quelle procédure le projet est-il soumis ?"].length >= 1
   ) {
-    objetPreremplissage[
+    prefillingObject[
       `champ_${demarcheDossierLabelToId.get("À quelle procédure le projet est-il soumis ?")}`
-    ] = dossierPartiel["À quelle procédure le projet est-il soumis ?"];
+    ] = partialDossier["À quelle procédure le projet est-il soumis ?"];
   }
 
-  if (dossierPartiel["Numéro de SIRET"]) {
-    objetPreremplissage[`champ_${demarcheDossierLabelToId.get("Numéro de SIRET")}`] =
-      dossierPartiel["Numéro de SIRET"];
+  if (partialDossier["Numéro de SIRET"]) {
+    prefillingObject[`champ_${demarcheDossierLabelToId.get("Numéro de SIRET")}`] =
+      partialDossier["Numéro de SIRET"];
   }
 
-  if (typeof dossierPartiel[clefAE] === "boolean") {
-    objetPreremplissage[`champ_${demarcheDossierLabelToId.get(clefAE)}`] = dossierPartiel[clefAE]
+  if (typeof partialDossier[clefAE] === "boolean") {
+    prefillingObject[`champ_${demarcheDossierLabelToId.get(clefAE)}`] = partialDossier[clefAE]
       ? "true"
       : "false";
   }
 
-  if (dossierPartiel["Dans quel département se localise majoritairement votre projet ?"]) {
-    objetPreremplissage[
+  if (partialDossier["Dans quel département se localise majoritairement votre projet ?"]) {
+    prefillingObject[
       `champ_${demarcheDossierLabelToId.get("Dans quel département se localise majoritairement votre projet ?")}`
-    ] = dossierPartiel["Dans quel département se localise majoritairement votre projet ?"].code;
+    ] = partialDossier["Dans quel département se localise majoritairement votre projet ?"].code;
   }
 
   // get the départements
   if (
-    Array.isArray(dossierPartiel["Département(s) où se situe le projet"]) &&
-    dossierPartiel["Département(s) où se situe le projet"].length >= 1
+    Array.isArray(partialDossier["Département(s) où se situe le projet"]) &&
+    partialDossier["Département(s) où se situe le projet"].length >= 1
   ) {
-    objetPreremplissage[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
+    prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
       "d'un ou plusieurs départements";
 
-    objetPreremplissage[
+    prefillingObject[
       `champ_${demarcheDossierLabelToId.get(`Département(s) où se situe le projet`)}`
-    ] = dossierPartiel["Département(s) où se situe le projet"].map(({ code }) => ({
+    ] = partialDossier["Département(s) où se situe le projet"].map(({ code }) => ({
       [departementChampRepete]: code,
     }));
   } else {
     // get the communes
     if (
-      Array.isArray(dossierPartiel["Commune(s) où se situe le projet"]) &&
-      dossierPartiel["Commune(s) où se situe le projet"].length >= 1
+      Array.isArray(partialDossier["Commune(s) où se situe le projet"]) &&
+      partialDossier["Commune(s) où se situe le projet"].length >= 1
     ) {
-      objetPreremplissage[
+      prefillingObject[
         `champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`
       ] = "d'une ou plusieurs communes";
 
-      objetPreremplissage[
+      prefillingObject[
         `champ_${demarcheDossierLabelToId.get(`Commune(s) où se situe le projet`)}`
-      ] = dossierPartiel["Commune(s) où se situe le projet"]
+      ] = partialDossier["Commune(s) où se situe le projet"]
         .filter((c) => typeof c === "object")
         .map(({ code: codeInsee, codesPostaux: [codePostal] }) => ({
           [communeChampRepete]: [codePostal, codeInsee],
@@ -97,26 +97,26 @@ function creerObjetPreremplissageChamp(
     }
   }
 
-  return objetPreremplissage;
+  return prefillingObject;
 }
 
 /**
  * Démarche numérique offers 2 methods to create pre-filling links: via GET or POST
  * This function requests a link via POST
  */
-export async function demanderLienPreremplissage(
-  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+export async function requestPrefillingLink(
+  partialDossier: Partial<DossierDemarcheNumerique88444>,
   schema88444: SchemaDemarcheSimplifiee,
 ): Promise<{ dossier_url: string }> {
-  const preRemplissageURL = `https://demarche.numerique.gouv.fr/api/public/v1/demarches/88444/dossiers`;
+  const prefillingURL = `https://demarche.numerique.gouv.fr/api/public/v1/demarches/88444/dossiers`;
 
   return ky
-    .post(preRemplissageURL, {
+    .post(prefillingURL, {
       headers: {
         "Content-Type": "application/json",
         "User-Agent": "Serveur Pitchou - https://github.com/betagouv/pitchou",
       },
-      json: creerObjetPreremplissageChamp(dossierPartiel, schema88444),
+      json: createChampPrefillingObject(partialDossier, schema88444),
     })
     .then((resp) => resp.json());
 }
